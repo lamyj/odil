@@ -23,19 +23,19 @@ namespace dcmtkpp
 class Network
 {
 public:
-    /// @brief Create a default, un-initialized, Network object.
+    /// @brief Create a default, un-initialized, network.
     Network();
     
-    /// @brief Create an un-initialized Network object.
+    /// @brief Create an un-initialized network.
     Network(T_ASC_NetworkRole role, int port, int timeout, unsigned long options=0);
     
-    /// @brief Create an un-initialized Network object.
+    /// @brief Create an un-initialized network.
     Network(Network const & other);
     
-    /// @brief Destroy the Network object, dropping it if necessary.
+    /// @brief Destroy the network, dropping it if necessary.
     ~Network();
     
-    /// @brief Assing an un-initialized Network; it remains un-initialized.
+    /// @brief Assing an un-initialized network; it remains un-initialized.
     Network & operator=(Network const & other);
     
     /// @brief Return the role of the network, defaults to NET_REQUESTOR.

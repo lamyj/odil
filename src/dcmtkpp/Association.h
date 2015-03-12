@@ -51,27 +51,27 @@ public:
     /// @brief Assing an un-associated association; it remains un-associated.
     Association & operator=(Association const & other);
     
-    /// Return the AE title of the caller. Defaults to "".
+    /// @brief Return the AE title of the caller. Defaults to "".
     std::string const & get_own_ae_title() const;
-    /// Set the AE title of the caller.
+    /// @brief Set the AE title of the caller.
     void set_own_ae_title(std::string const & ae_title);
     
     /// @name Peer
     /// @{
     
-    /// Return the host name of the peer. Defaults to "".
+    /// @brief Return the host name of the peer. Defaults to "".
     std::string const & get_peer_host_name() const;
-    /// Set the host name of the peer.
+    /// @brief Set the host name of the peer.
     void set_peer_host_name(std::string const & host_name);
     
-    /// Return the port of the peer. Defaults to 104.
+    /// @brief Return the port of the peer. Defaults to 104.
     uint16_t get_peer_port() const;
-    /// Set the port of the peer.
+    /// @brief Set the port of the peer.
     void set_peer_port(uint16_t port);
     
-    /// Return the AE title of the peer. Defaults to "".
+    /// @brief Return the AE title of the peer. Defaults to "".
     std::string const & get_peer_ae_title() const;
-    /// Set the AE title of the peer.
+    /// @brief Set the AE title of the peer.
     void set_peer_ae_title(std::string const & ae_title);
     
     /// @}
@@ -87,35 +87,35 @@ public:
     /// @name User identity
     /// @{
         
-    /// Return the user identity type. Defaults to None.
+    /// @brief Return the user identity type. Defaults to None.
     UserIdentityType get_user_identity_type() const;
-    /// Set the user identity type.
+    /// @brief Set the user identity type.
     void set_user_identity_type(UserIdentityType type);
     
-    /// Return the user identity primary field. Defaults to "".
+    /// @brief Return the user identity primary field. Defaults to "".
     std::string const & get_user_identity_primary_field() const;
-    /// Set the user identity primary field. 
+    /// @brief Set the user identity primary field. 
     void set_user_identity_primary_field(std::string const & value);
     
-    /// Return the user identity secondary field. Defaults to "".
+    /// @brief Return the user identity secondary field. Defaults to "".
     std::string const & get_user_identity_secondary_field() const;
-    /// Set the user identity secondary field.
+    /// @brief Set the user identity secondary field.
     void set_user_identity_secondary_field(std::string const & value);
     
-    /// Do no authenticate user.
+    /// @brief Do no authenticate user.
     void set_user_identity_to_none();
     
-    /// Authenticate user using only a username.
+    /// @brief Authenticate user using only a username.
     void set_user_identity_to_username(std::string const & username);
     
-    /// Authenticate user using a username and a password.
+    /// @brief Authenticate user using a username and a password.
     void set_user_identity_to_username_and_password(
         std::string const & username, std::string const & password);
         
-    /// Authenticate user using a Kerberos ticket.
+    /// @brief Authenticate user using a Kerberos ticket.
     void set_user_identity_to_kerberos(std::string const & ticket);
     
-    /// Authenticate user using a SAML assertion.
+    /// @brief Authenticate user using a SAML assertion.
     void set_user_identity_to_saml(std::string const & assertion);
     
     /// @}
@@ -123,18 +123,18 @@ public:
     /// @name Association
     /// @{
     
-    /// Test whether the object is currently associated to its peer.
+    /// @brief Test whether the object is currently associated to its peer.
     bool is_associated() const;
     
-    /// Associate with the peer. Throws an exception if already associated.
+    /// @brief Associate with the peer. Throws an exception if already associated.
     void associate(Network & network);
     
-    /// Return the association object.
+    /// @brief Return the association object.
     T_ASC_Association * get_association();
     
-    /// Gracefully release the association. Throws an exception if not associated.
+    /// @brief Gracefully release the association. Throws an exception if not associated.
     void release();
-    /// Forcefully release the association. Throws an exception if not associated.
+    /// @brief Forcefully release the association. Throws an exception if not associated.
     void abort();
     
     /// @}
