@@ -1,0 +1,71 @@
+#include <dcmtk/config/osconfig.h>
+#include <dcmtk/dcmdata/dctk.h>
+
+#include "dcmtkpp/StoreSCU.h"
+
+void callback(void * data, T_DIMSE_StoreProgress * progress,
+    T_DIMSE_C_StoreRQ * request)
+{
+    if(progress->state == DIMSE_StoreBegin)
+    {
+        std::cout << "Begin ";
+    }
+    else if(progress->state == DIMSE_StoreProgressing)
+    {
+        std::cout << "Progressing ";
+    }
+    else if(progress->state == DIMSE_StoreEnd)
+    {
+        std::cout << "End ";
+    }
+    std::cout << progress->callbackCount << " calls ";
+    std::cout << progress->progressBytes << "/"
+              << progress->totalBytes << " bytes\n";
+}
+
+int main(int argc, char** argv)
+{
+    dcmtkpp::Network network;
+    network.initialize();
+    
+    dcmtkpp::Association association;
+    
+    association.set_own_ae_title("myself");
+    
+    association.set_peer_host_name("pacs.example.com");
+    association.set_peer_port(11112);
+    association.set_peer_ae_title("pacs");
+    
+    association.add_presentation_context(UID_MRImageStorage,
+        { UID_LittleEndianImplicitTransferSyntax });
+    
+    association.add_presentation_context(UID_EnhancedMRImageStorage,
+        { UID_LittleEndianImplicitTransferSyntax });
+    
+    association.add_presentation_context(UID_VerificationSOPClass,
+        { UID_LittleEndianImplicitTransferSyntax });
+    
+    association.associate(network);
+    
+    dcmtkpp::StoreSCU scu;
+    scu.set_network(&network);
+    scu.set_association(&association);
+    
+    scu.echo();
+    
+    for(int i=1; i<argc; ++i)
+    {
+        std::cout << "Storing " << argv[i] << std::endl;
+        
+        long const file_size = OFStandard::getFileSize(argv[i]);
+        DcmFileFormat file;
+        file.loadFile(argv[i]);
+        
+        scu.set_affected_sop_class(file.getDataset());
+        
+        scu.store(file.getDataset(), callback, NULL, file_size);
+    }
+    
+    association.release();
+    network.drop();
+}
