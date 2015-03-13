@@ -65,6 +65,9 @@ protected:
     Network * _network;
     Association * _association;
     std::string _affected_sop_class;
+    
+    /// @brief Find an accepted presentation context.
+    T_ASC_PresentationContextID _find_presentation_context() const;
 };
 
 }

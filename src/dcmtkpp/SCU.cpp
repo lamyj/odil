@@ -124,4 +124,20 @@ SCU
     }
 }
 
+T_ASC_PresentationContextID
+SCU
+::_find_presentation_context() const
+{
+    T_ASC_PresentationContextID const presentation_id = 
+        ASC_findAcceptedPresentationContextID(
+            this->_association->get_association(), 
+            this->_affected_sop_class.c_str());
+    if(presentation_id == 0) 
+    {
+        throw Exception("No Presentation Context for Get Operation");
+    }
+    
+    return presentation_id;
+}
+
 }

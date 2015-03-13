@@ -124,14 +124,7 @@ StoreSCU
     DIMSE_StoreUserCallback callback, void * data, 
     long bytes_count) const
 {
-    T_ASC_PresentationContextID const presentation_id = 
-        ASC_findAcceptedPresentationContextID(
-            this->_association->get_association(), 
-            this->_affected_sop_class.c_str());
-    if(presentation_id == 0) 
-    {
-        throw Exception("No Presentation Context for Find Operation");
-    }
+    T_ASC_PresentationContextID const presentation_id = this->_find_presentation_context();
     
     DIC_US const message_id = this->_association->get_association()->nextMsgID++;
     
