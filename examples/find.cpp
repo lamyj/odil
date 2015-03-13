@@ -24,15 +24,6 @@ void print_informations(DcmDataset * response)
               << number_of_study_related_series << " series\n";
 }
 
-void callback_full(void * callback_data, T_DIMSE_C_FindRQ * request,
-    int response_index, T_DIMSE_C_FindRSP * response,
-    DcmDataset * response_identifiers)
-{
-    std::cout << "Callback data: " << callback_data << ", " 
-              << "Response index: " << response_index << std::endl;
-    print_informations(response_identifiers);
-}
-
 int main()
 {
     dcmtkpp::Network network;
@@ -65,23 +56,15 @@ int main()
     DcmDataset * query = new DcmDataset();
     query->putAndInsertOFStringArray(DCM_PatientName, "DOE^John");
     query->putAndInsertOFStringArray(DCM_QueryRetrieveLevel, "STUDY");
-    query->putAndInsertOFStringArray(DCM_StudyDescription, "Brain");
+    query->insertEmptyElement(DCM_StudyDescription);
     query->insertEmptyElement(DCM_NumberOfStudyRelatedSeries);
     query->insertEmptyElement(DCM_StudyDate);
     
     scu.set_affected_sop_class(UID_FINDStudyRootQueryRetrieveInformationModel);
     
-    std::cout << "-------------\n";
-    std::cout << "Full callback\n";
-    std::cout << "-------------\n\n";
-    
-    scu.find(query, callback_full, (void*)0xdeadbeef);
-    
-    std::cout << "\n";
-    
-    std::cout << "---------------\n";
-    std::cout << "Simple callback\n";
-    std::cout << "---------------\n\n";
+    std::cout << "--------\n";
+    std::cout << "Callback\n";
+    std::cout << "--------\n\n";
     
     scu.find(query, print_informations);
     

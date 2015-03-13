@@ -11,14 +11,10 @@
 
 #include "SCU.h"
 
-#include <functional>
 #include <vector>
 
 #include <dcmtk/config/osconfig.h>
 #include <dcmtk/dcmdata/dcdatset.h>
-#include <dcmtk/dcmnet/dimse.h>
-
-#include "dcmtkpp/Association.h"
 
 namespace dcmtkpp
 {
@@ -27,43 +23,20 @@ namespace dcmtkpp
 class FindSCU: public SCU
 {
 public:
-    /// @brief Full-featured callback, following the semantics of DCMTK.
-    typedef std::function<void(void *, T_DIMSE_C_FindRQ *,
-        int, T_DIMSE_C_FindRSP *, DcmDataset *)> FullCallback;
-    
-    /// @brief Simple callback, with access only to the response dataset.
-    typedef std::function<void(DcmDataset*)> SimpleCallback;
+    /// @brief Callback called when a response is received.
+    typedef std::function<void(DcmDataset*)> Callback;
     
     /// @brief Destructor.
     virtual ~FindSCU();
     
-    /// @brief Perform the C-FIND using a full-featured callback.
-    void find(DcmDataset const * query, FullCallback callback, void * data) const;
-    
-    /// @brief Perform the C-FIND using a simple callback.
-    void find(DcmDataset const * query, SimpleCallback callback) const;
+    /// @brief Perform the C-FIND using an optional callback.
+    void find(DcmDataset const * query, Callback callback) const;
     
     /**
      * @brief Return a list of datasets matching the query. The user is 
      * responsible for the de-allocation of the matches.
      */
     std::vector<DcmDataset *> find(DcmDataset const * query) const;
-    
-private:
-    struct FullCallbackData
-    {
-        FullCallback callback;
-        void * data;
-    };
-    
-    /// Wrapper to map C++ std::function to DCMTK void *
-    static void _callback_wrapper(void * data, T_DIMSE_C_FindRQ * request, 
-        int response_index, T_DIMSE_C_FindRSP * response, 
-        DcmDataset * response_identifiers);
-    
-    /// Low-level find function
-    void _find(DcmDataset const * query, 
-        DIMSE_FindUserCallback callback, void * callback_data) const;
 };
 
 }

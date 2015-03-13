@@ -9,6 +9,7 @@
 #include "dcmtkpp/FindSCU.h"
 
 #include <functional>
+#include <sstream>
 #include <vector>
 
 #include <dcmtk/config/osconfig.h>
@@ -28,28 +29,65 @@ FindSCU
 
 void 
 FindSCU
-::find(DcmDataset const * query, FullCallback callback, void * data) const
+::find(DcmDataset const * query, Callback callback) const
 {
-    // Encapsulate the callback and its data
-    FullCallbackData encapsulated;
-    encapsulated.callback = callback;
-    encapsulated.data = data;
+    // Send the request
+    DIC_US const message_id = this->_association->get_association()->nextMsgID++;
+    T_DIMSE_C_FindRQ request;
+    memset(&request, 0, sizeof(request));
     
-    this->_find(query, FindSCU::_callback_wrapper, &encapsulated);
-}
-
-void 
-FindSCU
-::find(DcmDataset const * query, SimpleCallback callback) const
-{
-    // Encapsulate the simple callback into a full-featured callback
-    auto full_callback = [&callback](void *, T_DIMSE_C_FindRQ *,
-            int, T_DIMSE_C_FindRSP *, DcmDataset * dataset)
+    request.MessageID = message_id;
+    strcpy(request.AffectedSOPClassUID, this->_affected_sop_class.c_str());
+    
+    request.DataSetType = DIMSE_DATASET_PRESENT;
+    request.Priority = DIMSE_PRIORITY_MEDIUM;
+    
+    // FIXME: include progress callback
+    this->_send<DIMSE_C_FIND_RQ>(request, const_cast<DcmDataset*>(query));
+    
+    // Receive the responses
+    DIC_US status = STATUS_Pending;
+    int response_count = 0;
+    while(DICOM_PENDING_STATUS(status))
+    {
+        std::pair<T_ASC_PresentationContextID, T_DIMSE_Message> const command =
+            this->_receive_command(DIMSE_BLOCKING);
+        
+        if(command.second.CommandField != DIMSE_C_FIND_RSP)
         {
-            callback(dataset);
-        };
-    this->find(query, full_callback, NULL);
-   
+            std::ostringstream message;
+            message << "DIMSE: Unexpected Response Command Field: 0x" 
+                    << std::hex << command.second.CommandField;
+            throw Exception(message.str());
+        }
+        
+        T_DIMSE_C_FindRSP const response = command.second.msg.CFindRSP;
+        
+        if(response.MessageIDBeingRespondedTo != message_id)
+        {
+            std::ostringstream message;
+            message << "DIMSE: Unexpected Response MsgId: "
+                    << response.MessageIDBeingRespondedTo 
+                    << "(expected: " << message_id << ")";
+            throw Exception(message.str());
+        }
+        
+        status = response.DimseStatus;
+        ++response_count;
+        
+        if(status == STATUS_Pending || status == STATUS_FIND_Pending_WarningUnsupportedOptionalKeys)
+        {
+            // FIXME: include progress callback
+            std::pair<T_ASC_PresentationContextID, DcmDataset *> response =
+                this->_receive_dataset(DIMSE_BLOCKING);
+            // Execute user callback
+            callback(response.second);
+            
+            // Response dataset is allocated in DIMSE_receiveDataSetInMemory,
+            // free it now.
+            delete response.second;
+        }
+    }
 }
 
 std::vector<DcmDataset *>
@@ -64,55 +102,6 @@ FindSCU
     this->find(query, callback);
     
     return result;
-}
-
-void
-FindSCU
-::_callback_wrapper(void * data, T_DIMSE_C_FindRQ * request, 
-    int response_index, T_DIMSE_C_FindRSP * response, 
-    DcmDataset * response_identifiers)
-{
-    FullCallbackData * encapsulated = 
-        reinterpret_cast<FullCallbackData*>(data);
-    encapsulated->callback(encapsulated->data, request, response_index, response, 
-        response_identifiers);
-}
-
-void
-FindSCU
-::_find(DcmDataset const * query, 
-    DIMSE_FindUserCallback callback, void * callback_data) const
-{
-    if(this->_association == NULL || !this->_association->is_associated())
-    {
-        throw Exception("Not associated");
-    }
-    
-    T_ASC_PresentationContextID const presentation_id = this->_find_presentation_context();
-    
-    DIC_US const message_id = this->_association->get_association()->nextMsgID++;
-    
-    T_DIMSE_C_FindRQ request;
-    memset(&request, 0, sizeof(request));
-    
-    request.MessageID = message_id;
-    strcpy(request.AffectedSOPClassUID, this->_affected_sop_class.c_str());
-    request.Priority = DIMSE_PRIORITY_LOW;
-    
-    T_DIMSE_C_FindRSP response;
-    DcmDataset * status_detail = NULL;
-    
-    OFCondition const condition = DIMSE_findUser(
-        this->_association->get_association(), presentation_id, 
-        &request, const_cast<DcmDataset*>(query), 
-        callback, callback_data, 
-        DIMSE_BLOCKING, this->_network->get_timeout(), 
-        &response, &status_detail);
-    
-    if(condition.bad())
-    {
-        throw Exception(condition);
-    }
 }
 
 }

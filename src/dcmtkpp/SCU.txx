@@ -21,6 +21,7 @@
 namespace dcmtkpp
 {
 
+template<> struct SCU::Traits<DIMSE_C_FIND_RQ> { typedef T_DIMSE_C_FindRQ Type; };
 template<> struct SCU::Traits<DIMSE_C_STORE_RQ> { typedef T_DIMSE_C_StoreRQ Type; };
 
 template<T_DIMSE_Command VCommand>
