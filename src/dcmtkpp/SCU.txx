@@ -22,7 +22,9 @@ namespace dcmtkpp
 {
 
 template<> struct SCU::Traits<DIMSE_C_FIND_RQ> { typedef T_DIMSE_C_FindRQ Type; };
+template<> struct SCU::Traits<DIMSE_C_GET_RQ> { typedef T_DIMSE_C_GetRQ Type; };
 template<> struct SCU::Traits<DIMSE_C_STORE_RQ> { typedef T_DIMSE_C_StoreRQ Type; };
+template<> struct SCU::Traits<DIMSE_C_STORE_RSP> { typedef T_DIMSE_C_StoreRSP Type; };
 
 template<T_DIMSE_Command VCommand>
 void
