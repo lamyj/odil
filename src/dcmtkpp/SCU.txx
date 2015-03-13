@@ -27,7 +27,7 @@ template<T_DIMSE_Command VCommand>
 void
 SCU
 ::_send(typename Traits<VCommand>::Type const & command, DcmDataset* payload, 
-    DIMSE_ProgressCallback callback, void* callback_data) const
+    ProgressCallback callback, void* callback_data) const
 {
     T_DIMSE_Message message; 
     bzero((char*)&message, sizeof(message));
@@ -37,10 +37,21 @@ SCU
     // Generic access to union member
     *(reinterpret_cast<CommandType*>(&message.msg)) = command;
     
+    // Encapsulate the callback and its data
+    ProgressCallbackData encapsulated;
+    if(callback != NULL)
+    {
+        encapsulated.callback = callback;
+        encapsulated.data = callback_data;
+    }
+    
     OFCondition const condition = DIMSE_sendMessageUsingMemoryData(
         this->_association->get_association(), this->_find_presentation_context(), 
         &message, NULL /* status_detail */,
-        payload, callback, callback_data, NULL /* commandSet */);
+        payload, 
+        (callback != NULL)?(SCU::_progress_callback_wrapper):NULL, 
+        (callback != NULL)?(&encapsulated):NULL,
+        NULL /* commandSet */);
     if(condition.bad())
     {
         throw Exception(condition);

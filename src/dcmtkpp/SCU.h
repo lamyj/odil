@@ -89,7 +89,7 @@ protected:
     template<T_DIMSE_Command VCommand>
     void _send(
         typename Traits<VCommand>::Type const & command, DcmDataset* payload=NULL, 
-        DIMSE_ProgressCallback callback=NULL, void* callback_data=NULL) const;
+        ProgressCallback callback=NULL, void* callback_data=NULL) const;
     
     /// @brief Receive a DIMSE command.
     std::pair<T_ASC_PresentationContextID, T_DIMSE_Message>
