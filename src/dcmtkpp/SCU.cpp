@@ -173,4 +173,37 @@ SCU
     return result;
 }
 
+std::pair<T_ASC_PresentationContextID, DcmDataset *>
+SCU
+::_receive_dataset(
+    T_DIMSE_BlockingMode block_mode,
+    ProgressCallback callback, void* callback_data) const
+{
+    std::pair<T_ASC_PresentationContextID, DcmDataset *> result;
+    result.second = NULL;
+    
+    // Encapsulate the callback and its data
+    ProgressCallbackData encapsulated;
+    if(callback != NULL)
+    {
+        encapsulated.callback = callback;
+        encapsulated.data = callback_data;
+    }
+    
+    OFCondition const condition = DIMSE_receiveDataSetInMemory(
+        this->_association->get_association(), block_mode, 
+        this->_network->get_timeout(), 
+        &result.first, &result.second, 
+        (callback != NULL)?(SCU::_progress_callback_wrapper):NULL, 
+        (callback != NULL)?(&encapsulated):NULL
+    );
+    
+    if(condition.bad())
+    {
+        throw Exception(condition);
+    }
+    
+    return result;
+}
+
 }

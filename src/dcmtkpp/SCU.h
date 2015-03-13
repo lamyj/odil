@@ -94,6 +94,11 @@ protected:
     /// @brief Receive a DIMSE command.
     std::pair<T_ASC_PresentationContextID, T_DIMSE_Message>
     _receive_command(T_DIMSE_BlockingMode block_mode) const;
+    
+    std::pair<T_ASC_PresentationContextID, DcmDataset *>
+    _receive_dataset(
+        T_DIMSE_BlockingMode block_mode,
+        ProgressCallback callback=NULL, void* callback_data=NULL) const;
 };
 
 }
