@@ -9,7 +9,7 @@
 #include "StoreSCU.h"
 
 #include <algorithm>
-#include <functional>
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -91,41 +91,9 @@ StoreSCU
 
 void 
 StoreSCU
-::store(DcmDataset const * dataset, Callback callback, void * data,
-    long bytes_count) const
+::store(DcmDataset const * dataset, ProgressCallback callback, void * data) const
 {
-    // Encapsulate the callback and its data
-    CallbackData encapsulated;
-    encapsulated.callback = callback;
-    encapsulated.data = data;
-    
-    this->_store(dataset, StoreSCU::_callback_wrapper, &encapsulated, bytes_count);
-}
-
-void
-StoreSCU
-::store(DcmDataset const * dataset, long bytes_count) const
-{
-    this->_store(dataset, NULL, NULL, bytes_count);
-}
-
-void
-StoreSCU
-::_callback_wrapper(void * data, 
-    T_DIMSE_StoreProgress * progress, T_DIMSE_C_StoreRQ * request)
-{
-    CallbackData * encapsulated = reinterpret_cast<CallbackData*>(data);
-    encapsulated->callback(encapsulated->data, progress, request);
-}
-
-void 
-StoreSCU
-::_store(DcmDataset const * dataset, 
-    DIMSE_StoreUserCallback callback, void * data, 
-    long bytes_count) const
-{
-    T_ASC_PresentationContextID const presentation_id = this->_find_presentation_context();
-    
+    // Send the request
     DIC_US const message_id = this->_association->get_association()->nextMsgID++;
     
     T_DIMSE_C_StoreRQ request;
@@ -141,19 +109,30 @@ StoreSCU
     request.DataSetType = DIMSE_DATASET_PRESENT;
     request.Priority = DIMSE_PRIORITY_MEDIUM;
     
-    T_DIMSE_C_StoreRSP response;
-    DcmDataset * status_detail = NULL;
+    this->_send<DIMSE_C_STORE_RQ>(
+        request, const_cast<DcmDataset*>(dataset), callback, data);
     
-    OFCondition const condition = DIMSE_storeUser(
-        this->_association->get_association(), 
-        presentation_id, &request, NULL, const_cast<DcmDataset*>(dataset),
-        callback, data,
-        DIMSE_BLOCKING, this->_network->get_timeout(), &response, &status_detail,
-        NULL, bytes_count);
+    // Receive the response
+    std::pair<T_ASC_PresentationContextID, T_DIMSE_Message> const command =
+        this->_receive_command(DIMSE_BLOCKING);
     
-    if(condition.bad())
+    if(command.second.CommandField != DIMSE_C_STORE_RSP)
     {
-        throw Exception(condition);
+        std::ostringstream message;
+        message << "DIMSE: Unexpected Response Command Field: 0x" 
+                << std::hex << command.second.CommandField;
+        throw Exception(message.str());
+    }
+
+    T_DIMSE_C_StoreRSP const response = command.second.msg.CStoreRSP;
+
+    if(response.MessageIDBeingRespondedTo != message_id)
+    {
+        std::ostringstream message;
+        message << "DIMSE: Unexpected Response MsgId: "
+                << response.MessageIDBeingRespondedTo 
+                << "(expected: " << message_id << ")";
+        throw Exception(message.str());
     }
 }
 

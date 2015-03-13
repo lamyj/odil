@@ -3,24 +3,10 @@
 
 #include "dcmtkpp/StoreSCU.h"
 
-void callback(void * data, T_DIMSE_StoreProgress * progress,
-    T_DIMSE_C_StoreRQ * request)
+void progress_callback(void * data, unsigned long bytes_count)
 {
-    if(progress->state == DIMSE_StoreBegin)
-    {
-        std::cout << "Begin ";
-    }
-    else if(progress->state == DIMSE_StoreProgressing)
-    {
-        std::cout << "Progressing ";
-    }
-    else if(progress->state == DIMSE_StoreEnd)
-    {
-        std::cout << "End ";
-    }
-    std::cout << progress->callbackCount << " calls ";
-    std::cout << progress->progressBytes << "/"
-              << progress->totalBytes << " bytes\n";
+    long file_size = *reinterpret_cast<long*>(data);
+    std::cout << bytes_count << "/" << file_size << std::endl;
 }
 
 int main(int argc, char** argv)
@@ -30,11 +16,11 @@ int main(int argc, char** argv)
     
     dcmtkpp::Association association;
     
-    association.set_own_ae_title("myself");
+    association.set_own_ae_title("bretagne");
     
-    association.set_peer_host_name("pacs.example.com");
+    association.set_peer_host_name("aude.u-strasbg.fr");
     association.set_peer_port(11112);
-    association.set_peer_ae_title("pacs");
+    association.set_peer_ae_title("PIIV-RECHERCHE");
     
     association.add_presentation_context(UID_MRImageStorage,
         { UID_LittleEndianImplicitTransferSyntax });
@@ -57,13 +43,13 @@ int main(int argc, char** argv)
     {
         std::cout << "Storing " << argv[i] << std::endl;
         
-        long const file_size = OFStandard::getFileSize(argv[i]);
+        long file_size = OFStandard::getFileSize(argv[i]);
         DcmFileFormat file;
         file.loadFile(argv[i]);
         
-        scu.set_affected_sop_class(file.getDataset());
+        std::cout << scu.get_affected_sop_class() << "\n";
         
-        scu.store(file.getDataset(), callback, NULL, file_size);
+        scu.store(file.getDataset(), progress_callback, &file_size);
     }
     
     association.release();
