@@ -9,6 +9,7 @@
 #ifndef _ba1518e7_8123_46c9_81c0_65439717e40e
 #define _ba1518e7_8123_46c9_81c0_65439717e40e
 
+#include <functional>
 #include <stdint.h>
 #include <string>
 #include <utility>
@@ -17,6 +18,7 @@
 #include <dcmtk/config/osconfig.h>
 #include <dcmtk/dcmdata/dcdatset.h>
 #include <dcmtk/dcmnet/assoc.h>
+#include <dcmtk/dcmnet/dimse.h>
 
 #include "dcmtkpp/Association.h"
 #include "dcmtkpp/Network.h"
@@ -30,6 +32,8 @@ namespace dcmtkpp
 class SCU
 {
 public:
+    /// @brief Progress callback, following the semantics of DCMTK.
+    typedef std::function<void(void *, unsigned long)> ProgressCallback;
     
     /// @brief Create a default, non-associated SCU.
     SCU();
@@ -62,14 +66,38 @@ public:
     void echo() const;
 
 protected:
+    template<T_DIMSE_Command VCommand>
+    struct Traits;
+    
+    struct ProgressCallbackData
+    {
+        ProgressCallback callback;
+        void * data;
+    };
+    
     Network * _network;
     Association * _association;
     std::string _affected_sop_class;
     
     /// @brief Find an accepted presentation context.
     T_ASC_PresentationContextID _find_presentation_context() const;
+    
+    /// @brief Wrapper from ProgressCallback to DIMSE_ProgressCallback.
+    static void _progress_callback_wrapper(void * data, unsigned long bytes_count);
+    
+    /// @brief Send a DIMSE message.
+    template<T_DIMSE_Command VCommand>
+    void _send(
+        typename Traits<VCommand>::Type const & command, DcmDataset* payload=NULL, 
+        DIMSE_ProgressCallback callback=NULL, void* callback_data=NULL) const;
+    
+    /// @brief Receive a DIMSE command.
+    std::pair<T_ASC_PresentationContextID, T_DIMSE_Message>
+    _receive_command(T_DIMSE_BlockingMode block_mode) const;
 };
 
 }
+
+#include "SCU.txx"
 
 #endif // _ba1518e7_8123_46c9_81c0_65439717e40e

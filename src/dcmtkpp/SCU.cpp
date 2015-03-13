@@ -8,6 +8,7 @@
 
 #include "dcmtkpp/SCU.h"
 
+#include <functional>
 #include <stdint.h>
 #include <string>
 #include <utility>
@@ -124,6 +125,15 @@ SCU
     }
 }
 
+void 
+SCU
+::_progress_callback_wrapper(void * data, unsigned long bytes_count)
+{
+    ProgressCallbackData * encapsulated = 
+        reinterpret_cast<ProgressCallbackData*>(data);
+    encapsulated->callback(encapsulated->data, bytes_count);
+}
+
 T_ASC_PresentationContextID
 SCU
 ::_find_presentation_context() const
@@ -138,6 +148,29 @@ SCU
     }
     
     return presentation_id;
+}
+
+std::pair<T_ASC_PresentationContextID, T_DIMSE_Message>
+SCU
+::_receive_command(T_DIMSE_BlockingMode block_mode) const
+{
+    std::pair<T_ASC_PresentationContextID, T_DIMSE_Message> result;
+    
+    result.first = -1;
+    bzero((char*)&result.second, sizeof(result.second));
+    
+    OFCondition const condition = DIMSE_receiveCommand(
+        this->_association->get_association(), block_mode, 
+        this->_network->get_timeout(), 
+        &result.first, &result.second, 
+        NULL /*statusDetail*/, NULL /*commandSet*/);
+    
+    if(condition.bad())
+    {
+        throw Exception(condition);
+    }
+    
+    return result;
 }
 
 }
