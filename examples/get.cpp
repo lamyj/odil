@@ -73,8 +73,6 @@ int main()
     
     std::cout << "\n";
     
-    return 0;
-        
     std::cout << "------\n";
     std::cout << "vector\n";
     std::cout << "------\n\n";
