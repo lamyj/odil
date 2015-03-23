@@ -110,7 +110,8 @@ StoreSCU
     request.Priority = DIMSE_PRIORITY_MEDIUM;
     
     this->_send<DIMSE_C_STORE_RQ>(
-        request, const_cast<DcmDataset*>(dataset), callback, data);
+        request, this->_affected_sop_class, 
+        const_cast<DcmDataset*>(dataset), callback, data);
     
     // Receive the response
     std::pair<T_ASC_PresentationContextID, T_DIMSE_Message> const command =

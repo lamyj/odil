@@ -9,7 +9,9 @@
 #ifndef _8ac39caa_b7b1_44a8_82fc_e8e3de18b2f8
 #define _8ac39caa_b7b1_44a8_82fc_e8e3de18b2f8
 
-#include "SCU.h"
+#include "ServiceRole.h"
+
+#include <unistd.h>
 
 #include <dcmtk/config/osconfig.h>
 #include <dcmtk/dcmdata/dcdatset.h>
@@ -21,19 +23,24 @@
 namespace dcmtkpp
 {
 
-template<> struct SCU::Traits<DIMSE_C_FIND_RQ> { typedef T_DIMSE_C_FindRQ Type; };
-template<> struct SCU::Traits<DIMSE_C_GET_RQ> { typedef T_DIMSE_C_GetRQ Type; };
-template<> struct SCU::Traits<DIMSE_C_STORE_RQ> { typedef T_DIMSE_C_StoreRQ Type; };
-template<> struct SCU::Traits<DIMSE_C_STORE_RSP> { typedef T_DIMSE_C_StoreRSP Type; };
+template<> struct ServiceRole::Traits<DIMSE_C_FIND_RQ> { typedef T_DIMSE_C_FindRQ Type; };
+template<> struct ServiceRole::Traits<DIMSE_C_GET_RQ> { typedef T_DIMSE_C_GetRQ Type; };
+template<> struct ServiceRole::Traits<DIMSE_C_MOVE_RQ> { typedef T_DIMSE_C_MoveRQ Type; };
+template<> struct ServiceRole::Traits<DIMSE_C_STORE_RQ> { typedef T_DIMSE_C_StoreRQ Type; };
+template<> struct ServiceRole::Traits<DIMSE_C_STORE_RSP> { typedef T_DIMSE_C_StoreRSP Type; };
 
 template<T_DIMSE_Command VCommand>
 void
-SCU
-::_send(typename Traits<VCommand>::Type const & command, DcmDataset* payload, 
+ServiceRole
+::_send(
+    typename Traits<VCommand>::Type const & command, 
+    std::string const & abstract_syntax, DcmDataset* payload,
     ProgressCallback callback, void* callback_data) const
 {
+    this->_check_dimse_ready();
+    
     T_DIMSE_Message message; 
-    bzero((char*)&message, sizeof(message));
+    memset(static_cast<void*>(&message), 0, sizeof(message));
     
     message.CommandField = VCommand;
     typedef typename Traits<VCommand>::Type CommandType;
@@ -49,10 +56,11 @@ SCU
     }
     
     OFCondition const condition = DIMSE_sendMessageUsingMemoryData(
-        this->_association->get_association(), this->_find_presentation_context(), 
+        this->_association->get_association(), 
+        this->_find_presentation_context(abstract_syntax), 
         &message, NULL /* status_detail */,
         payload, 
-        (callback != NULL)?(SCU::_progress_callback_wrapper):NULL, 
+        (callback != NULL)?(ServiceRole::_progress_callback_wrapper):NULL, 
         (callback != NULL)?(&encapsulated):NULL,
         NULL /* commandSet */);
     if(condition.bad())

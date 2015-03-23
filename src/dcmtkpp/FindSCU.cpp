@@ -43,7 +43,9 @@ FindSCU
     request.Priority = DIMSE_PRIORITY_MEDIUM;
     
     // FIXME: include progress callback
-    this->_send<DIMSE_C_FIND_RQ>(request, const_cast<DcmDataset*>(query));
+    this->_send<DIMSE_C_FIND_RQ>(
+        request, this->_affected_sop_class.c_str(), 
+        const_cast<DcmDataset*>(query));
     
     // Receive the responses
     DIC_US status = STATUS_Pending;

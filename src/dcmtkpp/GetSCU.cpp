@@ -43,7 +43,8 @@ GetSCU
     request.Priority = DIMSE_PRIORITY_MEDIUM;
     
     // FIXME: include progress callback
-    this->_send<DIMSE_C_GET_RQ>(request, const_cast<DcmDataset*>(query));
+    this->_send<DIMSE_C_GET_RQ>(
+        request, this->_affected_sop_class, const_cast<DcmDataset*>(query));
     
     // Receive the responses
     bool done = false;
@@ -180,7 +181,7 @@ GetSCU
         response.AffectedSOPInstanceUID, request.AffectedSOPInstanceUID, 
         sizeof(response.AffectedSOPInstanceUID));
     response.opts = O_STORE_AFFECTEDSOPCLASSUID | O_STORE_AFFECTEDSOPINSTANCEUID;
-    this->_send<DIMSE_C_STORE_RSP>(response);
+    this->_send<DIMSE_C_STORE_RSP>(response, this->_affected_sop_class);
 }
 
 }
