@@ -126,8 +126,11 @@ public:
     /// @brief Test whether the object is currently associated to its peer.
     bool is_associated() const;
     
-    /// @brief Associate with the peer. Throws an exception if already associated.
+    /// @brief Request an association with the peer. Throws an exception if already associated.
     void associate(Network & network);
+    
+    /// @brief Receive an association for a peer.
+    void receive(Network & network);
     
     /// @brief Return the association object.
     T_ASC_Association * get_association();

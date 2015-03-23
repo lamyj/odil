@@ -398,6 +398,60 @@ Association
     }
 }
 
+void 
+Association
+::receive(Network & network)
+{
+    if(!network.is_initialized())
+    {
+        throw Exception("Network is not initialized");
+    }
+    
+    if(this->is_associated())
+    {
+        throw Exception("Already associated");
+    }
+    
+    OFCondition condition;
+    
+    condition = ASC_receiveAssociation(
+        network.get_network(), &this->_association, ASC_DEFAULTMAXPDU);
+    if(condition.bad())
+    {
+        throw Exception(condition);
+    }
+    
+    DUL_ASSOCIATESERVICEPARAMETERS const dul = 
+        this->_association->params->DULparams;
+    // No peer port should be defined when receiving
+    this->_peer_host_name = dul.callingPresentationAddress;
+    this->_peer_port = 0;
+    this->_peer_ae_title = dul.callingAPTitle;
+    
+    for(auto const & context: this->_presentation_contexts)
+    {
+        for(std::size_t i = 0; i < context.second.size(); ++i)
+        {
+            char const * abstract_syntax = context.first.c_str();
+            char const * transfer_syntax = context.second[i].c_str();
+            condition = ASC_acceptContextsWithTransferSyntax(
+                this->_association->params, transfer_syntax,
+                1, &abstract_syntax);
+            if(condition.bad())
+            {
+                this->abort();
+                throw Exception(condition);
+            }
+        }
+    }
+    
+    condition = ASC_acknowledgeAssociation(this->_association);
+    if(condition.bad())
+    {
+        throw Exception(condition);
+    }
+}
+
 T_ASC_Association *
 Association
 ::get_association()
