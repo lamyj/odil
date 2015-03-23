@@ -400,7 +400,7 @@ Association
 
 void 
 Association
-::receive(Network & network)
+::receive(Network & network, bool accept_all)
 {
     if(!network.is_initialized())
     {
@@ -421,26 +421,55 @@ Association
         throw Exception(condition);
     }
     
-    DUL_ASSOCIATESERVICEPARAMETERS const dul = 
-        this->_association->params->DULparams;
+    T_ASC_Parameters * const params = this->_association->params;
+    DUL_ASSOCIATESERVICEPARAMETERS const dul = params->DULparams;
     // No peer port should be defined when receiving
     this->_peer_host_name = dul.callingPresentationAddress;
     this->_peer_port = 0;
     this->_peer_ae_title = dul.callingAPTitle;
     
-    for(auto const & context: this->_presentation_contexts)
+    if(accept_all)
     {
-        for(std::size_t i = 0; i < context.second.size(); ++i)
+        unsigned int const pc_count = ASC_countPresentationContexts(params);
+        for(unsigned int pc_index=0; pc_index<pc_count; ++pc_index)
         {
-            char const * abstract_syntax = context.first.c_str();
-            char const * transfer_syntax = context.second[i].c_str();
-            condition = ASC_acceptContextsWithTransferSyntax(
-                this->_association->params, transfer_syntax,
-                1, &abstract_syntax);
-            if(condition.bad())
+            T_ASC_PresentationContext pc;
+            memset(&pc, 0, sizeof(pc));
+            ASC_getPresentationContext(params, pc_index, &pc);
+            
+            for(unsigned int ts_index=0; ts_index<pc.transferSyntaxCount; ++ts_index)
             {
-                this->abort();
-                throw Exception(condition);
+                std::string const abstract_syntax = pc.abstractSyntax;
+                char const * abstract_syntax_data = abstract_syntax.c_str();
+                
+                condition = ASC_acceptContextsWithTransferSyntax(
+                    this->_association->params, 
+                    pc.proposedTransferSyntaxes[ts_index],
+                    1, &abstract_syntax_data);
+                if(condition.bad())
+                {
+                    this->abort();
+                    throw Exception(condition);
+                }
+            }
+        }
+    }
+    else
+    {
+        for(auto const & context: this->_presentation_contexts)
+        {
+            for(std::size_t i = 0; i < context.second.size(); ++i)
+            {
+                char const * abstract_syntax = context.first.c_str();
+                char const * transfer_syntax = context.second[i].c_str();
+                condition = ASC_acceptContextsWithTransferSyntax(
+                    this->_association->params, transfer_syntax,
+                    1, &abstract_syntax);
+                if(condition.bad())
+                {
+                    this->abort();
+                    throw Exception(condition);
+                }
             }
         }
     }
