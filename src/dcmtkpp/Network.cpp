@@ -165,6 +165,13 @@ Network
     return this->_network;
 }
 
+bool 
+Network
+::is_association_waiting()
+{
+    return ASC_associationWaiting(this->_network, this->_timeout);
+}
+
 void
 Network
 ::drop()
