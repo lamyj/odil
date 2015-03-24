@@ -167,9 +167,9 @@ Network
 
 bool 
 Network
-::is_association_waiting()
+::is_association_waiting(int const timeout)
 {
-    return ASC_associationWaiting(this->_network, this->_timeout);
+    return ASC_associationWaiting(this->_network, timeout);
 }
 
 void

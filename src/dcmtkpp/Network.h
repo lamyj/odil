@@ -69,7 +69,7 @@ public:
     T_ASC_Network * get_network();
     
     /// @brief Test whether an association request is waiting.
-    bool is_association_waiting();
+    bool is_association_waiting(int const timeout);
     
     /// @brief Drop (i.e. un-initialize) the network.
     void drop();
