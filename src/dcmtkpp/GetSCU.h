@@ -17,6 +17,8 @@
 #include <dcmtk/dcmdata/dcdatset.h>
 #include <dcmtk/dcmnet/dimse.h>
 
+#include "dcmtkpp/StoreSCP.h"
+
 namespace dcmtkpp
 {
 
@@ -25,7 +27,7 @@ class GetSCU: public SCU
 {
 public:
     /// @brief Callback called when a response is received.
-    typedef std::function<void(DcmDataset*)> Callback;
+    typedef StoreSCP::Callback Callback;
     
     /// @brief Destructor.
     virtual ~GetSCU();

@@ -149,39 +149,10 @@ void
 GetSCU
 ::_store_request(T_DIMSE_C_StoreRQ request, Callback callback) const
 {
-    // FIXME: include progress callback
-    std::pair<T_ASC_PresentationContextID, DcmDataset *> dataset =
-        this->_receive_dataset(DIMSE_BLOCKING);
-    // Execute user callback
-    Uint16 store_status = 0;
-    try
-    {
-        callback(dataset.second);
-    }
-    catch(...)
-    {
-        // FIXME: logging
-        store_status = STATUS_STORE_Error_CannotUnderstand;
-    }
-    
-    // Request dataset is allocated in DIMSE_receiveDataSetInMemory,
-    // free it now.
-    delete dataset.second;
-    
-    // Send store response
-    T_DIMSE_C_StoreRSP response;
-    memset(&response, 0, sizeof(response));
-    response.MessageIDBeingRespondedTo = request.MessageID;
-    response.DimseStatus = store_status;
-    response.DataSetType = DIMSE_DATASET_NULL;
-    OFStandard::strlcpy(
-        response.AffectedSOPClassUID, request.AffectedSOPClassUID, 
-        sizeof(response.AffectedSOPClassUID));
-    OFStandard::strlcpy(
-        response.AffectedSOPInstanceUID, request.AffectedSOPInstanceUID, 
-        sizeof(response.AffectedSOPInstanceUID));
-    response.opts = O_STORE_AFFECTEDSOPCLASSUID | O_STORE_AFFECTEDSOPINSTANCEUID;
-    this->_send<DIMSE_C_STORE_RSP>(response, this->_affected_sop_class);
+    StoreSCP scp;
+    scp.set_network(this->get_network());
+    scp.set_association(this->get_association());
+    scp.store(request, callback);
 }
 
 }
