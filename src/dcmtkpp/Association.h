@@ -144,6 +144,9 @@ public:
     /// @brief Forcefully release the association. Throws an exception if not associated.
     void abort();
     
+    /// @brief Drop an association that has been released by the peer.
+    void drop();
+    
     /// @}
 
 private:

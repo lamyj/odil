@@ -516,4 +516,19 @@ Association
     this->_association = NULL;
 }
 
+void
+Association
+::drop()
+{
+    if(!this->is_associated())
+    {
+        throw Exception("Not associated");
+    }
+    
+    ASC_acknowledgeRelease(this->_association);
+    ASC_dropSCPAssociation(this->_association);
+    ASC_destroyAssociation(&this->_association);
+    this->_association = NULL;
+}
+
 }
