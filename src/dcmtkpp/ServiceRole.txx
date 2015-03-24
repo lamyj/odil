@@ -23,6 +23,7 @@
 namespace dcmtkpp
 {
 
+template<> struct ServiceRole::Traits<DIMSE_C_ECHO_RSP> { typedef T_DIMSE_C_EchoRSP Type; };
 template<> struct ServiceRole::Traits<DIMSE_C_FIND_RQ> { typedef T_DIMSE_C_FindRQ Type; };
 template<> struct ServiceRole::Traits<DIMSE_C_GET_RQ> { typedef T_DIMSE_C_GetRQ Type; };
 template<> struct ServiceRole::Traits<DIMSE_C_MOVE_RQ> { typedef T_DIMSE_C_MoveRQ Type; };
