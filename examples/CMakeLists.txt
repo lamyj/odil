@@ -2,7 +2,7 @@ add_definitions("-D HAVE_CONFIG_H")
 
 include_directories(${CMAKE_SOURCE_DIR}/src)
 
-set(examples find get store)
+set(examples find get move store)
 
 foreach(example ${examples})
     add_executable(${example} ${example}.cpp)
