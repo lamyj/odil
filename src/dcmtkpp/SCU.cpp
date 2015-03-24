@@ -30,25 +30,6 @@ SCU
 }
 
 SCU
-::SCU(SCU const & other)
-: ServiceRole(other), _affected_sop_class(other._affected_sop_class)
-{
-    // Nothing else
-}
-
-SCU const &
-SCU
-::operator=(SCU const & other)
-{
-    if(this != &other)
-    {
-        this->set_affected_sop_class(other.get_affected_sop_class());
-    }
-    
-    return *this;
-}
-
-SCU
 ::~SCU()
 {
     // Nothing to do.

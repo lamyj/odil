@@ -16,22 +16,11 @@
 namespace dcmtkpp
 {
 
-/**
- * @brief Base class for all SCU.
- */
+/// @brief Base class for all Service Class Users.
 class SCU: public ServiceRole
 {
 public:
-    /// @brief Create a default SCU with no network and no association.
     SCU();
-    
-    /// @brief Copy the other SCU.
-    SCU(SCU const & other);
-    
-    /// @brief Copy the other SCU.
-    SCU const & operator=(SCU const & other);
-    
-    /// @brief Destructor, network and association are not modified.
     ~SCU();
     
     /// @brief Return the affected SOP class. Defaults to "".
@@ -43,6 +32,7 @@ public:
     void echo() const;
 
 protected:
+    /// @brief Affected SOP class.
     std::string _affected_sop_class;
 };
 
