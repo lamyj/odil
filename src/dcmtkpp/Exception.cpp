@@ -18,14 +18,14 @@ namespace dcmtkpp
 
 Exception
 ::Exception(std::string const & message)
-: _message(message)
+: _source(Source::Message), _message(message), _condition()
 {
     // Nothing else.
 }
 
 Exception
 ::Exception(OFCondition const & condition)
-: _message(condition.text())
+: _source(Source::Condition), _message(), _condition(condition)
 {
     // Nothing else.
 }
@@ -40,7 +40,32 @@ char const *
 Exception
 ::what() const throw()
 {
-    return this->_message.c_str();
+    if(this->_source == Source::Message)
+    {
+        return this->_message.c_str();
+    }
+    else if(this->_source == Source::Condition)
+    {
+        return this->_condition.text();
+    }
+}
+
+Exception::Source
+Exception
+::get_source() const
+{
+    return this->_source;
+}
+
+OFCondition const &
+Exception
+::get_condition() const
+{
+    if(this->_source != Source::Condition)
+    {
+        throw Exception("Wrong source");
+    }
+    return this->_condition;
 }
 
 }
