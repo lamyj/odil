@@ -23,6 +23,7 @@
 namespace dcmtkpp
 {
 
+/// @brief Base class for all Service Class Users and Providers.
 class ServiceRole
 {
 public:
@@ -55,13 +56,20 @@ protected:
     template<T_DIMSE_Command VCommand>
     struct Traits;
     
+    /// @brief Wrapper class for DMCTK progress callbacks.
     struct ProgressCallbackData
     {
+        /// @brief Callback function.
         ProgressCallback callback;
+        
+        /// @brief Callback data.
         void * data;
     };
     
+    /// @brief Network used by the ServiceRole.
     Network * _network;
+    
+    /// @brief Association used by the ServiceRole.
     Association * _association;
 
     /// @brief Wrapper from ProgressCallback to DIMSE_ProgressCallback.
@@ -82,6 +90,7 @@ protected:
     std::pair<T_ASC_PresentationContextID, T_DIMSE_Message>
     _receive_command(T_DIMSE_BlockingMode block_mode) const;
     
+    /// @brief Receive a dataset from the DIMSE command.
     std::pair<T_ASC_PresentationContextID, DcmDataset *>
     _receive_dataset(
         T_DIMSE_BlockingMode block_mode,

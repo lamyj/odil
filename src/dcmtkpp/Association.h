@@ -126,12 +126,18 @@ public:
     /// @brief Test whether the object is currently associated to its peer.
     bool is_associated() const;
     
-    /// @brief Request an association with the peer. Throws an exception if already associated.
+    /**
+     * @brief Request an association with the peer. 
+     * @param network network to use for the data transmission.
+     * 
+     * Throws an exception if already associated.
+     */
     void associate(Network & network);
     
     /** 
      * @brief Receive an association for a peer.
-     * @param accept_all: if true, accept all presentations contexts proposed
+     * @param network network to use for the data transmission.
+     * @param accept_all if true, accept all presentations contexts proposed
      *  by peer.
      */
     void receive(Network & network, bool accept_all=false);
