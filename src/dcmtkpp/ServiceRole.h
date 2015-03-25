@@ -18,6 +18,7 @@
 #include <dcmtk/dcmnet/dimse.h>
 
 #include "dcmtkpp/Association.h"
+#include "dcmtkpp/Message.h"
 #include "dcmtkpp/Network.h"
 
 namespace dcmtkpp
@@ -80,6 +81,20 @@ protected:
         std::string const & abstract_syntax) const;
     
     /// @brief Send a DIMSE message.
+    void _send(Message const & message, std::string const & abstract_syntax) const;
+    
+    /// @brief Receive a generic DIMSE message.
+    Message _receive(ProgressCallback callback=NULL, void* callback_data=NULL) const;
+    
+    /**
+     * @brief Receive a DIMSE message of specific type.
+     *
+     * Throw an exception if the received message is not of the requested type.
+     */
+    template<typename TMessage>
+    TMessage _receive(ProgressCallback callback=NULL, void* callback_data=NULL) const;
+    
+    /// @brief Send a DIMSE message.
     template<T_DIMSE_Command VCommand>
     void _send(
         typename Traits<VCommand>::Type const & command, 
@@ -97,6 +112,15 @@ protected:
         ProgressCallback callback=NULL, void* callback_data=NULL) const;
 
 private:
+    static OFCondition _sendDcmDataset(
+        T_ASC_Association *assoc,
+        DcmDataset *obj,
+        T_ASC_PresentationContextID presID,
+        E_TransferSyntax xferSyntax,
+        DUL_DATAPDV pdvType,
+        DIMSE_ProgressCallback callback,
+        void *callbackContext);
+    
     void _check_dimse_ready() const;
 };
 

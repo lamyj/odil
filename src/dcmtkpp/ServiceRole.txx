@@ -30,6 +30,15 @@ template<> struct ServiceRole::Traits<DIMSE_C_MOVE_RQ> { typedef T_DIMSE_C_MoveR
 template<> struct ServiceRole::Traits<DIMSE_C_STORE_RQ> { typedef T_DIMSE_C_StoreRQ Type; };
 template<> struct ServiceRole::Traits<DIMSE_C_STORE_RSP> { typedef T_DIMSE_C_StoreRSP Type; };
 
+template<typename TMessage>
+TMessage
+ServiceRole
+::_receive(ProgressCallback callback, void* callback_data) const
+{
+    Message const message = this->_receive(callback, callback_data);
+    return TMessage(message);
+}
+
 template<T_DIMSE_Command VCommand>
 void
 ServiceRole
