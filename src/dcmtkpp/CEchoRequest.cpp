@@ -30,6 +30,29 @@ CEchoRequest
 }
 
 CEchoRequest
+::CEchoRequest(Message const & message)
+: Request(message)
+{
+    if(message.get_command_field() != DIMSE_C_ECHO_RQ)
+    {
+        throw Exception("Message is not a C-ECHO-RQ");
+    }
+    this->set_command_field(message.get_command_field());
+
+    auto command_set = const_cast<DcmDataset &>(message.get_command_set());
+    OFString affected_sop_class_uid;
+
+    auto const condition = command_set.findAndGetOFString(
+        DCM_AffectedSOPClassUID, affected_sop_class_uid);
+    if(condition.bad())
+    {
+        throw Exception(condition);
+    }
+
+    this->set_affected_sop_class_uid(affected_sop_class_uid.c_str());
+}
+
+CEchoRequest
 ::~CEchoRequest()
 {
     // Nothing to do.

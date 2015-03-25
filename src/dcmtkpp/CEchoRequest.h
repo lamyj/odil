@@ -19,13 +19,30 @@
 namespace dcmtkpp
 {
 
+/// @brief C-ECHO-RQ message.
 class CEchoRequest: public Request
 {
 public:
+    /**
+     * @brief Create an echo request with given Message ID and
+     * affected SOP class UID.
+     */
     CEchoRequest(Uint16 message_id, std::string const & affected_sop_class_uid);
+
+    /**
+     * @brief Create a C-ECHO-RQ from a generic Message.
+     *
+     * Raise an exception if the Message does not contain a C-ECHO-RQ.
+     */
+    CEchoRequest(Message const & message);
+
+    /// @brief Destructor.
     virtual ~CEchoRequest();
     
+    /// @brief Return the Affected SOP Class UID element of the command set.
     std::string get_affected_sop_class_uid() const;
+
+    /// @brief Set the Affected SOP Class UID element of the command set.
     void set_affected_sop_class_uid(std::string const & affected_sop_class_uid);
 };
 
