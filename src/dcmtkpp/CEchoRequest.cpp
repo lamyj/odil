@@ -8,9 +8,11 @@
 
 #include "CEchoRequest.h"
 
+#include <string>
+
 #include <dcmtk/config/osconfig.h>
 #include <dcmtk/dcmdata/dcdeftag.h>
-#include <dcmtk/dcmdata/dctagkey.h>
+#include <dcmtk/dcmnet/dimse.h>
 #include <dcmtk/ofstd/oftypes.h>
 
 #include "dcmtkpp/Exception.h"
@@ -37,10 +39,10 @@ std::string
 CEchoRequest
 ::get_affected_sop_class_uid() const
 {
-    DcmDataset & command_set = const_cast<DcmDataset &>(this->_command_set);
+    auto command_set = const_cast<DcmDataset &>(this->_command_set);
     OFString affected_sop_class_uid;
     
-    OFCondition const condition = command_set.findAndGetOFString(
+    auto const condition = command_set.findAndGetOFString(
         DCM_AffectedSOPClassUID, affected_sop_class_uid);
     if(condition.bad())
     {
@@ -52,7 +54,7 @@ void
 CEchoRequest
 ::set_affected_sop_class_uid(std::string const & affected_sop_class_uid)
 {
-    OFCondition const condition = this->_command_set.putAndInsertOFStringArray(
+    auto const condition = this->_command_set.putAndInsertOFStringArray(
         DCM_AffectedSOPClassUID, affected_sop_class_uid.c_str());
     if(condition.bad())
     {

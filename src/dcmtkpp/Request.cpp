@@ -14,6 +14,7 @@
 #include <dcmtk/ofstd/oftypes.h>
 
 #include "dcmtkpp/Exception.h"
+#include "dcmtkpp/Message.h"
 
 namespace dcmtkpp
 {
@@ -35,10 +36,10 @@ Uint16
 Request
 ::get_message_id() const
 {
-    DcmDataset & command_set = const_cast<DcmDataset &>(this->_command_set);
+    auto command_set = const_cast<DcmDataset &>(this->_command_set);
     Uint16 message_id;
     
-    OFCondition const condition = command_set.findAndGetUint16(
+    auto const condition = command_set.findAndGetUint16(
         DCM_MessageID, message_id);
     if(condition.bad())
     {
@@ -50,7 +51,7 @@ void
 Request
 ::set_message_id(Uint16 message_id)
 {
-    OFCondition const condition = this->_command_set.putAndInsertUint16(
+    auto const condition = this->_command_set.putAndInsertUint16(
         DCM_MessageID, message_id);
     if(condition.bad())
     {
