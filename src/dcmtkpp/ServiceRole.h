@@ -81,7 +81,9 @@ protected:
         std::string const & abstract_syntax) const;
     
     /// @brief Send a DIMSE message.
-    void _send(Message const & message, std::string const & abstract_syntax) const;
+    void _send(
+        Message const & message, std::string const & abstract_syntax,
+        ProgressCallback callback=NULL, void* callback_data=NULL) const;
     
     /// @brief Receive a generic DIMSE message.
     Message _receive(ProgressCallback callback=NULL, void* callback_data=NULL) const;

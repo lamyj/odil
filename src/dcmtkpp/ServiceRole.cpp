@@ -111,7 +111,9 @@ ServiceRole
 }
 void
 ServiceRole
-::_send(Message const & message, std::string const & abstract_syntax) const
+::_send(
+    Message const & message, std::string const & abstract_syntax,
+    ProgressCallback callback, void* callback_data) const
 {
     T_ASC_PresentationContextID const presentation_context = 
         this->_find_presentation_context(abstract_syntax);
@@ -123,12 +125,11 @@ ServiceRole
     if(message.get_data_set() != NULL && 
        !const_cast<DcmDataset*>(message.get_data_set())->isEmpty())
     {
-        // TODO: progress callback
         // FIXME: transfer syntax
         this->_send(
             const_cast<DcmDataset*>(message.get_data_set()),
             presentation_context, EXS_LittleEndianImplicit, 
-            DUL_DATASETPDV, NULL, NULL);
+            DUL_DATASETPDV, callback, callback_data);
     }
 }
 
