@@ -27,6 +27,23 @@ Request
 }
 
 Request
+::Request(Message const & message)
+: Message()
+{
+    auto command_set = const_cast<DcmDataset &>(message.get_command_set());
+
+    OFCondition condition;
+
+    Uint16 message_id;
+    condition = command_set.findAndGetUint16(DCM_MessageID, message_id);
+    if(condition.bad())
+    {
+        throw Exception(condition);
+    }
+    this->set_message_id(message_id);
+}
+
+Request
 ::~Request()
 {
     // Nothing to do.

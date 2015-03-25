@@ -21,10 +21,24 @@ namespace dcmtkpp
 class Request: public Message
 {
 public:
+    /// @brief Create a request with given Message ID.
     Request(Uint16 message_id);
+
+    /**
+     * @brief Create a request from the Message ID stored in the message
+     * command set.
+     *
+     * Raise an exception is either of this element is missing.
+     */
+    Request(Message const & message);
+
+    /// @brief Destructor.
     virtual ~Request();
     
+    /// @brief Return the Message ID element of the command set.
     Uint16 get_message_id() const;
+
+    /// @brief Set the Message ID element of the command set.
     void set_message_id(Uint16 message_id);
 };
 
