@@ -156,23 +156,19 @@ ServiceRole
     }
     
     DcmDataset * data_set;
-    if(command_data_set_type == DIMSE_DATASET_PRESENT)
+    if(command_data_set_type != DIMSE_DATASET_NULL)
     {
         std::pair<DcmDataset, DUL_DATAPDV> const data =
             this->_receive_dataset(callback, callback_data);
-        if(command.second != DUL_DATASETPDV)
+        if(data.second != DUL_DATASETPDV)
         {
             throw Exception("Did not receive data set");
         }
         data_set = new DcmDataset(data.first);
     }
-    else if(command_data_set_type == DIMSE_DATASET_NULL)
-    {
-        data_set = NULL;
-    }
     else
     {
-        throw Exception("Unknown Command Data Set Type");
+        data_set = NULL;
     }
     
     return Message(command_set, data_set);
