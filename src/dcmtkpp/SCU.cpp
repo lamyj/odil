@@ -18,6 +18,9 @@
 #include <dcmtk/dcmnet/dimse.h>
 
 #include "dcmtkpp/Exception.h"
+#include "dcmtkpp/CEchoRequest.h"
+#include "dcmtkpp/CEchoResponse.h"
+#include "dcmtkpp/Message.h"
 
 namespace dcmtkpp
 {
@@ -53,24 +56,19 @@ void
 SCU
 ::echo() const
 {
-    if(this->_association == NULL || !this->_association->is_associated())
-    {
-        throw Exception("Not associated");
-    }
+    Uint16 const message_id = this->_association->get_association()->nextMsgID++;
     
-    DIC_US const message_id = this->_association->get_association()->nextMsgID++;
-    DIC_US status;
-    DcmDataset *detail = NULL;
-    // FIXME: block mode
-    OFCondition const condition = DIMSE_echoUser(
-        this->_association->get_association(), message_id, DIMSE_BLOCKING, 
-        this->_network->get_timeout(), 
-        &status, &detail);
+    CEchoRequest const request(message_id, UID_VerificationSOPClass);
+    this->_send(request, request.get_affected_sop_class_uid());
     
-    if(condition.bad())
+    CEchoResponse const response = this->_receive<CEchoResponse>();
+    if(response.get_message_id_being_responded_to() != message_id)
     {
-        OFString empty;
-        throw Exception(condition);
+        std::ostringstream message;
+        message << "DIMSE: Unexpected Response MsgId: "
+                << response.get_message_id_being_responded_to() 
+                << "(expected: " << message_id << ")";
+        throw Exception(message.str());
     }
 }
 
