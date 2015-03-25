@@ -12,6 +12,7 @@
 
 #include <dcmtk/config/osconfig.h>
 #include <dcmtk/dcmdata/dcdatset.h>
+#include <dcmtk/dcmdata/dcistrmb.h>
 #include <dcmtk/dcmdata/dcostrmb.h>
 #include <dcmtk/dcmdata/dctagkey.h>
 #include <dcmtk/dcmdata/dcwcache.h>
@@ -115,9 +116,8 @@ ServiceRole
     T_ASC_PresentationContextID const presentation_context = 
         this->_find_presentation_context(abstract_syntax);
     
-    this->_sendDcmDataset(
-        this->_association->get_association(), 
-        const_cast<DcmDataset*>(&message.get_command_set()), 
+    this->_send(
+        const_cast<DcmDataset*>(&message.get_command_set()),
         presentation_context, EXS_LittleEndianImplicit, 
         DUL_COMMANDPDV, NULL, NULL);
     if(message.get_data_set() != NULL && 
@@ -125,8 +125,7 @@ ServiceRole
     {
         // TODO: progress callback
         // FIXME: transfer syntax
-        this->_sendDcmDataset(
-            this->_association->get_association(), 
+        this->_send(
             const_cast<DcmDataset*>(message.get_data_set()),
             presentation_context, EXS_LittleEndianImplicit, 
             DUL_DATASETPDV, NULL, NULL);
@@ -137,54 +136,34 @@ Message
 ServiceRole
 ::_receive(ProgressCallback callback, void* callback_data) const
 {
-    OFCondition condition;
-    
-    T_ASC_PresentationContextID presentation_context;
-    T_DIMSE_Message dcmtk_message;
-    DcmDataset * command_set;
-    condition = DIMSE_receiveCommand(
-        this->_association->get_association(), DIMSE_BLOCKING,
-        this->_network->get_timeout(), 
-        &presentation_context, &dcmtk_message,
-        NULL, &command_set);
-    if(condition.bad())
+    // Receive command set
+    std::pair<DcmDataset, DUL_DATAPDV> command =
+        this->_receive_dataset(callback, callback_data);
+    if(command.second != DUL_COMMANDPDV)
     {
-        throw Exception(condition);
+        throw Exception("Did not receive command set");
     }
+    DcmDataset & command_set = command.first;
     
-    DcmDataset * data_set;
-    
+    // Receive potential data set
     Uint16 command_data_set_type;
-    
-    condition = command_set->findAndGetUint16(
+    OFCondition condition = command_set.findAndGetUint16(
         DcmTagKey(0x0000, 0x0800), command_data_set_type);
     if(condition.bad())
     {
         throw Exception(condition);
     }
     
+    DcmDataset * data_set;
     if(command_data_set_type == DIMSE_DATASET_PRESENT)
     {
-        // Encapsulate the callback and its data
-        ProgressCallbackData encapsulated;
-        if(callback != NULL)
+        std::pair<DcmDataset, DUL_DATAPDV> const data =
+            this->_receive_dataset(callback, callback_data);
+        if(command.second != DUL_DATASETPDV)
         {
-            encapsulated.callback = callback;
-            encapsulated.data = callback_data;
+            throw Exception("Did not receive data set");
         }
-        
-        OFCondition const condition = DIMSE_receiveDataSetInMemory(
-            this->_association->get_association(), DIMSE_BLOCKING, 
-            this->_network->get_timeout(), 
-            &presentation_context, &data_set, 
-            (callback != NULL)?(ServiceRole::_progress_callback_wrapper):NULL, 
-            (callback != NULL)?(&encapsulated):NULL
-        );
-        
-        if(condition.bad())
-        {
-            throw Exception(condition);
-        }
+        data_set = new DcmDataset(data.first);
     }
     else if(command_data_set_type == DIMSE_DATASET_NULL)
     {
@@ -195,9 +174,7 @@ ServiceRole
         throw Exception("Unknown Command Data Set Type");
     }
     
-    Message message(*command_set, data_set);
-    
-    return message;
+    return Message(command_set, data_set);
 }
 
 std::pair<T_ASC_PresentationContextID, T_DIMSE_Message>
@@ -262,20 +239,15 @@ ServiceRole
 
 OFCondition
 ServiceRole
-::_sendDcmDataset(
-        T_ASC_Association *assoc,
-        DcmDataset *obj,
-        T_ASC_PresentationContextID presID,
-        E_TransferSyntax xferSyntax,
-        DUL_DATAPDV pdvType,
-        DIMSE_ProgressCallback callback,
-        void *callbackContext)
+::_send(
+    DcmDataset *obj, T_ASC_PresentationContextID presID,
+    E_TransferSyntax xferSyntax, DUL_DATAPDV pdvType,
+    ProgressCallback callback, void *callbackContext) const
     /*
      * This function sends all information which is included in a DcmDataset object over
      * the network which is provided in assoc.
      *
      * Parameters:
-     *   assoc           - [in] The association (network connection to another DICOM application).
      *   obj             - [in] Contains the information which shall be sent over the network.
      *   presId          - [in] The ID of the presentation context which shall be used
      *   xferSyntax      - [in] The transfer syntax which shall be used.
@@ -291,14 +263,15 @@ ServiceRole
 
     /* we may wish to restrict output PDU size */
     /* max PDV size is max PDU size minus 12 bytes PDU/PDV header */
-    unsigned long bufLen = assoc->sendPDVLength;
+    unsigned long bufLen = this->_association->get_association()->sendPDVLength;
     if (bufLen + 12 > dcmMaxOutgoingPDUSize.get())
     {
         bufLen = dcmMaxOutgoingPDUSize.get() - 12;
     }
 
     /* on the basis of the association's buffer, create a buffer variable that we can write to */
-    DcmOutputBufferStream outBuf(assoc->sendPDVBuffer, bufLen);
+    DcmOutputBufferStream outBuf(
+        this->_association->get_association()->sendPDVBuffer, bufLen);
 
     /* prepare all elements in the DcmDataset variable for transfer */
     obj->transferInit();
@@ -403,7 +376,9 @@ ServiceRole
             pdvList.pdv = &pdv;
 
             /* send information over the network to the other DICOM application */
-            OFCondition const dulCond = DUL_WritePDVs(&assoc->DULassociation, &pdvList);
+            OFCondition const dulCond = DUL_WritePDVs(
+                &this->_association->get_association()->DULassociation,
+                &pdvList);
             if (dulCond.bad())
             {
                 return makeDcmnetSubCondition(DIMSEC_SENDFAILED, OF_error, "DIMSE Failed to send message", dulCond);
@@ -413,7 +388,7 @@ ServiceRole
             bytesTransmitted += OFstatic_cast(Uint32, rtnLength);
 
             /* execute callback function to indicate progress */
-            if (callback)
+            if(callback)
             {
                 callback(callbackContext, bytesTransmitted);
             }
@@ -424,6 +399,180 @@ ServiceRole
     obj->transferEnd();
 
     return EC_Normal;
+}
+
+
+std::pair<DcmDataset, DUL_DATAPDV>
+ServiceRole::_receive_dataset(
+    ProgressCallback callback, void *callbackContext) const
+{
+    DcmDataset dataset;
+    dataset.transferInit();
+    DcmInputBufferStream buffer;
+    if(!buffer.good())
+    {
+        throw Exception(
+            makeDcmnetCondition(
+                DIMSEC_PARSEFAILED, OF_error,
+                "DIMSE: receiveCommand: Failed to initialize cmdBuf"));
+    }
+
+    /* start a loop in which we want to read a DIMSE command from the incoming socket stream. */
+    /* Since the command could stretch over more than one PDU, the use of a loop is mandatory. */
+    DUL_DATAPDV type;
+    bool last = false;
+    DIC_UL pdvCount = 0;
+    T_ASC_PresentationContextID pid = 0;
+    while(!last)
+    {
+        /* make the stream remember any unread bytes */
+        buffer.releaseBuffer();
+
+        DUL_PDV const pdv = this->_read_next_pdv();
+
+        /* if this is the first loop iteration, get the presentation context ID
+         * which is captured in the current PDV. If this is not the first loop
+         * iteration, check if the presentation context IDs in the current PDV
+         * and in the last PDV are identical. If they are not, return an error.
+         */
+        if (pdvCount == 0)
+        {
+            pid = pdv.presentationContextID;
+        }
+        else if (pdv.presentationContextID != pid)
+        {
+            char buf1[256];
+            sprintf(buf1, "DIMSE: Different PresIDs inside Command Set: %d != %d", pid, pdv.presentationContextID);
+            OFCondition subCond = makeDcmnetCondition(DIMSEC_INVALIDPRESENTATIONCONTEXTID, OF_error, buf1);
+            throw Exception(
+                makeDcmnetSubCondition(
+                    DIMSEC_RECEIVEFAILED, OF_error,
+                    "DIMSE Failed to receive message", subCond));
+        }
+
+        /* check if the fragment length of the current PDV is odd. This should */
+        /* never happen (see DICOM standard (year 2000) part 7, annex F) (or */
+        /* the corresponding section in a later version of the standard.) */
+        if ((pdv.fragmentLength % 2) != 0)
+        {
+            /* This should NEVER happen.  See Part 7, Annex F. */
+            char buf2[256];
+            sprintf(buf2, "DIMSE: Odd Fragment Length: %lu", pdv.fragmentLength);
+            throw Exception(
+                makeDcmnetCondition(DIMSEC_RECEIVEFAILED, OF_error, buf2));
+        }
+
+        /* if information is contained the PDVs fragment, we want to insert
+         * this information into the buffer
+         */
+        if (pdv.fragmentLength > 0)
+        {
+            buffer.setBuffer(pdv.data, pdv.fragmentLength);
+        }
+
+        /* if this fragment contains the last fragment of the DIMSE command,
+         * set the end of the stream
+         */
+        if (pdv.lastPDV)
+        {
+            buffer.setEos();
+        }
+
+        /* insert the information which is contained in the buffer into the DcmDataset */
+        /* variable. Mind that DIMSE commands are always specified in the little endian */
+        /* implicit transfer syntax. Additionally, we want to remove group length tags. */
+        OFCondition const econd = dataset.read(
+            buffer, EXS_LittleEndianImplicit, EGL_withoutGL);
+        if (econd != EC_Normal && econd != EC_StreamNotifyClient)
+        {
+            throw Exception(
+                makeDcmnetSubCondition(
+                    DIMSEC_RECEIVEFAILED, OF_error,
+                    "DIMSE: receiveCommand: cmdSet->read() Failed", econd));
+        }
+
+        /* update the following variables which will be evaluated at the beginning of each loop iteration. */
+        last = pdv.lastPDV;
+        type = pdv.pdvType;
+
+        /* update the counter that counts how many PDVs were received on the incoming */
+        /* socket stream. This variable will be used for determining the first */
+        /* loop iteration and dumping general information. */
+        pdvCount++;
+    }
+
+    dataset.transferEnd();
+
+    return std::make_pair(dataset, type);
+}
+
+DUL_PDV
+ServiceRole
+::_read_next_pdv() const
+    /*
+     * This function returns the next PDV which was (earlier or just now) received on the incoming
+     * socket stream. If there are no PDVs (which were already received earlier) waiting to be picked
+     * up, this function will go ahead and read a new PDU (containing one or more new PDVs) from the
+     * incoming socket stream.
+     */
+{
+    /* get the next PDV from the association, in case there are still some PDVs waiting to be picked up */
+    DUL_PDV pdv;
+    OFCondition cond = DUL_NextPDV(
+        &this->_association->get_association()->DULassociation, &pdv);
+
+    if (cond.bad())
+    {
+        /* in case DUL_NextPDV(...) did not return DUL_NORMAL, the association */
+        /* did not contain any more PDVs that are waiting to be picked up. Hence, */
+        /* we need to read new PDVs from the incoming socket stream. */
+
+        /* if the blocking mode is DIMSE_NONBLOCKING and there is no data waiting after timeout seconds, report an error */
+        if(!ASC_dataWaiting(
+            this->_association->get_association(), this->_network->get_timeout()))
+        {
+            throw Exception(DIMSE_NODATAAVAILABLE);
+        }
+
+        /* try to receive new PDVs on the incoming socket stream (in detail, try to receive one PDU) */
+        cond = DUL_ReadPDVs(
+            &this->_association->get_association()->DULassociation, NULL,
+            DUL_BLOCK, this->_network->get_timeout());
+
+        /* check return value, if it is different from DUL_PDATAPDUARRIVED, an error occurred */
+        if (cond != DUL_PDATAPDUARRIVED)
+        {
+            if (cond == DUL_NULLKEY || cond == DUL_ILLEGALKEY)
+            {
+                throw Exception(DIMSE_ILLEGALASSOCIATION);
+            }
+            else if (cond == DUL_PEERREQUESTEDRELEASE ||
+                cond == DUL_PEERABORTEDASSOCIATION)
+            {
+                throw Exception(cond);
+            }
+            else
+            {
+                throw Exception(
+                    makeDcmnetSubCondition(
+                        DIMSEC_READPDVFAILED, OF_error,
+                        "DIMSE Read PDV failed", cond));
+            }
+        }
+
+        /* get the next PDV, assign it to pdv */
+        cond = DUL_NextPDV(
+            &this->_association->get_association()->DULassociation, &pdv);
+        if (cond.bad())
+        {
+            throw Exception(
+                makeDcmnetSubCondition(
+                    DIMSEC_READPDVFAILED, OF_error,
+                    "DIMSE Read PDV failed", cond));
+        }
+    }
+
+    return pdv;
 }
 
 void

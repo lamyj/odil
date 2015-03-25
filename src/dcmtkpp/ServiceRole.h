@@ -112,15 +112,16 @@ protected:
         ProgressCallback callback=NULL, void* callback_data=NULL) const;
 
 private:
-    static OFCondition _sendDcmDataset(
-        T_ASC_Association *assoc,
-        DcmDataset *obj,
-        T_ASC_PresentationContextID presID,
-        E_TransferSyntax xferSyntax,
-        DUL_DATAPDV pdvType,
-        DIMSE_ProgressCallback callback,
-        void *callbackContext);
+    OFCondition _send(
+        DcmDataset *obj, T_ASC_PresentationContextID presID,
+        E_TransferSyntax xferSyntax, DUL_DATAPDV pdvType,
+        ProgressCallback callback, void *callbackContext) const;
+
+    std::pair<DcmDataset, DUL_DATAPDV> _receive_dataset(
+        ProgressCallback callback, void *callbackContext) const;
     
+    DUL_PDV _read_next_pdv() const;
+
     void _check_dimse_ready() const;
 };
 
