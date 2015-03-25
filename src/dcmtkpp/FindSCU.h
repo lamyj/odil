@@ -24,7 +24,7 @@ class FindSCU: public SCU
 {
 public:
     /// @brief Callback called when a response is received.
-    typedef std::function<void(DcmDataset*)> Callback;
+    typedef std::function<void(DcmDataset const *)> Callback;
     
     /// @brief Destructor.
     virtual ~FindSCU();

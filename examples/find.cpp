@@ -5,19 +5,23 @@
 
 #include "dcmtkpp/FindSCU.h"
 
-void print_informations(DcmDataset * response)
+void print_informations(DcmDataset const * response)
 {
     OFString patient_name;
-    response->findAndGetOFString(DCM_PatientName, patient_name);
-    
+    const_cast<DcmDataset*>(response)->findAndGetOFString(
+        DCM_PatientName, patient_name);
+
     OFString study_description;
-    response->findAndGetOFString(DCM_StudyDescription, study_description);
-    
+    const_cast<DcmDataset*>(response)->findAndGetOFString(
+        DCM_StudyDescription, study_description);
+
     OFString study_date;
-    response->findAndGetOFString(DCM_StudyDate, study_date);
-    
+    const_cast<DcmDataset*>(response)->findAndGetOFString(
+        DCM_StudyDate, study_date);
+
     Sint32 number_of_study_related_series;
-    response->findAndGetSint32(DCM_NumberOfStudyRelatedSeries, number_of_study_related_series);
+    const_cast<DcmDataset*>(response)->findAndGetSint32(
+        DCM_NumberOfStudyRelatedSeries, number_of_study_related_series);
     
     std::cout << patient_name << ": " << study_description
               << " on " << study_date << ", " 

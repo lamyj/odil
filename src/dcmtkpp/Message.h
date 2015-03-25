@@ -40,7 +40,10 @@ public:
     DcmDataset const * get_data_set() const;
     
     /// @brief Set the data set of the message.
-    void set_data_set(DcmDataset * data_set);
+    void set_data_set(DcmDataset const * data_set);
+
+    /// @brief Delete the data set in this message.
+    void delete_data_set();
     
     /**
      * @brief Return the Command Field element of the command set.
@@ -57,7 +60,7 @@ protected:
     DcmDataset _command_set;
     
     /// @brief Data set of the message.
-    DcmDataset * _data_set;
+    DcmDataset const * _data_set;
 };
 
 }

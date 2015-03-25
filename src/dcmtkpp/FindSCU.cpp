@@ -17,6 +17,8 @@
 #include <dcmtk/dcmnet/dimse.h>
 
 #include "dcmtkpp/Exception.h"
+#include "dcmtkpp/CFindRequest.h"
+#include "dcmtkpp/CFindResponse.h"
 
 namespace dcmtkpp
 {
@@ -31,63 +33,33 @@ void
 FindSCU
 ::find(DcmDataset const * query, Callback callback) const
 {
-    // Send the request
-    DIC_US const message_id = this->_association->get_association()->nextMsgID++;
-    T_DIMSE_C_FindRQ request;
-    memset(&request, 0, sizeof(request));
-    
-    request.MessageID = message_id;
-    strcpy(request.AffectedSOPClassUID, this->_affected_sop_class.c_str());
-    
-    request.DataSetType = DIMSE_DATASET_PRESENT;
-    request.Priority = DIMSE_PRIORITY_MEDIUM;
-    
-    // FIXME: include progress callback
-    this->_send<DIMSE_C_FIND_RQ>(
-        request, this->_affected_sop_class.c_str(), 
-        const_cast<DcmDataset*>(query));
+    CFindRequest request(
+        this->_association->get_association()->nextMsgID++,
+        this->_affected_sop_class, DIMSE_PRIORITY_MEDIUM, query);
+    this->_send(request, this->_affected_sop_class);
     
     // Receive the responses
-    DIC_US status = STATUS_Pending;
-    int response_count = 0;
-    while(DICOM_PENDING_STATUS(status))
+    bool done = false;
+    while(!done)
     {
-        std::pair<T_ASC_PresentationContextID, T_DIMSE_Message> const command =
-            this->_receive_command(DIMSE_BLOCKING);
-        
-        if(command.second.CommandField != DIMSE_C_FIND_RSP)
-        {
-            std::ostringstream message;
-            message << "DIMSE: Unexpected Response Command Field: 0x" 
-                    << std::hex << command.second.CommandField;
-            throw Exception(message.str());
-        }
-        
-        T_DIMSE_C_FindRSP const response = command.second.msg.CFindRSP;
-        
-        if(response.MessageIDBeingRespondedTo != message_id)
+        // FIXME: include progress callback
+        auto response = this->_receive<CFindResponse>();
+        if(response.get_message_id_being_responded_to() != request.get_message_id())
         {
             std::ostringstream message;
             message << "DIMSE: Unexpected Response MsgId: "
-                    << response.MessageIDBeingRespondedTo 
-                    << "(expected: " << message_id << ")";
+                    << response.get_message_id_being_responded_to()
+                    << "(expected: " << request.get_message_id() << ")";
             throw Exception(message.str());
         }
-        
-        status = response.DimseStatus;
-        ++response_count;
-        
-        if(status == STATUS_Pending || status == STATUS_FIND_Pending_WarningUnsupportedOptionalKeys)
+
+        done = !DICOM_PENDING_STATUS(response.get_status());
+        if(!done)
         {
-            // FIXME: include progress callback
-            std::pair<T_ASC_PresentationContextID, DcmDataset *> response =
-                this->_receive_dataset(DIMSE_BLOCKING);
-            // Execute user callback
-            callback(response.second);
-            
-            // Response dataset is allocated in DIMSE_receiveDataSetInMemory,
+            callback(response.get_data_set());
+            // Response dataset is allocated in this->_receive,
             // free it now.
-            delete response.second;
+            response.delete_data_set();
         }
     }
 }
@@ -97,9 +69,9 @@ FindSCU
 ::find(DcmDataset const * query) const
 {
     std::vector<DcmDataset*> result;
-    auto callback = [&result](DcmDataset * dataset) { 
+    auto callback = [&result](DcmDataset const * dataset) {
         // We do not manage the allocation of dataset: clone it
-        result.push_back(static_cast<DcmDataset*>(dataset->clone())); 
+        result.push_back(static_cast<DcmDataset*>(dataset->clone()));
     };
     this->find(query, callback);
     

@@ -64,12 +64,12 @@ Message
 
 void
 Message
-::set_data_set(DcmDataset * data_set)
+::set_data_set(const DcmDataset * data_set)
 {
     this->_data_set = data_set;
     
     Uint16 command_dataset_type;
-    if(data_set == NULL || data_set->isEmpty())
+    if(data_set == NULL || const_cast<DcmDataset*>(data_set)->isEmpty())
     {
         command_dataset_type = DIMSE_DATASET_NULL;
     }
@@ -83,6 +83,17 @@ Message
     if(condition.bad())
     {
         throw Exception(condition);
+    }
+}
+
+void
+Message
+::delete_data_set()
+{
+    if(this->_data_set != NULL)
+    {
+        delete this->_data_set;
+        this->set_data_set(NULL);
     }
 }
 
