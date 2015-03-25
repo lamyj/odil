@@ -13,10 +13,7 @@
 
 #include <dcmtk/config/osconfig.h>
 #include <dcmtk/dcmdata/dcdatset.h>
-#include <dcmtk/dcmnet/assoc.h>
-#include <dcmtk/dcmnet/dimse.h>
-
-#include "dcmtkpp/Association.h"
+#include <dcmtk/ofstd/oftypes.h>
 
 namespace dcmtkpp
 {
@@ -31,23 +28,16 @@ public:
     virtual ~Message();
     
     /// @brief Return the command set of the message.
-    DcmDataset & get_command_set();
+    DcmDataset const & get_command_set() const;
     
     /// @brief Return the data set of the message, default to NULL.
-    DcmDataset * get_data_set();
+    DcmDataset const * get_data_set() const;
     
     /// @brief Set the data set of the message.
     void set_data_set(DcmDataset * data_set);
     
     Uint16 get_command_field() const;
     void set_command_field(Uint16 command_field);
-    
-    /**
-     * @brief Send the message
-     * @param association
-     * @param abstract_syntax
-     */
-    void send(Association & association, std::string const & abstract_syntax) const;
 
 protected:
     /// @brief Command set of the message.
@@ -55,20 +45,6 @@ protected:
     
     /// @brief Data set of the message.
     DcmDataset * _data_set;
-    
-    /// @brief Find an accepted presentation context for the abstract syntax.
-    static T_ASC_PresentationContextID _find_presentation_context(
-        Association & association, std::string const & abstract_syntax);
-
-private:
-    static OFCondition sendDcmDataset(
-        T_ASC_Association *assoc,
-        DcmDataset *obj,
-        T_ASC_PresentationContextID presID,
-        E_TransferSyntax xferSyntax,
-        DUL_DATAPDV pdvType,
-        DIMSE_ProgressCallback callback,
-        void *callbackContext);
 };
 
 }
