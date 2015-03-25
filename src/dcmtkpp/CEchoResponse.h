@@ -20,16 +20,32 @@
 namespace dcmtkpp
 {
 
+/// @brief C-ECHO-RSP message.
 class CEchoResponse: public Response
 {
 public:
+    /**
+     * @brief Create an echo response with given Message ID and
+     * affected SOP class UID.
+     */
     CEchoResponse(
         Uint16 message_id_being_responded_to, Uint16 status,
         std::string const & affected_sop_class_uid);
+
+    /**
+     * @brief Create a C-ECHO-RSP from a generic Message.
+     *
+     * Raise an exception if the Message does not contain a C-ECHO-RSP.
+     */
     CEchoResponse(Message const & message);
+
+    /// @brief Destructor.
     virtual ~CEchoResponse();
     
+    /// @brief Return the Affected SOP Class UID element of the command set.
     std::string get_affected_sop_class_uid() const;
+
+    /// @brief Set the Affected SOP Class UID element of the command set.
     void set_affected_sop_class_uid(std::string const & affected_sop_class_uid);
 };
 

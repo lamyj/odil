@@ -21,14 +21,33 @@ namespace dcmtkpp
 class Response: public Message
 {
 public:
+    /// @brief Create a response with given message id and status;
     Response(Uint16 message_id_being_responded_to, Uint16 status);
+
+    /**
+     * @brief Create a response from the Message ID Being Responded To and the
+     * Status stored in the message command set.
+     *
+     * Raise an exception is either of those elements is missing.
+     */
     Response(Message const & message);
+
+    /// @brief Destructor.
     virtual ~Response();
     
+    /**
+     * @brief Return the Message ID Being Responded To element of the
+     * command set.
+     */
     Uint16 get_message_id_being_responded_to() const;
+
+    /// @brief Set the Message ID Being Responded To element of the command set.
     void set_message_id_being_responded_to(Uint16 message_id_being_responded_to);
     
+    /// @brief Return the Status element of the command set.
     Uint16 get_status() const;
+
+    /// @brief Set the Status element of the command set.
     void set_status(Uint16 status);
 };
 

@@ -24,8 +24,13 @@ namespace dcmtkpp
 class Message
 {
 public:
+    /// @brief Create a message with an empty command set and an empty data set.
     Message();
+
+    /// @brief Create a message from existing data.
     Message(DcmDataset const & command_set, DcmDataset * data_set=NULL);
+
+    /// @brief Destructor;
     virtual ~Message();
     
     /// @brief Return the command set of the message.
@@ -37,7 +42,14 @@ public:
     /// @brief Set the data set of the message.
     void set_data_set(DcmDataset * data_set);
     
+    /**
+     * @brief Return the Command Field element of the command set.
+     *
+     * Raise an exception if no command field has been defined.
+     */
     Uint16 get_command_field() const;
+
+    /// @brief Set the Command Field element of the command set.
     void set_command_field(Uint16 command_field);
 
 protected:

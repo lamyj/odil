@@ -74,7 +74,7 @@ CEchoResponse
         throw Exception(condition);
     }
     
-    return affected_sop_class_uid;
+    return affected_sop_class_uid.c_str();
 }
 
 void 
