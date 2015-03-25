@@ -25,6 +25,7 @@ class Message
 {
 public:
     Message();
+    Message(DcmDataset const & command_set, DcmDataset * data_set=NULL);
     virtual ~Message();
     
     /// @brief Return the command set of the message.

@@ -23,8 +23,22 @@ namespace dcmtkpp
 {
 
 Message
+::Message(DcmDataset const & command_set, DcmDataset * data_set)
+: _command_set(command_set)
+{
+    this->set_data_set(data_set);
+}
+
+Message
 ::Message()
 {
+    auto const condition = this->_command_set.putAndInsertUint32(
+        DCM_CommandGroupLength, 0);
+    if(condition.bad())
+    {
+        throw Exception(condition);
+    }
+    
     this->set_data_set(NULL);
 }
 
