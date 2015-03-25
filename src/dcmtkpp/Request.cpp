@@ -45,6 +45,8 @@ Request
     {
         throw Exception(condition);
     }
+    
+    return message_id;
 }
 
 void 

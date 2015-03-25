@@ -85,6 +85,8 @@ Message
     {
         throw Exception(condition);
     }
+    
+    return command_field;
 }
 
 void 
