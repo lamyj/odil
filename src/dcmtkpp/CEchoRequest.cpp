@@ -48,6 +48,8 @@ CEchoRequest
     {
         throw Exception(condition);
     }
+    
+    return std::string(affected_sop_class_uid.c_str());
 }
 
 void 
