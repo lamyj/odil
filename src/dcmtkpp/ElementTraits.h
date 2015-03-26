@@ -34,13 +34,19 @@ template<DcmEVR VR>
 struct ElementTraits;
 
 #define DECLARE_ELEMENT_TRAITS(vr, value_type, dcmtk_value_type) \
+/** @brief Traits for generic data access to values of DcmElement. */ \
 template<> \
 struct ElementTraits<vr> \
 { \
+    /** @brief C++ type of the VR. */ \
     typedef value_type ValueType; \
+    /** @brief Type of the getter function. */ \
     typedef std::function<OFCondition(DcmElement &, dcmtk_value_type &, unsigned long const)> GetterType; \
+    /** @brief Getter function (one of the get??? functions of DcmElement). */ \
     static GetterType const getter; \
+    /** @brief Type of the setter function. */ \
     typedef std::function<OFCondition(DcmElement &, dcmtk_value_type const, unsigned long const)> SetterType; \
+    /** @brief Setter function (one of the put??? functions of DcmElement). */ \
     static SetterType const setter; \
 };
 
