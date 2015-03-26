@@ -12,12 +12,35 @@
 #include "ElementAccessor.h"
 
 #include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmdata/dcelem.h>
 #include <dcmtk/dcmdata/dcdatset.h>
+#include <dcmtk/dcmdata/dcelem.h>
+#include <dcmtk/dcmdata/dcerror.h>
 #include <dcmtk/ofstd/ofstring.h>
 
 namespace dcmtkpp
 {
+
+template<DcmEVR VR>
+bool
+ElementAccessor<VR>
+::has(DcmDataset const & dataset, DcmTagKey const & tag)
+{
+    DcmElement * dummy;
+    OFCondition const condition =
+        const_cast<DcmDataset&>(dataset).findAndGetElement(tag, dummy);
+    if(condition.good())
+    {
+        return true;
+    }
+    else if(condition == EC_TagNotFound)
+    {
+        return false;
+    }
+    else
+    {
+        throw Exception(condition);
+    }
+}
 
 template<DcmEVR VR>
 typename ElementAccessor<VR>::ValueType

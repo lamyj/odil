@@ -88,19 +88,4 @@ Message
     }
 }
 
-Uint16 
-Message
-::get_command_field() const
-{
-    return ElementAccessor<EVR_US>::get(this->_command_set, DCM_CommandField);
-}
-
-void 
-Message
-::set_command_field(Uint16 command_field)
-{
-    ElementAccessor<EVR_US>::set(
-        this->_command_set, DCM_CommandField, command_field);
-}
-
 }
