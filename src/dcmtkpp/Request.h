@@ -35,11 +35,7 @@ public:
     /// @brief Destructor.
     virtual ~Request();
     
-    /// @brief Return the Message ID element of the command set.
-    Uint16 get_message_id() const;
-
-    /// @brief Set the Message ID element of the command set.
-    void set_message_id(Uint16 message_id);
+    DCMTKPP_MESSAGE_MANDATORY_FIELD_MACRO(message_id, MessageID, EVR_US)
 };
 
 }

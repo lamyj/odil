@@ -69,34 +69,4 @@ CFindRequest
     // Nothing to do.
 }
 
-std::string 
-CFindRequest
-::get_affected_sop_class_uid() const
-{
-    return ElementAccessor<EVR_UI>::get(
-        this->_command_set, DCM_AffectedSOPClassUID);
-}
-
-void 
-CFindRequest
-::set_affected_sop_class_uid(std::string const & affected_sop_class_uid)
-{
-    ElementAccessor<EVR_UI>::set(
-        this->_command_set, DCM_AffectedSOPClassUID, affected_sop_class_uid);
-}
-
-Uint16
-CFindRequest
-::get_priority() const
-{
-    return ElementAccessor<EVR_US>::get(this->_command_set, DCM_Priority);
-}
-
-void
-CFindRequest
-::set_priority(Uint16 priority)
-{
-    ElementAccessor<EVR_US>::set(this->_command_set, DCM_Priority, priority);
-}
-
 }

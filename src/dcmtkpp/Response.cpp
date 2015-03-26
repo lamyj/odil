@@ -47,35 +47,4 @@ Response
     // Nothing to do.
 }
 
-Uint16 
-Response
-::get_message_id_being_responded_to() const
-{
-    return ElementAccessor<EVR_US>::get(
-        this->_command_set, DCM_MessageIDBeingRespondedTo);
-}
-
-void 
-Response
-::set_message_id_being_responded_to(Uint16 message_id_being_responded_to)
-{
-    ElementAccessor<EVR_US>::set(
-        this->_command_set,
-        DCM_MessageIDBeingRespondedTo, message_id_being_responded_to);
-}
-
-Uint16 
-Response
-::get_status() const
-{
-    return ElementAccessor<EVR_US>::get(this->_command_set, DCM_Status);
-}
-
-void 
-Response
-::set_status(Uint16 status)
-{
-    ElementAccessor<EVR_US>::set(this->_command_set, DCM_Status, status);
-}
-
 }

@@ -35,20 +35,8 @@ public:
     /// @brief Destructor.
     virtual ~Response();
     
-    /**
-     * @brief Return the Message ID Being Responded To element of the
-     * command set.
-     */
-    Uint16 get_message_id_being_responded_to() const;
-
-    /// @brief Set the Message ID Being Responded To element of the command set.
-    void set_message_id_being_responded_to(Uint16 message_id_being_responded_to);
-    
-    /// @brief Return the Status element of the command set.
-    Uint16 get_status() const;
-
-    /// @brief Set the Status element of the command set.
-    void set_status(Uint16 status);
+    DCMTKPP_MESSAGE_MANDATORY_FIELD_MACRO(message_id_being_responded_to, MessageIDBeingRespondedTo, EVR_US)
+    DCMTKPP_MESSAGE_MANDATORY_FIELD_MACRO(status, Status, EVR_US)
 };
 
 }

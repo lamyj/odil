@@ -42,11 +42,7 @@ public:
     /// @brief Destructor.
     virtual ~CFindResponse();
     
-    /// @brief Return the Affected SOP Class UID element of the command set.
-    std::string get_affected_sop_class_uid() const;
-
-    /// @brief Set the Affected SOP Class UID element of the command set.
-    void set_affected_sop_class_uid(std::string const & affected_sop_class_uid);
+    DCMTKPP_MESSAGE_MANDATORY_FIELD_MACRO(affected_sop_class_uid, AffectedSOPClassUID, EVR_UI)
 };
 
 }

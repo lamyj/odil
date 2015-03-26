@@ -41,17 +41,8 @@ public:
     /// @brief Destructor.
     virtual ~CFindRequest();
     
-    /// @brief Return the Affected SOP Class UID element of the command set.
-    std::string get_affected_sop_class_uid() const;
-
-    /// @brief Set the Affected SOP Class UID element of the command set.
-    void set_affected_sop_class_uid(std::string const & affected_sop_class_uid);
-
-    /// @brief Return the Priority element of the command set.
-    Uint16 get_priority() const;
-
-    /// @brief Set the Affected SOP Class UID element of the command set.
-    void set_priority(Uint16 priority);
+    DCMTKPP_MESSAGE_MANDATORY_FIELD_MACRO(affected_sop_class_uid, AffectedSOPClassUID, EVR_UI)
+    DCMTKPP_MESSAGE_MANDATORY_FIELD_MACRO(priority, Priority, EVR_US)
 };
 
 }

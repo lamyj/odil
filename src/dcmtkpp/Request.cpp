@@ -42,18 +42,4 @@ Request
     // Nothing to do.
 }
 
-Uint16 
-Request
-::get_message_id() const
-{
-    return ElementAccessor<EVR_US>::get(this->_command_set, DCM_MessageID);
-}
-
-void 
-Request
-::set_message_id(Uint16 message_id)
-{
-    ElementAccessor<EVR_US>::set(this->_command_set, DCM_MessageID, message_id);
-}
-
 }

@@ -51,20 +51,4 @@ CEchoRequest
     // Nothing to do.
 }
 
-std::string 
-CEchoRequest
-::get_affected_sop_class_uid() const
-{
-    return ElementAccessor<EVR_UI>::get(
-        this->_command_set, DCM_AffectedSOPClassUID);
-}
-
-void 
-CEchoRequest
-::set_affected_sop_class_uid(std::string const & affected_sop_class_uid)
-{
-    ElementAccessor<EVR_UI>::set(
-        this->_command_set, DCM_AffectedSOPClassUID, affected_sop_class_uid);
-}
-
 }
