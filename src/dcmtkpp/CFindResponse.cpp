@@ -15,6 +15,7 @@
 #include <dcmtk/dcmnet/dimse.h>
 #include <dcmtk/ofstd/oftypes.h>
 
+#include "dcmtkpp/ElementAccessor.h"
 #include "dcmtkpp/Exception.h"
 #include "dcmtkpp/Response.h"
 
@@ -43,17 +44,9 @@ CFindResponse
     }
     this->set_command_field(message.get_command_field());
     
-    auto command_set = const_cast<DcmDataset &>(message.get_command_set());
-    OFString affected_sop_class_uid;
-    
-    auto const condition = command_set.findAndGetOFString(
-        DCM_AffectedSOPClassUID, affected_sop_class_uid);
-    if(condition.bad())
-    {
-        throw Exception(condition);
-    }
-    
-    this->set_affected_sop_class_uid(affected_sop_class_uid.c_str());
+    std::string const affected_sop_class_uid = ElementAccessor<EVR_UI>::get(
+        message.get_command_set(), DCM_AffectedSOPClassUID);
+    this->set_affected_sop_class_uid(affected_sop_class_uid);
 
     this->set_data_set(message.get_data_set());
 }
@@ -68,29 +61,16 @@ std::string
 CFindResponse
 ::get_affected_sop_class_uid() const
 {
-    auto command_set = const_cast<DcmDataset &>(this->_command_set);
-    OFString affected_sop_class_uid;
-    
-    auto const condition = command_set.findAndGetOFString(
-        DCM_AffectedSOPClassUID, affected_sop_class_uid);
-    if(condition.bad())
-    {
-        throw Exception(condition);
-    }
-    
-    return affected_sop_class_uid.c_str();
+    return ElementAccessor<EVR_UI>::get(
+        this->_command_set, DCM_AffectedSOPClassUID);
 }
 
 void 
 CFindResponse
 ::set_affected_sop_class_uid(std::string const & affected_sop_class_uid)
 {
-    auto const condition = this->_command_set.putAndInsertOFStringArray(
-        DCM_AffectedSOPClassUID, affected_sop_class_uid.c_str());
-    if(condition.bad())
-    {
-        throw Exception(condition);
-    }
+    ElementAccessor<EVR_UI>::set(
+        this->_command_set, DCM_AffectedSOPClassUID, affected_sop_class_uid);
 }
 
 }

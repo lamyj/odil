@@ -13,6 +13,7 @@
 #include <dcmtk/dcmdata/dcdeftag.h>
 #include <dcmtk/ofstd/oftypes.h>
 
+#include "dcmtkpp/ElementAccessor.h"
 #include "dcmtkpp/Exception.h"
 #include "dcmtkpp/Message.h"
 
@@ -30,16 +31,8 @@ Request
 ::Request(Message const & message)
 : Message()
 {
-    auto command_set = const_cast<DcmDataset &>(message.get_command_set());
-
-    OFCondition condition;
-
-    Uint16 message_id;
-    condition = command_set.findAndGetUint16(DCM_MessageID, message_id);
-    if(condition.bad())
-    {
-        throw Exception(condition);
-    }
+    Uint16 const message_id = ElementAccessor<EVR_US>::get(
+        message.get_command_set(), DCM_MessageID);
     this->set_message_id(message_id);
 }
 
@@ -53,29 +46,14 @@ Uint16
 Request
 ::get_message_id() const
 {
-    auto command_set = const_cast<DcmDataset &>(this->_command_set);
-    Uint16 message_id;
-    
-    auto const condition = command_set.findAndGetUint16(
-        DCM_MessageID, message_id);
-    if(condition.bad())
-    {
-        throw Exception(condition);
-    }
-    
-    return message_id;
+    return ElementAccessor<EVR_US>::get(this->_command_set, DCM_MessageID);
 }
 
 void 
 Request
 ::set_message_id(Uint16 message_id)
 {
-    auto const condition = this->_command_set.putAndInsertUint16(
-        DCM_MessageID, message_id);
-    if(condition.bad())
-    {
-        throw Exception(condition);
-    }
+    ElementAccessor<EVR_US>::set(this->_command_set, DCM_MessageID, message_id);
 }
 
 }

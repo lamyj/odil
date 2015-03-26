@@ -13,6 +13,7 @@
 #include <dcmtk/dcmdata/dcdeftag.h>
 #include <dcmtk/ofstd/oftypes.h>
 
+#include "dcmtkpp/ElementAccessor.h"
 #include "dcmtkpp/Exception.h"
 #include "dcmtkpp/Message.h"
 
@@ -31,25 +32,12 @@ Response
 ::Response(Message const & message)
 : Message()
 {
-    auto command_set = const_cast<DcmDataset &>(message.get_command_set());
-    
-    OFCondition condition;
-    
-    Uint16 message_id;
-    condition = command_set.findAndGetUint16(
-        DCM_MessageIDBeingRespondedTo, message_id);
-    if(condition.bad())
-    {
-        throw Exception(condition);
-    }
+    Uint16 const message_id = ElementAccessor<EVR_US>::get(
+        message.get_command_set(), DCM_MessageIDBeingRespondedTo);
     this->set_message_id_being_responded_to(message_id);
-    
-    Uint16 status;
-    condition = command_set.findAndGetUint16(DCM_Status, status);
-    if(condition.bad())
-    {
-        throw Exception(condition);
-    }
+
+    Uint16 const status = ElementAccessor<EVR_US>::get(
+        message.get_command_set(), DCM_Status);
     this->set_status(status);
 }
 
@@ -63,57 +51,31 @@ Uint16
 Response
 ::get_message_id_being_responded_to() const
 {
-    auto command_set = const_cast<DcmDataset &>(this->_command_set);
-    Uint16 message_id;
-    
-    auto const condition = command_set.findAndGetUint16(
-        DCM_MessageIDBeingRespondedTo, message_id);
-    if(condition.bad())
-    {
-        throw Exception(condition);
-    }
-    
-    return message_id;
+    return ElementAccessor<EVR_US>::get(
+        this->_command_set, DCM_MessageIDBeingRespondedTo);
 }
 
 void 
 Response
 ::set_message_id_being_responded_to(Uint16 message_id_being_responded_to)
 {
-    auto const condition = this->_command_set.putAndInsertUint16(
+    ElementAccessor<EVR_US>::set(
+        this->_command_set,
         DCM_MessageIDBeingRespondedTo, message_id_being_responded_to);
-    if(condition.bad())
-    {
-        throw Exception(condition);
-    }
 }
 
 Uint16 
 Response
 ::get_status() const
 {
-    auto command_set = const_cast<DcmDataset &>(this->_command_set);
-    Uint16 status;
-    
-    auto const condition = command_set.findAndGetUint16(DCM_Status, status);
-    if(condition.bad())
-    {
-        throw Exception(condition);
-    }
-    
-    return status;
+    return ElementAccessor<EVR_US>::get(this->_command_set, DCM_Status);
 }
 
 void 
 Response
 ::set_status(Uint16 status)
 {
-    auto const condition = this->_command_set.putAndInsertUint16(
-        DCM_Status, status);
-    if(condition.bad())
-    {
-        throw Exception(condition);
-    }
+    ElementAccessor<EVR_US>::set(this->_command_set, DCM_Status, status);
 }
 
 }

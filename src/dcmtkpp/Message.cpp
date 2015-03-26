@@ -17,29 +17,24 @@
 #include <dcmtk/dcmnet/dimse.h>
 #include <dcmtk/ofstd/oftypes.h>
 
+#include "dcmtkpp/ElementAccessor.h"
 #include "dcmtkpp/Exception.h"
 
 namespace dcmtkpp
 {
 
 Message
+::Message()
+{
+    ElementAccessor<EVR_UL>::set(this->_command_set, DCM_CommandGroupLength, 0);
+    this->set_data_set(NULL);
+}
+
+Message
 ::Message(DcmDataset const & command_set, DcmDataset * data_set)
 : _command_set(command_set)
 {
     this->set_data_set(data_set);
-}
-
-Message
-::Message()
-{
-    auto const condition = this->_command_set.putAndInsertUint32(
-        DCM_CommandGroupLength, 0);
-    if(condition.bad())
-    {
-        throw Exception(condition);
-    }
-    
-    this->set_data_set(NULL);
 }
 
 Message
@@ -78,12 +73,8 @@ Message
         command_dataset_type = DIMSE_DATASET_PRESENT;
     }
     
-    auto const condition = this->_command_set.putAndInsertUint16(
-        DcmTagKey(0x0000, 0x0800), command_dataset_type);
-    if(condition.bad())
-    {
-        throw Exception(condition);
-    }
+    ElementAccessor<EVR_US>::set(
+        this->_command_set, DcmTagKey(0x0000, 0x0800), command_dataset_type);
 }
 
 void
@@ -101,29 +92,15 @@ Uint16
 Message
 ::get_command_field() const
 {
-    auto command_set = const_cast<DcmDataset &>(this->_command_set);
-    Uint16 command_field;
-    
-    auto const condition = command_set.findAndGetUint16(
-        DCM_CommandField, command_field);
-    if(condition.bad())
-    {
-        throw Exception(condition);
-    }
-    
-    return command_field;
+    return ElementAccessor<EVR_US>::get(this->_command_set, DCM_CommandField);
 }
 
 void 
 Message
 ::set_command_field(Uint16 command_field)
 {
-    auto const condition = this->_command_set.putAndInsertUint16(
-        DCM_CommandField, command_field);
-    if(condition.bad())
-    {
-        throw Exception(condition);
-    }
+    ElementAccessor<EVR_US>::set(
+        this->_command_set, DCM_CommandField, command_field);
 }
 
 }

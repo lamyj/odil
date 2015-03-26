@@ -18,6 +18,7 @@
 #include <dcmtk/dcmdata/dcdeftag.h>
 #include <dcmtk/dcmnet/dimse.h>
 
+#include "dcmtkpp/ElementAccessor.h"
 #include "dcmtkpp/Exception.h"
 
 namespace dcmtkpp
@@ -33,16 +34,8 @@ void
 StoreSCU
 ::set_affected_sop_class(DcmDataset const * dataset)
 {
-    OFString value;
-    OFCondition const condition = 
-        const_cast<DcmDataset*>(dataset)->findAndGetOFString(
-            DCM_SOPClassUID, value);
-    if(condition.bad())
-    {
-        throw Exception(condition);
-    }
-    
-    std::string const sop_class_uid(value.c_str());
+    std::string const sop_class_uid =
+        ElementAccessor<EVR_UI>::get(*dataset, DCM_SOPClassUID);
     
     std::vector<std::string> known_uids = {
         UID_ComputedRadiographyImageStorage,
@@ -102,8 +95,8 @@ StoreSCU
     request.MessageID = message_id;
     strcpy(request.AffectedSOPClassUID, this->_affected_sop_class.c_str());
     
-    OFString sop_instance_uid;
-    const_cast<DcmDataset*>(dataset)->findAndGetOFString(DCM_SOPInstanceUID, sop_instance_uid);
+    std::string const sop_instance_uid =
+        ElementAccessor<EVR_UI>::get(*dataset, DCM_SOPInstanceUID);
     strcpy(request.AffectedSOPInstanceUID, sop_instance_uid.c_str());
     
     request.DataSetType = DIMSE_DATASET_PRESENT;

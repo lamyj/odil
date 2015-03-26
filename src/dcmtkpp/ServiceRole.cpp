@@ -19,6 +19,7 @@
 #include <dcmtk/dcmnet/assoc.h>
 #include <dcmtk/dcmnet/dimse.h>
 
+#include "dcmtkpp/ElementAccessor.h"
 #include "dcmtkpp/Exception.h"
 
 namespace dcmtkpp
@@ -138,22 +139,17 @@ ServiceRole
 ::_receive(ProgressCallback callback, void* callback_data) const
 {
     // Receive command set
-    std::pair<DcmDataset, DUL_DATAPDV> command =
+    std::pair<DcmDataset, DUL_DATAPDV> const command =
         this->_receive_dataset(callback, callback_data);
     if(command.second != DUL_COMMANDPDV)
     {
         throw Exception("Did not receive command set");
     }
-    DcmDataset & command_set = command.first;
+    DcmDataset const & command_set = command.first;
     
     // Receive potential data set
-    Uint16 command_data_set_type;
-    OFCondition condition = command_set.findAndGetUint16(
-        DcmTagKey(0x0000, 0x0800), command_data_set_type);
-    if(condition.bad())
-    {
-        throw Exception(condition);
-    }
+    Uint16 const command_data_set_type =
+        ElementAccessor<EVR_US>::get(command_set, DcmTagKey(0x0000, 0x0800));
     
     DcmDataset * data_set;
     if(command_data_set_type != DIMSE_DATASET_NULL)
