@@ -14,7 +14,10 @@
 #include <dcmtk/dcmdata/dcdatset.h>
 #include <dcmtk/dcmnet/dimse.h>
 
+#include "dcmtkpp/CMoveRequest.h"
+#include "dcmtkpp/CMoveResponse.h"
 #include "dcmtkpp/Exception.h"
+#include "dcmtkpp/Message.h"
 #include "dcmtkpp/StoreSCP.h"
 
 namespace dcmtkpp
@@ -52,23 +55,10 @@ MoveSCU
 ::move(DcmDataset const * query, Callback callback) const
 {
     // Send the request
-    DIC_US const message_id = this->_association->get_association()->nextMsgID++;
-    T_DIMSE_C_MoveRQ request;
-    memset(&request, 0, sizeof(request));
-    
-    request.MessageID = message_id;
-    strcpy(request.AffectedSOPClassUID, this->_affected_sop_class.c_str());
-    
-    request.DataSetType = DIMSE_DATASET_PRESENT;
-    request.Priority = DIMSE_PRIORITY_MEDIUM;
-    
-    strncpy(
-        request.MoveDestination,
-        this->_move_destination.c_str(), 16);
-    
-    // FIXME: include progress callback
-    this->_send<DIMSE_C_MOVE_RQ>(
-        request, this->_affected_sop_class, const_cast<DcmDataset*>(query));
+    CMoveRequest const request(this->_association->get_association()->nextMsgID++,
+        this->_affected_sop_class, DIMSE_PRIORITY_MEDIUM,
+        this->_move_destination, query);
+    this->_send(request, this->_affected_sop_class);
     
     // Receive the responses
     Association store_association;
@@ -91,7 +81,7 @@ MoveSCU
 ::move(DcmDataset const * query) const
 {
     std::vector<DcmDataset*> result;
-    auto callback = [&result](DcmDataset * dataset) { 
+    auto callback = [&result](DcmDataset const * dataset) {
         // We do not manage the allocation of dataset: clone it
         result.push_back(static_cast<DcmDataset*>(dataset->clone())); 
     };
@@ -110,7 +100,7 @@ MoveSCU
     associations[0] = this->_association->get_association();
     size = 1;
     associations[1] = association.get_association();
-    if(association.get_association() != NULL) 
+    if(association.is_associated())
     {
         ++size;
     }
@@ -144,26 +134,18 @@ bool
 MoveSCU
 ::_handle_main_association() const
 {
-    std::pair<T_ASC_PresentationContextID, T_DIMSE_Message> const command =
-        this->_receive_command(DIMSE_BLOCKING);
+    Message const message = this->_receive();
     
-    if(command.second.CommandField != DIMSE_C_MOVE_RSP)
+    if(message.get_command_field() != DIMSE_C_MOVE_RSP)
     {
-        std::ostringstream message;
-        message << "DIMSE: Unexpected Response Command Field: 0x" 
-                << std::hex << command.second.CommandField;
-        throw Exception(message.str());
+        std::ostringstream exception_message;
+        exception_message << "DIMSE: Unexpected Response Command Field: 0x"
+                << std::hex << message.get_command_field();
+        throw Exception(exception_message.str());
     }
     
-    T_DIMSE_C_MoveRSP const response = command.second.msg.CMoveRSP;
-    if (response.DataSetType != DIMSE_DATASET_NULL) 
-    {
-        std::pair<T_ASC_PresentationContextID, DcmDataset *> dataset = 
-            this->_receive_dataset(DIMSE_BLOCKING);
-        delete dataset.second;
-    }
-    
-    bool const done = (response.DimseStatus != STATUS_Pending);
+    CMoveResponse const response(message);
+    bool const done = (response.get_status() != STATUS_Pending);
     
     return done;
 }

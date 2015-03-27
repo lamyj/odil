@@ -5,23 +5,17 @@
 
 #include "dcmtkpp/MoveSCU.h"
 
-void print_informations(DcmDataset * response)
+void print_informations(DcmDataset const * response)
 {
-    OFString patient_name;
-    response->findAndGetOFString(DCM_PatientName, patient_name);
-    
-    OFString study_description;
-    response->findAndGetOFString(DCM_StudyDescription, study_description);
-    
-    OFString series_description;
-    response->findAndGetOFString(DCM_SeriesDescription, series_description);
-    
-    Sint32 instance_number;
-    response->findAndGetSint32(DCM_InstanceNumber, instance_number);
-    
-    std::cout << patient_name << ": " 
-              << study_description << " / " << series_description << ": "
-              << instance_number << "\n";
+    std::cout
+        << dcmtkpp::ElementAccessor<EVR_PN>::get(*response, DCM_PatientName)
+        << ": "
+        << dcmtkpp::ElementAccessor<EVR_LO>::get(*response, DCM_StudyDescription)
+        << " / "
+        << dcmtkpp::ElementAccessor<EVR_LO>::get(*response, DCM_SeriesDescription)
+        << ": "
+        << dcmtkpp::ElementAccessor<EVR_IS>::get(*response, DCM_InstanceNumber)
+        << "\n";
 }
 
 int main()

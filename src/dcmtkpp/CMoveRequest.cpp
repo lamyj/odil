@@ -28,7 +28,7 @@ CMoveRequest
     DcmDataset const * dataset)
 : Request(message_id)
 {
-    this->set_command_field(DIMSE_C_GET_RQ);
+    this->set_command_field(DIMSE_C_MOVE_RQ);
     this->set_affected_sop_class_uid(affected_sop_class_uid);
     this->set_priority(priority);
     this->set_move_destination(move_destination);
@@ -43,9 +43,9 @@ CMoveRequest
 ::CMoveRequest(Message const & message)
 : Request(message)
 {
-    if(message.get_command_field() != DIMSE_C_GET_RQ)
+    if(message.get_command_field() != DIMSE_C_MOVE_RQ)
     {
-        throw Exception("Message is not a C-GET-RQ");
+        throw Exception("Message is not a C-MOVE-RQ");
     }
     this->set_command_field(message.get_command_field());
 

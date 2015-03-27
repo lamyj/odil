@@ -28,7 +28,7 @@ CMoveResponse
     DcmDataset const * dataset)
 : Response(message_id_being_responded_to, status)
 {
-    this->set_command_field(DIMSE_C_GET_RSP);
+    this->set_command_field(DIMSE_C_MOVE_RSP);
 
     this->set_data_set(dataset);
 }
