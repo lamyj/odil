@@ -44,12 +44,22 @@ FindSCU
     {
         // FIXME: include progress callback
         auto response = this->_receive<CFindResponse>();
+
         if(response.get_message_id_being_responded_to() != request.get_message_id())
         {
             std::ostringstream message;
             message << "DIMSE: Unexpected Response MsgId: "
                     << response.get_message_id_being_responded_to()
                     << "(expected: " << request.get_message_id() << ")";
+            throw Exception(message.str());
+        }
+        if(response.has_affected_sop_class_uid() &&
+           response.get_affected_sop_class_uid() != request.get_affected_sop_class_uid())
+        {
+            std::ostringstream message;
+            message << "DIMSE: Unexpected Response Affected SOP Class UID: "
+                    << response.get_affected_sop_class_uid()
+                    << " (expected: " << request.get_affected_sop_class_uid() << ")";
             throw Exception(message.str());
         }
 
