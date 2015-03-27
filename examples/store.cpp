@@ -16,11 +16,11 @@ int main(int argc, char** argv)
     
     dcmtkpp::Association association;
     
-    association.set_own_ae_title("bretagne");
+    association.set_own_ae_title("myself");
     
-    association.set_peer_host_name("aude.u-strasbg.fr");
+    association.set_peer_host_name("pacs.example.com");
     association.set_peer_port(11112);
-    association.set_peer_ae_title("PIIV-RECHERCHE");
+    association.set_peer_ae_title("pacs");
     
     association.add_presentation_context(UID_MRImageStorage,
         { UID_LittleEndianImplicitTransferSyntax });
@@ -47,8 +47,7 @@ int main(int argc, char** argv)
         DcmFileFormat file;
         file.loadFile(argv[i]);
         
-        std::cout << scu.get_affected_sop_class() << "\n";
-        
+        scu.set_affected_sop_class(file.getDataset());
         scu.store(file.getDataset(), progress_callback, &file_size);
     }
     

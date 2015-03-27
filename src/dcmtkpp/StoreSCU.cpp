@@ -18,6 +18,8 @@
 #include <dcmtk/dcmdata/dcdeftag.h>
 #include <dcmtk/dcmnet/dimse.h>
 
+#include "dcmtkpp/CStoreRequest.h"
+#include "dcmtkpp/CStoreResponse.h"
 #include "dcmtkpp/ElementAccessor.h"
 #include "dcmtkpp/Exception.h"
 
@@ -86,46 +88,41 @@ void
 StoreSCU
 ::store(DcmDataset const * dataset, ProgressCallback callback, void * data) const
 {
-    // Send the request
-    DIC_US const message_id = this->_association->get_association()->nextMsgID++;
+    CStoreRequest const request(
+        this->_association->get_association()->nextMsgID++,
+        this->_affected_sop_class,
+        ElementAccessor<EVR_UI>::get(*dataset, DCM_SOPInstanceUID),
+        DIMSE_PRIORITY_MEDIUM,
+        dataset);
+    this->_send(request, this->_affected_sop_class, callback, data);
     
-    T_DIMSE_C_StoreRQ request;
-    memset(&request, 0, sizeof(request));
-    
-    request.MessageID = message_id;
-    strcpy(request.AffectedSOPClassUID, this->_affected_sop_class.c_str());
-    
-    std::string const sop_instance_uid =
-        ElementAccessor<EVR_UI>::get(*dataset, DCM_SOPInstanceUID);
-    strcpy(request.AffectedSOPInstanceUID, sop_instance_uid.c_str());
-    
-    request.DataSetType = DIMSE_DATASET_PRESENT;
-    request.Priority = DIMSE_PRIORITY_MEDIUM;
-    
-    this->_send<DIMSE_C_STORE_RQ>(
-        request, this->_affected_sop_class, 
-        const_cast<DcmDataset*>(dataset), callback, data);
-    
-    // Receive the response
-    std::pair<T_ASC_PresentationContextID, T_DIMSE_Message> const command =
-        this->_receive_command(DIMSE_BLOCKING);
-    
-    if(command.second.CommandField != DIMSE_C_STORE_RSP)
-    {
-        std::ostringstream message;
-        message << "DIMSE: Unexpected Response Command Field: 0x" 
-                << std::hex << command.second.CommandField;
-        throw Exception(message.str());
-    }
+    CStoreResponse const response = this->_receive<CStoreResponse>();
 
-    T_DIMSE_C_StoreRSP const response = command.second.msg.CStoreRSP;
-
-    if(response.MessageIDBeingRespondedTo != message_id)
+    if(response.get_message_id_being_responded_to() != request.get_message_id())
     {
         std::ostringstream message;
         message << "DIMSE: Unexpected Response MsgId: "
-                << response.MessageIDBeingRespondedTo 
-                << "(expected: " << message_id << ")";
+                << response.get_message_id_being_responded_to()
+                << "(expected: " << request.get_message_id() << ")";
+        throw Exception(message.str());
+    }
+
+    if(response.has_affected_sop_class_uid() &&
+       response.get_affected_sop_class_uid() != request.get_affected_sop_class_uid())
+    {
+        std::ostringstream message;
+        message << "DIMSE: Unexpected Response Affected SOP Class UID: "
+                << response.get_affected_sop_class_uid()
+                << " (expected: " << request.get_affected_sop_class_uid() << ")";
+        throw Exception(message.str());
+    }
+    if(response.has_affected_sop_instance_uid() &&
+       response.get_affected_sop_instance_uid() != request.get_affected_sop_instance_uid())
+    {
+        std::ostringstream message;
+        message << "DIMSE: Unexpected Response Affected SOP Instance UID: "
+                << response.get_affected_sop_instance_uid()
+                << " (expected: " << request.get_affected_sop_instance_uid() << ")";
         throw Exception(message.str());
     }
 }
