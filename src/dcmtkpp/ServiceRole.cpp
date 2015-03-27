@@ -16,6 +16,7 @@
 #include <dcmtk/dcmdata/dcostrmb.h>
 #include <dcmtk/dcmdata/dctagkey.h>
 #include <dcmtk/dcmdata/dcwcache.h>
+#include <dcmtk/dcmdata/dcxfer.h>
 #include <dcmtk/dcmnet/assoc.h>
 #include <dcmtk/dcmnet/dimse.h>
 
@@ -168,66 +169,6 @@ ServiceRole
     }
     
     return Message(command_set, data_set);
-}
-
-std::pair<T_ASC_PresentationContextID, T_DIMSE_Message>
-ServiceRole
-::_receive_command(T_DIMSE_BlockingMode block_mode) const
-{
-    this->_check_dimse_ready();
-    
-    std::pair<T_ASC_PresentationContextID, T_DIMSE_Message> result;
-    
-    result.first = -1;
-    memset(static_cast<void*>(&result.second), 0, sizeof(result.second));
-    
-    OFCondition const condition = DIMSE_receiveCommand(
-        this->_association->get_association(), block_mode, 
-        this->_network->get_timeout(), 
-        &result.first, &result.second, 
-        NULL /*statusDetail*/, NULL /*commandSet*/);
-    
-    if(condition.bad())
-    {
-        throw Exception(condition);
-    }
-    
-    return result;
-}
-
-std::pair<T_ASC_PresentationContextID, DcmDataset *>
-ServiceRole
-::_receive_dataset(
-    T_DIMSE_BlockingMode block_mode,
-    ProgressCallback callback, void* callback_data) const
-{
-    this->_check_dimse_ready();
-    
-    std::pair<T_ASC_PresentationContextID, DcmDataset *> result;
-    result.second = NULL;
-    
-    // Encapsulate the callback and its data
-    ProgressCallbackData encapsulated;
-    if(callback != NULL)
-    {
-        encapsulated.callback = callback;
-        encapsulated.data = callback_data;
-    }
-    
-    OFCondition const condition = DIMSE_receiveDataSetInMemory(
-        this->_association->get_association(), block_mode, 
-        this->_network->get_timeout(), 
-        &result.first, &result.second, 
-        (callback != NULL)?(ServiceRole::_progress_callback_wrapper):NULL, 
-        (callback != NULL)?(&encapsulated):NULL
-    );
-    
-    if(condition.bad())
-    {
-        throw Exception(condition);
-    }
-    
-    return result;
 }
 
 OFCondition
@@ -471,11 +412,100 @@ ServiceRole::_receive_dataset(
             buffer.setEos();
         }
 
-        /* insert the information which is contained in the buffer into the DcmDataset */
-        /* variable. Mind that DIMSE commands are always specified in the little endian */
-        /* implicit transfer syntax. Additionally, we want to remove group length tags. */
+        E_TransferSyntax transfer_syntax;
+        E_GrpLenEncoding group_length_encoding;
+        if(pdv.pdvType == DUL_COMMANDPDV)
+        {
+            /* DIMSE commands are always specified in the little endian implicit
+             * transfer syntax. Additionally, we want to remove group length
+             * tags.
+             */
+            transfer_syntax = EXS_LittleEndianImplicit;
+            group_length_encoding = EGL_withoutGL;
+        }
+        else if(pdv.pdvType == DUL_DATASETPDV)
+        {
+            /* figure out if is this a valid presentation context */
+            T_ASC_PresentationContext pc;
+            OFCondition const cond =
+                ASC_findAcceptedPresentationContext(
+                    this->_association->get_association()->params, pid, &pc);
+            if (cond.bad())
+            {
+                throw Exception(makeDcmnetSubCondition(
+                    DIMSEC_RECEIVEFAILED, OF_error,
+                    "DIMSE Failed to receive message", cond));
+            }
+
+            /* determine the transfer syntax which is specified in the presentation context */
+            std::string const ts = pc.acceptedTransferSyntax;
+
+            /* create a DcmXfer object on the basis of the transfer syntax which was determined above */
+            DcmXfer xfer(ts.c_str());
+
+            /* check if the transfer syntax is supported by dcmtk */
+            transfer_syntax = xfer.getXfer();
+            switch (transfer_syntax)
+            {
+                case EXS_LittleEndianImplicit:
+                case EXS_LittleEndianExplicit:
+                case EXS_BigEndianExplicit:
+                case EXS_JPEGProcess1TransferSyntax:
+                case EXS_JPEGProcess2_4TransferSyntax:
+                case EXS_JPEGProcess3_5TransferSyntax:
+                case EXS_JPEGProcess6_8TransferSyntax:
+                case EXS_JPEGProcess7_9TransferSyntax:
+                case EXS_JPEGProcess10_12TransferSyntax:
+                case EXS_JPEGProcess11_13TransferSyntax:
+                case EXS_JPEGProcess14TransferSyntax:
+                case EXS_JPEGProcess15TransferSyntax:
+                case EXS_JPEGProcess16_18TransferSyntax:
+                case EXS_JPEGProcess17_19TransferSyntax:
+                case EXS_JPEGProcess20_22TransferSyntax:
+                case EXS_JPEGProcess21_23TransferSyntax:
+                case EXS_JPEGProcess24_26TransferSyntax:
+                case EXS_JPEGProcess25_27TransferSyntax:
+                case EXS_JPEGProcess28TransferSyntax:
+                case EXS_JPEGProcess29TransferSyntax:
+                case EXS_JPEGProcess14SV1TransferSyntax:
+                case EXS_RLELossless:
+                case EXS_JPEGLSLossless:
+                case EXS_JPEGLSLossy:
+                case EXS_JPEG2000LosslessOnly:
+                case EXS_JPEG2000:
+                case EXS_MPEG2MainProfileAtMainLevel:
+                case EXS_MPEG2MainProfileAtHighLevel:
+                case EXS_JPEG2000MulticomponentLosslessOnly:
+                case EXS_JPEG2000Multicomponent:
+        #ifdef WITH_ZLIB
+                case EXS_DeflatedLittleEndianExplicit:
+        #endif
+                    /* OK, these can be supported */
+                    break;
+                default:
+                /* all other transfer syntaxes are not supported; hence, set the error indicator variable */
+                {
+                    char buf[256];
+                    sprintf(
+                        buf, "DIMSE Unsupported transfer syntax: %s",
+                        ts.c_str());
+                    OFCondition subCond = makeDcmnetCondition(
+                        DIMSEC_UNSUPPORTEDTRANSFERSYNTAX, OF_error, buf);
+                    throw Exception(makeDcmnetSubCondition(
+                        DIMSEC_RECEIVEFAILED, OF_error,
+                        "DIMSE Failed to receive message", subCond));
+                }
+                break;
+            }
+            group_length_encoding = EGL_noChange;
+        }
+        else
+        {
+            throw Exception("Unkown PDV type");
+        }
+
         OFCondition const econd = dataset.read(
-            buffer, EXS_LittleEndianImplicit, EGL_withoutGL);
+            buffer, transfer_syntax, group_length_encoding);
         if (econd != EC_Normal && econd != EC_StreamNotifyClient)
         {
             throw Exception(

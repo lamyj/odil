@@ -15,7 +15,6 @@
 #include <dcmtk/config/osconfig.h>
 #include <dcmtk/dcmdata/dcdatset.h>
 #include <dcmtk/dcmnet/assoc.h>
-#include <dcmtk/dcmnet/dimse.h>
 
 #include "dcmtkpp/Association.h"
 #include "dcmtkpp/Message.h"
@@ -54,9 +53,6 @@ public:
     void set_association(Association * association);
 
 protected:
-    template<T_DIMSE_Command VCommand>
-    struct Traits;
-    
     /// @brief Wrapper class for DMCTK progress callbacks.
     struct ProgressCallbackData
     {
@@ -95,23 +91,6 @@ protected:
      */
     template<typename TMessage>
     TMessage _receive(ProgressCallback callback=NULL, void* callback_data=NULL) const;
-    
-    /// @brief Send a DIMSE message.
-    template<T_DIMSE_Command VCommand>
-    void _send(
-        typename Traits<VCommand>::Type const & command, 
-        std::string const & abstract_syntax, DcmDataset* payload=NULL, 
-        ProgressCallback callback=NULL, void* callback_data=NULL) const;
-    
-    /// @brief Receive a DIMSE command.
-    std::pair<T_ASC_PresentationContextID, T_DIMSE_Message>
-    _receive_command(T_DIMSE_BlockingMode block_mode) const;
-    
-    /// @brief Receive a dataset from the DIMSE command.
-    std::pair<T_ASC_PresentationContextID, DcmDataset *>
-    _receive_dataset(
-        T_DIMSE_BlockingMode block_mode,
-        ProgressCallback callback=NULL, void* callback_data=NULL) const;
 
 private:
     OFCondition _send(
