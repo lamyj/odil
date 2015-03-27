@@ -25,11 +25,10 @@ namespace dcmtkpp
 CFindResponse
 ::CFindResponse(
     Uint16 message_id_being_responded_to, Uint16 status,
-    std::string const & affected_sop_class_uid, DcmDataset const * dataset)
+    DcmDataset const * dataset)
 : Response(message_id_being_responded_to, status)
 {
     this->set_command_field(DIMSE_C_FIND_RSP);
-    this->set_affected_sop_class_uid(affected_sop_class_uid);
 
     this->set_data_set(dataset);
 }
@@ -44,9 +43,10 @@ CFindResponse
     }
     this->set_command_field(message.get_command_field());
     
-    std::string const affected_sop_class_uid = ElementAccessor<EVR_UI>::get(
-        message.get_command_set(), DCM_AffectedSOPClassUID);
-    this->set_affected_sop_class_uid(affected_sop_class_uid);
+    DCMTKPP_MESSAGE_SET_OPTIONAL_FIELD_MACRO(
+        this->_command_set, message_id, MessageID, EVR_US)
+    DCMTKPP_MESSAGE_SET_OPTIONAL_FIELD_MACRO(
+        this->_command_set, affected_sop_class_uid, AffectedSOPClassUID, EVR_UI)
 
     this->set_data_set(message.get_data_set());
 }

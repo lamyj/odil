@@ -26,11 +26,11 @@ class CFindResponse: public Response
 public:
     /**
      * @brief Create an find response with given Message ID, status,
-     * affected SOP class UID, and data set.
+     * and data set.
      */
     CFindResponse(
         Uint16 message_id_being_responded_to, Uint16 status,
-        std::string const & affected_sop_class_uid, DcmDataset const * dataset);
+        DcmDataset const * dataset);
 
     /**
      * @brief Create a C-FIND-RSP from a generic Message.
@@ -42,7 +42,8 @@ public:
     /// @brief Destructor.
     virtual ~CFindResponse();
     
-    DCMTKPP_MESSAGE_MANDATORY_FIELD_MACRO(affected_sop_class_uid, AffectedSOPClassUID, EVR_UI)
+    DCMTKPP_MESSAGE_OPTIONAL_FIELD_MACRO(message_id, MessageID, EVR_US)
+    DCMTKPP_MESSAGE_OPTIONAL_FIELD_MACRO(affected_sop_class_uid, AffectedSOPClassUID, EVR_UI)
 };
 
 }

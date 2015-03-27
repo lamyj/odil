@@ -45,6 +45,12 @@ namespace dcmtkpp
         this->_command_set.findAndDeleteElement(DCM_##tag); \
     }
 
+#define DCMTKPP_MESSAGE_SET_OPTIONAL_FIELD_MACRO(dataset, name, tag, vr) \
+    if(ElementAccessor<vr>::has(dataset, DCM_##tag)) \
+    { \
+        this->set_##name(ElementAccessor<vr>::get(dataset, DCM_##tag)); \
+    }
+
 /**
  * @brief Base class for all DIMSE messages.
  */
