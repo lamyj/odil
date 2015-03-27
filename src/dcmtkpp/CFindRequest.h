@@ -41,8 +41,9 @@ public:
     /// @brief Destructor.
     virtual ~CFindRequest();
     
-    DCMTKPP_MESSAGE_MANDATORY_FIELD_MACRO(affected_sop_class_uid, AffectedSOPClassUID, EVR_UI)
-    DCMTKPP_MESSAGE_MANDATORY_FIELD_MACRO(priority, Priority, EVR_US)
+    DCMTKPP_MESSAGE_MANDATORY_FIELD_MACRO(
+        affected_sop_class_uid, DCM_AffectedSOPClassUID, EVR_UI)
+    DCMTKPP_MESSAGE_MANDATORY_FIELD_MACRO(priority, DCM_Priority, EVR_US)
 };
 
 }

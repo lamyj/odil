@@ -43,14 +43,14 @@ public:
     virtual ~CStoreRequest();
     
     DCMTKPP_MESSAGE_MANDATORY_FIELD_MACRO(
-        affected_sop_class_uid, AffectedSOPClassUID, EVR_UI)
+        affected_sop_class_uid, DCM_AffectedSOPClassUID, EVR_UI)
     DCMTKPP_MESSAGE_MANDATORY_FIELD_MACRO(
-        affected_sop_instance_uid, AffectedSOPInstanceUID, EVR_UI)
-    DCMTKPP_MESSAGE_MANDATORY_FIELD_MACRO(priority, Priority, EVR_US)
+        affected_sop_instance_uid, DCM_AffectedSOPInstanceUID, EVR_UI)
+    DCMTKPP_MESSAGE_MANDATORY_FIELD_MACRO(priority, DCM_Priority, EVR_US)
     DCMTKPP_MESSAGE_OPTIONAL_FIELD_MACRO(
-        move_originator_ae_title, MoveOriginatorApplicationEntityTitle, EVR_AE)
+        move_originator_ae_title, DCM_MoveOriginatorApplicationEntityTitle, EVR_AE)
     DCMTKPP_MESSAGE_OPTIONAL_FIELD_MACRO(
-        move_originator_message_id, MoveOriginatorMessageID, EVR_US)
+        move_originator_message_id, DCM_MoveOriginatorMessageID, EVR_US)
 };
 
 }

@@ -26,29 +26,29 @@ namespace dcmtkpp
     /** @brief Return the tag element of the command set. */ \
     typename ElementTraits<vr>::ValueType get_##name() const \
     { \
-        return ElementAccessor<vr>::get(this->_command_set, DCM_##tag); \
+        return ElementAccessor<vr>::get(this->_command_set, tag); \
     } \
     /** @brief Set the tag element of the command set. */ \
     void set_##name(typename ElementTraits<vr>::ValueType const & value) \
     { \
-        return ElementAccessor<vr>::set(this->_command_set, DCM_##tag, value); \
+        return ElementAccessor<vr>::set(this->_command_set, tag, value); \
     }
 
 #define DCMTKPP_MESSAGE_OPTIONAL_FIELD_MACRO(name, tag, vr) \
     DCMTKPP_MESSAGE_MANDATORY_FIELD_MACRO(name, tag, vr) \
     bool has_##name() const \
     { \
-        return ElementAccessor<vr>::has(this->_command_set, DCM_##tag); \
+        return ElementAccessor<vr>::has(this->_command_set, tag); \
     } \
     void delete_##name() \
     { \
-        this->_command_set.findAndDeleteElement(DCM_##tag); \
+        this->_command_set.findAndDeleteElement(tag); \
     }
 
 #define DCMTKPP_MESSAGE_SET_OPTIONAL_FIELD_MACRO(dataset, name, tag, vr) \
-    if(ElementAccessor<vr>::has(dataset, DCM_##tag)) \
+    if(ElementAccessor<vr>::has(dataset, tag)) \
     { \
-        this->set_##name(ElementAccessor<vr>::get(dataset, DCM_##tag)); \
+        this->set_##name(ElementAccessor<vr>::get(dataset, tag)); \
     }
 
 /**
@@ -78,7 +78,7 @@ public:
     /// @brief Delete the data set in this message.
     void delete_data_set();
     
-    DCMTKPP_MESSAGE_MANDATORY_FIELD_MACRO(command_field, CommandField, EVR_US)
+    DCMTKPP_MESSAGE_MANDATORY_FIELD_MACRO(command_field, DCM_CommandField, EVR_US)
 
 protected:
     /// @brief Command set of the message.

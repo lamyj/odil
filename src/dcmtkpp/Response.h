@@ -35,8 +35,9 @@ public:
     /// @brief Destructor.
     virtual ~Response();
     
-    DCMTKPP_MESSAGE_MANDATORY_FIELD_MACRO(message_id_being_responded_to, MessageIDBeingRespondedTo, EVR_US)
-    DCMTKPP_MESSAGE_MANDATORY_FIELD_MACRO(status, Status, EVR_US)
+    DCMTKPP_MESSAGE_MANDATORY_FIELD_MACRO(
+        message_id_being_responded_to, DCM_MessageIDBeingRespondedTo, EVR_US)
+    DCMTKPP_MESSAGE_MANDATORY_FIELD_MACRO(status, DCM_Status, EVR_US)
 };
 
 }
