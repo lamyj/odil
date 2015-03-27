@@ -9,6 +9,7 @@
 #ifndef _f4680d8c_18a8_4317_956d_3ae238cb39cc
 #define _f4680d8c_18a8_4317_956d_3ae238cb39cc
 
+#include "dcmtkpp/CEchoRequest.h"
 #include "dcmtkpp/ServiceRole.h"
 
 namespace dcmtkpp
@@ -22,7 +23,7 @@ public:
     virtual ~SCP();
 protected:
     /// @brief Send a C-ECHO response.
-    void _send_echo_response(T_DIMSE_C_EchoRQ request) const;
+    void _send_echo_response(CEchoRequest const & request) const;
 };
 
 }

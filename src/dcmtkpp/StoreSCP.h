@@ -13,8 +13,8 @@
 
 #include <dcmtk/config/osconfig.h>
 #include <dcmtk/dcmdata/dcdatset.h>
-#include <dcmtk/dcmnet/dimse.h>
 
+#include "dcmtkpp/CStoreRequest.h"
 #include "dcmtkpp/SCP.h"
 
 namespace dcmtkpp
@@ -24,7 +24,7 @@ class StoreSCP: public SCP
 {
 public:
     /// @brief Callback called when a response is received.
-    typedef std::function<void(DcmDataset*)> Callback;
+    typedef std::function<void(DcmDataset const *)> Callback;
     
     /**
      * @brief Receive a store request and respond to it.
@@ -37,7 +37,7 @@ public:
      * @param request
      * @param callback function called with the dataset to be stored.
      */
-    void store(T_DIMSE_C_StoreRQ request, Callback callback) const;
+    void store(CStoreRequest const & request, Callback callback) const;
 };
 
 }

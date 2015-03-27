@@ -15,8 +15,9 @@
 
 #include <dcmtk/config/osconfig.h>
 #include <dcmtk/dcmdata/dcdatset.h>
-#include <dcmtk/dcmnet/dimse.h>
 
+#include "dcmtkpp/CGetResponse.h"
+#include "dcmtkpp/CStoreRequest.h"
 #include "dcmtkpp/StoreSCP.h"
 
 namespace dcmtkpp
@@ -41,8 +42,8 @@ public:
      */
     std::vector<DcmDataset *> get(DcmDataset const * query) const;
 private:
-    bool _get_response(T_DIMSE_C_GetRSP response) const;
-    void _store_request(T_DIMSE_C_StoreRQ request, Callback callback) const;
+    bool _get_response(CGetResponse const & response) const;
+    void _store_request(CStoreRequest const & request, Callback callback) const;
 };
 
 }

@@ -8,6 +8,10 @@
 
 #include "SCP.h"
 
+#include "dcmtkpp/CEchoRequest.h"
+#include "dcmtkpp/CEchoResponse.h"
+#include "dcmtkpp/ServiceRole.h"
+
 namespace dcmtkpp
 {
 
@@ -26,18 +30,12 @@ SCP
 
 void
 SCP
-::_send_echo_response(T_DIMSE_C_EchoRQ request) const
+::_send_echo_response(CEchoRequest const & request) const
 {
-    T_DIMSE_C_EchoRSP response;
-    memset(&response, 0, sizeof(response));
-    response.MessageIDBeingRespondedTo = request.MessageID;
-    response.DimseStatus = 0;
-    response.DataSetType = DIMSE_DATASET_NULL;
-    OFStandard::strlcpy(
-        response.AffectedSOPClassUID, request.AffectedSOPClassUID, 
-        sizeof(response.AffectedSOPClassUID));
-        
-    this->_send<DIMSE_C_ECHO_RSP>(response, request.AffectedSOPClassUID);
+    CEchoResponse response(
+        request.get_message_id(), STATUS_Success,
+        request.get_affected_sop_class_uid());
+    this->_send(response, request.get_affected_sop_class_uid());
 }
 
 }

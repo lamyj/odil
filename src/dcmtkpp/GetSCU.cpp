@@ -16,6 +16,9 @@
 #include <dcmtk/dcmdata/dcdatset.h>
 #include <dcmtk/dcmnet/dimse.h>
 
+#include "dcmtkpp/CGetRequest.h"
+#include "dcmtkpp/CGetResponse.h"
+#include "dcmtkpp/CStoreRequest.h"
 #include "dcmtkpp/Exception.h"
 
 namespace dcmtkpp
@@ -32,36 +35,25 @@ GetSCU
 ::get(DcmDataset const * query, Callback callback) const
 {
     // Send the request
-    DIC_US const message_id = this->_association->get_association()->nextMsgID++;
-    T_DIMSE_C_GetRQ request;
-    memset(&request, 0, sizeof(request));
-    
-    request.MessageID = message_id;
-    strcpy(request.AffectedSOPClassUID, this->_affected_sop_class.c_str());
-    
-    request.DataSetType = DIMSE_DATASET_PRESENT;
-    request.Priority = DIMSE_PRIORITY_MEDIUM;
-    
-    // FIXME: include progress callback
-    this->_send<DIMSE_C_GET_RQ>(
-        request, this->_affected_sop_class, const_cast<DcmDataset*>(query));
+    CGetRequest request(this->_association->get_association()->nextMsgID++,
+        this->_affected_sop_class, DIMSE_PRIORITY_MEDIUM, query);
+    this->_send(request, this->_affected_sop_class);
     
     // Receive the responses
     bool done = false;
     while(!done)
     {
-        std::pair<T_ASC_PresentationContextID, T_DIMSE_Message> const command =
-            this->_receive_command(DIMSE_BLOCKING);
-        
-        if(command.second.CommandField == DIMSE_C_GET_RSP)
+        Message const message = this->_receive();
+
+        if(message.get_command_field() == DIMSE_C_GET_RSP)
         {
-            done = this->_get_response(command.second.msg.CGetRSP);
+            done = this->_get_response(CGetResponse(message));
         }
-        else if(command.second.CommandField == DIMSE_C_STORE_RQ)
+        else if(message.get_command_field() == DIMSE_C_STORE_RQ)
         {
             try
             {
-                this->_store_request(command.second.msg.CStoreRQ, callback);
+                this->_store_request(CStoreRequest(message), callback);
             }
             catch(...)
             {
@@ -71,10 +63,10 @@ GetSCU
         }
         else
         {
-            std::ostringstream message;
-            message << "DIMSE: Unexpected Response Command Field: 0x" 
-                    << std::hex << command.second.CommandField;
-            throw Exception(message.str());
+            std::ostringstream exception_message;
+            exception_message << "DIMSE: Unexpected Response Command Field: 0x"
+                              << std::hex << message.get_command_field();
+            throw Exception(exception_message.str());
         }
     }
 }
@@ -84,7 +76,7 @@ GetSCU
 ::get(DcmDataset const * query) const
 {
     std::vector<DcmDataset*> result;
-    auto callback = [&result](DcmDataset * dataset) { 
+    auto callback = [&result](DcmDataset const * dataset) {
         // We do not manage the allocation of dataset: clone it
         result.push_back(static_cast<DcmDataset*>(dataset->clone())); 
     };
@@ -95,59 +87,15 @@ GetSCU
 
 bool
 GetSCU
-::_get_response(T_DIMSE_C_GetRSP response) const
+::_get_response(CGetResponse const & response) const
 {
-    bool done;
-    if(response.DimseStatus & 0xf000 == STATUS_GET_Failed_UnableToProcess)
-    {
-        done = true;
-        // FIXME: logging
-    }
-    else if(response.DimseStatus == STATUS_GET_Refused_OutOfResourcesNumberOfMatches)
-    {
-        done = true;
-        // FIXME: logging
-    }
-    else if(response.DimseStatus == STATUS_GET_Refused_OutOfResourcesSubOperations)
-    {
-        done = true;
-        // FIXME: logging
-    }
-    else if(response.DimseStatus == STATUS_GET_Failed_IdentifierDoesNotMatchSOPClass)
-    {
-        done = true;
-        // FIXME: logging
-    }
-    else if(response.DimseStatus == STATUS_GET_Cancel_SubOperationsTerminatedDueToCancelIndication)
-    {
-        done = true;
-        // FIXME: logging
-    }
-    else if(response.DimseStatus == STATUS_GET_Warning_SubOperationsCompleteOneOrMoreFailures)
-    {
-        done = true;
-        // FIXME: logging
-    }
-    else if(response.DimseStatus == STATUS_Pending)
-    {
-        done = false;
-    }
-    else if(response.DimseStatus == STATUS_Success)
-    {
-        done = true;
-    }
-    else
-    {
-        done = true;
-        // FIXME: logging
-    }
-    
+    bool const done = (response.get_status() != STATUS_Pending);
     return done;
 }
 
 void
 GetSCU
-::_store_request(T_DIMSE_C_StoreRQ request, Callback callback) const
+::_store_request(CStoreRequest const & request, Callback callback) const
 {
     StoreSCP scp;
     scp.set_network(this->get_network());

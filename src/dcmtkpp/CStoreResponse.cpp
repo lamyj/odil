@@ -26,7 +26,7 @@ CStoreResponse
 ::CStoreResponse(Uint16 message_id_being_responded_to, Uint16 status)
 : Response(message_id_being_responded_to, status)
 {
-    this->set_command_field(DIMSE_C_STORE_RQ);
+    this->set_command_field(DIMSE_C_STORE_RSP);
 }
 
 CStoreResponse

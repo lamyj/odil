@@ -13,6 +13,9 @@
 #include <dcmtk/dcmdata/dcdeftag.h>
 #include <dcmtk/dcmnet/dimse.h>
 
+#include "dcmtkpp/CStoreRequest.h"
+#include "dcmtkpp/CStoreResponse.h"
+
 namespace dcmtkpp
 {
 
@@ -20,10 +23,10 @@ bool
 StoreSCP
 ::store(Callback callback) const
 {
-    std::pair<T_ASC_PresentationContextID, T_DIMSE_Message> command;
+    Message request;
     try
     {
-        command = this->_receive_command(DIMSE_BLOCKING);
+        request = this->_receive();
     }
     catch(Exception const & e)
     {
@@ -38,19 +41,20 @@ StoreSCP
         }
     }
     
-    if(command.second.CommandField == DIMSE_C_ECHO_RQ)
+    if(request.get_command_field() == DIMSE_C_ECHO_RQ)
     {
-        this->_send_echo_response(command.second.msg.CEchoRQ);
+        this->_send_echo_response(CEchoRequest(request));
     }
-    else if(command.second.CommandField == DIMSE_C_STORE_RQ)
+    else if(request.get_command_field() == DIMSE_C_STORE_RQ)
     {
-        this->store(command.second.msg.CStoreRQ, callback);
+        this->store(CStoreRequest(request), callback);
+        request.delete_data_set();
     }
     else
     {
         std::ostringstream message;
         message << "DIMSE: Unexpected Response Command Field: 0x" 
-                << std::hex << command.second.CommandField;
+                << std::hex << request.get_command_field();
         throw Exception(message.str());
     }
     
@@ -59,41 +63,35 @@ StoreSCP
 
 void
 StoreSCP
-::store(T_DIMSE_C_StoreRQ request, Callback callback) const
+::store(CStoreRequest const & request, Callback callback) const
 {
-    std::pair<T_ASC_PresentationContextID, DcmDataset *> dataset =
-        this->_receive_dataset(DIMSE_BLOCKING);
-    
+    DcmDataset const * dataset = request.get_data_set();
+
     // Execute user callback
-    Uint16 store_status = 0;
-    try
+    Uint16 status = STATUS_Success;
+    if(dataset == NULL || const_cast<DcmDataset*>(dataset)->isEmpty())
     {
-        callback(dataset.second);
+        status = STATUS_STORE_Error_CannotUnderstand;
     }
-    catch(...)
+    else
     {
-        // FIXME: logging
-        store_status = STATUS_STORE_Error_CannotUnderstand;
+        try
+        {
+            callback(dataset);
+        }
+        catch(...)
+        {
+            // FIXME: logging
+            status = STATUS_STORE_Error_CannotUnderstand;
+        }
     }
-    
-    // Request dataset is allocated in DIMSE_receiveDataSetInMemory,
-    // free it now.
-    delete dataset.second;
     
     // Send store response
-    T_DIMSE_C_StoreRSP response;
-    memset(&response, 0, sizeof(response));
-    response.MessageIDBeingRespondedTo = request.MessageID;
-    response.DimseStatus = store_status;
-    response.DataSetType = DIMSE_DATASET_NULL;
-    OFStandard::strlcpy(
-        response.AffectedSOPClassUID, request.AffectedSOPClassUID, 
-        sizeof(response.AffectedSOPClassUID));
-    OFStandard::strlcpy(
-        response.AffectedSOPInstanceUID, request.AffectedSOPInstanceUID, 
-        sizeof(response.AffectedSOPInstanceUID));
-    response.opts = O_STORE_AFFECTEDSOPCLASSUID | O_STORE_AFFECTEDSOPINSTANCEUID;
-    this->_send<DIMSE_C_STORE_RSP>(response, request.AffectedSOPClassUID);
+    CStoreResponse response(request.get_message_id(), status);
+    response.set_affected_sop_class_uid(request.get_affected_sop_class_uid());
+    response.set_affected_sop_instance_uid(
+        request.get_affected_sop_instance_uid());
+    this->_send(response, request.get_affected_sop_class_uid());
 }
 
 }
