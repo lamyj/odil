@@ -4,6 +4,8 @@ add_definitions(-DBOOST_TEST_DYN_LINK)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../src)
 
+add_definitions("-D HAVE_CONFIG_H")
+
 file(GLOB_RECURSE tests *.cpp)
 foreach(test_file ${tests})
     get_filename_component(test ${test_file} NAME_WE)
