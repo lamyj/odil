@@ -44,22 +44,22 @@ CGetResponse
     this->set_command_field(message.get_command_field());
     
     DCMTKPP_MESSAGE_SET_OPTIONAL_FIELD_MACRO(
-        this->_command_set, message_id, DCM_MessageID, EVR_US)
+        message.get_command_set(), message_id, DCM_MessageID, EVR_US)
     DCMTKPP_MESSAGE_SET_OPTIONAL_FIELD_MACRO(
-        this->_command_set, affected_sop_class_uid,
+        message.get_command_set(), affected_sop_class_uid,
         DCM_AffectedSOPClassUID, EVR_UI)
 
     DCMTKPP_MESSAGE_SET_OPTIONAL_FIELD_MACRO(
-        this->_command_set, number_of_remaining_sub_operations,
+        message.get_command_set(), number_of_remaining_sub_operations,
         DcmTagKey(0x0000, 0x1020), EVR_US)
     DCMTKPP_MESSAGE_SET_OPTIONAL_FIELD_MACRO(
-        this->_command_set, number_of_completed_sub_operations,
+        message.get_command_set(), number_of_completed_sub_operations,
         DcmTagKey(0x0000, 0x1021), EVR_US)
     DCMTKPP_MESSAGE_SET_OPTIONAL_FIELD_MACRO(
-        this->_command_set, number_of_failed_sub_operations,
+        message.get_command_set(), number_of_failed_sub_operations,
         DcmTagKey(0x0000, 0x1022), EVR_US)
     DCMTKPP_MESSAGE_SET_OPTIONAL_FIELD_MACRO(
-        this->_command_set, number_of_warning_sub_operations,
+        message.get_command_set(), number_of_warning_sub_operations,
         DcmTagKey(0x0000, 0x1023), EVR_US)
 
     this->set_data_set(message.get_data_set());

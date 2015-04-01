@@ -40,12 +40,12 @@ CStoreResponse
     this->set_command_field(message.get_command_field());
 
     DCMTKPP_MESSAGE_SET_OPTIONAL_FIELD_MACRO(
-        this->_command_set, message_id, DCM_MessageID, EVR_US)
+        message.get_command_set(), message_id, DCM_MessageID, EVR_US)
     DCMTKPP_MESSAGE_SET_OPTIONAL_FIELD_MACRO(
-        this->_command_set, affected_sop_class_uid,
+        message.get_command_set(), affected_sop_class_uid,
         DCM_AffectedSOPClassUID, EVR_UI)
     DCMTKPP_MESSAGE_SET_OPTIONAL_FIELD_MACRO(
-        this->_command_set,
+        message.get_command_set(),
         affected_sop_instance_uid, DCM_AffectedSOPInstanceUID, EVR_UI)
 
     if(message.get_data_set() != NULL &&

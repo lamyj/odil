@@ -60,10 +60,10 @@ CStoreRequest
     this->set_priority(ElementAccessor<EVR_US>::get(command_set, DCM_Priority));
 
     DCMTKPP_MESSAGE_SET_OPTIONAL_FIELD_MACRO(
-        this->_command_set, move_originator_ae_title,
+        message.get_command_set(), move_originator_ae_title,
         DCM_MoveOriginatorApplicationEntityTitle, EVR_AE)
     DCMTKPP_MESSAGE_SET_OPTIONAL_FIELD_MACRO(
-        this->_command_set, move_originator_message_id,
+        message.get_command_set(), move_originator_message_id,
         DCM_MoveOriginatorMessageID, EVR_US)
 
     if(message.get_data_set() == NULL ||
