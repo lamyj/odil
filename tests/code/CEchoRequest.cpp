@@ -49,3 +49,35 @@ BOOST_AUTO_TEST_CASE(MessageConstructor)
     BOOST_CHECK_EQUAL(
         message.get_data_set(), static_cast<DcmDataset const *>(NULL));
 }
+
+BOOST_AUTO_TEST_CASE(MessageConstructorWrongCommandField)
+{
+    DcmDataset command_set;
+    // Initialize with wrong Command Field: C-ECHO-RSP instead of C-ECHO-RQ
+    dcmtkpp::ElementAccessor<EVR_US>::set(
+        command_set, DCM_CommandField, DIMSE_C_ECHO_RSP);
+    dcmtkpp::ElementAccessor<EVR_US>::set(command_set, DCM_MessageID, 1234);
+    dcmtkpp::ElementAccessor<EVR_UI>::set(
+        command_set, DCM_AffectedSOPClassUID, UID_VerificationSOPClass);
+
+    dcmtkpp::Message const generic_message(command_set, NULL);
+
+    BOOST_CHECK_THROW(
+        dcmtkpp::CEchoRequest const message(generic_message),
+        dcmtkpp::Exception);
+}
+
+BOOST_AUTO_TEST_CASE(MessageConstructorMissingAffectSOPClass)
+{
+    DcmDataset command_set;
+    dcmtkpp::ElementAccessor<EVR_US>::set(
+        command_set, DCM_CommandField, DIMSE_C_ECHO_RQ);
+    dcmtkpp::ElementAccessor<EVR_US>::set(command_set, DCM_MessageID, 1234);
+    // Do not set Affected SOP Class UID
+
+    dcmtkpp::Message const generic_message(command_set, NULL);
+
+    BOOST_CHECK_THROW(
+        dcmtkpp::CEchoRequest const message(generic_message),
+        dcmtkpp::Exception);
+}
