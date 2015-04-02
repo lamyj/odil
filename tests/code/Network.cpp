@@ -4,11 +4,12 @@
 #include <dcmtk/config/osconfig.h>
 #include <dcmtk/dcmnet/assoc.h>
 
+#include "dcmtkpp/Exception.h"
 #include "dcmtkpp/Network.h"
 
 BOOST_AUTO_TEST_CASE(DefaultConstructor)
 {
-    dcmtkpp::Network const network;
+    dcmtkpp::Network network;
 
     BOOST_CHECK_EQUAL(network.get_role(), NET_REQUESTOR);
     BOOST_CHECK_EQUAL(network.get_port(), 0);
@@ -16,6 +17,47 @@ BOOST_AUTO_TEST_CASE(DefaultConstructor)
     BOOST_CHECK_EQUAL(network.get_options(), 0);
 
     BOOST_CHECK(!network.is_initialized());
+    BOOST_CHECK_EQUAL(network.get_network(), static_cast<T_ASC_Network*>(NULL));
+}
+
+BOOST_AUTO_TEST_CASE(Constructor)
+{
+    dcmtkpp::Network network(NET_ACCEPTOR, 11112, 10, 1);
+
+    BOOST_CHECK_EQUAL(network.get_role(), NET_ACCEPTOR);
+    BOOST_CHECK_EQUAL(network.get_port(), 11112);
+    BOOST_CHECK_EQUAL(network.get_timeout(), 10);
+    BOOST_CHECK_EQUAL(network.get_options(), 1);
+
+    BOOST_CHECK(!network.is_initialized());
+    BOOST_CHECK_EQUAL(network.get_network(), static_cast<T_ASC_Network*>(NULL));
+}
+
+BOOST_AUTO_TEST_CASE(CopyConstructor)
+{
+    dcmtkpp::Network network(NET_ACCEPTOR, 11112, 10, 1);
+    dcmtkpp::Network other(network);
+
+    BOOST_CHECK_EQUAL(other.get_role(), network.get_role());
+    BOOST_CHECK_EQUAL(other.get_port(), network.get_port());
+    BOOST_CHECK_EQUAL(other.get_timeout(), network.get_timeout());
+    BOOST_CHECK_EQUAL(other.get_options(), network.get_options());
+    BOOST_CHECK_EQUAL(other.is_initialized(), network.is_initialized());
+    BOOST_CHECK_EQUAL(other.get_network(), network.get_network());
+}
+
+BOOST_AUTO_TEST_CASE(Assignment)
+{
+    dcmtkpp::Network network(NET_ACCEPTOR, 11112, 10, 1);
+    dcmtkpp::Network other(NET_REQUESTOR, 112, 30, 0);
+    other = network;
+
+    BOOST_CHECK_EQUAL(other.get_role(), network.get_role());
+    BOOST_CHECK_EQUAL(other.get_port(), network.get_port());
+    BOOST_CHECK_EQUAL(other.get_timeout(), network.get_timeout());
+    BOOST_CHECK_EQUAL(other.get_options(), network.get_options());
+    BOOST_CHECK_EQUAL(other.is_initialized(), network.is_initialized());
+    BOOST_CHECK_EQUAL(other.get_network(), network.get_network());
 }
 
 BOOST_AUTO_TEST_CASE(Role)
@@ -48,4 +90,23 @@ BOOST_AUTO_TEST_CASE(Options)
     network.set_options(1);
 
     BOOST_CHECK_EQUAL(network.get_options(), 1);
+}
+
+BOOST_AUTO_TEST_CASE(Initialize)
+{
+    dcmtkpp::Network network(NET_REQUESTOR, 11112, 1, 0);
+    network.initialize();
+
+    BOOST_CHECK(network.is_initialized());
+    BOOST_CHECK_NE(network.get_network(),  static_cast<T_ASC_Network*>(NULL));
+
+    network.drop();
+    BOOST_CHECK(!network.is_initialized());
+    BOOST_CHECK_EQUAL(network.get_network(),  static_cast<T_ASC_Network*>(NULL));
+}
+
+BOOST_AUTO_TEST_CASE(Drop)
+{
+    dcmtkpp::Network network;
+    BOOST_REQUIRE_THROW(network.drop(), dcmtkpp::Exception);
 }

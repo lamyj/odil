@@ -4,7 +4,6 @@
 #include <dcmtk/config/osconfig.h>
 #include <dcmtk/dcmdata/dcdatset.h>
 #include <dcmtk/dcmdata/dcdeftag.h>
-#include <dcmtk/dcmdata/dcuid.h>
 #include <dcmtk/dcmnet/dimse.h>
 
 #include "dcmtkpp/ElementAccessor.h"
@@ -39,6 +38,18 @@ BOOST_AUTO_TEST_CASE(Constructor)
         const_cast<DcmDataset *>(message.get_data_set())->isEmpty());
 
     BOOST_CHECK_EQUAL(message.get_command_field(), DIMSE_C_ECHO_RQ);
+}
+
+BOOST_AUTO_TEST_CASE(CommandField)
+{
+    dcmtkpp::Message message;
+    message.set_command_field(DIMSE_C_FIND_RSP);
+
+    BOOST_CHECK_EQUAL(
+        dcmtkpp::ElementAccessor<EVR_US>::get(
+            message.get_command_set(), DCM_CommandField),
+        DIMSE_C_FIND_RSP);
+    BOOST_CHECK_EQUAL(message.get_command_field(), DIMSE_C_FIND_RSP);
 }
 
 BOOST_AUTO_TEST_CASE(DeleteDataSet)

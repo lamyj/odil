@@ -1,5 +1,10 @@
+#define BOOST_TEST_MODULE Association
+#include <boost/test/unit_test.hpp>
+
 #include <ostream>
+
 #include "dcmtkpp/Association.h"
+#include "dcmtkpp/Exception.h"
 
 namespace dcmtkpp
 {
@@ -12,14 +17,9 @@ std::ostream & operator<<(std::ostream & stream, UserIdentityType const & type)
 
 }
 
-#define BOOST_TEST_MODULE Association
-#include <boost/test/unit_test.hpp>
-
-#include "dcmtkpp/Association.h"
-
 BOOST_AUTO_TEST_CASE(DefaultConstructor)
 {
-    dcmtkpp::Association const association;
+    dcmtkpp::Association association;
     BOOST_CHECK_EQUAL(association.get_own_ae_title(), "");
 
     BOOST_CHECK_EQUAL(association.get_peer_host_name(), "");
@@ -32,6 +32,71 @@ BOOST_AUTO_TEST_CASE(DefaultConstructor)
     BOOST_CHECK_EQUAL(association.get_user_identity_secondary_field(), "");
 
     BOOST_CHECK(!association.is_associated());
+    BOOST_CHECK_EQUAL(
+        association.get_association(), static_cast<T_ASC_Association*>(NULL));
+}
+
+BOOST_AUTO_TEST_CASE(CopyConstructor)
+{
+    dcmtkpp::Association association;
+    association.set_own_ae_title("local");
+
+    association.set_peer_host_name("pacs.example.com");
+    association.set_peer_port(11112);
+    association.set_peer_ae_title("remote");
+
+    association.set_user_identity_to_username_and_password("foo", "bar");
+
+    dcmtkpp::Association const other(association);
+
+    BOOST_CHECK_EQUAL(other.get_own_ae_title(), association.get_own_ae_title());
+
+    BOOST_CHECK_EQUAL(
+        other.get_peer_host_name(), association.get_peer_host_name());
+    BOOST_CHECK_EQUAL(other.get_peer_port(), association.get_peer_port());
+    BOOST_CHECK_EQUAL(
+        other.get_peer_ae_title(), association.get_peer_ae_title());
+
+    BOOST_CHECK_EQUAL(
+        other.get_user_identity_type(), association.get_user_identity_type());
+    BOOST_CHECK_EQUAL(
+        other.get_user_identity_primary_field(),
+        association.get_user_identity_primary_field());
+    BOOST_CHECK_EQUAL(
+        other.get_user_identity_secondary_field(),
+        association.get_user_identity_secondary_field());
+}
+
+BOOST_AUTO_TEST_CASE(Assignment)
+{
+    dcmtkpp::Association association;
+    association.set_own_ae_title("local");
+
+    association.set_peer_host_name("pacs.example.com");
+    association.set_peer_port(11112);
+    association.set_peer_ae_title("remote");
+
+    association.set_user_identity_to_username_and_password("foo", "bar");
+
+    dcmtkpp::Association other;
+    other = association;
+
+    BOOST_CHECK_EQUAL(other.get_own_ae_title(), association.get_own_ae_title());
+
+    BOOST_CHECK_EQUAL(
+        other.get_peer_host_name(), association.get_peer_host_name());
+    BOOST_CHECK_EQUAL(other.get_peer_port(), association.get_peer_port());
+    BOOST_CHECK_EQUAL(
+        other.get_peer_ae_title(), association.get_peer_ae_title());
+
+    BOOST_CHECK_EQUAL(
+        other.get_user_identity_type(), association.get_user_identity_type());
+    BOOST_CHECK_EQUAL(
+        other.get_user_identity_primary_field(),
+        association.get_user_identity_primary_field());
+    BOOST_CHECK_EQUAL(
+        other.get_user_identity_secondary_field(),
+        association.get_user_identity_secondary_field());
 }
 
 BOOST_AUTO_TEST_CASE(OwnAETitle)
@@ -129,4 +194,16 @@ BOOST_AUTO_TEST_CASE(UserIdentitySAML)
     BOOST_CHECK_EQUAL(
         association.get_user_identity_primary_field(), "assertion");
     BOOST_CHECK_EQUAL(association.get_user_identity_secondary_field(), "");
+}
+
+BOOST_AUTO_TEST_CASE(Release)
+{
+    dcmtkpp::Association association;
+    BOOST_CHECK_THROW(association.release(), dcmtkpp::Exception);
+}
+
+BOOST_AUTO_TEST_CASE(Abort)
+{
+    dcmtkpp::Association association;
+    BOOST_CHECK_THROW(association.abort(), dcmtkpp::Exception);
 }

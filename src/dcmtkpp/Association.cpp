@@ -40,7 +40,8 @@ Association
   _peer_ae_title(other.get_peer_ae_title()),
   _user_identity_type(other.get_user_identity_type()), 
   _user_identity_primary_field(other.get_user_identity_primary_field()), 
-  _user_identity_secondary_field(other.get_user_identity_secondary_field())
+  _user_identity_secondary_field(other.get_user_identity_secondary_field()),
+  _association(NULL)
 {
 }
 
