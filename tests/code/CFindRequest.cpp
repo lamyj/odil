@@ -57,6 +57,15 @@ BOOST_FIXTURE_TEST_CASE(Constructor, Fixture)
     this->check(message);
 }
 
+BOOST_FIXTURE_TEST_CASE(ConstructorWithoutDataset, Fixture)
+{
+    BOOST_CHECK_THROW(
+        dcmtkpp::CFindRequest const message(
+            1234, UID_FINDPatientRootQueryRetrieveInformationModel,
+            DIMSE_PRIORITY_MEDIUM, NULL),
+        dcmtkpp::Exception);
+}
+
 BOOST_FIXTURE_TEST_CASE(MessageConstructor, Fixture)
 {
     this->check_message_constructor(this->command_set, &this->query);

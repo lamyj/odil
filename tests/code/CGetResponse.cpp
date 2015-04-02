@@ -32,6 +32,14 @@ struct Fixture: public MessageFixtureBase<dcmtkpp::CGetResponse>
         dcmtkpp::ElementAccessor<EVR_UI>::set(
             this->command_set, DCM_AffectedSOPClassUID,
             UID_GETStudyRootQueryRetrieveInformationModel);
+        dcmtkpp::ElementAccessor<EVR_US>::set(
+            this->command_set, DcmTagKey(0x0000, 0x1020), 1);
+        dcmtkpp::ElementAccessor<EVR_US>::set(
+            this->command_set, DcmTagKey(0x0000, 0x1021), 2);
+        dcmtkpp::ElementAccessor<EVR_US>::set(
+            this->command_set, DcmTagKey(0x0000, 0x1022), 3);
+        dcmtkpp::ElementAccessor<EVR_US>::set(
+            this->command_set, DcmTagKey(0x0000, 0x1023), 4);
 
         dcmtkpp::ElementAccessor<EVR_PN>::set(
             this->data_set, DCM_PatientName, "Doe^John");
@@ -57,6 +65,18 @@ struct Fixture: public MessageFixtureBase<dcmtkpp::CGetResponse>
             message.get_affected_sop_class_uid(),
             UID_GETStudyRootQueryRetrieveInformationModel);
 
+        BOOST_CHECK(message.has_number_of_remaining_sub_operations());
+        BOOST_CHECK_EQUAL(message.get_number_of_remaining_sub_operations(), 1);
+
+        BOOST_CHECK(message.has_number_of_completed_sub_operations());
+        BOOST_CHECK_EQUAL(message.get_number_of_completed_sub_operations(), 2);
+
+        BOOST_CHECK(message.has_number_of_failed_sub_operations());
+        BOOST_CHECK_EQUAL(message.get_number_of_failed_sub_operations(), 3);
+
+        BOOST_CHECK(message.has_number_of_warning_sub_operations());
+        BOOST_CHECK_EQUAL(message.get_number_of_warning_sub_operations(), 4);
+
         BOOST_CHECK_EQUAL(message.get_data_set(), &this->data_set);
     }
 };
@@ -67,6 +87,11 @@ BOOST_FIXTURE_TEST_CASE(Constructor, Fixture)
     message.set_message_id(5678);
     message.set_affected_sop_class_uid(
         UID_GETStudyRootQueryRetrieveInformationModel);
+    message.set_number_of_remaining_sub_operations(1);
+    message.set_number_of_completed_sub_operations(2);
+    message.set_number_of_failed_sub_operations(3);
+    message.set_number_of_warning_sub_operations(4);
+
     this->check(message);
 }
 
