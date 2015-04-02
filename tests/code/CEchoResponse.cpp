@@ -11,49 +11,55 @@
 #include "dcmtkpp/ElementAccessor.h"
 #include "dcmtkpp/Message.h"
 
-BOOST_AUTO_TEST_CASE(Constructor)
+#include "../MessageFixtureBase.h"
+
+struct Fixture: public MessageFixtureBase<dcmtkpp::CEchoResponse>
+{
+    DcmDataset command_set;
+
+    Fixture()
+    {
+        dcmtkpp::ElementAccessor<EVR_US>::set(
+            this->command_set, DCM_CommandField, DIMSE_C_ECHO_RSP);
+        dcmtkpp::ElementAccessor<EVR_US>::set(
+            this->command_set, DCM_MessageIDBeingRespondedTo, 1234);
+        dcmtkpp::ElementAccessor<EVR_US>::set(
+            this->command_set, DCM_Status, STATUS_Success);
+        dcmtkpp::ElementAccessor<EVR_UI>::set(
+            this->command_set, DCM_AffectedSOPClassUID, UID_VerificationSOPClass);
+    }
+
+    void check(dcmtkpp::CEchoResponse const & message)
+    {
+        BOOST_CHECK_EQUAL(message.get_command_field(), DIMSE_C_ECHO_RSP);
+        BOOST_CHECK_EQUAL(message.get_message_id_being_responded_to(), 1234);
+        BOOST_CHECK_EQUAL(message.get_status(), STATUS_Success);
+        BOOST_CHECK_EQUAL(message.get_affected_sop_class_uid(), UID_VerificationSOPClass);
+        BOOST_CHECK_EQUAL(message.get_data_set(), static_cast<DcmDataset const *>(NULL));
+    }
+};
+
+BOOST_FIXTURE_TEST_CASE(Constructor, Fixture)
 {
     dcmtkpp::CEchoResponse const message(
         1234, STATUS_Success, UID_VerificationSOPClass);
-
-    BOOST_CHECK_EQUAL(message.get_command_field(), DIMSE_C_ECHO_RSP);
-
-    BOOST_CHECK_EQUAL(message.get_message_id_being_responded_to(), 1234);
-
-    BOOST_CHECK_EQUAL(message.get_status(), STATUS_Success);
-
-    BOOST_CHECK_EQUAL(
-        message.get_affected_sop_class_uid(), UID_VerificationSOPClass);
-
-    BOOST_CHECK_EQUAL(
-        message.get_data_set(), static_cast<DcmDataset const *>(NULL));
+    this->check(message);
 }
 
-BOOST_AUTO_TEST_CASE(MessageConstructor)
+BOOST_FIXTURE_TEST_CASE(MessageConstructor, Fixture)
 {
-    DcmDataset command_set;
+    this->check_message_constructor(this->command_set, NULL);
+}
+
+BOOST_FIXTURE_TEST_CASE(MessageConstructorWrongCommandField, Fixture)
+{
     dcmtkpp::ElementAccessor<EVR_US>::set(
-        command_set, DCM_CommandField, DIMSE_C_ECHO_RSP);
-    dcmtkpp::ElementAccessor<EVR_US>::set(
-        command_set, DCM_MessageIDBeingRespondedTo, 1234);
-    dcmtkpp::ElementAccessor<EVR_US>::set(
-        command_set, DCM_Status, STATUS_Success);
-    dcmtkpp::ElementAccessor<EVR_UI>::set(
-        command_set, DCM_AffectedSOPClassUID, UID_VerificationSOPClass);
+        this->command_set, DCM_CommandField, DIMSE_C_ECHO_RQ);
+    this->check_message_constructor_throw(this->command_set, NULL);
+}
 
-    dcmtkpp::Message const generic_message(command_set, NULL);
-
-    dcmtkpp::CEchoResponse const message(generic_message);
-
-    BOOST_CHECK_EQUAL(message.get_command_field(), DIMSE_C_ECHO_RSP);
-
-    BOOST_CHECK_EQUAL(message.get_message_id_being_responded_to(), 1234);
-
-    BOOST_CHECK_EQUAL(message.get_status(), STATUS_Success);
-
-    BOOST_CHECK_EQUAL(
-        message.get_affected_sop_class_uid(), UID_VerificationSOPClass);
-
-    BOOST_CHECK_EQUAL(
-        message.get_data_set(), static_cast<DcmDataset const *>(NULL));
+BOOST_FIXTURE_TEST_CASE(MessageConstructorMissingAffectSOPClass, Fixture)
+{
+    this->command_set.findAndDeleteElement(DCM_AffectedSOPClassUID);
+    this->check_message_constructor_throw(this->command_set, NULL);
 }

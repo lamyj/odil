@@ -11,73 +11,53 @@
 #include "dcmtkpp/ElementAccessor.h"
 #include "dcmtkpp/Message.h"
 
-BOOST_AUTO_TEST_CASE(Constructor)
+#include "../MessageFixtureBase.h"
+
+struct Fixture: public MessageFixtureBase<dcmtkpp::CEchoRequest>
+{
+    DcmDataset command_set;
+
+    Fixture()
+    {
+        dcmtkpp::ElementAccessor<EVR_US>::set(
+            this->command_set, DCM_CommandField, DIMSE_C_ECHO_RQ);
+        dcmtkpp::ElementAccessor<EVR_US>::set(
+            this->command_set, DCM_MessageID, 1234);
+        dcmtkpp::ElementAccessor<EVR_UI>::set(
+            this->command_set, DCM_AffectedSOPClassUID, UID_VerificationSOPClass);
+    }
+
+    void check(dcmtkpp::CEchoRequest const & message)
+    {
+        BOOST_CHECK_EQUAL(message.get_command_field(), DIMSE_C_ECHO_RQ);
+        BOOST_CHECK_EQUAL(message.get_message_id(), 1234);
+        BOOST_CHECK_EQUAL(
+            message.get_affected_sop_class_uid(), UID_VerificationSOPClass);
+        BOOST_CHECK_EQUAL(
+            message.get_data_set(), static_cast<DcmDataset const *>(NULL));
+    }
+};
+
+BOOST_FIXTURE_TEST_CASE(Constructor, Fixture)
 {
     dcmtkpp::CEchoRequest const message(1234, UID_VerificationSOPClass);
-
-    BOOST_CHECK_EQUAL(message.get_command_field(), DIMSE_C_ECHO_RQ);
-
-    BOOST_CHECK_EQUAL(message.get_message_id(), 1234);
-
-    BOOST_CHECK_EQUAL(
-        message.get_affected_sop_class_uid(), UID_VerificationSOPClass);
-
-    BOOST_CHECK_EQUAL(
-        message.get_data_set(), static_cast<DcmDataset const *>(NULL));
+    this->check(message);
 }
 
-BOOST_AUTO_TEST_CASE(MessageConstructor)
+BOOST_FIXTURE_TEST_CASE(MessageConstructor, Fixture)
 {
-    DcmDataset command_set;
-    dcmtkpp::ElementAccessor<EVR_US>::set(
-        command_set, DCM_CommandField, DIMSE_C_ECHO_RQ);
-    dcmtkpp::ElementAccessor<EVR_US>::set(command_set, DCM_MessageID, 1234);
-    dcmtkpp::ElementAccessor<EVR_UI>::set(
-        command_set, DCM_AffectedSOPClassUID, UID_VerificationSOPClass);
-
-    dcmtkpp::Message const generic_message(command_set, NULL);
-
-    dcmtkpp::CEchoRequest const message(generic_message);
-
-    BOOST_CHECK_EQUAL(message.get_command_field(), DIMSE_C_ECHO_RQ);
-
-    BOOST_CHECK_EQUAL(message.get_message_id(), 1234);
-
-    BOOST_CHECK_EQUAL(
-        message.get_affected_sop_class_uid(), UID_VerificationSOPClass);
-
-    BOOST_CHECK_EQUAL(
-        message.get_data_set(), static_cast<DcmDataset const *>(NULL));
+    this->check_message_constructor(this->command_set, NULL);
 }
 
-BOOST_AUTO_TEST_CASE(MessageConstructorWrongCommandField)
+BOOST_FIXTURE_TEST_CASE(MessageConstructorWrongCommandField, Fixture)
 {
-    DcmDataset command_set;
-    // Initialize with wrong Command Field: C-ECHO-RSP instead of C-ECHO-RQ
     dcmtkpp::ElementAccessor<EVR_US>::set(
-        command_set, DCM_CommandField, DIMSE_C_ECHO_RSP);
-    dcmtkpp::ElementAccessor<EVR_US>::set(command_set, DCM_MessageID, 1234);
-    dcmtkpp::ElementAccessor<EVR_UI>::set(
-        command_set, DCM_AffectedSOPClassUID, UID_VerificationSOPClass);
-
-    dcmtkpp::Message const generic_message(command_set, NULL);
-
-    BOOST_CHECK_THROW(
-        dcmtkpp::CEchoRequest const message(generic_message),
-        dcmtkpp::Exception);
+        this->command_set, DCM_CommandField, DIMSE_C_ECHO_RSP);
+    this->check_message_constructor_throw(this->command_set, NULL);
 }
 
-BOOST_AUTO_TEST_CASE(MessageConstructorMissingAffectSOPClass)
+BOOST_FIXTURE_TEST_CASE(MessageConstructorMissingAffectSOPClass, Fixture)
 {
-    DcmDataset command_set;
-    dcmtkpp::ElementAccessor<EVR_US>::set(
-        command_set, DCM_CommandField, DIMSE_C_ECHO_RQ);
-    dcmtkpp::ElementAccessor<EVR_US>::set(command_set, DCM_MessageID, 1234);
-    // Do not set Affected SOP Class UID
-
-    dcmtkpp::Message const generic_message(command_set, NULL);
-
-    BOOST_CHECK_THROW(
-        dcmtkpp::CEchoRequest const message(generic_message),
-        dcmtkpp::Exception);
+    this->command_set.findAndDeleteElement(DCM_AffectedSOPClassUID);
+    this->check_message_constructor_throw(this->command_set, NULL);
 }
