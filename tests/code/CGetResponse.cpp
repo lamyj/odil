@@ -1,4 +1,4 @@
-#define BOOST_TEST_MODULE CFindResponse
+#define BOOST_TEST_MODULE CGetResponse
 #include <boost/test/unit_test.hpp>
 
 #include <dcmtk/config/osconfig.h>
@@ -7,13 +7,13 @@
 #include <dcmtk/dcmdata/dcuid.h>
 #include <dcmtk/dcmnet/dimse.h>
 
-#include "dcmtkpp/CFindResponse.h"
+#include "dcmtkpp/CGetResponse.h"
 #include "dcmtkpp/ElementAccessor.h"
 #include "dcmtkpp/Message.h"
 
 #include "../MessageFixtureBase.h"
 
-struct Fixture: public MessageFixtureBase<dcmtkpp::CFindResponse>
+struct Fixture: public MessageFixtureBase<dcmtkpp::CGetResponse>
 {
     DcmDataset command_set;
     DcmDataset data_set;
@@ -21,7 +21,7 @@ struct Fixture: public MessageFixtureBase<dcmtkpp::CFindResponse>
     Fixture()
     {
         dcmtkpp::ElementAccessor<EVR_US>::set(
-            this->command_set, DCM_CommandField, DIMSE_C_FIND_RSP);
+            this->command_set, DCM_CommandField, DIMSE_C_GET_RSP);
         dcmtkpp::ElementAccessor<EVR_US>::set(
             this->command_set, DCM_MessageIDBeingRespondedTo, 1234);
         dcmtkpp::ElementAccessor<EVR_US>::set(
@@ -31,7 +31,7 @@ struct Fixture: public MessageFixtureBase<dcmtkpp::CFindResponse>
             this->command_set, DCM_MessageID, 5678);
         dcmtkpp::ElementAccessor<EVR_UI>::set(
             this->command_set, DCM_AffectedSOPClassUID,
-            UID_FINDStudyRootQueryRetrieveInformationModel);
+            UID_GETStudyRootQueryRetrieveInformationModel);
 
         dcmtkpp::ElementAccessor<EVR_PN>::set(
             this->data_set, DCM_PatientName, "Doe^John");
@@ -43,9 +43,9 @@ struct Fixture: public MessageFixtureBase<dcmtkpp::CFindResponse>
             this->data_set, DCM_StudyInstanceUID, "1.2.3");
     }
 
-    virtual void check(dcmtkpp::CFindResponse const & message)
+    virtual void check(dcmtkpp::CGetResponse const & message)
     {
-        BOOST_CHECK_EQUAL(message.get_command_field(), DIMSE_C_FIND_RSP);
+        BOOST_CHECK_EQUAL(message.get_command_field(), DIMSE_C_GET_RSP);
         BOOST_CHECK_EQUAL(message.get_message_id_being_responded_to(), 1234);
         BOOST_CHECK_EQUAL(message.get_status(), STATUS_Success);
 
@@ -55,7 +55,7 @@ struct Fixture: public MessageFixtureBase<dcmtkpp::CFindResponse>
         BOOST_CHECK(message.has_affected_sop_class_uid());
         BOOST_CHECK_EQUAL(
             message.get_affected_sop_class_uid(),
-            UID_FINDStudyRootQueryRetrieveInformationModel);
+            UID_GETStudyRootQueryRetrieveInformationModel);
 
         BOOST_CHECK_EQUAL(message.get_data_set(), &this->data_set);
     }
@@ -63,10 +63,10 @@ struct Fixture: public MessageFixtureBase<dcmtkpp::CFindResponse>
 
 BOOST_FIXTURE_TEST_CASE(Constructor, Fixture)
 {
-    dcmtkpp::CFindResponse message(1234, STATUS_Success, &this->data_set);
+    dcmtkpp::CGetResponse message(1234, STATUS_Success, &this->data_set);
     message.set_message_id(5678);
     message.set_affected_sop_class_uid(
-        UID_FINDStudyRootQueryRetrieveInformationModel);
+        UID_GETStudyRootQueryRetrieveInformationModel);
     this->check(message);
 }
 

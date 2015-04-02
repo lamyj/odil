@@ -1,4 +1,4 @@
-#define BOOST_TEST_MODULE CFindRequest
+#define BOOST_TEST_MODULE CGetRequest
 #include <boost/test/unit_test.hpp>
 
 #include <dcmtk/config/osconfig.h>
@@ -7,13 +7,13 @@
 #include <dcmtk/dcmdata/dcuid.h>
 #include <dcmtk/dcmnet/dimse.h>
 
-#include "dcmtkpp/CFindRequest.h"
+#include "dcmtkpp/CGetRequest.h"
 #include "dcmtkpp/ElementAccessor.h"
 #include "dcmtkpp/Message.h"
 
 #include "../MessageFixtureBase.h"
 
-struct Fixture: public MessageFixtureBase<dcmtkpp::CFindRequest>
+struct Fixture: public MessageFixtureBase<dcmtkpp::CGetRequest>
 {
     DcmDataset command_set;
     DcmDataset query;
@@ -21,12 +21,12 @@ struct Fixture: public MessageFixtureBase<dcmtkpp::CFindRequest>
     Fixture()
     {
         dcmtkpp::ElementAccessor<EVR_US>::set(
-            this->command_set, DCM_CommandField, DIMSE_C_FIND_RQ);
+            this->command_set, DCM_CommandField, DIMSE_C_GET_RQ);
         dcmtkpp::ElementAccessor<EVR_US>::set(
             this->command_set, DCM_MessageID, 1234);
         dcmtkpp::ElementAccessor<EVR_UI>::set(
             this->command_set, DCM_AffectedSOPClassUID,
-            UID_FINDPatientRootQueryRetrieveInformationModel);
+            UID_GETPatientRootQueryRetrieveInformationModel);
         dcmtkpp::ElementAccessor<EVR_US>::set(
             this->command_set, DCM_Priority, DIMSE_PRIORITY_MEDIUM);
 
@@ -38,21 +38,21 @@ struct Fixture: public MessageFixtureBase<dcmtkpp::CFindRequest>
             this->query, DCM_QueryRetrieveLevel, "STUDY");
     }
 
-    virtual void check(dcmtkpp::CFindRequest const & message)
+    virtual void check(dcmtkpp::CGetRequest const & message)
     {
-        BOOST_CHECK_EQUAL(message.get_command_field(), DIMSE_C_FIND_RQ);
+        BOOST_CHECK_EQUAL(message.get_command_field(), DIMSE_C_GET_RQ);
         BOOST_CHECK_EQUAL(message.get_message_id(), 1234);
         BOOST_CHECK_EQUAL(
             message.get_affected_sop_class_uid(),
-            UID_FINDPatientRootQueryRetrieveInformationModel);
+            UID_GETPatientRootQueryRetrieveInformationModel);
         BOOST_CHECK_EQUAL(message.get_data_set(), &this->query);
     }
 };
 
 BOOST_FIXTURE_TEST_CASE(Constructor, Fixture)
 {
-    dcmtkpp::CFindRequest const message(
-        1234, UID_FINDPatientRootQueryRetrieveInformationModel,
+    dcmtkpp::CGetRequest const message(
+        1234, UID_GETPatientRootQueryRetrieveInformationModel,
         DIMSE_PRIORITY_MEDIUM, &this->query);
     this->check(message);
 }
