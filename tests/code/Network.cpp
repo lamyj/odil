@@ -68,12 +68,28 @@ BOOST_AUTO_TEST_CASE(Role)
     BOOST_CHECK_EQUAL(network.get_role(), NET_ACCEPTOR);
 }
 
+BOOST_AUTO_TEST_CASE(RoleAssociated)
+{
+    dcmtkpp::Network network;
+    network.initialize();
+
+    BOOST_CHECK_THROW(network.set_role(NET_ACCEPTOR), dcmtkpp::Exception);
+}
+
 BOOST_AUTO_TEST_CASE(Port)
 {
     dcmtkpp::Network network;
     network.set_port(1234);
 
     BOOST_CHECK_EQUAL(network.get_port(), 1234);
+}
+
+BOOST_AUTO_TEST_CASE(PortAssociated)
+{
+    dcmtkpp::Network network;
+    network.initialize();
+
+    BOOST_CHECK_THROW(network.set_port(1234), dcmtkpp::Exception);
 }
 
 BOOST_AUTO_TEST_CASE(Timeout)
@@ -84,12 +100,28 @@ BOOST_AUTO_TEST_CASE(Timeout)
     BOOST_CHECK_EQUAL(network.get_timeout(), 10);
 }
 
+BOOST_AUTO_TEST_CASE(TimeoutAssociated)
+{
+    dcmtkpp::Network network;
+    network.initialize();
+
+    BOOST_CHECK_THROW(network.set_timeout(10), dcmtkpp::Exception);
+}
+
 BOOST_AUTO_TEST_CASE(Options)
 {
     dcmtkpp::Network network;
     network.set_options(1);
 
     BOOST_CHECK_EQUAL(network.get_options(), 1);
+}
+
+BOOST_AUTO_TEST_CASE(OptionsAssociated)
+{
+    dcmtkpp::Network network;
+    network.initialize();
+
+    BOOST_CHECK_THROW(network.set_options(1), dcmtkpp::Exception);
 }
 
 BOOST_AUTO_TEST_CASE(Initialize)
@@ -99,13 +131,25 @@ BOOST_AUTO_TEST_CASE(Initialize)
 
     BOOST_CHECK(network.is_initialized());
     BOOST_CHECK_NE(network.get_network(),  static_cast<T_ASC_Network*>(NULL));
+}
 
+BOOST_AUTO_TEST_CASE(Drop)
+{
+    dcmtkpp::Network network(NET_REQUESTOR, 11112, 1, 0);
+    network.initialize();
     network.drop();
     BOOST_CHECK(!network.is_initialized());
     BOOST_CHECK_EQUAL(network.get_network(),  static_cast<T_ASC_Network*>(NULL));
 }
 
-BOOST_AUTO_TEST_CASE(Drop)
+BOOST_AUTO_TEST_CASE(InitializeTwice)
+{
+    dcmtkpp::Network network(NET_REQUESTOR, 11112, 1, 0);
+    network.initialize();
+    BOOST_REQUIRE_THROW(network.initialize(), dcmtkpp::Exception);
+}
+
+BOOST_AUTO_TEST_CASE(DropNotInitialized)
 {
     dcmtkpp::Network network;
     BOOST_REQUIRE_THROW(network.drop(), dcmtkpp::Exception);
