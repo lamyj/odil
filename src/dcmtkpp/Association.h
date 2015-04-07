@@ -80,7 +80,8 @@ public:
     /// @{
     
     void add_presentation_context(std::string const & abstract_syntax,
-        std::vector<std::string> const & transfer_syntaxes);
+        std::vector<std::string> const & transfer_syntaxes,
+        T_ASC_SC_ROLE role=ASC_SC_ROLE_DEFAULT);
     
     /// @}
     
@@ -162,7 +163,13 @@ private:
     uint16_t _peer_port;
     std::string _peer_ae_title;
     
-    typedef std::pair<std::string, std::vector<std::string> > PresentationContext;
+    struct PresentationContext
+    {
+        std::string abstract_syntax;
+        std::vector<std::string> transfer_syntaxes;
+        T_ASC_SC_ROLE role;
+    };
+
     std::vector<PresentationContext> _presentation_contexts;
     
     UserIdentityType _user_identity_type;

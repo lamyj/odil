@@ -151,7 +151,7 @@ Association
 void
 Association
 ::add_presentation_context(std::string const & abstract_syntax,
-    std::vector<std::string> const & transfer_syntaxes)
+    std::vector<std::string> const & transfer_syntaxes, T_ASC_SC_ROLE role)
 {
     if(this->is_associated())
     {
@@ -159,7 +159,7 @@ Association
     }
     
     this->_presentation_contexts.push_back(
-        std::make_pair(abstract_syntax, transfer_syntaxes));
+        {abstract_syntax, transfer_syntaxes, role});
 }
 
 UserIdentityType
@@ -320,15 +320,15 @@ Association
     unsigned int context_id = 1;
     for(auto const & context: this->_presentation_contexts)
     {
-        char const ** transfer_syntaxes = new char const *[context.second.size()];
-        for(std::size_t i = 0; i < context.second.size(); ++i)
+        char const ** transfer_syntaxes = new char const *[context.transfer_syntaxes.size()];
+        for(std::size_t i = 0; i < context.transfer_syntaxes.size(); ++i)
         {
-            transfer_syntaxes[i] = context.second[i].c_str();
+            transfer_syntaxes[i] = context.transfer_syntaxes[i].c_str();
         }
         
         condition = ASC_addPresentationContext(params, 
-            context_id, context.first.c_str(), 
-            transfer_syntaxes, context.second.size());
+            context_id, context.abstract_syntax.c_str(),
+            transfer_syntaxes, context.transfer_syntaxes.size(), context.role);
         if(condition.bad())
         {
             ASC_destroyAssociationParameters(&params);
@@ -459,10 +459,10 @@ Association
     {
         for(auto const & context: this->_presentation_contexts)
         {
-            for(std::size_t i = 0; i < context.second.size(); ++i)
+            for(std::size_t i = 0; i < context.transfer_syntaxes.size(); ++i)
             {
-                char const * abstract_syntax = context.first.c_str();
-                char const * transfer_syntax = context.second[i].c_str();
+                char const * abstract_syntax = context.abstract_syntax.c_str();
+                char const * transfer_syntax = context.transfer_syntaxes[i].c_str();
                 condition = ASC_acceptContextsWithTransferSyntax(
                     this->_association->params, transfer_syntax,
                     1, &abstract_syntax);
