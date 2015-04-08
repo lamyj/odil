@@ -38,7 +38,8 @@ int main()
     
     association.add_presentation_context(
         UID_MRImageStorage,
-        { UID_LittleEndianImplicitTransferSyntax });
+        { UID_LittleEndianImplicitTransferSyntax },
+        ASC_SC_ROLE_SCP);
     
     association.add_presentation_context(
         UID_VerificationSOPClass,
