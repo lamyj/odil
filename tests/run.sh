@@ -7,7 +7,7 @@ configure() {
     cat > ${directory}/config  << EOF
 HostTable BEGIN
 remote = (REMOTE, localhost, 11112)
-local = (LOCAL, localhost, 0)
+local = (LOCAL, localhost, 11113)
 HostTable END
 
 AETable BEGIN
