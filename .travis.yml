@@ -3,5 +3,5 @@ compiler:
   - gcc
 before_install:
   - sudo apt-get update -qq
-  - sudo apt-get install -y libdcmtk2-dev libwrap0-dev libboost-test-dev
+  - sudo apt-get install -y libdcmtk2-dev libwrap0-dev libboost-test-dev dcmtk
 script: mkdir build && cd build && cmake -D CMAKE_CXX_FLAGS="-std=c++0x" ../ && make && ../tests/run.sh
