@@ -34,13 +34,13 @@ public:
     virtual ~GetSCU();
     
     /// @brief Perform the C-GET using an optional callback.
-    void get(DcmDataset const * query, Callback callback) const;
+    void get(DcmDataset const & query, Callback callback) const;
     
     /**
      * @brief Return a list of datasets matching the query. The user is 
      * responsible for the de-allocation of the matches.
      */
-    std::vector<DcmDataset *> get(DcmDataset const * query) const;
+    std::vector<DcmDataset *> get(DcmDataset const & query) const;
 private:
     bool _get_response(CGetResponse const & response) const;
     void _store_request(CStoreRequest const & request, Callback callback) const;

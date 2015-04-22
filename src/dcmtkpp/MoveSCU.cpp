@@ -52,12 +52,12 @@ MoveSCU
 
 void
 MoveSCU
-::move(DcmDataset const * query, Callback callback) const
+::move(DcmDataset const & query, Callback callback) const
 {
     // Send the request
     CMoveRequest const request(this->_association->get_association()->nextMsgID++,
         this->_affected_sop_class, DIMSE_PRIORITY_MEDIUM,
-        this->_move_destination, query);
+        this->_move_destination, &query);
     this->_send(request, this->_affected_sop_class);
     
     // Receive the responses
@@ -78,7 +78,7 @@ MoveSCU
 
 std::vector<DcmDataset *>
 MoveSCU
-::move(DcmDataset const * query) const
+::move(DcmDataset const & query) const
 {
     std::vector<DcmDataset*> result;
     auto callback = [&result](DcmDataset const * dataset) {

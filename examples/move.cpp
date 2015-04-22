@@ -54,11 +54,11 @@ int main()
     
     scu.echo();
     
-    DcmDataset * query = new DcmDataset();
-    query->putAndInsertOFStringArray(DCM_PatientID, "1234");
-    query->putAndInsertOFStringArray(DCM_QueryRetrieveLevel, "SERIES");
-    query->putAndInsertOFStringArray(DCM_StudyInstanceUID, "1.2.3.4.5");
-    query->putAndInsertOFStringArray(DCM_SeriesInstanceUID, "1.2.3.4.5.1");
+    DcmDataset query;
+    dcmtkpp::ElementAccessor<std::string>::set(query, DCM_PatientID, "1234");
+    dcmtkpp::ElementAccessor<std::string>::set(query, DCM_QueryRetrieveLevel, "SERIES");
+    dcmtkpp::ElementAccessor<std::string>::set(query, DCM_StudyInstanceUID, "1.2.3.4.5");
+    dcmtkpp::ElementAccessor<std::string>::set(query, DCM_SeriesInstanceUID, "1.2.3.4.5.1");
     
     scu.set_affected_sop_class(UID_MOVEStudyRootQueryRetrieveInformationModel);
     

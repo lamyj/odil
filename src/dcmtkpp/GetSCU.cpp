@@ -32,11 +32,11 @@ GetSCU
 
 void 
 GetSCU
-::get(DcmDataset const * query, Callback callback) const
+::get(DcmDataset const & query, Callback callback) const
 {
     // Send the request
     CGetRequest request(this->_association->get_association()->nextMsgID++,
-        this->_affected_sop_class, DIMSE_PRIORITY_MEDIUM, query);
+        this->_affected_sop_class, DIMSE_PRIORITY_MEDIUM, &query);
     this->_send(request, this->_affected_sop_class);
     
     // Receive the responses
@@ -73,7 +73,7 @@ GetSCU
 
 std::vector<DcmDataset *>
 GetSCU
-::get(DcmDataset const * query) const
+::get(DcmDataset const & query) const
 {
     std::vector<DcmDataset*> result;
     auto callback = [&result](DcmDataset const * dataset) {

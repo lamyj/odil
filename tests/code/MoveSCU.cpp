@@ -61,7 +61,7 @@ BOOST_FIXTURE_TEST_CASE(Move, Fixture)
     scu.set_move_destination("LOCAL");
 
     scu.set_affected_sop_class(UID_MOVEPatientRootQueryRetrieveInformationModel);
-    auto const results = scu.move(&this->query);
+    auto const results = scu.move(this->query);
 
     BOOST_REQUIRE_EQUAL(results.size(), 1);
     BOOST_CHECK_EQUAL(
@@ -79,7 +79,7 @@ BOOST_FIXTURE_TEST_CASE(MoveCallback, Fixture)
     scu.set_move_destination("LOCAL");
 
     scu.set_affected_sop_class(UID_MOVEPatientRootQueryRetrieveInformationModel);
-    scu.move(&this->query, Fixture::callback);
+    scu.move(this->query, Fixture::callback);
 
     BOOST_CHECK(Fixture::called);
 }

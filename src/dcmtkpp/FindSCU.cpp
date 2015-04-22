@@ -31,11 +31,11 @@ FindSCU
 
 void 
 FindSCU
-::find(DcmDataset const * query, Callback callback) const
+::find(DcmDataset const & query, Callback callback) const
 {
     CFindRequest request(
         this->_association->get_association()->nextMsgID++,
-        this->_affected_sop_class, DIMSE_PRIORITY_MEDIUM, query);
+        this->_affected_sop_class, DIMSE_PRIORITY_MEDIUM, &query);
     this->_send(request, this->_affected_sop_class);
     
     // Receive the responses
@@ -76,7 +76,7 @@ FindSCU
 
 std::vector<DcmDataset *>
 FindSCU
-::find(DcmDataset const * query) const
+::find(DcmDataset const & query) const
 {
     std::vector<DcmDataset*> result;
     auto callback = [&result](DcmDataset const * dataset) {

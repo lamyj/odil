@@ -7,21 +7,27 @@
 
 void print_informations(DcmDataset const * response)
 {
-    OFString patient_name;
-    const_cast<DcmDataset*>(response)->findAndGetOFString(
-        DCM_PatientName, patient_name);
+    std::cout
+        << dcmtkpp::ElementAccessor<std::string>::get(*response, DCM_PatientName)
+        << ": "
+        << dcmtkpp::ElementAccessor<std::string>::get(*response, DCM_StudyDescription)
+        << " / "
+        << dcmtkpp::ElementAccessor<std::string>::get(*response, DCM_SeriesDescription)
+        << ": "
+        << dcmtkpp::ElementAccessor<std::string>::get(*response, DCM_InstanceNumber)
+        << "\n";
 
-    OFString study_description;
-    const_cast<DcmDataset*>(response)->findAndGetOFString(
-        DCM_StudyDescription, study_description);
+    std::string const patient_name =
+        dcmtkpp::ElementAccessor<std::string>::get(*response, DCM_PatientName);
 
-    OFString study_date;
-    const_cast<DcmDataset*>(response)->findAndGetOFString(
-        DCM_StudyDate, study_date);
+    std::string const study_description =
+        dcmtkpp::ElementAccessor<std::string>::get(*response, DCM_StudyDescription);
 
-    Sint32 number_of_study_related_series;
-    const_cast<DcmDataset*>(response)->findAndGetSint32(
-        DCM_NumberOfStudyRelatedSeries, number_of_study_related_series);
+    std::string const study_date =
+        dcmtkpp::ElementAccessor<std::string>::get(*response, DCM_StudyDate);
+
+    Sint32 const number_of_study_related_series =
+        dcmtkpp::ElementAccessor<Sint32>::get(*response, DCM_NumberOfStudyRelatedSeries);
     
     std::cout << patient_name << ": " << study_description
               << " on " << study_date << ", " 
@@ -57,12 +63,12 @@ int main()
     
     scu.echo();
     
-    DcmDataset * query = new DcmDataset();
-    query->putAndInsertOFStringArray(DCM_PatientName, "DOE^John");
-    query->putAndInsertOFStringArray(DCM_QueryRetrieveLevel, "STUDY");
-    query->insertEmptyElement(DCM_StudyDescription);
-    query->insertEmptyElement(DCM_NumberOfStudyRelatedSeries);
-    query->insertEmptyElement(DCM_StudyDate);
+    DcmDataset query;
+    dcmtkpp::ElementAccessor<std::string>::set(query, DCM_PatientName, "DOE^John");
+    dcmtkpp::ElementAccessor<std::string>::set(query, DCM_QueryRetrieveLevel, "STUDY");
+    query.insertEmptyElement(DCM_StudyDescription);
+    query.insertEmptyElement(DCM_NumberOfStudyRelatedSeries);
+    query.insertEmptyElement(DCM_StudyDate);
     
     scu.set_affected_sop_class(UID_FINDStudyRootQueryRetrieveInformationModel);
     

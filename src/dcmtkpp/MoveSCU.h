@@ -40,13 +40,13 @@ public:
     void set_move_destination(std::string const & move_destination);
 
     /// @brief Perform the C-MOVE using a callback.
-    void move(DcmDataset const * query, Callback callback) const;
+    void move(DcmDataset const & query, Callback callback) const;
     
     /**
      * @brief Return a list of datasets matching the query. The user is 
      * responsible for the de-allocation of the matches.
      */
-    std::vector<DcmDataset *> move(DcmDataset const * query) const;
+    std::vector<DcmDataset *> move(DcmDataset const & query) const;
 
 private:
     std::string _move_destination;

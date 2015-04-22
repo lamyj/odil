@@ -48,7 +48,7 @@ BOOST_FIXTURE_TEST_CASE(Get, Fixture)
     scu.set_association(&this->association);
 
     scu.set_affected_sop_class(UID_GETPatientRootQueryRetrieveInformationModel);
-    auto const results = scu.get(&this->query);
+    auto const results = scu.get(this->query);
 
     BOOST_REQUIRE_EQUAL(results.size(), 1);
     BOOST_CHECK_EQUAL(
@@ -65,7 +65,7 @@ BOOST_FIXTURE_TEST_CASE(GetCallback, Fixture)
     scu.set_association(&this->association);
 
     scu.set_affected_sop_class(UID_GETPatientRootQueryRetrieveInformationModel);
-    scu.get(&this->query, Fixture::callback);
+    scu.get(this->query, Fixture::callback);
 
     BOOST_CHECK(Fixture::called);
 }

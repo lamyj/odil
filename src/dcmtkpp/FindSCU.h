@@ -30,13 +30,13 @@ public:
     virtual ~FindSCU();
     
     /// @brief Perform the C-FIND using an optional callback.
-    void find(DcmDataset const * query, Callback callback) const;
+    void find(DcmDataset const & query, Callback callback) const;
     
     /**
      * @brief Return a list of datasets matching the query. The user is 
      * responsible for the de-allocation of the matches.
      */
-    std::vector<DcmDataset *> find(DcmDataset const * query) const;
+    std::vector<DcmDataset *> find(DcmDataset const & query) const;
 };
 
 }
