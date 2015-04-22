@@ -150,7 +150,7 @@ ServiceRole
     
     // Receive potential data set
     Uint16 const command_data_set_type =
-        ElementAccessor<EVR_US>::get(command_set, DcmTagKey(0x0000, 0x0800));
+        ElementAccessor<Uint16>::get(command_set, DcmTagKey(0x0000, 0x0800));
     
     DcmDataset * data_set;
     if(command_data_set_type != DIMSE_DATASET_NULL)

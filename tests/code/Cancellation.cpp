@@ -15,9 +15,9 @@ struct Fixture: public MessageFixtureBase<dcmtkpp::Cancellation>
     DcmDataset command_set;
     Fixture()
     {
-        dcmtkpp::ElementAccessor<EVR_US>::set(
+        dcmtkpp::ElementAccessor<Uint16>::set(
             this->command_set, DCM_CommandField, DIMSE_C_CANCEL_RQ);
-        dcmtkpp::ElementAccessor<EVR_US>::set(
+        dcmtkpp::ElementAccessor<Uint16>::set(
             this->command_set, DCM_MessageIDBeingRespondedTo, 1234);
     }
 
@@ -41,7 +41,7 @@ BOOST_FIXTURE_TEST_CASE(MessageConstructor, Fixture)
 
 BOOST_FIXTURE_TEST_CASE(MessageConstructorWrongCommandField, Fixture)
 {
-    dcmtkpp::ElementAccessor<EVR_US>::set(
+    dcmtkpp::ElementAccessor<Uint16>::set(
         this->command_set, DCM_CommandField, DIMSE_C_ECHO_RQ);
     this->check_message_constructor_throw(this->command_set, NULL);
 }

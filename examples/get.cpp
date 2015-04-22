@@ -9,13 +9,13 @@
 void print_informations(DcmDataset const * response)
 {
     std::cout
-        << dcmtkpp::ElementAccessor<EVR_PN>::get(*response, DCM_PatientName)
+        << dcmtkpp::ElementAccessor<std::string>::get(*response, DCM_PatientName)
         << ": "
-        << dcmtkpp::ElementAccessor<EVR_LO>::get(*response, DCM_StudyDescription)
+        << dcmtkpp::ElementAccessor<std::string>::get(*response, DCM_StudyDescription)
         << " / "
-        << dcmtkpp::ElementAccessor<EVR_LO>::get(*response, DCM_SeriesDescription)
+        << dcmtkpp::ElementAccessor<std::string>::get(*response, DCM_SeriesDescription)
         << ": "
-        << dcmtkpp::ElementAccessor<EVR_IS>::get(*response, DCM_InstanceNumber)
+        << dcmtkpp::ElementAccessor<std::string>::get(*response, DCM_InstanceNumber)
         << "\n";
 }
 

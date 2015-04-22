@@ -42,18 +42,18 @@ public:
     /// @brief Destructor.
     virtual ~CGetResponse();
     
-    DCMTKPP_MESSAGE_OPTIONAL_FIELD_MACRO(message_id, DCM_MessageID, EVR_US)
+    DCMTKPP_MESSAGE_OPTIONAL_FIELD_MACRO(message_id, DCM_MessageID, Uint16)
     DCMTKPP_MESSAGE_OPTIONAL_FIELD_MACRO(
-        affected_sop_class_uid, DCM_AffectedSOPClassUID, EVR_UI)
+        affected_sop_class_uid, DCM_AffectedSOPClassUID, std::string)
 
     DCMTKPP_MESSAGE_OPTIONAL_FIELD_MACRO(
-        number_of_remaining_sub_operations, DcmTagKey(0x0000, 0x1020), EVR_US)
+        number_of_remaining_sub_operations, DcmTagKey(0x0000, 0x1020), Uint16)
     DCMTKPP_MESSAGE_OPTIONAL_FIELD_MACRO(
-        number_of_completed_sub_operations, DcmTagKey(0x0000, 0x1021), EVR_US)
+        number_of_completed_sub_operations, DcmTagKey(0x0000, 0x1021), Uint16)
     DCMTKPP_MESSAGE_OPTIONAL_FIELD_MACRO(
-        number_of_failed_sub_operations, DcmTagKey(0x0000, 0x1022), EVR_US)
+        number_of_failed_sub_operations, DcmTagKey(0x0000, 0x1022), Uint16)
     DCMTKPP_MESSAGE_OPTIONAL_FIELD_MACRO(
-        number_of_warning_sub_operations, DcmTagKey(0x0000, 0x1023), EVR_US)
+        number_of_warning_sub_operations, DcmTagKey(0x0000, 0x1023), Uint16)
 };
 
 }

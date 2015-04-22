@@ -36,8 +36,8 @@ public:
     virtual ~Response();
     
     DCMTKPP_MESSAGE_MANDATORY_FIELD_MACRO(
-        message_id_being_responded_to, DCM_MessageIDBeingRespondedTo, EVR_US)
-    DCMTKPP_MESSAGE_MANDATORY_FIELD_MACRO(status, DCM_Status, EVR_US)
+        message_id_being_responded_to, DCM_MessageIDBeingRespondedTo, Uint16)
+    DCMTKPP_MESSAGE_MANDATORY_FIELD_MACRO(status, DCM_Status, Uint16)
 };
 
 }

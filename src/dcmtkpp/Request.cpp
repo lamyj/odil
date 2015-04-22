@@ -31,7 +31,7 @@ Request
 ::Request(Message const & message)
 : Message()
 {
-    Uint16 const message_id = ElementAccessor<EVR_US>::get(
+    Uint16 const message_id = ElementAccessor<Uint16>::get(
         message.get_command_set(), DCM_MessageID);
     this->set_message_id(message_id);
 }

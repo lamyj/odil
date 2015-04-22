@@ -44,23 +44,23 @@ CMoveResponse
     this->set_command_field(message.get_command_field());
     
     DCMTKPP_MESSAGE_SET_OPTIONAL_FIELD_MACRO(
-        message.get_command_set(), message_id, DCM_MessageID, EVR_US)
+        message.get_command_set(), message_id, DCM_MessageID, Uint16)
     DCMTKPP_MESSAGE_SET_OPTIONAL_FIELD_MACRO(
         message.get_command_set(), affected_sop_class_uid,
-        DCM_AffectedSOPClassUID, EVR_UI)
+        DCM_AffectedSOPClassUID, std::string)
 
     DCMTKPP_MESSAGE_SET_OPTIONAL_FIELD_MACRO(
         message.get_command_set(), number_of_remaining_sub_operations,
-        DcmTagKey(0x0000, 0x1020), EVR_US)
+        DcmTagKey(0x0000, 0x1020), Uint16)
     DCMTKPP_MESSAGE_SET_OPTIONAL_FIELD_MACRO(
         message.get_command_set(), number_of_completed_sub_operations,
-        DcmTagKey(0x0000, 0x1021), EVR_US)
+        DcmTagKey(0x0000, 0x1021), Uint16)
     DCMTKPP_MESSAGE_SET_OPTIONAL_FIELD_MACRO(
         message.get_command_set(), number_of_failed_sub_operations,
-        DcmTagKey(0x0000, 0x1022), EVR_US)
+        DcmTagKey(0x0000, 0x1022), Uint16)
     DCMTKPP_MESSAGE_SET_OPTIONAL_FIELD_MACRO(
         message.get_command_set(), number_of_warning_sub_operations,
-        DcmTagKey(0x0000, 0x1023), EVR_US)
+        DcmTagKey(0x0000, 0x1023), Uint16)
 
     this->set_data_set(message.get_data_set());
 }

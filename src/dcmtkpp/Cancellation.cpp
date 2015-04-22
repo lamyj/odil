@@ -36,7 +36,7 @@ Cancellation
     }
     this->set_command_field(message.get_command_field());
 
-    Uint16 const message_id = ElementAccessor<EVR_US>::get(
+    Uint16 const message_id = ElementAccessor<Uint16>::get(
         message.get_command_set(), DCM_MessageIDBeingRespondedTo);
     this->set_message_id_being_responded_to(message_id);
 

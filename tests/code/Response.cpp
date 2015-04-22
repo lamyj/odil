@@ -21,9 +21,9 @@ BOOST_AUTO_TEST_CASE(Constructor)
 BOOST_AUTO_TEST_CASE(MessageConstructor)
 {
     DcmDataset command_set;
-    dcmtkpp::ElementAccessor<EVR_US>::set(
+    dcmtkpp::ElementAccessor<Uint16>::set(
         command_set, DCM_MessageIDBeingRespondedTo, 1234);
-    dcmtkpp::ElementAccessor<EVR_US>::set(
+    dcmtkpp::ElementAccessor<Uint16>::set(
         command_set, DCM_Status, STATUS_Pending);
     dcmtkpp::Message const generic_message(command_set, NULL);
 

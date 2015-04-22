@@ -37,37 +37,24 @@ putString(DcmElement & element, OFString const value, unsigned long const positi
     return element.putOFStringArray(value);
 }
 
-#define DEFINE_ELEMENT_TRAITS(vr, getter_, setter_) \
-ElementTraits<vr>::GetterType const ElementTraits<vr>::getter = getter_; \
-ElementTraits<vr>::SetterType const ElementTraits<vr>::setter = setter_;
+#define DEFINE_ELEMENT_TRAITS(TValueType, getter_, setter_) \
+template<> \
+ElementTraits<TValueType>::GetterType const \
+ElementTraits<TValueType>\
+::getter = getter_; \
+\
+template<> \
+ElementTraits<TValueType>::SetterType const \
+ElementTraits<TValueType>\
+::setter = setter_;
 
-DEFINE_ELEMENT_TRAITS(EVR_AE, getString, putString)
-DEFINE_ELEMENT_TRAITS(EVR_AS, getString, putString)
-//DEFINE_ELEMENT_TRAITS(EVR_AT
-DEFINE_ELEMENT_TRAITS(EVR_CS, getString, putString)
-DEFINE_ELEMENT_TRAITS(EVR_DA, getString, putString)
-DEFINE_ELEMENT_TRAITS(EVR_DS, &DcmElement::getFloat64, &DcmElement::putFloat64)
-DEFINE_ELEMENT_TRAITS(EVR_DT, getString, putString)
-DEFINE_ELEMENT_TRAITS(EVR_FD, &DcmElement::getFloat64, &DcmElement::putFloat64)
-DEFINE_ELEMENT_TRAITS(EVR_FL, &DcmElement::getFloat32, &DcmElement::putFloat32)
-DEFINE_ELEMENT_TRAITS(EVR_IS, &DcmElement::getSint32, &DcmElement::putSint32)
-DEFINE_ELEMENT_TRAITS(EVR_LO, getString, putString)
-DEFINE_ELEMENT_TRAITS(EVR_LT, getString, putString)
-//DEFINE_ELEMENT_TRAITS(EVR_OB
-//DEFINE_ELEMENT_TRAITS(EVR_OF
-//DEFINE_ELEMENT_TRAITS(EVR_OW
-DEFINE_ELEMENT_TRAITS(EVR_PN, getString, putString)
-DEFINE_ELEMENT_TRAITS(EVR_SH, getString, putString)
-DEFINE_ELEMENT_TRAITS(EVR_SL, &DcmElement::getSint32, &DcmElement::putSint32)
-//DEFINE_ELEMENT_TRAITS(EVR_SQ
-DEFINE_ELEMENT_TRAITS(EVR_SS, &DcmElement::getSint16, &DcmElement::putSint16)
-DEFINE_ELEMENT_TRAITS(EVR_ST, getString, putString)
-DEFINE_ELEMENT_TRAITS(EVR_TM, getString, putString)
-DEFINE_ELEMENT_TRAITS(EVR_UI, getString, putString)
-DEFINE_ELEMENT_TRAITS(EVR_UL, &DcmElement::getUint32, &DcmElement::putUint32)
-//DEFINE_ELEMENT_TRAITS(EVR_UN
-DEFINE_ELEMENT_TRAITS(EVR_US, &DcmElement::getUint16, &DcmElement::putUint16)
-DEFINE_ELEMENT_TRAITS(EVR_UT, getString, putString)
+DEFINE_ELEMENT_TRAITS(OFString, getString, putString)
+DEFINE_ELEMENT_TRAITS(Float32, &DcmElement::getFloat32, &DcmElement::putFloat32)
+DEFINE_ELEMENT_TRAITS(Float64, &DcmElement::getFloat64, &DcmElement::putFloat64)
+DEFINE_ELEMENT_TRAITS(Sint16, &DcmElement::getSint16, &DcmElement::putSint16)
+DEFINE_ELEMENT_TRAITS(Sint32, &DcmElement::getSint32, &DcmElement::putSint32)
+DEFINE_ELEMENT_TRAITS(Uint16, &DcmElement::getUint16, &DcmElement::putUint16)
+DEFINE_ELEMENT_TRAITS(Uint32, &DcmElement::getUint32, &DcmElement::putUint32)
 
 #undef DEFINE_ELEMENT_TRAITS
 

@@ -19,11 +19,11 @@ struct Fixture: public MessageFixtureBase<dcmtkpp::CEchoRequest>
 
     Fixture()
     {
-        dcmtkpp::ElementAccessor<EVR_US>::set(
+        dcmtkpp::ElementAccessor<Uint16>::set(
             this->command_set, DCM_CommandField, DIMSE_C_ECHO_RQ);
-        dcmtkpp::ElementAccessor<EVR_US>::set(
+        dcmtkpp::ElementAccessor<Uint16>::set(
             this->command_set, DCM_MessageID, 1234);
-        dcmtkpp::ElementAccessor<EVR_UI>::set(
+        dcmtkpp::ElementAccessor<std::string>::set(
             this->command_set, DCM_AffectedSOPClassUID, UID_VerificationSOPClass);
     }
 
@@ -51,7 +51,7 @@ BOOST_FIXTURE_TEST_CASE(MessageConstructor, Fixture)
 
 BOOST_FIXTURE_TEST_CASE(MessageConstructorWrongCommandField, Fixture)
 {
-    dcmtkpp::ElementAccessor<EVR_US>::set(
+    dcmtkpp::ElementAccessor<Uint16>::set(
         this->command_set, DCM_CommandField, DIMSE_C_ECHO_RSP);
     this->check_message_constructor_throw(this->command_set, NULL);
 }

@@ -42,9 +42,9 @@ public:
     /// @brief Destructor.
     virtual ~CFindResponse();
     
-    DCMTKPP_MESSAGE_OPTIONAL_FIELD_MACRO(message_id, DCM_MessageID, EVR_US)
+    DCMTKPP_MESSAGE_OPTIONAL_FIELD_MACRO(message_id, DCM_MessageID, Uint16)
     DCMTKPP_MESSAGE_OPTIONAL_FIELD_MACRO(
-        affected_sop_class_uid, DCM_AffectedSOPClassUID, EVR_UI)
+        affected_sop_class_uid, DCM_AffectedSOPClassUID, std::string)
 };
 
 }

@@ -20,9 +20,9 @@
 namespace dcmtkpp
 {
 
-template<DcmEVR VR>
+template<typename TValueType>
 bool
-ElementAccessor<VR>
+ElementAccessor<TValueType>
 ::has(DcmDataset const & dataset, DcmTagKey const & tag)
 {
     DcmElement * dummy;
@@ -42,9 +42,9 @@ ElementAccessor<VR>
     }
 }
 
-template<DcmEVR VR>
-typename ElementAccessor<VR>::ValueType
-ElementAccessor<VR>
+template<typename TValueType>
+TValueType
+ElementAccessor<TValueType>
 ::get(
     DcmDataset const & dataset,
     DcmTagKey const tag, unsigned int const position)
@@ -60,9 +60,9 @@ ElementAccessor<VR>
     return element_get(*element, position);
 }
 
-template<DcmEVR VR>
+template<typename TValueType>
 void
-ElementAccessor<VR>
+ElementAccessor<TValueType>
 ::set(
     DcmDataset & dataset,
     DcmTagKey const tag, ValueType const & value, unsigned int const position)
@@ -88,18 +88,13 @@ ElementAccessor<VR>
     element_set(*element, value, position);
 }
 
-template<DcmEVR VR>
-typename ElementTraits<VR>::ValueType
+template<typename TValueType>
+TValueType
 get_default(DcmElement const & element, unsigned long const position)
 {
-    if(element.getTag().getVR().getValidEVR() != VR)
-    {
-        throw Exception("VR mismatch");
-    }
-
-    typename ElementTraits<VR>::ValueType value;
+    TValueType value;
     OFCondition const & condition =
-        ElementTraits<VR>::getter(
+        ElementTraits<TValueType>::getter(
             const_cast<DcmElement&>(element), value, position);
     if(condition.bad())
     {
@@ -109,52 +104,37 @@ get_default(DcmElement const & element, unsigned long const position)
     return value;
 }
 
-template<DcmEVR VR>
+template<typename TValueType>
 void
 set_default(
-    DcmElement & element,
-    typename ElementTraits<VR>::ValueType const & value, unsigned long const position)
+    DcmElement & element, TValueType const & value,
+    unsigned long const position)
 {
-    if(element.getTag().getVR().getValidEVR() != VR)
-    {
-        throw Exception("VR mismatch");
-    }
-
-    OFCondition const condition = ElementTraits<VR>::setter(element, value, position);
+    OFCondition const condition = ElementTraits<TValueType>::setter(element, value, position);
     if(condition.bad())
     {
         throw Exception(condition);
     }
 }
 
-template<DcmEVR VR>
-typename ElementTraits<VR>::ValueType
+template<typename TValueType>
+TValueType
 get_string(DcmElement const & element, unsigned long const position)
 {
-    if(element.getTag().getVR().getValidEVR() != VR)
-    {
-        throw Exception("VR mismatch");
-    }
-
     OFString value;
-    ElementTraits<VR>::getter(const_cast<DcmElement&>(element), value, position);
+    ElementTraits<OFString>::getter(const_cast<DcmElement&>(element), value, position);
 
     return std::string(value.c_str());
 }
 
-template<DcmEVR VR>
+template<typename TValueType>
 void
 set_string(
-    DcmElement & element,
-    typename ElementTraits<VR>::ValueType const & value, unsigned long const position)
+    DcmElement & element, TValueType const & value,
+    unsigned long const position)
 {
-    if(element.getTag().getVR().getValidEVR() != VR)
-    {
-        throw Exception("VR mismatch");
-    }
-
     OFString const value_dcmtk(value.c_str(), value.size());
-    OFCondition const condition = ElementTraits<VR>::setter(
+    OFCondition const condition = ElementTraits<OFString>::setter(
         element, value_dcmtk, position);
     if(condition.bad())
     {

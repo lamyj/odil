@@ -44,10 +44,10 @@ public:
     virtual ~CMoveRequest();
 
     DCMTKPP_MESSAGE_MANDATORY_FIELD_MACRO(
-        affected_sop_class_uid, DCM_AffectedSOPClassUID, EVR_UI)
-    DCMTKPP_MESSAGE_MANDATORY_FIELD_MACRO(priority, DCM_Priority, EVR_US)
+        affected_sop_class_uid, DCM_AffectedSOPClassUID, std::string)
+    DCMTKPP_MESSAGE_MANDATORY_FIELD_MACRO(priority, DCM_Priority, Uint16)
     DCMTKPP_MESSAGE_MANDATORY_FIELD_MACRO(
-        move_destination, DCM_MoveDestination, EVR_AE)
+        move_destination, DCM_MoveDestination, std::string)
 };
 
 }

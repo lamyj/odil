@@ -11,37 +11,24 @@
 namespace dcmtkpp
 {
 
-#define DEFINE_ELEMENT_ACCESSOR(vr, getter, setter) \
-template<> ElementAccessor<vr>::GetterType const ElementAccessor<vr>::element_get = getter<vr>; \
-template<> ElementAccessor<vr>::SetterType const ElementAccessor<vr>::element_set = setter<vr>;
+#define DEFINE_ELEMENT_ACCESSOR(TValueType, getter, setter) \
+template<> \
+ElementAccessor<TValueType>::GetterType const \
+ElementAccessor<TValueType>\
+::element_get = getter<TValueType>; \
+\
+template<> \
+ElementAccessor<TValueType>::SetterType const \
+ElementAccessor<TValueType>\
+::element_set = setter<TValueType>;
 
-DEFINE_ELEMENT_ACCESSOR(EVR_AE, get_string, set_string)
-DEFINE_ELEMENT_ACCESSOR(EVR_AS, get_string, set_string)
-//DEFINE_ELEMENT_ACCESSOR(EVR_AT
-DEFINE_ELEMENT_ACCESSOR(EVR_CS, get_string, set_string)
-DEFINE_ELEMENT_ACCESSOR(EVR_DA, get_string, set_string)
-DEFINE_ELEMENT_ACCESSOR(EVR_DS, get_default, set_default)
-DEFINE_ELEMENT_ACCESSOR(EVR_DT, get_string, set_string)
-DEFINE_ELEMENT_ACCESSOR(EVR_FD, get_default, set_default)
-DEFINE_ELEMENT_ACCESSOR(EVR_FL, get_default, set_default)
-DEFINE_ELEMENT_ACCESSOR(EVR_IS, get_default, set_default)
-DEFINE_ELEMENT_ACCESSOR(EVR_LO, get_string, set_string)
-DEFINE_ELEMENT_ACCESSOR(EVR_LT, get_string, set_string)
-//DEFINE_ELEMENT_ACCESSOR(EVR_OB
-//DEFINE_ELEMENT_ACCESSOR(EVR_OF
-//DEFINE_ELEMENT_ACCESSOR(EVR_OW
-DEFINE_ELEMENT_ACCESSOR(EVR_PN, get_string, set_string)
-DEFINE_ELEMENT_ACCESSOR(EVR_SH, get_string, set_string)
-DEFINE_ELEMENT_ACCESSOR(EVR_SL, get_default, set_default)
-//DEFINE_ELEMENT_ACCESSOR(EVR_SQ
-DEFINE_ELEMENT_ACCESSOR(EVR_SS, get_default, set_default)
-DEFINE_ELEMENT_ACCESSOR(EVR_ST, get_string, set_string)
-DEFINE_ELEMENT_ACCESSOR(EVR_TM, get_string, set_string)
-DEFINE_ELEMENT_ACCESSOR(EVR_UI, get_string, set_string)
-//DEFINE_ELEMENT_ACCESSOR(EVR_UN
-DEFINE_ELEMENT_ACCESSOR(EVR_UL, get_default, set_default)
-DEFINE_ELEMENT_ACCESSOR(EVR_US, get_default, set_default)
-DEFINE_ELEMENT_ACCESSOR(EVR_UT, get_string, set_string)
+DEFINE_ELEMENT_ACCESSOR(std::string, get_string, set_string)
+DEFINE_ELEMENT_ACCESSOR(Float32, get_default, set_default)
+DEFINE_ELEMENT_ACCESSOR(Float64, get_default, set_default)
+DEFINE_ELEMENT_ACCESSOR(Sint16, get_default, set_default)
+DEFINE_ELEMENT_ACCESSOR(Sint32, get_default, set_default)
+DEFINE_ELEMENT_ACCESSOR(Uint16, get_default, set_default)
+DEFINE_ELEMENT_ACCESSOR(Uint32, get_default, set_default)
 
 #undef DEFINE_ELEMENT_ACCESSOR
 

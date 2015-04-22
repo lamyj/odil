@@ -20,26 +20,26 @@ struct Fixture: public MessageFixtureBase<dcmtkpp::CFindResponse>
 
     Fixture()
     {
-        dcmtkpp::ElementAccessor<EVR_US>::set(
+        dcmtkpp::ElementAccessor<Uint16>::set(
             this->command_set, DCM_CommandField, DIMSE_C_FIND_RSP);
-        dcmtkpp::ElementAccessor<EVR_US>::set(
+        dcmtkpp::ElementAccessor<Uint16>::set(
             this->command_set, DCM_MessageIDBeingRespondedTo, 1234);
-        dcmtkpp::ElementAccessor<EVR_US>::set(
+        dcmtkpp::ElementAccessor<Uint16>::set(
             this->command_set, DCM_Status, STATUS_Success);
 
-        dcmtkpp::ElementAccessor<EVR_US>::set(
+        dcmtkpp::ElementAccessor<Uint16>::set(
             this->command_set, DCM_MessageID, 5678);
-        dcmtkpp::ElementAccessor<EVR_UI>::set(
+        dcmtkpp::ElementAccessor<std::string>::set(
             this->command_set, DCM_AffectedSOPClassUID,
             UID_FINDStudyRootQueryRetrieveInformationModel);
 
-        dcmtkpp::ElementAccessor<EVR_PN>::set(
+        dcmtkpp::ElementAccessor<std::string>::set(
             this->data_set, DCM_PatientName, "Doe^John");
-        dcmtkpp::ElementAccessor<EVR_LO>::set(
+        dcmtkpp::ElementAccessor<std::string>::set(
             this->data_set, DCM_PatientID, "DJ123");
-        dcmtkpp::ElementAccessor<EVR_LO>::set(
+        dcmtkpp::ElementAccessor<std::string>::set(
             this->data_set, DCM_StudyDescription, "Brain");
-        dcmtkpp::ElementAccessor<EVR_UI>::set(
+        dcmtkpp::ElementAccessor<std::string>::set(
             this->data_set, DCM_StudyInstanceUID, "1.2.3");
     }
 
@@ -77,7 +77,7 @@ BOOST_FIXTURE_TEST_CASE(MessageConstructor, Fixture)
 
 BOOST_FIXTURE_TEST_CASE(MessageConstructorWrongCommandField, Fixture)
 {
-    dcmtkpp::ElementAccessor<EVR_US>::set(
+    dcmtkpp::ElementAccessor<Uint16>::set(
         this->command_set, DCM_CommandField, DIMSE_C_ECHO_RQ);
     this->check_message_constructor_throw(this->command_set, &this->data_set);
 }

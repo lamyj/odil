@@ -40,7 +40,7 @@ CEchoRequest
     }
     this->set_command_field(message.get_command_field());
 
-    std::string const affected_sop_class_uid = ElementAccessor<EVR_UI>::get(
+    std::string const affected_sop_class_uid = ElementAccessor<std::string>::get(
         message.get_command_set(), DCM_AffectedSOPClassUID);
     this->set_affected_sop_class_uid(affected_sop_class_uid);
 }

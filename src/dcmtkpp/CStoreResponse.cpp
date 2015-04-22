@@ -40,13 +40,13 @@ CStoreResponse
     this->set_command_field(message.get_command_field());
 
     DCMTKPP_MESSAGE_SET_OPTIONAL_FIELD_MACRO(
-        message.get_command_set(), message_id, DCM_MessageID, EVR_US)
+        message.get_command_set(), message_id, DCM_MessageID, Uint16)
     DCMTKPP_MESSAGE_SET_OPTIONAL_FIELD_MACRO(
         message.get_command_set(), affected_sop_class_uid,
-        DCM_AffectedSOPClassUID, EVR_UI)
+        DCM_AffectedSOPClassUID, std::string)
     DCMTKPP_MESSAGE_SET_OPTIONAL_FIELD_MACRO(
         message.get_command_set(),
-        affected_sop_instance_uid, DCM_AffectedSOPInstanceUID, EVR_UI)
+        affected_sop_instance_uid, DCM_AffectedSOPInstanceUID, std::string)
 
     if(message.get_data_set() != NULL &&
        !const_cast<DcmDataset*>(message.get_data_set())->isEmpty())

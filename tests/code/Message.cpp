@@ -21,7 +21,7 @@ BOOST_AUTO_TEST_CASE(DefaultConstructor)
 BOOST_AUTO_TEST_CASE(Constructor)
 {
     DcmDataset command_set;
-    dcmtkpp::ElementAccessor<EVR_US>::set(
+    dcmtkpp::ElementAccessor<Uint16>::set(
         command_set, DCM_CommandField, DIMSE_C_ECHO_RQ);
 
     DcmDataset data_set;
@@ -29,7 +29,7 @@ BOOST_AUTO_TEST_CASE(Constructor)
     dcmtkpp::Message const message(command_set, &data_set);
 
     BOOST_CHECK_EQUAL(
-        dcmtkpp::ElementAccessor<EVR_US>::get(
+        dcmtkpp::ElementAccessor<Uint16>::get(
             message.get_command_set(), DCM_CommandField),
         DIMSE_C_ECHO_RQ);
 
@@ -46,7 +46,7 @@ BOOST_AUTO_TEST_CASE(CommandField)
     message.set_command_field(DIMSE_C_FIND_RSP);
 
     BOOST_CHECK_EQUAL(
-        dcmtkpp::ElementAccessor<EVR_US>::get(
+        dcmtkpp::ElementAccessor<Uint16>::get(
             message.get_command_set(), DCM_CommandField),
         DIMSE_C_FIND_RSP);
     BOOST_CHECK_EQUAL(message.get_command_field(), DIMSE_C_FIND_RSP);

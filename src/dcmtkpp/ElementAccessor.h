@@ -22,11 +22,11 @@ namespace dcmtkpp
 {
 
 /// @brief Generic access to values in DcmElement.
-template<DcmEVR VR>
+template<typename TValueType>
 struct ElementAccessor
 {
     /// @brief C++ type of the VR.
-    typedef typename ElementTraits<VR>::ValueType ValueType;
+    typedef TValueType ValueType;
 
     /// @brief Getter type.
     typedef std::function<

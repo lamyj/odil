@@ -37,7 +37,7 @@ StoreSCU
 ::set_affected_sop_class(DcmDataset const * dataset)
 {
     std::string const sop_class_uid =
-        ElementAccessor<EVR_UI>::get(*dataset, DCM_SOPClassUID);
+        ElementAccessor<std::string>::get(*dataset, DCM_SOPClassUID);
     
     // From dcuid.h
     std::vector<std::string> const storage = {
@@ -173,7 +173,7 @@ StoreSCU
     CStoreRequest const request(
         this->_association->get_association()->nextMsgID++,
         this->_affected_sop_class,
-        ElementAccessor<EVR_UI>::get(*dataset, DCM_SOPInstanceUID),
+        ElementAccessor<std::string>::get(*dataset, DCM_SOPInstanceUID),
         DIMSE_PRIORITY_MEDIUM,
         dataset);
     this->_send(request, this->_affected_sop_class, callback, data);

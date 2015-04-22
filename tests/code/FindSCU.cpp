@@ -22,9 +22,9 @@ struct Fixture: public PeerFixtureBase
     {
         Fixture::called = false;
 
-        dcmtkpp::ElementAccessor<EVR_CS>::set(this->query,
+        dcmtkpp::ElementAccessor<std::string>::set(this->query,
             DCM_QueryRetrieveLevel, "PATIENT");
-        dcmtkpp::ElementAccessor<EVR_PN>::set(
+        dcmtkpp::ElementAccessor<std::string>::set(
             this->query, DCM_PatientName, "Doe^John");
         this->query.insertEmptyElement(DCM_SOPInstanceUID);
     }
@@ -49,7 +49,7 @@ BOOST_FIXTURE_TEST_CASE(Find, Fixture)
 
     BOOST_REQUIRE_EQUAL(results.size(), 1);
     BOOST_CHECK_EQUAL(
-        dcmtkpp::ElementAccessor<EVR_UI>::get(*results[0], DCM_SOPInstanceUID),
+        dcmtkpp::ElementAccessor<std::string>::get(*results[0], DCM_SOPInstanceUID),
         "2.25.95090344942250266709587559073467305647");
 
     delete results[0];

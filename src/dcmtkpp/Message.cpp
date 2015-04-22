@@ -26,7 +26,7 @@ namespace dcmtkpp
 Message
 ::Message()
 {
-    ElementAccessor<EVR_UL>::set(this->_command_set, DCM_CommandGroupLength, 0);
+    ElementAccessor<Uint32>::set(this->_command_set, DCM_CommandGroupLength, 0);
     this->set_data_set(NULL);
 }
 
@@ -73,7 +73,7 @@ Message
         command_dataset_type = DIMSE_DATASET_PRESENT;
     }
     
-    ElementAccessor<EVR_US>::set(
+    ElementAccessor<Uint16>::set(
         this->_command_set, DcmTagKey(0x0000, 0x0800), command_dataset_type);
 }
 

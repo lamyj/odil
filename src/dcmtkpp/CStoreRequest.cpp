@@ -54,17 +54,17 @@ CStoreRequest
     DcmDataset const & command_set(message.get_command_set());
 
     this->set_affected_sop_class_uid(
-        ElementAccessor<EVR_UI>::get(command_set, DCM_AffectedSOPClassUID));
+        ElementAccessor<std::string>::get(command_set, DCM_AffectedSOPClassUID));
     this->set_affected_sop_instance_uid(
-        ElementAccessor<EVR_UI>::get(command_set, DCM_AffectedSOPInstanceUID));
-    this->set_priority(ElementAccessor<EVR_US>::get(command_set, DCM_Priority));
+        ElementAccessor<std::string>::get(command_set, DCM_AffectedSOPInstanceUID));
+    this->set_priority(ElementAccessor<Uint16>::get(command_set, DCM_Priority));
 
     DCMTKPP_MESSAGE_SET_OPTIONAL_FIELD_MACRO(
         message.get_command_set(), move_originator_ae_title,
-        DCM_MoveOriginatorApplicationEntityTitle, EVR_AE)
+        DCM_MoveOriginatorApplicationEntityTitle, std::string)
     DCMTKPP_MESSAGE_SET_OPTIONAL_FIELD_MACRO(
         message.get_command_set(), move_originator_message_id,
-        DCM_MoveOriginatorMessageID, EVR_US)
+        DCM_MoveOriginatorMessageID, Uint16)
 
     if(message.get_data_set() == NULL ||
        const_cast<DcmDataset*>(message.get_data_set())->isEmpty())

@@ -37,7 +37,7 @@ public:
     ~Cancellation();
 
     DCMTKPP_MESSAGE_MANDATORY_FIELD_MACRO(
-        message_id_being_responded_to, DCM_MessageIDBeingRespondedTo, EVR_US);
+        message_id_being_responded_to, DCM_MessageIDBeingRespondedTo, Uint16);
 };
 
 }

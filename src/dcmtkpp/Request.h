@@ -35,7 +35,7 @@ public:
     /// @brief Destructor.
     virtual ~Request();
     
-    DCMTKPP_MESSAGE_MANDATORY_FIELD_MACRO(message_id, DCM_MessageID, EVR_US)
+    DCMTKPP_MESSAGE_MANDATORY_FIELD_MACRO(message_id, DCM_MessageID, Uint16)
 };
 
 }

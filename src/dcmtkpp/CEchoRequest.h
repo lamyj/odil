@@ -40,7 +40,7 @@ public:
     virtual ~CEchoRequest();
     
     DCMTKPP_MESSAGE_MANDATORY_FIELD_MACRO(
-        affected_sop_class_uid, DCM_AffectedSOPClassUID, EVR_UI)
+        affected_sop_class_uid, DCM_AffectedSOPClassUID, std::string)
 };
 
 }

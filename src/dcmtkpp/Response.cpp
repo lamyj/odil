@@ -32,11 +32,11 @@ Response
 ::Response(Message const & message)
 : Message()
 {
-    Uint16 const message_id = ElementAccessor<EVR_US>::get(
+    Uint16 const message_id = ElementAccessor<Uint16>::get(
         message.get_command_set(), DCM_MessageIDBeingRespondedTo);
     this->set_message_id_being_responded_to(message_id);
 
-    Uint16 const status = ElementAccessor<EVR_US>::get(
+    Uint16 const status = ElementAccessor<Uint16>::get(
         message.get_command_set(), DCM_Status);
     this->set_status(status);
 }

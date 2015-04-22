@@ -23,19 +23,19 @@ struct Fixture: public PeerFixtureBase
     {
         Fixture::called = false;
 
-        dcmtkpp::ElementAccessor<EVR_CS>::set(
+        dcmtkpp::ElementAccessor<std::string>::set(
             this->dataset, DCM_ImageType, "ORIGINAL\\PRIMARY\\OTHER");
-        dcmtkpp::ElementAccessor<EVR_LO>::set(
+        dcmtkpp::ElementAccessor<std::string>::set(
             this->dataset, DCM_PatientID, "1234");
-        dcmtkpp::ElementAccessor<EVR_CS>::set(
+        dcmtkpp::ElementAccessor<std::string>::set(
             this->dataset, DCM_ImageType, "ORIGINAL\\PRIMARY\\OTHER");
-        dcmtkpp::ElementAccessor<EVR_UI>::set(
+        dcmtkpp::ElementAccessor<std::string>::set(
             this->dataset, DCM_StudyInstanceUID, "2.25.386726390606491051215227596277040710");
-        dcmtkpp::ElementAccessor<EVR_UI>::set(
+        dcmtkpp::ElementAccessor<std::string>::set(
             this->dataset, DCM_SeriesInstanceUID, "2.25.235367796740370588607388995952651763168");
-        dcmtkpp::ElementAccessor<EVR_UI>::set(
+        dcmtkpp::ElementAccessor<std::string>::set(
             this->dataset, DCM_SOPClassUID, UID_RawDataStorage);
-        dcmtkpp::ElementAccessor<EVR_UI>::set(
+        dcmtkpp::ElementAccessor<std::string>::set(
             this->dataset, DCM_SOPInstanceUID, "2.25.294312554735929033890522327215919068328");
     }
 
@@ -51,7 +51,7 @@ bool Fixture::called = false;
 BOOST_AUTO_TEST_CASE(AffectedSOPClassUID)
 {
     DcmDataset dataset;
-    dcmtkpp::ElementAccessor<EVR_UI>::set(
+    dcmtkpp::ElementAccessor<std::string>::set(
         dataset, DCM_SOPClassUID, UID_RawDataStorage);
 
     dcmtkpp::StoreSCU scu;
@@ -70,7 +70,7 @@ BOOST_AUTO_TEST_CASE(AffectedSOPClassUIDNoSOPClassUID)
 BOOST_AUTO_TEST_CASE(AffectedSOPClassUIDUnknownSOPClassUID)
 {
     DcmDataset dataset;
-    dcmtkpp::ElementAccessor<EVR_UI>::set(dataset, DCM_SOPClassUID, "invalid");
+    dcmtkpp::ElementAccessor<std::string>::set(dataset, DCM_SOPClassUID, "invalid");
 
     dcmtkpp::StoreSCU scu;
     BOOST_CHECK_THROW(scu.set_affected_sop_class(&dataset), dcmtkpp::Exception);
