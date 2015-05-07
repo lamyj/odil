@@ -10,13 +10,9 @@
 #define _9c3d8f32_0310_4e3a_b5d2_6d69f229a2cf
 
 #include <cstddef>
-#include <cstdint>
-#include <string>
-#include <vector>
-
-#include <boost/variant.hpp>
 
 #include "dcmtkpp/Tag.h"
+#include "dcmtkpp/Value.h"
 #include "dcmtkpp/VR.h"
 
 namespace dcmtkpp
@@ -28,14 +24,6 @@ namespace dcmtkpp
 class Element
 {
 public:
-    /// @brief Value type.
-    typedef boost::make_recursive_variant<
-        std::vector<int64_t>, std::vector<double>, std::vector<std::string>,
-        std::vector<boost::recursive_variant_>
-    >::type Value;
-
-    /// @brief Value of the element.
-    Value value;
 
     /// @brief VR of the element.
     VR vr;
@@ -65,14 +53,14 @@ public:
      *
      * If the element does not contain integers, a dcmtkpp::Exception is raised.
      */
-    std::vector<int64_t> const & as_int() const;
+    Value::Integers const & as_int() const;
 
     /**
      * @brief Return the integers contained in the element.
      *
      * If the element does not contain integers, a dcmtkpp::Exception is raised.
      */
-    std::vector<int64_t> & as_int();
+    Value::Integers & as_int();
 
     /// @brief Test whether the value contains reals.
     bool is_real() const;
@@ -82,14 +70,14 @@ public:
      *
      * If the element does not contain reals, a dcmtkpp::Exception is raised.
      */
-    std::vector<double> const & as_real() const;
+    Value::Reals const & as_real() const;
 
     /**
      * @brief Return the reals contained in the element.
      *
      * If the element does not contain reals, a dcmtkpp::Exception is raised.
      */
-    std::vector<double> & as_real();
+    Value::Reals & as_real();
 
     /// @brief Test whether the value contains strings.
     bool is_string() const;
@@ -99,18 +87,20 @@ public:
      *
      * If the element does not contain strings, a dcmtkpp::Exception is raised.
      */
-    std::vector<std::string> const & as_string() const;
+    Value::Strings const & as_string() const;
 
     /**
      * @brief Return the strings contained in the element.
      *
      * If the element does not contain strings, a dcmtkpp::Exception is raised.
      */
-    std::vector<std::string> & as_string();
+    Value::Strings & as_string();
 
 private:
-    struct Empty: public boost::static_visitor<bool>
+    struct Empty
     {
+        typedef bool result_type;
+
         template<typename T>
         bool operator()(T const & container) const
         {
@@ -118,8 +108,10 @@ private:
         }
     };
 
-    struct Size: public boost::static_visitor<std::size_t>
+    struct Size
     {
+        typedef std::size_t result_type;
+
         template<typename T>
         std::size_t operator()(T const & container) const
         {
@@ -127,11 +119,8 @@ private:
         }
     };
 
-    template<typename TValue>
-    std::vector<TValue> const & _as() const;
 
-    template<typename TValue>
-    std::vector<TValue> & _as();
+    Value _value;
 };
 
 }

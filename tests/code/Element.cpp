@@ -1,6 +1,7 @@
 #define BOOST_TEST_MODULE Element
 #include <boost/test/unit_test.hpp>
 
+#include "dcmtkpp/DataSet.h"
 #include "dcmtkpp/Element.h"
 #include "dcmtkpp/Exception.h"
 

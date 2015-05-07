@@ -8,12 +8,15 @@
 
 #include "dcmtkpp/Element.h"
 
+#include "dcmtkpp/Value.h"
+#include "dcmtkpp/DataSet.h"
+
 namespace dcmtkpp
 {
 
 Element
 ::Element()
-: value(), vr()
+: _value(), vr()
 {
     // Nothing else
 }
@@ -22,77 +25,81 @@ bool
 Element
 ::empty() const
 {
-    return boost::apply_visitor(Empty(), this->value);
+    return (
+        (this->_value.get_type() == Value::Type::Empty) ||
+        apply_visitor(Empty(), this->_value));
 }
 
 std::size_t
 Element
 ::size() const
 {
-    return boost::apply_visitor(Size(), this->value);
+    return (
+        (this->_value.get_type() == Value::Type::Empty)?0:
+        apply_visitor(Size(), this->_value));
 }
 
 bool
 Element
 ::is_int() const
 {
-    return (this->value.type() == typeid(std::vector<int64_t>));
+    return (this->_value.get_type() == Value::Type::Integers);
 }
 
-std::vector<int64_t> const &
+Value::Integers const &
 Element
 ::as_int() const
 {
-    return this->_as<int64_t>();
+    return this->_value.as_integers();
 }
 
-std::vector<int64_t> &
+Value::Integers &
 Element
 ::as_int()
 {
-    return this->_as<int64_t>();
+    return this->_value.as_integers();
 }
 
 bool
 Element
 ::is_real() const
 {
-    return (this->value.type() == typeid(std::vector<double>));
+    return (this->_value.get_type() == Value::Type::Reals);
 }
 
-std::vector<double> const &
+Value::Reals const &
 Element
 ::as_real() const
 {
-    return this->_as<double>();
+    return this->_value.as_reals();
 }
 
-std::vector<double> &
+Value::Reals &
 Element
 ::as_real()
 {
-    return this->_as<double>();
+    return this->_value.as_reals();
 }
 
 bool
 Element
 ::is_string() const
 {
-    return (this->value.type() == typeid(std::vector<std::string>));
+    return (this->_value.get_type() == Value::Type::Strings);
 }
 
-std::vector<std::string> const &
+Value::Strings const &
 Element
 ::as_string() const
 {
-    return this->_as<std::string>();
+    return this->_value.as_strings();
 }
 
-std::vector<std::string> &
+Value::Strings &
 Element
 ::as_string()
 {
-    return this->_as<std::string>();
+    return this->_value.as_strings();
 }
 
 }

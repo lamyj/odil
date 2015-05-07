@@ -30,18 +30,18 @@ void
 DataSet
 ::add(Tag const & tag, VR const & vr)
 {
-    Element::Value value;
+    Value value;
     if(this->_is_int_vr(vr))
     {
-        value = std::vector<int64_t>();
+        value = Value::Integers();
     }
     else if(this->_is_real_vr(vr))
     {
-        value = std::vector<double>();
+        value = Value::Reals();
     }
     else if(this->_is_string_vr(vr))
     {
-        value = std::vector<std::string>();
+        value = Value::Strings();
     }
     else
     {

@@ -22,7 +22,7 @@ namespace dcmtkpp
 template<typename T>
 Element
 ::Element(T const & value)
-: value(value), vr()
+: _value(value), vr()
 {
     // Nothing else
 }
@@ -30,39 +30,9 @@ Element
 template<typename T>
 Element
 ::Element(T const & value, VR const & vr)
-: value(value), vr(vr)
+: _value(value), vr(vr)
 {
     // Nothing else
-}
-
-template<typename TValue>
-std::vector<TValue> const &
-Element
-::_as() const
-{
-    try
-    {
-        return boost::get<std::vector<TValue>>(this->value);
-    }
-    catch(boost::bad_get const & )
-    {
-        throw Exception("Type mismatch");
-    }
-}
-
-template<typename TValue>
-std::vector<TValue> &
-Element
-::_as()
-{
-    try
-    {
-        return boost::get<std::vector<TValue>>(this->value);
-    }
-    catch(boost::bad_get const & )
-    {
-        throw Exception("Type mismatch");
-    }
 }
 
 }
