@@ -102,4 +102,24 @@ Element
     return this->_value.as_strings();
 }
 
+bool
+Element
+::is_data_set() const
+{
+    return (this->_value.get_type() == Value::Type::DataSets);
+}
+
+Value::DataSets const &
+Element
+::as_data_set() const
+{
+    return this->_value.as_data_sets();
+}
+
+Value::DataSets &
+Element::as_data_set()
+{
+    return this->_value.as_data_sets();
+}
+
 }

@@ -96,6 +96,23 @@ public:
      */
     Value::Strings & as_string();
 
+    /// @brief Test whether the value contains data sets.
+    bool is_data_set() const;
+
+    /**
+     * @brief Return the data sets contained in the element.
+     *
+     * If the element does not contain data sets, a dcmtkpp::Exception is raised.
+     */
+    Value::DataSets const & as_data_set() const;
+
+    /**
+     * @brief Return the data sets contained in the element.
+     *
+     * If the element does not contain data sets, a dcmtkpp::Exception is raised.
+     */
+    Value::DataSets & as_data_set();
+
 private:
     struct Empty
     {
