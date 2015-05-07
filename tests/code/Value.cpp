@@ -72,3 +72,39 @@ BOOST_AUTO_TEST_CASE(ModifyStrings)
     value.as_strings().push_back("bar");
     BOOST_CHECK(value.as_strings() == dcmtkpp::Value::Strings({"foo", "bar"}));
 }
+
+BOOST_AUTO_TEST_CASE(DataSets)
+{
+    dcmtkpp::DataSet data_set;
+    data_set.add("PatientID");
+    data_set.as_string("PatientID").push_back("DJ1234");
+    dcmtkpp::Value const value(dcmtkpp::Value::DataSets({data_set}));
+
+    BOOST_CHECK(value.get_type() == dcmtkpp::Value::Type::DataSets);
+    BOOST_CHECK_EQUAL(value.as_data_sets().size(), 1);
+    BOOST_CHECK(value.as_data_sets()[0].has("PatientID"));
+    BOOST_CHECK(
+        value.as_data_sets()[0].as_string("PatientID") ==
+            dcmtkpp::Value::Strings({"DJ1234"}));
+
+    BOOST_CHECK_THROW(value.as_integers(), dcmtkpp::Exception);
+    BOOST_CHECK_THROW(value.as_strings(), dcmtkpp::Exception);
+    BOOST_CHECK_THROW(value.as_reals(), dcmtkpp::Exception);
+}
+
+BOOST_AUTO_TEST_CASE(ModifyDataSets)
+{
+    dcmtkpp::DataSet data_set;
+    data_set.add("PatientID");
+    data_set.as_string("PatientID").push_back("DJ1234");
+    dcmtkpp::Value value(dcmtkpp::Value::DataSets({data_set}));
+
+    value.as_data_sets()[0].as_string("PatientID")[0] = "XXX";
+
+    BOOST_CHECK(value.get_type() == dcmtkpp::Value::Type::DataSets);
+    BOOST_CHECK_EQUAL(value.as_data_sets().size(), 1);
+    BOOST_CHECK(value.as_data_sets()[0].has("PatientID"));
+    BOOST_CHECK(
+        value.as_data_sets()[0].as_string("PatientID") ==
+            dcmtkpp::Value::Strings({"XXX"}));
+}
