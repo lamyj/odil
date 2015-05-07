@@ -1,6 +1,7 @@
 #include <dcmtkpp/VR.h>
 
 #include <map>
+#include <stdexcept>
 #include <string>
 
 #include "dcmtkpp/Exception.h"
