@@ -46,6 +46,20 @@ Tag
     this->element = tag.getElement();
 }
 
+Tag
+::Tag(char const * name)
+{
+    DcmDictEntry const * entry = dcmDataDict.rdlock().findEntry(name);
+    if(entry == NULL)
+    {
+        throw Exception(std::string("No such element: ")+name);
+    }
+
+    DcmTagKey const tag = entry->getKey();
+    this->group = tag.getGroup();
+    this->element = tag.getElement();
+}
+
 std::string
 Tag
 ::get_name() const

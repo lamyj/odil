@@ -35,6 +35,14 @@ public:
      */
     Tag(std::string const & name);
 
+    /**
+     * @brief Create a tag based on its name.
+     *
+     * If the name cannot be found in the public data dictionary,
+     * a dcmtkpp::Exception is raised.
+     */
+    Tag(char const * name);
+
     /// @brief Group of the tag.
     uint16_t group;
 
