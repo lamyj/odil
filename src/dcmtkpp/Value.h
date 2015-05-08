@@ -13,8 +13,6 @@
 #include <string>
 #include <vector>
 
-#include <boost/container/vector.hpp>
-
 namespace dcmtkpp
 {
 
@@ -46,7 +44,7 @@ public:
     typedef std::vector<std::string> Strings;
 
     /// @brief Data sets container.
-    typedef boost::container::vector<DataSet> DataSets;
+    typedef std::vector<DataSet> DataSets;
 
     /// @brief Build an empty value.
     Value();

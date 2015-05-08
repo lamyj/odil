@@ -12,8 +12,6 @@
 #include <string>
 #include <vector>
 
-#include <boost/container/vector.hpp>
-
 #include "dcmtkpp/DataSet.h"
 #include "dcmtkpp/Exception.h"
 

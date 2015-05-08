@@ -12,7 +12,6 @@
 #include "dcmtkpp/Element.h"
 
 #include <vector>
-#include <boost/variant.hpp>
 
 #include "dcmtkpp/Exception.h"
 
