@@ -6,6 +6,14 @@ before_install:
   - sudo apt-get update -qq
   - sudo apt-get install -y libdcmtk2-dev libwrap0-dev libboost-test-dev dcmtk
   - sudo pip install cpp-coveralls
-script: mkdir build && cd build && cmake -D CMAKE_CXX_FLAGS:STRING="-std=c++0x --coverage" ../ && make && ../tests/run.sh
+before_script:
+  - export SRC_DIR=$PWD
+  - mkdir build
+  - cd build
+  - export BIN_DIR=$PWD
+  - cmake -D CMAKE_CXX_FLAGS:STRING="-std=c++0x --coverage" -D CMAKE_BUILD_TYPE:STRING=Debug ../
+script:
+  - make -j $(nproc)
+  - ../tests/run.sh
 after_success:
-  - coveralls --exclude tests --gcov-options '\-lp'
+  - coveralls --exclude examples --exclude tests --exclude ${BIN_DIR} --exclude-pattern "/usr/.*" --root=${SRC_DIR} --build-root ${BIN_DIR} | grep -vP "^File '.*'$" | grep -vP ":creating '.*'$" | grep -vP "^Lines executed:.*" | sed '/^$/d'
