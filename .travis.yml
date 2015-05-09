@@ -8,4 +8,4 @@ before_install:
   - sudo pip install cpp-coveralls
 script: mkdir build && cd build && cmake -D CMAKE_CXX_FLAGS:STRING="-std=c++0x --coverage" ../ && make && ../tests/run.sh
 after_success:
-  - cd build && coveralls --exclude tests --gcov-options '\-lp'
+  - coveralls --exclude tests --gcov-options '\-lp'
