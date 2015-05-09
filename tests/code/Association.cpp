@@ -6,6 +6,8 @@
 #include "dcmtkpp/Association.h"
 #include "dcmtkpp/Exception.h"
 
+#include "../PeerFixtureBase.h"
+
 namespace dcmtkpp
 {
 
@@ -151,6 +153,14 @@ BOOST_AUTO_TEST_CASE(UserIdentitySecondaryField)
         association.get_user_identity_secondary_field(), "password");
 }
 
+BOOST_AUTO_TEST_CASE(UserIdentityNone)
+{
+    dcmtkpp::Association association;
+    association.set_user_identity_to_none();
+    BOOST_CHECK_EQUAL(association.get_user_identity_primary_field(), "");
+    BOOST_CHECK_EQUAL(association.get_user_identity_secondary_field(), "");
+}
+
 BOOST_AUTO_TEST_CASE(UserIdentityUsername)
 {
     dcmtkpp::Association association;
@@ -194,6 +204,38 @@ BOOST_AUTO_TEST_CASE(UserIdentitySAML)
     BOOST_CHECK_EQUAL(
         association.get_user_identity_primary_field(), "assertion");
     BOOST_CHECK_EQUAL(association.get_user_identity_secondary_field(), "");
+}
+
+BOOST_AUTO_TEST_CASE(Associate)
+{
+    PeerFixtureBase fixture(NET_REQUESTOR, 0, 10, 
+        {
+            { UID_VerificationSOPClass,
+                {UID_LittleEndianImplicitTransferSyntax}
+            }
+        });
+    BOOST_CHECK_THROW(
+        fixture.association.set_own_ae_title("foo"), dcmtkpp::Exception);
+    BOOST_CHECK_THROW(
+        fixture.association.set_peer_host_name("foo"), dcmtkpp::Exception);
+    BOOST_CHECK_THROW(
+        fixture.association.set_peer_port(1234), dcmtkpp::Exception);
+    BOOST_CHECK_THROW(
+        fixture.association.set_peer_ae_title("foo"), dcmtkpp::Exception);
+    BOOST_CHECK_THROW(
+        fixture.association.add_presentation_context(
+                UID_GETPatientRootQueryRetrieveInformationModel,
+                { UID_LittleEndianImplicitTransferSyntax }),
+        dcmtkpp::Exception);
+    BOOST_CHECK_THROW(
+        fixture.association.set_user_identity_type(dcmtkpp::UserIdentityType::SAML), 
+        dcmtkpp::Exception);
+    BOOST_CHECK_THROW(
+        fixture.association.set_user_identity_primary_field("foo"), 
+        dcmtkpp::Exception);
+    BOOST_CHECK_THROW(
+        fixture.association.set_user_identity_secondary_field("foo"), 
+        dcmtkpp::Exception);
 }
 
 BOOST_AUTO_TEST_CASE(Release)
