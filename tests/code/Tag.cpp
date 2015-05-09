@@ -20,6 +20,13 @@ BOOST_AUTO_TEST_CASE(OneArgumentConstructor)
 
 BOOST_AUTO_TEST_CASE(StringConstructor)
 {
+    dcmtkpp::Tag const tag(std::string("PixelData"));
+    BOOST_CHECK_EQUAL(tag.group, 0x7fe0);
+    BOOST_CHECK_EQUAL(tag.element, 0x0010);
+}
+
+BOOST_AUTO_TEST_CASE(CharConstructor)
+{
     dcmtkpp::Tag const tag("PixelData");
     BOOST_CHECK_EQUAL(tag.group, 0x7fe0);
     BOOST_CHECK_EQUAL(tag.element, 0x0010);

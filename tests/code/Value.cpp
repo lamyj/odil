@@ -108,3 +108,22 @@ BOOST_AUTO_TEST_CASE(ModifyDataSets)
         value.as_data_sets()[0].as_string("PatientID") ==
             dcmtkpp::Value::Strings({"XXX"}));
 }
+
+struct Visitor
+{
+    typedef bool result_type;
+
+    template<typename T>
+    bool operator()(T const & container) const
+    {
+        return true;
+    }
+};
+
+BOOST_AUTO_TEST_CASE(VisitorEmpty)
+{
+    dcmtkpp::Value const value;
+    BOOST_CHECK_THROW(
+        dcmtkpp::apply_visitor(Visitor(), value),
+        dcmtkpp::Exception);
+}

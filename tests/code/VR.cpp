@@ -11,6 +11,12 @@ BOOST_AUTO_TEST_CASE(as_string)
     BOOST_CHECK_EQUAL(string, "AT");
 }
 
+BOOST_AUTO_TEST_CASE(as_string_invalid)
+{
+    dcmtkpp::VR const vr(dcmtkpp::VR::INVALID);
+    BOOST_CHECK_THROW(dcmtkpp::as_string(vr), dcmtkpp::Exception);
+}
+
 BOOST_AUTO_TEST_CASE(as_vr)
 {
     std::string const string("AT");
