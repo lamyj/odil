@@ -14,7 +14,7 @@ BOOST_AUTO_TEST_CASE(Empty)
 
 BOOST_AUTO_TEST_CASE(Int)
 {
-    dcmtkpp::Element element((dcmtkpp::Value::Integers()));
+    dcmtkpp::Element const element((dcmtkpp::Value::Integers()));
     BOOST_CHECK(element.is_int());
 
     std::vector<int64_t> const & value = element.as_int();
@@ -43,7 +43,7 @@ BOOST_AUTO_TEST_CASE(IntWrong)
 
 BOOST_AUTO_TEST_CASE(Double)
 {
-    dcmtkpp::Element element((dcmtkpp::Value::Reals()));
+    dcmtkpp::Element const element((dcmtkpp::Value::Reals()));
     BOOST_CHECK(element.is_real());
 
     std::vector<double> const & value = element.as_real();
@@ -73,7 +73,7 @@ BOOST_AUTO_TEST_CASE(DoubleWrong)
 
 BOOST_AUTO_TEST_CASE(String)
 {
-    dcmtkpp::Element element((dcmtkpp::Value::Strings()));
+    dcmtkpp::Element const element((dcmtkpp::Value::Strings()));
     BOOST_CHECK(element.is_string());
 
     std::vector<std::string> const & value = element.as_string();
@@ -103,7 +103,7 @@ BOOST_AUTO_TEST_CASE(StringWrong)
 
 BOOST_AUTO_TEST_CASE(DataSet)
 {
-    dcmtkpp::Element element((dcmtkpp::Value::DataSets()));
+    dcmtkpp::Element const element((dcmtkpp::Value::DataSets()));
     BOOST_CHECK(element.is_data_set());
 
     dcmtkpp::Value::DataSets const & value = element.as_data_set();

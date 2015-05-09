@@ -40,6 +40,23 @@ BOOST_AUTO_TEST_CASE(AddImplicitVR)
     BOOST_CHECK(dataset.get_vr(tag) == dcmtkpp::VR::PN);
 }
 
+BOOST_AUTO_TEST_CASE(AddInvalidVR)
+{
+    dcmtkpp::Tag const tag("PatientName");
+    dcmtkpp::DataSet dataset;
+
+    BOOST_CHECK_THROW(
+        dataset.add(tag, dcmtkpp::VR::INVALID), dcmtkpp::Exception);
+}
+
+BOOST_AUTO_TEST_CASE(AddInvalidTag)
+{
+    dcmtkpp::Tag const tag(0xdead, 0xbeef);
+    dcmtkpp::DataSet dataset;
+
+    BOOST_CHECK_THROW(dataset.add(tag), dcmtkpp::Exception);
+}
+
 BOOST_AUTO_TEST_CASE(AddInt)
 {
     dcmtkpp::Tag const tag("Rows");
@@ -161,6 +178,27 @@ BOOST_AUTO_TEST_CASE(ModifyDataSet)
     BOOST_CHECK(value[0].has("PatientID"));
     BOOST_CHECK(
         value[0].as_string("PatientID") == dcmtkpp::Value::Strings({"DJ1234"}));
+}
+
+BOOST_AUTO_TEST_CASE(GetVRMissing)
+{
+    dcmtkpp::Tag const tag("PatientID");
+    dcmtkpp::DataSet dataset;
+    BOOST_CHECK_THROW(dataset.get_vr(tag), dcmtkpp::Exception);
+}
+
+BOOST_AUTO_TEST_CASE(TestEmptyMissing)
+{
+    dcmtkpp::Tag const tag("PatientID");
+    dcmtkpp::DataSet dataset;
+    BOOST_CHECK_THROW(dataset.empty(tag), dcmtkpp::Exception);
+}
+
+BOOST_AUTO_TEST_CASE(SizeMissing)
+{
+    dcmtkpp::Tag const tag("PatientID");
+    dcmtkpp::DataSet dataset;
+    BOOST_CHECK_THROW(dataset.size(tag), dcmtkpp::Exception);
 }
 
 BOOST_AUTO_TEST_CASE(Remove)

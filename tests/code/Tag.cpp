@@ -34,6 +34,11 @@ BOOST_AUTO_TEST_CASE(CharConstructor)
 
 BOOST_AUTO_TEST_CASE(StringConstructorWrong)
 {
+    BOOST_CHECK_THROW(dcmtkpp::Tag(std::string("Foobar")), dcmtkpp::Exception);
+}
+
+BOOST_AUTO_TEST_CASE(CharConstructorWrong)
+{
     BOOST_CHECK_THROW(dcmtkpp::Tag("Foobar"), dcmtkpp::Exception);
 }
 
