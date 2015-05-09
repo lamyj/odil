@@ -85,6 +85,21 @@ BOOST_AUTO_TEST_CASE(AddString)
     BOOST_CHECK(value.empty());
 }
 
+BOOST_AUTO_TEST_CASE(AddDataSet)
+{
+    dcmtkpp::Tag const tag("ReferencedStudySequence");
+
+    dcmtkpp::DataSet dataset;
+    dataset.add(tag);
+
+    BOOST_CHECK(dataset.is_data_set(tag));
+    BOOST_CHECK(dataset.empty(tag));
+    BOOST_CHECK_EQUAL(dataset.size(tag), 0);
+
+    dcmtkpp::Value::DataSets const & value = dataset.as_data_set(tag);
+    BOOST_CHECK(value.empty());
+}
+
 BOOST_AUTO_TEST_CASE(ModifyInt)
 {
     dcmtkpp::Tag const tag("Rows");
@@ -122,6 +137,30 @@ BOOST_AUTO_TEST_CASE(ModifyString)
     BOOST_CHECK(!dataset.empty(tag));
     BOOST_CHECK_EQUAL(dataset.size(tag), 1);
     BOOST_CHECK_EQUAL(dataset.as_string(tag)[0], "FooBar");
+}
+
+BOOST_AUTO_TEST_CASE(ModifyDataSet)
+{
+    dcmtkpp::Tag const tag("ReferencedStudySequence");
+
+    dcmtkpp::DataSet dataset;
+    dataset.add(tag);
+
+    dcmtkpp::DataSet item;
+    item.add("PatientID");
+    item.as_string("PatientID").push_back("DJ1234");
+    dataset.as_data_set(tag).push_back(item);
+
+    BOOST_CHECK(!dataset.empty(tag));
+    BOOST_CHECK_EQUAL(dataset.size(tag), 1);
+
+    dcmtkpp::Value::DataSets const & value = dataset.as_data_set(tag);
+    BOOST_CHECK_EQUAL(value.size(), 1);
+    BOOST_CHECK_EQUAL(value.size(), 1);
+    BOOST_CHECK_EQUAL(value[0].size(), 1);
+    BOOST_CHECK(value[0].has("PatientID"));
+    BOOST_CHECK(
+        value[0].as_string("PatientID") == dcmtkpp::Value::Strings({"DJ1234"}));
 }
 
 BOOST_AUTO_TEST_CASE(Remove)

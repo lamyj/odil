@@ -16,9 +16,39 @@
 #include <vector>
 
 #include "dcmtkpp/Element.h"
+#include "dcmtkpp/Value.h"
 
 namespace dcmtkpp
 {
+
+#define dcmtkppElementTypeMacro(name, Type) \
+bool is_##name(Tag const & tag) const \
+{ \
+    auto const it = this->_find(tag); \
+    if(it == this->_elements.end()) \
+    { \
+        throw Exception("No such element"); \
+    } \
+    return it->second.is_##name(); \
+} \
+Value::Type const & as_##name(Tag const & tag) const \
+{ \
+    auto const it = this->_find(tag); \
+    if(it == this->_elements.end()) \
+    { \
+        throw Exception("No such element"); \
+    } \
+    return it->second.as_##name(); \
+} \
+Value::Type & as_##name(Tag const & tag) \
+{ \
+    auto const it = this->_find(tag); \
+    if(it == this->_elements.end()) \
+    { \
+        throw Exception("No such element"); \
+    } \
+    return it->second.as_##name(); \
+} 
 
 /**
  * @brief DICOM Data set.
@@ -74,76 +104,12 @@ public:
      */
     std::size_t size(Tag const & tag) const;
 
-    /**
-     * @brief Test whether an element of the data set contains integers.
-     *
-     * If the element is not in the data set, a dcmtkpp::Exception is raised.
-     */
-    bool is_int(Tag const & tag) const;
+    dcmtkppElementTypeMacro(int, Integers);
+    dcmtkppElementTypeMacro(real, Reals);
+    dcmtkppElementTypeMacro(string, Strings);
+    dcmtkppElementTypeMacro(data_set, DataSets);
 
-    /**
-     * @brief Return the value of an element of the data set contains integers.
-     *
-     * If the element is not in the data set or does not contain integers,
-     * a dcmtkpp::Exception is raised.
-     */
-    std::vector<int64_t> const & as_int(Tag const & tag) const;
-
-    /**
-     * @brief Return the value of an element of the data set contains integers.
-     *
-     * If the element is not in the data set or does not contain integers,
-     * a dcmtkpp::Exception is raised.
-     */
-    std::vector<int64_t> & as_int(Tag const & tag);
-
-    /**
-     * @brief Test whether an element of the data set contains reals.
-     *
-     * If the element is not in the data set, a dcmtkpp::Exception is raised.
-     */
-    bool is_real(Tag const & tag) const;
-
-    /**
-     * @brief Return the value of an element of the data set contains reals.
-     *
-     * If the element is not in the data set or does not contain reals,
-     * a dcmtkpp::Exception is raised.
-     */
-    std::vector<double> const & as_real(Tag const & tag) const;
-
-    /**
-     * @brief Return the value of an element of the data set contains reals.
-     *
-     * If the element is not in the data set or does not contain reals,
-     * a dcmtkpp::Exception is raised.
-     */
-    std::vector<double> & as_real(Tag const & tag);
-
-    /**
-     * @brief Test whether an element of the data set contains strings.
-     *
-     * If the element is not in the data set, a dcmtkpp::Exception is raised.
-     */
-    bool is_string(Tag const & tag) const;
-
-    /**
-     * @brief Return the value of an element of the data set contains strings.
-     *
-     * If the element is not in the data set or does not contain strings,
-     * a dcmtkpp::Exception is raised.
-     */
-    std::vector<std::string> const & as_string(Tag const & tag) const;
-
-    /**
-     * @brief Return the value of an element of the data set contains strings.
-     *
-     * If the element is not in the data set or does not contain strings,
-     * a dcmtkpp::Exception is raised.
-     */
-    std::vector<std::string> & as_string(Tag const & tag);
-
-    // FIXME: AT, PN, SQ, binary
+    // FIXME: AT, binary
 
 private:
     typedef std::map<uint32_t, Element> ElementMap;

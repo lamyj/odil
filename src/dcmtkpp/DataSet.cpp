@@ -43,6 +43,10 @@ DataSet
     {
         value = Value::Strings();
     }
+    else if(vr == VR::SQ)
+    {
+        value = Value::DataSets();
+    }
     else
     {
         throw Exception("Unknown VR: "+::dcmtkpp::as_string(vr));
@@ -137,123 +141,6 @@ DataSet
     }
 
     return it->second.size();
-}
-
-bool
-DataSet
-::is_int(Tag const & tag) const
-{
-    auto const it = this->_find(tag);
-    if(it == this->_elements.end())
-    {
-        throw Exception("No such element");
-    }
-
-    return it->second.is_int();
-}
-
-std::vector<int64_t> const &
-DataSet
-::as_int(Tag const & tag) const
-{
-    auto const it = this->_find(tag);
-    if(it == this->_elements.end())
-    {
-        throw Exception("No such element");
-    }
-
-    return it->second.as_int();
-}
-
-std::vector<int64_t> &
-DataSet
-::as_int(Tag const & tag)
-{
-    auto const it = this->_find(tag);
-    if(it == this->_elements.end())
-    {
-        throw Exception("No such element");
-    }
-
-    return it->second.as_int();
-}
-
-bool
-DataSet
-::is_real(Tag const & tag) const
-{
-    auto const it = this->_find(tag);
-    if(it == this->_elements.end())
-    {
-        throw Exception("No such element");
-    }
-
-    return it->second.is_real();
-}
-
-std::vector<double> const &
-DataSet
-::as_real(Tag const & tag) const
-{
-    auto const it = this->_find(tag);
-    if(it == this->_elements.end())
-    {
-        throw Exception("No such element");
-    }
-
-    return it->second.as_real();
-}
-
-std::vector<double> &
-DataSet
-::as_real(Tag const & tag)
-{
-    auto const it = this->_find(tag);
-    if(it == this->_elements.end())
-    {
-        throw Exception("No such element");
-    }
-
-    return it->second.as_real();
-}
-
-bool
-DataSet
-::is_string(Tag const & tag) const
-{
-    auto const it = this->_find(tag);
-    if(it == this->_elements.end())
-    {
-        throw Exception("No such element");
-    }
-
-    return it->second.is_string();
-}
-
-std::vector<std::string> const &
-DataSet
-::as_string(Tag const & tag) const
-{
-    auto const it = this->_find(tag);
-    if(it == this->_elements.end())
-    {
-        throw Exception("No such element");
-    }
-
-    return it->second.as_string();
-}
-
-std::vector<std::string> &
-DataSet
-::as_string(Tag const & tag)
-{
-    auto const it = this->_find(tag);
-    if(it == this->_elements.end())
-    {
-        throw Exception("No such element");
-    }
-
-    return it->second.as_string();
 }
 
 uint32_t
