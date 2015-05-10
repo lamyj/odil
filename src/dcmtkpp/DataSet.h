@@ -56,6 +56,9 @@ Value::Type & as_##name(Tag const & tag) \
 class DataSet
 {
 public:
+    /// @brief Create an empty data set.
+    DataSet();
+
     /// @brief Add an empty element to the dataset.
     void add(Tag const & tag, VR const & vr);
 
@@ -108,6 +111,10 @@ public:
     dcmtkppElementTypeMacro(real, Reals);
     dcmtkppElementTypeMacro(string, Strings);
     dcmtkppElementTypeMacro(data_set, DataSets);
+
+    typedef std::map<uint32_t, Element>::const_iterator const_iterator;
+    const_iterator begin() const { return this->_elements.begin(); }
+    const_iterator end() const { return this->_elements.end(); }
 
     // FIXME: AT, binary
 

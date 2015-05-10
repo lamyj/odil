@@ -26,6 +26,12 @@
 namespace dcmtkpp
 {
 
+DataSet
+::DataSet()
+{
+    // Nothing to do.
+}
+
 void
 DataSet
 ::add(Tag const & tag, VR const & vr)
