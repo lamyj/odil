@@ -15,9 +15,16 @@
 #include "dcmtkpp/DataSet.h"
 #include "dcmtkpp/Element.h"
 #include "dcmtkpp/Tag.h"
+#include "dcmtkpp/VR.h"
 
 namespace dcmtkpp
 {
+
+/// @brief Convert a dcmtkpp::VR to a DcmVR.
+DcmVR convert(VR vr);
+
+/// @brief Convert a DcmVR to a dcmtkpp::VR.
+VR convert(DcmVR vr);
 
 /// @brief Convert a dcmtkpp::Tag to a DcmTagKey.
 DcmTagKey convert(Tag const & tag);
