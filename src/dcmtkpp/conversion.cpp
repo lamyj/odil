@@ -374,7 +374,7 @@ DataSet convert(DcmDataset const & source)
         auto const destination_tag = convert(source_element->getTag());
         auto const destination_element = convert(source_element);
 
-        //destination.add(destination_tag, destination_element);
+        destination.add(destination_tag, destination_element);
     }
     return destination;
 }

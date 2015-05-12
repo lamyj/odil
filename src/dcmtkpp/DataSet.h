@@ -59,6 +59,9 @@ public:
     /// @brief Create an empty data set.
     DataSet();
 
+    /// @brief Add an element to the dataset.
+    void add(Tag const & tag, Element const & element);
+
     /// @brief Add an empty element to the dataset.
     void add(Tag const & tag, VR const & vr);
 

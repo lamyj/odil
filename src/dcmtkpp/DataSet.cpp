@@ -34,6 +34,14 @@ DataSet
 
 void
 DataSet
+::add(Tag const & tag, Element const & element)
+{
+    this->_elements[this->_as_numeric_tag(tag)] = element;
+}
+
+
+void
+DataSet
 ::add(Tag const & tag, VR const & vr)
 {
     Value value;

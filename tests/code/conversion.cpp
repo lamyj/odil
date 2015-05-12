@@ -30,20 +30,6 @@ BOOST_AUTO_TEST_CASE(TagFromDcmtk)
     BOOST_CHECK_EQUAL(destination.element, 0xbeef);
 }
 
-BOOST_AUTO_TEST_CASE(EmptyFromDcmtkpp)
-{
-    dcmtkpp::DataSet const empty;
-    DcmDataset const result = dcmtkpp::convert(empty);
-    BOOST_CHECK_EQUAL(result.card(), 0);
-}
-
-BOOST_AUTO_TEST_CASE(EmptyFromDcmtk)
-{
-    DcmDataset const empty;
-    dcmtkpp::DataSet const result = dcmtkpp::convert(empty);
-    BOOST_CHECK(result.empty());
-}
-
 template<typename TValueType>
 void compare(TValueType const & t1, TValueType const & t2)
 {
@@ -273,3 +259,70 @@ ElementTest(
     UT, dcmtkpp::Value::Strings, DcmUnlimitedText,
     dcmtkpp::Value::Strings({"foo\nbar\\something else"}),
     &dcmtkpp::Element::as_string);
+
+BOOST_AUTO_TEST_CASE(EmptyDataSetFromDcmtkpp)
+{
+    dcmtkpp::DataSet const empty;
+    DcmDataset const result = dcmtkpp::convert(empty);
+    BOOST_CHECK_EQUAL(result.card(), 0);
+}
+
+BOOST_AUTO_TEST_CASE(EmptyDataSetFromDcmtk)
+{
+    DcmDataset const empty;
+    dcmtkpp::DataSet const result = dcmtkpp::convert(empty);
+    BOOST_CHECK(result.empty());
+}
+
+
+BOOST_AUTO_TEST_CASE(DataSetFromDcmtkpp)
+{
+    dcmtkpp::Element const patient_id_source(
+        dcmtkpp::Value::Strings({"DJ1234"}), dcmtkpp::VR::CS);
+    dcmtkpp::Element const pixel_spacing_source(
+        dcmtkpp::Value::Reals({1.23, 4.56}), dcmtkpp::VR::DS);
+
+    dcmtkpp::DataSet source;
+    source.add(dcmtkpp::Tag("PatientID"), patient_id_source);
+    source.add(dcmtkpp::Tag("PixelSpacing"), pixel_spacing_source);
+
+    DcmDataset result = dcmtkpp::convert(source);
+    BOOST_CHECK_EQUAL(result.card(), 2);
+
+    DcmElement * patient_id;
+    OFCondition const patient_id_ok =
+        result.findAndGetElement(DCM_PatientID, patient_id);
+    BOOST_CHECK(patient_id_ok.good());
+    BOOST_CHECK(
+        dcmtkpp::convert(patient_id).as_string() ==
+            patient_id_source.as_string());
+
+    DcmElement * pixel_spacing;
+    OFCondition const pixel_spacing_ok =
+        result.findAndGetElement(DCM_PixelSpacing, pixel_spacing);
+    BOOST_CHECK(pixel_spacing_ok.good());
+    BOOST_CHECK(
+        dcmtkpp::convert(pixel_spacing).as_real() ==
+            pixel_spacing_source.as_real());
+}
+
+BOOST_AUTO_TEST_CASE(DataSetFromDcmtk)
+{
+    dcmtkpp::Element const patient_id_source(
+        dcmtkpp::Value::Strings({"DJ1234"}), dcmtkpp::VR::CS);
+    dcmtkpp::Element const pixel_spacing_source(
+        dcmtkpp::Value::Reals({1.23, 4.56}), dcmtkpp::VR::DS);
+
+    DcmDataset source;
+    source.insert(dcmtkpp::convert(dcmtkpp::Tag("PatientID"), patient_id_source));
+    source.insert(dcmtkpp::convert(dcmtkpp::Tag("PixelSpacing"), pixel_spacing_source));
+
+    dcmtkpp::DataSet const result = dcmtkpp::convert(source);
+    BOOST_CHECK_EQUAL(result.size(), 2);
+    BOOST_CHECK(
+        result.as_string(dcmtkpp::Tag("PatientID")) ==
+            patient_id_source.as_string());
+    BOOST_CHECK(
+        result.as_real(dcmtkpp::Tag("PixelSpacing")) ==
+            pixel_spacing_source.as_real());
+}
