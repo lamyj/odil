@@ -94,161 +94,182 @@ void test_element_from_dcmtkpp(
     }
 }
 
-BOOST_AUTO_TEST_CASE(AEFromDcmtkpp)
+template<dcmtkpp::VR VVR, DcmEVR VEVR, typename TInputType, typename TElementType>
+void test_element_to_dcmtkpp(
+    TInputType const & source_value,
+    TInputType const & (dcmtkpp::Element::*getter)() const)
 {
-    test_element_from_dcmtkpp<
-        dcmtkpp::VR::AE, EVR_AE, dcmtkpp::Value::Strings, DcmApplicationEntity
-    >({"foo", "bar"}, &dcmtkpp::Element::as_string);
+    DcmTag const source_tag(0xdead, 0xbeef, VEVR);
+    TElementType source(source_tag);
+    if(typeid(TInputType) == typeid(dcmtkpp::Value::Strings) ||
+        VEVR == EVR_IS || VEVR == EVR_DS)
+    {
+        OFString value;
+
+        if(!source_value.empty())
+        {
+            auto const last_it = --source_value.end();
+            auto it = source_value.begin();
+            while(it != last_it)
+            {
+                std::ostringstream stream;
+                stream << *it;
+                value += stream.str().c_str();
+                value += "\\";
+                ++it;
+            }
+
+            std::ostringstream stream;
+            stream << *last_it;
+            value += stream.str().c_str();
+        }
+
+        source.putOFStringArray(value);
+    }
+    else
+    {
+        for(unsigned int i=0; i<source_value.size(); ++i)
+        {
+            auto const & item = source_value[i];
+            dcmtkpp::ElementAccessor<typename dcmtkpp::VRTraits<VEVR>::ValueType>::element_set(
+                source, item, i);
+        }
+    }
+
+    dcmtkpp::Element const destination = dcmtkpp::convert(&source);
+
+    BOOST_CHECK(VVR == destination.vr);
+    BOOST_CHECK_EQUAL(source.getVM(), destination.size());
+    for(std::size_t i=0; i<destination.size(); ++i)
+    {
+        typedef typename dcmtkpp::VRTraits<VEVR>::ValueType ValueType;
+        if(typeid(TInputType) == typeid(dcmtkpp::Value::Reals))
+        {
+            compare<ValueType>(
+                dcmtkpp::ElementAccessor<ValueType>::element_get(source, i),
+                (destination.*getter)()[i]);
+        }
+        else
+        {
+            BOOST_CHECK_EQUAL(
+                dcmtkpp::ElementAccessor<ValueType>::element_get(source, i),
+                (destination.*getter)()[i]);
+        }
+    }
 }
 
-BOOST_AUTO_TEST_CASE(ASFromDcmtkpp)
-{
-    test_element_from_dcmtkpp<
-        dcmtkpp::VR::AS, EVR_AS, dcmtkpp::Value::Strings, DcmAgeString
-    >({"012Y", "345D"}, &dcmtkpp::Element::as_string);
+#define ElementTest(vr, InputType, ElementType, value, getter) \
+BOOST_AUTO_TEST_CASE(vr##FromDcmtkpp) \
+{ \
+    test_element_from_dcmtkpp< \
+        dcmtkpp::VR::vr, EVR_##vr, InputType, ElementType>(value, getter); \
+} \
+BOOST_AUTO_TEST_CASE(vr##ToDcmtkpp) \
+{ \
+    test_element_to_dcmtkpp< \
+        dcmtkpp::VR::vr, EVR_##vr, InputType, ElementType>(value, getter); \
 }
+
+ElementTest(
+    AE, dcmtkpp::Value::Strings, DcmApplicationEntity,
+    dcmtkpp::Value::Strings({"foo", "bar"}), &dcmtkpp::Element::as_string);
+
+ElementTest(
+    AS, dcmtkpp::Value::Strings, DcmAgeString,
+    dcmtkpp::Value::Strings({"012Y", "345D"}), &dcmtkpp::Element::as_string);
 
 // AT
 
-BOOST_AUTO_TEST_CASE(CSFromDcmtkpp)
-{
-    test_element_from_dcmtkpp<
-        dcmtkpp::VR::CS, EVR_CS, dcmtkpp::Value::Strings, DcmCodeString
-    >({"foo", "bar"}, &dcmtkpp::Element::as_string);
-}
+ElementTest(
+    CS, dcmtkpp::Value::Strings, DcmCodeString,
+    dcmtkpp::Value::Strings({"foo", "bar"}), &dcmtkpp::Element::as_string);
 
-BOOST_AUTO_TEST_CASE(DAFromDcmtkpp)
-{
-    test_element_from_dcmtkpp<
-        dcmtkpp::VR::DA, EVR_DA, dcmtkpp::Value::Strings, DcmDate
-    >({"19000101", "20131215"}, &dcmtkpp::Element::as_string);
-}
+ElementTest(
+    DA, dcmtkpp::Value::Strings, DcmDate,
+    dcmtkpp::Value::Strings({"19000101", "20131215"}),
+    &dcmtkpp::Element::as_string);
 
-BOOST_AUTO_TEST_CASE(DSFromDcmtkpp)
-{
-    test_element_from_dcmtkpp<
-        dcmtkpp::VR::DS, EVR_DS, dcmtkpp::Value::Reals, DcmDecimalString
-    >({12.34, 56.78}, &dcmtkpp::Element::as_real);
-}
+ElementTest(
+    DS, dcmtkpp::Value::Reals, DcmDecimalString,
+    dcmtkpp::Value::Reals({12.34, 56.78}), &dcmtkpp::Element::as_real);
 
-BOOST_AUTO_TEST_CASE(DTFromDcmtkpp)
-{
-    test_element_from_dcmtkpp<
-        dcmtkpp::VR::DT, EVR_DT, dcmtkpp::Value::Strings, DcmDateTime
-    >({"19000101123456", "201312150123"}, &dcmtkpp::Element::as_string);
-}
+ElementTest(
+    DT, dcmtkpp::Value::Strings, DcmDateTime,
+    dcmtkpp::Value::Strings({"19000101123456", "201312150123"}),
+    &dcmtkpp::Element::as_string);
 
-BOOST_AUTO_TEST_CASE(FLFromDcmtkpp)
-{
-    test_element_from_dcmtkpp<
-        dcmtkpp::VR::FL, EVR_FL, dcmtkpp::Value::Reals, DcmFloatingPointSingle
-    >({12.34, 56.78}, &dcmtkpp::Element::as_real);
-}
+ElementTest(
+    FL, dcmtkpp::Value::Reals, DcmFloatingPointSingle,
+    dcmtkpp::Value::Reals({12.34, 56.78}), &dcmtkpp::Element::as_real);
 
-BOOST_AUTO_TEST_CASE(FDFromDcmtkpp)
-{
-    test_element_from_dcmtkpp<
-        dcmtkpp::VR::FD, EVR_FD, dcmtkpp::Value::Reals, DcmFloatingPointDouble
-    >({12.34, 56.78}, &dcmtkpp::Element::as_real);
-}
+ElementTest(
+    FD, dcmtkpp::Value::Reals, DcmFloatingPointDouble,
+    dcmtkpp::Value::Reals({12.34, 56.78}), &dcmtkpp::Element::as_real);
 
-BOOST_AUTO_TEST_CASE(ISFromDcmtkpp)
-{
-    test_element_from_dcmtkpp<
-        dcmtkpp::VR::IS, EVR_IS, dcmtkpp::Value::Integers, DcmIntegerString
-    >({34567, -67890}, &dcmtkpp::Element::as_int);
-}
+ElementTest(
+    IS, dcmtkpp::Value::Integers, DcmIntegerString,
+    dcmtkpp::Value::Integers({34567, -67890}), &dcmtkpp::Element::as_int);
 
-BOOST_AUTO_TEST_CASE(LOFromDcmtkpp)
-{
-    test_element_from_dcmtkpp<
-        dcmtkpp::VR::LO, EVR_LO, dcmtkpp::Value::Strings, DcmLongString
-    >({"foo bar", "something else"}, &dcmtkpp::Element::as_string);
-}
+ElementTest(
+    LO, dcmtkpp::Value::Strings, DcmLongString,
+    dcmtkpp::Value::Strings({"foo bar", "something else"}),
+    &dcmtkpp::Element::as_string);
 
-BOOST_AUTO_TEST_CASE(LTFromDcmtkpp)
-{
-    test_element_from_dcmtkpp<
-        dcmtkpp::VR::LT, EVR_LT, dcmtkpp::Value::Strings, DcmLongText
-    >({"foo\nbar\\something else"}, &dcmtkpp::Element::as_string);
-}
+ElementTest(
+    LT, dcmtkpp::Value::Strings, DcmLongText,
+    dcmtkpp::Value::Strings({"foo\nbar\\something else"}),
+    &dcmtkpp::Element::as_string);
 
 // OB
 // OF
 // OW
 
-BOOST_AUTO_TEST_CASE(PNFromDcmtkpp)
-{
-    test_element_from_dcmtkpp<
-        dcmtkpp::VR::PN, EVR_PN, dcmtkpp::Value::Strings, DcmPersonName
-    >({"Doe^John", "^Bob^Dr."}, &dcmtkpp::Element::as_string);
-}
+ElementTest(
+    PN, dcmtkpp::Value::Strings, DcmPersonName,
+    dcmtkpp::Value::Strings({"Doe^John", "^Bob^Dr."}),
+    &dcmtkpp::Element::as_string);
 
-BOOST_AUTO_TEST_CASE(SHFromDcmtkpp)
-{
-    test_element_from_dcmtkpp<
-        dcmtkpp::VR::SH, EVR_SH, dcmtkpp::Value::Strings, DcmShortString
-    >({"foo", "bar"}, &dcmtkpp::Element::as_string);
-}
+ElementTest(
+    SH, dcmtkpp::Value::Strings, DcmShortString,
+    dcmtkpp::Value::Strings({"foo", "bar"}), &dcmtkpp::Element::as_string);
 
-BOOST_AUTO_TEST_CASE(SLFromDcmtkpp)
-{
-    test_element_from_dcmtkpp<
-        dcmtkpp::VR::SL, EVR_SL, dcmtkpp::Value::Integers, DcmSignedLong
-    >({34567, -56789}, &dcmtkpp::Element::as_int);
-}
+ElementTest(
+    SL, dcmtkpp::Value::Integers, DcmSignedLong,
+    dcmtkpp::Value::Integers({34567, -56789}), &dcmtkpp::Element::as_int);
 
 // SQ
 
-BOOST_AUTO_TEST_CASE(SSFromDcmtkpp)
-{
-    test_element_from_dcmtkpp<
-        dcmtkpp::VR::SS, EVR_SS, dcmtkpp::Value::Integers, DcmSignedShort
-    >({1234, -5678}, &dcmtkpp::Element::as_int);
-}
+ElementTest(
+    SS, dcmtkpp::Value::Integers, DcmSignedShort,
+    dcmtkpp::Value::Integers({1234, -5678}), &dcmtkpp::Element::as_int);
 
-BOOST_AUTO_TEST_CASE(STFromDcmtkpp)
-{
-    test_element_from_dcmtkpp<
-        dcmtkpp::VR::ST, EVR_ST, dcmtkpp::Value::Strings, DcmShortText
-    >({"foo\nbar\\something else"}, &dcmtkpp::Element::as_string);
-}
+ElementTest(
+    ST, dcmtkpp::Value::Strings, DcmShortText,
+    dcmtkpp::Value::Strings({"foo\nbar\\something else"}),
+    &dcmtkpp::Element::as_string);
 
-BOOST_AUTO_TEST_CASE(TMFromDcmtkpp)
-{
-    test_element_from_dcmtkpp<
-        dcmtkpp::VR::TM, EVR_TM, dcmtkpp::Value::Strings, DcmTime
-    >({"123456", "0123"}, &dcmtkpp::Element::as_string);
-}
+ElementTest(
+    TM, dcmtkpp::Value::Strings, DcmTime,
+    dcmtkpp::Value::Strings({"123456", "0123"}),
+    &dcmtkpp::Element::as_string);
 
-BOOST_AUTO_TEST_CASE(UIFromDcmtkpp)
-{
-    test_element_from_dcmtkpp<
-        dcmtkpp::VR::UI, EVR_UI, dcmtkpp::Value::Strings, DcmUniqueIdentifier
-    >(
-        {"1.2.840.10008.5.1.4.1.1.4", "1.2.840.10008.5.1.4.1.1.4.1"},
+ElementTest(
+    UI, dcmtkpp::Value::Strings, DcmUniqueIdentifier,
+    dcmtkpp::Value::Strings(
+        {"1.2.840.10008.5.1.4.1.1.4", "1.2.840.10008.5.1.4.1.1.4.1"}),
         &dcmtkpp::Element::as_string);
-}
 
-BOOST_AUTO_TEST_CASE(ULFromDcmtkpp)
-{
-    test_element_from_dcmtkpp<
-        dcmtkpp::VR::UL, EVR_UL, dcmtkpp::Value::Integers, DcmUnsignedLong
-    >({123456, 789012}, &dcmtkpp::Element::as_int);
-}
+ElementTest(
+    UL, dcmtkpp::Value::Integers, DcmUnsignedLong,
+    dcmtkpp::Value::Integers({123456, 789012}), &dcmtkpp::Element::as_int);
 
 // UN
 
-BOOST_AUTO_TEST_CASE(USFromDcmtkpp)
-{
-    test_element_from_dcmtkpp<
-        dcmtkpp::VR::US, EVR_US, dcmtkpp::Value::Integers, DcmUnsignedShort
-    >({12345, 6789}, &dcmtkpp::Element::as_int);
-}
+ElementTest(
+    US, dcmtkpp::Value::Integers, DcmUnsignedShort,
+    dcmtkpp::Value::Integers({12345, 6789}), &dcmtkpp::Element::as_int);
 
-BOOST_AUTO_TEST_CASE(UTFromDcmtkpp)
-{
-    test_element_from_dcmtkpp<
-        dcmtkpp::VR::UT, EVR_UT, dcmtkpp::Value::Strings, DcmUnlimitedText
-    >({"foo\nbar\\something else"}, &dcmtkpp::Element::as_string);
-}
+ElementTest(
+    UT, dcmtkpp::Value::Strings, DcmUnlimitedText,
+    dcmtkpp::Value::Strings({"foo\nbar\\something else"}),
+    &dcmtkpp::Element::as_string);

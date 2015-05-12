@@ -8,176 +8,13 @@
 
 #include "dcmtkpp/conversion.h"
 
-#include <sstream>
-
 #include <dcmtk/config/osconfig.h>
 #include <dcmtk/dcmdata/dctk.h>
 
 #include "dcmtkpp/DataSet.h"
 #include "dcmtkpp/Element.h"
-#include "dcmtkpp/ElementAccessor.h"
 #include "dcmtkpp/Tag.h"
 #include "dcmtkpp/VR.h"
-
-// Private conversion functions
-namespace
-{
-
-template<typename TDcmtkType, typename TDcmtkppType>
-void convert(dcmtkpp::Element const & source, DcmElement * destination);
-
-template<>
-void convert<OFString, dcmtkpp::Value::Strings>(
-    dcmtkpp::Element const & source, DcmElement * destination)
-{
-    OFString destination_value;
-
-    auto const & strings = source.as_string();
-    if(!strings.empty())
-    {
-        auto const last_it = --strings.end();
-        auto it = strings.begin();
-        while(it != last_it)
-        {
-            destination_value += it->c_str();
-            destination_value += "\\";
-            ++it;
-        }
-        destination_value += last_it->c_str();
-    }
-
-    destination->putOFStringArray(destination_value);
-}
-
-template<>
-void convert<Float32, dcmtkpp::Value::Reals>(
-    dcmtkpp::Element const & source, DcmElement * destination)
-{
-    auto const & source_values = source.as_real();
-    for(auto i = 0; i<source_values.size(); ++i)
-    {
-        dcmtkpp::ElementAccessor<Float32>::element_set(
-            *destination, source_values[i], i);
-    }
-}
-
-template<>
-void convert<Float64, dcmtkpp::Value::Reals>(
-    dcmtkpp::Element const & source, DcmElement * destination)
-{
-    auto const & source_values = source.as_real();
-    for(auto i = 0; i<source_values.size(); ++i)
-    {
-        dcmtkpp::ElementAccessor<Float64>::element_set(
-            *destination, source_values[i], i);
-    }
-}
-
-template<>
-void convert<OFString, dcmtkpp::Value::Reals>(
-    dcmtkpp::Element const & source, DcmElement * destination)
-{
-    OFString destination_value;
-
-    auto const & source_values = source.as_real();
-    if(!source_values.empty())
-    {
-        auto const last_it = --source_values.end();
-        auto it = source_values.begin();
-        while(it != last_it)
-        {
-            std::ostringstream stream;
-            stream << *it;
-            destination_value += stream.str().c_str();
-            destination_value += "\\";
-            ++it;
-        }
-
-        std::ostringstream stream;
-        stream << *last_it;
-        destination_value += stream.str().c_str();
-    }
-
-    destination->putOFStringArray(destination_value);
-}
-
-template<>
-void convert<Sint16, dcmtkpp::Value::Integers>(
-    dcmtkpp::Element const & source, DcmElement * destination)
-{
-    auto const & source_values = source.as_int();
-    for(auto i = 0; i<source_values.size(); ++i)
-    {
-        dcmtkpp::ElementAccessor<Sint16>::element_set(
-            *destination, source_values[i], i);
-    }
-}
-
-template<>
-void convert<Sint32, dcmtkpp::Value::Integers>(
-    dcmtkpp::Element const & source, DcmElement * destination)
-{
-    auto const & source_values = source.as_int();
-    for(auto i = 0; i<source_values.size(); ++i)
-    {
-        dcmtkpp::ElementAccessor<Sint32>::element_set(
-            *destination, source_values[i], i);
-    }
-}
-
-template<>
-void convert<OFString, dcmtkpp::Value::Integers>(
-    dcmtkpp::Element const & source, DcmElement * destination)
-{
-    OFString destination_value;
-
-    auto const & source_values = source.as_int();
-    if(!source_values.empty())
-    {
-        auto const last_it = --source_values.end();
-        auto it = source_values.begin();
-        while(it != last_it)
-        {
-            std::ostringstream stream;
-            stream << *it;
-            destination_value += stream.str().c_str();
-            destination_value += "\\";
-            ++it;
-        }
-
-        std::ostringstream stream;
-        stream << *last_it;
-        destination_value += stream.str().c_str();
-    }
-
-    destination->putOFStringArray(destination_value);
-}
-
-template<>
-void convert<Uint16, dcmtkpp::Value::Integers>(
-    dcmtkpp::Element const & source, DcmElement * destination)
-{
-    auto const & source_values = source.as_int();
-    for(auto i = 0; i<source_values.size(); ++i)
-    {
-        dcmtkpp::ElementAccessor<Uint16>::element_set(
-            *destination, source_values[i], i);
-    }
-}
-
-template<>
-void convert<Uint32, dcmtkpp::Value::Integers>(
-    dcmtkpp::Element const & source, DcmElement * destination)
-{
-    auto const & source_values = source.as_int();
-    for(auto i = 0; i<source_values.size(); ++i)
-    {
-        dcmtkpp::ElementAccessor<Uint32>::element_set(
-            *destination, source_values[i], i);
-    }
-}
-
-}
 
 namespace dcmtkpp
 {
@@ -271,58 +108,58 @@ DcmElement * convert(const Tag & tag, Element const & source)
     if(source.vr == VR::AE)
     {
         destination = new DcmApplicationEntity(destination_tag);
-        ::convert<OFString, Value::Strings>(source, destination);
+        convert<Value::Strings>(source, destination, &Element::as_string);
     }
     else if (source.vr == VR::AS)
     {
         destination = new DcmAgeString(destination_tag);
-        ::convert<OFString, Value::Strings>(source, destination);
+        convert<Value::Strings>(source, destination, &Element::as_string);
     }
     // AT
     else if (source.vr == VR::CS)
     {
         destination = new DcmCodeString(destination_tag);
-        ::convert<OFString, Value::Strings>(source, destination);
+        convert<Value::Strings>(source, destination, &Element::as_string);
     }
     else if (source.vr == VR::DA)
     {
         destination = new DcmDate(destination_tag);
-        ::convert<OFString, Value::Strings>(source, destination);
+        convert<Value::Strings>(source, destination, &Element::as_string);
     }
     else if (source.vr == VR::DS)
     {
         destination = new DcmDecimalString(destination_tag);
-        ::convert<OFString, Value::Reals>(source, destination);
+        convert<Value::Reals>(source, destination, &Element::as_real);
     }
     else if (source.vr == VR::DT)
     {
         destination = new DcmDateTime(destination_tag);
-        ::convert<OFString, Value::Strings>(source, destination);
+        convert<Value::Strings>(source, destination, &Element::as_string);
     }
     else if (source.vr == VR::FD)
     {
         destination = new DcmFloatingPointDouble(destination_tag);
-        ::convert<Float64, Value::Reals>(source, destination);
+        convert<Value::Reals, Float64>(source, destination, &Element::as_real);
     }
     else if (source.vr == VR::FL)
     {
         destination = new DcmFloatingPointSingle(destination_tag);
-        ::convert<Float32, Value::Reals>(source, destination);
+        convert<Value::Reals, Float32>(source, destination, &Element::as_real);
     }
     else if (source.vr == VR::IS)
     {
         destination = new DcmIntegerString(destination_tag);
-        ::convert<OFString, Value::Integers>(source, destination);
+        convert<Value::Integers>(source, destination, &Element::as_int);
     }
     else if (source.vr == VR::LO)
     {
         destination = new DcmLongString(destination_tag);
-        ::convert<OFString, Value::Strings>(source, destination);
+        convert<Value::Strings>(source, destination, &Element::as_string);
     }
     else if (source.vr == VR::LT)
     {
         destination = new DcmLongText(destination_tag);
-        ::convert<OFString, Value::Strings>(source, destination);
+        convert<Value::Strings>(source, destination, &Element::as_string);
     }
     // OB
     // OF
@@ -330,54 +167,58 @@ DcmElement * convert(const Tag & tag, Element const & source)
     else if (source.vr == VR::PN)
     {
         destination = new DcmPersonName(destination_tag);
-        ::convert<OFString, Value::Strings>(source, destination);
+        convert<Value::Strings>(source, destination, &Element::as_string);
     }
     else if (source.vr == VR::SH)
     {
         destination = new DcmShortString(destination_tag);
-        ::convert<OFString, Value::Strings>(source, destination);
+        convert<Value::Strings>(source, destination, &Element::as_string);
     }
     else if (source.vr == VR::SL)
     {
         destination = new DcmSignedLong(destination_tag);
-        ::convert<Sint32, Value::Integers>(source, destination);
+        convert<Value::Integers, Sint32>(source, destination, &Element::as_int);
     }
     // SQ
     else if (source.vr == VR::SS)
     {
         destination = new DcmSignedShort(destination_tag);
-        ::convert<Sint16, Value::Integers>(source, destination);
+        convert<Value::Integers, Sint16>(source, destination, &Element::as_int);
     }
     else if (source.vr == VR::ST)
     {
         destination = new DcmShortText(destination_tag);
-        ::convert<OFString, Value::Strings>(source, destination);
+        convert<Value::Strings>(source, destination, &Element::as_string);
     }
     else if (source.vr == VR::TM)
     {
         destination = new DcmTime(destination_tag);
-        ::convert<OFString, Value::Strings>(source, destination);
+        convert<Value::Strings>(source, destination, &Element::as_string);
     }
     else if (source.vr == VR::UI)
     {
         destination = new DcmUniqueIdentifier(destination_tag);
-        ::convert<OFString, Value::Strings>(source, destination);
+        convert<Value::Strings>(source, destination, &Element::as_string);
     }
     else if (source.vr == VR::UL)
     {
         destination = new DcmUnsignedLong(destination_tag);
-        ::convert<Uint32, Value::Integers>(source, destination);
+        convert<Value::Integers, Uint32>(source, destination, &Element::as_int);
     }
     // UN
     else if (source.vr == VR::US)
     {
         destination = new DcmUnsignedShort(destination_tag);
-        ::convert<Uint16, Value::Integers>(source, destination);
+        convert<Value::Integers, Uint16>(source, destination, &Element::as_int);
     }
     else if (source.vr == VR::UT)
     {
         destination = new DcmUnlimitedText(destination_tag);
-        ::convert<OFString, Value::Strings>(source, destination);
+        convert<Value::Strings>(source, destination, &Element::as_string);
+    }
+    else
+    {
+        throw Exception("Unknown VR");
     }
 
     return destination;
@@ -391,11 +232,118 @@ Element convert(DcmElement * source)
 
     if(source_vr == EVR_AE)
     {
-        destination.vr = VR::AE;
+        destination = Element(Value::Strings(), VR::AE);
+        convert<std::string, Value::Strings>(source, destination, &Element::as_string);
     }
     else if(source_vr == EVR_AS)
     {
-        destination.vr = VR::AS;
+        destination = Element(Value::Strings(), VR::AS);
+        convert<std::string, Value::Strings>(source, destination, &Element::as_string);
+    }
+    // AT
+    else if(source_vr == EVR_CS)
+    {
+        destination = Element(Value::Strings(), VR::CS);
+        convert<std::string, Value::Strings>(source, destination, &Element::as_string);
+    }
+    else if(source_vr == EVR_DA)
+    {
+        destination = Element(Value::Strings(), VR::DA);
+        convert<std::string, Value::Strings>(source, destination, &Element::as_string);
+    }
+    else if(source_vr == EVR_DS)
+    {
+        destination = Element(Value::Reals(), VR::DS);
+        convert<Float64, Value::Reals>(source, destination, &Element::as_real);
+    }
+    else if(source_vr == EVR_DT)
+    {
+        destination = Element(Value::Strings(), VR::DT);
+        convert<std::string, Value::Strings>(source, destination, &Element::as_string);
+    }
+    else if(source_vr == EVR_FL)
+    {
+        destination = Element(Value::Reals(), VR::FL);
+        convert<Float32, Value::Reals>(source, destination, &Element::as_real);
+    }
+    else if(source_vr == EVR_FD)
+    {
+        destination = Element(Value::Reals(), VR::FD);
+        convert<Float64, Value::Reals>(source, destination, &Element::as_real);
+    }
+    else if(source_vr == EVR_IS)
+    {
+        destination = Element(Value::Integers(), VR::IS);
+        convert<Sint32, Value::Integers>(source, destination, &Element::as_int);
+    }
+    else if(source_vr == EVR_LO)
+    {
+        destination = Element(Value::Strings(), VR::LO);
+        convert<std::string, Value::Strings>(source, destination, &Element::as_string);
+    }
+    else if(source_vr == EVR_LT)
+    {
+        destination = Element(Value::Strings(), VR::LT);
+        convert<std::string, Value::Strings>(source, destination, &Element::as_string);
+    }
+    // OB
+    // OF
+    // OW
+    else if(source_vr == EVR_PN)
+    {
+        destination = Element(Value::Strings(), VR::PN);
+        convert<std::string, Value::Strings>(source, destination, &Element::as_string);
+    }
+    else if(source_vr == EVR_SH)
+    {
+        destination = Element(Value::Strings(), VR::SH);
+        convert<std::string, Value::Strings>(source, destination, &Element::as_string);
+    }
+    else if(source_vr == EVR_SL)
+    {
+        destination = Element(Value::Integers(), VR::SL);
+        convert<Sint32, Value::Integers>(source, destination, &Element::as_int);
+    }
+    // SQ
+    else if(source_vr == EVR_SS)
+    {
+        destination = Element(Value::Integers(), VR::SS);
+        convert<Sint16, Value::Integers>(source, destination, &Element::as_int);
+    }
+    else if(source_vr == EVR_ST)
+    {
+        destination = Element(Value::Strings(), VR::ST);
+        convert<std::string, Value::Strings>(source, destination, &Element::as_string);
+    }
+    else if(source_vr == EVR_TM)
+    {
+        destination = Element(Value::Strings(), VR::TM);
+        convert<std::string, Value::Strings>(source, destination, &Element::as_string);
+    }
+    else if(source_vr == EVR_UI)
+    {
+        destination = Element(Value::Strings(), VR::UI);
+        convert<std::string, Value::Strings>(source, destination, &Element::as_string);
+    }
+    else if(source_vr == EVR_UL)
+    {
+        destination = Element(Value::Integers(), VR::UL);
+        convert<Uint32, Value::Integers>(source, destination, &Element::as_int);
+    }
+    // UN
+    else if(source_vr == EVR_US)
+    {
+        destination = Element(Value::Integers(), VR::US);
+        convert<Uint16, Value::Integers>(source, destination, &Element::as_int);
+    }
+    else if(source_vr == EVR_UT)
+    {
+        destination = Element(Value::Strings(), VR::UT);
+        convert<std::string, Value::Strings>(source, destination, &Element::as_string);
+    }
+    else
+    {
+        throw Exception("Unknown VR");
     }
 
     return destination;
@@ -407,7 +355,8 @@ DcmDataset convert(DataSet const & source)
 
     for(auto const & iterator: source)
     {
-        DcmElement * destination_element = convert(iterator.first, iterator.second);
+        auto const destination_element = convert(
+            iterator.first, iterator.second);
         destination.insert(destination_element);
     }
 
@@ -420,9 +369,12 @@ DataSet convert(DcmDataset const & source)
 
     for(unsigned long i=0; i<source.card(); ++i)
     {
-        DcmElement * source_element = const_cast<DcmDataset &>(source).getElement(i);
-        Element const destination_element = convert(source_element);
-        // TODO
+        auto const source_element = const_cast<DcmDataset &>(source).getElement(i);
+
+        auto const destination_tag = convert(source_element->getTag());
+        auto const destination_element = convert(source_element);
+
+        //destination.add(destination_tag, destination_element);
     }
     return destination;
 }

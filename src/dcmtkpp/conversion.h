@@ -35,8 +35,26 @@ Tag convert(DcmTagKey const & tag);
 /// @brief Convert a dcmtkpp::Element to a DcmElement.
 DcmElement * convert(Tag const & tag, Element const & source);
 
+/// @brief Low-level element converter.
+template<typename TSourceType, typename TDestinationType>
+void convert(
+    Element const & source, DcmElement * destination,
+    TSourceType const & (Element::*getter)() const);
+
 /// @brief Convert a DcmElement to a dcmtkpp::Element.
 Element convert(DcmElement * source);
+
+/// @brief Low-level element converter.
+template<typename TSourceType>
+void convert(
+    Element const & source, DcmElement * destination,
+    TSourceType const & (Element::*getter)() const);
+
+/// @brief Low-level element converter.
+template<typename TSourceType, typename TDestinationType>
+void convert(
+    DcmElement * source, Element & destination,
+    TDestinationType & (Element::*getter)());
 
 /// @brief Convert a dcmtkpp::DataSet to a DcmDataset.
 DcmDataset convert(DataSet const & source);
@@ -45,5 +63,7 @@ DcmDataset convert(DataSet const & source);
 DataSet convert(DcmDataset const & source);
 
 }
+
+#include <dcmtkpp/conversion.txx>
 
 #endif // _d5ecacb8_04ff_48b0_8026_570c9b2ae360
