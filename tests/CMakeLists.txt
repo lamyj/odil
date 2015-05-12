@@ -19,6 +19,23 @@ foreach(test_file ${tests})
 
     foreach(case ${cases})
         string(REGEX REPLACE ${pattern} "\\2" case ${case})
+        if(NOT ${case} MATCHES "##")
+            add_test("${test}_${case}" "${test}" "--run_test=${case}")
+        endif()
+    endforeach()
+
+    set(pattern "ElementTest\\([\n ]+([A-Z]+)")
+
+    string(REGEX MATCHALL ${pattern} matches ${content})
+
+    foreach(match ${matches})
+        string(REGEX REPLACE ${pattern} "\\1" vr ${match})
+
+        set(case "${vr}FromDcmtkpp")
+        add_test("${test}_${case}" "${test}" "--run_test=${case}")
+
+        set(case "${vr}ToDcmtkpp")
         add_test("${test}_${case}" "${test}" "--run_test=${case}")
     endforeach()
+
 endforeach()
