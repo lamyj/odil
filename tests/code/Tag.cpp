@@ -50,16 +50,6 @@ BOOST_AUTO_TEST_CASE(CopyConstructor)
     BOOST_CHECK_EQUAL(other.element, 0xbeef);
 }
 
-BOOST_AUTO_TEST_CASE(Assignment)
-{
-    dcmtkpp::Tag const tag(0xdead, 0xbeef);
-
-    dcmtkpp::Tag other(0xfedc, 0xba98);
-    other = tag;
-    BOOST_CHECK_EQUAL(other.group, 0xdead);
-    BOOST_CHECK_EQUAL(other.element, 0xbeef);
-}
-
 BOOST_AUTO_TEST_CASE(Name)
 {
     dcmtkpp::Tag const tag(0x7fe0, 0x0010);
@@ -71,4 +61,80 @@ BOOST_AUTO_TEST_CASE(NameWrong)
 {
     dcmtkpp::Tag const tag(0xEEEE, 0xEEEE);
     BOOST_CHECK_THROW(tag.get_name(), dcmtkpp::Exception);
+}
+
+BOOST_AUTO_TEST_CASE(Equality)
+{
+    dcmtkpp::Tag const tag1(0xdead, 0xbeef);
+    dcmtkpp::Tag const tag2(0xdead, 0xbeef);
+    dcmtkpp::Tag const tag3(0xbeef, 0xf00d);
+
+    BOOST_CHECK(tag1 == tag2);
+    BOOST_CHECK( ! (tag1 == tag3) );
+}
+
+BOOST_AUTO_TEST_CASE(Difference)
+{
+    dcmtkpp::Tag const tag1(0xdead, 0xbeef);
+    dcmtkpp::Tag const tag2(0xdead, 0xbeef);
+    dcmtkpp::Tag const tag3(0xbeef, 0xf00d);
+
+    BOOST_CHECK( ! (tag1 != tag2) );
+    BOOST_CHECK(tag1 != tag3);
+}
+
+BOOST_AUTO_TEST_CASE(Inferior)
+{
+    dcmtkpp::Tag const tag1(0xdead, 0xbeef);
+    dcmtkpp::Tag const tag2(0xdead, 0xf00d);
+    dcmtkpp::Tag const tag3(0xbeef, 0xf00d);
+
+    BOOST_CHECK(tag1 < tag2);
+    BOOST_CHECK(tag3 < tag1);
+
+    BOOST_CHECK( ! (tag2 < tag1) );
+    BOOST_CHECK( ! (tag1 < tag3) );
+}
+
+BOOST_AUTO_TEST_CASE(Superior)
+{
+    dcmtkpp::Tag const tag1(0xdead, 0xbeef);
+    dcmtkpp::Tag const tag2(0xdead, 0xf00d);
+    dcmtkpp::Tag const tag3(0xbeef, 0xf00d);
+
+    BOOST_CHECK(tag2 > tag1);
+    BOOST_CHECK(tag1 > tag3);
+
+    BOOST_CHECK( ! (tag1 > tag2) );
+    BOOST_CHECK( ! (tag3 > tag1) );
+}
+
+BOOST_AUTO_TEST_CASE(InferiorOrEqual)
+{
+    dcmtkpp::Tag const tag1(0xdead, 0xbeef);
+    dcmtkpp::Tag const tag2(0xdead, 0xf00d);
+    dcmtkpp::Tag const tag3(0xbeef, 0xf00d);
+    dcmtkpp::Tag const tag4(0xdead, 0xbeef);
+
+    BOOST_CHECK(tag1 <= tag2);
+    BOOST_CHECK(tag3 <= tag1);
+    BOOST_CHECK(tag1 <= tag4);
+
+    BOOST_CHECK( ! (tag2 <= tag1) );
+    BOOST_CHECK( ! (tag1 <= tag3) );
+}
+
+BOOST_AUTO_TEST_CASE(SuperiorOrEqual)
+{
+    dcmtkpp::Tag const tag1(0xdead, 0xbeef);
+    dcmtkpp::Tag const tag2(0xdead, 0xf00d);
+    dcmtkpp::Tag const tag3(0xbeef, 0xf00d);
+    dcmtkpp::Tag const tag4(0xdead, 0xbeef);
+
+    BOOST_CHECK(tag2 >= tag1);
+    BOOST_CHECK(tag1 >= tag3);
+    BOOST_CHECK(tag1 >= tag4);
+
+    BOOST_CHECK( ! (tag1 >= tag2) );
+    BOOST_CHECK( ! (tag3 >= tag1) );
 }

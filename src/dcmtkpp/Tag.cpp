@@ -74,4 +74,51 @@ Tag
     return entry->getTagName();
 }
 
+bool
+Tag
+::operator==(Tag const & other) const
+{
+    return ((this->group == other.group) && (this->element == other.element));
+}
+
+bool
+Tag
+::operator!=(Tag const & other) const
+{
+    return !(*this == other);
+}
+
+bool
+Tag
+::operator<(Tag const & other) const
+{
+    return (
+        (this->group < other.group) ||
+        (this->group == other.group && this->element < other.element));
+}
+
+bool
+Tag
+::operator>(Tag const & other) const
+{
+    return (
+        (this->group > other.group) ||
+        (this->group == other.group && this->element > other.element));
+}
+
+bool
+Tag
+::operator<=(Tag const & other) const
+{
+    return !(*this > other);
+}
+
+bool
+Tag
+::operator>=(Tag const & other) const
+{
+    return !(*this < other);
+}
+
+
 }

@@ -56,6 +56,24 @@ public:
      * a dcmtkpp::Exception is raised.
      */
     std::string get_name() const;
+
+    /// @brief Equality test.
+    bool operator==(Tag const & other) const;
+
+    /// @brief Difference test.
+    bool operator!=(Tag const & other) const;
+
+    /// @brief Strict inferiority test.
+    bool operator<(Tag const & other) const;
+
+    /// @brief Strict superiority test.
+    bool operator>(Tag const & other) const;
+
+    /// @brief Loose inferiority test.
+    bool operator<=(Tag const & other) const;
+
+    /// @brief Loose superiority test.
+    bool operator>=(Tag const & other) const;
 };
 
 }
