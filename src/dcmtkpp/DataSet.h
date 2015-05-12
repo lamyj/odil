@@ -24,7 +24,7 @@ namespace dcmtkpp
 #define dcmtkppElementTypeMacro(name, Type) \
 bool is_##name(Tag const & tag) const \
 { \
-    auto const it = this->_find(tag); \
+    auto const it = this->_elements.find(tag); \
     if(it == this->_elements.end()) \
     { \
         throw Exception("No such element"); \
@@ -33,7 +33,7 @@ bool is_##name(Tag const & tag) const \
 } \
 Value::Type const & as_##name(Tag const & tag) const \
 { \
-    auto const it = this->_find(tag); \
+    auto const it = this->_elements.find(tag); \
     if(it == this->_elements.end()) \
     { \
         throw Exception("No such element"); \
@@ -42,7 +42,7 @@ Value::Type const & as_##name(Tag const & tag) const \
 } \
 Value::Type & as_##name(Tag const & tag) \
 { \
-    auto const it = this->_find(tag); \
+    auto const it = this->_elements.find(tag); \
     if(it == this->_elements.end()) \
     { \
         throw Exception("No such element"); \
@@ -115,25 +115,20 @@ public:
     dcmtkppElementTypeMacro(string, Strings);
     dcmtkppElementTypeMacro(data_set, DataSets);
 
-    typedef std::map<uint32_t, Element>::const_iterator const_iterator;
+    typedef std::map<Tag, Element>::const_iterator const_iterator;
     const_iterator begin() const { return this->_elements.begin(); }
     const_iterator end() const { return this->_elements.end(); }
 
     // FIXME: AT, binary
 
 private:
-    typedef std::map<uint32_t, Element> ElementMap;
+    typedef std::map<Tag, Element> ElementMap;
 
     ElementMap _elements;
-
-    static uint32_t _as_numeric_tag(Tag const & tag);
 
     static bool _is_int_vr(VR vr);
     static bool _is_real_vr(VR vr);
     static bool _is_string_vr(VR vr);
-
-    ElementMap::const_iterator _find(Tag const & tag) const;
-    ElementMap::iterator _find(Tag const & tag);
 };
 
 }

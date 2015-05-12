@@ -36,7 +36,7 @@ void
 DataSet
 ::add(Tag const & tag, Element const & element)
 {
-    this->_elements[this->_as_numeric_tag(tag)] = element;
+    this->_elements[tag] = element;
 }
 
 
@@ -66,7 +66,7 @@ DataSet
         throw Exception("Unknown VR: "+::dcmtkpp::as_string(vr));
     }
 
-    this->_elements[this->_as_numeric_tag(tag)] = Element(value, vr);
+    this->add(tag, Element(value, vr));
 }
 
 void
@@ -93,8 +93,7 @@ DataSet
         throw Exception("No such element");
     }
 
-    uint32_t const numeric_tag = this->_as_numeric_tag(tag);
-    this->_elements.erase(numeric_tag);
+    this->_elements.erase(tag);
 }
 
 bool
@@ -115,14 +114,14 @@ bool
 DataSet
 ::has(Tag const & tag) const
 {
-    return (this->_find(tag) != this->_elements.end());
+    return (this->_elements.find(tag) != this->_elements.end());
 }
 
 VR
 DataSet
 ::get_vr(Tag const & tag) const
 {
-    ElementMap::const_iterator const it = this->_find(tag);
+    ElementMap::const_iterator const it = this->_elements.find(tag);
     if(it == this->_elements.end())
     {
         throw Exception("No such element");
@@ -135,7 +134,7 @@ bool
 DataSet
 ::empty(Tag const & tag) const
 {
-    ElementMap::const_iterator const it = this->_find(tag);
+    ElementMap::const_iterator const it = this->_elements.find(tag);
     if(it == this->_elements.end())
     {
         throw Exception("No such element");
@@ -148,20 +147,13 @@ std::size_t
 DataSet
 ::size(Tag const & tag) const
 {
-    ElementMap::const_iterator const it = this->_find(tag);
+    ElementMap::const_iterator const it = this->_elements.find(tag);
     if(it == this->_elements.end())
     {
         throw Exception("No such element");
     }
 
     return it->second.size();
-}
-
-uint32_t
-DataSet
-::_as_numeric_tag(Tag const & tag)
-{
-    return (tag.group<<16) + tag.element;
 }
 
 bool
@@ -190,23 +182,6 @@ DataSet
         vr == VR::DA || vr == VR::LO || vr == VR::LT || vr == VR::PN ||
         vr == VR::SH || vr == VR::ST || vr == VR::TM || vr == VR::UC ||
         vr == VR::UI || vr == VR::UR || vr == VR::UT);
-}
-
-
-DataSet::ElementMap::const_iterator
-DataSet
-::_find(Tag const & tag) const
-{
-    uint32_t const numeric_tag = this->_as_numeric_tag(tag);
-    return this->_elements.find(numeric_tag);
-}
-
-DataSet::ElementMap::iterator
-DataSet
-::_find(Tag const & tag)
-{
-    uint32_t const numeric_tag = this->_as_numeric_tag(tag);
-    return this->_elements.find(numeric_tag);
 }
 
 }
