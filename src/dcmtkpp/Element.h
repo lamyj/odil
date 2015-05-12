@@ -113,6 +113,12 @@ public:
      */
     Value::DataSets & as_data_set();
 
+    /// @brief Equality test
+    bool operator==(Element const & other) const;
+
+    /// @brief Difference test
+    bool operator!=(Element const & other) const;
+
 private:
     struct Empty
     {

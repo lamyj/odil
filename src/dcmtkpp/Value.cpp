@@ -96,4 +96,50 @@ DECLARE_NON_CONST_ACCESSOR(Strings, strings)
 DECLARE_CONST_ACCESSOR(DataSets, data_sets)
 DECLARE_NON_CONST_ACCESSOR(DataSets, data_sets)
 
+#undef DECLARE_NON_CONST_ACCESSOR
+#undef DECLARE_CONST_ACCESSOR
+
+bool
+Value
+::operator==(Value const & other) const
+{
+    if(this->_type != other._type)
+    {
+        return false;
+    }
+    else if(this->_type == Value::Type::Empty)
+    {
+        return true;
+    }
+    else if(this->_type == Value::Type::Integers)
+    {
+        return this->_integers == other._integers;
+    }
+    else if(this->_type == Value::Type::Reals)
+    {
+        return this->_reals == other._reals;
+    }
+    else if(this->_type == Value::Type::Strings)
+    {
+        return this->_strings == other._strings;
+    }
+    else if(this->_type == Value::Type::DataSets)
+    {
+        return this->_data_sets == other._data_sets;
+    }
+    else
+    {
+        throw Exception("Unknown type");
+    }
+}
+
+bool
+Value
+::operator!=(Value const & other) const
+{
+    return !(*this == other);
+}
+
+
+
 }

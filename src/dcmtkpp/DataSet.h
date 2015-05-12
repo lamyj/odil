@@ -121,6 +121,12 @@ public:
 
     // FIXME: AT, binary
 
+    /// @brief Equality test
+    bool operator==(DataSet const & other) const;
+
+    /// @brief Difference test
+    bool operator!=(DataSet const & other) const;
+
 private:
     typedef std::map<Tag, Element> ElementMap;
 

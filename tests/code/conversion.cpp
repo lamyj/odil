@@ -223,8 +223,6 @@ ElementTest(
     SL, dcmtkpp::Value::Integers, DcmSignedLong,
     dcmtkpp::Value::Integers({34567, -56789}), &dcmtkpp::Element::as_int);
 
-// SQ
-
 ElementTest(
     SS, dcmtkpp::Value::Integers, DcmSignedShort,
     dcmtkpp::Value::Integers({1234, -5678}), &dcmtkpp::Element::as_int);
@@ -260,6 +258,59 @@ ElementTest(
     dcmtkpp::Value::Strings({"foo\nbar\\something else"}),
     &dcmtkpp::Element::as_string);
 
+BOOST_AUTO_TEST_CASE(SQFromDcmtkpp)
+{
+    dcmtkpp::DataSet item;
+    item.add("PatientID");
+    item.as_string("PatientID").push_back("DJ1234");
+
+    dcmtkpp::Element const source(
+        dcmtkpp::Value::DataSets({item}), dcmtkpp::VR::SQ);
+
+    dcmtkpp::Tag const source_tag(0xdead, 0xbeef);
+
+    DcmElement * destination = dcmtkpp::convert(source_tag, source);
+
+    BOOST_CHECK_NE(destination, (DcmElement const *)(NULL));
+
+    BOOST_CHECK_EQUAL(destination->getVR(), dcmtkpp::convert(source.vr));
+    BOOST_CHECK_NE(
+        dynamic_cast<DcmSequenceOfItems *>(destination),
+        (DcmSequenceOfItems *)(NULL));
+
+    BOOST_CHECK_EQUAL(destination->getVM(), source.size());
+    for(std::size_t i=0; i<source.size(); ++i)
+    {
+        dcmtkpp::DataSet const & source_item = source.as_data_set()[i];
+        DcmItem * item = dynamic_cast<DcmSequenceOfItems *>(destination)->getItem(i);
+        DcmDataset * destination_item = dynamic_cast<DcmDataset *>(item);
+        BOOST_CHECK(source_item == dcmtkpp::convert(*destination_item));
+    }
+}
+
+BOOST_AUTO_TEST_CASE(SQToDcmtkpp)
+{
+    DcmDataset * item = new DcmDataset;
+    item->putAndInsertOFStringArray(DCM_PatientID, "DJ1234");
+
+    DcmSequenceOfItems source(DcmTag(0xdead, 0xbeef, EVR_SQ));
+    source.append(item);
+
+    dcmtkpp::Element const destination = dcmtkpp::convert(&source);
+
+    BOOST_CHECK(destination.vr == dcmtkpp::convert(source.getVR()));
+    BOOST_CHECK_EQUAL(source.getVM(), destination.size());
+    for(std::size_t i=0; i<destination.size(); ++i)
+    {
+        DcmItem * item = source.getItem(i);
+        DcmDataset * source_item = dynamic_cast<DcmDataset *>(item);
+        BOOST_REQUIRE(source_item != NULL);
+
+        dcmtkpp::DataSet const & destination_item = destination.as_data_set()[i];
+        BOOST_CHECK(dcmtkpp::convert(*source_item) == destination_item);
+    }
+}
+
 BOOST_AUTO_TEST_CASE(EmptyDataSetFromDcmtkpp)
 {
     dcmtkpp::DataSet const empty;
@@ -273,7 +324,6 @@ BOOST_AUTO_TEST_CASE(EmptyDataSetFromDcmtk)
     dcmtkpp::DataSet const result = dcmtkpp::convert(empty);
     BOOST_CHECK(result.empty());
 }
-
 
 BOOST_AUTO_TEST_CASE(DataSetFromDcmtkpp)
 {

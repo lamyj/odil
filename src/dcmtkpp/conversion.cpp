@@ -19,7 +19,7 @@
 namespace dcmtkpp
 {
 
-DcmVR convert(VR vr)
+DcmEVR convert(VR vr)
 {
     if(vr == VR::AE) { return EVR_AE; }
     else if(vr == VR::AS) { return EVR_AS; }
@@ -54,9 +54,8 @@ DcmVR convert(VR vr)
     }
 }
 
-VR convert(DcmVR vr)
+VR convert(DcmEVR evr)
 {
-    DcmEVR const evr = vr.getValidEVR();
     if(evr == EVR_AE) { return VR::AE; }
     else if(evr == EVR_AS) { return VR::AS; }
     else if(evr == EVR_AT) { return VR::AT; }
@@ -179,7 +178,16 @@ DcmElement * convert(const Tag & tag, Element const & source)
         destination = new DcmSignedLong(destination_tag);
         convert<Value::Integers, Sint32>(source, destination, &Element::as_int);
     }
-    // SQ
+    else if(source.vr == VR::SQ)
+    {
+        DcmSequenceOfItems * sequence = new DcmSequenceOfItems(destination_tag);
+        for(auto const & source_item: source.as_data_set())
+        {
+            DcmDataset destination_item = convert(source_item);
+            sequence->append(new DcmDataset(destination_item));
+        }
+        destination = sequence;
+    }
     else if (source.vr == VR::SS)
     {
         destination = new DcmSignedShort(destination_tag);
@@ -304,7 +312,31 @@ Element convert(DcmElement * source)
         destination = Element(Value::Integers(), VR::SL);
         convert<Sint32, Value::Integers>(source, destination, &Element::as_int);
     }
-    // SQ
+    else if(source_vr == EVR_SQ)
+    {
+        destination = Element(Value::DataSets(), VR::SQ);
+        DcmSequenceOfItems * sequence = dynamic_cast<DcmSequenceOfItems*>(source);
+        if(sequence == NULL)
+        {
+            throw Exception("Element is not a DcmSequenceOfItems");
+        }
+
+        Value::DataSets & destination_value = destination.as_data_set();
+
+        destination_value.reserve(sequence->card());
+        for(unsigned int i=0; i<sequence->card(); ++i)
+        {
+            DcmItem * item = sequence->getItem(i);
+            DcmDataset * source_item = dynamic_cast<DcmDataset *>(item);
+            if(source_item == NULL)
+            {
+                throw Exception("Item is not a DcmDataset");
+            }
+
+            DataSet const destination_item = convert(*source_item);
+            destination_value.push_back(destination_item);
+        }
+    }
     else if(source_vr == EVR_SS)
     {
         destination = Element(Value::Integers(), VR::SS);

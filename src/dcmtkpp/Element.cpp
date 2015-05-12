@@ -122,4 +122,18 @@ Element::as_data_set()
     return this->_value.as_data_sets();
 }
 
+bool
+Element
+::operator==(Element const & other) const
+{
+    return (this->vr == other.vr) && (this->_value == other._value);
+}
+
+bool
+Element
+::operator!=(Element const & other) const
+{
+    return !(*this == other);
+}
+
 }

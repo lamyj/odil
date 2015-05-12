@@ -158,6 +158,20 @@ DataSet
 
 bool
 DataSet
+::operator==(DataSet const & other) const
+{
+    return (this->_elements == other._elements);
+}
+
+bool
+DataSet
+::operator!=(DataSet const & other) const
+{
+    return !(*this == other);
+}
+
+bool
+DataSet
 ::_is_int_vr(VR vr)
 {
     return (

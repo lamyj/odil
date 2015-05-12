@@ -120,6 +120,12 @@ public:
      */
     DataSets & as_data_sets();
 
+    /// @brief Equality test.
+    bool operator==(Value const & other) const;
+
+    /// @brief Difference test.
+    bool operator!=(Value const & other) const;
+
 private:
     Integers _integers;
     Reals _reals;
