@@ -223,3 +223,33 @@ BOOST_AUTO_TEST_CASE(RemoveMissing)
         dataset.remove(other),
         dcmtkpp::Exception);
 }
+
+BOOST_AUTO_TEST_CASE(Equality)
+{
+    dcmtkpp::DataSet dataset1;
+    dataset1.add("PatientID", dcmtkpp::VR::CS, dcmtkpp::Value::Strings({"DJ1234"}));
+
+    dcmtkpp::DataSet dataset2;
+    dataset2.add("PatientID", dcmtkpp::VR::CS, dcmtkpp::Value::Strings({"DJ1234"}));
+
+    dcmtkpp::DataSet dataset3;
+    dataset3.add("PatientAge", dcmtkpp::VR::CS, dcmtkpp::Value::Strings({"042Y"}));
+
+    BOOST_CHECK(dataset1 == dataset2);
+    BOOST_CHECK(! (dataset1 == dataset3));
+}
+
+BOOST_AUTO_TEST_CASE(Difference)
+{
+    dcmtkpp::DataSet dataset1;
+    dataset1.add("PatientID", dcmtkpp::VR::CS, dcmtkpp::Value::Strings({"DJ1234"}));
+
+    dcmtkpp::DataSet dataset2;
+    dataset2.add("PatientID", dcmtkpp::VR::CS, dcmtkpp::Value::Strings({"DJ1234"}));
+
+    dcmtkpp::DataSet dataset3;
+    dataset3.add("PatientAge", dcmtkpp::VR::CS, dcmtkpp::Value::Strings({"042Y"}));
+
+    BOOST_CHECK(! (dataset1 != dataset2));
+    BOOST_CHECK(dataset1 != dataset3);
+}

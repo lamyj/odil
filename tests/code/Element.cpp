@@ -137,3 +137,35 @@ BOOST_AUTO_TEST_CASE(DataSetWrong)
     BOOST_CHECK_THROW(element.as_real(), dcmtkpp::Exception);
     BOOST_CHECK_THROW(element.as_string(), dcmtkpp::Exception);
 }
+
+BOOST_AUTO_TEST_CASE(Equality)
+{
+    dcmtkpp::Element const element1(
+        dcmtkpp::Value::Integers({12,34}), dcmtkpp::VR::US);
+    dcmtkpp::Element const element2(
+        dcmtkpp::Value::Integers({12,34}), dcmtkpp::VR::US);
+    dcmtkpp::Element const element3(
+        dcmtkpp::Value::Reals({12,34}), dcmtkpp::VR::FL);
+    dcmtkpp::Element const element4(
+        dcmtkpp::Value::Integers({12,34}), dcmtkpp::VR::UL);
+
+    BOOST_CHECK(element1 == element2);
+    BOOST_CHECK(! (element1 == element3));
+    BOOST_CHECK(! (element1 == element4));
+}
+
+BOOST_AUTO_TEST_CASE(Difference)
+{
+    dcmtkpp::Element const element1(
+        dcmtkpp::Value::Integers({12,34}), dcmtkpp::VR::US);
+    dcmtkpp::Element const element2(
+        dcmtkpp::Value::Integers({12,34}), dcmtkpp::VR::US);
+    dcmtkpp::Element const element3(
+        dcmtkpp::Value::Reals({12,34}), dcmtkpp::VR::FL);
+    dcmtkpp::Element const element4(
+        dcmtkpp::Value::Integers({12,34}), dcmtkpp::VR::UL);
+
+    BOOST_CHECK(! (element1 != element2));
+    BOOST_CHECK(element1 != element3);
+    BOOST_CHECK(element1 != element4);
+}

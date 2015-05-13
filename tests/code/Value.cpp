@@ -109,6 +109,128 @@ BOOST_AUTO_TEST_CASE(ModifyDataSets)
             dcmtkpp::Value::Strings({"XXX"}));
 }
 
+BOOST_AUTO_TEST_CASE(EqualityEmpty)
+{
+    dcmtkpp::Value const value1;
+    dcmtkpp::Value const value2;
+    dcmtkpp::Value const value3((dcmtkpp::Value::Integers()));
+    BOOST_CHECK(value1 == value2);
+    BOOST_CHECK( ! (value1 == value3));
+}
+
+BOOST_AUTO_TEST_CASE(EqualityIntegers)
+{
+    dcmtkpp::Value const value1(dcmtkpp::Value::Integers({1,2}));
+    dcmtkpp::Value const value2(dcmtkpp::Value::Integers({1,2}));
+    dcmtkpp::Value const value3(dcmtkpp::Value::Integers({3,4}));
+    dcmtkpp::Value const value4(dcmtkpp::Value::Reals({3,4}));
+    BOOST_CHECK(value1 == value2);
+    BOOST_CHECK( ! (value1 == value3));
+    BOOST_CHECK( ! (value1 == value4));
+}
+
+BOOST_AUTO_TEST_CASE(EqualityReals)
+{
+    dcmtkpp::Value const value1(dcmtkpp::Value::Reals({1,2}));
+    dcmtkpp::Value const value2(dcmtkpp::Value::Reals({1,2}));
+    dcmtkpp::Value const value3(dcmtkpp::Value::Reals({3,4}));
+    dcmtkpp::Value const value4(dcmtkpp::Value::Integers({3,4}));
+    BOOST_CHECK(value1 == value2);
+    BOOST_CHECK( ! (value1 == value3));
+    BOOST_CHECK( ! (value1 == value4));
+}
+
+BOOST_AUTO_TEST_CASE(EqualityStrings)
+{
+    dcmtkpp::Value const value1(dcmtkpp::Value::Strings({"1","2"}));
+    dcmtkpp::Value const value2(dcmtkpp::Value::Strings({"1","2"}));
+    dcmtkpp::Value const value3(dcmtkpp::Value::Strings({"3","4"}));
+    dcmtkpp::Value const value4(dcmtkpp::Value::Integers({3,4}));
+    BOOST_CHECK(value1 == value2);
+    BOOST_CHECK( ! (value1 == value3));
+    BOOST_CHECK( ! (value1 == value4));
+}
+
+BOOST_AUTO_TEST_CASE(EqualityDataSets)
+{
+    dcmtkpp::DataSet dataset1;
+    dataset1.add("PatientID", dcmtkpp::VR::CS, dcmtkpp::Value::Strings{"DJ1234"});
+    dataset1.add("PixelSpacing", dcmtkpp::VR::DS, dcmtkpp::Value::Reals{1.5, 2.5});
+
+    dcmtkpp::DataSet dataset2;
+    dataset1.add("PatientName", dcmtkpp::VR::PN, dcmtkpp::Value::Strings{"Doe^John"});
+    dataset1.add("PatientAge", dcmtkpp::VR::AS, dcmtkpp::Value::Strings{"042Y"});
+
+    dcmtkpp::Value const value1(dcmtkpp::Value::DataSets({dataset1}));
+    dcmtkpp::Value const value2(dcmtkpp::Value::DataSets({dataset1}));
+    dcmtkpp::Value const value3(dcmtkpp::Value::DataSets({dataset2}));
+    dcmtkpp::Value const value4(dcmtkpp::Value::Integers({3,4}));
+    BOOST_CHECK(value1 == value2);
+    BOOST_CHECK( ! (value1 == value3));
+    BOOST_CHECK( ! (value1 == value4));
+}
+
+BOOST_AUTO_TEST_CASE(DifferenceEmpty)
+{
+    dcmtkpp::Value const value1;
+    dcmtkpp::Value const value2;
+    dcmtkpp::Value const value3((dcmtkpp::Value::Integers()));
+    BOOST_CHECK(! (value1 != value2));
+    BOOST_CHECK(value1 != value3);
+}
+
+BOOST_AUTO_TEST_CASE(DifferenceIntegers)
+{
+    dcmtkpp::Value const value1(dcmtkpp::Value::Integers({1,2}));
+    dcmtkpp::Value const value2(dcmtkpp::Value::Integers({1,2}));
+    dcmtkpp::Value const value3(dcmtkpp::Value::Integers({3,4}));
+    dcmtkpp::Value const value4(dcmtkpp::Value::Reals({3,4}));
+    BOOST_CHECK(! (value1 != value2));
+    BOOST_CHECK(value1 != value3);
+    BOOST_CHECK(value1 != value4);
+}
+
+BOOST_AUTO_TEST_CASE(DifferenceReals)
+{
+    dcmtkpp::Value const value1(dcmtkpp::Value::Reals({1,2}));
+    dcmtkpp::Value const value2(dcmtkpp::Value::Reals({1,2}));
+    dcmtkpp::Value const value3(dcmtkpp::Value::Reals({3,4}));
+    dcmtkpp::Value const value4(dcmtkpp::Value::Integers({3,4}));
+    BOOST_CHECK(! (value1 != value2));
+    BOOST_CHECK(value1 != value3);
+    BOOST_CHECK(value1 != value4);
+}
+
+BOOST_AUTO_TEST_CASE(DifferenceStrings)
+{
+    dcmtkpp::Value const value1(dcmtkpp::Value::Strings({"1","2"}));
+    dcmtkpp::Value const value2(dcmtkpp::Value::Strings({"1","2"}));
+    dcmtkpp::Value const value3(dcmtkpp::Value::Strings({"3","4"}));
+    dcmtkpp::Value const value4(dcmtkpp::Value::Integers({3,4}));
+    BOOST_CHECK(! (value1 != value2));
+    BOOST_CHECK(value1 != value3);
+    BOOST_CHECK(value1 != value4);
+}
+
+BOOST_AUTO_TEST_CASE(DifferenceDataSets)
+{
+    dcmtkpp::DataSet dataset1;
+    dataset1.add("PatientID", dcmtkpp::VR::CS, dcmtkpp::Value::Strings{"DJ1234"});
+    dataset1.add("PixelSpacing", dcmtkpp::VR::DS, dcmtkpp::Value::Reals{1.5, 2.5});
+
+    dcmtkpp::DataSet dataset2;
+    dataset1.add("PatientName", dcmtkpp::VR::PN, dcmtkpp::Value::Strings{"Doe^John"});
+    dataset1.add("PatientAge", dcmtkpp::VR::AS, dcmtkpp::Value::Strings{"042Y"});
+
+    dcmtkpp::Value const value1(dcmtkpp::Value::DataSets({dataset1}));
+    dcmtkpp::Value const value2(dcmtkpp::Value::DataSets({dataset1}));
+    dcmtkpp::Value const value3(dcmtkpp::Value::DataSets({dataset2}));
+    dcmtkpp::Value const value4(dcmtkpp::Value::Integers({3,4}));
+    BOOST_CHECK(! (value1 != value2));
+    BOOST_CHECK(value1 != value3);
+    BOOST_CHECK(value1 != value4);
+}
+
 struct Visitor
 {
     typedef bool result_type;
