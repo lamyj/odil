@@ -49,6 +49,13 @@ Tag
     this->_from_string(string);
 }
 
+bool
+Tag
+::is_private() const
+{
+    return (this->group%2 == 1);
+}
+
 std::string
 Tag
 ::get_name() const

@@ -74,6 +74,15 @@ BOOST_AUTO_TEST_CASE(CopyConstructor)
     BOOST_CHECK_EQUAL(other.element, 0xbeef);
 }
 
+BOOST_AUTO_TEST_CASE(IsPrivate)
+{
+    dcmtkpp::Tag const tag1(0xdead, 0xbeef);
+    dcmtkpp::Tag const tag2(0x7fe0, 0x0010);
+
+    BOOST_CHECK(tag1.is_private());
+    BOOST_CHECK(!tag2.is_private());
+}
+
 BOOST_AUTO_TEST_CASE(Name)
 {
     dcmtkpp::Tag const tag(0x7fe0, 0x0010);
