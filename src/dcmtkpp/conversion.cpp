@@ -192,8 +192,8 @@ DcmElement * convert(const Tag & tag, Element const & source)
         DcmSequenceOfItems * sequence = new DcmSequenceOfItems(destination_tag);
         for(auto const & source_item: source.as_data_set())
         {
-            DcmDataset destination_item = convert(source_item);
-            sequence->append(new DcmDataset(destination_item));
+            DcmItem * destination_item = convert(source_item);
+            sequence->append(destination_item);
         }
         destination = sequence;
     }
@@ -305,14 +305,8 @@ Element convert(DcmElement * source)
         destination_value.reserve(sequence->card());
         for(unsigned int i=0; i<sequence->card(); ++i)
         {
-            DcmItem * item = sequence->getItem(i);
-            DcmDataset * source_item = dynamic_cast<DcmDataset *>(item);
-            if(source_item == NULL)
-            {
-                throw Exception("Item is not a DcmDataset");
-            }
-
-            DataSet const destination_item = convert(*source_item);
+            DcmItem * source_item = sequence->getItem(i);
+            DataSet const destination_item = convert(source_item);
             destination_value.push_back(destination_item);
         }
     }
@@ -340,27 +334,27 @@ Element convert(DcmElement * source)
     return destination;
 }
 
-DcmDataset convert(DataSet const & source)
+DcmItem * convert(DataSet const & source)
 {
-    DcmDataset destination;
+    DcmDataset * destination = new DcmDataset();
 
     for(auto const & iterator: source)
     {
         auto const destination_element = convert(
             iterator.first, iterator.second);
-        destination.insert(destination_element);
+        destination->insert(destination_element);
     }
 
     return destination;
 }
 
-DataSet convert(DcmDataset const & source)
+DataSet convert(DcmItem * source)
 {
     DataSet destination;
 
-    for(unsigned long i=0; i<source.card(); ++i)
+    for(unsigned long i=0; i<source->card(); ++i)
     {
-        auto const source_element = const_cast<DcmDataset &>(source).getElement(i);
+        auto const source_element = source->getElement(i);
 
         auto const destination_tag = convert(source_element->getTag());
         auto const destination_element = convert(source_element);

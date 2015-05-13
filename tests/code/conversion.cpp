@@ -330,7 +330,7 @@ BOOST_AUTO_TEST_CASE(SQFromDcmtkpp)
         dcmtkpp::DataSet const & source_item = source.as_data_set()[i];
         DcmItem * item = dynamic_cast<DcmSequenceOfItems *>(destination)->getItem(i);
         DcmDataset * destination_item = dynamic_cast<DcmDataset *>(item);
-        BOOST_CHECK(source_item == dcmtkpp::convert(*destination_item));
+        BOOST_CHECK(source_item == dcmtkpp::convert(destination_item));
     }
 }
 
@@ -353,21 +353,21 @@ BOOST_AUTO_TEST_CASE(SQToDcmtkpp)
         BOOST_REQUIRE(source_item != NULL);
 
         dcmtkpp::DataSet const & destination_item = destination.as_data_set()[i];
-        BOOST_CHECK(dcmtkpp::convert(*source_item) == destination_item);
+        BOOST_CHECK(dcmtkpp::convert(source_item) == destination_item);
     }
 }
 
 BOOST_AUTO_TEST_CASE(EmptyDataSetFromDcmtkpp)
 {
-    dcmtkpp::DataSet const empty;
-    DcmDataset const result = dcmtkpp::convert(empty);
-    BOOST_CHECK_EQUAL(result.card(), 0);
+    dcmtkpp::DataSet empty;
+    DcmItem * result = dcmtkpp::convert(empty);
+    BOOST_CHECK_EQUAL(result->card(), 0);
 }
 
 BOOST_AUTO_TEST_CASE(EmptyDataSetFromDcmtk)
 {
-    DcmDataset const empty;
-    dcmtkpp::DataSet const result = dcmtkpp::convert(empty);
+    DcmDataset empty;
+    dcmtkpp::DataSet const result = dcmtkpp::convert(&empty);
     BOOST_CHECK(result.empty());
 }
 
@@ -382,12 +382,12 @@ BOOST_AUTO_TEST_CASE(DataSetFromDcmtkpp)
     source.add(dcmtkpp::Tag("PatientID"), patient_id_source);
     source.add(dcmtkpp::Tag("PixelSpacing"), pixel_spacing_source);
 
-    DcmDataset result = dcmtkpp::convert(source);
-    BOOST_CHECK_EQUAL(result.card(), 2);
+    DcmItem * result = dcmtkpp::convert(source);
+    BOOST_CHECK_EQUAL(result->card(), 2);
 
     DcmElement * patient_id;
     OFCondition const patient_id_ok =
-        result.findAndGetElement(DCM_PatientID, patient_id);
+        result->findAndGetElement(DCM_PatientID, patient_id);
     BOOST_CHECK(patient_id_ok.good());
     BOOST_CHECK(
         dcmtkpp::convert(patient_id).as_string() ==
@@ -395,7 +395,7 @@ BOOST_AUTO_TEST_CASE(DataSetFromDcmtkpp)
 
     DcmElement * pixel_spacing;
     OFCondition const pixel_spacing_ok =
-        result.findAndGetElement(DCM_PixelSpacing, pixel_spacing);
+        result->findAndGetElement(DCM_PixelSpacing, pixel_spacing);
     BOOST_CHECK(pixel_spacing_ok.good());
     BOOST_CHECK(
         dcmtkpp::convert(pixel_spacing).as_real() ==
@@ -413,7 +413,7 @@ BOOST_AUTO_TEST_CASE(DataSetFromDcmtk)
     source.insert(dcmtkpp::convert(dcmtkpp::Tag("PatientID"), patient_id_source));
     source.insert(dcmtkpp::convert(dcmtkpp::Tag("PixelSpacing"), pixel_spacing_source));
 
-    dcmtkpp::DataSet const result = dcmtkpp::convert(source);
+    dcmtkpp::DataSet const result = dcmtkpp::convert(&source);
     BOOST_CHECK_EQUAL(result.size(), 2);
     BOOST_CHECK(
         result.as_string(dcmtkpp::Tag("PatientID")) ==

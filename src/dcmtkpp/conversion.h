@@ -57,10 +57,10 @@ void convert(
     TDestinationType & (Element::*getter)());
 
 /// @brief Convert a dcmtkpp::DataSet to a DcmDataset.
-DcmDataset convert(DataSet const & source);
+DcmItem * convert(DataSet const & source);
 
 /// @brief Convert a DcmDataset to a dcmtkpp::DataSet.
-DataSet convert(DcmDataset const & source);
+DataSet convert(DcmItem * source);
 
 }
 
