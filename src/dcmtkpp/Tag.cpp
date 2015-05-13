@@ -15,6 +15,8 @@
 
 #include "dcmtkpp/Exception.h"
 
+#include <boost/lexical_cast.hpp>
+
 namespace dcmtkpp
 {
 
@@ -33,31 +35,15 @@ Tag
 }
 
 Tag
-::Tag(std::string const & name)
+::Tag(std::string const & string)
 {
-    DcmDictEntry const * entry = dcmDataDict.rdlock().findEntry(name.c_str());
-    if(entry == NULL)
-    {
-        throw Exception("No such element: "+name);
-    }
-
-    DcmTagKey const tag = entry->getKey();
-    this->group = tag.getGroup();
-    this->element = tag.getElement();
+    this->_from_string(string);
 }
 
 Tag
-::Tag(char const * name)
+::Tag(char const * string)
 {
-    DcmDictEntry const * entry = dcmDataDict.rdlock().findEntry(name);
-    if(entry == NULL)
-    {
-        throw Exception(std::string("No such element: ")+name);
-    }
-
-    DcmTagKey const tag = entry->getKey();
-    this->group = tag.getGroup();
-    this->element = tag.getElement();
+    this->_from_string(string);
 }
 
 std::string
@@ -120,5 +106,58 @@ Tag
     return !(*this < other);
 }
 
+void
+Tag
+::_from_string(std::string const & string)
+{
+    DcmDictEntry const * entry = dcmDataDict.rdlock().findEntry(string.c_str());
+    if(entry == NULL)
+    {
+        // Try with string form of numeric tag
+        uint16_t group;
+        uint16_t element;
+        bool parsed = true;
+
+        if(string.size() != 8)
+        {
+            parsed = false;
+        }
+        else
+        {
+            std::string const first = string.substr(0, 4);
+            char * endptr;
+            group = strtol(first.c_str(), &endptr, 16);
+            if(*endptr != '\0')
+            {
+                parsed = false;
+            }
+            else
+            {
+                std::string const second = string.substr(4, 4);
+                element = strtol(second.c_str(), &endptr, 16);
+                if(*endptr != '\0')
+                {
+                    parsed = false;
+                }
+            }
+        }
+
+        if(!parsed)
+        {
+            throw Exception("No such element: "+string);
+        }
+        else
+        {
+            this->group = group;
+            this->element = element;
+        }
+    }
+    else
+    {
+        DcmTagKey const tag = entry->getKey();
+        this->group = tag.getGroup();
+        this->element = tag.getElement();
+    }
+}
 
 }

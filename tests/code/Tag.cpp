@@ -32,6 +32,20 @@ BOOST_AUTO_TEST_CASE(CharConstructor)
     BOOST_CHECK_EQUAL(tag.element, 0x0010);
 }
 
+BOOST_AUTO_TEST_CASE(StringConstructorNumeric)
+{
+    dcmtkpp::Tag const tag(std::string("7fe00010"));
+    BOOST_CHECK_EQUAL(tag.group, 0x7fe0);
+    BOOST_CHECK_EQUAL(tag.element, 0x0010);
+}
+
+BOOST_AUTO_TEST_CASE(CharConstructorNumeric)
+{
+    dcmtkpp::Tag const tag("7fe00010");
+    BOOST_CHECK_EQUAL(tag.group, 0x7fe0);
+    BOOST_CHECK_EQUAL(tag.element, 0x0010);
+}
+
 BOOST_AUTO_TEST_CASE(StringConstructorWrong)
 {
     BOOST_CHECK_THROW(dcmtkpp::Tag(std::string("Foobar")), dcmtkpp::Exception);
@@ -40,6 +54,16 @@ BOOST_AUTO_TEST_CASE(StringConstructorWrong)
 BOOST_AUTO_TEST_CASE(CharConstructorWrong)
 {
     BOOST_CHECK_THROW(dcmtkpp::Tag("Foobar"), dcmtkpp::Exception);
+}
+
+BOOST_AUTO_TEST_CASE(StringConstructorNumericWrong)
+{
+    BOOST_CHECK_THROW(dcmtkpp::Tag(std::string("XXXXYYYY")), dcmtkpp::Exception);
+}
+
+BOOST_AUTO_TEST_CASE(CharConstructorNumericWrong)
+{
+    BOOST_CHECK_THROW(dcmtkpp::Tag("XXXXYYYY"), dcmtkpp::Exception);
 }
 
 BOOST_AUTO_TEST_CASE(CopyConstructor)

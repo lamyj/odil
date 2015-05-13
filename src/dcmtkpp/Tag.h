@@ -28,18 +28,22 @@ public:
     Tag(uint32_t tag);
 
     /**
-     * @brief Create a tag based on its name.
+     * @brief Create a tag based on its name or string representation of its
+     * numeric value.
      *
-     * If the name cannot be found in the public data dictionary,
-     * a dcmtkpp::Exception is raised.
+     * If the name cannot be found in the public data dictionary, or if the
+     * string is not the representation of a numeric value, a dcmtkpp::Exception
+     * is raised.
      */
     Tag(std::string const & name);
 
     /**
-     * @brief Create a tag based on its name.
+     * @brief Create a tag based on its name or string representation of its
+     * numeric value.
      *
-     * If the name cannot be found in the public data dictionary,
-     * a dcmtkpp::Exception is raised.
+     * If the name cannot be found in the public data dictionary, or if the
+     * string is not the representation of a numeric value, a dcmtkpp::Exception
+     * is raised.
      */
     Tag(char const * name);
 
@@ -74,6 +78,9 @@ public:
 
     /// @brief Loose superiority test.
     bool operator>=(Tag const & other) const;
+
+private:
+    void _from_string(std::string const & string);
 };
 
 }
