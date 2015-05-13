@@ -8,14 +8,17 @@
 
 #include "dcmtkpp/Tag.h"
 
+#include <iomanip>
+#include <ostream>
+#include <sstream>
+#include <string>
+
 #include <dcmtk/config/osconfig.h>
 #include <dcmtk/dcmdata/dcdicent.h>
 #include <dcmtk/dcmdata/dcdict.h>
 #include <dcmtk/dcmdata/dctagkey.h>
 
 #include "dcmtkpp/Exception.h"
-
-#include <boost/lexical_cast.hpp>
 
 namespace dcmtkpp
 {
@@ -158,6 +161,29 @@ Tag
         this->group = tag.getGroup();
         this->element = tag.getElement();
     }
+}
+
+Tag
+::operator std::string() const
+{
+    std::ostringstream stream;
+    stream << (*this);
+    return stream.str();
+}
+
+std::ostream & operator<<(std::ostream & stream, Tag const & tag)
+{
+    std::ostream::char_type const old_fill = stream.fill('0');
+    std::streamsize const old_width = stream.width(4);
+    std::ios::fmtflags const flags = stream.flags();
+
+    stream << std::hex << tag.group << tag.element;
+
+    stream.setf(flags);
+    stream.width(old_width);
+    stream.fill(old_fill);
+
+    return stream;
 }
 
 }

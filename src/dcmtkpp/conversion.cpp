@@ -114,7 +114,16 @@ DcmElement * convert(const Tag & tag, Element const & source)
         destination = new DcmAgeString(destination_tag);
         convert<Value::Strings>(source, destination, &Element::as_string);
     }
-    // AT
+    else if(source.vr == VR::AT)
+    {
+        destination = new DcmAttributeTag(destination_tag);
+        for(unsigned int i=0; i<source.as_string().size(); ++i)
+        {
+            Tag const source_tag(source.as_string()[i]);
+            DcmTagKey const destination_tag = convert(source_tag);
+            destination->putTagVal(destination_tag, i);
+        }
+    }
     else if (source.vr == VR::CS)
     {
         destination = new DcmCodeString(destination_tag);
@@ -237,84 +246,54 @@ Element convert(DcmElement * source)
     Element destination;
 
     DcmEVR const source_vr = source->getTag().getVR().getValidEVR();
+    VR const destination_vr = convert(source_vr);
 
-    if(source_vr == EVR_AE)
+    if(source_vr == EVR_AE || source_vr == EVR_AS || source_vr == EVR_CS ||
+       source_vr == EVR_DA || source_vr == EVR_DT || source_vr == EVR_LO ||
+       source_vr == EVR_LT || source_vr == EVR_PN || source_vr == EVR_SH ||
+       source_vr == EVR_ST || source_vr == EVR_TM || source_vr == EVR_UI ||
+       source_vr == EVR_UT)
     {
-        destination = Element(Value::Strings(), VR::AE);
+        destination = Element(Value::Strings(), destination_vr);
         convert<std::string, Value::Strings>(source, destination, &Element::as_string);
     }
-    else if(source_vr == EVR_AS)
+    else if(source_vr == EVR_AT)
     {
-        destination = Element(Value::Strings(), VR::AS);
-        convert<std::string, Value::Strings>(source, destination, &Element::as_string);
+        destination = Element(Value::Strings(), destination_vr);
+        destination.as_string().reserve(source->getVM());
+        for(unsigned int i=0; i<source->getVM(); ++i)
+        {
+            DcmTagKey source_tag;
+            OFCondition const condition = source->getTagVal(source_tag, i);
+            if(condition.bad())
+            {
+                throw Exception(condition);
+            }
+            Tag const destination_tag = convert(source_tag);
+            destination.as_string().push_back(std::string(destination_tag));
+        }
     }
-    // AT
-    else if(source_vr == EVR_CS)
+    else if(source_vr == EVR_DS || source_vr == EVR_FD)
     {
-        destination = Element(Value::Strings(), VR::CS);
-        convert<std::string, Value::Strings>(source, destination, &Element::as_string);
-    }
-    else if(source_vr == EVR_DA)
-    {
-        destination = Element(Value::Strings(), VR::DA);
-        convert<std::string, Value::Strings>(source, destination, &Element::as_string);
-    }
-    else if(source_vr == EVR_DS)
-    {
-        destination = Element(Value::Reals(), VR::DS);
+        destination = Element(Value::Reals(), destination_vr);
         convert<Float64, Value::Reals>(source, destination, &Element::as_real);
-    }
-    else if(source_vr == EVR_DT)
-    {
-        destination = Element(Value::Strings(), VR::DT);
-        convert<std::string, Value::Strings>(source, destination, &Element::as_string);
     }
     else if(source_vr == EVR_FL)
     {
-        destination = Element(Value::Reals(), VR::FL);
+        destination = Element(Value::Reals(), destination_vr);
         convert<Float32, Value::Reals>(source, destination, &Element::as_real);
     }
-    else if(source_vr == EVR_FD)
+    else if(source_vr == EVR_IS || source_vr == EVR_SL)
     {
-        destination = Element(Value::Reals(), VR::FD);
-        convert<Float64, Value::Reals>(source, destination, &Element::as_real);
-    }
-    else if(source_vr == EVR_IS)
-    {
-        destination = Element(Value::Integers(), VR::IS);
+        destination = Element(Value::Integers(), destination_vr);
         convert<Sint32, Value::Integers>(source, destination, &Element::as_int);
-    }
-    else if(source_vr == EVR_LO)
-    {
-        destination = Element(Value::Strings(), VR::LO);
-        convert<std::string, Value::Strings>(source, destination, &Element::as_string);
-    }
-    else if(source_vr == EVR_LT)
-    {
-        destination = Element(Value::Strings(), VR::LT);
-        convert<std::string, Value::Strings>(source, destination, &Element::as_string);
     }
     // OB
     // OF
     // OW
-    else if(source_vr == EVR_PN)
-    {
-        destination = Element(Value::Strings(), VR::PN);
-        convert<std::string, Value::Strings>(source, destination, &Element::as_string);
-    }
-    else if(source_vr == EVR_SH)
-    {
-        destination = Element(Value::Strings(), VR::SH);
-        convert<std::string, Value::Strings>(source, destination, &Element::as_string);
-    }
-    else if(source_vr == EVR_SL)
-    {
-        destination = Element(Value::Integers(), VR::SL);
-        convert<Sint32, Value::Integers>(source, destination, &Element::as_int);
-    }
     else if(source_vr == EVR_SQ)
     {
-        destination = Element(Value::DataSets(), VR::SQ);
+        destination = Element(Value::DataSets(), destination_vr);
         DcmSequenceOfItems * sequence = dynamic_cast<DcmSequenceOfItems*>(source);
         if(sequence == NULL)
         {
@@ -339,39 +318,19 @@ Element convert(DcmElement * source)
     }
     else if(source_vr == EVR_SS)
     {
-        destination = Element(Value::Integers(), VR::SS);
+        destination = Element(Value::Integers(), destination_vr);
         convert<Sint16, Value::Integers>(source, destination, &Element::as_int);
-    }
-    else if(source_vr == EVR_ST)
-    {
-        destination = Element(Value::Strings(), VR::ST);
-        convert<std::string, Value::Strings>(source, destination, &Element::as_string);
-    }
-    else if(source_vr == EVR_TM)
-    {
-        destination = Element(Value::Strings(), VR::TM);
-        convert<std::string, Value::Strings>(source, destination, &Element::as_string);
-    }
-    else if(source_vr == EVR_UI)
-    {
-        destination = Element(Value::Strings(), VR::UI);
-        convert<std::string, Value::Strings>(source, destination, &Element::as_string);
     }
     else if(source_vr == EVR_UL)
     {
-        destination = Element(Value::Integers(), VR::UL);
+        destination = Element(Value::Integers(), destination_vr);
         convert<Uint32, Value::Integers>(source, destination, &Element::as_int);
     }
     // UN
     else if(source_vr == EVR_US)
     {
-        destination = Element(Value::Integers(), VR::US);
+        destination = Element(Value::Integers(), destination_vr);
         convert<Uint16, Value::Integers>(source, destination, &Element::as_int);
-    }
-    else if(source_vr == EVR_UT)
-    {
-        destination = Element(Value::Strings(), VR::UT);
-        convert<std::string, Value::Strings>(source, destination, &Element::as_string);
     }
     else
     {

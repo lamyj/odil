@@ -162,3 +162,17 @@ BOOST_AUTO_TEST_CASE(SuperiorOrEqual)
     BOOST_CHECK( ! (tag1 >= tag2) );
     BOOST_CHECK( ! (tag3 >= tag1) );
 }
+
+BOOST_AUTO_TEST_CASE(StreamInsertion)
+{
+    dcmtkpp::Tag const tag(0xdead, 0xbeef);
+    std::ostringstream stream;
+    stream << tag;
+    BOOST_CHECK_EQUAL(stream.str(), "deadbeef");
+}
+
+BOOST_AUTO_TEST_CASE(StringConversion)
+{
+    dcmtkpp::Tag const tag(0xdead, 0xbeef);
+    BOOST_CHECK_EQUAL(std::string(tag), "deadbeef");
+}

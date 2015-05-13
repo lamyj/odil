@@ -10,6 +10,7 @@
 #define _5faf4691_e936_476e_8ad3_40f36a167a74
 
 #include <cstddef>
+#include <ostream>
 #include <string>
 
 namespace dcmtkpp
@@ -79,9 +80,15 @@ public:
     /// @brief Loose superiority test.
     bool operator>=(Tag const & other) const;
 
+    /// @brief Convert to string
+    operator std::string() const;
+
 private:
     void _from_string(std::string const & string);
 };
+
+/// @brief Stream inserter
+std::ostream & operator<<(std::ostream & stream, Tag const & tag);
 
 }
 

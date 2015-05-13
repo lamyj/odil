@@ -164,8 +164,6 @@ ElementTest(
     AS, dcmtkpp::Value::Strings, DcmAgeString,
     dcmtkpp::Value::Strings({"012Y", "345D"}), &dcmtkpp::Element::as_string);
 
-// AT
-
 ElementTest(
     CS, dcmtkpp::Value::Strings, DcmCodeString,
     dcmtkpp::Value::Strings({"foo", "bar"}), &dcmtkpp::Element::as_string);
@@ -257,6 +255,54 @@ ElementTest(
     UT, dcmtkpp::Value::Strings, DcmUnlimitedText,
     dcmtkpp::Value::Strings({"foo\nbar\\something else"}),
     &dcmtkpp::Element::as_string);
+
+BOOST_AUTO_TEST_CASE(ATFromDcmtkpp)
+{
+    dcmtkpp::Element const source(
+        dcmtkpp::Value::Strings({"deadbeef", "beeff00d"}), dcmtkpp::VR::AT);
+
+    DcmElement * destination = dcmtkpp::convert(
+        dcmtkpp::Tag(0x1234, 0x5678), source);
+
+    BOOST_CHECK_NE(destination, (DcmElement const *)(NULL));
+
+    BOOST_CHECK_EQUAL(destination->getVR(), dcmtkpp::convert(source.vr));
+    BOOST_CHECK_NE(
+        dynamic_cast<DcmAttributeTag *>(destination),
+        (DcmAttributeTag *)(NULL));
+
+    BOOST_CHECK_EQUAL(destination->getVM(), source.size());
+    for(std::size_t i=0; i<source.size(); ++i)
+    {
+        dcmtkpp::Tag const & source_tag = source.as_string()[i];
+
+        DcmTagKey destination_tag;
+        OFCondition const condition = destination->getTagVal(destination_tag, i);
+        BOOST_CHECK(condition.good());
+
+        BOOST_CHECK(source_tag == dcmtkpp::convert(destination_tag));
+    }
+}
+
+BOOST_AUTO_TEST_CASE(ATToDcmtkpp)
+{
+    DcmAttributeTag source(DcmTag(0x1234, 0x5678, EVR_AT));
+    source.putTagVal(DcmTagKey(0xdead, 0xbeef), 0);
+    source.putTagVal(DcmTagKey(0xbeef, 0xf00d), 1);
+
+    dcmtkpp::Element const destination = dcmtkpp::convert(&source);
+
+    BOOST_CHECK(destination.vr == dcmtkpp::convert(source.getVR()));
+    BOOST_CHECK_EQUAL(source.getVM(), destination.size());
+    for(std::size_t i=0; i<destination.size(); ++i)
+    {
+        DcmTagKey source_tag;
+        source.getTagVal(source_tag, i);
+
+        dcmtkpp::Tag const & destination_tag = destination.as_string()[i];
+        BOOST_CHECK(dcmtkpp::convert(source_tag) == destination_tag);
+    }
+}
 
 BOOST_AUTO_TEST_CASE(SQFromDcmtkpp)
 {
