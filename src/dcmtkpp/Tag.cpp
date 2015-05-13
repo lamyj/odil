@@ -173,11 +173,13 @@ Tag
 
 std::ostream & operator<<(std::ostream & stream, Tag const & tag)
 {
-    std::ostream::char_type const old_fill = stream.fill('0');
-    std::streamsize const old_width = stream.width(4);
+    std::ostream::char_type const old_fill = stream.fill();
+    std::streamsize const old_width = stream.width();
     std::ios::fmtflags const flags = stream.flags();
 
-    stream << std::hex << tag.group << tag.element;
+    stream << std::hex
+           << std::setw(4) << std::setfill('0') << tag.group
+           << std::setw(4) << std::setfill('0') << tag.element;
 
     stream.setf(flags);
     stream.width(old_width);
