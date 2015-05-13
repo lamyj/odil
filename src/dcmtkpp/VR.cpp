@@ -37,6 +37,7 @@ _build_enum_to_name()
     ADD_TO_MAP(result, SQ);
     ADD_TO_MAP(result, SS);
     ADD_TO_MAP(result, ST);
+    ADD_TO_MAP(result, TM);
     ADD_TO_MAP(result, UC);
     ADD_TO_MAP(result, UI);
     ADD_TO_MAP(result, UL);
