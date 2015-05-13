@@ -39,6 +39,13 @@ Element
         apply_visitor(Size(), this->_value));
 }
 
+Value const &
+Element
+::get_value() const
+{
+    return this->_value;
+}
+
 bool
 Element
 ::is_int() const
