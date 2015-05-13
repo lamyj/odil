@@ -66,6 +66,14 @@ public:
     void add(Tag const & tag, VR const & vr);
 
     /**
+     * @brief Add an element to the dataset.
+     *
+     * TValueType must be coherent with the VR.
+     */
+    template<typename TValueType>
+    void add(Tag const & tag, VR const & vr, TValueType const & value);
+
+    /**
      * @brief Add an empty element to the dataset, the VR is guessed.
      *
      * If the VR cannot be guessed (i.e. not in public data dictionary), a
@@ -138,5 +146,7 @@ private:
 };
 
 }
+
+#include "dcmtkpp/DataSet.txx"
 
 #endif // _8424446e_1153_4acc_9f57_e86faa7246e3
