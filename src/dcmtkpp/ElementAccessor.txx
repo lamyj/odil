@@ -142,6 +142,66 @@ set_string(
     }
 }
 
+template<typename TValueType>
+TValueType
+get_binary(DcmElement const & element, unsigned long const position)
+{
+    if(position != 0)
+    {
+        throw Exception("Position must be 0 for binary VRs");
+    }
+
+    DcmEVR const evr = element.getTag().getVR().getValidEVR();
+
+    TValueType result;
+    OFCondition condition;
+
+    typename TValueType::value_type * data=NULL;
+    if(evr == EVR_OB || evr == EVR_UN)
+    {
+        Uint8 * typed_data;
+        condition = const_cast<DcmElement&>(element).getUint8Array(typed_data);
+        data = reinterpret_cast<typename TValueType::value_type *>(typed_data);
+    }
+    else if(evr == EVR_OW)
+    {
+        Uint16 * typed_data;
+        condition = const_cast<DcmElement&>(element).getUint16Array(typed_data);
+        data = reinterpret_cast<typename TValueType::value_type *>(typed_data);
+    }
+    else if(evr == EVR_OF)
+    {
+        Float32 * typed_data;
+        condition = const_cast<DcmElement&>(element).getFloat32Array(typed_data);
+        data = reinterpret_cast<typename TValueType::value_type *>(typed_data);
+    }
+    else
+    {
+        throw Exception(
+            std::string("Unknown VR: ") +
+            element.getTag().getVR().getValidVRName());
+    }
+
+    if(condition.bad())
+    {
+        throw Exception(condition);
+    }
+
+    result.resize(element.getLengthField());
+    std::copy(data, data+element.getLengthField(), result.begin());
+
+    return result;
+}
+
+template<typename TValueType>
+void
+set_binary(
+    DcmElement & element, TValueType const & value,
+    unsigned long const position)
+{
+
+}
+
 }
 
 #endif // _f9af3e63_3597_4513_8c10_b55058f5370b

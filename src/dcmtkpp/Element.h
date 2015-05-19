@@ -115,6 +115,23 @@ public:
      */
     Value::DataSets & as_data_set();
 
+    /// @brief Test whether the value contains data sets.
+    bool is_binary() const;
+
+    /**
+     * @brief Return the binary data contained in the element.
+     *
+     * If the element does not contain binary data, a dcmtkpp::Exception is raised.
+     */
+    Value::Binary const & as_binary() const;
+
+    /**
+     * @brief Return the binary data contained in the element.
+     *
+     * If the element does not contain binary data, a dcmtkpp::Exception is raised.
+     */
+    Value::Binary & as_binary();
+
     /// @brief Equality test
     bool operator==(Element const & other) const;
 
@@ -147,6 +164,14 @@ private:
 
     Value _value;
 };
+
+/**
+ * @brief Visitor of elements.
+ */
+template<typename TVisitor>
+typename TVisitor::result_type
+apply_visitor(TVisitor const & visitor, Element const & element);
+
 
 }
 

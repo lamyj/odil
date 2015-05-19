@@ -131,6 +131,26 @@ Element::as_data_set()
 
 bool
 Element
+::is_binary() const
+{
+    return (this->_value.get_type() == Value::Type::Binary);
+}
+
+Value::Binary const &
+Element
+::as_binary() const
+{
+    return this->_value.as_binary();
+}
+
+Value::Binary &
+Element::as_binary()
+{
+    return this->_value.as_binary();
+}
+
+bool
+Element
 ::operator==(Element const & other) const
 {
     return (this->vr == other.vr) && (this->_value == other._value);

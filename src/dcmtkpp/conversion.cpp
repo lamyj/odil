@@ -320,8 +320,8 @@ Element convert(DcmElement * source)
     else if(source_vr == EVR_OB || source_vr == EVR_OF || source_vr == EVR_OW ||
             source_vr == EVR_UN)
     {
-        destination = Element(Value::Strings(), destination_vr);
-        convert<std::string, Value::Strings>(source, destination, &Element::as_string);
+        destination = Element(Value::Binary(), destination_vr);
+        convert<std::vector<uint8_t>, Value::Binary>(source, destination, &Element::as_binary);
     }
     else if(source_vr == EVR_US)
     {

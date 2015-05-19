@@ -77,6 +77,16 @@ void convert(
     }
 }
 
+template<>
+void convert<std::vector<uint8_t>, Value::Binary>(
+    DcmElement * source, Element & destination,
+    Value::Binary & (Element::*getter)())
+{
+    auto & destination_values = (destination.*getter)();
+    destination_values =
+        dcmtkpp::ElementAccessor<std::vector<uint8_t>>::element_get(*source, 0);
+}
+
 }
 
 #endif // _665b5269_140c_4320_94f2_ad8a7c052e9b

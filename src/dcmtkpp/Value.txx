@@ -39,6 +39,10 @@ apply_visitor(TVisitor const & visitor, Value const & value)
     {
         return visitor(value.as_data_sets());
     }
+    else if(value.get_type() == Value::Type::Binary)
+    {
+        return visitor(value.as_binary());
+    }
     else
     {
         throw Exception("Unknown value type");

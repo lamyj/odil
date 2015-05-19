@@ -8,6 +8,9 @@
 
 #include "dcmtkpp/ElementAccessor.h"
 
+#include <string>
+#include <vector>
+
 namespace dcmtkpp
 {
 
@@ -23,6 +26,7 @@ ElementAccessor<TValueType>\
 ::element_set = setter<TValueType>;
 
 DEFINE_ELEMENT_ACCESSOR(std::string, get_string, set_string)
+DEFINE_ELEMENT_ACCESSOR(std::vector<uint8_t>, get_binary, set_binary)
 DEFINE_ELEMENT_ACCESSOR(Float32, get_default, set_default)
 DEFINE_ELEMENT_ACCESSOR(Float64, get_default, set_default)
 DEFINE_ELEMENT_ACCESSOR(Sint16, get_default, set_default)

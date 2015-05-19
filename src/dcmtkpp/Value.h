@@ -31,7 +31,8 @@ public:
         Integers,
         Reals,
         Strings,
-        DataSets
+        DataSets,
+        Binary
     };
 
     /// @brief Integer container.
@@ -45,6 +46,9 @@ public:
 
     /// @brief Data sets container.
     typedef std::vector<DataSet> DataSets;
+
+    /// @brief Binary data container.
+    typedef std::vector<uint8_t> Binary;
 
     /// @brief Build an empty value.
     Value();
@@ -60,6 +64,9 @@ public:
 
     /// @brief Build a value from data sets.
     Value(DataSets const & datasets);
+
+    /// @brief Build a value from binary data.
+    Value(Binary const & binary);
 
     /// @brief Return the type store in the value.
     Type get_type() const;
@@ -120,6 +127,20 @@ public:
      */
     DataSets & as_data_sets();
 
+    /**
+     * @brief Return the binary data contained in the value.
+     *
+     * If the value does not contain binary data, a dcmtkpp::Exception is raised.
+     */
+    Binary const & as_binary() const;
+
+    /**
+     * @brief Return the binary data contained in the value.
+     *
+     * If the value does not contain binary data, a dcmtkpp::Exception is raised.
+     */
+    Binary & as_binary();
+
     /// @brief Equality test.
     bool operator==(Value const & other) const;
 
@@ -131,6 +152,7 @@ private:
     Reals _reals;
     Strings _strings;
     DataSets _data_sets;
+    Binary _binary;
 
     Type _type;
 };

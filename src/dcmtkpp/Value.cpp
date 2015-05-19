@@ -53,6 +53,13 @@ Value
     // Nothing else.
 }
 
+Value
+::Value(Binary const & binary)
+: _type(Type::Binary), _binary(binary)
+{
+    // Nothing else.
+}
+
 Value::Type
 Value
 ::get_type() const
@@ -96,6 +103,9 @@ DECLARE_NON_CONST_ACCESSOR(Strings, strings)
 DECLARE_CONST_ACCESSOR(DataSets, data_sets)
 DECLARE_NON_CONST_ACCESSOR(DataSets, data_sets)
 
+DECLARE_CONST_ACCESSOR(Binary, binary)
+DECLARE_NON_CONST_ACCESSOR(Binary, binary)
+
 #undef DECLARE_NON_CONST_ACCESSOR
 #undef DECLARE_CONST_ACCESSOR
 
@@ -126,6 +136,10 @@ Value
     else if(this->_type == Value::Type::DataSets)
     {
         return this->_data_sets == other._data_sets;
+    }
+    else if(this->_type == Value::Type::Binary)
+    {
+        return this->_binary == other._binary;
     }
     else
     {
