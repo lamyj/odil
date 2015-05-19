@@ -23,7 +23,23 @@ namespace dcmtkpp
 OFCondition
 getString(DcmElement & element, OFString & value, unsigned long const position)
 {
-    return element.getOFString(value, position);
+    OFCondition condition;
+
+    DcmEVR const evr = element.getTag().getVR().getValidEVR();
+    if(evr == EVR_OB || evr == EVR_OF || evr == EVR_OW || evr == EVR_UN)
+    {
+        if(position != 0)
+        {
+            throw Exception("Position must be 0 for binary VRs");
+        }
+        condition = element.getOFStringArray(value);
+    }
+    else
+    {
+         condition = element.getOFString(value, position);
+    }
+
+    return condition;
 }
 
 OFCondition

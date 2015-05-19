@@ -288,9 +288,6 @@ Element convert(DcmElement * source)
         destination = Element(Value::Integers(), destination_vr);
         convert<Sint32, Value::Integers>(source, destination, &Element::as_int);
     }
-    // OB
-    // OF
-    // OW
     else if(source_vr == EVR_SQ)
     {
         destination = Element(Value::DataSets(), destination_vr);
@@ -320,7 +317,12 @@ Element convert(DcmElement * source)
         destination = Element(Value::Integers(), destination_vr);
         convert<Uint32, Value::Integers>(source, destination, &Element::as_int);
     }
-    // UN
+    else if(source_vr == EVR_OB || source_vr == EVR_OF || source_vr == EVR_OW ||
+            source_vr == EVR_UN)
+    {
+        destination = Element(Value::Strings(), destination_vr);
+        convert<std::string, Value::Strings>(source, destination, &Element::as_string);
+    }
     else if(source_vr == EVR_US)
     {
         destination = Element(Value::Integers(), destination_vr);
