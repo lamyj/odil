@@ -40,6 +40,19 @@ struct ToJSONVisitor
         return result;
     }
 
+    result_type operator()(VR const vr, Value::Integers const & value) const
+    {
+        result_type result;
+
+        result["vr"] = as_string(vr);
+
+        for(auto const & item: value)
+        {
+            result["Value"].append(Json::Int64(item));
+        }
+
+    }
+
     result_type operator()(VR const vr, Value::Strings const & value) const
     {
         result_type result;
