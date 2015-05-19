@@ -4,7 +4,7 @@ add_definitions("-D HAVE_CONFIG_H")
 
 add_library(dcmtkpp SHARED ${files})
 
-target_link_libraries(dcmtkpp dcmnet dcmdata oflog ofstd pthread z)
+target_link_libraries(dcmtkpp dcmnet dcmdata oflog ofstd pthread z jsoncpp)
 
 find_library(USE_WRAP wrap)
 if(USE_WRAP)

@@ -4,7 +4,7 @@ compiler:
   - clang
 before_install:
   - sudo apt-get update -qq
-  - sudo apt-get install -y libdcmtk2-dev libwrap0-dev libboost-test-dev dcmtk
+  - sudo apt-get install -y libdcmtk2-dev libwrap0-dev libjsoncpp-dev libboost-test-dev dcmtk
   - sudo pip install cpp-coveralls
 before_script:
   - export SRC_DIR=$PWD
