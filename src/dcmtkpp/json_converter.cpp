@@ -121,7 +121,7 @@ struct ToJSONVisitor
 
         for(auto const & item: value)
         {
-            result["Value"].append(to_json(item));
+            result["Value"].append(as_json(item));
         }
         return result;
     }
@@ -143,7 +143,7 @@ struct ToJSONVisitor
 
 };
 
-Json::Value to_json(DataSet const & data_set)
+Json::Value as_json(DataSet const & data_set)
 {
     Json::Value json;
 
@@ -158,6 +158,114 @@ Json::Value to_json(DataSet const & data_set)
     }
 
     return json;
+}
+
+DataSet as_dataset(Json::Value const & json)
+{
+    DataSet data_set;
+
+    for(Json::Value::const_iterator it=json.begin(); it != json.end(); ++it)
+    {
+        Tag const tag(it.memberName());
+
+        Json::Value const & json_element = *it;
+        VR const vr = as_vr(json_element["vr"].asString());
+
+        Element element;
+
+        if(vr == VR::AE || vr == VR::AS || vr == VR::AT || vr == VR::CS ||
+           vr == VR::DA || vr == VR::DT || vr == VR::LO || vr == VR::LT ||
+           vr == VR::SH || vr == VR::ST || vr == VR::TM || vr == VR::UI ||
+           vr == VR::UT)
+        {
+            element = Element(Value::Strings(), vr);
+
+            auto const & json_value = json_element["Value"];
+            for(auto const & json_item: json_value)
+            {
+                element.as_string().push_back(json_item.asString());
+            }
+        }
+        else if(vr == VR::PN)
+        {
+            element = Element(Value::Strings(), vr);
+            auto const & json_value = json_element["Value"];
+            for(auto const & json_item: json_value)
+            {   
+                Value::Strings::value_type dicom_item;
+                auto const fields = { "Alphabetic", "Ideographic", "Phonetic" };
+                for(auto const & field: fields)
+                {
+                    if(json_item.isMember(field))
+                    {
+                        dicom_item += json_item[field].asString();
+                    }
+                    dicom_item += "=";
+                }
+
+                while(*dicom_item.rbegin() == '=')
+                {
+                    dicom_item = dicom_item.substr(0, dicom_item.size()-1);
+                }
+
+                element.as_string().push_back(dicom_item);
+            }
+        }
+        else if(vr == VR::DS || vr == VR::FD || vr == VR::FL)
+        {
+            element = Element(Value::Reals(), vr);
+
+            auto const & json_value = json_element["Value"];
+            for(auto const & json_item: json_value)
+            {
+                element.as_real().push_back(json_item.asDouble());
+            }
+        }
+        else if(vr == VR::IS || vr == VR::SL || vr == VR::SS ||
+                vr == VR::UL || vr == VR::US)
+        {
+            element = Element(Value::Integers(), vr);
+
+            auto const & json_value = json_element["Value"];
+            for(auto const & json_item: json_value)
+            {
+                element.as_int().push_back(json_item.asInt64());
+            }
+        }
+        else if(vr == VR::SQ)
+        {
+            element = Element(Value::DataSets(), vr);
+            auto const & json_value = json_element["Value"];
+            for(auto const & json_item: json_value)
+            {
+                auto const dicom_item = as_dataset(json_item);
+                element.as_data_set().push_back(dicom_item);
+            }
+        }
+        else if(vr == VR::OB || vr == VR::OF || vr == VR::OW || vr == VR::UN)
+        {
+            element = Element(Value::Binary(), vr);
+
+            auto const & encoded = json_element["InlineBinary"].asString();
+            OFString const encoded_dcmtk(encoded.c_str());
+            unsigned char * decoded;
+            size_t const decoded_size =
+                OFStandard::decodeBase64(encoded_dcmtk, decoded);
+
+            element.as_binary().resize(decoded_size);
+            std::copy(decoded, decoded+decoded_size, element.as_binary().begin());
+
+            delete[] decoded;
+        }
+        else
+        {
+            throw Exception("Unknown VR: "+as_string(vr));
+        }
+
+        data_set.add(tag, element);
+    }
+
+    return data_set;
 }
 
 }

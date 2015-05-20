@@ -15,7 +15,11 @@
 namespace dcmtkpp
 {
 
-Json::Value to_json(DataSet const & data_set);
+/// @brief Convert a data set to its JSON representation.
+Json::Value as_json(DataSet const & data_set);
+
+/// @brief Create a data set from its JSON representation.
+DataSet as_dataset(Json::Value const & json);
 
 }
 

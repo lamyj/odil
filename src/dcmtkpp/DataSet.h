@@ -122,6 +122,7 @@ public:
     dcmtkppElementTypeMacro(real, Reals);
     dcmtkppElementTypeMacro(string, Strings);
     dcmtkppElementTypeMacro(data_set, DataSets);
+    dcmtkppElementTypeMacro(binary, Binary);
 
     typedef std::map<Tag, Element>::const_iterator const_iterator;
     const_iterator begin() const { return this->_elements.begin(); }
