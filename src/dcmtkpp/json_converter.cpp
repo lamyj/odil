@@ -50,7 +50,7 @@ struct ToJSONVisitor
         {
             result["Value"].append(Json::Int64(item));
         }
-
+        return result;
     }
 
     result_type operator()(VR const vr, Value::Strings const & value) const
@@ -67,17 +67,17 @@ struct ToJSONVisitor
             {
                 auto fields_it = fields.begin();
 
+                Json::Value json_item;
+
                 std::string::size_type begin=0;
                 while(begin != std::string::npos)
                 {
-                    Json::Value json_item;
-
                     std::string::size_type const end = item.find("=", begin);
 
                     std::string::size_type size = 0;
                     if(end != std::string::npos)
                     {
-                        size = end-begin+1;
+                        size = end-begin;
                     }
                     else
                     {
@@ -99,9 +99,8 @@ struct ToJSONVisitor
                     {
                         begin = end;
                     }
-
-                    result["Value"].append(json_item);
                 }
+                result["Value"].append(json_item);
             }
         }
         else
@@ -154,7 +153,8 @@ Json::Value to_json(DataSet const & data_set)
         auto const & element = it.second;
 
         std::string const key(tag);
-        json[key] = apply_visitor(ToJSONVisitor(), element);
+        auto const value = apply_visitor(ToJSONVisitor(), element);
+        json[key] = value;
     }
 
     return json;
