@@ -20,15 +20,17 @@ BOOST_AUTO_TEST_CASE(Empty)
     BOOST_REQUIRE(json.empty());
 }
 
-template<typename TChecker, typename TValue>
-void check_json_array(Json::Value const & object, TChecker checker, TValue const & expected)
+template<typename TChecker, typename TGetter, typename TValue>
+void check_json_array(
+    Json::Value const & object, TChecker checker, TGetter getter,
+    TValue const & expected)
 {
     BOOST_REQUIRE(object.isArray());
     BOOST_REQUIRE_EQUAL(object.size(), expected.size());
     for(Json::ArrayIndex i=0; i<object.size(); ++i)
     {
         BOOST_REQUIRE((object[i].*checker)());
-        BOOST_REQUIRE_EQUAL(object[i], expected[i]);
+        BOOST_REQUIRE_EQUAL((object[i].*getter)(), expected[i]);
     }
 }
 
@@ -57,7 +59,7 @@ BOOST_AUTO_TEST_CASE(Integers)
     check_json_object(json["deadbeef"], {"vr", "Value"});
     check_json_string(json["deadbeef"]["vr"], "SS");
     check_json_array(json["deadbeef"]["Value"],
-        &Json::Value::isInt, data_set.as_int(0xdeadbeef));
+        &Json::Value::isInt, &Json::Value::asInt, data_set.as_int(0xdeadbeef));
 }
 
 BOOST_AUTO_TEST_CASE(Reals)
@@ -70,7 +72,7 @@ BOOST_AUTO_TEST_CASE(Reals)
     check_json_object(json["deadbeef"], {"vr", "Value"});
     check_json_string(json["deadbeef"]["vr"], "FL");
     check_json_array(json["deadbeef"]["Value"],
-        &Json::Value::isDouble, data_set.as_real(0xdeadbeef));
+        &Json::Value::isDouble, &Json::Value::asDouble, data_set.as_real(0xdeadbeef));
 }
 
 BOOST_AUTO_TEST_CASE(Strings)
@@ -85,7 +87,7 @@ BOOST_AUTO_TEST_CASE(Strings)
     check_json_object(json["deadbeef"], {"vr", "Value"});
     check_json_string(json["deadbeef"]["vr"], "CS");
     check_json_array(json["deadbeef"]["Value"],
-        &Json::Value::isString, data_set.as_string(0xdeadbeef));
+        &Json::Value::isString, &Json::Value::asString, data_set.as_string(0xdeadbeef));
 }
 
 BOOST_AUTO_TEST_CASE(PersonName)
@@ -133,7 +135,7 @@ BOOST_AUTO_TEST_CASE(DataSets)
     check_json_object(json["deadbeef"]["Value"][0]["beeff00d"], {"vr", "Value"});
     check_json_string(json["deadbeef"]["Value"][0]["beeff00d"]["vr"], "SS");
     check_json_array(json["deadbeef"]["Value"][0]["beeff00d"]["Value"],
-        &Json::Value::isInt, item.as_int(0xbeeff00d));
+        &Json::Value::isInt, &Json::Value::asInt, item.as_int(0xbeeff00d));
 }
 
 BOOST_AUTO_TEST_CASE(Binary)
