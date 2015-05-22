@@ -8,6 +8,7 @@
 
 #include "dcmtkpp/unicode.h"
 
+#include <algorithm>
 #include <map>
 #include <set>
 #include <sstream>
