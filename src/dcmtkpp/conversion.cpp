@@ -241,6 +241,16 @@ DcmElement * convert(const Tag & tag, Element const & source)
     return destination;
 }
 
+template<>
+void convert<std::vector<uint8_t>, Value::Binary>(
+    DcmElement * source, Element & destination,
+    Value::Binary & (Element::*getter)())
+{
+    auto & destination_values = (destination.*getter)();
+    destination_values =
+        dcmtkpp::ElementAccessor<std::vector<uint8_t>>::element_get(*source, 0);
+}
+
 Element convert(DcmElement * source)
 {
     Element destination;
