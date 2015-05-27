@@ -13,6 +13,11 @@
 
 #include <typeinfo>
 
+#include <dcmtk/config/osconfig.h>
+#include <dcmtk/dcmdata/dctagkey.h>
+#include <dcmtk/dcmdata/dcdicent.h>
+#include <dcmtk/dcmdata/dcdict.h>
+
 #include "dcmtkpp/Exception.h"
 #include "dcmtkpp/Value.h"
 
@@ -58,6 +63,22 @@ DataSet
     }
 
     this->add(tag, Element(value, vr));
+}
+
+template<typename TValueType>
+void
+DataSet
+::add(Tag const & tag, TValueType const & value)
+{
+    DcmTagKey const dcmtk_tag(tag.group, tag.element);
+    DcmDictEntry const * entry = dcmDataDict.rdlock().findEntry(dcmtk_tag, NULL);
+    if(entry == NULL)
+    {
+        throw Exception("No such element");
+    }
+
+    VR const vr(as_vr(entry->getVR().getValidVRName()));
+    this->add(tag, vr, value);
 }
 
 }

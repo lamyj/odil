@@ -40,6 +40,34 @@ BOOST_AUTO_TEST_CASE(AddImplicitVR)
     BOOST_CHECK(dataset.get_vr(tag) == dcmtkpp::VR::PN);
 }
 
+BOOST_AUTO_TEST_CASE(AddValueExplicitVR)
+{
+    dcmtkpp::Tag const tag("PatientName");
+
+    dcmtkpp::DataSet dataset;
+    dataset.add(tag, dcmtkpp::VR::PN, dcmtkpp::Value::Strings({ "Doe^John"}));
+
+    BOOST_CHECK(!dataset.empty());
+    BOOST_CHECK_EQUAL(dataset.size(), 1);
+    BOOST_CHECK(dataset.has(tag));
+    BOOST_CHECK(dataset.get_vr(tag) == dcmtkpp::VR::PN);
+    BOOST_CHECK(dataset.as_string(tag) == dcmtkpp::Value::Strings({ "Doe^John" }));
+}
+
+BOOST_AUTO_TEST_CASE(AddValueImplicitVR)
+{
+    dcmtkpp::Tag const tag("PatientName");
+
+    dcmtkpp::DataSet dataset;
+    dataset.add(tag, dcmtkpp::Value::Strings({ "Doe^John"}));
+
+    BOOST_CHECK(!dataset.empty());
+    BOOST_CHECK_EQUAL(dataset.size(), 1);
+    BOOST_CHECK(dataset.has(tag));
+    BOOST_CHECK(dataset.get_vr(tag) == dcmtkpp::VR::PN);
+    BOOST_CHECK(dataset.as_string(tag) == dcmtkpp::Value::Strings({ "Doe^John" }));
+}
+
 BOOST_AUTO_TEST_CASE(AddInvalidVR)
 {
     dcmtkpp::Tag const tag("PatientName");
@@ -127,7 +155,7 @@ BOOST_AUTO_TEST_CASE(ModifyInt)
 
     BOOST_CHECK(!dataset.empty(tag));
     BOOST_CHECK_EQUAL(dataset.size(tag), 1);
-    BOOST_CHECK_EQUAL(dataset.as_int(tag)[0], 256);
+    BOOST_CHECK_EQUAL(dataset.as_int(tag, 0), 256);
 }
 
 BOOST_AUTO_TEST_CASE(ModifyDouble)
@@ -140,7 +168,7 @@ BOOST_AUTO_TEST_CASE(ModifyDouble)
 
     BOOST_CHECK(!dataset.empty(tag));
     BOOST_CHECK_EQUAL(dataset.size(tag), 1);
-    BOOST_CHECK_EQUAL(dataset.as_real(tag)[0], 3.14);
+    BOOST_CHECK_EQUAL(dataset.as_real(tag, 0), 3.14);
 }
 
 BOOST_AUTO_TEST_CASE(ModifyString)
@@ -153,7 +181,7 @@ BOOST_AUTO_TEST_CASE(ModifyString)
 
     BOOST_CHECK(!dataset.empty(tag));
     BOOST_CHECK_EQUAL(dataset.size(tag), 1);
-    BOOST_CHECK_EQUAL(dataset.as_string(tag)[0], "FooBar");
+    BOOST_CHECK_EQUAL(dataset.as_string(tag, 0), "FooBar");
 }
 
 BOOST_AUTO_TEST_CASE(ModifyDataSet)

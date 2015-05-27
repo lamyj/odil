@@ -40,6 +40,15 @@ Value::Type const & as_##name(Tag const & tag) const \
     } \
     return it->second.as_##name(); \
 } \
+Value::Type::value_type const & as_##name(Tag const & tag, int position) const \
+{ \
+    auto const & data = this->as_##name(tag); \
+    if(data.size() <= position) \
+    { \
+        throw Exception("No such element"); \
+    } \
+    return data[position]; \
+} \
 Value::Type & as_##name(Tag const & tag) \
 { \
     auto const it = this->_elements.find(tag); \
@@ -48,7 +57,7 @@ Value::Type & as_##name(Tag const & tag) \
         throw Exception("No such element"); \
     } \
     return it->second.as_##name(); \
-} 
+}
 
 /**
  * @brief DICOM Data set.
@@ -72,6 +81,14 @@ public:
      */
     template<typename TValueType>
     void add(Tag const & tag, VR const & vr, TValueType const & value);
+
+    /**
+     * @brief Add an element to the dataset.
+     *
+     * TValueType must be coherent with the implicit VR of the tag.
+     */
+    template<typename TValueType>
+    void add(Tag const & tag, TValueType const & value);
 
     /**
      * @brief Add an empty element to the dataset, the VR is guessed.
