@@ -60,6 +60,42 @@ Value
     // Nothing else.
 }
 
+Value
+::Value(std::initializer_list<int> const & list)
+: _type(Type::Integers)
+{
+    this->_integers.resize(list.size());
+    std::copy(list.begin(), list.end(), this->_integers.begin());
+}
+
+Value
+::Value(std::initializer_list<Integer> const & list)
+: _type(Type::Integers), _integers(list)
+{
+    // Nothing else
+}
+
+Value
+::Value(std::initializer_list<Real> const & list)
+: _type(Type::Reals), _reals(list)
+{
+    // Nothing else
+}
+
+Value
+::Value(std::initializer_list<String> const & list)
+: _type(Type::Strings), _strings(list)
+{
+    // Nothing else
+}
+
+Value
+::Value(std::initializer_list<DataSet> const & list)
+: _type(Type::DataSets), _data_sets(list)
+{
+    // Nothing else
+}
+
 Value::Type
 Value
 ::get_type() const

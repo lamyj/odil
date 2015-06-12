@@ -10,6 +10,7 @@
 #define _dca5b15b_b8df_4925_a446_d42efe06c923
 
 #include <cstdint>
+#include <initializer_list>
 #include <string>
 #include <vector>
 
@@ -35,14 +36,20 @@ public:
         Binary
     };
 
+    typedef int64_t Integer;
+
+    typedef double Real;
+
+    typedef std::string String;
+
     /// @brief Integer container.
-    typedef std::vector<int64_t> Integers;
+    typedef std::vector<Integer> Integers;
 
     /// @brief Real container.
-    typedef std::vector<double> Reals;
+    typedef std::vector<Real> Reals;
 
     /// @brief String container.
-    typedef std::vector<std::string> Strings;
+    typedef std::vector<String> Strings;
 
     /// @brief Data sets container.
     typedef std::vector<DataSet> DataSets;
@@ -67,6 +74,21 @@ public:
 
     /// @brief Build a value from binary data.
     Value(Binary const & binary);
+
+    /// @brief Build a value from integers.
+    Value(std::initializer_list<int> const & list);
+
+    /// @brief Build a value from integers.
+    Value(std::initializer_list<Integer> const & list);
+
+    /// @brief Build a value from reals.
+    Value(std::initializer_list<Real> const & list);
+
+    /// @brief Build a value from strings.
+    Value(std::initializer_list<String> const & list);
+
+    /// @brief Build a value from data sets.
+    Value(std::initializer_list<DataSet> const & list);
 
     /// @brief Return the type store in the value.
     Type get_type() const;

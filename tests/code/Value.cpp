@@ -18,7 +18,7 @@ BOOST_AUTO_TEST_CASE(Empty)
 
 BOOST_AUTO_TEST_CASE(Integers)
 {
-    dcmtkpp::Value const value(dcmtkpp::Value::Integers({1234}));
+    dcmtkpp::Value const value({1234});
 
     BOOST_CHECK(value.get_type() == dcmtkpp::Value::Type::Integers);
     BOOST_CHECK(value.as_integers() == dcmtkpp::Value::Integers({1234}));
@@ -30,14 +30,14 @@ BOOST_AUTO_TEST_CASE(Integers)
 
 BOOST_AUTO_TEST_CASE(ModifyIntegers)
 {
-    dcmtkpp::Value value(dcmtkpp::Value::Integers({1234}));
+    dcmtkpp::Value value({1234});
     value.as_integers().push_back(5678);
     BOOST_CHECK(value.as_integers() == dcmtkpp::Value::Integers({1234, 5678}));
 }
 
 BOOST_AUTO_TEST_CASE(Reals)
 {
-    dcmtkpp::Value const value(dcmtkpp::Value::Reals({12.34}));
+    dcmtkpp::Value const value({12.34});
 
     BOOST_CHECK(value.get_type() == dcmtkpp::Value::Type::Reals);
     BOOST_CHECK(value.as_reals() == dcmtkpp::Value::Reals({12.34}));
@@ -49,14 +49,14 @@ BOOST_AUTO_TEST_CASE(Reals)
 
 BOOST_AUTO_TEST_CASE(ModifyReals)
 {
-    dcmtkpp::Value value(dcmtkpp::Value::Reals({12.34}));
+    dcmtkpp::Value value({12.34});
     value.as_reals().push_back(56.78);
     BOOST_CHECK(value.as_reals() == dcmtkpp::Value::Reals({12.34, 56.78}));
 }
 
 BOOST_AUTO_TEST_CASE(Strings)
 {
-    dcmtkpp::Value const value(dcmtkpp::Value::Strings({"foo"}));
+    dcmtkpp::Value const value({"foo"});
 
     BOOST_CHECK(value.get_type() == dcmtkpp::Value::Type::Strings);
     BOOST_CHECK(value.as_strings() == dcmtkpp::Value::Strings({"foo"}));
@@ -68,7 +68,7 @@ BOOST_AUTO_TEST_CASE(Strings)
 
 BOOST_AUTO_TEST_CASE(ModifyStrings)
 {
-    dcmtkpp::Value value(dcmtkpp::Value::Strings({"foo"}));
+    dcmtkpp::Value value({"foo"});
     value.as_strings().push_back("bar");
     BOOST_CHECK(value.as_strings() == dcmtkpp::Value::Strings({"foo", "bar"}));
 }
@@ -120,10 +120,10 @@ BOOST_AUTO_TEST_CASE(EqualityEmpty)
 
 BOOST_AUTO_TEST_CASE(EqualityIntegers)
 {
-    dcmtkpp::Value const value1(dcmtkpp::Value::Integers({1,2}));
-    dcmtkpp::Value const value2(dcmtkpp::Value::Integers({1,2}));
-    dcmtkpp::Value const value3(dcmtkpp::Value::Integers({3,4}));
-    dcmtkpp::Value const value4(dcmtkpp::Value::Reals({3,4}));
+    dcmtkpp::Value const value1({1,2});
+    dcmtkpp::Value const value2({1,2});
+    dcmtkpp::Value const value3({3,4});
+    dcmtkpp::Value const value4({3,4});
     BOOST_CHECK(value1 == value2);
     BOOST_CHECK( ! (value1 == value3));
     BOOST_CHECK( ! (value1 == value4));
@@ -131,10 +131,10 @@ BOOST_AUTO_TEST_CASE(EqualityIntegers)
 
 BOOST_AUTO_TEST_CASE(EqualityReals)
 {
-    dcmtkpp::Value const value1(dcmtkpp::Value::Reals({1,2}));
-    dcmtkpp::Value const value2(dcmtkpp::Value::Reals({1,2}));
-    dcmtkpp::Value const value3(dcmtkpp::Value::Reals({3,4}));
-    dcmtkpp::Value const value4(dcmtkpp::Value::Integers({3,4}));
+    dcmtkpp::Value const value1({1,2});
+    dcmtkpp::Value const value2({1,2});
+    dcmtkpp::Value const value3({3,4});
+    dcmtkpp::Value const value4({3,4});
     BOOST_CHECK(value1 == value2);
     BOOST_CHECK( ! (value1 == value3));
     BOOST_CHECK( ! (value1 == value4));
@@ -142,10 +142,10 @@ BOOST_AUTO_TEST_CASE(EqualityReals)
 
 BOOST_AUTO_TEST_CASE(EqualityStrings)
 {
-    dcmtkpp::Value const value1(dcmtkpp::Value::Strings({"1","2"}));
-    dcmtkpp::Value const value2(dcmtkpp::Value::Strings({"1","2"}));
-    dcmtkpp::Value const value3(dcmtkpp::Value::Strings({"3","4"}));
-    dcmtkpp::Value const value4(dcmtkpp::Value::Integers({3,4}));
+    dcmtkpp::Value const value1({"1","2"});
+    dcmtkpp::Value const value2({"1","2"});
+    dcmtkpp::Value const value3({"3","4"});
+    dcmtkpp::Value const value4({3,4});
     BOOST_CHECK(value1 == value2);
     BOOST_CHECK( ! (value1 == value3));
     BOOST_CHECK( ! (value1 == value4));
@@ -181,10 +181,10 @@ BOOST_AUTO_TEST_CASE(DifferenceEmpty)
 
 BOOST_AUTO_TEST_CASE(DifferenceIntegers)
 {
-    dcmtkpp::Value const value1(dcmtkpp::Value::Integers({1,2}));
-    dcmtkpp::Value const value2(dcmtkpp::Value::Integers({1,2}));
-    dcmtkpp::Value const value3(dcmtkpp::Value::Integers({3,4}));
-    dcmtkpp::Value const value4(dcmtkpp::Value::Reals({3,4}));
+    dcmtkpp::Value const value1({1,2});
+    dcmtkpp::Value const value2({1,2});
+    dcmtkpp::Value const value3({3,4});
+    dcmtkpp::Value const value4({3,4});
     BOOST_CHECK(! (value1 != value2));
     BOOST_CHECK(value1 != value3);
     BOOST_CHECK(value1 != value4);
@@ -192,10 +192,10 @@ BOOST_AUTO_TEST_CASE(DifferenceIntegers)
 
 BOOST_AUTO_TEST_CASE(DifferenceReals)
 {
-    dcmtkpp::Value const value1(dcmtkpp::Value::Reals({1,2}));
-    dcmtkpp::Value const value2(dcmtkpp::Value::Reals({1,2}));
-    dcmtkpp::Value const value3(dcmtkpp::Value::Reals({3,4}));
-    dcmtkpp::Value const value4(dcmtkpp::Value::Integers({3,4}));
+    dcmtkpp::Value const value1({1.,2.});
+    dcmtkpp::Value const value2({1.,2.});
+    dcmtkpp::Value const value3({3.,4.});
+    dcmtkpp::Value const value4({3,4});
     BOOST_CHECK(! (value1 != value2));
     BOOST_CHECK(value1 != value3);
     BOOST_CHECK(value1 != value4);
@@ -203,10 +203,10 @@ BOOST_AUTO_TEST_CASE(DifferenceReals)
 
 BOOST_AUTO_TEST_CASE(DifferenceStrings)
 {
-    dcmtkpp::Value const value1(dcmtkpp::Value::Strings({"1","2"}));
-    dcmtkpp::Value const value2(dcmtkpp::Value::Strings({"1","2"}));
-    dcmtkpp::Value const value3(dcmtkpp::Value::Strings({"3","4"}));
-    dcmtkpp::Value const value4(dcmtkpp::Value::Integers({3,4}));
+    dcmtkpp::Value const value1({"1","2"});
+    dcmtkpp::Value const value2({"1","2"});
+    dcmtkpp::Value const value3({"3","4"});
+    dcmtkpp::Value const value4({3,4});
     BOOST_CHECK(! (value1 != value2));
     BOOST_CHECK(value1 != value3);
     BOOST_CHECK(value1 != value4);
