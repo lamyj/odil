@@ -18,22 +18,6 @@
 namespace dcmtkpp
 {
 
-template<typename T>
-Element
-::Element(T const & value)
-: _value(value), vr()
-{
-    // Nothing else
-}
-
-template<typename T>
-Element
-::Element(T const & value, VR const & vr)
-: _value(value), vr(vr)
-{
-    // Nothing else
-}
-
 template<typename TVisitor>
 typename TVisitor::result_type
 apply_visitor(TVisitor const & visitor, Element const & element)

@@ -11,6 +11,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <initializer_list>
 #include <map>
 #include <string>
 #include <vector>
@@ -72,31 +73,52 @@ public:
     void add(Tag const & tag, Element const & element);
 
     /// @brief Add an empty element to the dataset.
-    void add(Tag const & tag, VR const & vr);
+    void add(Tag const & tag, VR vr=VR::UNKNOWN);
 
-    /**
-     * @brief Add an element to the dataset.
-     *
-     * TValueType must be coherent with the VR.
-     */
-    template<typename TValueType>
-    void add(Tag const & tag, VR const & vr, TValueType const & value);
+    /// @brief Add an element to the dataset.
+    void add(
+        Tag const & tag, Value::Integers const & value, VR vr=VR::UNKNOWN);
 
-    /**
-     * @brief Add an element to the dataset.
-     *
-     * TValueType must be coherent with the implicit VR of the tag.
-     */
-    template<typename TValueType>
-    void add(Tag const & tag, TValueType const & value);
+    /// @brief Add an element to the dataset.
+    void add(
+        Tag const & tag, Value::Reals const & value, VR vr=VR::UNKNOWN);
 
-    /**
-     * @brief Add an empty element to the dataset, the VR is guessed.
-     *
-     * If the VR cannot be guessed (i.e. not in public data dictionary), a
-     * dcmtkpp::Exception is raised.
-     */
-    void add(Tag const & tag);
+    /// @brief Add an element to the dataset.
+    void add(
+        Tag const & tag, Value::Strings const & value, VR vr=VR::UNKNOWN);
+
+    /// @brief Add an element to the dataset.
+    void add(
+        Tag const & tag, Value::DataSets const & value, VR vr=VR::UNKNOWN);
+
+    /// @brief Add an element to the dataset.
+    void add(
+        Tag const & tag, Value::Binary const & value, VR vr=VR::UNKNOWN);
+
+    /// @brief Add an element to the dataset.
+    void add(
+        Tag const & tag, std::initializer_list<int> const & value,
+        VR vr=VR::UNKNOWN);
+
+    /// @brief Add an element to the dataset.
+    void add(
+        Tag const & tag, std::initializer_list<Value::Integer> const & value,
+        VR vr=VR::UNKNOWN);
+
+    /// @brief Add an element to the dataset.
+    void add(
+        Tag const & tag, std::initializer_list<Value::Real> const & value,
+        VR vr=VR::UNKNOWN);
+
+    /// @brief Add an element to the dataset.
+    void add(
+        Tag const & tag, std::initializer_list<Value::String> const & value,
+        VR vr=VR::UNKNOWN);
+
+    /// @brief Add an element to the dataset.
+    void add(
+        Tag const & tag, std::initializer_list<DataSet> const & value,
+        VR vr=VR::UNKNOWN);
 
     /**
      * @brief Remove an element from the data set.
@@ -164,7 +186,5 @@ private:
 };
 
 }
-
-#include "dcmtkpp/DataSet.txx"
 
 #endif // _8424446e_1153_4acc_9f57_e86faa7246e3

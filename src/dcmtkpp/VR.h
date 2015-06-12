@@ -14,9 +14,12 @@
 namespace dcmtkpp
 {
 
+class Tag;
+
 /// @brief Value representations of DICOM.
 enum class VR
 {
+    UNKNOWN,
     AE, AS, AT, CS, DA, DS, DT, FL, FD, IS, LO, LT, PN, OB, OF, OW, SH, SL,
     SQ, SS, ST, TM, UC, UI, UL, UN, UR, US, UT,
     INVALID
@@ -31,6 +34,13 @@ std::string as_string(VR vr);
  * If the string does not represent a VR, a dcmtkpp::Exception is raised.
  */
 VR as_vr(std::string const vr);
+
+/**
+ * @brief Guess a VR from a tag.
+ *
+ * If the VR cannot be guessed, a dcmtkpp::Exception is raised.
+ */
+VR as_vr(Tag const & tag);
 
 }
 

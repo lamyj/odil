@@ -10,6 +10,7 @@
 #define _9c3d8f32_0310_4e3a_b5d2_6d69f229a2cf
 
 #include <cstddef>
+#include <initializer_list>
 
 #include "dcmtkpp/Tag.h"
 #include "dcmtkpp/Value.h"
@@ -28,16 +29,47 @@ public:
     /// @brief VR of the element.
     VR vr;
 
-    /// @brief Default-initialize value and vr.
-    Element();
-
-    /// @brief Default-initialize vr.
-    template<typename T>
-    Element(T const & value);
+    /// @brief Constructor.
+    Element(Value const & value=Value(), VR const & vr=VR::INVALID);
 
     /// @brief Constructor.
-    template<typename T>
-    Element(T const & value, VR const & vr);
+    Element(Value::Integers const & value, VR const & vr=VR::INVALID);
+
+    /// @brief Constructor.
+    Element(Value::Reals const & value, VR const & vr=VR::INVALID);
+
+    /// @brief Constructor.
+    Element(Value::Strings const & value, VR const & vr=VR::INVALID);
+
+    /// @brief Constructor.
+    Element(Value::DataSets const & value, VR const & vr=VR::INVALID);
+
+    /// @brief Constructor.
+    Element(Value::Binary const & value, VR const & vr=VR::INVALID);
+
+    /// @brief Constructor.
+    Element(
+        std::initializer_list<int> const & value, VR const & vr=VR::INVALID);
+
+    /// @brief Constructor.
+    Element(
+        std::initializer_list<Value::Integer> const & value,
+        VR const & vr=VR::INVALID);
+
+    /// @brief Constructor.
+    Element(
+        std::initializer_list<Value::Real> const & value,
+        VR const & vr=VR::INVALID);
+
+    /// @brief Constructor.
+    Element(
+        std::initializer_list<Value::String> const & value,
+        VR const & vr=VR::INVALID);
+
+    /// @brief Constructor.
+    Element(
+        std::initializer_list<DataSet> const & value,
+        VR const & vr=VR::INVALID);
 
     /// @brief Test whether the element is empty.
     bool empty() const;

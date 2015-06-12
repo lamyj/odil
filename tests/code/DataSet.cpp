@@ -45,7 +45,7 @@ BOOST_AUTO_TEST_CASE(AddValueExplicitVR)
     dcmtkpp::Tag const tag("PatientName");
 
     dcmtkpp::DataSet dataset;
-    dataset.add(tag, dcmtkpp::VR::PN, dcmtkpp::Value::Strings({ "Doe^John"}));
+    dataset.add(tag, { "Doe^John"}, dcmtkpp::VR::PN);
 
     BOOST_CHECK(!dataset.empty());
     BOOST_CHECK_EQUAL(dataset.size(), 1);
@@ -59,22 +59,13 @@ BOOST_AUTO_TEST_CASE(AddValueImplicitVR)
     dcmtkpp::Tag const tag("PatientName");
 
     dcmtkpp::DataSet dataset;
-    dataset.add(tag, dcmtkpp::Value::Strings({ "Doe^John"}));
+    dataset.add(tag, { "Doe^John"});
 
     BOOST_CHECK(!dataset.empty());
     BOOST_CHECK_EQUAL(dataset.size(), 1);
     BOOST_CHECK(dataset.has(tag));
     BOOST_CHECK(dataset.get_vr(tag) == dcmtkpp::VR::PN);
     BOOST_CHECK(dataset.as_string(tag) == dcmtkpp::Value::Strings({ "Doe^John" }));
-}
-
-BOOST_AUTO_TEST_CASE(AddInvalidVR)
-{
-    dcmtkpp::Tag const tag("PatientName");
-    dcmtkpp::DataSet dataset;
-
-    BOOST_CHECK_THROW(
-        dataset.add(tag, dcmtkpp::VR::INVALID), dcmtkpp::Exception);
 }
 
 BOOST_AUTO_TEST_CASE(AddInvalidTag)
@@ -192,8 +183,7 @@ BOOST_AUTO_TEST_CASE(ModifyDataSet)
     dataset.add(tag);
 
     dcmtkpp::DataSet item;
-    item.add("PatientID");
-    item.as_string("PatientID").push_back("DJ1234");
+    item.add("PatientID", {"DJ1234"});
     dataset.as_data_set(tag).push_back(item);
 
     BOOST_CHECK(!dataset.empty(tag));
@@ -255,13 +245,13 @@ BOOST_AUTO_TEST_CASE(RemoveMissing)
 BOOST_AUTO_TEST_CASE(Equality)
 {
     dcmtkpp::DataSet dataset1;
-    dataset1.add("PatientID", dcmtkpp::VR::CS, dcmtkpp::Value::Strings({"DJ1234"}));
+    dataset1.add("PatientID", {"DJ1234"});
 
     dcmtkpp::DataSet dataset2;
-    dataset2.add("PatientID", dcmtkpp::VR::CS, dcmtkpp::Value::Strings({"DJ1234"}));
+    dataset2.add("PatientID", {"DJ1234"});
 
     dcmtkpp::DataSet dataset3;
-    dataset3.add("PatientAge", dcmtkpp::VR::CS, dcmtkpp::Value::Strings({"042Y"}));
+    dataset3.add("PatientAge", {"042Y"});
 
     BOOST_CHECK(dataset1 == dataset2);
     BOOST_CHECK(! (dataset1 == dataset3));
@@ -270,13 +260,13 @@ BOOST_AUTO_TEST_CASE(Equality)
 BOOST_AUTO_TEST_CASE(Difference)
 {
     dcmtkpp::DataSet dataset1;
-    dataset1.add("PatientID", dcmtkpp::VR::CS, dcmtkpp::Value::Strings({"DJ1234"}));
+    dataset1.add("PatientID", {"DJ1234"});
 
     dcmtkpp::DataSet dataset2;
-    dataset2.add("PatientID", dcmtkpp::VR::CS, dcmtkpp::Value::Strings({"DJ1234"}));
+    dataset2.add("PatientID", {"DJ1234"});
 
     dcmtkpp::DataSet dataset3;
-    dataset3.add("PatientAge", dcmtkpp::VR::CS, dcmtkpp::Value::Strings({"042Y"}));
+    dataset3.add("PatientAge", {"042Y"});
 
     BOOST_CHECK(! (dataset1 != dataset2));
     BOOST_CHECK(dataset1 != dataset3);

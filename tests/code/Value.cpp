@@ -76,9 +76,8 @@ BOOST_AUTO_TEST_CASE(ModifyStrings)
 BOOST_AUTO_TEST_CASE(DataSets)
 {
     dcmtkpp::DataSet data_set;
-    data_set.add("PatientID");
-    data_set.as_string("PatientID").push_back("DJ1234");
-    dcmtkpp::Value const value(dcmtkpp::Value::DataSets({data_set}));
+    data_set.add("PatientID", {"DJ1234"});
+    dcmtkpp::Value const value({data_set});
 
     BOOST_CHECK(value.get_type() == dcmtkpp::Value::Type::DataSets);
     BOOST_CHECK_EQUAL(value.as_data_sets().size(), 1);
@@ -97,7 +96,7 @@ BOOST_AUTO_TEST_CASE(ModifyDataSets)
     dcmtkpp::DataSet data_set;
     data_set.add("PatientID");
     data_set.as_string("PatientID").push_back("DJ1234");
-    dcmtkpp::Value value(dcmtkpp::Value::DataSets({data_set}));
+    dcmtkpp::Value value({data_set});
 
     value.as_data_sets()[0].as_string("PatientID")[0] = "XXX";
 
@@ -154,17 +153,17 @@ BOOST_AUTO_TEST_CASE(EqualityStrings)
 BOOST_AUTO_TEST_CASE(EqualityDataSets)
 {
     dcmtkpp::DataSet dataset1;
-    dataset1.add("PatientID", dcmtkpp::VR::CS, dcmtkpp::Value::Strings{"DJ1234"});
-    dataset1.add("PixelSpacing", dcmtkpp::VR::DS, dcmtkpp::Value::Reals{1.5, 2.5});
+    dataset1.add("PatientID", {"DJ1234"});
+    dataset1.add("PixelSpacing", {1.5, 2.5});
 
     dcmtkpp::DataSet dataset2;
-    dataset1.add("PatientName", dcmtkpp::VR::PN, dcmtkpp::Value::Strings{"Doe^John"});
-    dataset1.add("PatientAge", dcmtkpp::VR::AS, dcmtkpp::Value::Strings{"042Y"});
+    dataset1.add("PatientName", {"Doe^John"});
+    dataset1.add("PatientAge", {"042Y"});
 
-    dcmtkpp::Value const value1(dcmtkpp::Value::DataSets({dataset1}));
-    dcmtkpp::Value const value2(dcmtkpp::Value::DataSets({dataset1}));
-    dcmtkpp::Value const value3(dcmtkpp::Value::DataSets({dataset2}));
-    dcmtkpp::Value const value4(dcmtkpp::Value::Integers({3,4}));
+    dcmtkpp::Value const value1({dataset1});
+    dcmtkpp::Value const value2({dataset1});
+    dcmtkpp::Value const value3({dataset2});
+    dcmtkpp::Value const value4({3,4});
     BOOST_CHECK(value1 == value2);
     BOOST_CHECK( ! (value1 == value3));
     BOOST_CHECK( ! (value1 == value4));
@@ -215,17 +214,17 @@ BOOST_AUTO_TEST_CASE(DifferenceStrings)
 BOOST_AUTO_TEST_CASE(DifferenceDataSets)
 {
     dcmtkpp::DataSet dataset1;
-    dataset1.add("PatientID", dcmtkpp::VR::CS, dcmtkpp::Value::Strings{"DJ1234"});
-    dataset1.add("PixelSpacing", dcmtkpp::VR::DS, dcmtkpp::Value::Reals{1.5, 2.5});
+    dataset1.add("PatientID", {"DJ1234"});
+    dataset1.add("PixelSpacing", {1.5, 2.5});
 
     dcmtkpp::DataSet dataset2;
-    dataset1.add("PatientName", dcmtkpp::VR::PN, dcmtkpp::Value::Strings{"Doe^John"});
-    dataset1.add("PatientAge", dcmtkpp::VR::AS, dcmtkpp::Value::Strings{"042Y"});
+    dataset1.add("PatientName", {"Doe^John"});
+    dataset1.add("PatientAge", {"042Y"});
 
-    dcmtkpp::Value const value1(dcmtkpp::Value::DataSets({dataset1}));
-    dcmtkpp::Value const value2(dcmtkpp::Value::DataSets({dataset1}));
-    dcmtkpp::Value const value3(dcmtkpp::Value::DataSets({dataset2}));
-    dcmtkpp::Value const value4(dcmtkpp::Value::Integers({3,4}));
+    dcmtkpp::Value const value1({dataset1});
+    dcmtkpp::Value const value2({dataset1});
+    dcmtkpp::Value const value3({dataset2});
+    dcmtkpp::Value const value4({3,4});
     BOOST_CHECK(! (value1 != value2));
     BOOST_CHECK(value1 != value3);
     BOOST_CHECK(value1 != value4);

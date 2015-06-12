@@ -23,15 +23,14 @@ BOOST_AUTO_TEST_CASE(Int)
 
 BOOST_AUTO_TEST_CASE(ModifyInt)
 {
-    dcmtkpp::Element element((dcmtkpp::Value::Integers()));
+    dcmtkpp::Element element({0});
     element.as_int().push_back(1);
 
     BOOST_CHECK(!element.empty());
-    BOOST_CHECK_EQUAL(element.size(), 1);
+    BOOST_CHECK_EQUAL(element.size(), 2);
 
     std::vector<int64_t> const & value = element.as_int();
-    BOOST_CHECK_EQUAL(value.size(), 1);
-    BOOST_CHECK_EQUAL(value[0], 1);
+    BOOST_CHECK(value == dcmtkpp::Value::Integers({0, 1}));
 }
 
 BOOST_AUTO_TEST_CASE(IntWrong)
@@ -52,15 +51,14 @@ BOOST_AUTO_TEST_CASE(Double)
 
 BOOST_AUTO_TEST_CASE(ModifyDouble)
 {
-    dcmtkpp::Element element((dcmtkpp::Value::Reals()));
+    dcmtkpp::Element element({0.});
     element.as_real().push_back(1.5);
 
     BOOST_CHECK(!element.empty());
-    BOOST_CHECK_EQUAL(element.size(), 1);
+    BOOST_CHECK_EQUAL(element.size(), 2);
 
     std::vector<double> const & value = element.as_real();
-    BOOST_CHECK_EQUAL(value.size(), 1);
-    BOOST_CHECK_EQUAL(value[0], 1.5);
+    BOOST_CHECK(value == dcmtkpp::Value::Reals({0., 1.5}));
 }
 
 BOOST_AUTO_TEST_CASE(DoubleWrong)
@@ -82,15 +80,14 @@ BOOST_AUTO_TEST_CASE(String)
 
 BOOST_AUTO_TEST_CASE(ModifyString)
 {
-    dcmtkpp::Element element((dcmtkpp::Value::Strings()));
+    dcmtkpp::Element element({""});
     element.as_string().push_back("foo");
 
     BOOST_CHECK(!element.empty());
-    BOOST_CHECK_EQUAL(element.size(), 1);
+    BOOST_CHECK_EQUAL(element.size(), 2);
 
     std::vector<std::string> const & value = element.as_string();
-    BOOST_CHECK_EQUAL(value.size(), 1);
-    BOOST_CHECK_EQUAL(value[0], "foo");
+    BOOST_CHECK(value == dcmtkpp::Value::Strings({"", "foo"}));
 }
 
 BOOST_AUTO_TEST_CASE(StringWrong)
@@ -140,14 +137,10 @@ BOOST_AUTO_TEST_CASE(DataSetWrong)
 
 BOOST_AUTO_TEST_CASE(Equality)
 {
-    dcmtkpp::Element const element1(
-        dcmtkpp::Value::Integers({12,34}), dcmtkpp::VR::US);
-    dcmtkpp::Element const element2(
-        dcmtkpp::Value::Integers({12,34}), dcmtkpp::VR::US);
-    dcmtkpp::Element const element3(
-        dcmtkpp::Value::Reals({12,34}), dcmtkpp::VR::FL);
-    dcmtkpp::Element const element4(
-        dcmtkpp::Value::Integers({12,34}), dcmtkpp::VR::UL);
+    dcmtkpp::Element const element1({12,34}, dcmtkpp::VR::US);
+    dcmtkpp::Element const element2({12,34}, dcmtkpp::VR::US);
+    dcmtkpp::Element const element3({12.,34.}, dcmtkpp::VR::FL);
+    dcmtkpp::Element const element4({12,34}, dcmtkpp::VR::UL);
 
     BOOST_CHECK(element1 == element2);
     BOOST_CHECK(! (element1 == element3));
@@ -156,14 +149,10 @@ BOOST_AUTO_TEST_CASE(Equality)
 
 BOOST_AUTO_TEST_CASE(Difference)
 {
-    dcmtkpp::Element const element1(
-        dcmtkpp::Value::Integers({12,34}), dcmtkpp::VR::US);
-    dcmtkpp::Element const element2(
-        dcmtkpp::Value::Integers({12,34}), dcmtkpp::VR::US);
-    dcmtkpp::Element const element3(
-        dcmtkpp::Value::Reals({12,34}), dcmtkpp::VR::FL);
-    dcmtkpp::Element const element4(
-        dcmtkpp::Value::Integers({12,34}), dcmtkpp::VR::UL);
+    dcmtkpp::Element const element1({12,34}, dcmtkpp::VR::US);
+    dcmtkpp::Element const element2({12,34}, dcmtkpp::VR::US);
+    dcmtkpp::Element const element3({12.,34.}, dcmtkpp::VR::FL);
+    dcmtkpp::Element const element4({12,34}, dcmtkpp::VR::UL);
 
     BOOST_CHECK(! (element1 != element2));
     BOOST_CHECK(element1 != element3);

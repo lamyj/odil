@@ -42,9 +42,15 @@ DataSet
 
 void
 DataSet
-::add(Tag const & tag, VR const & vr)
+::add(Tag const & tag, VR vr)
 {
     Value value;
+
+    if(vr == VR::UNKNOWN)
+    {
+        vr = as_vr(tag);
+    }
+
     if(this->_is_int_vr(vr))
     {
         value = Value::Integers();
@@ -71,17 +77,116 @@ DataSet
 
 void
 DataSet
-::add(Tag const & tag)
+::add(Tag const & tag, Value::Integers const & value, VR vr)
 {
-    DcmTagKey const dcmtk_tag(tag.group, tag.element);
-    DcmDictEntry const * entry = dcmDataDict.rdlock().findEntry(dcmtk_tag, NULL);
-    if(entry == NULL)
+    if(vr == VR::UNKNOWN)
     {
-        throw Exception("No such element");
+        vr = as_vr(tag);
     }
+    this->add(tag, Element(value, vr));
+}
 
-    VR const vr(as_vr(entry->getVR().getValidVRName()));
-    this->add(tag, vr);
+void
+DataSet
+::add(Tag const & tag, Value::Reals const & value, VR vr)
+{
+    if(vr == VR::UNKNOWN)
+    {
+        vr = as_vr(tag);
+    }
+    this->add(tag, Element(value, vr));
+}
+
+void
+DataSet
+::add(Tag const & tag, Value::Strings const & value, VR vr)
+{
+    if(vr == VR::UNKNOWN)
+    {
+        vr = as_vr(tag);
+    }
+    this->add(tag, Element(value, vr));
+}
+
+void
+DataSet
+::add(Tag const & tag, Value::DataSets const & value, VR vr)
+{
+    if(vr == VR::UNKNOWN)
+    {
+        vr = as_vr(tag);
+    }
+    this->add(tag, Element(value, vr));
+}
+
+void
+DataSet
+::add(Tag const & tag, Value::Binary const & value, VR vr)
+{
+    if(vr == VR::UNKNOWN)
+    {
+        vr = as_vr(tag);
+    }
+    this->add(tag, Element(value, vr));
+}
+
+void
+DataSet
+::add(Tag const & tag, std::initializer_list<int> const & value, VR vr)
+{
+    if(vr == VR::UNKNOWN)
+    {
+        vr = as_vr(tag);
+    }
+    this->add(tag, Element(value, vr));
+}
+
+void
+DataSet
+::add(
+    Tag const & tag, std::initializer_list<Value::Integer> const & value, VR vr)
+{
+    if(vr == VR::UNKNOWN)
+    {
+        vr = as_vr(tag);
+    }
+    this->add(tag, Element(value, vr));
+}
+
+void
+DataSet
+::add(
+    Tag const & tag, std::initializer_list<Value::Real> const & value, VR vr)
+{
+    if(vr == VR::UNKNOWN)
+    {
+        vr = as_vr(tag);
+    }
+    this->add(tag, Element(value, vr));
+}
+
+void
+DataSet
+::add(
+    Tag const & tag, std::initializer_list<Value::String> const & value, VR vr)
+{
+    if(vr == VR::UNKNOWN)
+    {
+        vr = as_vr(tag);
+    }
+    this->add(tag, Element(value, vr));
+}
+
+void
+DataSet
+::add(
+    Tag const & tag, std::initializer_list<DataSet> const & value, VR vr)
+{
+    if(vr == VR::UNKNOWN)
+    {
+        vr = as_vr(tag);
+    }
+    this->add(tag, Element(value, vr));
 }
 
 void

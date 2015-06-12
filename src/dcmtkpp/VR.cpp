@@ -4,7 +4,13 @@
 #include <stdexcept>
 #include <string>
 
+#include <dcmtk/config/osconfig.h>
+#include <dcmtk/dcmdata/dcdicent.h>
+#include <dcmtk/dcmdata/dcdict.h>
+#include <dcmtk/dcmdata/dctagkey.h>
+
 #include "dcmtkpp/Exception.h"
+#include "dcmtkpp/Tag.h"
 
 // Anonymous namespace, should not be publicly accessed
 namespace
@@ -99,6 +105,20 @@ VR as_vr(std::string const vr)
     {
         throw Exception("Unknown VR: "+vr);
     }
+}
+
+VR as_vr(Tag const & tag)
+{
+    DcmTagKey const dcmtk_tag(tag.group, tag.element);
+    DcmDictEntry const * entry = dcmDataDict.rdlock().findEntry(dcmtk_tag, NULL);
+    if(entry == NULL)
+    {
+        throw Exception("No such element");
+    }
+
+    VR const vr(as_vr(std::string(entry->getVR().getValidVRName())));
+
+    return vr;
 }
 
 

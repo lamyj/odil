@@ -9,6 +9,7 @@
 #include "dcmtkpp/Value.h"
 
 #include <cstdint>
+#include <initializer_list>
 #include <string>
 #include <vector>
 

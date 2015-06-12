@@ -15,8 +15,78 @@ namespace dcmtkpp
 {
 
 Element
-::Element()
-: _value(), vr()
+::Element(Value const & value, VR const & vr)
+: _value(value), vr(vr)
+{
+    // Nothing else
+}
+
+Element
+::Element(Value::Integers const & value, VR const & vr)
+: _value(value), vr(vr)
+{
+    // Nothing else
+}
+
+Element
+::Element(Value::Reals const & value, VR const & vr)
+: _value(value), vr(vr)
+{
+    // Nothing else
+}
+
+Element
+::Element(Value::Strings const & value, VR const & vr)
+: _value(value), vr(vr)
+{
+    // Nothing else
+}
+
+Element
+::Element(Value::DataSets const & value, VR const & vr)
+: _value(value), vr(vr)
+{
+    // Nothing else
+}
+
+Element
+::Element(Value::Binary const & value, VR const & vr)
+: _value(value), vr(vr)
+{
+    // Nothing else
+}
+
+Element
+::Element(std::initializer_list<int> const & value, VR const & vr)
+: _value(value), vr(vr)
+{
+    // Nothing else
+}
+
+Element
+::Element(std::initializer_list<Value::Integer> const & value, VR const & vr)
+: _value(value), vr(vr)
+{
+    // Nothing else
+}
+
+Element
+::Element(std::initializer_list<Value::Real> const & value, VR const & vr)
+: _value(value), vr(vr)
+{
+    // Nothing else
+}
+
+Element
+::Element(std::initializer_list<Value::String> const & value, VR const & vr)
+: _value(value), vr(vr)
+{
+    // Nothing else
+}
+
+Element
+::Element(std::initializer_list<DataSet> const & value, VR const & vr)
+: _value(value), vr(vr)
 {
     // Nothing else
 }
