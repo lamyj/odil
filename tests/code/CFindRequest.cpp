@@ -2,40 +2,31 @@
 #include <boost/test/unit_test.hpp>
 
 #include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmdata/dcdatset.h>
-#include <dcmtk/dcmdata/dcdeftag.h>
 #include <dcmtk/dcmdata/dcuid.h>
 #include <dcmtk/dcmnet/dimse.h>
 
 #include "dcmtkpp/CFindRequest.h"
-#include "dcmtkpp/ElementAccessor.h"
+#include "dcmtkpp/DataSet.h"
 #include "dcmtkpp/Message.h"
 
 #include "../MessageFixtureBase.h"
 
 struct Fixture: public MessageFixtureBase<dcmtkpp::CFindRequest>
 {
-    DcmDataset command_set;
-    DcmDataset query;
+    dcmtkpp::DataSet command_set;
+    dcmtkpp::DataSet query;
 
     Fixture()
     {
-        dcmtkpp::ElementAccessor<Uint16>::set(
-            this->command_set, DCM_CommandField, DIMSE_C_FIND_RQ);
-        dcmtkpp::ElementAccessor<Uint16>::set(
-            this->command_set, DCM_MessageID, 1234);
-        dcmtkpp::ElementAccessor<std::string>::set(
-            this->command_set, DCM_AffectedSOPClassUID,
-            UID_FINDPatientRootQueryRetrieveInformationModel);
-        dcmtkpp::ElementAccessor<Uint16>::set(
-            this->command_set, DCM_Priority, DIMSE_PRIORITY_MEDIUM);
+        this->command_set.add("CommandField", {DIMSE_C_FIND_RQ});
+        this->command_set.add("MessageID", {1234});
+        this->command_set.add("AffectedSOPClassUID",
+            {UID_FINDPatientRootQueryRetrieveInformationModel});
+        this->command_set.add("Priority", {DIMSE_PRIORITY_MEDIUM});
 
-        dcmtkpp::ElementAccessor<std::string>::set(
-            this->query, DCM_PatientName, "Doe^John");
-        dcmtkpp::ElementAccessor<std::string>::set(
-            this->query, DCM_StudyDescription, "Brain");
-        dcmtkpp::ElementAccessor<std::string>::set(
-            this->query, DCM_QueryRetrieveLevel, "STUDY");
+        this->query.add("PatientName", {"Doe^John"});
+        this->query.add("StudyDescription", {"Brain"});
+        this->query.add("QueryRetrieveLevel", {"STUDY"});
     }
 
     virtual void check(dcmtkpp::CFindRequest const & message)
@@ -45,7 +36,7 @@ struct Fixture: public MessageFixtureBase<dcmtkpp::CFindRequest>
         BOOST_CHECK_EQUAL(
             message.get_affected_sop_class_uid(),
             UID_FINDPatientRootQueryRetrieveInformationModel);
-        BOOST_CHECK_EQUAL(message.get_data_set(), &this->query);
+        BOOST_CHECK(message.get_data_set() == this->query);
     }
 };
 
@@ -53,50 +44,40 @@ BOOST_FIXTURE_TEST_CASE(Constructor, Fixture)
 {
     dcmtkpp::CFindRequest const message(
         1234, UID_FINDPatientRootQueryRetrieveInformationModel,
-        DIMSE_PRIORITY_MEDIUM, &this->query);
+        DIMSE_PRIORITY_MEDIUM, this->query);
     this->check(message);
-}
-
-BOOST_FIXTURE_TEST_CASE(ConstructorWithoutDataset, Fixture)
-{
-    BOOST_CHECK_THROW(
-        dcmtkpp::CFindRequest const message(
-            1234, UID_FINDPatientRootQueryRetrieveInformationModel,
-            DIMSE_PRIORITY_MEDIUM, NULL),
-        dcmtkpp::Exception);
 }
 
 BOOST_FIXTURE_TEST_CASE(MessageConstructor, Fixture)
 {
-    this->check_message_constructor(this->command_set, &this->query);
+    this->check_message_constructor(this->command_set, this->query);
 }
 
 BOOST_FIXTURE_TEST_CASE(MessageConstructorWrongCommandField, Fixture)
 {
-    dcmtkpp::ElementAccessor<Uint16>::set(
-        this->command_set, DCM_CommandField, DIMSE_C_ECHO_RQ);
-    this->check_message_constructor_throw(this->command_set, &this->query);
+    this->command_set.as_int("CommandField") = {DIMSE_C_ECHO_RQ};
+    this->check_message_constructor_throw(this->command_set, this->query);
 }
 
 BOOST_FIXTURE_TEST_CASE(MessageConstructorMissingAffectSOPClass, Fixture)
 {
-    this->command_set.findAndDeleteElement(DCM_AffectedSOPClassUID);
-    this->check_message_constructor_throw(this->command_set, &this->query);
+    this->command_set.remove("AffectedSOPClassUID");
+    this->check_message_constructor_throw(this->command_set, this->query);
 }
 
 BOOST_FIXTURE_TEST_CASE(MessageConstructorMissingPriority, Fixture)
 {
-    this->command_set.findAndDeleteElement(DCM_Priority);
-    this->check_message_constructor_throw(this->command_set, &this->query);
+    this->command_set.remove("Priority");
+    this->check_message_constructor_throw(this->command_set, this->query);
 }
 
 BOOST_FIXTURE_TEST_CASE(MessageConstructorMissingQuery, Fixture)
 {
-    this->check_message_constructor_throw(this->command_set, NULL);
+    this->check_message_constructor_throw(this->command_set);
 }
 
 BOOST_FIXTURE_TEST_CASE(MessageConstructorEmptyQuery, Fixture)
 {
-    DcmDataset empty;
-    this->check_message_constructor_throw(this->command_set, &empty);
+    dcmtkpp::DataSet empty;
+    this->check_message_constructor_throw(this->command_set, empty);
 }

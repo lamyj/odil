@@ -9,12 +9,9 @@
 #ifndef _7e193624_081c_47dd_a011_986e96916ea9
 #define _7e193624_081c_47dd_a011_986e96916ea9
 
-#include <string>
-
-#include <dcmtk/config/osconfig.h>
-#include <dcmtk/ofstd/oftypes.h>
-
+#include "dcmtkpp/registry.h"
 #include "dcmtkpp/Response.h"
+#include "dcmtkpp/Value.h"
 
 namespace dcmtkpp
 {
@@ -26,7 +23,8 @@ public:
     /**
      * @brief Create an store response with given Message ID, and status.
      */
-    CStoreResponse(Uint16 message_id_being_responded_to, Uint16 status);
+    CStoreResponse(
+        Value::Integer message_id_being_responded_to, Value::Integer status);
 
     /**
      * @brief Create a C-STORE-RSP from a generic Message.
@@ -38,11 +36,11 @@ public:
     /// @brief Destructor.
     virtual ~CStoreResponse();
 
-    DCMTKPP_MESSAGE_OPTIONAL_FIELD_MACRO(message_id, DCM_MessageID, Uint16)
-    DCMTKPP_MESSAGE_OPTIONAL_FIELD_MACRO(
-        affected_sop_class_uid, DCM_AffectedSOPClassUID, std::string)
-    DCMTKPP_MESSAGE_OPTIONAL_FIELD_MACRO(
-        affected_sop_instance_uid, DCM_AffectedSOPInstanceUID, std::string)
+    DCMTKPP_MESSAGE_OPTIONAL_FIELD_INTEGER_MACRO(message_id, registry::MessageID)
+    DCMTKPP_MESSAGE_OPTIONAL_FIELD_STRING_MACRO(
+        affected_sop_class_uid, registry::AffectedSOPClassUID)
+    DCMTKPP_MESSAGE_OPTIONAL_FIELD_STRING_MACRO(
+        affected_sop_instance_uid, registry::AffectedSOPInstanceUID)
 };
 
 }

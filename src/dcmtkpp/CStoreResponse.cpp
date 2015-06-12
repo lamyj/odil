@@ -8,22 +8,20 @@
 
 #include "CStoreResponse.h"
 
-#include <string>
-
 #include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmdata/dcdeftag.h>
 #include <dcmtk/dcmnet/dimse.h>
-#include <dcmtk/ofstd/oftypes.h>
 
-#include "dcmtkpp/ElementAccessor.h"
 #include "dcmtkpp/Exception.h"
-#include "dcmtkpp/Request.h"
+#include "dcmtkpp/registry.h"
+#include "dcmtkpp/Response.h"
+#include "dcmtkpp/Value.h"
 
 namespace dcmtkpp
 {
 
 CStoreResponse
-::CStoreResponse(Uint16 message_id_being_responded_to, Uint16 status)
+::CStoreResponse(
+    Value::Integer message_id_being_responded_to, Value::Integer status)
 : Response(message_id_being_responded_to, status)
 {
     this->set_command_field(DIMSE_C_STORE_RSP);
@@ -40,20 +38,19 @@ CStoreResponse
     this->set_command_field(message.get_command_field());
 
     DCMTKPP_MESSAGE_SET_OPTIONAL_FIELD_MACRO(
-        message.get_command_set(), message_id, DCM_MessageID, Uint16)
+        message.get_command_set(), message_id, registry::MessageID, as_int)
     DCMTKPP_MESSAGE_SET_OPTIONAL_FIELD_MACRO(
         message.get_command_set(), affected_sop_class_uid,
-        DCM_AffectedSOPClassUID, std::string)
+        registry::AffectedSOPClassUID, as_string)
     DCMTKPP_MESSAGE_SET_OPTIONAL_FIELD_MACRO(
         message.get_command_set(),
-        affected_sop_instance_uid, DCM_AffectedSOPInstanceUID, std::string)
+        affected_sop_instance_uid, registry::AffectedSOPInstanceUID, as_string)
 
-    if(message.get_data_set() != NULL &&
-       !const_cast<DcmDataset*>(message.get_data_set())->isEmpty())
+    if(message.has_data_set()  && !message.get_data_set().empty())
     {
         throw Exception("Data set must not be present");
     }
-    this->set_data_set(message.get_data_set());
+    this->delete_data_set();
 }
 
 CStoreResponse

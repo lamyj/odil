@@ -9,12 +9,11 @@
 #include "dcmtkpp/StoreSCP.h"
 
 #include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmdata/dcdatset.h>
-#include <dcmtk/dcmdata/dcdeftag.h>
 #include <dcmtk/dcmnet/dimse.h>
 
 #include "dcmtkpp/CStoreRequest.h"
 #include "dcmtkpp/CStoreResponse.h"
+#include "dcmtkpp/DataSet.h"
 
 namespace dcmtkpp
 {
@@ -65,11 +64,9 @@ void
 StoreSCP
 ::store(CStoreRequest const & request, Callback callback) const
 {
-    DcmDataset const * dataset = request.get_data_set();
-
     // Execute user callback
     Uint16 status = STATUS_Success;
-    if(dataset == NULL || const_cast<DcmDataset*>(dataset)->isEmpty())
+    if(!request.has_data_set() || request.get_data_set().empty())
     {
         status = STATUS_STORE_Error_CannotUnderstand;
     }
@@ -77,7 +74,7 @@ StoreSCP
     {
         try
         {
-            callback(dataset);
+            callback(request.get_data_set());
         }
         catch(...)
         {

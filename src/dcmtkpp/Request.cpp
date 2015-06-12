@@ -8,20 +8,15 @@
 
 #include "Request.h"
 
-#include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmdata/dcdatset.h>
-#include <dcmtk/dcmdata/dcdeftag.h>
-#include <dcmtk/ofstd/oftypes.h>
-
-#include "dcmtkpp/ElementAccessor.h"
-#include "dcmtkpp/Exception.h"
 #include "dcmtkpp/Message.h"
+#include "dcmtkpp/registry.h"
+#include "dcmtkpp/Value.h"
 
 namespace dcmtkpp
 {
 
 Request
-::Request(Uint16 message_id)
+::Request(Value::Integer message_id)
 : Message()
 {
     this->set_message_id(message_id);
@@ -31,9 +26,7 @@ Request
 ::Request(Message const & message)
 : Message()
 {
-    Uint16 const message_id = ElementAccessor<Uint16>::get(
-        message.get_command_set(), DCM_MessageID);
-    this->set_message_id(message_id);
+    this->set_message_id(message.get_command_set().as_int(registry::MessageID, 0));
 }
 
 Request

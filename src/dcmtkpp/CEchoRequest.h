@@ -9,12 +9,9 @@
 #ifndef _aec786b8_0074_4cb2_b9a1_4bf26bbd20fc
 #define _aec786b8_0074_4cb2_b9a1_4bf26bbd20fc
 
-#include <string>
-
-#include <dcmtk/config/osconfig.h>
-#include <dcmtk/ofstd/oftypes.h>
-
 #include "dcmtkpp/Request.h"
+#include "dcmtkpp/registry.h"
+#include "dcmtkpp/Value.h"
 
 namespace dcmtkpp
 {
@@ -27,7 +24,9 @@ public:
      * @brief Create an echo request with given Message ID and
      * affected SOP class UID.
      */
-    CEchoRequest(Uint16 message_id, std::string const & affected_sop_class_uid);
+    CEchoRequest(
+        Value::Integer message_id,
+        Value::String const & affected_sop_class_uid);
 
     /**
      * @brief Create a C-ECHO-RQ from a generic Message.
@@ -39,8 +38,8 @@ public:
     /// @brief Destructor.
     virtual ~CEchoRequest();
     
-    DCMTKPP_MESSAGE_MANDATORY_FIELD_MACRO(
-        affected_sop_class_uid, DCM_AffectedSOPClassUID, std::string)
+    DCMTKPP_MESSAGE_MANDATORY_FIELD_STRING_MACRO(
+        affected_sop_class_uid, registry::AffectedSOPClassUID)
 };
 
 }

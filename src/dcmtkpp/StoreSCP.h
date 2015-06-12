@@ -11,9 +11,7 @@
 
 #include <functional>
 
-#include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmdata/dcdatset.h>
-
+#include "dcmtkpp/DataSet.h"
 #include "dcmtkpp/CStoreRequest.h"
 #include "dcmtkpp/SCP.h"
 
@@ -24,7 +22,7 @@ class StoreSCP: public SCP
 {
 public:
     /// @brief Callback called when a response is received.
-    typedef std::function<void(DcmDataset const *)> Callback;
+    typedef std::function<void(DataSet const &)> Callback;
     
     /**
      * @brief Receive a store request and respond to it.

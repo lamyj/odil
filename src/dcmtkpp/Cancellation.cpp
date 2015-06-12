@@ -9,12 +9,12 @@
 #include "dcmtkpp/Cancellation.h"
 
 #include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmdata/dcdeftag.h>
-#include <dcmtk/dcmdata/dcvr.h>
 #include <dcmtk/dcmnet/dimse.h>
-#include <dcmtk/ofstd/oftypes.h>
 
+#include "dcmtkpp/Exception.h"
 #include "dcmtkpp/Message.h"
+#include "dcmtkpp/registry.h"
+#include "dcmtkpp/Value.h"
 
 namespace dcmtkpp
 {
@@ -36,11 +36,8 @@ Cancellation
     }
     this->set_command_field(message.get_command_field());
 
-    Uint16 const message_id = ElementAccessor<Uint16>::get(
-        message.get_command_set(), DCM_MessageIDBeingRespondedTo);
-    this->set_message_id_being_responded_to(message_id);
-
-    this->set_data_set(message.get_data_set());
+    this->set_message_id_being_responded_to(
+        message.get_command_set().as_int(registry::MessageIDBeingRespondedTo, 0));
 }
 
 Cancellation

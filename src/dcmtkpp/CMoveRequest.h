@@ -9,13 +9,10 @@
 #ifndef _f6e243d2_6113_4fe3_8d04_3f034fc796bf
 #define _f6e243d2_6113_4fe3_8d04_3f034fc796bf
 
-#include <string>
-
-#include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmdata/dcdeftag.h>
-#include <dcmtk/dcmdata/dcvr.h>
-
+#include "dcmtkpp/DataSet.h"
+#include "dcmtkpp/registry.h"
 #include "dcmtkpp/Request.h"
+#include "dcmtkpp/Value.h"
 
 namespace dcmtkpp
 {
@@ -29,9 +26,9 @@ public:
      * affected SOP class UID, priority, move destination, and data set.
      */
     CMoveRequest(
-        Uint16 message_id, std::string const & affected_sop_class_uid,
-        Uint16 priority, std::string const & move_destination,
-        DcmDataset const * dataset);
+        Value::Integer message_id, Value::String const & affected_sop_class_uid,
+        Value::Integer priority, Value::String const & move_destination,
+        DataSet const & dataset);
 
     /**
      * @brief Create a C-MOVE-RQ from a generic Message.
@@ -43,11 +40,11 @@ public:
     /// @brief Destructor.
     virtual ~CMoveRequest();
 
-    DCMTKPP_MESSAGE_MANDATORY_FIELD_MACRO(
-        affected_sop_class_uid, DCM_AffectedSOPClassUID, std::string)
-    DCMTKPP_MESSAGE_MANDATORY_FIELD_MACRO(priority, DCM_Priority, Uint16)
-    DCMTKPP_MESSAGE_MANDATORY_FIELD_MACRO(
-        move_destination, DCM_MoveDestination, std::string)
+    DCMTKPP_MESSAGE_MANDATORY_FIELD_STRING_MACRO(
+        affected_sop_class_uid, registry::AffectedSOPClassUID)
+    DCMTKPP_MESSAGE_MANDATORY_FIELD_INTEGER_MACRO(priority, registry::Priority)
+    DCMTKPP_MESSAGE_MANDATORY_FIELD_STRING_MACRO(
+        move_destination, registry::MoveDestination)
 };
 
 }

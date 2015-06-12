@@ -8,28 +8,33 @@
 
 #include "CMoveResponse.h"
 
-#include <string>
-
 #include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmdata/dcdeftag.h>
 #include <dcmtk/dcmnet/dimse.h>
-#include <dcmtk/ofstd/oftypes.h>
 
-#include "dcmtkpp/ElementAccessor.h"
+#include "dcmtkpp/DataSet.h"
 #include "dcmtkpp/Exception.h"
+#include "dcmtkpp/registry.h"
 #include "dcmtkpp/Response.h"
+#include "dcmtkpp/Value.h"
 
 namespace dcmtkpp
 {
 
 CMoveResponse
 ::CMoveResponse(
-    Uint16 message_id_being_responded_to, Uint16 status,
-    DcmDataset const * dataset)
+    Value::Integer message_id_being_responded_to, Value::Integer status)
 : Response(message_id_being_responded_to, status)
 {
     this->set_command_field(DIMSE_C_MOVE_RSP);
+}
 
+CMoveResponse
+::CMoveResponse(
+    Value::Integer message_id_being_responded_to, Value::Integer status,
+    DataSet const & dataset)
+: Response(message_id_being_responded_to, status)
+{
+    this->set_command_field(DIMSE_C_MOVE_RSP);
     this->set_data_set(dataset);
 }
 
@@ -44,25 +49,28 @@ CMoveResponse
     this->set_command_field(message.get_command_field());
     
     DCMTKPP_MESSAGE_SET_OPTIONAL_FIELD_MACRO(
-        message.get_command_set(), message_id, DCM_MessageID, Uint16)
+        message.get_command_set(), message_id, registry::MessageID, as_int)
     DCMTKPP_MESSAGE_SET_OPTIONAL_FIELD_MACRO(
         message.get_command_set(), affected_sop_class_uid,
-        DCM_AffectedSOPClassUID, std::string)
+        registry::AffectedSOPClassUID, as_string)
 
     DCMTKPP_MESSAGE_SET_OPTIONAL_FIELD_MACRO(
         message.get_command_set(), number_of_remaining_sub_operations,
-        DcmTagKey(0x0000, 0x1020), Uint16)
+        registry::NumberOfRemainingSuboperations, as_int)
     DCMTKPP_MESSAGE_SET_OPTIONAL_FIELD_MACRO(
         message.get_command_set(), number_of_completed_sub_operations,
-        DcmTagKey(0x0000, 0x1021), Uint16)
+        registry::NumberOfCompletedSuboperations, as_int)
     DCMTKPP_MESSAGE_SET_OPTIONAL_FIELD_MACRO(
         message.get_command_set(), number_of_failed_sub_operations,
-        DcmTagKey(0x0000, 0x1022), Uint16)
+        registry::NumberOfFailedSuboperations, as_int)
     DCMTKPP_MESSAGE_SET_OPTIONAL_FIELD_MACRO(
         message.get_command_set(), number_of_warning_sub_operations,
-        DcmTagKey(0x0000, 0x1023), Uint16)
+        registry::NumberOfWarningSuboperations, as_int)
 
-    this->set_data_set(message.get_data_set());
+    if(message.has_data_set())
+    {
+        this->set_data_set(message.get_data_set());
+    }
 }
 
 CMoveResponse

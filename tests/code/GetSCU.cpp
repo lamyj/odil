@@ -1,6 +1,7 @@
 #define BOOST_TEST_MODULE GetSCU
 #include <boost/test/unit_test.hpp>
 
+#include "dcmtkpp/DataSet.h"
 #include "dcmtkpp/GetSCU.h"
 
 #include "../PeerFixtureBase.h"
@@ -9,7 +10,7 @@ struct Fixture: public PeerFixtureBase
 {
     static bool called;
 
-    DcmDataset query;
+    dcmtkpp::DataSet query;
 
     Fixture()
     : PeerFixtureBase(NET_REQUESTOR, 104, 10,
@@ -26,14 +27,12 @@ struct Fixture: public PeerFixtureBase
     {
         Fixture::called = false;
 
-        dcmtkpp::ElementAccessor<std::string>::set(this->query,
-            DCM_QueryRetrieveLevel, "PATIENT");
-        dcmtkpp::ElementAccessor<std::string>::set(
-            this->query, DCM_PatientName, "Doe^John");
+        this->query.add("QueryRetrieveLevel", {"PATIENT"});
+        this->query.add("PatientName", {"Doe^John"});
     }
 
 
-    static void callback(DcmDataset const *)
+    static void callback(dcmtkpp::DataSet const &)
     {
         Fixture::called = true;
     }
@@ -51,11 +50,9 @@ BOOST_FIXTURE_TEST_CASE(Get, Fixture)
     auto const results = scu.get(this->query);
 
     BOOST_REQUIRE_EQUAL(results.size(), 1);
-    BOOST_CHECK_EQUAL(
-        dcmtkpp::ElementAccessor<std::string>::get(*results[0], DCM_SOPInstanceUID),
-        "2.25.95090344942250266709587559073467305647");
-
-    delete results[0];
+    BOOST_CHECK(
+        results[0].as_string("SOPInstanceUID") ==
+            dcmtkpp::Value::Strings({"2.25.95090344942250266709587559073467305647"}));
 }
 
 BOOST_FIXTURE_TEST_CASE(GetCallback, Fixture)

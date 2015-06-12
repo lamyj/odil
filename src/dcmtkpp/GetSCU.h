@@ -13,11 +13,9 @@
 
 #include <vector>
 
-#include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmdata/dcdatset.h>
-
 #include "dcmtkpp/CGetResponse.h"
 #include "dcmtkpp/CStoreRequest.h"
+#include "dcmtkpp/DataSet.h"
 #include "dcmtkpp/StoreSCP.h"
 
 namespace dcmtkpp
@@ -34,13 +32,13 @@ public:
     virtual ~GetSCU();
     
     /// @brief Perform the C-GET using an optional callback.
-    void get(DcmDataset const & query, Callback callback) const;
+    void get(DataSet const & query, Callback callback) const;
     
     /**
-     * @brief Return a list of datasets matching the query. The user is 
-     * responsible for the de-allocation of the matches.
+     * @brief Return a list of datasets matching the query.
      */
-    std::vector<DcmDataset *> get(DcmDataset const & query) const;
+    std::vector<DataSet> get(DataSet const & query) const;
+
 private:
     bool _get_response(CGetResponse const & response) const;
     void _store_request(CStoreRequest const & request, Callback callback) const;

@@ -12,9 +12,7 @@
 #include <string>
 #include <vector>
 
-#include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmdata/dcdatset.h>
-
+#include "dcmtkpp/DataSet.h"
 #include "dcmtkpp/SCU.h"
 #include "dcmtkpp/StoreSCP.h"
 
@@ -40,13 +38,12 @@ public:
     void set_move_destination(std::string const & move_destination);
 
     /// @brief Perform the C-MOVE using a callback.
-    void move(DcmDataset const & query, Callback callback) const;
+    void move(DataSet const & query, Callback callback) const;
     
     /**
-     * @brief Return a list of datasets matching the query. The user is 
-     * responsible for the de-allocation of the matches.
+     * @brief Return a list of datasets matching the query.
      */
-    std::vector<DcmDataset *> move(DcmDataset const & query) const;
+    std::vector<DataSet> move(DataSet const & query) const;
 
 private:
     std::string _move_destination;

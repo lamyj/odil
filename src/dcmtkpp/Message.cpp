@@ -8,17 +8,13 @@
 
 #include "Message.h"
 
-#include <string>
-
 #include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmdata/dcdatset.h>
-#include <dcmtk/dcmdata/dcdeftag.h>
-#include <dcmtk/dcmdata/dctagkey.h>
 #include <dcmtk/dcmnet/dimse.h>
-#include <dcmtk/ofstd/oftypes.h>
 
-#include "dcmtkpp/ElementAccessor.h"
+#include "dcmtkpp/DataSet.h"
 #include "dcmtkpp/Exception.h"
+#include "dcmtkpp/registry.h"
+#include "dcmtkpp/Value.h"
 
 namespace dcmtkpp
 {
@@ -26,14 +22,28 @@ namespace dcmtkpp
 Message
 ::Message()
 {
-    ElementAccessor<Uint32>::set(this->_command_set, DCM_CommandGroupLength, 0);
-    this->set_data_set(NULL);
+    this->_command_set.add(registry::CommandDataSetType, { DIMSE_DATASET_NULL });
 }
 
 Message
-::Message(DcmDataset const & command_set, DcmDataset * data_set)
+::Message(DataSet const & command_set)
 : _command_set(command_set)
 {
+    if(!this->_command_set.has(registry::CommandDataSetType))
+    {
+        this->_command_set.add(registry::CommandDataSetType, VR::US);
+    }
+    this->_command_set.as_int(registry::CommandDataSetType) = { DIMSE_DATASET_NULL };
+}
+
+Message
+::Message(DataSet const & command_set, DataSet const & data_set)
+: _command_set(command_set)
+{
+    if(!this->_command_set.has(registry::CommandDataSetType))
+    {
+        this->_command_set.add(registry::CommandDataSetType, VR::US);
+    }
     this->set_data_set(data_set);
 }
 
@@ -43,49 +53,45 @@ Message
     // Nothing to do.
 }
 
-DcmDataset const & 
+DataSet const &
 Message
 ::get_command_set() const
 {
     return this->_command_set;
 }
 
-DcmDataset const *
+bool
+Message
+::has_data_set() const
+{
+    return (this->_command_set.as_int(registry::CommandDataSetType, 0) == DIMSE_DATASET_PRESENT);
+}
+
+DataSet const &
 Message
 ::get_data_set() const
 {
+    if(!this->has_data_set())
+    {
+        throw Exception("No data set in message");
+    }
     return this->_data_set;
 }
 
 void
 Message
-::set_data_set(const DcmDataset * data_set)
+::set_data_set(DataSet const & data_set)
 {
     this->_data_set = data_set;
-    
-    Uint16 command_dataset_type;
-    if(data_set == NULL || const_cast<DcmDataset*>(data_set)->isEmpty())
-    {
-        command_dataset_type = DIMSE_DATASET_NULL;
-    }
-    else
-    {
-        command_dataset_type = DIMSE_DATASET_PRESENT;
-    }
-    
-    ElementAccessor<Uint16>::set(
-        this->_command_set, DcmTagKey(0x0000, 0x0800), command_dataset_type);
+    this->_command_set.as_int(registry::CommandDataSetType) = { DIMSE_DATASET_PRESENT };
 }
 
 void
 Message
 ::delete_data_set()
 {
-    if(this->_data_set != NULL)
-    {
-        delete this->_data_set;
-        this->set_data_set(NULL);
-    }
+    this->_command_set.as_int(registry::CommandDataSetType) = { DIMSE_DATASET_NULL };
+    this->_data_set = DataSet();
 }
 
 }

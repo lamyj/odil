@@ -9,12 +9,9 @@
 #ifndef _97fc1bfc_4cff_40f2_a1ed_4550c71a0bda
 #define _97fc1bfc_4cff_40f2_a1ed_4550c71a0bda
 
-#include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmdata/dcdeftag.h>
-#include <dcmtk/dcmdata/dcvr.h>
-#include <dcmtk/ofstd/oftypes.h>
-
 #include "dcmtkpp/Message.h"
+#include "dcmtkpp/registry.h"
+#include "dcmtkpp/Value.h"
 
 namespace dcmtkpp
 {
@@ -36,8 +33,8 @@ public:
     /// @brief Destructor.
     ~Cancellation();
 
-    DCMTKPP_MESSAGE_MANDATORY_FIELD_MACRO(
-        message_id_being_responded_to, DCM_MessageIDBeingRespondedTo, Uint16);
+    DCMTKPP_MESSAGE_MANDATORY_FIELD_INTEGER_MACRO(
+        message_id_being_responded_to, registry::MessageIDBeingRespondedTo);
 };
 
 }

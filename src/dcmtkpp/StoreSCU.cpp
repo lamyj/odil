@@ -14,14 +14,13 @@
 #include <vector>
 
 #include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmdata/dcdatset.h>
-#include <dcmtk/dcmdata/dcdeftag.h>
+#include <dcmtk/dcmdata/dcuid.h>
 #include <dcmtk/dcmnet/dimse.h>
 
 #include "dcmtkpp/CStoreRequest.h"
 #include "dcmtkpp/CStoreResponse.h"
-#include "dcmtkpp/ElementAccessor.h"
 #include "dcmtkpp/Exception.h"
+#include "dcmtkpp/registry.h"
 
 namespace dcmtkpp
 {
@@ -34,10 +33,9 @@ StoreSCU
 
 void 
 StoreSCU
-::set_affected_sop_class(DcmDataset const * dataset)
+::set_affected_sop_class(DataSet const & dataset)
 {
-    std::string const sop_class_uid =
-        ElementAccessor<std::string>::get(*dataset, DCM_SOPClassUID);
+    auto const & sop_class_uid = dataset.as_string(registry::SOPClassUID, 0);
     
     // From dcuid.h
     std::vector<std::string> const storage = {
@@ -168,12 +166,12 @@ StoreSCU
 
 void 
 StoreSCU
-::store(DcmDataset const * dataset, ProgressCallback callback, void * data) const
+::store(DataSet const & dataset, ProgressCallback callback, void * data) const
 {
     CStoreRequest const request(
         this->_association->get_association()->nextMsgID++,
         this->_affected_sop_class,
-        ElementAccessor<std::string>::get(*dataset, DCM_SOPInstanceUID),
+        dataset.as_string(registry::SOPInstanceUID, 0),
         DIMSE_PRIORITY_MEDIUM,
         dataset);
     this->_send(request, this->_affected_sop_class, callback, data);

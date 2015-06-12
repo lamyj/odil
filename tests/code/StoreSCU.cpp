@@ -1,7 +1,7 @@
 #define BOOST_TEST_MODULE StoreSCU
 #include <boost/test/unit_test.hpp>
 
-#include "dcmtkpp/ElementAccessor.h"
+#include "dcmtkpp/DataSet.h"
 #include "dcmtkpp/Exception.h"
 #include "dcmtkpp/StoreSCU.h"
 
@@ -11,7 +11,7 @@ struct Fixture: public PeerFixtureBase
 {
     static bool called;
 
-    DcmDataset dataset;
+    dcmtkpp::DataSet dataset;
 
     Fixture()
     : PeerFixtureBase(NET_REQUESTOR, 104, 10,
@@ -23,20 +23,12 @@ struct Fixture: public PeerFixtureBase
     {
         Fixture::called = false;
 
-        dcmtkpp::ElementAccessor<std::string>::set(
-            this->dataset, DCM_ImageType, "ORIGINAL\\PRIMARY\\OTHER");
-        dcmtkpp::ElementAccessor<std::string>::set(
-            this->dataset, DCM_PatientID, "1234");
-        dcmtkpp::ElementAccessor<std::string>::set(
-            this->dataset, DCM_ImageType, "ORIGINAL\\PRIMARY\\OTHER");
-        dcmtkpp::ElementAccessor<std::string>::set(
-            this->dataset, DCM_StudyInstanceUID, "2.25.386726390606491051215227596277040710");
-        dcmtkpp::ElementAccessor<std::string>::set(
-            this->dataset, DCM_SeriesInstanceUID, "2.25.235367796740370588607388995952651763168");
-        dcmtkpp::ElementAccessor<std::string>::set(
-            this->dataset, DCM_SOPClassUID, UID_RawDataStorage);
-        dcmtkpp::ElementAccessor<std::string>::set(
-            this->dataset, DCM_SOPInstanceUID, "2.25.294312554735929033890522327215919068328");
+        this->dataset.add("ImageType", {"ORIGINAL", "PRIMARY", "OTHER"});
+        this->dataset.add("PatientID", {"1234"});
+        this->dataset.add("StudyInstanceUID", {"2.25.386726390606491051215227596277040710"});
+        this->dataset.add("SeriesInstanceUID", {"2.25.235367796740370588607388995952651763168"});
+        this->dataset.add("SOPClassUID", {UID_RawDataStorage});
+        this->dataset.add("SOPInstanceUID", {"2.25.294312554735929033890522327215919068328"});
     }
 
 
@@ -50,30 +42,29 @@ bool Fixture::called = false;
 
 BOOST_AUTO_TEST_CASE(AffectedSOPClassUID)
 {
-    DcmDataset dataset;
-    dcmtkpp::ElementAccessor<std::string>::set(
-        dataset, DCM_SOPClassUID, UID_RawDataStorage);
+    dcmtkpp::DataSet dataset;
+    dataset.add("SOPClassUID", {UID_RawDataStorage});
 
     dcmtkpp::StoreSCU scu;
-    scu.set_affected_sop_class(&dataset);
+    scu.set_affected_sop_class(dataset);
     BOOST_CHECK_EQUAL(scu.get_affected_sop_class(), UID_RawDataStorage);
 }
 
 BOOST_AUTO_TEST_CASE(AffectedSOPClassUIDNoSOPClassUID)
 {
-    DcmDataset dataset;
+    dcmtkpp::DataSet dataset;
 
     dcmtkpp::StoreSCU scu;
-    BOOST_CHECK_THROW(scu.set_affected_sop_class(&dataset), dcmtkpp::Exception);
+    BOOST_CHECK_THROW(scu.set_affected_sop_class(dataset), dcmtkpp::Exception);
 }
 
 BOOST_AUTO_TEST_CASE(AffectedSOPClassUIDUnknownSOPClassUID)
 {
-    DcmDataset dataset;
-    dcmtkpp::ElementAccessor<std::string>::set(dataset, DCM_SOPClassUID, "invalid");
+    dcmtkpp::DataSet dataset;
+    dataset.add("SOPClassUID", {"invalid"});
 
     dcmtkpp::StoreSCU scu;
-    BOOST_CHECK_THROW(scu.set_affected_sop_class(&dataset), dcmtkpp::Exception);
+    BOOST_CHECK_THROW(scu.set_affected_sop_class(dataset), dcmtkpp::Exception);
 }
 
 BOOST_FIXTURE_TEST_CASE(Store, Fixture)
@@ -82,7 +73,7 @@ BOOST_FIXTURE_TEST_CASE(Store, Fixture)
     scu.set_network(&this->network);
     scu.set_association(&this->association);
 
-    scu.set_affected_sop_class(&this->dataset);
-    scu.store(&this->dataset, Fixture::callback);
+    scu.set_affected_sop_class(this->dataset);
+    scu.store(this->dataset, Fixture::callback);
     BOOST_CHECK(this->called);
 }

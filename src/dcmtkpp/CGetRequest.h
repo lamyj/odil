@@ -9,13 +9,10 @@
 #ifndef _6a22f126_7cc6_47ab_81c2_5f66b2714345
 #define _6a22f126_7cc6_47ab_81c2_5f66b2714345
 
-#include <string>
-
-#include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmdata/dcdeftag.h>
-#include <dcmtk/dcmdata/dcvr.h>
-
+#include "dcmtkpp/DataSet.h"
+#include "dcmtkpp/registry.h"
 #include "dcmtkpp/Request.h"
+#include "dcmtkpp/Value.h"
 
 namespace dcmtkpp
 {
@@ -29,8 +26,8 @@ public:
      * affected SOP class UID, priority, and data set.
      */
     CGetRequest(
-        Uint16 message_id, std::string const & affected_sop_class_uid,
-        Uint16 priority, DcmDataset const * dataset);
+        Value::Integer message_id, Value::String const & affected_sop_class_uid,
+        Value::Integer priority, DataSet const & dataset);
 
     /**
      * @brief Create a C-GET-RQ from a generic Message.
@@ -42,9 +39,9 @@ public:
     /// @brief Destructor.
     virtual ~CGetRequest();
 
-    DCMTKPP_MESSAGE_MANDATORY_FIELD_MACRO(
-        affected_sop_class_uid, DCM_AffectedSOPClassUID, std::string)
-    DCMTKPP_MESSAGE_MANDATORY_FIELD_MACRO(priority, DCM_Priority, Uint16)
+    DCMTKPP_MESSAGE_MANDATORY_FIELD_STRING_MACRO(
+        affected_sop_class_uid, registry::AffectedSOPClassUID)
+    DCMTKPP_MESSAGE_MANDATORY_FIELD_INTEGER_MACRO(priority, registry::Priority)
 };
 
 }

@@ -9,13 +9,9 @@
 #ifndef _266252d9_e801_479e_a805_004b101c5250
 #define _266252d9_e801_479e_a805_004b101c5250
 
-#include <string>
-
-#include <dcmtk/config/osconfig.h>
-#include <dcmtk/ofstd/oftypes.h>
-
-#include "dcmtkpp/Message.h"
+#include "dcmtkpp/registry.h"
 #include "dcmtkpp/Response.h"
+#include "dcmtkpp/Value.h"
 
 namespace dcmtkpp
 {
@@ -29,8 +25,8 @@ public:
      * affected SOP class UID.
      */
     CEchoResponse(
-        Uint16 message_id_being_responded_to, Uint16 status,
-        std::string const & affected_sop_class_uid);
+        Value::Integer message_id_being_responded_to, Value::Integer status,
+        Value::String const & affected_sop_class_uid);
 
     /**
      * @brief Create a C-ECHO-RSP from a generic Message.
@@ -42,8 +38,8 @@ public:
     /// @brief Destructor.
     virtual ~CEchoResponse();
     
-    DCMTKPP_MESSAGE_MANDATORY_FIELD_MACRO(
-        affected_sop_class_uid, DCM_AffectedSOPClassUID, std::string)
+    DCMTKPP_MESSAGE_MANDATORY_FIELD_STRING_MACRO(
+        affected_sop_class_uid, registry::AffectedSOPClassUID)
 };
 
 }

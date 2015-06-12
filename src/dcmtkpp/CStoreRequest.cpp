@@ -24,9 +24,9 @@ namespace dcmtkpp
 
 CStoreRequest
 ::CStoreRequest(
-    Uint16 message_id, std::string const & affected_sop_class_uid,
-    std::string const & affected_sop_instance_uid,
-    Uint16 priority, DcmDataset const * dataset)
+    Value::Integer message_id, Value::String const & affected_sop_class_uid,
+    Value::String const & affected_sop_instance_uid,
+    Value::Integer priority, DataSet const & dataset)
 : Request(message_id)
 {
     this->set_command_field(DIMSE_C_STORE_RQ);
@@ -34,7 +34,7 @@ CStoreRequest
     this->set_affected_sop_instance_uid(affected_sop_instance_uid);
     this->set_priority(priority);
 
-    if(dataset == NULL || const_cast<DcmDataset*>(dataset)->isEmpty())
+    if(dataset.empty())
     {
         throw Exception("Data set is required");
     }
@@ -51,23 +51,20 @@ CStoreRequest
     }
     this->set_command_field(message.get_command_field());
 
-    DcmDataset const & command_set(message.get_command_set());
-
     this->set_affected_sop_class_uid(
-        ElementAccessor<std::string>::get(command_set, DCM_AffectedSOPClassUID));
+        message.get_command_set().as_string(registry::AffectedSOPClassUID, 0));
     this->set_affected_sop_instance_uid(
-        ElementAccessor<std::string>::get(command_set, DCM_AffectedSOPInstanceUID));
-    this->set_priority(ElementAccessor<Uint16>::get(command_set, DCM_Priority));
+        message.get_command_set().as_string(registry::AffectedSOPInstanceUID, 0));
+    this->set_priority(message.get_command_set().as_int(registry::Priority, 0));
 
     DCMTKPP_MESSAGE_SET_OPTIONAL_FIELD_MACRO(
         message.get_command_set(), move_originator_ae_title,
-        DCM_MoveOriginatorApplicationEntityTitle, std::string)
+        registry::MoveOriginatorApplicationEntityTitle, as_string)
     DCMTKPP_MESSAGE_SET_OPTIONAL_FIELD_MACRO(
         message.get_command_set(), move_originator_message_id,
-        DCM_MoveOriginatorMessageID, Uint16)
+        registry::MoveOriginatorMessageID, as_int)
 
-    if(message.get_data_set() == NULL ||
-       const_cast<DcmDataset*>(message.get_data_set())->isEmpty())
+    if(!message.has_data_set() || message.get_data_set().empty())
     {
         throw Exception("Data set is required");
     }

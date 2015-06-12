@@ -14,7 +14,10 @@
 #include <dcmtk/config/osconfig.h>
 #include <dcmtk/ofstd/oftypes.h>
 
+#include "dcmtkpp/DataSet.h"
+#include "dcmtkpp/registry.h"
 #include "dcmtkpp/Request.h"
+#include "dcmtkpp/Value.h"
 
 namespace dcmtkpp
 {
@@ -28,9 +31,9 @@ public:
      * affected SOP class UID, priority, and data set.
      */
     CStoreRequest(
-        Uint16 message_id, std::string const & affected_sop_class_uid,
-        std::string const & affected_sop_instance_uid,
-        Uint16 priority, DcmDataset const * dataset);
+        Value::Integer message_id, Value::String const & affected_sop_class_uid,
+        Value::String const & affected_sop_instance_uid,
+        Value::Integer priority, DataSet const & dataset);
 
     /**
      * @brief Create a C-STORE-RQ from a generic Message.
@@ -42,15 +45,15 @@ public:
     /// @brief Destructor.
     virtual ~CStoreRequest();
     
-    DCMTKPP_MESSAGE_MANDATORY_FIELD_MACRO(
-        affected_sop_class_uid, DCM_AffectedSOPClassUID, std::string)
-    DCMTKPP_MESSAGE_MANDATORY_FIELD_MACRO(
-        affected_sop_instance_uid, DCM_AffectedSOPInstanceUID, std::string)
-    DCMTKPP_MESSAGE_MANDATORY_FIELD_MACRO(priority, DCM_Priority, Uint16)
-    DCMTKPP_MESSAGE_OPTIONAL_FIELD_MACRO(
-        move_originator_ae_title, DCM_MoveOriginatorApplicationEntityTitle, std::string)
-    DCMTKPP_MESSAGE_OPTIONAL_FIELD_MACRO(
-        move_originator_message_id, DCM_MoveOriginatorMessageID, Uint16)
+    DCMTKPP_MESSAGE_MANDATORY_FIELD_STRING_MACRO(
+        affected_sop_class_uid, registry::AffectedSOPClassUID)
+    DCMTKPP_MESSAGE_MANDATORY_FIELD_STRING_MACRO(
+        affected_sop_instance_uid, registry::AffectedSOPInstanceUID)
+    DCMTKPP_MESSAGE_MANDATORY_FIELD_INTEGER_MACRO(priority, registry::Priority)
+    DCMTKPP_MESSAGE_OPTIONAL_FIELD_STRING_MACRO(
+        move_originator_ae_title, registry::MoveOriginatorApplicationEntityTitle)
+    DCMTKPP_MESSAGE_OPTIONAL_FIELD_INTEGER_MACRO(
+        move_originator_message_id, registry::MoveOriginatorMessageID)
 };
 
 }

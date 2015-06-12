@@ -2,45 +2,34 @@
 #include <boost/test/unit_test.hpp>
 
 #include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmdata/dcdatset.h>
-#include <dcmtk/dcmdata/dcdeftag.h>
 #include <dcmtk/dcmdata/dcuid.h>
 #include <dcmtk/dcmnet/dimse.h>
 
 #include "dcmtkpp/CFindResponse.h"
-#include "dcmtkpp/ElementAccessor.h"
+#include "dcmtkpp/DataSet.h"
 #include "dcmtkpp/Message.h"
 
 #include "../MessageFixtureBase.h"
 
 struct Fixture: public MessageFixtureBase<dcmtkpp::CFindResponse>
 {
-    DcmDataset command_set;
-    DcmDataset data_set;
+    dcmtkpp::DataSet command_set;
+    dcmtkpp::DataSet data_set;
 
     Fixture()
     {
-        dcmtkpp::ElementAccessor<Uint16>::set(
-            this->command_set, DCM_CommandField, DIMSE_C_FIND_RSP);
-        dcmtkpp::ElementAccessor<Uint16>::set(
-            this->command_set, DCM_MessageIDBeingRespondedTo, 1234);
-        dcmtkpp::ElementAccessor<Uint16>::set(
-            this->command_set, DCM_Status, STATUS_Success);
+        command_set.add("CommandField", {DIMSE_C_FIND_RSP});
+        command_set.add("MessageIDBeingRespondedTo", {1234});
+        command_set.add("Status", {STATUS_Success});
 
-        dcmtkpp::ElementAccessor<Uint16>::set(
-            this->command_set, DCM_MessageID, 5678);
-        dcmtkpp::ElementAccessor<std::string>::set(
-            this->command_set, DCM_AffectedSOPClassUID,
-            UID_FINDStudyRootQueryRetrieveInformationModel);
+        command_set.add("MessageID", {5678});
+        command_set.add("AffectedSOPClassUID",
+            {UID_FINDStudyRootQueryRetrieveInformationModel});
 
-        dcmtkpp::ElementAccessor<std::string>::set(
-            this->data_set, DCM_PatientName, "Doe^John");
-        dcmtkpp::ElementAccessor<std::string>::set(
-            this->data_set, DCM_PatientID, "DJ123");
-        dcmtkpp::ElementAccessor<std::string>::set(
-            this->data_set, DCM_StudyDescription, "Brain");
-        dcmtkpp::ElementAccessor<std::string>::set(
-            this->data_set, DCM_StudyInstanceUID, "1.2.3");
+        data_set.add("PatientName", {"Doe^John"});
+        data_set.add("PatientID", {"DJ123"});
+        data_set.add("StudyDescription", {"Brain"});
+        data_set.add("StudyInstanceUID", {"1.2.3"});
     }
 
     virtual void check(dcmtkpp::CFindResponse const & message)
@@ -57,13 +46,14 @@ struct Fixture: public MessageFixtureBase<dcmtkpp::CFindResponse>
             message.get_affected_sop_class_uid(),
             UID_FINDStudyRootQueryRetrieveInformationModel);
 
-        BOOST_CHECK_EQUAL(message.get_data_set(), &this->data_set);
+        BOOST_CHECK(message.has_data_set());
+        BOOST_CHECK(message.get_data_set() == this->data_set);
     }
 };
 
 BOOST_FIXTURE_TEST_CASE(Constructor, Fixture)
 {
-    dcmtkpp::CFindResponse message(1234, STATUS_Success, &this->data_set);
+    dcmtkpp::CFindResponse message(1234, STATUS_Success, this->data_set);
     message.set_message_id(5678);
     message.set_affected_sop_class_uid(
         UID_FINDStudyRootQueryRetrieveInformationModel);
@@ -72,12 +62,11 @@ BOOST_FIXTURE_TEST_CASE(Constructor, Fixture)
 
 BOOST_FIXTURE_TEST_CASE(MessageConstructor, Fixture)
 {
-    this->check_message_constructor(this->command_set, &this->data_set);
+    this->check_message_constructor(this->command_set, this->data_set);
 }
 
 BOOST_FIXTURE_TEST_CASE(MessageConstructorWrongCommandField, Fixture)
 {
-    dcmtkpp::ElementAccessor<Uint16>::set(
-        this->command_set, DCM_CommandField, DIMSE_C_ECHO_RQ);
-    this->check_message_constructor_throw(this->command_set, &this->data_set);
+    this->command_set.as_int("CommandField") = {DIMSE_C_ECHO_RQ};
+    this->check_message_constructor_throw(this->command_set, this->data_set);
 }

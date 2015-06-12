@@ -1,6 +1,8 @@
 #include <dcmtk/config/osconfig.h>
 #include <dcmtk/dcmdata/dctk.h>
 
+#include "dcmtkpp/conversion.h"
+#include "dcmtkpp/DataSet.h"
 #include "dcmtkpp/StoreSCU.h"
 
 void progress_callback(void * data, unsigned long bytes_count)
@@ -46,9 +48,11 @@ int main(int argc, char** argv)
         long file_size = OFStandard::getFileSize(argv[i]);
         DcmFileFormat file;
         file.loadFile(argv[i]);
+
+        dcmtkpp::DataSet const data_set = dcmtkpp::convert(file.getDataset());
         
-        scu.set_affected_sop_class(file.getDataset());
-        scu.store(file.getDataset(), progress_callback, &file_size);
+        scu.set_affected_sop_class(data_set);
+        scu.store(data_set, progress_callback, &file_size);
     }
     
     association.release();

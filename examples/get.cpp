@@ -3,19 +3,20 @@
 #include <dcmtk/config/osconfig.h>
 #include <dcmtk/dcmdata/dctk.h>
 
-#include "dcmtkpp/ElementAccessor.h"
+#include "dcmtkpp/DataSet.h"
 #include "dcmtkpp/GetSCU.h"
+#include "dcmtkpp/registry.h"
 
-void print_informations(DcmDataset const * response)
+void print_informations(dcmtkpp::DataSet const & response)
 {
     std::cout
-        << dcmtkpp::ElementAccessor<std::string>::get(*response, DCM_PatientName)
+        << response.as_string("PatientName", 0)
         << ": "
-        << dcmtkpp::ElementAccessor<std::string>::get(*response, DCM_StudyDescription)
+        << response.as_string("StudyDescription", 0)
         << " / "
-        << dcmtkpp::ElementAccessor<std::string>::get(*response, DCM_SeriesDescription)
+        << response.as_string("SeriesDescription", 0)
         << ": "
-        << dcmtkpp::ElementAccessor<std::string>::get(*response, DCM_InstanceNumber)
+        << response.as_string("InstanceNumber", 0)
         << "\n";
 }
 
@@ -53,11 +54,11 @@ int main()
     
     scu.echo();
     
-    DcmDataset query;
-    dcmtkpp::ElementAccessor<std::string>::set(query, DCM_PatientID, "1234");
-    dcmtkpp::ElementAccessor<std::string>::set(query, DCM_QueryRetrieveLevel, "SERIES");
-    dcmtkpp::ElementAccessor<std::string>::set(query, DCM_StudyInstanceUID, "1.2.3.4.5");
-    dcmtkpp::ElementAccessor<std::string>::set(query, DCM_SeriesInstanceUID, "1.2.3.4.5.1");
+    dcmtkpp::DataSet query;
+    query.add("PatientID",{ "1234" });
+    query.add("QueryRetrieveLevel", { "SERIES" });
+    query.add("StudyInstanceUID", { "1.2.3.4.5" });
+    query.add("SeriesInstanceUID", { "1.2.3.4.5.1" });
     
     scu.set_affected_sop_class(UID_GETStudyRootQueryRetrieveInformationModel);
     
@@ -73,15 +74,10 @@ int main()
     std::cout << "vector\n";
     std::cout << "------\n\n";
     
-    std::vector<DcmDataset*> result = scu.get(query);
+    std::vector<dcmtkpp::DataSet> result = scu.get(query);
     for(auto dataset: result)
     {
         print_informations(dataset);
-    }
-    for(auto & dataset: result)
-    {
-        delete dataset;
-        dataset = 0;
     }
     
     association.release();

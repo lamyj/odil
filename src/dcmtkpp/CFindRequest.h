@@ -9,12 +9,9 @@
 #ifndef _74cfa9e7_da35_4130_a941_e17cb6932f60
 #define _74cfa9e7_da35_4130_a941_e17cb6932f60
 
-#include <string>
-
-#include <dcmtk/config/osconfig.h>
-#include <dcmtk/ofstd/oftypes.h>
-
+#include "dcmtkpp/registry.h"
 #include "dcmtkpp/Request.h"
+#include "dcmtkpp/Value.h"
 
 namespace dcmtkpp
 {
@@ -28,8 +25,8 @@ public:
      * affected SOP class UID, priority, and data set.
      */
     CFindRequest(
-        Uint16 message_id, std::string const & affected_sop_class_uid,
-        Uint16 priority, DcmDataset const * dataset);
+        Value::Integer message_id, Value::String const & affected_sop_class_uid,
+        Value::Integer priority, DataSet const & dataset);
 
     /**
      * @brief Create a C-FIND-RQ from a generic Message.
@@ -41,9 +38,9 @@ public:
     /// @brief Destructor.
     virtual ~CFindRequest();
     
-    DCMTKPP_MESSAGE_MANDATORY_FIELD_MACRO(
-        affected_sop_class_uid, DCM_AffectedSOPClassUID, std::string)
-    DCMTKPP_MESSAGE_MANDATORY_FIELD_MACRO(priority, DCM_Priority, Uint16)
+    DCMTKPP_MESSAGE_MANDATORY_FIELD_STRING_MACRO(
+        affected_sop_class_uid, registry::AffectedSOPClassUID)
+    DCMTKPP_MESSAGE_MANDATORY_FIELD_INTEGER_MACRO(priority, registry::Priority)
 };
 
 }

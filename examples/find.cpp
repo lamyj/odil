@@ -3,35 +3,16 @@
 #include <dcmtk/config/osconfig.h>
 #include <dcmtk/dcmdata/dctk.h>
 
+#include "dcmtkpp/DataSet.h"
 #include "dcmtkpp/FindSCU.h"
+#include "dcmtkpp/registry.h"
 
-void print_informations(DcmDataset const * response)
+void print_informations(dcmtkpp::DataSet const & response)
 {
-    std::cout
-        << dcmtkpp::ElementAccessor<std::string>::get(*response, DCM_PatientName)
-        << ": "
-        << dcmtkpp::ElementAccessor<std::string>::get(*response, DCM_StudyDescription)
-        << " / "
-        << dcmtkpp::ElementAccessor<std::string>::get(*response, DCM_SeriesDescription)
-        << ": "
-        << dcmtkpp::ElementAccessor<std::string>::get(*response, DCM_InstanceNumber)
-        << "\n";
-
-    std::string const patient_name =
-        dcmtkpp::ElementAccessor<std::string>::get(*response, DCM_PatientName);
-
-    std::string const study_description =
-        dcmtkpp::ElementAccessor<std::string>::get(*response, DCM_StudyDescription);
-
-    std::string const study_date =
-        dcmtkpp::ElementAccessor<std::string>::get(*response, DCM_StudyDate);
-
-    Sint32 const number_of_study_related_series =
-        dcmtkpp::ElementAccessor<Sint32>::get(*response, DCM_NumberOfStudyRelatedSeries);
-    
-    std::cout << patient_name << ": " << study_description
-              << " on " << study_date << ", " 
-              << number_of_study_related_series << " series\n";
+    std::cout << response.as_string("PatientName", 0) << ": "
+              << response.as_string("StudyDescription", 0)
+              << " on " << response.as_string("StudyDate", 0) << ", "
+              << response.as_int(dcmtkpp::registry::NumberOfStudyRelatedSeries, 0) << " series\n";
 }
 
 int main()
@@ -63,12 +44,12 @@ int main()
     
     scu.echo();
     
-    DcmDataset query;
-    dcmtkpp::ElementAccessor<std::string>::set(query, DCM_PatientName, "DOE^John");
-    dcmtkpp::ElementAccessor<std::string>::set(query, DCM_QueryRetrieveLevel, "STUDY");
-    query.insertEmptyElement(DCM_StudyDescription);
-    query.insertEmptyElement(DCM_NumberOfStudyRelatedSeries);
-    query.insertEmptyElement(DCM_StudyDate);
+    dcmtkpp::DataSet query;
+    query.add("PatientName", { "DOE^John" });
+    query.add("QueryRetrieveLevel", { "STUDY" });
+    query.add("StudyDescription");
+    query.add(dcmtkpp::registry::NumberOfStudyRelatedSeries);
+    query.add("StudyDate");
     
     scu.set_affected_sop_class(UID_FINDStudyRootQueryRetrieveInformationModel);
     
@@ -84,15 +65,10 @@ int main()
     std::cout << "vector\n";
     std::cout << "------\n\n";
     
-    std::vector<DcmDataset*> result = scu.find(query);
+    std::vector<dcmtkpp::DataSet> result = scu.find(query);
     for(auto dataset: result)
     {
         print_informations(dataset);
-    }
-    for(auto & dataset: result)
-    {
-        delete dataset;
-        dataset = 0;
     }
     
     association.release();

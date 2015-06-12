@@ -8,20 +8,15 @@
 
 #include "Response.h"
 
-#include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmdata/dcdatset.h>
-#include <dcmtk/dcmdata/dcdeftag.h>
-#include <dcmtk/ofstd/oftypes.h>
-
-#include "dcmtkpp/ElementAccessor.h"
-#include "dcmtkpp/Exception.h"
 #include "dcmtkpp/Message.h"
+#include "dcmtkpp/registry.h"
+#include "dcmtkpp/Value.h"
 
 namespace dcmtkpp
 {
 
 Response
-::Response(Uint16 message_id_being_responded_to, Uint16 status)
+::Response(Value::Integer message_id_being_responded_to, Value::Integer status)
 : Message()
 {
     this->set_message_id_being_responded_to(message_id_being_responded_to);
@@ -32,13 +27,11 @@ Response
 ::Response(Message const & message)
 : Message()
 {
-    Uint16 const message_id = ElementAccessor<Uint16>::get(
-        message.get_command_set(), DCM_MessageIDBeingRespondedTo);
-    this->set_message_id_being_responded_to(message_id);
+    this->set_message_id_being_responded_to(
+        message.get_command_set().as_int(
+            registry::MessageIDBeingRespondedTo, 0));
 
-    Uint16 const status = ElementAccessor<Uint16>::get(
-        message.get_command_set(), DCM_Status);
-    this->set_status(status);
+    this->set_status(message.get_command_set().as_int(registry::Status, 0));
 }
 
 Response

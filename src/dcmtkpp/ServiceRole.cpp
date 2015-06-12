@@ -20,8 +20,11 @@
 #include <dcmtk/dcmnet/assoc.h>
 #include <dcmtk/dcmnet/dimse.h>
 
+#include "dcmtkpp/conversion.h"
+#include "dcmtkpp/DataSet.h"
 #include "dcmtkpp/ElementAccessor.h"
 #include "dcmtkpp/Exception.h"
+#include "dcmtkpp/registry.h"
 
 namespace dcmtkpp
 {
@@ -120,19 +123,26 @@ ServiceRole
     T_ASC_PresentationContextID const presentation_context = 
         this->_find_presentation_context(abstract_syntax);
     
+    DcmDataset * command_set = dynamic_cast<DcmDataset*>(
+        convert(message.get_command_set()));
+
     this->_send(
-        const_cast<DcmDataset*>(&message.get_command_set()),
+        command_set,
         presentation_context, EXS_LittleEndianImplicit, 
         DUL_COMMANDPDV, NULL, NULL);
-    if(message.get_data_set() != NULL && 
-       !const_cast<DcmDataset*>(message.get_data_set())->isEmpty())
+    if(message.has_data_set() && !message.get_data_set().empty())
     {
+        DcmDataset * data_set = dynamic_cast<DcmDataset*>(
+            convert(message.get_data_set()));
         // FIXME: transfer syntax
         this->_send(
-            const_cast<DcmDataset*>(message.get_data_set()),
+            data_set,
             presentation_context, EXS_LittleEndianImplicit, 
             DUL_DATASETPDV, callback, callback_data);
+        delete data_set;
     }
+
+    delete command_set;
 }
 
 Message
@@ -146,14 +156,12 @@ ServiceRole
     {
         throw Exception("Did not receive command set");
     }
-    DcmDataset const & command_set = command.first;
+    DataSet const command_set = convert(const_cast<DcmDataset*>(&command.first));
     
     // Receive potential data set
-    Uint16 const command_data_set_type =
-        ElementAccessor<Uint16>::get(command_set, DcmTagKey(0x0000, 0x0800));
-    
-    DcmDataset * data_set;
-    if(command_data_set_type != DIMSE_DATASET_NULL)
+    DataSet data_set;
+    bool has_data_set;
+    if(command_set.as_int(registry::CommandDataSetType, 0) != DIMSE_DATASET_NULL)
     {
         std::pair<DcmDataset, DUL_DATAPDV> const data =
             this->_receive_dataset(callback, callback_data);
@@ -161,14 +169,15 @@ ServiceRole
         {
             throw Exception("Did not receive data set");
         }
-        data_set = new DcmDataset(data.first);
+        data_set = convert(const_cast<DcmDataset*>(&data.first));
+        has_data_set = true;
     }
     else
     {
-        data_set = NULL;
+        has_data_set = false;
     }
     
-    return Message(command_set, data_set);
+    return has_data_set?Message(command_set, data_set):Message(command_set);
 }
 
 OFCondition

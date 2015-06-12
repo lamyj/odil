@@ -2,36 +2,28 @@
 #include <boost/test/unit_test.hpp>
 
 #include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmdata/dcdatset.h>
-#include <dcmtk/dcmdata/dcdeftag.h>
 #include <dcmtk/dcmdata/dcuid.h>
 #include <dcmtk/dcmnet/dimse.h>
 
 #include "dcmtkpp/CStoreResponse.h"
-#include "dcmtkpp/ElementAccessor.h"
+#include "dcmtkpp/DataSet.h"
 #include "dcmtkpp/Message.h"
 
 #include "../MessageFixtureBase.h"
 
 struct Fixture: public MessageFixtureBase<dcmtkpp::CStoreResponse>
 {
-    DcmDataset command_set;
+    dcmtkpp::DataSet command_set;
 
     Fixture()
     {
-        dcmtkpp::ElementAccessor<Uint16>::set(
-            this->command_set, DCM_CommandField, DIMSE_C_STORE_RSP);
-        dcmtkpp::ElementAccessor<Uint16>::set(
-            this->command_set, DCM_MessageIDBeingRespondedTo, 1234);
-        dcmtkpp::ElementAccessor<Uint16>::set(
-            this->command_set, DCM_Status, STATUS_Success);
+        this->command_set.add("CommandField", {DIMSE_C_STORE_RSP});
+        this->command_set.add("MessageIDBeingRespondedTo", {1234});
+        this->command_set.add("Status", {STATUS_Success});
 
-        dcmtkpp::ElementAccessor<Uint16>::set(
-            this->command_set, DCM_MessageID, 5678);
-        dcmtkpp::ElementAccessor<std::string>::set(
-            this->command_set, DCM_AffectedSOPClassUID, UID_MRImageStorage);
-        dcmtkpp::ElementAccessor<std::string>::set(
-            this->command_set, DCM_AffectedSOPInstanceUID, "1.2.3.4");
+        this->command_set.add("MessageID", {5678});
+        this->command_set.add("AffectedSOPClassUID", {UID_MRImageStorage});
+        this->command_set.add("AffectedSOPInstanceUID", {"1.2.3.4"});
     }
 
     void check(dcmtkpp::CStoreResponse const & message)
@@ -39,7 +31,7 @@ struct Fixture: public MessageFixtureBase<dcmtkpp::CStoreResponse>
         BOOST_CHECK_EQUAL(message.get_command_field(), DIMSE_C_STORE_RSP);
         BOOST_CHECK_EQUAL(message.get_message_id_being_responded_to(), 1234);
         BOOST_CHECK_EQUAL(message.get_status(), STATUS_Success);
-        BOOST_CHECK_EQUAL(message.get_data_set(), static_cast<DcmDataset const *>(NULL));
+        BOOST_CHECK(!message.has_data_set());
 
         BOOST_CHECK(message.has_message_id());
         BOOST_CHECK_EQUAL(message.get_message_id(), 5678);
@@ -65,19 +57,12 @@ BOOST_FIXTURE_TEST_CASE(Constructor, Fixture)
 
 BOOST_FIXTURE_TEST_CASE(MessageConstructor, Fixture)
 {
-    this->check_message_constructor(this->command_set, NULL);
+    this->check_message_constructor(this->command_set);
 }
 
 BOOST_FIXTURE_TEST_CASE(MessageConstructorWrongCommandField, Fixture)
 {
-    dcmtkpp::ElementAccessor<Uint16>::set(
-        this->command_set, DCM_CommandField, DIMSE_C_ECHO_RQ);
-    this->check_message_constructor_throw(this->command_set, NULL);
+    this->command_set.add("CommandField", {DIMSE_C_ECHO_RQ});
+    this->check_message_constructor_throw(this->command_set);
 }
 
-BOOST_FIXTURE_TEST_CASE(MessageConstructorWithDataSet, Fixture)
-{
-    DcmDataset dataset;
-    dcmtkpp::ElementAccessor<std::string>::set(dataset, DCM_PatientName, "Foo");
-    this->check_message_constructor_throw(this->command_set, &dataset);
-}

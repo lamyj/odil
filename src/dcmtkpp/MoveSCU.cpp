@@ -11,11 +11,11 @@
 #include <vector>
 
 #include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmdata/dcdatset.h>
 #include <dcmtk/dcmnet/dimse.h>
 
 #include "dcmtkpp/CMoveRequest.h"
 #include "dcmtkpp/CMoveResponse.h"
+#include "dcmtkpp/DataSet.h"
 #include "dcmtkpp/Exception.h"
 #include "dcmtkpp/Message.h"
 #include "dcmtkpp/StoreSCP.h"
@@ -52,12 +52,12 @@ MoveSCU
 
 void
 MoveSCU
-::move(DcmDataset const & query, Callback callback) const
+::move(DataSet const & query, Callback callback) const
 {
     // Send the request
     CMoveRequest const request(this->_association->get_association()->nextMsgID++,
         this->_affected_sop_class, DIMSE_PRIORITY_MEDIUM,
-        this->_move_destination, &query);
+        this->_move_destination, query);
     this->_send(request, this->_affected_sop_class);
     
     // Receive the responses
@@ -76,14 +76,13 @@ MoveSCU
     }
 }
 
-std::vector<DcmDataset *>
+std::vector<DataSet>
 MoveSCU
-::move(DcmDataset const & query) const
+::move(DataSet const & query) const
 {
-    std::vector<DcmDataset*> result;
-    auto callback = [&result](DcmDataset const * dataset) {
-        // We do not manage the allocation of dataset: clone it
-        result.push_back(static_cast<DcmDataset*>(dataset->clone())); 
+    std::vector<DataSet> result;
+    auto callback = [&result](DataSet const & dataset) {
+        result.push_back(dataset);
     };
     this->move(query, callback);
     

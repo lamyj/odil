@@ -11,26 +11,27 @@
 #include <string>
 
 #include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmdata/dcdeftag.h>
 #include <dcmtk/dcmnet/dimse.h>
-#include <dcmtk/ofstd/oftypes.h>
 
-#include "dcmtkpp/ElementAccessor.h"
+#include "dcmtkpp/DataSet.h"
 #include "dcmtkpp/Exception.h"
+#include "dcmtkpp/registry.h"
 #include "dcmtkpp/Request.h"
+#include "dcmtkpp/Value.h"
 
 namespace dcmtkpp
 {
 
 CGetRequest
-::CGetRequest(Uint16 message_id, std::string const & affected_sop_class_uid,
-    Uint16 priority, const DcmDataset * dataset)
+::CGetRequest(
+    Value::Integer message_id, Value::String const & affected_sop_class_uid,
+    Value::Integer priority, DataSet const & dataset)
 : Request(message_id)
 {
     this->set_command_field(DIMSE_C_GET_RQ);
     this->set_affected_sop_class_uid(affected_sop_class_uid);
     this->set_priority(priority);
-    if(dataset == NULL || const_cast<DcmDataset*>(dataset)->isEmpty())
+    if(dataset.empty())
     {
         throw Exception("Data set is required");
     }
@@ -47,16 +48,12 @@ CGetRequest
     }
     this->set_command_field(message.get_command_field());
 
-    std::string const affected_sop_class_uid = ElementAccessor<std::string>::get(
-        message.get_command_set(), DCM_AffectedSOPClassUID);
-    this->set_affected_sop_class_uid(affected_sop_class_uid);
+    this->set_affected_sop_class_uid(
+        message.get_command_set().as_string(registry::AffectedSOPClassUID, 0));
 
-    Uint16 const priority = ElementAccessor<Uint16>::get(
-        message.get_command_set(), DCM_Priority);
-    this->set_priority(priority);
+    this->set_priority(message.get_command_set().as_int(registry::Priority, 0));
 
-    if(message.get_data_set() == NULL ||
-       const_cast<DcmDataset*>(message.get_data_set())->isEmpty())
+    if(!message.has_data_set() || message.get_data_set().empty())
     {
         throw Exception("Data set is required");
     }

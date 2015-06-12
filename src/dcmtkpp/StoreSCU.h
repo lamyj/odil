@@ -11,8 +11,7 @@
 
 #include "SCU.h"
 
-#include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmdata/dcdatset.h>
+#include "dcmtkpp/DataSet.h"
 
 namespace dcmtkpp
 {
@@ -25,10 +24,10 @@ public:
     virtual ~StoreSCU();
     
     /// @brief Set the affected SOP class based on the dataset.
-    void set_affected_sop_class(DcmDataset const * dataset);
+    void set_affected_sop_class(DataSet const & dataset);
     
     /// @brief Perform the C-STORE using an optional callback.
-    void store(DcmDataset const * dataset, 
+    void store(DataSet const & dataset,
         ProgressCallback callback=NULL, void * data=NULL) const;
 };
 

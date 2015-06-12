@@ -31,13 +31,13 @@ FindSCU
 
 void 
 FindSCU
-::find(DcmDataset const & query, Callback callback) const
+::find(DataSet const & query, Callback callback) const
 {
     CFindRequest request(
         this->_association->get_association()->nextMsgID++,
-        this->_affected_sop_class, DIMSE_PRIORITY_MEDIUM, &query);
+        this->_affected_sop_class, DIMSE_PRIORITY_MEDIUM, query);
     this->_send(request, this->_affected_sop_class);
-    
+
     // Receive the responses
     bool done = false;
     while(!done)
@@ -67,21 +67,17 @@ FindSCU
         if(!done)
         {
             callback(response.get_data_set());
-            // Response dataset is allocated in this->_receive,
-            // free it now.
-            response.delete_data_set();
         }
     }
 }
 
-std::vector<DcmDataset *>
+std::vector<DataSet>
 FindSCU
-::find(DcmDataset const & query) const
+::find(DataSet const & query) const
 {
-    std::vector<DcmDataset*> result;
-    auto callback = [&result](DcmDataset const * dataset) {
-        // We do not manage the allocation of dataset: clone it
-        result.push_back(static_cast<DcmDataset*>(dataset->clone()));
+    std::vector<DataSet> result;
+    auto callback = [&result](DataSet const & dataset) {
+        result.push_back(dataset);
     };
     this->find(query, callback);
     

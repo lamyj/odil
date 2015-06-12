@@ -9,47 +9,62 @@
 #ifndef _dcfa5213_ad7e_4194_8b4b_e630aa0df2e8
 #define _dcfa5213_ad7e_4194_8b4b_e630aa0df2e8
 
-#include <string>
-
-#include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmdata/dcdatset.h>
-#include <dcmtk/dcmdata/dcdeftag.h>
-#include <dcmtk/ofstd/oftypes.h>
-
-#include <dcmtkpp/ElementAccessor.h>
-#include <dcmtkpp/ElementTraits.h>
+#include "dcmtkpp/DataSet.h"
+#include "dcmtkpp/registry.h"
+#include "dcmtkpp/Value.h"
 
 namespace dcmtkpp
 {
 
-#define DCMTKPP_MESSAGE_MANDATORY_FIELD_MACRO(name, tag, TValueType) \
+#define DCMTKPP_MESSAGE_MANDATORY_FIELD_MACRO(name, tag, TValueType, function) \
     /** @brief Return the tag element of the command set. */ \
-    TValueType get_##name() const \
+    TValueType const & get_##name() const \
     { \
-        return ElementAccessor<TValueType>::get(this->_command_set, tag); \
+        auto const & data = this->_command_set.function(tag); \
+        if(data.empty()) \
+        { \
+            throw Exception("Empty element"); \
+        } \
+        return data[0]; \
     } \
     /** @brief Set the tag element of the command set. */ \
     void set_##name(TValueType const & value) \
     { \
-        return ElementAccessor<TValueType>::set(this->_command_set, tag, value); \
+        if(!this->_command_set.has(tag)) \
+        { \
+            this->_command_set.add(tag); \
+        } \
+        this->_command_set.function(tag) = { value }; \
     }
 
-#define DCMTKPP_MESSAGE_OPTIONAL_FIELD_MACRO(name, tag, TValueType) \
-    DCMTKPP_MESSAGE_MANDATORY_FIELD_MACRO(name, tag, TValueType) \
+#define DCMTKPP_MESSAGE_OPTIONAL_FIELD_MACRO(name, tag, TValueType, function) \
+    DCMTKPP_MESSAGE_MANDATORY_FIELD_MACRO(name, tag, TValueType, function) \
     bool has_##name() const \
     { \
-        return ElementAccessor<TValueType>::has(this->_command_set, tag); \
+        return this->_command_set.has(tag);; \
     } \
     void delete_##name() \
     { \
-        this->_command_set.findAndDeleteElement(tag); \
+        this->_command_set.remove(tag); \
     }
 
-#define DCMTKPP_MESSAGE_SET_OPTIONAL_FIELD_MACRO(dataset, name, tag, TValueType) \
-    if(ElementAccessor<TValueType>::has(dataset, tag)) \
+#define DCMTKPP_MESSAGE_SET_OPTIONAL_FIELD_MACRO(dataset, name, tag, function) \
+    if(dataset.has(tag)) \
     { \
-        this->set_##name(ElementAccessor<TValueType>::get(dataset, tag)); \
+        this->set_##name(dataset.function(tag, 0)); \
     }
+
+#define DCMTKPP_MESSAGE_MANDATORY_FIELD_INTEGER_MACRO(name, tag) \
+    DCMTKPP_MESSAGE_MANDATORY_FIELD_MACRO(name, tag, Value::Integer, as_int)
+
+#define DCMTKPP_MESSAGE_MANDATORY_FIELD_STRING_MACRO(name, tag) \
+    DCMTKPP_MESSAGE_MANDATORY_FIELD_MACRO(name, tag, Value::String, as_string)
+
+#define DCMTKPP_MESSAGE_OPTIONAL_FIELD_INTEGER_MACRO(name, tag) \
+    DCMTKPP_MESSAGE_OPTIONAL_FIELD_MACRO(name, tag, Value::Integer, as_int)
+
+#define DCMTKPP_MESSAGE_OPTIONAL_FIELD_STRING_MACRO(name, tag) \
+    DCMTKPP_MESSAGE_OPTIONAL_FIELD_MACRO(name, tag, Value::String, as_string)
 
 /**
  * @brief Base class for all DIMSE messages.
@@ -61,31 +76,41 @@ public:
     Message();
 
     /// @brief Create a message from existing data.
-    Message(DcmDataset const & command_set, DcmDataset * data_set=NULL);
+    Message(DataSet const & command_set);
+
+    /// @brief Create a message from existing data.
+    Message(DataSet const & command_set, DataSet const & data_set);
 
     /// @brief Destructor;
     virtual ~Message();
     
     /// @brief Return the command set of the message.
-    DcmDataset const & get_command_set() const;
+    DataSet const & get_command_set() const;
     
-    /// @brief Return the data set of the message, default to NULL.
-    DcmDataset const * get_data_set() const;
+    /// @brief Test whether as data set is present in the message.
+    bool has_data_set() const;
+
+    /**
+     * @brief Return the data set of the message, raise an exception if no
+     * data set is present.
+     */
+    DataSet const & get_data_set() const;
     
     /// @brief Set the data set of the message.
-    void set_data_set(DcmDataset const * data_set);
+    void set_data_set(DataSet const & data_set);
 
     /// @brief Delete the data set in this message.
     void delete_data_set();
     
-    DCMTKPP_MESSAGE_MANDATORY_FIELD_MACRO(command_field, DCM_CommandField, Uint16)
+    DCMTKPP_MESSAGE_MANDATORY_FIELD_INTEGER_MACRO(
+        command_field, registry::CommandField)
 
 protected:
     /// @brief Command set of the message.
-    DcmDataset _command_set;
+    DataSet _command_set;
     
     /// @brief Data set of the message.
-    DcmDataset const * _data_set;
+    DataSet _data_set;
 };
 
 }

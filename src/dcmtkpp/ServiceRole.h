@@ -17,6 +17,7 @@
 #include <dcmtk/dcmnet/assoc.h>
 
 #include "dcmtkpp/Association.h"
+#include "dcmtkpp/DataSet.h"
 #include "dcmtkpp/Message.h"
 #include "dcmtkpp/Network.h"
 

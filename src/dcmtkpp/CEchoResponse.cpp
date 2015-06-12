@@ -8,24 +8,21 @@
 
 #include "CEchoResponse.h"
 
-#include <string>
-
 #include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmdata/dcdeftag.h>
 #include <dcmtk/dcmnet/dimse.h>
-#include <dcmtk/ofstd/oftypes.h>
 
-#include "dcmtkpp/ElementAccessor.h"
 #include "dcmtkpp/Exception.h"
+#include "dcmtkpp/registry.h"
 #include "dcmtkpp/Response.h"
+#include "dcmtkpp/Value.h"
 
 namespace dcmtkpp
 {
 
 CEchoResponse
 ::CEchoResponse(
-    Uint16 message_id_being_responded_to, Uint16 status,
-    std::string const & affected_sop_class_uid)
+    Value::Integer message_id_being_responded_to, Value::Integer status,
+    Value::String const & affected_sop_class_uid)
 : Response(message_id_being_responded_to, status)
 {
     this->set_command_field(DIMSE_C_ECHO_RSP);
@@ -42,9 +39,8 @@ CEchoResponse
     }
     this->set_command_field(message.get_command_field());
     
-    std::string const affected_sop_class_uid = ElementAccessor<std::string>::get(
-        message.get_command_set(), DCM_AffectedSOPClassUID);
-    this->set_affected_sop_class_uid(affected_sop_class_uid);
+    this->set_affected_sop_class_uid(
+        message.get_command_set().as_string(registry::AffectedSOPClassUID, 0));
 }
 
 CEchoResponse

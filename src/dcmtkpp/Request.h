@@ -9,10 +9,9 @@
 #ifndef _8d06a300_6aee_4d1f_bf10_ecdf4916ae9f
 #define _8d06a300_6aee_4d1f_bf10_ecdf4916ae9f
 
-#include <dcmtk/config/osconfig.h>
-#include <dcmtk/ofstd/oftypes.h>
-
 #include "dcmtkpp/Message.h"
+#include "dcmtkpp/registry.h"
+#include "dcmtkpp/Value.h"
 
 namespace dcmtkpp
 {
@@ -22,7 +21,7 @@ class Request: public Message
 {
 public:
     /// @brief Create a request with given Message ID.
-    Request(Uint16 message_id);
+    Request(Value::Integer message_id);
 
     /**
      * @brief Create a request from the Message ID stored in the message
@@ -35,7 +34,8 @@ public:
     /// @brief Destructor.
     virtual ~Request();
     
-    DCMTKPP_MESSAGE_MANDATORY_FIELD_MACRO(message_id, DCM_MessageID, Uint16)
+    DCMTKPP_MESSAGE_MANDATORY_FIELD_INTEGER_MACRO(
+        message_id, registry::MessageID)
 };
 
 }
