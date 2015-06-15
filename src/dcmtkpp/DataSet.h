@@ -179,10 +179,6 @@ private:
     typedef std::map<Tag, Element> ElementMap;
 
     ElementMap _elements;
-
-    static bool _is_int_vr(VR vr);
-    static bool _is_real_vr(VR vr);
-    static bool _is_string_vr(VR vr);
 };
 
 }

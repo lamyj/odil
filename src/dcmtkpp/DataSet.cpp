@@ -51,15 +51,15 @@ DataSet
         vr = as_vr(tag);
     }
 
-    if(this->_is_int_vr(vr))
+    if(::dcmtkpp::is_int(vr))
     {
         value = Value::Integers();
     }
-    else if(this->_is_real_vr(vr))
+    else if(::dcmtkpp::is_real(vr))
     {
         value = Value::Reals();
     }
-    else if(this->_is_string_vr(vr))
+    else if(::dcmtkpp::is_string(vr))
     {
         value = Value::Strings();
     }
@@ -273,34 +273,6 @@ DataSet
 ::operator!=(DataSet const & other) const
 {
     return !(*this == other);
-}
-
-bool
-DataSet
-::_is_int_vr(VR vr)
-{
-    return (
-        vr == VR::IS || vr == VR::SL || vr == VR::SS || vr == VR::UL ||
-        vr == VR::US);
-}
-
-bool
-DataSet
-::_is_real_vr(VR vr)
-{
-    return (vr == VR::DS || vr == VR::FL || vr == VR::FD);
-}
-
-bool
-DataSet
-::_is_string_vr(VR vr)
-{
-    // FIXME: PN
-    return (
-        vr == VR::AE || vr == VR::AS || vr == VR::CS || vr == VR::DA ||
-        vr == VR::DA || vr == VR::LO || vr == VR::LT || vr == VR::PN ||
-        vr == VR::SH || vr == VR::ST || vr == VR::TM || vr == VR::UC ||
-        vr == VR::UI || vr == VR::UR || vr == VR::UT);
 }
 
 }

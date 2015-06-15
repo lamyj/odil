@@ -42,6 +42,15 @@ VR as_vr(std::string const vr);
  */
 VR as_vr(Tag const & tag);
 
+/// @brief Test whether a VR contains integers.
+bool is_int(VR vr);
+
+/// @brief Test whether a VR contains rel numbers.
+bool is_real(VR vr);
+
+/// @brief Test whether a VR contains text.
+bool is_string(VR vr);
+
 }
 
 #endif // _998aa43a_9e90_4d39_a074_a7074ac5c9b8
