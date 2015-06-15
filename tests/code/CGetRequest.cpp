@@ -19,7 +19,7 @@ struct Fixture: public MessageFixtureBase<dcmtkpp::CGetRequest>
 
     Fixture()
     {
-        this->command_set.add("CommandField", {DIMSE_C_GET_RQ});
+        this->command_set.add("CommandField", {dcmtkpp::Message::Command::C_GET_RQ});
         this->command_set.add("MessageID", {1234});
         this->command_set.add("AffectedSOPClassUID",
             {UID_GETPatientRootQueryRetrieveInformationModel});
@@ -32,7 +32,7 @@ struct Fixture: public MessageFixtureBase<dcmtkpp::CGetRequest>
 
     virtual void check(dcmtkpp::CGetRequest const & message)
     {
-        BOOST_CHECK_EQUAL(message.get_command_field(), DIMSE_C_GET_RQ);
+        BOOST_CHECK_EQUAL(message.get_command_field(), dcmtkpp::Message::Command::C_GET_RQ);
         BOOST_CHECK_EQUAL(message.get_message_id(), 1234);
         BOOST_CHECK_EQUAL(
             message.get_affected_sop_class_uid(),
@@ -57,7 +57,7 @@ BOOST_FIXTURE_TEST_CASE(MessageConstructor, Fixture)
 
 BOOST_FIXTURE_TEST_CASE(MessageConstructorWrongCommandField, Fixture)
 {
-    this->command_set.as_int("CommandField") = {DIMSE_C_ECHO_RQ};
+    this->command_set.as_int("CommandField") = {dcmtkpp::Message::Command::C_ECHO_RQ};
     this->check_message_constructor_throw(this->command_set, this->query);
 }
 

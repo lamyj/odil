@@ -8,9 +8,6 @@
 
 #include "CEchoRequest.h"
 
-#include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmnet/dimse.h>
-
 #include "dcmtkpp/Request.h"
 #include "dcmtkpp/registry.h"
 #include "dcmtkpp/Value.h"
@@ -23,7 +20,7 @@ CEchoRequest
     Value::Integer message_id, Value::String const & affected_sop_class_uid)
 : Request(message_id)
 {
-    this->set_command_field(DIMSE_C_ECHO_RQ);
+    this->set_command_field(Command::C_ECHO_RQ);
     this->set_affected_sop_class_uid(affected_sop_class_uid);
 }
 
@@ -31,7 +28,7 @@ CEchoRequest
 ::CEchoRequest(Message const & message)
 : Request(message)
 {
-    if(message.get_command_field() != DIMSE_C_ECHO_RQ)
+    if(message.get_command_field() != Command::C_ECHO_RQ)
     {
         throw Exception("Message is not a C-ECHO-RQ");
     }

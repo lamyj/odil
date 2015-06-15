@@ -40,11 +40,11 @@ StoreSCP
         }
     }
     
-    if(request.get_command_field() == DIMSE_C_ECHO_RQ)
+    if(request.get_command_field() == Message::Command::C_ECHO_RQ)
     {
         this->_send_echo_response(CEchoRequest(request));
     }
-    else if(request.get_command_field() == DIMSE_C_STORE_RQ)
+    else if(request.get_command_field() == Message::Command::C_STORE_RQ)
     {
         this->store(CStoreRequest(request), callback);
         request.delete_data_set();

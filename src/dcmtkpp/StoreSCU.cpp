@@ -15,7 +15,6 @@
 
 #include <dcmtk/config/osconfig.h>
 #include <dcmtk/dcmdata/dcuid.h>
-#include <dcmtk/dcmnet/dimse.h>
 
 #include "dcmtkpp/CStoreRequest.h"
 #include "dcmtkpp/CStoreResponse.h"
@@ -172,7 +171,7 @@ StoreSCU
         this->_association->get_association()->nextMsgID++,
         this->_affected_sop_class,
         dataset.as_string(registry::SOPInstanceUID, 0),
-        DIMSE_PRIORITY_MEDIUM,
+        Message::Priority::MEDIUM,
         dataset);
     this->_send(request, this->_affected_sop_class, callback, data);
     

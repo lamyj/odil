@@ -8,9 +8,6 @@
 
 #include "CMoveRequest.h"
 
-#include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmnet/dimse.h>
-
 #include "dcmtkpp/DataSet.h"
 #include "dcmtkpp/Exception.h"
 #include "dcmtkpp/registry.h"
@@ -27,7 +24,7 @@ CMoveRequest
     DataSet const & dataset)
 : Request(message_id)
 {
-    this->set_command_field(DIMSE_C_MOVE_RQ);
+    this->set_command_field(Command::C_MOVE_RQ);
     this->set_affected_sop_class_uid(affected_sop_class_uid);
     this->set_priority(priority);
     this->set_move_destination(move_destination);
@@ -42,7 +39,7 @@ CMoveRequest
 ::CMoveRequest(Message const & message)
 : Request(message)
 {
-    if(message.get_command_field() != DIMSE_C_MOVE_RQ)
+    if(message.get_command_field() != Command::C_MOVE_RQ)
     {
         throw Exception("Message is not a C-MOVE-RQ");
     }

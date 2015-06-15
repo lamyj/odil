@@ -8,9 +8,6 @@
 
 #include "dcmtkpp/Cancellation.h"
 
-#include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmnet/dimse.h>
-
 #include "dcmtkpp/Exception.h"
 #include "dcmtkpp/Message.h"
 #include "dcmtkpp/registry.h"
@@ -23,14 +20,14 @@ Cancellation
 ::Cancellation(Uint16 message_id_being_responded_to)
 : Message()
 {
-    this->set_command_field(DIMSE_C_CANCEL_RQ);
+    this->set_command_field(Command::C_CANCEL_RQ);
     this->set_message_id_being_responded_to(message_id_being_responded_to);
 }
 
 Cancellation
 ::Cancellation(Message const & message)
 {
-    if(message.get_command_field() != DIMSE_C_CANCEL_RQ)
+    if(message.get_command_field() != Command::C_CANCEL_RQ)
     {
         throw Exception("Message is not a C-CANCEL-RQ");
     }

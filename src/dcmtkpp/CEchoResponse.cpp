@@ -8,9 +8,6 @@
 
 #include "CEchoResponse.h"
 
-#include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmnet/dimse.h>
-
 #include "dcmtkpp/Exception.h"
 #include "dcmtkpp/registry.h"
 #include "dcmtkpp/Response.h"
@@ -25,7 +22,7 @@ CEchoResponse
     Value::String const & affected_sop_class_uid)
 : Response(message_id_being_responded_to, status)
 {
-    this->set_command_field(DIMSE_C_ECHO_RSP);
+    this->set_command_field(Command::C_ECHO_RSP);
     this->set_affected_sop_class_uid(affected_sop_class_uid);
 }
 
@@ -33,7 +30,7 @@ CEchoResponse
 ::CEchoResponse(Message const & message)
 : Response(message)
 {
-    if(message.get_command_field() != DIMSE_C_ECHO_RSP)
+    if(message.get_command_field() != Command::C_ECHO_RSP)
     {
         throw Exception("Message is not a C-ECHO-RSP");
     }

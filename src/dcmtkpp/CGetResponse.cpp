@@ -8,9 +8,6 @@
 
 #include "CGetResponse.h"
 
-#include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmnet/dimse.h>
-
 #include "dcmtkpp/DataSet.h"
 #include "dcmtkpp/Exception.h"
 #include "dcmtkpp/registry.h"
@@ -25,7 +22,7 @@ CGetResponse
     Value::Integer message_id_being_responded_to, Value::Integer status)
 : Response(message_id_being_responded_to, status)
 {
-    this->set_command_field(DIMSE_C_GET_RSP);
+    this->set_command_field(Command::C_GET_RSP);
 }
 
 CGetResponse
@@ -34,7 +31,7 @@ CGetResponse
     DataSet const & dataset)
 : Response(message_id_being_responded_to, status)
 {
-    this->set_command_field(DIMSE_C_GET_RSP);
+    this->set_command_field(Command::C_GET_RSP);
     this->set_data_set(dataset);
 }
 
@@ -42,7 +39,7 @@ CGetResponse
 ::CGetResponse(Message const & message)
 : Response(message)
 {
-    if(message.get_command_field() != DIMSE_C_GET_RSP)
+    if(message.get_command_field() != Command::C_GET_RSP)
     {
         throw Exception("Message is not a C-GET-RSP");
     }

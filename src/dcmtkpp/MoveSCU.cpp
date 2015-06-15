@@ -56,7 +56,7 @@ MoveSCU
 {
     // Send the request
     CMoveRequest const request(this->_association->get_association()->nextMsgID++,
-        this->_affected_sop_class, DIMSE_PRIORITY_MEDIUM,
+        this->_affected_sop_class, Message::Priority::MEDIUM,
         this->_move_destination, query);
     this->_send(request, this->_affected_sop_class);
     
@@ -135,7 +135,7 @@ MoveSCU
 {
     Message const message = this->_receive();
     
-    if(message.get_command_field() != DIMSE_C_MOVE_RSP)
+    if(message.get_command_field() != Message::Command::C_MOVE_RSP)
     {
         std::ostringstream exception_message;
         exception_message << "DIMSE: Unexpected Response Command Field: 0x"

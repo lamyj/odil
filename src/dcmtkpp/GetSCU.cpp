@@ -36,7 +36,7 @@ GetSCU
 {
     // Send the request
     CGetRequest request(this->_association->get_association()->nextMsgID++,
-        this->_affected_sop_class, DIMSE_PRIORITY_MEDIUM, query);
+        this->_affected_sop_class, Message::Priority::MEDIUM, query);
     this->_send(request, this->_affected_sop_class);
     
     // Receive the responses
@@ -45,11 +45,11 @@ GetSCU
     {
         Message const message = this->_receive();
 
-        if(message.get_command_field() == DIMSE_C_GET_RSP)
+        if(message.get_command_field() == Message::Command::C_GET_RSP)
         {
             done = this->_get_response(CGetResponse(message));
         }
-        else if(message.get_command_field() == DIMSE_C_STORE_RQ)
+        else if(message.get_command_field() == Message::Command::C_STORE_RQ)
         {
             try
             {

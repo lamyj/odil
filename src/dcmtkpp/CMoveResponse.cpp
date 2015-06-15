@@ -8,9 +8,6 @@
 
 #include "CMoveResponse.h"
 
-#include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmnet/dimse.h>
-
 #include "dcmtkpp/DataSet.h"
 #include "dcmtkpp/Exception.h"
 #include "dcmtkpp/registry.h"
@@ -25,7 +22,7 @@ CMoveResponse
     Value::Integer message_id_being_responded_to, Value::Integer status)
 : Response(message_id_being_responded_to, status)
 {
-    this->set_command_field(DIMSE_C_MOVE_RSP);
+    this->set_command_field(Command::C_MOVE_RSP);
 }
 
 CMoveResponse
@@ -34,7 +31,7 @@ CMoveResponse
     DataSet const & dataset)
 : Response(message_id_being_responded_to, status)
 {
-    this->set_command_field(DIMSE_C_MOVE_RSP);
+    this->set_command_field(Command::C_MOVE_RSP);
     this->set_data_set(dataset);
 }
 
@@ -42,7 +39,7 @@ CMoveResponse
 ::CMoveResponse(Message const & message)
 : Response(message)
 {
-    if(message.get_command_field() != DIMSE_C_MOVE_RSP)
+    if(message.get_command_field() != Command::C_MOVE_RSP)
     {
         throw Exception("Message is not a C-MOVE-RSP");
     }

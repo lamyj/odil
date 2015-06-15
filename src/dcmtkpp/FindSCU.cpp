@@ -13,9 +13,9 @@
 #include <vector>
 
 #include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmdata/dcdatset.h>
 #include <dcmtk/dcmnet/dimse.h>
 
+#include "dcmtkpp/DataSet.h"
 #include "dcmtkpp/Exception.h"
 #include "dcmtkpp/CFindRequest.h"
 #include "dcmtkpp/CFindResponse.h"
@@ -35,7 +35,7 @@ FindSCU
 {
     CFindRequest request(
         this->_association->get_association()->nextMsgID++,
-        this->_affected_sop_class, DIMSE_PRIORITY_MEDIUM, query);
+        this->_affected_sop_class, Message::Priority::MEDIUM, query);
     this->_send(request, this->_affected_sop_class);
 
     // Receive the responses

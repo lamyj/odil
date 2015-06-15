@@ -8,9 +8,6 @@
 
 #include "Message.h"
 
-#include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmnet/dimse.h>
-
 #include "dcmtkpp/DataSet.h"
 #include "dcmtkpp/Exception.h"
 #include "dcmtkpp/registry.h"
@@ -22,7 +19,7 @@ namespace dcmtkpp
 Message
 ::Message()
 {
-    this->_command_set.add(registry::CommandDataSetType, { DIMSE_DATASET_NULL });
+    this->_command_set.add(registry::CommandDataSetType, { DataSetType::ABSENT });
 }
 
 Message
@@ -33,7 +30,7 @@ Message
     {
         this->_command_set.add(registry::CommandDataSetType, VR::US);
     }
-    this->_command_set.as_int(registry::CommandDataSetType) = { DIMSE_DATASET_NULL };
+    this->_command_set.as_int(registry::CommandDataSetType) = { DataSetType::ABSENT };
 }
 
 Message
@@ -64,7 +61,7 @@ bool
 Message
 ::has_data_set() const
 {
-    return (this->_command_set.as_int(registry::CommandDataSetType, 0) == DIMSE_DATASET_PRESENT);
+    return (this->_command_set.as_int(registry::CommandDataSetType, 0) == DataSetType::PRESENT);
 }
 
 DataSet const &
@@ -83,14 +80,14 @@ Message
 ::set_data_set(DataSet const & data_set)
 {
     this->_data_set = data_set;
-    this->_command_set.as_int(registry::CommandDataSetType) = { DIMSE_DATASET_PRESENT };
+    this->_command_set.as_int(registry::CommandDataSetType) = { DataSetType::PRESENT };
 }
 
 void
 Message
 ::delete_data_set()
 {
-    this->_command_set.as_int(registry::CommandDataSetType) = { DIMSE_DATASET_NULL };
+    this->_command_set.as_int(registry::CommandDataSetType) = { DataSetType::ABSENT };
     this->_data_set = DataSet();
 }
 

@@ -8,9 +8,6 @@
 
 #include "CStoreResponse.h"
 
-#include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmnet/dimse.h>
-
 #include "dcmtkpp/Exception.h"
 #include "dcmtkpp/registry.h"
 #include "dcmtkpp/Response.h"
@@ -24,14 +21,14 @@ CStoreResponse
     Value::Integer message_id_being_responded_to, Value::Integer status)
 : Response(message_id_being_responded_to, status)
 {
-    this->set_command_field(DIMSE_C_STORE_RSP);
+    this->set_command_field(Command::C_STORE_RSP);
 }
 
 CStoreResponse
 ::CStoreResponse(Message const & message)
 : Response(message)
 {
-    if(message.get_command_field() != DIMSE_C_STORE_RSP)
+    if(message.get_command_field() != Command::C_STORE_RSP)
     {
         throw Exception("Message is not a C-STORE-RSP");
     }

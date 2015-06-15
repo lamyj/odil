@@ -19,7 +19,7 @@ struct Fixture: public MessageFixtureBase<dcmtkpp::CGetResponse>
 
     Fixture()
     {
-        this->command_set.add("CommandField", {DIMSE_C_GET_RSP});
+        this->command_set.add("CommandField", {dcmtkpp::Message::Command::C_GET_RSP});
         this->command_set.add("MessageIDBeingRespondedTo", {1234});
         this->command_set.add("Status", {STATUS_Success});
 
@@ -39,7 +39,7 @@ struct Fixture: public MessageFixtureBase<dcmtkpp::CGetResponse>
 
     virtual void check(dcmtkpp::CGetResponse const & message)
     {
-        BOOST_CHECK_EQUAL(message.get_command_field(), DIMSE_C_GET_RSP);
+        BOOST_CHECK_EQUAL(message.get_command_field(), dcmtkpp::Message::Command::C_GET_RSP);
         BOOST_CHECK_EQUAL(message.get_message_id_being_responded_to(), 1234);
         BOOST_CHECK_EQUAL(message.get_status(), STATUS_Success);
 
@@ -89,6 +89,6 @@ BOOST_FIXTURE_TEST_CASE(MessageConstructor, Fixture)
 
 BOOST_FIXTURE_TEST_CASE(MessageConstructorWrongCommandField, Fixture)
 {
-    this->command_set.as_int(dcmtkpp::registry::CommandField) = { DIMSE_C_ECHO_RQ };
+    this->command_set.as_int(dcmtkpp::registry::CommandField) = { dcmtkpp::Message::Command::C_ECHO_RQ };
     this->check_message_constructor_throw(this->command_set, this->data_set);
 }

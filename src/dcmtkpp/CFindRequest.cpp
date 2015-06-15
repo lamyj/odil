@@ -10,9 +10,6 @@
 
 #include <string>
 
-#include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmnet/dimse.h>
-
 #include "dcmtkpp/Exception.h"
 #include "dcmtkpp/registry.h"
 #include "dcmtkpp/Request.h"
@@ -27,7 +24,7 @@ CFindRequest
     Value::Integer priority, DataSet const & dataset)
 : Request(message_id)
 {
-    this->set_command_field(DIMSE_C_FIND_RQ);
+    this->set_command_field(Command::C_FIND_RQ);
     this->set_affected_sop_class_uid(affected_sop_class_uid);
     this->set_priority(priority);
     if(dataset.empty())
@@ -41,7 +38,7 @@ CFindRequest
 ::CFindRequest(Message const & message)
 : Request(message)
 {
-    if(message.get_command_field() != DIMSE_C_FIND_RQ)
+    if(message.get_command_field() != Command::C_FIND_RQ)
     {
         throw Exception("Message is not a C-FIND-RQ");
     }

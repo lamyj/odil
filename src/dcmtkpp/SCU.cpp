@@ -12,11 +12,6 @@
 
 #include <unistd.h>
 
-#include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmdata/dcdatset.h>
-#include <dcmtk/dcmnet/cond.h>
-#include <dcmtk/dcmnet/dimse.h>
-
 #include "dcmtkpp/Exception.h"
 #include "dcmtkpp/CEchoRequest.h"
 #include "dcmtkpp/CEchoResponse.h"
