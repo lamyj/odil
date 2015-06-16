@@ -160,10 +160,8 @@ Json::Value as_json(DataSet const & data_set)
     {
         auto const & tag = it.first;
         auto const & element = it.second;
-        std::cout << element.empty();
 
         std::string const key(tag);
-        std::cout << key << " " << std::endl;
         auto const value = apply_visitor(ToJSONVisitor(), element);
         json[key] = value;
     }
