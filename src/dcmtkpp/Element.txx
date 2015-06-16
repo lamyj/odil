@@ -22,11 +22,16 @@ template<typename TVisitor>
 typename TVisitor::result_type
 apply_visitor(TVisitor const & visitor, Element const & element)
 {
-    if(element.vr == VR::AE || element.vr == VR::AS || element.vr == VR::CS ||
-       element.vr == VR::DA || element.vr == VR::DT || element.vr == VR::LO ||
-       element.vr == VR::LT || element.vr == VR::PN || element.vr == VR::SH ||
-       element.vr == VR::ST || element.vr == VR::TM || element.vr == VR::UI ||
-       element.vr == VR::UT)
+    if(element.empty())
+    {
+        return visitor(element.vr);
+    }
+    else if(
+        element.vr == VR::AE || element.vr == VR::AS || element.vr == VR::CS ||
+        element.vr == VR::DA || element.vr == VR::DT || element.vr == VR::LO ||
+        element.vr == VR::LT || element.vr == VR::PN || element.vr == VR::SH ||
+        element.vr == VR::ST || element.vr == VR::TM || element.vr == VR::UI ||
+        element.vr == VR::UT)
     {
         return visitor(element.vr, element.as_string());
     }

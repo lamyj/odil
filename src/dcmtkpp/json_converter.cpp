@@ -25,6 +25,15 @@ struct ToJSONVisitor
 {
     typedef Json::Value result_type;
 
+    result_type operator()(VR const vr) const
+    {
+        result_type result;
+
+        result["vr"] = as_string(vr);
+
+        return result;
+    }
+
     template<typename T>
     result_type operator()(VR const vr, T const & value) const
     {
@@ -151,8 +160,10 @@ Json::Value as_json(DataSet const & data_set)
     {
         auto const & tag = it.first;
         auto const & element = it.second;
+        std::cout << element.empty();
 
         std::string const key(tag);
+        std::cout << key << " " << std::endl;
         auto const value = apply_visitor(ToJSONVisitor(), element);
         json[key] = value;
     }
