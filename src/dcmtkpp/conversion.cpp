@@ -107,67 +107,103 @@ DcmElement * convert(const Tag & tag, Element const & source)
     if(source.vr == VR::AE)
     {
         destination = new DcmApplicationEntity(destination_tag);
-        convert<Value::Strings>(source, destination, &Element::as_string);
+        if(!source.empty())
+        {
+            convert<Value::Strings>(source, destination, &Element::as_string);
+        }
     }
     else if (source.vr == VR::AS)
     {
         destination = new DcmAgeString(destination_tag);
-        convert<Value::Strings>(source, destination, &Element::as_string);
+        if(!source.empty())
+        {
+            convert<Value::Strings>(source, destination, &Element::as_string);
+        }
     }
     else if(source.vr == VR::AT)
     {
         destination = new DcmAttributeTag(destination_tag);
-        for(unsigned int i=0; i<source.as_string().size(); ++i)
+        if(!source.empty())
         {
-            Tag const source_tag(source.as_string()[i]);
-            DcmTagKey const destination_tag = convert(source_tag);
-            destination->putTagVal(destination_tag, i);
+            for(unsigned int i=0; i<source.as_string().size(); ++i)
+            {
+                Tag const source_tag(source.as_string()[i]);
+                DcmTagKey const destination_tag = convert(source_tag);
+                destination->putTagVal(destination_tag, i);
+            }
         }
     }
     else if (source.vr == VR::CS)
     {
         destination = new DcmCodeString(destination_tag);
-        convert<Value::Strings>(source, destination, &Element::as_string);
+        if(!source.empty())
+        {
+            convert<Value::Strings>(source, destination, &Element::as_string);
+        }
     }
     else if (source.vr == VR::DA)
     {
         destination = new DcmDate(destination_tag);
-        convert<Value::Strings>(source, destination, &Element::as_string);
+        if(!source.empty())
+        {
+            convert<Value::Strings>(source, destination, &Element::as_string);
+        }
     }
     else if (source.vr == VR::DS)
     {
         destination = new DcmDecimalString(destination_tag);
-        convert<Value::Reals>(source, destination, &Element::as_real);
+        if(!source.empty())
+        {
+            convert<Value::Reals>(source, destination, &Element::as_real);
+        }
     }
     else if (source.vr == VR::DT)
     {
         destination = new DcmDateTime(destination_tag);
-        convert<Value::Strings>(source, destination, &Element::as_string);
+        if(!source.empty())
+        {
+            convert<Value::Strings>(source, destination, &Element::as_string);
+        }
     }
     else if (source.vr == VR::FD)
     {
         destination = new DcmFloatingPointDouble(destination_tag);
-        convert<Value::Reals, Float64>(source, destination, &Element::as_real);
+        if(!source.empty())
+        {
+            convert<Value::Reals, Float64>(source, destination, &Element::as_real);
+        }
     }
     else if (source.vr == VR::FL)
     {
         destination = new DcmFloatingPointSingle(destination_tag);
-        convert<Value::Reals, Float32>(source, destination, &Element::as_real);
+        if(!source.empty())
+        {
+            convert<Value::Reals, Float32>(source, destination, &Element::as_real);
+        }
     }
     else if (source.vr == VR::IS)
     {
         destination = new DcmIntegerString(destination_tag);
-        convert<Value::Integers>(source, destination, &Element::as_int);
+        if(!source.empty())
+        {
+            convert<Value::Integers>(source, destination, &Element::as_int);
+        }
     }
     else if (source.vr == VR::LO)
     {
         destination = new DcmLongString(destination_tag);
-        convert<Value::Strings>(source, destination, &Element::as_string);
+        if(!source.empty())
+        {
+            convert<Value::Strings>(source, destination, &Element::as_string);
+        }
     }
     else if (source.vr == VR::LT)
     {
         destination = new DcmLongText(destination_tag);
-        convert<Value::Strings>(source, destination, &Element::as_string);
+        if(!source.empty())
+        {
+            convert<Value::Strings>(source, destination, &Element::as_string);
+        }
     }
     // OB
     // OF
@@ -175,63 +211,96 @@ DcmElement * convert(const Tag & tag, Element const & source)
     else if (source.vr == VR::PN)
     {
         destination = new DcmPersonName(destination_tag);
-        convert<Value::Strings>(source, destination, &Element::as_string);
+        if(!source.empty())
+        {
+            convert<Value::Strings>(source, destination, &Element::as_string);
+        }
     }
     else if (source.vr == VR::SH)
     {
         destination = new DcmShortString(destination_tag);
-        convert<Value::Strings>(source, destination, &Element::as_string);
+        if(!source.empty())
+        {
+            convert<Value::Strings>(source, destination, &Element::as_string);
+        }
     }
     else if (source.vr == VR::SL)
     {
         destination = new DcmSignedLong(destination_tag);
-        convert<Value::Integers, Sint32>(source, destination, &Element::as_int);
+        if(!source.empty())
+        {
+            convert<Value::Integers, Sint32>(source, destination, &Element::as_int);
+        }
     }
     else if(source.vr == VR::SQ)
     {
         DcmSequenceOfItems * sequence = new DcmSequenceOfItems(destination_tag);
-        for(auto const & source_item: source.as_data_set())
+        if(!source.empty())
         {
-            DcmItem * destination_item = convert(source_item);
-            sequence->append(destination_item);
+            for(auto const & source_item: source.as_data_set())
+            {
+                DcmItem * destination_item = convert(source_item);
+                sequence->append(destination_item);
+            }
         }
         destination = sequence;
     }
     else if (source.vr == VR::SS)
     {
         destination = new DcmSignedShort(destination_tag);
-        convert<Value::Integers, Sint16>(source, destination, &Element::as_int);
+        if(!source.empty())
+        {
+            convert<Value::Integers, Sint16>(source, destination, &Element::as_int);
+        }
     }
     else if (source.vr == VR::ST)
     {
         destination = new DcmShortText(destination_tag);
-        convert<Value::Strings>(source, destination, &Element::as_string);
+        if(!source.empty())
+        {
+            convert<Value::Strings>(source, destination, &Element::as_string);
+        }
     }
     else if (source.vr == VR::TM)
     {
         destination = new DcmTime(destination_tag);
-        convert<Value::Strings>(source, destination, &Element::as_string);
+        if(!source.empty())
+        {
+            convert<Value::Strings>(source, destination, &Element::as_string);
+        }
     }
     else if (source.vr == VR::UI)
     {
         destination = new DcmUniqueIdentifier(destination_tag);
-        convert<Value::Strings>(source, destination, &Element::as_string);
+        if(!source.empty())
+        {
+            convert<Value::Strings>(source, destination, &Element::as_string);
+        }
     }
     else if (source.vr == VR::UL)
     {
         destination = new DcmUnsignedLong(destination_tag);
-        convert<Value::Integers, Uint32>(source, destination, &Element::as_int);
+        if(!source.empty())
+        {
+            convert<Value::Integers, Uint32>(source, destination, &Element::as_int);
+        }
     }
     // UN
     else if (source.vr == VR::US)
     {
         destination = new DcmUnsignedShort(destination_tag);
-        convert<Value::Integers, Uint16>(source, destination, &Element::as_int);
+        if(!source.empty())
+        {
+            convert<Value::Integers, Uint16>(source, destination, &Element::as_int);
+        }
     }
     else if (source.vr == VR::UT)
     {
         destination = new DcmUnlimitedText(destination_tag);
-        convert<Value::Strings>(source, destination, &Element::as_string);
+        if(!source.empty())
+        {
+            convert<Value::Strings>(source, destination, &Element::as_string);
+        }
     }
     else
     {
