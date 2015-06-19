@@ -63,6 +63,10 @@ DataSet
     {
         value = Value::Strings();
     }
+    else if(::dcmtkpp::is_binary(vr))
+    {
+        value = Value::Binary();
+    }
     else if(vr == VR::SQ)
     {
         value = Value::DataSets();

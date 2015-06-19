@@ -137,9 +137,14 @@ bool is_string(VR vr)
 {
     return (
         vr == VR::AE || vr == VR::AS || vr == VR::CS || vr == VR::DA ||
-        vr == VR::DA || vr == VR::LO || vr == VR::LT || vr == VR::PN ||
+        vr == VR::DT || vr == VR::LO || vr == VR::LT || vr == VR::PN ||
         vr == VR::SH || vr == VR::ST || vr == VR::TM || vr == VR::UC ||
         vr == VR::UI || vr == VR::UR || vr == VR::UT);
+}
+
+bool is_binary(VR vr)
+{
+    return (vr == VR::OB || vr == VR::OF || vr == VR::OW || vr == VR::UN);
 }
 
 

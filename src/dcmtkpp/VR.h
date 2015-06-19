@@ -51,6 +51,9 @@ bool is_real(VR vr);
 /// @brief Test whether a VR contains text.
 bool is_string(VR vr);
 
+/// @brief Test whether a VR contains binary data.
+bool is_binary(VR vr);
+
 }
 
 #endif // _998aa43a_9e90_4d39_a074_a7074ac5c9b8

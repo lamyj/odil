@@ -26,22 +26,15 @@ apply_visitor(TVisitor const & visitor, Element const & element)
     {
         return visitor(element.vr);
     }
-    else if(
-        element.vr == VR::AE || element.vr == VR::AS || element.vr == VR::CS ||
-        element.vr == VR::DA || element.vr == VR::DT || element.vr == VR::LO ||
-        element.vr == VR::LT || element.vr == VR::PN || element.vr == VR::SH ||
-        element.vr == VR::ST || element.vr == VR::TM || element.vr == VR::UI ||
-        element.vr == VR::UT)
+    else if(is_string(element.vr))
     {
         return visitor(element.vr, element.as_string());
     }
-    else if(element.vr == VR::DS || element.vr == VR::FD || element.vr == VR::FL)
+    else if(is_real(element.vr))
     {
         return visitor(element.vr, element.as_real());
     }
-    else if(element.vr == VR::IS || element.vr == VR::SL ||
-            element.vr == VR::SS || element.vr == VR::UL ||
-            element.vr == VR::US)
+    else if(is_int(element.vr))
     {
         return visitor(element.vr, element.as_int());
     }
@@ -49,8 +42,7 @@ apply_visitor(TVisitor const & visitor, Element const & element)
     {
         return visitor(element.vr, element.as_data_set());
     }
-    else if(element.vr == VR::OB || element.vr == VR::OF ||
-            element.vr == VR::OW || element.vr == VR::UN)
+    else if(is_binary(element.vr))
     {
         return visitor(element.vr, element.as_binary());
     }
