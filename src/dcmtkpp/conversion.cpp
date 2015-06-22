@@ -13,6 +13,7 @@
 
 #include "dcmtkpp/DataSet.h"
 #include "dcmtkpp/Element.h"
+#include "dcmtkpp/Exception.h"
 #include "dcmtkpp/Tag.h"
 #include "dcmtkpp/VR.h"
 
@@ -205,9 +206,15 @@ DcmElement * convert(const Tag & tag, Element const & source)
             convert<Value::Strings>(source, destination, &Element::as_string);
         }
     }
-    // OB
+    else if (source.vr == VR::OB || source.vr == VR::OW)
+    {
+        destination = new DcmOtherByteOtherWord(destination_tag);
+        if(!source.empty())
+        {
+            convert(source, static_cast<DcmOtherByteOtherWord*>(destination));
+        }
+    }
     // OF
-    // OW
     else if (source.vr == VR::PN)
     {
         destination = new DcmPersonName(destination_tag);
@@ -413,6 +420,36 @@ Element convert(DcmElement * source)
     }
 
     return destination;
+}
+
+void convert(Element const & source, DcmOtherByteOtherWord * destination)
+{
+    auto const & value = source.as_binary();
+
+    Uint8 * output;
+    OFCondition condition;
+    if(destination->getTag().getVR().getValidEVR() == EVR_OB)
+    {
+        condition = destination->createUint8Array(source.size(), output);
+    }
+    else
+    {
+        Uint16* temp;
+        condition = destination->createUint16Array(source.size()/2, temp);
+        output = reinterpret_cast<Uint8*>(temp);
+    }
+
+    if(condition.bad())
+    {
+        throw Exception(condition);
+    }
+
+    std::copy(value.begin(), value.end(), output);
+}
+
+void convert(Element const & source, DcmOtherFloat * destination)
+{
+    auto const & value = source.as_binary();
 }
 
 DcmItem * convert(DataSet const & source)

@@ -50,6 +50,9 @@ void convert(
     Element const & source, DcmElement * destination,
     TSourceType const & (Element::*getter)() const);
 
+/// @brief Low-level element converver.
+void convert(Element const & source, DcmOtherByteOtherWord * destination);
+
 /// @brief Low-level element converter.
 template<typename TSourceType, typename TDestinationType>
 void convert(
