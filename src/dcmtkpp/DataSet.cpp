@@ -219,6 +219,32 @@ DataSet
     return this->_elements.size();
 }
 
+Element const &
+DataSet
+::operator[](Tag const & tag) const
+{
+    ElementMap::const_iterator const it = this->_elements.find(tag);
+    if(it == this->_elements.end())
+    {
+        throw Exception("No such element");
+    }
+
+    return it->second;
+}
+
+Element &
+DataSet
+::operator[](Tag const & tag)
+{
+    ElementMap::iterator it = this->_elements.find(tag);
+    if(it == this->_elements.end())
+    {
+        throw Exception("No such element");
+    }
+
+    return it->second;
+}
+
 bool
 DataSet
 ::has(Tag const & tag) const

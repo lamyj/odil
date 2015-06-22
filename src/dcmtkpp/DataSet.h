@@ -157,6 +157,20 @@ public:
      */
     std::size_t size(Tag const & tag) const;
 
+    /**
+     * @brief Access the given element.
+     *
+     * If the element is not in the data set, a dcmtkpp::Exception is raised.
+     */
+    Element const & operator[](Tag const & tag) const;
+
+    /**
+     * @brief Access the given element.
+     *
+     * If the element is not in the data set, a dcmtkpp::Exception is raised.
+     */
+    Element & operator[](Tag const & tag);
+
     dcmtkppElementTypeMacro(int, Integers);
     dcmtkppElementTypeMacro(real, Reals);
     dcmtkppElementTypeMacro(string, Strings);
