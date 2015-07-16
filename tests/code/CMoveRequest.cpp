@@ -1,0 +1,81 @@
+#define BOOST_TEST_MODULE CMoveRequest
+#include <boost/test/unit_test.hpp>
+
+#include <dcmtk/config/osconfig.h>
+#include <dcmtk/dcmdata/dcuid.h>
+#include <dcmtk/dcmnet/dimse.h>
+
+#include "dcmtkpp/CMoveRequest.h"
+#include "dcmtkpp/DataSet.h"
+#include "dcmtkpp/Message.h"
+
+#include "../MessageFixtureBase.h"
+
+struct Fixture: public MessageFixtureBase<dcmtkpp::CMoveRequest>
+{
+    dcmtkpp::DataSet command_set;
+    dcmtkpp::DataSet query;
+
+    Fixture()
+    {
+        this->command_set.add("CommandField", {dcmtkpp::Message::Command::C_MOVE_RQ});
+        this->command_set.add("MessageID", {1234});
+        this->command_set.add("AffectedSOPClassUID",
+            {UID_MOVEPatientRootQueryRetrieveInformationModel});
+        this->command_set.add("Priority", {DIMSE_PRIORITY_MEDIUM});
+        this->command_set.add("MoveDestination", {"destination"});
+
+        this->query.add("PatientName", {"Doe^John"});
+        this->query.add("StudyDescription", {"Brain"});
+        this->query.add("QueryRetrieveLevel", {"STUDY"});
+    }
+
+    virtual void check(dcmtkpp::CMoveRequest const & message)
+    {
+        BOOST_CHECK_EQUAL(message.get_command_field(), dcmtkpp::Message::Command::C_MOVE_RQ);
+        BOOST_CHECK_EQUAL(message.get_message_id(), 1234);
+        BOOST_CHECK_EQUAL(
+            message.get_affected_sop_class_uid(),
+            UID_MOVEPatientRootQueryRetrieveInformationModel);
+        BOOST_CHECK_EQUAL(message.get_move_destination(), "destination");
+        BOOST_CHECK(message.has_data_set());
+        BOOST_CHECK(message.get_data_set() == this->query);
+    }
+};
+
+BOOST_FIXTURE_TEST_CASE(Constructor, Fixture)
+{
+    dcmtkpp::CMoveRequest const message(
+        1234, UID_MOVEPatientRootQueryRetrieveInformationModel,
+        DIMSE_PRIORITY_MEDIUM, "destination", this->query);
+    this->check(message);
+}
+
+BOOST_FIXTURE_TEST_CASE(MessageConstructor, Fixture)
+{
+    this->check_message_constructor(this->command_set, this->query);
+}
+
+BOOST_FIXTURE_TEST_CASE(MessageConstructorWrongCommandField, Fixture)
+{
+    this->command_set.as_int("CommandField") = {dcmtkpp::Message::Command::C_ECHO_RQ};
+    this->check_message_constructor_throw(this->command_set, this->query);
+}
+
+BOOST_FIXTURE_TEST_CASE(MessageConstructorMissingAffectSOPClass, Fixture)
+{
+    this->command_set.remove("AffectedSOPClassUID");
+    this->check_message_constructor_throw(this->command_set, this->query);
+}
+
+BOOST_FIXTURE_TEST_CASE(MessageConstructorMissingPriority, Fixture)
+{
+    this->command_set.remove("Priority");
+    this->check_message_constructor_throw(this->command_set, this->query);
+}
+
+BOOST_FIXTURE_TEST_CASE(MessageConstructorEmptyQuery, Fixture)
+{
+    dcmtkpp::DataSet empty;
+    this->check_message_constructor_throw(this->command_set, empty);
+}

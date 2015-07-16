@@ -1,0 +1,95 @@
+#! /usr/bin/env python
+
+import re
+import urllib
+import sys
+import xml.etree.ElementTree
+
+def main():
+    sources = [
+        ("http://medical.nema.org/medical/dicom/current/source/docbook/part07/part07.xml", "table_E.1-1"),
+        ("http://medical.nema.org/medical/dicom/current/source/docbook/part06/part06.xml", "table_7-1"),
+        ("http://medical.nema.org/medical/dicom/current/source/docbook/part06/part06.xml", "table_8-1"),
+        ("http://medical.nema.org/medical/dicom/current/source/docbook/part06/part06.xml", "table_6-1"),
+
+    ]
+
+    header = [
+        "/*************************************************************************",
+        "* dcmtkpp - Copyright (C) Universite de Strasbourg",
+        "* Distributed under the terms of the CeCILL-B license, as published by",
+        "* the CEA-CNRS-INRIA. Refer to the LICENSE file or to",
+        "* http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html",
+        "* for details.",
+        "************************************************************************/",
+        "",
+        "#ifndef _afc7b2d7_0869_4fea_9a9b_7fe6228baca9",
+        "#define _afc7b2d7_0869_4fea_9a9b_7fe6228baca9",
+        "",
+        "#include \"dcmtkpp/Tag.h\"",
+        "",
+        "namespace dcmtkpp",
+        "{",
+        "",
+        "namespace registry",
+        "{",
+    ]
+
+    declarations = []
+    for url, id_ in sources:
+        declarations.extend(generate_registry(url, id_))
+
+    footer = [
+        "}",
+        "",
+        "}",
+        "",
+        "#endif // _afc7b2d7_0869_4fea_9a9b_7fe6228baca9",
+    ]
+
+    print "\n".join(header+declarations+footer)
+
+    return 0
+
+def generate_registry(url, id_):
+    fd = urllib.urlopen(url)
+    document = xml.etree.ElementTree.parse(fd)
+    fd.close()
+
+    namespaces = {
+        "xml": "http://www.w3.org/XML/1998/namespace",
+        "docbook": "http://docbook.org/ns/docbook"
+    }
+
+    table = document.find(".//*[@xml:id=\"{}\"]".format(id_), namespaces)
+
+    entries = []
+
+    for row in table.iterfind("./docbook:tbody/docbook:tr", namespaces):
+        entry = row.findall("./docbook:td/docbook:para", namespaces)
+        tag = entry[0]
+        if tag.getchildren():
+            tag = tag.find("./docbook:emphasis", namespaces)
+        tag = tag.text
+
+        match = re.match(r"\(([0-9a-fA-F]{4}),([0-9a-fA-F]{4})\)", tag)
+        if not match:
+            continue
+
+        tag = [int(x, 16) for x in match.groups()]
+
+        keyword = entry[2]
+        if keyword.getchildren():
+            keyword = keyword.find("./docbook:emphasis", namespaces)
+        keyword = keyword.text or ""
+        keyword = keyword.replace(u"\u200b", "").decode("ascii")
+        if not keyword:
+            continue
+
+        entries.append("    Tag const {}(0x{:04x}, 0x{:04x});".format(keyword, *tag))
+
+    return entries
+
+if __name__ == "__main__":
+    sys.exit(main())
+

@@ -1,0 +1,21 @@
+language: cpp
+compiler:
+  - gcc
+  - clang
+before_install:
+  - sudo apt-get update -qq
+  - sudo apt-get install -y libdcmtk2-dev libwrap0-dev libjsoncpp-dev libicu-dev zlib1g-dev libboost-test-dev dcmtk
+  - sudo pip install cpp-coveralls
+before_script:
+  - export SRC_DIR=$PWD
+  - mkdir build
+  - cd build
+  - export BIN_DIR=$PWD
+  - CMAKE_CXX_FLAGS="-std=c++0x"
+  - if [ "${CC}" = "gcc" ]; then CMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS} --coverage"; fi
+  - cmake -D CMAKE_CXX_FLAGS:STRING="${CMAKE_CXX_FLAGS}" -D CMAKE_BUILD_TYPE:STRING=Debug ../
+script:
+  - make -j $(nproc)
+  - ../tests/run.sh
+after_success:
+  - if [ "${CC}" = "gcc" ]; then coveralls --exclude examples --exclude tests --exclude-pattern '.*CMake[^/]+\.c(?:pp)?' --exclude-pattern "/usr/.*" --root=${SRC_DIR} --build-root ${BIN_DIR} | grep -vP "^File '.*'$" | grep -vP ":creating '.*'$" | grep -vP "^Lines executed:.*" | sed '/^$/d'; fi
