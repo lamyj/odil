@@ -1,0 +1,4 @@
+version=3
+
+https://github.com/lamyj/dcmtkpp/releases .*/archive/v(\d[\d.-]+)\.(?:tar(?:\.gz|\.bz2)?|tgz)
+

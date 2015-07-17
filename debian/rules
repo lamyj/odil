@@ -1,0 +1,15 @@
+#!/usr/bin/make -f
+
+export DEB_CXXFLAGS_MAINT_APPEND  = -std=c++0x
+
+CPPFLAGS:=$(shell dpkg-buildflags --get CPPFLAGS)
+CFLAGS:=$(shell dpkg-buildflags --get CFLAGS)
+CXXFLAGS:=$(shell dpkg-buildflags --get CXXFLAGS)
+LDFLAGS:=$(shell dpkg-buildflags --get LDFLAGS)
+
+%:
+	dh $@ --parallel
+
+override_dh_auto_test:
+	echo "Skipping tests"
+

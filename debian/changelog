@@ -1,0 +1,5 @@
+dcmtkpp (0.2.1-1) UNRELEASED; urgency=low
+
+  * Initial release (Closes: #<bug>)
+
+ -- DMPT <debian-med-packaging@lists.alioth.debian.org>  Thu, 16 Jul 2015 15:18:46 +0200
