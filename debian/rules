@@ -8,8 +8,8 @@ CXXFLAGS:=$(shell dpkg-buildflags --get CXXFLAGS)
 LDFLAGS:=$(shell dpkg-buildflags --get LDFLAGS)
 
 %:
-	dh $@ --parallel
+	dh $@ --builddirectory=build --parallel
 
 override_dh_auto_test:
-	echo "Skipping tests"
+	cd build && ../tests/run.sh
 
