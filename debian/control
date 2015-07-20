@@ -4,6 +4,7 @@ Uploaders: Julien Lamy <lamy@unistra.fr>
 Section: science
 Priority: optional
 Build-Depends: debhelper (>= 9),
+               d-shlibs,
                cmake,
                libjsoncpp-dev,
                libdcmtk2-dev,
@@ -15,7 +16,7 @@ Vcs-Browser: http://anonscm.debian.org/viewvc/debian-med/trunk/packages/dcmtkpp/
 Vcs-Svn: svn://anonscm.debian.org/debian-med/trunk/packages/dcmtkpp/trunk/
 Homepage: https://github.com/lamyj/dcmtkpp
 
-Package: libdcmtkpp
+Package: libdcmtkpp0
 Architecture: any
 Section: libs
 Depends: ${shlibs:Depends},
@@ -24,7 +25,7 @@ Description: Wrappers around DCMTK to have an easier API
  DCMTK++ is a set of wrappers around DCMTK to have an easier API, notably for
  the networking part.
 
-Package: libdcmtkpp-dev
+Package: libdcmtkpp0-dev
 Architecture: any
 Section: libdevel
 Depends: libdcmtkpp (= ${binary:Version}),
