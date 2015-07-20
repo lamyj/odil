@@ -1,12 +1,12 @@
 Source: dcmtkpp
+Maintainer: Debian Med Packaging Team <debian-med-packaging@lists.alioth.debian.org>
+Uploaders: Julien Lamy <lamy@unistra.fr>
 Section: science
 Priority: optional
-Maintainer: Debian Med Packaging Team <debian-med-packaging@lists.alioth.debian.org>
-Uploaders: Andreas Tille <tille@debian.org>, Julien Lamy <lamy@unistra.fr>
 Build-Depends: debhelper (>= 9),
-               cmake (>= 2.8),
-               libjsoncpp-dev (>= 0.6.0~rc2),
-               libdcmtk2-dev (>= 3.6.0), 
+               cmake,
+               libjsoncpp-dev,
+               libdcmtk2-dev,
                libicu-dev (>= 4.8.1.1),
                libboost-test-dev (>= 1.46.1),
                dcmtk (>= 3.6.0)
@@ -18,7 +18,8 @@ Homepage: https://github.com/lamyj/dcmtkpp
 Package: libdcmtkpp
 Architecture: any
 Section: libs
-Depends: ${shlibs:Depends}, ${misc:Depends}
+Depends: ${shlibs:Depends},
+         ${misc:Depends}
 Description: Wrappers around DCMTK to have an easier API
  DCMTK++ is a set of wrappers around DCMTK to have an easier API, notably for
  the networking part.
@@ -26,7 +27,8 @@ Description: Wrappers around DCMTK to have an easier API
 Package: libdcmtkpp-dev
 Architecture: any
 Section: libdevel
-Depends: libdcmtkpp (= ${binary:Version}), ${misc:Depends}
+Depends: libdcmtkpp (= ${binary:Version}),
+         ${misc:Depends}
 Provides: libdcmtkpp-dev
 Description: Wrappers around DCMTK to have an easier API (development files)
  DCMTK++ is a set of wrappers around DCMTK to have an easier API, notably for
