@@ -13,3 +13,13 @@ LDFLAGS:=$(shell dpkg-buildflags --get LDFLAGS)
 override_dh_auto_test:
 	cd build && ../tests/run.sh
 
+override_dh_install:
+	dh_install
+	d-shlibmove \
+		--commit --multiarch --exclude-a --exclude-la \
+		--movedev debian/tmp/usr/include/* usr/include \
+		--override s/libjsoncpp.-dev/libjsoncpp-dev/ \
+		--override s/libdcm.*-dev/libdcmtk-dev/ \
+		--override s/libof.*-dev/libdcmtk-dev/ \
+		--override s/libicuuc.*-dev/libicu-dev/ \
+		debian/tmp/usr/lib/*.so

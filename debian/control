@@ -29,9 +29,11 @@ Description: Wrappers around DCMTK to have an easier API
 Package: libdcmtkpp0-dev
 Architecture: any
 Section: libdevel
-Depends: libdcmtkpp (= ${binary:Version}),
+Depends: libdcmtkpp0,
+         ${devlibs:Depends},
          ${misc:Depends}
 Provides: libdcmtkpp-dev
+Conflicts: libdcmtkpp-dev
 Description: Wrappers around DCMTK to have an easier API (development files)
  DCMTK++ is a set of wrappers around DCMTK to have an easier API, notably for
  the networking part.
