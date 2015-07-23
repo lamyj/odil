@@ -1,5 +1,6 @@
 Subject: Fix library SONAME
 Author: Julien Lamy <lamy@unistra.fr>
+Forwarded: https://github.com/lamyj/dcmtkpp/commit/3e56d7494f1856bd0c8cb9694919f5e99e446036
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
 @@ -1,5 +1,11 @@
