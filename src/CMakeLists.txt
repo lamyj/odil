@@ -17,5 +17,7 @@ install(TARGETS dcmtkpp LIBRARY DESTINATION lib)
 install(FILES ${headers} ${templates} DESTINATION include/dcmtkpp)
 
 target_link_libraries(dcmtkpp ${DCMTK_LIBRARIES} jsoncpp ${ICU_LIBRARIES})
-
+set_target_properties(dcmtkpp PROPERTIES 
+    VERSION ${dcmtkpp_VERSION}
+    SOVERSION ${dcmtkpp_MAJOR_VERSION})
 
