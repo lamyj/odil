@@ -29,7 +29,7 @@ Description: Wrappers around DCMTK to have an easier API
 Package: libdcmtkpp0-dev
 Architecture: any
 Section: libdevel
-Depends: libdcmtkpp0,
+Depends: libdcmtkpp0 (= ${binary:Version}),
          ${devlibs:Depends},
          ${misc:Depends}
 Provides: libdcmtkpp-dev
