@@ -23,8 +23,13 @@ Section: libs
 Depends: ${shlibs:Depends},
          ${misc:Depends}
 Description: Wrappers around DCMTK to have an easier API
- DCMTK++ is a set of wrappers around DCMTK to have an easier API, notably for
- the networking part.
+ DCMTK++ is a set of wrappers around DCMTK, leveraging C++ constructs to have 
+ an easier API, notably for the networking part. Included are exception-based
+ error handling, generic access to datasets elements, standard JSON 
+ representation of datasets, explicit messages and generic implementation of
+ SCU and SCP.
+ .
+ This package contains the shared library.
 
 Package: libdcmtkpp0-dev
 Architecture: any
@@ -35,7 +40,10 @@ Depends: libdcmtkpp0 (= ${binary:Version}),
 Provides: libdcmtkpp-dev
 Conflicts: libdcmtkpp-dev
 Description: Wrappers around DCMTK to have an easier API (development files)
- DCMTK++ is a set of wrappers around DCMTK to have an easier API, notably for
- the networking part.
+ DCMTK++ is a set of wrappers around DCMTK, leveraging C++ constructs to have 
+ an easier API, notably for the networking part. Included are exception-based
+ error handling, generic access to datasets elements, standard JSON 
+ representation of datasets, explicit messages and generic implementation of
+ SCU and SCP.
  .
  This package contains the development files.
