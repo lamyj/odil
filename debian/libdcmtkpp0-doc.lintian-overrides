@@ -1,0 +1,4 @@
+# According to Doxygen's maintainer:
+# Lintian will have to learn that a `jquery.js` embedded by Doxygen 
+# is a normal thing.
+libdcmtkpp0-doc: embedded-javascript-library

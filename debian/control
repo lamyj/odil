@@ -11,7 +11,9 @@ Build-Depends: debhelper (>= 9),
                libicu-dev (>= 4.8.1.1),
                zlib1g-dev,
                libboost-test-dev (>= 1.46.1),
-               dcmtk (>= 3.6.0)
+               dcmtk (>= 3.6.0),
+               doxygen,
+               graphviz
 Standards-Version: 3.9.6
 Vcs-Browser: http://anonscm.debian.org/viewvc/debian-med/trunk/packages/dcmtkpp/trunk/
 Vcs-Svn: svn://anonscm.debian.org/debian-med/trunk/packages/dcmtkpp/trunk/
@@ -47,3 +49,17 @@ Description: Wrappers around DCMTK to have an easier API (development files)
  SCU and SCP.
  .
  This package contains the development files.
+
+Package: libdcmtkpp0-doc
+Architecture: all
+Section: doc
+Depends: libjs-jquery,
+         ${misc:Depends}
+Description: Wrappers around DCMTK to have an easier API (documentation)
+ DCMTK++ is a set of wrappers around DCMTK, leveraging C++ constructs to have 
+ an easier API, notably for the networking part. Included are exception-based
+ error handling, generic access to datasets elements, standard JSON 
+ representation of datasets, explicit messages and generic implementation of
+ SCU and SCP.
+ .
+ This package contains the documentation files.

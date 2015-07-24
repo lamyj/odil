@@ -1,0 +1,9 @@
+Document: dcmtkpp-doxygen
+Title: Documentation of DCMTK++
+Author: Julien Lamy
+Abstract: Doxygen-generated documentation of DCMTK++.
+Section: Science/Medicine
+
+Format: HTML
+Index: /usr/share/doc/libdcmtkpp0-doc/html/index.html
+Files: /usr/share/doc/libdcmtkpp0-doc/html/*.html

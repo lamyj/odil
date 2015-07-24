@@ -10,6 +10,10 @@ LDFLAGS:=$(shell dpkg-buildflags --get LDFLAGS)
 %:
 	dh $@ --builddirectory=build --parallel
 
+override_dh_auto_build:
+	dh_auto_build
+	doxygen && mv doc build
+
 override_dh_auto_test:
 	cd build && ../tests/run.sh
 
