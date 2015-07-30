@@ -24,12 +24,14 @@ Architecture: any
 Section: libs
 Depends: ${shlibs:Depends},
          ${misc:Depends}
-Description: Wrappers around DCMTK to have an easier API
- DCMTK++ is a set of wrappers around DCMTK, leveraging C++ constructs to have 
- an easier API, notably for the networking part. Included are exception-based
- error handling, generic access to datasets elements, standard JSON 
- representation of datasets, explicit messages and generic implementation of
- SCU and SCP.
+Description: C++ wrapper library for the DCMTK DICOM toolkit
+ DCMTK++ is a C++ wrapper library for DCMTK, a C++ toolkit handling the DICOM
+ medical imaging standard. DCMTK++ leverages C++ constructs to provide a
+ more user-friendly API, notably for the networking part. Included in
+ DCMTK++ are exception-based error handling, generic access to datasets
+ elements, standard JSON representation of datasets, and generic
+ implementation of messages, clients and servers for the various DICOM
+ protocols.
  .
  This package contains the shared library.
 
@@ -41,12 +43,14 @@ Depends: libdcmtkpp0 (= ${binary:Version}),
          ${misc:Depends}
 Provides: libdcmtkpp-dev
 Conflicts: libdcmtkpp-dev
-Description: Wrappers around DCMTK to have an easier API (development files)
- DCMTK++ is a set of wrappers around DCMTK, leveraging C++ constructs to have 
- an easier API, notably for the networking part. Included are exception-based
- error handling, generic access to datasets elements, standard JSON 
- representation of datasets, explicit messages and generic implementation of
- SCU and SCP.
+Description: C++ wrapper library for the DCMTK DICOM toolkit (development files)
+ DCMTK++ is a C++ wrapper library for DCMTK, a C++ toolkit handling the DICOM
+ medical imaging standard. DCMTK++ leverages C++ constructs to provide a
+ more user-friendly API, notably for the networking part. Included in
+ DCMTK++ are exception-based error handling, generic access to datasets
+ elements, standard JSON representation of datasets, and generic
+ implementation of messages, clients and servers for the various DICOM
+ protocols.
  .
  This package contains the development files.
 
@@ -55,11 +59,13 @@ Architecture: all
 Section: doc
 Depends: libjs-jquery,
          ${misc:Depends}
-Description: Wrappers around DCMTK to have an easier API (documentation)
- DCMTK++ is a set of wrappers around DCMTK, leveraging C++ constructs to have 
- an easier API, notably for the networking part. Included are exception-based
- error handling, generic access to datasets elements, standard JSON 
- representation of datasets, explicit messages and generic implementation of
- SCU and SCP.
+Description: C++ wrapper library for the DCMTK DICOM toolkit (documentation)
+ DCMTK++ is a C++ wrapper library for DCMTK, a C++ toolkit handling the DICOM
+ medical imaging standard. DCMTK++ leverages C++ constructs to provide a
+ more user-friendly API, notably for the networking part. Included in
+ DCMTK++ are exception-based error handling, generic access to datasets
+ elements, standard JSON representation of datasets, and generic
+ implementation of messages, clients and servers for the various DICOM
+ protocols.
  .
  This package contains the documentation files.
