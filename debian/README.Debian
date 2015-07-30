@@ -1,0 +1,5 @@
+Compared to the two main free-software C++ DICOM toolkits (DCMTK and
+GDCM), DCMTK++ provides either additional features (generic
+implementation of DICOM servers, missing from GDCM) and a modern C++ API
+(missing from DCMTK). Developers of DICOM application will benefit from
+DCMTK++ in term of code readability and ease of application maintenance.
