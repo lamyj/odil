@@ -1,4 +1,4 @@
-dcmtkpp (0.2.1-1) UNRELEASED; urgency=low
+dcmtkpp (0.2.1-1) unstable; urgency=low
 
   * Initial release (Closes: #793392)
 
