@@ -62,6 +62,8 @@ Tag
 {
     DcmTagKey const tag(this->group, this->element);
     DcmDictEntry const * entry = dcmDataDict.rdlock().findEntry(tag, NULL);
+    dcmDataDict.unlock();
+
     if(entry == NULL)
     {
         throw Exception("No such element");
@@ -121,6 +123,8 @@ Tag
 ::_from_string(std::string const & string)
 {
     DcmDictEntry const * entry = dcmDataDict.rdlock().findEntry(string.c_str());
+    dcmDataDict.unlock();
+
     if(entry == NULL)
     {
         // Try with string form of numeric tag

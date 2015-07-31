@@ -111,6 +111,8 @@ VR as_vr(Tag const & tag)
 {
     DcmTagKey const dcmtk_tag(tag.group, tag.element);
     DcmDictEntry const * entry = dcmDataDict.rdlock().findEntry(dcmtk_tag, NULL);
+    dcmDataDict.unlock();
+
     if(entry == NULL)
     {
         throw Exception("No such element");
