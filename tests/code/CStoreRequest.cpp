@@ -2,12 +2,12 @@
 #include <boost/test/unit_test.hpp>
 
 #include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmdata/dcuid.h>
 #include <dcmtk/dcmnet/dimse.h>
 
 #include "dcmtkpp/CStoreRequest.h"
 #include "dcmtkpp/DataSet.h"
 #include "dcmtkpp/Message.h"
+#include "dcmtkpp/registry.h"
 
 #include "../MessageFixtureBase.h"
 
@@ -20,7 +20,7 @@ struct Fixture: public MessageFixtureBase<dcmtkpp::CStoreRequest>
     {
         this->command_set.add("CommandField", {dcmtkpp::Message::Command::C_STORE_RQ});
         this->command_set.add("MessageID", {1234});
-        this->command_set.add("AffectedSOPClassUID", {UID_MRImageStorage});
+        this->command_set.add("AffectedSOPClassUID", {dcmtkpp::registry::MRImageStorage});
         this->command_set.add("AffectedSOPInstanceUID", {"1.2.3.4"});
         this->command_set.add("Priority", {DIMSE_PRIORITY_MEDIUM});
 
@@ -38,7 +38,7 @@ struct Fixture: public MessageFixtureBase<dcmtkpp::CStoreRequest>
         BOOST_CHECK_EQUAL(message.get_command_field(), dcmtkpp::Message::Command::C_STORE_RQ);
         BOOST_CHECK_EQUAL(message.get_message_id(), 1234);
         BOOST_CHECK_EQUAL(
-            message.get_affected_sop_class_uid(), UID_MRImageStorage);
+            message.get_affected_sop_class_uid(), dcmtkpp::registry::MRImageStorage);
         BOOST_CHECK_EQUAL(
             message.get_affected_sop_instance_uid(), "1.2.3.4");
 
@@ -56,7 +56,7 @@ struct Fixture: public MessageFixtureBase<dcmtkpp::CStoreRequest>
 BOOST_FIXTURE_TEST_CASE(Constructor, Fixture)
 {
     dcmtkpp::CStoreRequest message(
-        1234, UID_MRImageStorage, "1.2.3.4", DIMSE_PRIORITY_MEDIUM,
+        1234, dcmtkpp::registry::MRImageStorage, "1.2.3.4", DIMSE_PRIORITY_MEDIUM,
         this->data_set);
     message.set_move_originator_ae_title("origin");
     message.set_move_originator_message_id(5678);

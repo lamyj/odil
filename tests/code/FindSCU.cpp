@@ -3,6 +3,7 @@
 
 #include "dcmtkpp/DataSet.h"
 #include "dcmtkpp/FindSCU.h"
+#include "dcmtkpp/registry.h"
 
 #include "../PeerFixtureBase.h"
 
@@ -16,8 +17,8 @@ struct Fixture: public PeerFixtureBase
     : PeerFixtureBase(NET_REQUESTOR, 104, 10,
         {
             {
-                UID_FINDPatientRootQueryRetrieveInformationModel,
-                { UID_LittleEndianImplicitTransferSyntax }
+                dcmtkpp::registry::PatientRootQueryRetrieveInformationModelFIND,
+                { dcmtkpp::registry::ImplicitVRLittleEndian }
             }
         })
     {
@@ -43,7 +44,7 @@ BOOST_FIXTURE_TEST_CASE(Find, Fixture)
     scu.set_network(&this->network);
     scu.set_association(&this->association);
 
-    scu.set_affected_sop_class(UID_FINDPatientRootQueryRetrieveInformationModel);
+    scu.set_affected_sop_class(dcmtkpp::registry::PatientRootQueryRetrieveInformationModelFIND);
     auto const results = scu.find(this->query);
 
     BOOST_REQUIRE_EQUAL(results.size(), 1);
@@ -58,7 +59,7 @@ BOOST_FIXTURE_TEST_CASE(FindCallback, Fixture)
     scu.set_network(&this->network);
     scu.set_association(&this->association);
 
-    scu.set_affected_sop_class(UID_FINDPatientRootQueryRetrieveInformationModel);
+    scu.set_affected_sop_class(dcmtkpp::registry::PatientRootQueryRetrieveInformationModelFIND);
     scu.find(this->query, Fixture::callback);
 
     BOOST_CHECK(Fixture::called);

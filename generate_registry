@@ -1,57 +1,62 @@
 #! /usr/bin/env python
 
+import argparse
+import os
 import re
 import urllib
 import sys
 import xml.etree.ElementTree
 
+import jinja2
+
 def main():
+    parser = argparse.ArgumentParser("Generate registry files")
+    parser.add_argument(
+        "root", nargs="?", 
+        default="http://medical.nema.org/medical/dicom/current/source/docbook",
+        help="Root URL or path to the Docbook version of the DICOM standard")
+    
+    arguments = parser.parse_args()
+    
+    jinja_environment = jinja2.Environment(
+        loader=jinja2.FileSystemLoader(os.path.dirname(__file__)),
+        trim_blocks=True)
+    
+    templates = {
+        "src/dcmtkpp/registry.h": jinja_environment.get_template("registry.h.tmpl"),
+        "src/dcmtkpp/registry.cpp": jinja_environment.get_template("registry.cpp.tmpl"),
+    }
+
     sources = [
-        ("http://medical.nema.org/medical/dicom/current/source/docbook/part07/part07.xml", "table_E.1-1"),
-        ("http://medical.nema.org/medical/dicom/current/source/docbook/part06/part06.xml", "table_7-1"),
-        ("http://medical.nema.org/medical/dicom/current/source/docbook/part06/part06.xml", "table_8-1"),
-        ("http://medical.nema.org/medical/dicom/current/source/docbook/part06/part06.xml", "table_6-1"),
-
+        ("part07/part07.xml", "table_E.1-1"),
+        ("part06/part06.xml", "table_7-1"),
+        ("part06/part06.xml", "table_8-1"),
+        ("part06/part06.xml", "table_6-1"),
     ]
 
-    header = [
-        "/*************************************************************************",
-        "* dcmtkpp - Copyright (C) Universite de Strasbourg",
-        "* Distributed under the terms of the CeCILL-B license, as published by",
-        "* the CEA-CNRS-INRIA. Refer to the LICENSE file or to",
-        "* http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html",
-        "* for details.",
-        "************************************************************************/",
-        "",
-        "#ifndef _afc7b2d7_0869_4fea_9a9b_7fe6228baca9",
-        "#define _afc7b2d7_0869_4fea_9a9b_7fe6228baca9",
-        "",
-        "#include \"dcmtkpp/Tag.h\"",
-        "",
-        "namespace dcmtkpp",
-        "{",
-        "",
-        "namespace registry",
-        "{",
-    ]
-
-    declarations = []
+    elements_dictionary = []
     for url, id_ in sources:
-        declarations.extend(generate_registry(url, id_))
-
-    footer = [
-        "}",
-        "",
-        "}",
-        "",
-        "#endif // _afc7b2d7_0869_4fea_9a9b_7fe6228baca9",
+        url = os.path.join(arguments.root, url)
+        entries = parse_elements_dictionaries(url, id_)
+        elements_dictionary.extend(entries)
+    
+    sources = [
+        ("part06/part06.xml", "table_A-1"),
     ]
-
-    print "\n".join(header+declarations+footer)
-
+    
+    uids = []
+    for url, id_ in sources:
+        uids.extend(parse_uids(os.path.join(arguments.root, url), id_))
+    
+    for path, template in templates.items():
+        with open(path, "w") as fd:
+            fd.write(template.render(
+                elements_dictionary=elements_dictionary,
+                uids=uids))
+    
     return 0
 
-def generate_registry(url, id_):
+def parse_elements_dictionaries(url, id_):
     fd = urllib.urlopen(url)
     document = xml.etree.ElementTree.parse(fd)
     fd.close()
@@ -67,7 +72,9 @@ def generate_registry(url, id_):
 
     for row in table.iterfind("./docbook:tbody/docbook:tr", namespaces):
         entry = row.findall("./docbook:td/docbook:para", namespaces)
-        tag = entry[0]
+
+        tag, name, keyword, vr, vm = entry[:5]
+
         if tag.getchildren():
             tag = tag.find("./docbook:emphasis", namespaces)
         tag = tag.text
@@ -78,17 +85,66 @@ def generate_registry(url, id_):
 
         tag = [int(x, 16) for x in match.groups()]
 
-        keyword = entry[2]
-        if keyword.getchildren():
-            keyword = keyword.find("./docbook:emphasis", namespaces)
-        keyword = keyword.text or ""
-        keyword = keyword.replace(u"\u200b", "").decode("ascii")
+        keyword = get_value(keyword, "ascii", namespaces)
         if not keyword:
             continue
-
-        entries.append("    Tag const {}(0x{:04x}, 0x{:04x});".format(keyword, *tag))
+        
+        name = get_value(name, "utf-8", namespaces)
+        vr = get_value(vr, "ascii", namespaces)
+        vm = get_value(vm, "ascii", namespaces)
+        
+        entries.append((tag, name, keyword, vr, vm))
 
     return entries
+
+def parse_uids(url, id_):
+    fd = urllib.urlopen(url)
+    document = xml.etree.ElementTree.parse(fd)
+    fd.close()
+
+    namespaces = {
+        "xml": "http://www.w3.org/XML/1998/namespace",
+        "docbook": "http://docbook.org/ns/docbook"
+    }
+
+    table = document.find(".//*[@xml:id=\"{}\"]".format(id_), namespaces)
+
+    keywords_map = {
+        "12leadECGWaveformStorage": "TwelveleadECGWaveformStorage",
+    }
+
+    entries = []
+
+    for row in table.iterfind("./docbook:tbody/docbook:tr", namespaces):
+        entry = row.findall("./docbook:td/docbook:para", namespaces)
+        uid, name, type_ = entry[:3]
+        
+        uid = get_value(uid, "ascii", namespaces)
+        name = get_value(name, "ascii", namespaces)
+        type_ = get_value(type_, "ascii", namespaces)
+        
+        retired = name.endswith(" (Retired)")
+        keyword = name.replace(" (Retired)", "")
+        keyword = re.sub(":.*", "", keyword)
+        keyword = re.sub("\W", " ", keyword).strip().replace(" ", "")
+        if retired:
+            keyword += "_Retired"
+        
+        keyword = keywords_map.get(keyword, keyword)
+        
+        entries.append((uid, name, keyword, type_))
+    
+    return entries
+    
+
+def get_value(element, encoding, namespaces):
+    emphasis = element.find("./docbook:emphasis", namespaces)
+    if emphasis is not None:
+        element = emphasis
+    
+    element = element.text or ""
+    element = element.replace(u"\u200b", "").replace(u"\u00b5", "u").encode(encoding)
+    return element
 
 if __name__ == "__main__":
     sys.exit(main())

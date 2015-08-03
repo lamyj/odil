@@ -1,0 +1,36 @@
+/*************************************************************************
+ * dcmtkpp - Copyright (C) Universite de Strasbourg
+ * Distributed under the terms of the CeCILL-B license, as published by
+ * the CEA-CNRS-INRIA. Refer to the LICENSE file or to
+ * http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
+ * for details.
+ ************************************************************************/
+
+#ifndef _afc7b2d7_0869_4fea_9a9b_7fe6228baca9
+#define _afc7b2d7_0869_4fea_9a9b_7fe6228baca9
+
+#include "dcmtkpp/ElementsDictionary.h"
+#include "dcmtkpp/Tag.h"
+#include "dcmtkpp/UIDsDictionary.h"
+
+namespace dcmtkpp
+{
+
+namespace registry
+{
+{% for entry in elements_dictionary %}
+Tag const {{ entry[2] }}({{ "0x%04x, 0x%04x"|format(*entry[0]) }});
+{% endfor %}
+
+{% for entry in uids %}
+std::string const {{ entry[2] }}("{{ entry[0] }}");
+{% endfor %}
+
+extern ElementsDictionary public_dictionary;
+extern UIDsDictionary uids_dictionary;
+}
+
+}
+
+#endif // _afc7b2d7_0869_4fea_9a9b_7fe6228baca9
+

@@ -3,6 +3,7 @@
 
 #include "dcmtkpp/DataSet.h"
 #include "dcmtkpp/Exception.h"
+#include "dcmtkpp/registry.h"
 #include "dcmtkpp/StoreSCU.h"
 
 #include "../PeerFixtureBase.h"
@@ -16,8 +17,8 @@ struct Fixture: public PeerFixtureBase
     Fixture()
     : PeerFixtureBase(NET_REQUESTOR, 104, 10,
         {
-            { UID_RawDataStorage,
-                {UID_LittleEndianImplicitTransferSyntax}
+            { dcmtkpp::registry::RawDataStorage,
+                {dcmtkpp::registry::ImplicitVRLittleEndian}
             }
         })
     {
@@ -27,7 +28,7 @@ struct Fixture: public PeerFixtureBase
         this->dataset.add("PatientID", {"1234"});
         this->dataset.add("StudyInstanceUID", {"2.25.386726390606491051215227596277040710"});
         this->dataset.add("SeriesInstanceUID", {"2.25.235367796740370588607388995952651763168"});
-        this->dataset.add("SOPClassUID", {UID_RawDataStorage});
+        this->dataset.add("SOPClassUID", {dcmtkpp::registry::RawDataStorage});
         this->dataset.add("SOPInstanceUID", {"2.25.294312554735929033890522327215919068328"});
     }
 
@@ -43,11 +44,11 @@ bool Fixture::called = false;
 BOOST_AUTO_TEST_CASE(AffectedSOPClassUID)
 {
     dcmtkpp::DataSet dataset;
-    dataset.add("SOPClassUID", {UID_RawDataStorage});
+    dataset.add("SOPClassUID", {dcmtkpp::registry::RawDataStorage});
 
     dcmtkpp::StoreSCU scu;
     scu.set_affected_sop_class(dataset);
-    BOOST_CHECK_EQUAL(scu.get_affected_sop_class(), UID_RawDataStorage);
+    BOOST_CHECK_EQUAL(scu.get_affected_sop_class(), dcmtkpp::registry::RawDataStorage);
 }
 
 BOOST_AUTO_TEST_CASE(AffectedSOPClassUIDNoSOPClassUID)

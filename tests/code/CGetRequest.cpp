@@ -22,7 +22,7 @@ struct Fixture: public MessageFixtureBase<dcmtkpp::CGetRequest>
         this->command_set.add("CommandField", {dcmtkpp::Message::Command::C_GET_RQ});
         this->command_set.add("MessageID", {1234});
         this->command_set.add("AffectedSOPClassUID",
-            {UID_GETPatientRootQueryRetrieveInformationModel});
+            {dcmtkpp::registry::PatientRootQueryRetrieveInformationModelGET});
         this->command_set.add("Priority", {DIMSE_PRIORITY_MEDIUM});
 
         this->query.add("PatientName", {"Doe^John"});
@@ -36,7 +36,7 @@ struct Fixture: public MessageFixtureBase<dcmtkpp::CGetRequest>
         BOOST_CHECK_EQUAL(message.get_message_id(), 1234);
         BOOST_CHECK_EQUAL(
             message.get_affected_sop_class_uid(),
-            UID_GETPatientRootQueryRetrieveInformationModel);
+            dcmtkpp::registry::PatientRootQueryRetrieveInformationModelGET);
         BOOST_CHECK(message.has_data_set());
         BOOST_CHECK(message.get_data_set() == this->query);
     }
@@ -45,7 +45,7 @@ struct Fixture: public MessageFixtureBase<dcmtkpp::CGetRequest>
 BOOST_FIXTURE_TEST_CASE(Constructor, Fixture)
 {
     dcmtkpp::CGetRequest const message(
-        1234, UID_GETPatientRootQueryRetrieveInformationModel,
+        1234, dcmtkpp::registry::PatientRootQueryRetrieveInformationModelGET,
         DIMSE_PRIORITY_MEDIUM, this->query);
     this->check(message);
 }

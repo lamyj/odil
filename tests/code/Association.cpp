@@ -5,6 +5,7 @@
 
 #include "dcmtkpp/Association.h"
 #include "dcmtkpp/Exception.h"
+#include "dcmtkpp/registry.h"
 
 #include "../PeerFixtureBase.h"
 
@@ -210,8 +211,8 @@ BOOST_AUTO_TEST_CASE(Associate)
 {
     PeerFixtureBase fixture(NET_REQUESTOR, 0, 10, 
         {
-            { UID_VerificationSOPClass,
-                {UID_LittleEndianImplicitTransferSyntax}
+            { dcmtkpp::registry::VerificationSOPClass,
+                {dcmtkpp::registry::ImplicitVRLittleEndian}
             }
         });
     BOOST_CHECK_THROW(
@@ -224,8 +225,8 @@ BOOST_AUTO_TEST_CASE(Associate)
         fixture.association.set_peer_ae_title("foo"), dcmtkpp::Exception);
     BOOST_CHECK_THROW(
         fixture.association.add_presentation_context(
-                UID_GETPatientRootQueryRetrieveInformationModel,
-                { UID_LittleEndianImplicitTransferSyntax }),
+                dcmtkpp::registry::PatientRootQueryRetrieveInformationModelGET,
+                { dcmtkpp::registry::ImplicitVRLittleEndian }),
         dcmtkpp::Exception);
     BOOST_CHECK_THROW(
         fixture.association.set_user_identity_type(dcmtkpp::UserIdentityType::SAML), 

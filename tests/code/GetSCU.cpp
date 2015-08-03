@@ -3,6 +3,7 @@
 
 #include "dcmtkpp/DataSet.h"
 #include "dcmtkpp/GetSCU.h"
+#include "dcmtkpp/registry.h"
 
 #include "../PeerFixtureBase.h"
 
@@ -16,11 +17,11 @@ struct Fixture: public PeerFixtureBase
     : PeerFixtureBase(NET_REQUESTOR, 104, 10,
         {
             {
-                UID_GETPatientRootQueryRetrieveInformationModel,
-                { UID_LittleEndianImplicitTransferSyntax }
+                dcmtkpp::registry::PatientRootQueryRetrieveInformationModelGET,
+                { dcmtkpp::registry::ImplicitVRLittleEndian }
             },
             {
-                UID_RawDataStorage, { UID_LittleEndianImplicitTransferSyntax },
+                dcmtkpp::registry::RawDataStorage, { dcmtkpp::registry::ImplicitVRLittleEndian },
                 ASC_SC_ROLE_SCP
             }
         })
@@ -46,7 +47,7 @@ BOOST_FIXTURE_TEST_CASE(Get, Fixture)
     scu.set_network(&this->network);
     scu.set_association(&this->association);
 
-    scu.set_affected_sop_class(UID_GETPatientRootQueryRetrieveInformationModel);
+    scu.set_affected_sop_class(dcmtkpp::registry::PatientRootQueryRetrieveInformationModelGET);
     auto const results = scu.get(this->query);
 
     BOOST_REQUIRE_EQUAL(results.size(), 1);
@@ -61,7 +62,7 @@ BOOST_FIXTURE_TEST_CASE(GetCallback, Fixture)
     scu.set_network(&this->network);
     scu.set_association(&this->association);
 
-    scu.set_affected_sop_class(UID_GETPatientRootQueryRetrieveInformationModel);
+    scu.set_affected_sop_class(dcmtkpp::registry::PatientRootQueryRetrieveInformationModelGET);
     scu.get(this->query, Fixture::callback);
 
     BOOST_CHECK(Fixture::called);

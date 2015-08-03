@@ -2,12 +2,12 @@
 #include <boost/test/unit_test.hpp>
 
 #include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmdata/dcuid.h>
 #include <dcmtk/dcmnet/dimse.h>
 
 #include "dcmtkpp/CFindResponse.h"
 #include "dcmtkpp/DataSet.h"
 #include "dcmtkpp/Message.h"
+#include "dcmtkpp/registry.h"
 
 #include "../MessageFixtureBase.h"
 
@@ -24,7 +24,7 @@ struct Fixture: public MessageFixtureBase<dcmtkpp::CFindResponse>
 
         command_set.add("MessageID", {5678});
         command_set.add("AffectedSOPClassUID",
-            {UID_FINDStudyRootQueryRetrieveInformationModel});
+            {dcmtkpp::registry::StudyRootQueryRetrieveInformationModelFIND});
 
         data_set.add("PatientName", {"Doe^John"});
         data_set.add("PatientID", {"DJ123"});
@@ -44,7 +44,7 @@ struct Fixture: public MessageFixtureBase<dcmtkpp::CFindResponse>
         BOOST_CHECK(message.has_affected_sop_class_uid());
         BOOST_CHECK_EQUAL(
             message.get_affected_sop_class_uid(),
-            UID_FINDStudyRootQueryRetrieveInformationModel);
+            dcmtkpp::registry::StudyRootQueryRetrieveInformationModelFIND);
 
         BOOST_CHECK(message.has_data_set());
         BOOST_CHECK(message.get_data_set() == this->data_set);
@@ -56,7 +56,7 @@ BOOST_FIXTURE_TEST_CASE(Constructor, Fixture)
     dcmtkpp::CFindResponse message(1234, STATUS_Success, this->data_set);
     message.set_message_id(5678);
     message.set_affected_sop_class_uid(
-        UID_FINDStudyRootQueryRetrieveInformationModel);
+        dcmtkpp::registry::StudyRootQueryRetrieveInformationModelFIND);
     this->check(message);
 }
 
