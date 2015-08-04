@@ -4,12 +4,8 @@
 #include <stdexcept>
 #include <string>
 
-#include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmdata/dcdicent.h>
-#include <dcmtk/dcmdata/dcdict.h>
-#include <dcmtk/dcmdata/dctagkey.h>
-
 #include "dcmtkpp/Exception.h"
+#include "dcmtkpp/registry.h"
 #include "dcmtkpp/Tag.h"
 
 // Anonymous namespace, should not be publicly accessed
@@ -109,16 +105,13 @@ VR as_vr(std::string const vr)
 
 VR as_vr(Tag const & tag)
 {
-    DcmTagKey const dcmtk_tag(tag.group, tag.element);
-    DcmDictEntry const * entry = dcmDataDict.rdlock().findEntry(dcmtk_tag, NULL);
-    dcmDataDict.unlock();
-
-    if(entry == NULL)
+    auto const dictionary_it = registry::public_dictionary.find(tag);
+    if(dictionary_it == registry::public_dictionary.end())
     {
-        throw Exception("No such element");
+        throw Exception("No such element: "+std::string(tag));
     }
 
-    VR const vr(as_vr(std::string(entry->getVR().getValidVRName())));
+    VR const vr(as_vr(std::string(dictionary_it->second.vr)));
 
     return vr;
 }

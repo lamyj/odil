@@ -14,11 +14,6 @@
 #include <string>
 #include <vector>
 
-#include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmdata/dcdicent.h>
-#include <dcmtk/dcmdata/dcdict.h>
-#include <dcmtk/dcmdata/dctagkey.h>
-
 #include "dcmtkpp/Exception.h"
 #include "dcmtkpp/Tag.h"
 #include "dcmtkpp/VR.h"

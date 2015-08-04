@@ -13,12 +13,8 @@
 #include <sstream>
 #include <string>
 
-#include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmdata/dcdicent.h>
-#include <dcmtk/dcmdata/dcdict.h>
-#include <dcmtk/dcmdata/dctagkey.h>
-
 #include "dcmtkpp/Exception.h"
+#include "dcmtkpp/registry.h"
 
 namespace dcmtkpp
 {
@@ -60,16 +56,13 @@ std::string
 Tag
 ::get_name() const
 {
-    DcmTagKey const tag(this->group, this->element);
-    DcmDictEntry const * entry = dcmDataDict.rdlock().findEntry(tag, NULL);
-    dcmDataDict.unlock();
-
-    if(entry == NULL)
+    auto const dictionary_it = registry::public_dictionary.find(*this);
+    if(dictionary_it == registry::public_dictionary.end())
     {
-        throw Exception("No such element");
+        throw Exception("No such element: "+std::string(*this));
     }
 
-    return entry->getTagName();
+    return dictionary_it->second.keyword;
 }
 
 bool
@@ -122,10 +115,17 @@ void
 Tag
 ::_from_string(std::string const & string)
 {
-    DcmDictEntry const * entry = dcmDataDict.rdlock().findEntry(string.c_str());
-    dcmDataDict.unlock();
+    ElementsDictionary::const_iterator it = registry::public_dictionary.begin();
+    while(it != registry::public_dictionary.end())
+    {
+        if(it->second.keyword == string)
+        {
+            break;
+        }
+        ++it;
+    }
 
-    if(entry == NULL)
+    if(it == registry::public_dictionary.end())
     {
         // Try with string form of numeric tag
         uint16_t group;
@@ -168,9 +168,9 @@ Tag
     }
     else
     {
-        DcmTagKey const tag = entry->getKey();
-        this->group = tag.getGroup();
-        this->element = tag.getElement();
+        auto const & tag = it->first;
+        this->group = tag.group;
+        this->element = tag.element;
     }
 }
 

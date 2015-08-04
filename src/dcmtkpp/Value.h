@@ -93,6 +93,9 @@ public:
     /// @brief Return the type store in the value.
     Type get_type() const;
 
+    /// @brief Test whether the value is empty.
+    bool empty() const;
+
     /**
      * @brief Return the integers contained in the value.
      *

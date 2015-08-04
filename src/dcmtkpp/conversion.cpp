@@ -51,7 +51,7 @@ DcmEVR convert(VR vr)
     else if(vr == VR::UT) { return EVR_UT; }
     else
     {
-        throw Exception("Unknown VR");
+        throw Exception("Unknown VR: "+as_string(vr));
     }
 }
 
@@ -86,7 +86,7 @@ VR convert(DcmEVR evr)
     else if(evr == EVR_UT) { return VR::UT; }
     else
     {
-        throw Exception("Unknown VR");
+        throw Exception("Unknown VR: "+std::string(DcmVR(evr).getVRName()));
     }
 }
 
@@ -311,7 +311,7 @@ DcmElement * convert(const Tag & tag, Element const & source)
     }
     else
     {
-        throw Exception("Unknown VR");
+        throw Exception("Unknown VR: "+as_string(source.vr));
     }
 
     return destination;
@@ -416,7 +416,7 @@ Element convert(DcmElement * source)
     }
     else
     {
-        throw Exception("Unknown VR");
+        throw Exception("Unknown VR: "+std::string(DcmVR(source_vr).getVRName()));
     }
 
     return destination;
