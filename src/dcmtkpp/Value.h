@@ -189,6 +189,13 @@ template<typename TVisitor>
 typename TVisitor::result_type
 apply_visitor(TVisitor const & visitor, Value const & value);
 
+/**
+ * @brief Visitor of values.
+ */
+template<typename TVisitor>
+typename TVisitor::result_type
+apply_visitor(TVisitor const & visitor, Value & value);
+
 }
 
 #include "dcmtkpp/Value.txx"
