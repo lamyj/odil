@@ -1,13 +1,12 @@
 #include <fstream>
 #include <iostream>
+#include <ostream>
+#include <string>
+#include <utility>
 
-#include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmdata/dctk.h>
-
-#include <dcmtkpp/conversion.h>
-#include <dcmtkpp/registry.h>
+#include <dcmtkpp/DataSet.h>
 #include <dcmtkpp/Reader.h>
-#include <dcmtkpp/Writer.h>
+#include <dcmtkpp/Value.h>
 
 struct Printer
 {
@@ -69,21 +68,10 @@ int main(int argc, char** argv)
     {
         std::ifstream stream(argv[i], std::ios::in | std::ios::binary);
 
-        stream.seekg(0, stream.end);
-        int const length = stream.tellg();
-        stream.seekg(0, stream.beg);
-
-        std::string string(length, ' ');
-        stream.read(&string[0], string.size());
-        std::istringstream string_stream(string);
-
-        struct timespec begin;
-        clock_gettime(CLOCK_REALTIME, &begin);
-
         std::pair<dcmtkpp::DataSet, dcmtkpp::DataSet> file;
         try
         {
-            file = dcmtkpp::Reader::read_file(string_stream);
+            file = dcmtkpp::Reader::read_file(stream);
         }
         catch(std::exception & e)
         {
