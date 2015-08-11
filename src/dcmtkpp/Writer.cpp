@@ -304,18 +304,36 @@ Writer::Visitor
     {
         this->write_strings(value, ' ');
     }
-    else if(this->vr == VR::SL || this->vr == VR::UL)
+    else if(this->vr == VR::SL)
     {
         for(auto item: value)
         {
-            dcmtkpp_write_binary(item, this->stream, this->byte_ordering, 32);
+            dcmtkpp_write_binary(
+                int32_t(item), this->stream, this->byte_ordering, 32);
         }
     }
-    else if(this->vr == VR::SS || this->vr == VR::US)
+    else if(this->vr == VR::SS)
     {
         for(auto item: value)
         {
-            dcmtkpp_write_binary(item, this->stream, this->byte_ordering, 16);
+            dcmtkpp_write_binary(
+                int16_t(item), this->stream, this->byte_ordering, 16);
+        }
+    }
+    else if(this->vr == VR::UL)
+    {
+        for(auto item: value)
+        {
+            dcmtkpp_write_binary(
+                uint32_t(item), this->stream, this->byte_ordering, 32);
+        }
+    }
+    else if(this->vr == VR::US)
+    {
+        for(auto item: value)
+        {
+            dcmtkpp_write_binary(
+                uint16_t(item), this->stream, this->byte_ordering, 16);
         }
     }
     else
@@ -334,16 +352,18 @@ Writer::Visitor
     }
     else if(this->vr == VR::FD)
     {
-        for(auto item: value)
+        for(auto const & item: value)
         {
-            dcmtkpp_write_binary(item, this->stream, this->byte_ordering, 64);
+            dcmtkpp_write_binary(
+                double(item), this->stream, this->byte_ordering, 64);
         }
     }
     else if(this->vr == VR::FL)
     {
-        for(auto item: value)
+        for(auto const & item: value)
         {
-            dcmtkpp_write_binary(item, this->stream, this->byte_ordering, 32);
+            dcmtkpp_write_binary(
+                float(item), this->stream, this->byte_ordering, 32);
         }
     }
     else
@@ -426,8 +446,39 @@ Writer::Visitor::result_type
 Writer::Visitor
 ::operator()(Value::Binary const & value) const
 {
-    // FIXME: swapping
-    this->stream.write(reinterpret_cast<char const*>(&value[0]), value.size());
+    if(this->vr == VR::OB || this->vr == VR::UN)
+    {
+        this->stream.write(reinterpret_cast<char const*>(&value[0]), value.size());
+    }
+    else if(this->vr == VR::OW)
+    {
+        if(value.size()%2 != 0)
+        {
+            throw Exception("Value cannot be written as OW");
+        }
+        for(int i=0; i<value.size(); i+=2)
+        {
+            uint16_t item = *reinterpret_cast<uint16_t const *>(&value[i]);
+            dcmtkpp_write_binary(item, this->stream, this->byte_ordering, 16);
+        }
+    }
+    else if(this->vr == VR::OF)
+    {
+        if(value.size()%4 != 0)
+        {
+            throw Exception("Value cannot be written as OF");
+        }
+        for(int i=0; i<value.size(); i+=4)
+        {
+            uint32_t item = *reinterpret_cast<uint32_t const *>(&value[i]);
+            dcmtkpp_write_binary(item, this->stream, this->byte_ordering, 32);
+        }
+    }
+    else
+    {
+        throw Exception("Cannot write "+as_string(this->vr)+" as binary");
+    }
+
     if(!this->stream)
     {
         throw Exception("Could not write to stream");
@@ -436,16 +487,6 @@ Writer::Visitor
     if(value.size()%2 == 1)
     {
         this->stream.put('\0');
-    }
-
-    // End of sequence
-    if(this->item_encoding == ItemEncoding::UndefinedLength)
-    {
-        Writer writer(
-            this->stream, this->byte_ordering, this->explicit_vr,
-            this->item_encoding, this->use_group_length);
-        writer.write_tag(registry::SequenceDelimitationItem);
-        dcmtkpp_write_binary(uint32_t(0), this->stream, this->byte_ordering, 32);
     }
 }
 
