@@ -214,7 +214,14 @@ DcmElement * convert(const Tag & tag, Element const & source)
             convert(source, static_cast<DcmOtherByteOtherWord*>(destination));
         }
     }
-    // OF
+    else if(source.vr == VR::OF)
+    {
+        destination = new DcmOtherFloat(destination_tag);
+        if(!source.empty())
+        {
+            convert(source, static_cast<DcmOtherFloat*>(destination));
+        }
+    }
     else if (source.vr == VR::PN)
     {
         destination = new DcmPersonName(destination_tag);
@@ -450,6 +457,17 @@ void convert(Element const & source, DcmOtherByteOtherWord * destination)
 void convert(Element const & source, DcmOtherFloat * destination)
 {
     auto const & value = source.as_binary();
+
+    if(value.size()%4 != 0)
+    {
+        throw Exception("Cannot convert OF from odd-sized array");
+    }
+
+    for(unsigned int i=0; i<value.size()/4; ++i)
+    {
+        float const f = *reinterpret_cast<float const *>(&value[i*4]);
+        destination->putFloat32(f, i);
+    }
 }
 
 DcmItem * convert(DataSet const & source, bool as_data_set)
