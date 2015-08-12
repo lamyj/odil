@@ -328,9 +328,8 @@ BOOST_AUTO_TEST_CASE(SQFromDcmtkpp)
     for(std::size_t i=0; i<source.size(); ++i)
     {
         dcmtkpp::DataSet const & source_item = source.as_data_set()[i];
-        DcmItem * item = dynamic_cast<DcmSequenceOfItems *>(destination)->getItem(i);
-        DcmDataset * destination_item = dynamic_cast<DcmDataset *>(item);
-        BOOST_CHECK(source_item == dcmtkpp::convert(destination_item));
+        DcmItem * destination_item = dynamic_cast<DcmSequenceOfItems *>(destination)->getItem(i);
+        BOOST_CHECK(source_item == dcmtkpp::convert(destinationitem));
     }
 }
 

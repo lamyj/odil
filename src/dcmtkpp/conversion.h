@@ -59,8 +59,8 @@ void convert(
     DcmElement * source, Element & destination,
     TDestinationType & (Element::*getter)());
 
-/// @brief Convert a dcmtkpp::DataSet to a DcmDataset.
-DcmItem * convert(DataSet const & source);
+/// @brief Convert a dcmtkpp::DataSet to a DcmDataset or a DcmItem.
+DcmItem * convert(DataSet const & source, bool as_data_set=true);
 
 /// @brief Convert a DcmDataset to a dcmtkpp::DataSet.
 DataSet convert(DcmItem * source);

@@ -246,7 +246,7 @@ DcmElement * convert(const Tag & tag, Element const & source)
         {
             for(auto const & source_item: source.as_data_set())
             {
-                DcmItem * destination_item = convert(source_item);
+                DcmItem * destination_item = convert(source_item, false);
                 sequence->append(destination_item);
             }
         }
@@ -452,9 +452,9 @@ void convert(Element const & source, DcmOtherFloat * destination)
     auto const & value = source.as_binary();
 }
 
-DcmItem * convert(DataSet const & source)
+DcmItem * convert(DataSet const & source, bool as_data_set)
 {
-    DcmDataset * destination = new DcmDataset();
+    DcmItem * destination = as_data_set?(new DcmDataset()):(new DcmItem());
 
     for(auto const & iterator: source)
     {
