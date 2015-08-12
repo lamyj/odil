@@ -137,7 +137,7 @@ Reader
 
     Value value;
 
-    if(vr == VR::AT || vr == VR::IS || vr == VR::SL || vr == VR::SS ||
+    if(vr == VR::IS || vr == VR::SL || vr == VR::SS ||
         vr == VR::UL || vr == VR::US)
     {
         value = Value(Value::Integers());
@@ -146,10 +146,11 @@ Reader
     {
         value = Value(Value::Reals());
     }
-    else if(vr == VR::AE || vr == VR::AS || vr == VR::CS || vr == VR::DA ||
-        vr == VR::DS || vr == VR::DT || vr == VR::LO || vr == VR::LT ||
-        vr == VR::PN || vr == VR::SH || vr == VR::ST || vr == VR::TM ||
-        vr == VR::UC || vr == VR::UI || vr == VR::UR || vr == VR::UT)
+    else if(vr == VR::AE || vr == VR::AS || vr == VR::AT || vr == VR::CS ||
+        vr == VR::DA || vr == VR::DS || vr == VR::DT || vr == VR::LO ||
+        vr == VR::LT || vr == VR::PN || vr == VR::SH || vr == VR::ST ||
+        vr == VR::TM || vr == VR::UC || vr == VR::UI || vr == VR::UR ||
+        vr == VR::UT)
     {
         value = Value(Value::Strings());
     }
@@ -252,15 +253,11 @@ Reader::Visitor
     else
     {
         uint32_t items = 0;
-        if(this->vr == VR::AT)
-        {
-            items = vl/2;
-        }
-        else if(this->vr == VR::SL || this->vr == VR::UL)
+        if(this->vr == VR::SL || this->vr == VR::UL)
         {
             items = vl/4;
         }
-        else if(this->vr == VR::SS || this->vr == VR::US)
+        else if(this->vr == VR::AT || this->vr == VR::SS || this->vr == VR::US)
         {
             items = vl/2;
         }
@@ -357,15 +354,33 @@ Reader::Visitor::result_type
 Reader::Visitor
 ::operator()(Value::Strings & value) const
 {
-    auto const vl = this->read_length();
-    auto const string = read_string(this->stream, vl);
-    if(this->vr == VR::LT || this->vr == VR::ST || this->vr == VR::UT)
+    if(this->vr == VR::AT)
     {
-        value = { string };
+        Value::Integers integers;
+        this->operator()(integers);
+
+        if(integers.size()%2 != 0)
+        {
+            throw Exception("Cannot read AT from odd-sized array");
+        }
+        for(unsigned int i=0; i<integers.size(); i+=2)
+        {
+            Tag const tag(integers[i], integers[i+1]);
+            value.push_back(std::string(tag));
+        }
     }
     else
     {
-        value = this->split_strings(string);
+        auto const vl = this->read_length();
+        auto const string = read_string(this->stream, vl);
+        if(this->vr == VR::LT || this->vr == VR::ST || this->vr == VR::UT)
+        {
+            value = { string };
+        }
+        else
+        {
+            value = this->split_strings(string);
+        }
     }
 }
 
@@ -393,7 +408,7 @@ Reader::Visitor
             }
             else
             {
-                throw Exception("Unexpected tag: "+std::string(tag));
+                throw Exception("Expected Item, got: "+std::string(tag));
             }
 
             done = (sequence_stream.peek() == EOF);
@@ -421,7 +436,7 @@ Reader::Visitor
             }
             else
             {
-                throw Exception("Unexpected tag: "+std::string(tag));
+                throw Exception("Expected SequenceDelimitationItem, got: "+std::string(tag));
             }
         }
     }

@@ -328,7 +328,7 @@ Writer::Visitor
                 uint32_t(item), this->stream, this->byte_ordering, 32);
         }
     }
-    else if(this->vr == VR::US)
+    else if(this->vr == VR::AT || this->vr == VR::US)
     {
         for(auto item: value)
         {
@@ -376,7 +376,21 @@ Writer::Visitor::result_type
 Writer::Visitor
 ::operator()(Value::Strings const & value) const
 {
-    this->write_strings(value, (this->vr == VR::UI)?'\0':' ');
+    if(this->vr == VR::AT)
+    {
+        Value::Integers integers;
+        for(auto const & string: value)
+        {
+            Tag const tag(string);
+            integers.push_back(tag.group);
+            integers.push_back(tag.element);
+        }
+        this->operator()(integers);
+    }
+    else
+    {
+        this->write_strings(value, (this->vr == VR::UI)?'\0':' ');
+    }
 }
 
 Writer::Visitor::result_type
