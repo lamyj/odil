@@ -447,7 +447,46 @@ Reader::Visitor
 ::operator()(Value::Binary & value) const
 {
     auto const vl = this->read_length();
-    this->stream.ignore(vl);
+
+    if(this->vr == VR::OB)
+    {
+        value.resize(vl);
+        this->stream.read(reinterpret_cast<char*>(&value[0]), value.size());
+    }
+    else if(this->vr == VR::OF)
+    {
+        if(vl%4 != 0)
+        {
+            throw Exception("Cannot read OF for odd-sized array");
+        }
+
+        value.resize(vl);
+        for(unsigned int i=0; i<value.size(); i+=4)
+        {
+            dcmtkpp_read_binary(
+                float, item, this->stream, this->byte_ordering, 32);
+            *reinterpret_cast<float*>(&value[i]) = item;
+        }
+    }
+    else if(this->vr == VR::OW)
+    {
+        if(vl%2 != 0)
+        {
+            throw Exception("Cannot read OW for odd-sized array");
+        }
+
+        value.resize(vl);
+        for(unsigned int i=0; i<value.size(); i+=2)
+        {
+            dcmtkpp_read_binary(
+                uint16_t, item, this->stream, this->byte_ordering, 16);
+            *reinterpret_cast<uint16_t*>(&value[i]) = item;
+        }
+    }
+    else
+    {
+        throw Exception("Cannot read "+as_string(this->vr)+" as binary");
+    }
 }
 
 uint32_t
