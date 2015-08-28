@@ -15,7 +15,6 @@
 #include <utility>
 
 #include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmdata/dcdatset.h>
 #include <dcmtk/dcmnet/assoc.h>
 
 #include "dcmtkpp/Association.h"

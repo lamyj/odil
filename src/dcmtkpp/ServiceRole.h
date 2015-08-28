@@ -13,7 +13,6 @@
 #include <utility>
 
 #include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmdata/dcdatset.h>
 #include <dcmtk/dcmnet/assoc.h>
 
 #include "dcmtkpp/Association.h"
@@ -94,9 +93,9 @@ protected:
     TMessage _receive(ProgressCallback callback=NULL, void* callback_data=NULL) const;
 
 private:
-    OFCondition _send(
-        DcmDataset *obj, T_ASC_PresentationContextID presID,
-        E_TransferSyntax xferSyntax, DUL_DATAPDV pdvType,
+    void _send(
+        DataSet const & obj, T_ASC_PresentationContextID presID,
+        std::string const & transfer_syntax, DUL_DATAPDV pdvType,
         ProgressCallback callback, void *callbackContext) const;
 
     std::pair<DataSet, DUL_DATAPDV> _receive_dataset(
