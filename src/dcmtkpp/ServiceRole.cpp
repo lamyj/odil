@@ -24,6 +24,7 @@
 #include "dcmtkpp/DataSet.h"
 #include "dcmtkpp/ElementAccessor.h"
 #include "dcmtkpp/Exception.h"
+#include "dcmtkpp/Reader.h"
 #include "dcmtkpp/registry.h"
 
 namespace dcmtkpp
@@ -150,26 +151,24 @@ ServiceRole
 ::_receive(ProgressCallback callback, void* callback_data) const
 {
     // Receive command set
-    std::pair<DcmDataset, DUL_DATAPDV> const command =
-        this->_receive_dataset(callback, callback_data);
+    auto const command = this->_receive_dataset(callback, callback_data);
     if(command.second != DUL_COMMANDPDV)
     {
         throw Exception("Did not receive command set");
     }
-    DataSet const command_set = convert(const_cast<DcmDataset*>(&command.first));
+    DataSet const & command_set = command.first;
     
     // Receive potential data set
     DataSet data_set;
     bool has_data_set;
     if(command_set.as_int(registry::CommandDataSetType, 0) != DIMSE_DATASET_NULL)
     {
-        std::pair<DcmDataset, DUL_DATAPDV> const data =
-            this->_receive_dataset(callback, callback_data);
+        auto const data = this->_receive_dataset(callback, callback_data);
         if(data.second != DUL_DATASETPDV)
         {
             throw Exception("Did not receive data set");
         }
-        data_set = convert(const_cast<DcmDataset*>(&data.first));
+        data_set = data.first;
         has_data_set = true;
     }
     else
@@ -345,20 +344,13 @@ ServiceRole
 }
 
 
-std::pair<DcmDataset, DUL_DATAPDV>
+std::pair<DataSet, DUL_DATAPDV>
 ServiceRole::_receive_dataset(
     ProgressCallback callback, void *callbackContext) const
 {
-    DcmDataset dataset;
-    dataset.transferInit();
-    DcmInputBufferStream buffer;
-    if(!buffer.good())
-    {
-        throw Exception(
-            makeDcmnetCondition(
-                DIMSEC_PARSEFAILED, OF_error,
-                "DIMSE: receiveCommand: Failed to initialize cmdBuf"));
-    }
+    DataSet data_set;
+
+    std::stringstream stream;
 
     /* start a loop in which we want to read a DIMSE command from the incoming socket stream. */
     /* Since the command could stretch over more than one PDU, the use of a loop is mandatory. */
@@ -368,9 +360,6 @@ ServiceRole::_receive_dataset(
     T_ASC_PresentationContextID pid = 0;
     while(!last)
     {
-        /* make the stream remember any unread bytes */
-        buffer.releaseBuffer();
-
         DUL_PDV const pdv = this->_read_next_pdv();
 
         /* if this is the first loop iteration, get the presentation context ID
@@ -384,13 +373,10 @@ ServiceRole::_receive_dataset(
         }
         else if (pdv.presentationContextID != pid)
         {
-            char buf1[256];
-            sprintf(buf1, "DIMSE: Different PresIDs inside Command Set: %d != %d", pid, pdv.presentationContextID);
-            OFCondition subCond = makeDcmnetCondition(DIMSEC_INVALIDPRESENTATIONCONTEXTID, OF_error, buf1);
-            throw Exception(
-                makeDcmnetSubCondition(
-                    DIMSEC_RECEIVEFAILED, OF_error,
-                    "DIMSE Failed to receive message", subCond));
+            std::ostringstream message;
+            message << "Different presentation IDs inside Command Set: "
+                    << pid << " != " << pdv.presentationContextID;
+            throw Exception(message.str());
         }
 
         /* check if the fragment length of the current PDV is odd. This should */
@@ -399,38 +385,26 @@ ServiceRole::_receive_dataset(
         if ((pdv.fragmentLength % 2) != 0)
         {
             /* This should NEVER happen.  See Part 7, Annex F. */
-            char buf2[256];
-            sprintf(buf2, "DIMSE: Odd Fragment Length: %lu", pdv.fragmentLength);
-            throw Exception(
-                makeDcmnetCondition(DIMSEC_RECEIVEFAILED, OF_error, buf2));
+            std::ostringstream message;
+            message << "Odd fragment length: " << pdv.fragmentLength;
+            throw Exception(message.str());
         }
 
         /* if information is contained the PDVs fragment, we want to insert
          * this information into the buffer
          */
-        if (pdv.fragmentLength > 0)
-        {
-            buffer.setBuffer(pdv.data, pdv.fragmentLength);
-        }
+        stream.write(reinterpret_cast<char *>(pdv.data), pdv.fragmentLength);
 
-        /* if this fragment contains the last fragment of the DIMSE command,
-         * set the end of the stream
-         */
-        if (pdv.lastPDV)
-        {
-            buffer.setEos();
-        }
-
-        E_TransferSyntax transfer_syntax;
-        E_GrpLenEncoding group_length_encoding;
+        std::string transfer_syntax;
+        bool keep_group_length;
         if(pdv.pdvType == DUL_COMMANDPDV)
         {
             /* DIMSE commands are always specified in the little endian implicit
              * transfer syntax. Additionally, we want to remove group length
              * tags.
              */
-            transfer_syntax = EXS_LittleEndianImplicit;
-            group_length_encoding = EGL_withoutGL;
+            transfer_syntax = registry::ImplicitVRLittleEndian;
+            keep_group_length = false;
         }
         else if(pdv.pdvType == DUL_DATASETPDV)
         {
@@ -441,87 +415,20 @@ ServiceRole::_receive_dataset(
                     this->_association->get_association()->params, pid, &pc);
             if (cond.bad())
             {
-                throw Exception(makeDcmnetSubCondition(
-                    DIMSEC_RECEIVEFAILED, OF_error,
-                    "DIMSE Failed to receive message", cond));
+                throw Exception("No valid presentation context");
             }
 
             /* determine the transfer syntax which is specified in the presentation context */
-            std::string const ts = pc.acceptedTransferSyntax;
-
-            /* create a DcmXfer object on the basis of the transfer syntax which was determined above */
-            DcmXfer xfer(ts.c_str());
-
-            /* check if the transfer syntax is supported by dcmtk */
-            transfer_syntax = xfer.getXfer();
-            switch (transfer_syntax)
-            {
-                case EXS_LittleEndianImplicit:
-                case EXS_LittleEndianExplicit:
-                case EXS_BigEndianExplicit:
-                case EXS_JPEGProcess1TransferSyntax:
-                case EXS_JPEGProcess2_4TransferSyntax:
-                case EXS_JPEGProcess3_5TransferSyntax:
-                case EXS_JPEGProcess6_8TransferSyntax:
-                case EXS_JPEGProcess7_9TransferSyntax:
-                case EXS_JPEGProcess10_12TransferSyntax:
-                case EXS_JPEGProcess11_13TransferSyntax:
-                case EXS_JPEGProcess14TransferSyntax:
-                case EXS_JPEGProcess15TransferSyntax:
-                case EXS_JPEGProcess16_18TransferSyntax:
-                case EXS_JPEGProcess17_19TransferSyntax:
-                case EXS_JPEGProcess20_22TransferSyntax:
-                case EXS_JPEGProcess21_23TransferSyntax:
-                case EXS_JPEGProcess24_26TransferSyntax:
-                case EXS_JPEGProcess25_27TransferSyntax:
-                case EXS_JPEGProcess28TransferSyntax:
-                case EXS_JPEGProcess29TransferSyntax:
-                case EXS_JPEGProcess14SV1TransferSyntax:
-                case EXS_RLELossless:
-                case EXS_JPEGLSLossless:
-                case EXS_JPEGLSLossy:
-                case EXS_JPEG2000LosslessOnly:
-                case EXS_JPEG2000:
-                case EXS_MPEG2MainProfileAtMainLevel:
-                case EXS_MPEG2MainProfileAtHighLevel:
-                case EXS_JPEG2000MulticomponentLosslessOnly:
-                case EXS_JPEG2000Multicomponent:
-        #ifdef WITH_ZLIB
-                case EXS_DeflatedLittleEndianExplicit:
-        #endif
-                    /* OK, these can be supported */
-                    break;
-                default:
-                /* all other transfer syntaxes are not supported; hence, set the error indicator variable */
-                {
-                    char buf[256];
-                    sprintf(
-                        buf, "DIMSE Unsupported transfer syntax: %s",
-                        ts.c_str());
-                    OFCondition subCond = makeDcmnetCondition(
-                        DIMSEC_UNSUPPORTEDTRANSFERSYNTAX, OF_error, buf);
-                    throw Exception(makeDcmnetSubCondition(
-                        DIMSEC_RECEIVEFAILED, OF_error,
-                        "DIMSE Failed to receive message", subCond));
-                }
-                break;
-            }
-            group_length_encoding = EGL_noChange;
+            transfer_syntax = pc.acceptedTransferSyntax;
+            keep_group_length = true;
         }
         else
         {
             throw Exception("Unkown PDV type");
         }
 
-        OFCondition const econd = dataset.read(
-            buffer, transfer_syntax, group_length_encoding);
-        if (econd != EC_Normal && econd != EC_StreamNotifyClient)
-        {
-            throw Exception(
-                makeDcmnetSubCondition(
-                    DIMSEC_RECEIVEFAILED, OF_error,
-                    "DIMSE: receiveCommand: cmdSet->read() Failed", econd));
-        }
+        Reader reader(stream, transfer_syntax, keep_group_length);
+        data_set = reader.read_data_set();
 
         /* update the following variables which will be evaluated at the beginning of each loop iteration. */
         last = pdv.lastPDV;
@@ -533,9 +440,7 @@ ServiceRole::_receive_dataset(
         pdvCount++;
     }
 
-    dataset.transferEnd();
-
-    return std::make_pair(dataset, type);
+    return std::make_pair(data_set, type);
 }
 
 DUL_PDV

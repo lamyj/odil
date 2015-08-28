@@ -99,7 +99,7 @@ private:
         E_TransferSyntax xferSyntax, DUL_DATAPDV pdvType,
         ProgressCallback callback, void *callbackContext) const;
 
-    std::pair<DcmDataset, DUL_DATAPDV> _receive_dataset(
+    std::pair<DataSet, DUL_DATAPDV> _receive_dataset(
         ProgressCallback callback, void *callbackContext) const;
     
     DUL_PDV _read_next_pdv() const;
