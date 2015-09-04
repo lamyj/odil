@@ -476,9 +476,27 @@ DcmItem * convert(DataSet const & source, bool as_data_set)
 
     for(auto const & iterator: source)
     {
-        auto const destination_element = convert(
-            iterator.first, iterator.second);
-        destination->insert(destination_element);
+        if(iterator.second.vr == VR::SQ)
+        {
+            if(iterator.second.empty())
+            {
+                destination->insertEmptyElement(DcmTag(convert(iterator.first), convert(iterator.second.vr)));
+            }
+            else
+            {
+                for(auto const & source_item: iterator.second.as_data_set())
+                {
+                    DcmItem* item = convert(source_item, false);
+                    destination->insertSequenceItem(DcmTag(convert(iterator.first), convert(iterator.second.vr)), item);
+                }
+            }
+        }
+        else
+        {
+            auto const destination_element = convert(
+                iterator.first, iterator.second);
+            destination->insert(destination_element);
+        }
     }
 
     return destination;
