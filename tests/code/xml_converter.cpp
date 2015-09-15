@@ -821,3 +821,299 @@ BOOST_AUTO_TEST_CASE(AsXMLBinary)
     BOOST_CHECK_EQUAL((*it).second.get_value<std::string>(), "AQIDBAU=");
     }
 }
+
+BOOST_AUTO_TEST_CASE(AsDataSetEmpty)
+{
+    boost::property_tree::ptree dataset_xml;
+    dataset_xml.add_child("NativeDicomModel", boost::property_tree::ptree());
+
+    dcmtkpp::DataSet const data_set = dcmtkpp::as_dataset(dataset_xml);
+    BOOST_REQUIRE(data_set.empty());
+}
+
+BOOST_AUTO_TEST_CASE(AsDataSetIntegers)
+{
+    boost::property_tree::ptree dicomattribute;
+    dicomattribute.put("<xmlattr>.vr", "US");
+    dicomattribute.put("<xmlattr>.tag", "00280010");
+    dicomattribute.put("<xmlattr>.keyword", "Rows");
+    {
+    boost::property_tree::ptree tag_value;
+    tag_value.put("<xmlattr>.number", 1);
+    tag_value.put_value(128);
+    dicomattribute.add_child("Value", tag_value);
+    }
+    {
+    boost::property_tree::ptree tag_value;
+    tag_value.put("<xmlattr>.number", 2);
+    tag_value.put_value(256);
+    dicomattribute.add_child("Value", tag_value);
+    }
+
+    boost::property_tree::ptree nativedicommodel;
+    nativedicommodel.add_child("DicomAttribute", dicomattribute);
+
+    boost::property_tree::ptree dataset_xml;
+    dataset_xml.add_child("NativeDicomModel", nativedicommodel);
+
+    dcmtkpp::DataSet const data_set = dcmtkpp::as_dataset(dataset_xml);
+    BOOST_REQUIRE_EQUAL(data_set.size(), 1);
+    BOOST_REQUIRE(data_set.has("00280010"));
+    BOOST_REQUIRE(data_set.get_vr("00280010") == dcmtkpp::VR::US);
+    BOOST_REQUIRE(data_set.is_int("00280010"));
+    BOOST_REQUIRE(data_set.as_int("00280010") == dcmtkpp::Value::Integers({128, 256}));
+}
+
+BOOST_AUTO_TEST_CASE(AsDataSetReals)
+{
+    boost::property_tree::ptree dicomattribute;
+    dicomattribute.put("<xmlattr>.vr", "FL");
+    dicomattribute.put("<xmlattr>.tag", "00089459");
+    dicomattribute.put("<xmlattr>.keyword", "RecommendedDisplayFrameRateInFloat");
+    {
+    boost::property_tree::ptree tag_value;
+    tag_value.put("<xmlattr>.number", 1);
+    tag_value.put_value(1.2);
+    dicomattribute.add_child("Value", tag_value);
+    }
+    {
+    boost::property_tree::ptree tag_value;
+    tag_value.put("<xmlattr>.number", 2);
+    tag_value.put_value(3.4);
+    dicomattribute.add_child("Value", tag_value);
+    }
+
+    boost::property_tree::ptree nativedicommodel;
+    nativedicommodel.add_child("DicomAttribute", dicomattribute);
+
+    boost::property_tree::ptree dataset_xml;
+    dataset_xml.add_child("NativeDicomModel", nativedicommodel);
+
+    dcmtkpp::DataSet const data_set = dcmtkpp::as_dataset(dataset_xml);
+    BOOST_REQUIRE_EQUAL(data_set.size(), 1);
+    BOOST_REQUIRE(data_set.has("00089459"));
+    BOOST_REQUIRE(data_set.get_vr("00089459") == dcmtkpp::VR::FL);
+    BOOST_REQUIRE(data_set.is_real("00089459"));
+    BOOST_REQUIRE(data_set.as_real("00089459") == dcmtkpp::Value::Reals({1.2, 3.4}));
+}
+
+BOOST_AUTO_TEST_CASE(AsDataSetStrings)
+{
+    boost::property_tree::ptree dicomattribute;
+    dicomattribute.put("<xmlattr>.vr", "CS");
+    dicomattribute.put("<xmlattr>.tag", "00080060");
+    dicomattribute.put("<xmlattr>.keyword", "Modality");
+    {
+    boost::property_tree::ptree tag_value;
+    tag_value.put("<xmlattr>.number", 1);
+    tag_value.put_value("FOO");
+    dicomattribute.add_child("Value", tag_value);
+    }
+    {
+    boost::property_tree::ptree tag_value;
+    tag_value.put("<xmlattr>.number", 2);
+    tag_value.put_value("BAR");
+    dicomattribute.add_child("Value", tag_value);
+    }
+
+    boost::property_tree::ptree nativedicommodel;
+    nativedicommodel.add_child("DicomAttribute", dicomattribute);
+
+    boost::property_tree::ptree dataset_xml;
+    dataset_xml.add_child("NativeDicomModel", nativedicommodel);
+
+    dcmtkpp::DataSet const data_set = dcmtkpp::as_dataset(dataset_xml);
+    BOOST_REQUIRE_EQUAL(data_set.size(), 1);
+    BOOST_REQUIRE(data_set.has("00080060"));
+    BOOST_REQUIRE(data_set.get_vr("00080060") == dcmtkpp::VR::CS);
+    BOOST_REQUIRE(data_set.is_string("00080060"));
+    BOOST_REQUIRE(data_set.as_string("00080060") == dcmtkpp::Value::Strings({"FOO", "BAR"}));
+}
+
+BOOST_AUTO_TEST_CASE(AsDataSetPersonName)
+{
+    boost::property_tree::ptree dicomattribute;
+    dicomattribute.put("<xmlattr>.vr", "PN");
+    dicomattribute.put("<xmlattr>.tag", "00100010");
+    dicomattribute.put("<xmlattr>.keyword", "PatientName");
+    {
+    boost::property_tree::ptree tag_value;
+    tag_value.put("<xmlattr>.number", 1);
+    boost::property_tree::ptree tag_pname;
+    boost::property_tree::ptree tag_family;
+    tag_family.put_value("family");
+    tag_pname.add_child("FamilyName", tag_family);
+    boost::property_tree::ptree tag_given;
+    tag_given.put_value("given");
+    tag_pname.add_child("GivenName", tag_given);
+    boost::property_tree::ptree tag_middle;
+    tag_middle.put_value("middle");
+    tag_pname.add_child("MiddleName", tag_middle);
+    boost::property_tree::ptree tag_prefix;
+    tag_prefix.put_value("prefix");
+    tag_pname.add_child("NamePrefix", tag_prefix);
+    boost::property_tree::ptree tag_suffix;
+    tag_suffix.put_value("suffix");
+    tag_pname.add_child("NameSuffix", tag_suffix);
+    tag_value.add_child("Alphabetic", tag_pname);
+    dicomattribute.add_child("PersonName", tag_value);
+    }
+    {
+    boost::property_tree::ptree tag_value;
+    tag_value.put("<xmlattr>.number", 2);
+    boost::property_tree::ptree tag_alpha;
+    boost::property_tree::ptree tag_afamily;
+    tag_afamily.put_value("familyAlpha");
+    tag_alpha.add_child("FamilyName", tag_afamily);
+    tag_value.add_child("Alphabetic", tag_alpha);
+    boost::property_tree::ptree tag_ideo;
+    boost::property_tree::ptree tag_ifamily;
+    tag_ifamily.put_value("familyIdeo");
+    tag_ideo.add_child("FamilyName", tag_ifamily);
+    tag_value.add_child("Ideographic", tag_ideo);
+    boost::property_tree::ptree tag_phonetic;
+    boost::property_tree::ptree tag_pfamily;
+    tag_pfamily.put_value("familyPhonetic");
+    tag_phonetic.add_child("FamilyName", tag_pfamily);
+    tag_value.add_child("Phonetic", tag_phonetic);
+    dicomattribute.add_child("PersonName", tag_value);
+    }
+
+    boost::property_tree::ptree nativedicommodel;
+    nativedicommodel.add_child("DicomAttribute", dicomattribute);
+
+    boost::property_tree::ptree dataset_xml;
+    dataset_xml.add_child("NativeDicomModel", nativedicommodel);
+
+    dcmtkpp::DataSet const data_set = dcmtkpp::as_dataset(dataset_xml);
+    BOOST_REQUIRE_EQUAL(data_set.size(), 1);
+    BOOST_REQUIRE(data_set.has("00100010"));
+    BOOST_REQUIRE(data_set.get_vr("00100010") == dcmtkpp::VR::PN);
+    BOOST_REQUIRE(data_set.is_string("00100010"));
+    BOOST_REQUIRE(data_set.as_string("00100010") == dcmtkpp::Value::Strings(
+        {"family^given^middle^prefix^suffix", "familyAlpha=familyIdeo=familyPhonetic"}));
+}
+
+BOOST_AUTO_TEST_CASE(AsDataSetDataSets)
+{
+    boost::property_tree::ptree dicomattribute;
+    dicomattribute.put("<xmlattr>.vr", "SQ");
+    dicomattribute.put("<xmlattr>.tag", "00101002");
+    dicomattribute.put("<xmlattr>.keyword", "OtherPatientIDsSequence");
+    {
+    boost::property_tree::ptree tag_value;
+    tag_value.put("<xmlattr>.number", 1);
+
+    {
+    boost::property_tree::ptree subdicomattribute;
+    subdicomattribute.put("<xmlattr>.vr", "LO");
+    subdicomattribute.put("<xmlattr>.tag", "00100020");
+    subdicomattribute.put("<xmlattr>.keyword", "PatientID");
+    {
+    boost::property_tree::ptree subtag_value;
+    subtag_value.put("<xmlattr>.number", 1);
+    subtag_value.put_value("FOO");
+    subdicomattribute.add_child("Value", subtag_value);
+    }
+
+    boost::property_tree::ptree nativedicommodel;
+    tag_value.add_child("DicomAttribute", subdicomattribute);
+    }
+
+    {
+    boost::property_tree::ptree subdicomattribute;
+    subdicomattribute.put("<xmlattr>.vr", "CS");
+    subdicomattribute.put("<xmlattr>.tag", "00100022");
+    subdicomattribute.put("<xmlattr>.keyword", "TypeOfPatientID");
+    {
+    boost::property_tree::ptree subtag_value;
+    subtag_value.put("<xmlattr>.number", 1);
+    subtag_value.put_value("BAR");
+    subdicomattribute.add_child("Value", subtag_value);
+    }
+
+    boost::property_tree::ptree nativedicommodel;
+    tag_value.add_child("DicomAttribute", subdicomattribute);
+    }
+
+    dicomattribute.add_child("Item", tag_value);
+    }
+
+    {
+    boost::property_tree::ptree tag_value;
+    tag_value.put("<xmlattr>.number", 2);
+
+    {
+    boost::property_tree::ptree subdicomattribute;
+    subdicomattribute.put("<xmlattr>.vr", "LO");
+    subdicomattribute.put("<xmlattr>.tag", "00100020");
+    subdicomattribute.put("<xmlattr>.keyword", "PatientID");
+    {
+    boost::property_tree::ptree subtag_value;
+    subtag_value.put("<xmlattr>.number", 1);
+    subtag_value.put_value("OTHER");
+    subdicomattribute.add_child("Value", subtag_value);
+    }
+
+    boost::property_tree::ptree nativedicommodel;
+    tag_value.add_child("DicomAttribute", subdicomattribute);
+    }
+
+    dicomattribute.add_child("Item", tag_value);
+    }
+
+    boost::property_tree::ptree nativedicommodel;
+    nativedicommodel.add_child("DicomAttribute", dicomattribute);
+
+    boost::property_tree::ptree dataset_xml;
+    dataset_xml.add_child("NativeDicomModel", nativedicommodel);
+
+    dcmtkpp::DataSet const data_set = dcmtkpp::as_dataset(dataset_xml);
+    BOOST_REQUIRE_EQUAL(data_set.size(), 1);
+    BOOST_REQUIRE(data_set.has("00101002"));
+    BOOST_REQUIRE(data_set.get_vr("00101002") == dcmtkpp::VR::SQ);
+    BOOST_REQUIRE(data_set.is_data_set("00101002"));
+
+    dcmtkpp::DataSet item1;
+    item1.add(0x00100020,
+        dcmtkpp::Element(dcmtkpp::Value::Strings({"FOO"}), dcmtkpp::VR::LO));
+    item1.add(0x00100022,
+        dcmtkpp::Element(dcmtkpp::Value::Strings({"BAR"}), dcmtkpp::VR::CS));
+    dcmtkpp::DataSet item2;
+    item2.add(0x00100020,
+        dcmtkpp::Element(dcmtkpp::Value::Strings({"OTHER"}), dcmtkpp::VR::LO));
+    BOOST_REQUIRE(data_set.as_data_set("00101002") == dcmtkpp::Value::DataSets({item1, item2}));
+}
+
+BOOST_AUTO_TEST_CASE(AsDataSetBinary)
+{
+    boost::property_tree::ptree dicomattribute;
+    dicomattribute.put("<xmlattr>.vr", "OW");
+    dicomattribute.put("<xmlattr>.tag", "00660023");
+    dicomattribute.put("<xmlattr>.keyword", "TrianglePointIndexList");
+    {
+    boost::property_tree::ptree tag_value;
+    tag_value.put_value("AQIDBAU=");
+    dicomattribute.add_child("InlineBinary", tag_value);
+    }
+
+    boost::property_tree::ptree nativedicommodel;
+    nativedicommodel.add_child("DicomAttribute", dicomattribute);
+
+    boost::property_tree::ptree dataset_xml;
+    dataset_xml.add_child("NativeDicomModel", nativedicommodel);
+
+    dcmtkpp::DataSet const data_set = dcmtkpp::as_dataset(dataset_xml);
+    BOOST_REQUIRE_EQUAL(data_set.size(), 1);
+    BOOST_REQUIRE(data_set.has("00660023"));
+    BOOST_REQUIRE(data_set.get_vr("00660023") == dcmtkpp::VR::OW);
+    BOOST_REQUIRE(data_set.is_binary("00660023"));
+    BOOST_REQUIRE(data_set.as_binary("00660023") == dcmtkpp::Value::Binary(
+        {0x1, 0x2, 0x3, 0x4, 0x5}));
+}
+
+BOOST_AUTO_TEST_CASE(AsDataSetMissingRootNode)
+{
+    BOOST_REQUIRE_THROW(dcmtkpp::as_dataset(boost::property_tree::ptree()),
+                        dcmtkpp::Exception);
+}

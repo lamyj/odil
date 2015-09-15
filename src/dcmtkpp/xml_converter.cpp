@@ -6,6 +6,9 @@
  * for details.
  ************************************************************************/
 
+#include <vector>
+#include <map>
+
 #include <dcmtk/config/osconfig.h>
 #include <dcmtk/ofstd/ofstd.h>
 #include <dcmtk/ofstd/ofstream.h>
@@ -222,6 +225,65 @@ struct ToXMLVisitor
 
 };
 
+std::string get_person_name(boost::property_tree::ptree const & xml)
+{
+    std::vector<std::string> const fields_name = { "NameSuffix", "NamePrefix",
+                                                   "MiddleName", "GivenName",
+                                                   "FamilyName" };
+
+    std::map<std::string, std::string> values;
+    for(auto it = xml.begin(); it != xml.end(); ++it)
+    {
+        if (std::find(fields_name.begin(),
+                      fields_name.end(), it->first) != fields_name.end())
+        {
+            auto const value = it->second.get_value<std::string>();
+
+            values.insert(std::pair<std::string, std::string>(it->first, value));
+        }
+        else
+        {
+            std::stringstream error;
+            error << "Bad sub-Tag '" << it->first
+                  << "' for PersonName Tag";
+            throw Exception(error.str());
+        }
+    }
+
+    std::string return_value;
+    auto itfield = fields_name.begin();
+    do
+    {
+        std::stringstream current_value;
+
+        std::string value;
+        if (values.find(*itfield) != values.end())
+        {
+            value = values[*itfield];
+        }
+
+        ++itfield;
+
+        if (itfield != fields_name.end() && (value != "" || return_value != ""))
+        {
+            current_value << "^";
+        }
+        if (value != "")
+        {
+            current_value << value;
+        }
+        if (return_value != "")
+        {
+            current_value << return_value;
+        }
+
+        return_value = current_value.str();
+    }
+    while (itfield != fields_name.end());
+
+    return return_value;
+}
+
 boost::property_tree::ptree as_xml(DataSet const & data_set)
 {
     // XML dataset element
@@ -253,6 +315,264 @@ boost::property_tree::ptree as_xml(DataSet const & data_set)
     dataset_xml.add_child("NativeDicomModel", nativedicommodel);
 
     return dataset_xml;
+}
+
+DataSet as_dataset(boost::property_tree::ptree const & xml)
+{
+    // XML contains only one NativeDicomModel
+    // <NativeDicomModel>
+    //     ...
+    // </NativeDicomModel>
+    if (xml.size() < 1 || xml.front().first != "NativeDicomModel")
+    {
+        throw Exception("Missing root node NativeDicomModel");
+    }
+
+    DataSet data_set;
+
+    for(auto it = xml.front().second.begin();
+        it != xml.front().second.end(); ++it)
+    {
+        // NativeDicomModel tag should only contains DicomAttribute tag
+        if (it->first != "DicomAttribute")
+        {
+            throw Exception("Bad DICOM tag: " + it->first);
+        }
+
+        // Get VR and tag
+        Tag const tag(it->second.get<std::string>("<xmlattr>.tag"));
+        VR const vr = as_vr(it->second.get<std::string>("<xmlattr>.vr"));
+
+        Element element;
+
+        if(vr == VR::AE || vr == VR::AS || vr == VR::AT || vr == VR::CS ||
+           vr == VR::DA || vr == VR::DT || vr == VR::LO || vr == VR::LT ||
+           vr == VR::SH || vr == VR::ST || vr == VR::TM || vr == VR::UI ||
+           vr == VR::UT)
+        {
+            element = Element(Value::Strings(), vr);
+
+            for(auto it_value = it->second.begin();
+                it_value != it->second.end(); ++it_value)
+            {
+                if (it_value->first == "<xmlattr>")
+                {
+                    continue;
+                }
+                else if (it_value->first != "Value")
+                {
+                    std::stringstream error;
+                    error << "Bad sub-Tag '" << it_value->first
+                          << "' for DicomAttribute Tag with VR = "
+                          << as_string(vr);
+                    throw Exception(error.str());
+                }
+
+                element.as_string().push_back(
+                            it_value->second.get_value<std::string>());
+            }
+        }
+        else if(vr == VR::PN)
+        {
+            element = Element(Value::Strings(), vr);
+
+            std::map<int, Value::Strings::value_type> values;
+            for(auto it_value = it->second.begin();
+                it_value != it->second.end(); ++it_value)
+            {
+                if (it_value->first == "<xmlattr>")
+                {
+                    continue;
+                }
+                else if (it_value->first != "PersonName")
+                {
+                    std::stringstream error;
+                    error << "Bad sub-Tag '" << it_value->first
+                          << "' for DicomAttribute Tag with VR = "
+                          << as_string(vr);
+                    throw Exception(error.str());
+                }
+
+                int const position =
+                        it_value->second.get<int>("<xmlattr>.number");
+
+                std::map<std::string, std::string> names;
+                auto const fields = { "Alphabetic", "Ideographic", "Phonetic" };
+                for(auto it_person = it_value->second.begin();
+                    it_person != it_value->second.end(); ++it_person)
+                {
+                    if (it_person->first == "<xmlattr>")
+                    {
+                        continue;
+                    }
+                    else if (std::find(fields.begin(),
+                                       fields.end(),
+                                       it_person->first) != fields.end())
+                    {
+                        names.insert(std::pair<std::string, std::string>(
+                                         it_person->first,
+                                         get_person_name(it_person->second)));
+                    }
+                    else
+                    {
+                        std::stringstream error;
+                        error << "Bad sub-Tag '" << it_person->first
+                              << "' for PersonName Tag";
+                        throw Exception(error.str());
+                    }
+                }
+
+                Value::Strings::value_type dicom_item;
+                for(auto const & field: fields)
+                {
+                    if (names.find(field) != names.end())
+                    {
+                        dicom_item += names[field];
+                    }
+                    dicom_item += "=";
+                }
+
+                while(*dicom_item.rbegin() == '=')
+                {
+                    dicom_item = dicom_item.substr(0, dicom_item.size()-1);
+                }
+
+                values.insert(std::pair<int, Value::Strings::value_type>(
+                                  position, dicom_item));
+            }
+
+            for (auto it = values.begin(); it != values.end(); ++it)
+            {
+                element.as_string().push_back(it->second);
+            }
+        }
+        else if(vr == VR::DS || vr == VR::FD || vr == VR::FL)
+        {
+            element = Element(Value::Reals(), vr);
+
+            for(auto it_value = it->second.begin(); it_value != it->second.end(); ++it_value)
+            {
+                if (it_value->first == "<xmlattr>")
+                {
+                    continue;
+                }
+                else if (it_value->first != "Value")
+                {
+                    std::stringstream error;
+                    error << "Bad sub-Tag '" << it_value->first
+                          << "' for DicomAttribute Tag with VR = "
+                          << as_string(vr);
+                    throw Exception(error.str());
+                }
+                element.as_real().push_back(it_value->second.get_value<double>());
+            }
+        }
+        else if(vr == VR::IS || vr == VR::SL || vr == VR::SS ||
+                vr == VR::UL || vr == VR::US)
+        {
+            element = Element(Value::Integers(), vr);
+
+            for(auto it_value = it->second.begin(); it_value != it->second.end(); ++it_value)
+            {
+                if (it_value->first == "<xmlattr>")
+                {
+                    continue;
+                }
+                else if (it_value->first != "Value")
+                {
+                    std::stringstream error;
+                    error << "Bad sub-Tag '" << it_value->first
+                          << "' for DicomAttribute Tag with VR = "
+                          << as_string(vr);
+                    throw Exception(error.str());
+                }
+
+                element.as_int().push_back(it_value->second.get_value<int64_t>());
+            }
+        }
+        else if(vr == VR::SQ)
+        {
+            element = Element(Value::DataSets(), vr);
+
+            for(auto it_value = it->second.begin(); it_value != it->second.end(); ++it_value)
+            {
+                if (it_value->first == "<xmlattr>")
+                {
+                    continue;
+                }
+                else if (it_value->first != "Item")
+                {
+                    std::stringstream error;
+                    error << "Bad sub-Tag '" << it_value->first
+                          << "' for DicomAttribute Tag with VR = "
+                          << as_string(vr);
+                    throw Exception(error.str());
+                }
+
+                boost::property_tree::ptree nativedicommodel;
+                nativedicommodel.insert(nativedicommodel.end(),
+                                        it_value->second.begin(),
+                                        it_value->second.end());
+                nativedicommodel.erase("<xmlattr>");
+
+                boost::property_tree::ptree dataset_xml;
+                dataset_xml.add_child("NativeDicomModel", nativedicommodel);
+
+                auto const dicom_item = as_dataset(dataset_xml);
+                element.as_data_set().push_back(dicom_item);
+            }
+        }
+        else if(vr == VR::OB || vr == VR::OF || vr == VR::OW || vr == VR::UN)
+        {
+            element = Element(Value::Binary(), vr);
+
+            bool find_inline_binary = false; // only one Tag InlineBinary
+            for(auto it_value = it->second.begin(); it_value != it->second.end(); ++it_value)
+            {
+                if (it_value->first == "<xmlattr>")
+                {
+                    continue;
+                }
+                else if (it_value->first != "InlineBinary")
+                {
+                    std::stringstream error;
+                    error << "Bad sub-Tag '" << it_value->first
+                          << "' for DicomAttribute Tag with VR = "
+                          << as_string(vr);
+                    throw Exception(error.str());
+                }
+                else if (find_inline_binary)
+                {
+                    std::stringstream error;
+                    error << "Too many sub-Tag '" << it_value->first
+                          << "' for DicomAttribute Tag with VR = "
+                          << as_string(vr);
+                    throw Exception(error.str());
+                }
+
+                auto const & encoded = it_value->second.get_value<std::string>();
+                OFString const encoded_dcmtk(encoded.c_str());
+                unsigned char * decoded;
+                size_t const decoded_size =
+                    OFStandard::decodeBase64(encoded_dcmtk, decoded);
+
+                element.as_binary().resize(decoded_size);
+                std::copy(decoded, decoded+decoded_size, element.as_binary().begin());
+
+                delete[] decoded;
+
+                find_inline_binary = true;
+            }
+        }
+        else
+        {
+            throw Exception("Unknown VR: "+as_string(vr));
+        }
+
+        data_set.add(tag, element);
+    }
+
+    return data_set;
 }
 
 } // namespace dcmtkpp

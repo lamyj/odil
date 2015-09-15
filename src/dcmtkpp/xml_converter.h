@@ -19,6 +19,9 @@ namespace dcmtkpp
 /// @brief Convert a data set to its XML representation.
 boost::property_tree::ptree as_xml(DataSet const & data_set);
 
+/// @brief Create a data set from its XML representation.
+DataSet as_dataset(boost::property_tree::ptree const & xml);
+
 } // namespace dcmtkpp
 
 #endif // _61eb6ed2_447a_43b5_a6ba_ca7c2a5fb492
