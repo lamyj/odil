@@ -360,6 +360,7 @@ DataSet as_dataset(boost::property_tree::ptree const & xml)
         {
             element = Element(Value::Strings(), vr);
 
+            std::map<int, Value::Strings::value_type> values;
             for(auto it_value = it->second.begin();
                 it_value != it->second.end(); ++it_value)
             {
@@ -376,8 +377,17 @@ DataSet as_dataset(boost::property_tree::ptree const & xml)
                     throw Exception(error.str());
                 }
 
-                element.as_string().push_back(
-                            it_value->second.get_value<std::string>());
+                int const position =
+                        it_value->second.get<int>("<xmlattr>.number");
+
+                values.insert(std::pair<int, Value::Strings::value_type>(
+                    position,
+                    it_value->second.get_value<Value::Strings::value_type>()));
+            }
+
+            for (auto it = values.begin(); it != values.end(); ++it)
+            {
+                element.as_string().push_back(it->second);
             }
         }
         else if(vr == VR::PN)
@@ -458,6 +468,7 @@ DataSet as_dataset(boost::property_tree::ptree const & xml)
         {
             element = Element(Value::Reals(), vr);
 
+            std::map<int, Value::Reals::value_type> values;
             for(auto it_value = it->second.begin(); it_value != it->second.end(); ++it_value)
             {
                 if (it_value->first == "<xmlattr>")
@@ -472,7 +483,18 @@ DataSet as_dataset(boost::property_tree::ptree const & xml)
                           << as_string(vr);
                     throw Exception(error.str());
                 }
-                element.as_real().push_back(it_value->second.get_value<double>());
+
+                int const position =
+                        it_value->second.get<int>("<xmlattr>.number");
+
+                values.insert(std::pair<int, Value::Reals::value_type>(
+                    position,
+                    it_value->second.get_value<Value::Reals::value_type>()));
+            }
+
+            for (auto it = values.begin(); it != values.end(); ++it)
+            {
+                element.as_real().push_back(it->second);
             }
         }
         else if(vr == VR::IS || vr == VR::SL || vr == VR::SS ||
@@ -480,7 +502,9 @@ DataSet as_dataset(boost::property_tree::ptree const & xml)
         {
             element = Element(Value::Integers(), vr);
 
-            for(auto it_value = it->second.begin(); it_value != it->second.end(); ++it_value)
+            std::map<int, Value::Integers::value_type> values;
+            for(auto it_value = it->second.begin();
+                it_value != it->second.end(); ++it_value)
             {
                 if (it_value->first == "<xmlattr>")
                 {
@@ -495,14 +519,26 @@ DataSet as_dataset(boost::property_tree::ptree const & xml)
                     throw Exception(error.str());
                 }
 
-                element.as_int().push_back(it_value->second.get_value<int64_t>());
+                int const position =
+                        it_value->second.get<int>("<xmlattr>.number");
+
+                values.insert(std::pair<int, Value::Integers::value_type>(
+                    position,
+                    it_value->second.get_value<Value::Integers::value_type>()));
+            }
+
+            for (auto it = values.begin(); it != values.end(); ++it)
+            {
+                element.as_int().push_back(it->second);
             }
         }
         else if(vr == VR::SQ)
         {
             element = Element(Value::DataSets(), vr);
 
-            for(auto it_value = it->second.begin(); it_value != it->second.end(); ++it_value)
+            std::map<int, Value::DataSets::value_type> values;
+            for(auto it_value = it->second.begin();
+                it_value != it->second.end(); ++it_value)
             {
                 if (it_value->first == "<xmlattr>")
                 {
@@ -526,8 +562,16 @@ DataSet as_dataset(boost::property_tree::ptree const & xml)
                 boost::property_tree::ptree dataset_xml;
                 dataset_xml.add_child("NativeDicomModel", nativedicommodel);
 
-                auto const dicom_item = as_dataset(dataset_xml);
-                element.as_data_set().push_back(dicom_item);
+                int const position =
+                        it_value->second.get<int>("<xmlattr>.number");
+
+                values.insert(std::pair<int, Value::DataSets::value_type>(
+                    position, as_dataset(dataset_xml)));
+            }
+
+            for (auto it = values.begin(); it != values.end(); ++it)
+            {
+                element.as_data_set().push_back(it->second);
             }
         }
         else if(vr == VR::OB || vr == VR::OF || vr == VR::OW || vr == VR::UN)
