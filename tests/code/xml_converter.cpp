@@ -3,6 +3,7 @@
 
 #include "dcmtkpp/xml_converter.h"
 
+/******************************* TEST Nominal **********************************/
 BOOST_AUTO_TEST_CASE(AsXMLEmpty)
 {
     dcmtkpp::DataSet data_set;
@@ -16,6 +17,7 @@ BOOST_AUTO_TEST_CASE(AsXMLEmpty)
     BOOST_REQUIRE(xml.front().second.empty());
 }
 
+/******************************* TEST Nominal **********************************/
 BOOST_AUTO_TEST_CASE(AsXMLIntegers)
 {
     dcmtkpp::DataSet data_set;
@@ -106,6 +108,7 @@ BOOST_AUTO_TEST_CASE(AsXMLIntegers)
     }
 }
 
+/******************************* TEST Nominal **********************************/
 BOOST_AUTO_TEST_CASE(AsXMLReals)
 {
     dcmtkpp::DataSet data_set;
@@ -115,7 +118,8 @@ BOOST_AUTO_TEST_CASE(AsXMLReals)
 
     // Expected result:
     // <NativeDicomModel>
-    //     <DicomAttribute vr="FL" tag="00089459" keyword="RecommendedDisplayFrameRateInFloat">
+    //     <DicomAttribute vr="FL" tag="00089459"
+    //                     keyword="RecommendedDisplayFrameRateInFloat">
     //         <Value number="1">1.2</Value>
     //         <Value number="2">3.4</Value>
     //     </DicomAttribute>
@@ -152,7 +156,8 @@ BOOST_AUTO_TEST_CASE(AsXMLReals)
 
     BOOST_CHECK_EQUAL((*it_attr).first, "keyword");
     BOOST_REQUIRE((*it_attr).second.empty());
-    BOOST_CHECK_EQUAL((*it_attr).second.get_value<std::string>(), "RecommendedDisplayFrameRateInFloat");
+    BOOST_CHECK_EQUAL((*it_attr).second.get_value<std::string>(),
+                      "RecommendedDisplayFrameRateInFloat");
     }
 
     ++it;
@@ -196,6 +201,7 @@ BOOST_AUTO_TEST_CASE(AsXMLReals)
     }
 }
 
+/******************************* TEST Nominal **********************************/
 BOOST_AUTO_TEST_CASE(AsXMLStrings)
 {
     dcmtkpp::DataSet data_set;
@@ -288,6 +294,7 @@ BOOST_AUTO_TEST_CASE(AsXMLStrings)
     }
 }
 
+/******************************* TEST Nominal **********************************/
 BOOST_AUTO_TEST_CASE(AsXMLPersonName)
 {
     dcmtkpp::DataSet data_set;
@@ -498,16 +505,20 @@ BOOST_AUTO_TEST_CASE(AsXMLPersonName)
     }
 }
 
+/******************************* TEST Nominal **********************************/
 BOOST_AUTO_TEST_CASE(AsXMLDataSets)
 {
     dcmtkpp::DataSet item1;
     item1.add(0x00100020,
-        dcmtkpp::Element(dcmtkpp::Value::Strings({"valueLO1"}), dcmtkpp::VR::LO));
+        dcmtkpp::Element(dcmtkpp::Value::Strings({"valueLO1"}),
+                         dcmtkpp::VR::LO));
     item1.add(0x00100022,
-        dcmtkpp::Element(dcmtkpp::Value::Strings({"valueCS1"}), dcmtkpp::VR::CS));
+        dcmtkpp::Element(dcmtkpp::Value::Strings({"valueCS1"}),
+                         dcmtkpp::VR::CS));
     dcmtkpp::DataSet item2;
     item2.add(0x00100022,
-        dcmtkpp::Element(dcmtkpp::Value::Strings({"valueCS2"}), dcmtkpp::VR::CS));
+        dcmtkpp::Element(dcmtkpp::Value::Strings({"valueCS2"}),
+                         dcmtkpp::VR::CS));
     dcmtkpp::DataSet data_set;
     data_set.add(0x00101002,
         dcmtkpp::Element(
@@ -518,17 +529,20 @@ BOOST_AUTO_TEST_CASE(AsXMLDataSets)
 
     // Expected result:
     // <NativeDicomModel>
-    //     <DicomAttribute vr="SQ" tag="00101002" keyword="OtherPatientIDsSequence">
+    //     <DicomAttribute vr="SQ" tag="00101002"
+    //                     keyword="OtherPatientIDsSequence">
     //         <Item number="1">
     //             <DicomAttribute vr="LO" tag="00100020" keyword="PatientID">
     //                 <Value number="1">valueLO1</Value>
     //             </DicomAttribute>
-    //             <DicomAttribute vr="CS" tag="00100022" keyword="TypeOfPatientID">
+    //             <DicomAttribute vr="CS" tag="00100022"
+    //                             keyword="TypeOfPatientID">
     //                 <Value number="1">valueCS1</Value>
     //             </DicomAttribute>
     //         </Item>
     //         <Item number="2">
-    //             <DicomAttribute vr="CS" tag="00100022" keyword="TypeOfPatientID">
+    //             <DicomAttribute vr="CS" tag="00100022"
+    //                             keyword="TypeOfPatientID">
     //                 <Value number="1">valueCS2</Value>
     //             </DicomAttribute>
     //         </Item>
@@ -566,7 +580,8 @@ BOOST_AUTO_TEST_CASE(AsXMLDataSets)
 
     BOOST_CHECK_EQUAL((*it_attr).first, "keyword");
     BOOST_REQUIRE((*it_attr).second.empty());
-    BOOST_CHECK_EQUAL((*it_attr).second.get_value<std::string>(), "OtherPatientIDsSequence");
+    BOOST_CHECK_EQUAL((*it_attr).second.get_value<std::string>(),
+                      "OtherPatientIDsSequence");
     }
 
     ++it;
@@ -623,7 +638,8 @@ BOOST_AUTO_TEST_CASE(AsXMLDataSets)
 
     BOOST_CHECK_EQUAL((*it_dicomattr).first, "Value");
     BOOST_REQUIRE_EQUAL((*it_dicomattr).second.size(), 1);
-    BOOST_CHECK_EQUAL((*it_dicomattr).second.get_value<std::string>(), "valueLO1");
+    BOOST_CHECK_EQUAL((*it_dicomattr).second.get_value<std::string>(),
+                      "valueLO1");
 
     { // Look for Attribut of Value XML tag
     BOOST_CHECK_EQUAL((*it_dicomattr).second.front().first, "<xmlattr>");
@@ -666,14 +682,16 @@ BOOST_AUTO_TEST_CASE(AsXMLDataSets)
 
     BOOST_CHECK_EQUAL((*it_attr).first, "keyword");
     BOOST_REQUIRE((*it_attr).second.empty());
-    BOOST_CHECK_EQUAL((*it_attr).second.get_value<std::string>(), "TypeOfPatientID");
+    BOOST_CHECK_EQUAL((*it_attr).second.get_value<std::string>(),
+                      "TypeOfPatientID");
     }
 
     ++it_dicomattr;
 
     BOOST_CHECK_EQUAL((*it_dicomattr).first, "Value");
     BOOST_REQUIRE_EQUAL((*it_dicomattr).second.size(), 1);
-    BOOST_CHECK_EQUAL((*it_dicomattr).second.get_value<std::string>(), "valueCS1");
+    BOOST_CHECK_EQUAL((*it_dicomattr).second.get_value<std::string>(),
+                      "valueCS1");
 
     { // Look for Attribut of Value XML tag
     BOOST_CHECK_EQUAL((*it_dicomattr).second.front().first, "<xmlattr>");
@@ -737,14 +755,16 @@ BOOST_AUTO_TEST_CASE(AsXMLDataSets)
 
     BOOST_CHECK_EQUAL((*it_attr).first, "keyword");
     BOOST_REQUIRE((*it_attr).second.empty());
-    BOOST_CHECK_EQUAL((*it_attr).second.get_value<std::string>(), "TypeOfPatientID");
+    BOOST_CHECK_EQUAL((*it_attr).second.get_value<std::string>(),
+                      "TypeOfPatientID");
     }
 
     ++it_dicomattr;
 
     BOOST_CHECK_EQUAL((*it_dicomattr).first, "Value");
     BOOST_REQUIRE_EQUAL((*it_dicomattr).second.size(), 1);
-    BOOST_CHECK_EQUAL((*it_dicomattr).second.get_value<std::string>(), "valueCS2");
+    BOOST_CHECK_EQUAL((*it_dicomattr).second.get_value<std::string>(),
+                      "valueCS2");
 
     { // Look for Attribut of Value XML tag
     BOOST_CHECK_EQUAL((*it_dicomattr).second.front().first, "<xmlattr>");
@@ -762,6 +782,7 @@ BOOST_AUTO_TEST_CASE(AsXMLDataSets)
     }
 }
 
+/******************************* TEST Nominal **********************************/
 BOOST_AUTO_TEST_CASE(AsXMLBinary)
 {
     dcmtkpp::DataSet data_set;
@@ -774,7 +795,8 @@ BOOST_AUTO_TEST_CASE(AsXMLBinary)
 
     // Expected result:
     // <NativeDicomModel>
-    //     <DicomAttribute vr="OW" tag="00660023" keyword="TrianglePointIndexList">
+    //     <DicomAttribute vr="OW" tag="00660023"
+    //                     keyword="TrianglePointIndexList">
     //         <InlineBinary>AQIDBAU=</InlineBinary>
     //     </DicomAttribute>
     // </NativeDicomModel>
@@ -810,7 +832,8 @@ BOOST_AUTO_TEST_CASE(AsXMLBinary)
 
     BOOST_CHECK_EQUAL((*it_attr).first, "keyword");
     BOOST_REQUIRE((*it_attr).second.empty());
-    BOOST_CHECK_EQUAL((*it_attr).second.get_value<std::string>(), "TrianglePointIndexList");
+    BOOST_CHECK_EQUAL((*it_attr).second.get_value<std::string>(),
+                      "TrianglePointIndexList");
     }
 
     ++it;
@@ -822,6 +845,103 @@ BOOST_AUTO_TEST_CASE(AsXMLBinary)
     }
 }
 
+/******************************* TEST Nominal **********************************/
+BOOST_AUTO_TEST_CASE(AsXMLEmptyElement)
+{
+    dcmtkpp::DataSet data_set;
+    data_set.add(0x00080060,
+        dcmtkpp::Element(
+            dcmtkpp::Value::Strings({}),
+            dcmtkpp::VR::CS));
+    auto const xml = dcmtkpp::as_xml(data_set);
+
+    // Expected result:
+    // <NativeDicomModel>
+    //     <DicomAttribute vr="CS" tag="00080060" keyword="Modality" />
+    // </NativeDicomModel>
+
+    BOOST_REQUIRE_EQUAL(xml.size(), 1);
+    BOOST_CHECK_EQUAL(xml.front().first, "NativeDicomModel");
+
+    auto const native_dicom_model = xml.front().second;
+
+    BOOST_REQUIRE_EQUAL(native_dicom_model.size(), 1);
+    BOOST_CHECK_EQUAL(native_dicom_model.front().first, "DicomAttribute");
+    BOOST_REQUIRE_EQUAL(native_dicom_model.front().second.size(), 1);
+
+    auto it = native_dicom_model.front().second.begin();
+
+    { // Look for Attribut of DicomAttribute XML tag
+    BOOST_CHECK_EQUAL((*it).first, "<xmlattr>");
+    BOOST_REQUIRE_EQUAL((*it).second.size(), 3);
+
+    auto it_attr = (*it).second.begin();
+
+    BOOST_CHECK_EQUAL((*it_attr).first, "vr");
+    BOOST_REQUIRE((*it_attr).second.empty());
+    BOOST_CHECK_EQUAL((*it_attr).second.get_value<std::string>(), "CS");
+
+    ++it_attr;
+
+    BOOST_CHECK_EQUAL((*it_attr).first, "tag");
+    BOOST_REQUIRE((*it_attr).second.empty());
+    BOOST_CHECK_EQUAL((*it_attr).second.get_value<std::string>(), "00080060");
+
+    ++it_attr;
+
+    BOOST_CHECK_EQUAL((*it_attr).first, "keyword");
+    BOOST_REQUIRE((*it_attr).second.empty());
+    BOOST_CHECK_EQUAL((*it_attr).second.get_value<std::string>(), "Modality");
+    }
+}
+
+/******************************* TEST Error ************************************/
+BOOST_AUTO_TEST_CASE(AsXMLInvalidPersonName)
+{
+    // Too many values separate by '^'
+    {
+    dcmtkpp::DataSet data_set;
+    data_set.add(0x00100010,
+        dcmtkpp::Element(
+            dcmtkpp::Value::Strings({"Alpha^Betic^Ideo^Graphic^Pho^Netic"}),
+            dcmtkpp::VR::PN));
+    BOOST_REQUIRE_THROW(dcmtkpp::as_xml(data_set), dcmtkpp::Exception);
+    }
+
+    // Too many values separate by '='
+    {
+    dcmtkpp::DataSet data_set;
+    data_set.add(0x00100010,
+        dcmtkpp::Element(
+            dcmtkpp::Value::Strings({"Alpha^Betic=Ideo^Graphic=Pho^Netic=Bad^Value"}),
+            dcmtkpp::VR::PN));
+    BOOST_REQUIRE_THROW(dcmtkpp::as_xml(data_set), dcmtkpp::Exception);
+    }
+}
+
+/******************************* TEST Error ************************************/
+BOOST_AUTO_TEST_CASE(AsXMLInvalidDICOMTag)
+{
+    dcmtkpp::DataSet data_set;
+    data_set.add(0xbad00bad,
+        dcmtkpp::Element(
+            dcmtkpp::Value::Strings({"value"}),
+            dcmtkpp::VR::CS));
+    BOOST_REQUIRE_THROW(dcmtkpp::as_xml(data_set), dcmtkpp::Exception);
+}
+
+/******************************* TEST Error ************************************/
+BOOST_AUTO_TEST_CASE(AsXMLBadVR)
+{
+    dcmtkpp::DataSet data_set;
+    data_set.add(0x00080060,
+        dcmtkpp::Element(
+            dcmtkpp::Value::Strings({"value"}),
+            dcmtkpp::VR::UNKNOWN));
+    BOOST_REQUIRE_THROW(dcmtkpp::as_xml(data_set), dcmtkpp::Exception);
+}
+
+/******************************* TEST Nominal **********************************/
 BOOST_AUTO_TEST_CASE(AsDataSetEmpty)
 {
     boost::property_tree::ptree dataset_xml;
@@ -831,6 +951,7 @@ BOOST_AUTO_TEST_CASE(AsDataSetEmpty)
     BOOST_REQUIRE(data_set.empty());
 }
 
+/******************************* TEST Nominal **********************************/
 BOOST_AUTO_TEST_CASE(AsDataSetIntegers)
 {
     boost::property_tree::ptree dicomattribute;
@@ -864,6 +985,7 @@ BOOST_AUTO_TEST_CASE(AsDataSetIntegers)
     BOOST_REQUIRE(data_set.as_int("00280010") == dcmtkpp::Value::Integers({128, 256}));
 }
 
+/******************************* TEST Nominal **********************************/
 BOOST_AUTO_TEST_CASE(AsDataSetReals)
 {
     boost::property_tree::ptree dicomattribute;
@@ -897,6 +1019,7 @@ BOOST_AUTO_TEST_CASE(AsDataSetReals)
     BOOST_REQUIRE(data_set.as_real("00089459") == dcmtkpp::Value::Reals({1.2, 3.4}));
 }
 
+/******************************* TEST Nominal **********************************/
 BOOST_AUTO_TEST_CASE(AsDataSetStrings)
 {
     boost::property_tree::ptree dicomattribute;
@@ -930,6 +1053,7 @@ BOOST_AUTO_TEST_CASE(AsDataSetStrings)
     BOOST_REQUIRE(data_set.as_string("00080060") == dcmtkpp::Value::Strings({"FOO", "BAR"}));
 }
 
+/******************************* TEST Nominal **********************************/
 BOOST_AUTO_TEST_CASE(AsDataSetPersonName)
 {
     boost::property_tree::ptree dicomattribute;
@@ -994,6 +1118,7 @@ BOOST_AUTO_TEST_CASE(AsDataSetPersonName)
         {"family^given^middle^prefix^suffix", "familyAlpha=familyIdeo=familyPhonetic"}));
 }
 
+/******************************* TEST Nominal **********************************/
 BOOST_AUTO_TEST_CASE(AsDataSetDataSets)
 {
     boost::property_tree::ptree dicomattribute;
@@ -1085,6 +1210,7 @@ BOOST_AUTO_TEST_CASE(AsDataSetDataSets)
     BOOST_REQUIRE(data_set.as_data_set("00101002") == dcmtkpp::Value::DataSets({item1, item2}));
 }
 
+/******************************* TEST Nominal **********************************/
 BOOST_AUTO_TEST_CASE(AsDataSetBinary)
 {
     boost::property_tree::ptree dicomattribute;
@@ -1112,6 +1238,7 @@ BOOST_AUTO_TEST_CASE(AsDataSetBinary)
         {0x1, 0x2, 0x3, 0x4, 0x5}));
 }
 
+/******************************* TEST Error ************************************/
 BOOST_AUTO_TEST_CASE(AsDataSetMissingRootNode)
 {
     BOOST_REQUIRE_THROW(dcmtkpp::as_dataset(boost::property_tree::ptree()),

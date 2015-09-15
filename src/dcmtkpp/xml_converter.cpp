@@ -6,8 +6,8 @@
  * for details.
  ************************************************************************/
 
-#include <vector>
 #include <map>
+#include <vector>
 
 #include <dcmtk/config/osconfig.h>
 #include <dcmtk/ofstd/ofstd.h>
@@ -109,12 +109,15 @@ struct ToXMLVisitor
                     boost::property_tree::ptree tag_field;
                     std::string value_name = item.substr(begin, size);
 
-                    auto const fields_name = { "FamilyName", "GivenName", "MiddleName", "NamePrefix", "NameSuffix" };
+                    auto const fields_name = { "FamilyName", "GivenName",
+                                               "MiddleName", "NamePrefix",
+                                               "NameSuffix" };
                     auto fields_name_it = fields_name.begin();
                     std::string::size_type begin_name=0;
                     while(begin_name != std::string::npos)
                     {
-                        std::string::size_type const end_name = value_name.find("^", begin_name);
+                        std::string::size_type const end_name =
+                                value_name.find("^", begin_name);
 
                         std::string::size_type size_name = 0;
                         if(end_name != std::string::npos)
@@ -128,7 +131,8 @@ struct ToXMLVisitor
 
                         boost::property_tree::ptree tag_name;
 
-                        tag_name.put_value(value_name.substr(begin_name, size_name));
+                        tag_name.put_value(value_name.substr(begin_name,
+                                                             size_name));
 
                         tag_field.add_child(*fields_name_it, tag_name);
 
@@ -293,7 +297,8 @@ boost::property_tree::ptree as_xml(DataSet const & data_set)
         auto const & tag = it.first;
         auto const & element = it.second;
 
-        boost::property_tree::ptree dicomattribute = apply_visitor(ToXMLVisitor(), element);
+        boost::property_tree::ptree dicomattribute =
+                apply_visitor(ToXMLVisitor(), element);
 
         auto const dictionary_it = registry::public_dictionary.find(tag);
         if(dictionary_it == registry::public_dictionary.end())
@@ -301,9 +306,12 @@ boost::property_tree::ptree as_xml(DataSet const & data_set)
             throw Exception("No such element: " + std::string(tag));
         }
 
-        dicomattribute.put("<xmlattr>.tag",  std::string(tag));                  // Mandatory
-        dicomattribute.put("<xmlattr>.keyword", dictionary_it->second.keyword);  // Optional
-        //dicomattribute.put("<xmlattr>.privateCreator", todo);                    // Optional
+        // Add Mandatory attribute Tag
+        dicomattribute.put("<xmlattr>.tag",  std::string(tag));
+        // Add Optional attribute Keyword
+        dicomattribute.put("<xmlattr>.keyword", dictionary_it->second.keyword);
+        // Add Optional attribute PrivateCreator
+        //dicomattribute.put("<xmlattr>.privateCreator", todo);
 
         nativedicommodel.add_child("DicomAttribute", dicomattribute);
     }
