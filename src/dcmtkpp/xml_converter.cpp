@@ -288,6 +288,37 @@ std::string get_person_name(boost::property_tree::ptree const & xml)
     return return_value;
 }
 
+template<typename TValueType>
+std::map<int, TValueType>
+parse_value(boost::property_tree::ptree const & xml, VR const & vr)
+{
+    std::map<int, TValueType> values;
+    for(auto it_value = xml.begin(); it_value != xml.end(); ++it_value)
+    {
+        if (it_value->first == "<xmlattr>")
+        {
+            continue;
+        }
+        else if (it_value->first != "Value")
+        {
+            std::stringstream error;
+            error << "Bad sub-Tag '" << it_value->first
+                  << "' for DicomAttribute Tag with VR = "
+                  << as_string(vr);
+            throw Exception(error.str());
+        }
+
+        int const position =
+                it_value->second.get<int>("<xmlattr>.number");
+
+        values.insert(std::pair<int, TValueType>(
+            position,
+            it_value->second.get_value<TValueType>()));
+    }
+
+    return values;
+}
+
 boost::property_tree::ptree as_xml(DataSet const & data_set)
 {
     // XML dataset element
@@ -360,30 +391,8 @@ DataSet as_dataset(boost::property_tree::ptree const & xml)
         {
             element = Element(Value::Strings(), vr);
 
-            std::map<int, Value::Strings::value_type> values;
-            for(auto it_value = it->second.begin();
-                it_value != it->second.end(); ++it_value)
-            {
-                if (it_value->first == "<xmlattr>")
-                {
-                    continue;
-                }
-                else if (it_value->first != "Value")
-                {
-                    std::stringstream error;
-                    error << "Bad sub-Tag '" << it_value->first
-                          << "' for DicomAttribute Tag with VR = "
-                          << as_string(vr);
-                    throw Exception(error.str());
-                }
-
-                int const position =
-                        it_value->second.get<int>("<xmlattr>.number");
-
-                values.insert(std::pair<int, Value::Strings::value_type>(
-                    position,
-                    it_value->second.get_value<Value::Strings::value_type>()));
-            }
+            auto values = parse_value<Value::Strings::value_type>(it->second,
+                                                                  vr);
 
             for (auto it = values.begin(); it != values.end(); ++it)
             {
@@ -468,29 +477,7 @@ DataSet as_dataset(boost::property_tree::ptree const & xml)
         {
             element = Element(Value::Reals(), vr);
 
-            std::map<int, Value::Reals::value_type> values;
-            for(auto it_value = it->second.begin(); it_value != it->second.end(); ++it_value)
-            {
-                if (it_value->first == "<xmlattr>")
-                {
-                    continue;
-                }
-                else if (it_value->first != "Value")
-                {
-                    std::stringstream error;
-                    error << "Bad sub-Tag '" << it_value->first
-                          << "' for DicomAttribute Tag with VR = "
-                          << as_string(vr);
-                    throw Exception(error.str());
-                }
-
-                int const position =
-                        it_value->second.get<int>("<xmlattr>.number");
-
-                values.insert(std::pair<int, Value::Reals::value_type>(
-                    position,
-                    it_value->second.get_value<Value::Reals::value_type>()));
-            }
+            auto values = parse_value<Value::Reals::value_type>(it->second, vr);
 
             for (auto it = values.begin(); it != values.end(); ++it)
             {
@@ -502,30 +489,8 @@ DataSet as_dataset(boost::property_tree::ptree const & xml)
         {
             element = Element(Value::Integers(), vr);
 
-            std::map<int, Value::Integers::value_type> values;
-            for(auto it_value = it->second.begin();
-                it_value != it->second.end(); ++it_value)
-            {
-                if (it_value->first == "<xmlattr>")
-                {
-                    continue;
-                }
-                else if (it_value->first != "Value")
-                {
-                    std::stringstream error;
-                    error << "Bad sub-Tag '" << it_value->first
-                          << "' for DicomAttribute Tag with VR = "
-                          << as_string(vr);
-                    throw Exception(error.str());
-                }
-
-                int const position =
-                        it_value->second.get<int>("<xmlattr>.number");
-
-                values.insert(std::pair<int, Value::Integers::value_type>(
-                    position,
-                    it_value->second.get_value<Value::Integers::value_type>()));
-            }
+            auto values = parse_value<Value::Integers::value_type>(it->second,
+                                                                   vr);
 
             for (auto it = values.begin(); it != values.end(); ++it)
             {
@@ -579,7 +544,8 @@ DataSet as_dataset(boost::property_tree::ptree const & xml)
             element = Element(Value::Binary(), vr);
 
             bool find_inline_binary = false; // only one Tag InlineBinary
-            for(auto it_value = it->second.begin(); it_value != it->second.end(); ++it_value)
+            for(auto it_value = it->second.begin();
+                it_value != it->second.end(); ++it_value)
             {
                 if (it_value->first == "<xmlattr>")
                 {
@@ -609,7 +575,8 @@ DataSet as_dataset(boost::property_tree::ptree const & xml)
                     OFStandard::decodeBase64(encoded_dcmtk, decoded);
 
                 element.as_binary().resize(decoded_size);
-                std::copy(decoded, decoded+decoded_size, element.as_binary().begin());
+                std::copy(decoded, decoded+decoded_size,
+                          element.as_binary().begin());
 
                 delete[] decoded;
 
