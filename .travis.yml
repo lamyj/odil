@@ -12,6 +12,8 @@ addons:
     - libicu-dev
     - uuid-dev
     - zlib1g-dev
+    - libboost-dev
+    - libboost-filesystem-dev
     - libboost-test-dev
     - dcmtk
 before_install:
