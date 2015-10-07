@@ -18,6 +18,9 @@
 #include <utility>
 #include <vector>
 
+#include <boost/filesystem.hpp>
+#include <boost/filesystem/fstream.hpp>
+
 #include "dcmtkpp/DataSet.h"
 #include "dcmtkpp/Exception.h"
 #include "dcmtkpp/Reader.h"
@@ -83,8 +86,14 @@ BasicDirectoryCreator
 
     for(auto const & file: files)
     {
-        std::ifstream stream(
-            this->root+file, std::ifstream::in | std::ifstream::binary);
+        auto const absolute_path = boost::filesystem::path(this->root)/file;
+        if(!boost::filesystem::is_regular_file(absolute_path))
+        {
+            throw Exception("No such file: "+absolute_path.string());
+        }
+
+        boost::filesystem::ifstream stream(
+            absolute_path, std::ifstream::in | std::ifstream::binary);
         auto const meta_info_and_data_set = Reader::read_file(stream);
         auto const & data_set = meta_info_and_data_set.second;
 
@@ -365,7 +374,7 @@ BasicDirectoryCreator
     DataSet basic_directory;
 
     // File-Set Identification Module (PS3.3 F.3.2.1)
-    basic_directory.add(registry::FileSetID, { "TODO" });
+    basic_directory.add(registry::FileSetID, { "" });
     // Don't include user comments yet.
     // registry::FileSetDescriptorFileID;
     // registry::SpecificCharacterSetOfFileSetDescriptorFile;
@@ -431,8 +440,9 @@ BasicDirectoryCreator
     }
     basic_directory.add(registry::DirectoryRecordSequence, record_sequence);
 
-    std::ofstream file(
-        this->root+"DICOMDIR", std::ofstream::out | std::ofstream::binary);
+    boost::filesystem::ofstream file(
+        boost::filesystem::path(root)/"DICOMDIR",
+        std::ofstream::out | std::ofstream::binary);
     Writer file_writer(
         file, buffer_writer.byte_ordering, buffer_writer.explicit_vr,
         buffer_writer.item_encoding, buffer_writer.use_group_length);
