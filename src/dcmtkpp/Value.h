@@ -93,6 +93,9 @@ public:
     /// @brief Return the type store in the value.
     Type get_type() const;
 
+    /// @brief Test whether the value is empty.
+    bool empty() const;
+
     /**
      * @brief Return the integers contained in the value.
      *
@@ -185,6 +188,13 @@ private:
 template<typename TVisitor>
 typename TVisitor::result_type
 apply_visitor(TVisitor const & visitor, Value const & value);
+
+/**
+ * @brief Visitor of values.
+ */
+template<typename TVisitor>
+typename TVisitor::result_type
+apply_visitor(TVisitor const & visitor, Value & value);
 
 }
 

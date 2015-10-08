@@ -35,17 +35,17 @@ int main()
     association.set_peer_ae_title("pacs");
     
     association.add_presentation_context(
-        UID_MOVEStudyRootQueryRetrieveInformationModel,
-        { UID_LittleEndianImplicitTransferSyntax });
+        dcmtkpp::registry::StudyRootQueryRetrieveInformationModelMOVE,
+        { dcmtkpp::registry::ImplicitVRLittleEndian });
     
     association.add_presentation_context(
-        UID_MRImageStorage,
-        { UID_LittleEndianImplicitTransferSyntax },
+         dcmtkpp::registry::MRImageStorage,
+        { dcmtkpp::registry::ImplicitVRLittleEndian },
         ASC_SC_ROLE_SCP);
     
     association.add_presentation_context(
-        UID_VerificationSOPClass,
-        { UID_LittleEndianImplicitTransferSyntax });
+         dcmtkpp::registry::VerificationSOPClass,
+        { dcmtkpp::registry::ImplicitVRLittleEndian });
     
     association.associate(network);
     
@@ -62,7 +62,7 @@ int main()
     query.add("StudyInstanceUID", { "1.2.3.4.5" });
     query.add("SeriesInstanceUID", { "1.2.3.4.5.1" });
     
-    scu.set_affected_sop_class(UID_MOVEStudyRootQueryRetrieveInformationModel);
+    scu.set_affected_sop_class(dcmtkpp::registry::StudyRootQueryRetrieveInformationModelMOVE);
     
     std::cout << "--------\n";
     std::cout << "Callback\n";

@@ -2,6 +2,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include "dcmtkpp/SCU.h"
+#include "dcmtkpp/registry.h"
 
 #include "../PeerFixtureBase.h"
 
@@ -10,8 +11,8 @@ struct Fixture: public PeerFixtureBase
     Fixture()
     : PeerFixtureBase(NET_REQUESTOR, 104, 10,
         {
-            { UID_VerificationSOPClass,
-                {UID_LittleEndianImplicitTransferSyntax}
+            { dcmtkpp::registry::VerificationSOPClass,
+                {dcmtkpp::registry::ImplicitVRLittleEndian}
             }
         })
     {

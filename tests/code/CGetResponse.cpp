@@ -2,7 +2,6 @@
 #include <boost/test/unit_test.hpp>
 
 #include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmdata/dcuid.h>
 #include <dcmtk/dcmnet/dimse.h>
 
 #include "dcmtkpp/CGetResponse.h"
@@ -25,7 +24,7 @@ struct Fixture: public MessageFixtureBase<dcmtkpp::CGetResponse>
 
         this->command_set.add("MessageID", {5678});
         this->command_set.add("AffectedSOPClassUID",
-            {UID_GETStudyRootQueryRetrieveInformationModel});
+            {dcmtkpp::registry::StudyRootQueryRetrieveInformationModelGET});
         this->command_set.add(dcmtkpp::registry::NumberOfRemainingSuboperations, {1});
         this->command_set.add(dcmtkpp::registry::NumberOfCompletedSuboperations, {2});
         this->command_set.add(dcmtkpp::registry::NumberOfFailedSuboperations, {3});
@@ -49,7 +48,7 @@ struct Fixture: public MessageFixtureBase<dcmtkpp::CGetResponse>
         BOOST_CHECK(message.has_affected_sop_class_uid());
         BOOST_CHECK_EQUAL(
             message.get_affected_sop_class_uid(),
-            UID_GETStudyRootQueryRetrieveInformationModel);
+            dcmtkpp::registry::StudyRootQueryRetrieveInformationModelGET);
 
         BOOST_CHECK(message.has_number_of_remaining_sub_operations());
         BOOST_CHECK_EQUAL(message.get_number_of_remaining_sub_operations(), 1);
@@ -73,7 +72,7 @@ BOOST_FIXTURE_TEST_CASE(Constructor, Fixture)
     dcmtkpp::CGetResponse message(1234, STATUS_Success, this->data_set);
     message.set_message_id(5678);
     message.set_affected_sop_class_uid(
-        UID_GETStudyRootQueryRetrieveInformationModel);
+        dcmtkpp::registry::StudyRootQueryRetrieveInformationModelGET);
     message.set_number_of_remaining_sub_operations(1);
     message.set_number_of_completed_sub_operations(2);
     message.set_number_of_failed_sub_operations(3);

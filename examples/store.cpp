@@ -24,14 +24,17 @@ int main(int argc, char** argv)
     association.set_peer_port(11112);
     association.set_peer_ae_title("pacs");
     
-    association.add_presentation_context(UID_MRImageStorage,
-        { UID_LittleEndianImplicitTransferSyntax });
+    association.add_presentation_context(
+        dcmtkpp::registry::MRImageStorage,
+        { dcmtkpp::registry::ImplicitVRLittleEndian });
     
-    association.add_presentation_context(UID_EnhancedMRImageStorage,
-        { UID_LittleEndianImplicitTransferSyntax });
+    association.add_presentation_context(
+        dcmtkpp::registry::EnhancedMRImageStorage,
+        { dcmtkpp::registry::ImplicitVRLittleEndian });
     
-    association.add_presentation_context(UID_VerificationSOPClass,
-        { UID_LittleEndianImplicitTransferSyntax });
+    association.add_presentation_context(
+        dcmtkpp::registry::VerificationSOPClass,
+        { dcmtkpp::registry::ImplicitVRLittleEndian });
     
     association.associate(network);
     

@@ -1,11 +1,23 @@
+sudo: false
 language: cpp
 compiler:
   - gcc
   - clang
+addons:
+  apt:
+    packages:
+    - libdcmtk2-dev
+    - libwrap0-dev
+    - libjsoncpp-dev
+    - libicu-dev
+    - uuid-dev
+    - zlib1g-dev
+    - libboost-dev
+    - libboost-filesystem-dev
+    - libboost-test-dev
+    - dcmtk
 before_install:
-  - sudo apt-get update -qq
-  - sudo apt-get install -y libdcmtk2-dev libwrap0-dev libjsoncpp-dev libicu-dev zlib1g-dev libboost-test-dev dcmtk
-  - sudo pip install cpp-coveralls
+  - pip install --user cpp-coveralls
 before_script:
   - export SRC_DIR=$PWD
   - mkdir build
@@ -18,4 +30,4 @@ script:
   - make -j $(nproc)
   - ../tests/run.sh
 after_success:
-  - if [ "${CC}" = "gcc" ]; then coveralls --exclude examples --exclude tests --exclude-pattern '.*CMake[^/]+\.c(?:pp)?' --exclude-pattern "/usr/.*" --root=${SRC_DIR} --build-root ${BIN_DIR} | grep -vP "^File '.*'$" | grep -vP ":creating '.*'$" | grep -vP "^Lines executed:.*" | sed '/^$/d'; fi
+  - if [ "${CC}" = "gcc" ]; then ${HOME}/.local/bin/coveralls --exclude examples --exclude tests --exclude-pattern '.*CMake[^/]+\.c(?:pp)?' --exclude-pattern "/usr/.*" --root=${SRC_DIR} --build-root ${BIN_DIR} | grep -vP "^File '.*'$" | grep -vP ":creating '.*'$" | grep -vP "^Lines executed:.*" | sed '/^$/d'; fi

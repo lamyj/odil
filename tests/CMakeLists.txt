@@ -5,6 +5,7 @@ add_definitions(-DBOOST_TEST_DYN_LINK)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../src)
 
 add_definitions("-D HAVE_CONFIG_H")
+add_definitions("-D DCMTKPP_MAJOR_VERSION=${dcmtkpp_MAJOR_VERSION}")
 
 file(GLOB_RECURSE tests *.cpp)
 foreach(test_file ${tests})

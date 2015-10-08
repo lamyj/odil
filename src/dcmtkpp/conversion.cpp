@@ -51,7 +51,7 @@ DcmEVR convert(VR vr)
     else if(vr == VR::UT) { return EVR_UT; }
     else
     {
-        throw Exception("Unknown VR");
+        throw Exception("Unknown VR: "+as_string(vr));
     }
 }
 
@@ -86,7 +86,7 @@ VR convert(DcmEVR evr)
     else if(evr == EVR_UT) { return VR::UT; }
     else
     {
-        throw Exception("Unknown VR");
+        throw Exception("Unknown VR: "+std::string(DcmVR(evr).getVRName()));
     }
 }
 
@@ -214,7 +214,14 @@ DcmElement * convert(const Tag & tag, Element const & source)
             convert(source, static_cast<DcmOtherByteOtherWord*>(destination));
         }
     }
-    // OF
+    else if(source.vr == VR::OF)
+    {
+        destination = new DcmOtherFloat(destination_tag);
+        if(!source.empty())
+        {
+            convert(source, static_cast<DcmOtherFloat*>(destination));
+        }
+    }
     else if (source.vr == VR::PN)
     {
         destination = new DcmPersonName(destination_tag);
@@ -246,7 +253,7 @@ DcmElement * convert(const Tag & tag, Element const & source)
         {
             for(auto const & source_item: source.as_data_set())
             {
-                DcmItem * destination_item = convert(source_item);
+                DcmItem * destination_item = convert(source_item, false);
                 sequence->append(destination_item);
             }
         }
@@ -311,7 +318,7 @@ DcmElement * convert(const Tag & tag, Element const & source)
     }
     else
     {
-        throw Exception("Unknown VR");
+        throw Exception("Unknown VR: "+as_string(source.vr));
     }
 
     return destination;
@@ -416,7 +423,7 @@ Element convert(DcmElement * source)
     }
     else
     {
-        throw Exception("Unknown VR");
+        throw Exception("Unknown VR: "+std::string(DcmVR(source_vr).getVRName()));
     }
 
     return destination;
@@ -450,17 +457,46 @@ void convert(Element const & source, DcmOtherByteOtherWord * destination)
 void convert(Element const & source, DcmOtherFloat * destination)
 {
     auto const & value = source.as_binary();
+
+    if(value.size()%4 != 0)
+    {
+        throw Exception("Cannot convert OF from odd-sized array");
+    }
+
+    for(unsigned int i=0; i<value.size()/4; ++i)
+    {
+        float const f = *reinterpret_cast<float const *>(&value[i*4]);
+        destination->putFloat32(f, i);
+    }
 }
 
-DcmItem * convert(DataSet const & source)
+DcmItem * convert(DataSet const & source, bool as_data_set)
 {
-    DcmDataset * destination = new DcmDataset();
+    DcmItem * destination = as_data_set?(new DcmDataset()):(new DcmItem());
 
     for(auto const & iterator: source)
     {
-        auto const destination_element = convert(
-            iterator.first, iterator.second);
-        destination->insert(destination_element);
+        if(iterator.second.vr == VR::SQ)
+        {
+            if(iterator.second.empty())
+            {
+                destination->insertEmptyElement(DcmTag(convert(iterator.first), convert(iterator.second.vr)));
+            }
+            else
+            {
+                for(auto const & source_item: iterator.second.as_data_set())
+                {
+                    DcmItem* item = convert(source_item, false);
+                    destination->insertSequenceItem(DcmTag(convert(iterator.first), convert(iterator.second.vr)), item);
+                }
+            }
+        }
+        else
+        {
+            auto const destination_element = convert(
+                iterator.first, iterator.second);
+            destination->insert(destination_element);
+        }
     }
 
     return destination;

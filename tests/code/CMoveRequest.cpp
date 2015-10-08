@@ -2,12 +2,12 @@
 #include <boost/test/unit_test.hpp>
 
 #include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmdata/dcuid.h>
 #include <dcmtk/dcmnet/dimse.h>
 
 #include "dcmtkpp/CMoveRequest.h"
 #include "dcmtkpp/DataSet.h"
 #include "dcmtkpp/Message.h"
+#include "dcmtkpp/registry.h"
 
 #include "../MessageFixtureBase.h"
 
@@ -21,7 +21,7 @@ struct Fixture: public MessageFixtureBase<dcmtkpp::CMoveRequest>
         this->command_set.add("CommandField", {dcmtkpp::Message::Command::C_MOVE_RQ});
         this->command_set.add("MessageID", {1234});
         this->command_set.add("AffectedSOPClassUID",
-            {UID_MOVEPatientRootQueryRetrieveInformationModel});
+            {dcmtkpp::registry::PatientRootQueryRetrieveInformationModelMOVE});
         this->command_set.add("Priority", {DIMSE_PRIORITY_MEDIUM});
         this->command_set.add("MoveDestination", {"destination"});
 
@@ -36,7 +36,7 @@ struct Fixture: public MessageFixtureBase<dcmtkpp::CMoveRequest>
         BOOST_CHECK_EQUAL(message.get_message_id(), 1234);
         BOOST_CHECK_EQUAL(
             message.get_affected_sop_class_uid(),
-            UID_MOVEPatientRootQueryRetrieveInformationModel);
+            dcmtkpp::registry::PatientRootQueryRetrieveInformationModelMOVE);
         BOOST_CHECK_EQUAL(message.get_move_destination(), "destination");
         BOOST_CHECK(message.has_data_set());
         BOOST_CHECK(message.get_data_set() == this->query);
@@ -46,7 +46,7 @@ struct Fixture: public MessageFixtureBase<dcmtkpp::CMoveRequest>
 BOOST_FIXTURE_TEST_CASE(Constructor, Fixture)
 {
     dcmtkpp::CMoveRequest const message(
-        1234, UID_MOVEPatientRootQueryRetrieveInformationModel,
+        1234, dcmtkpp::registry::PatientRootQueryRetrieveInformationModelMOVE,
         DIMSE_PRIORITY_MEDIUM, "destination", this->query);
     this->check(message);
 }

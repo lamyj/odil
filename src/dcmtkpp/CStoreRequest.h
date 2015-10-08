@@ -11,9 +11,6 @@
 
 #include <string>
 
-#include <dcmtk/config/osconfig.h>
-#include <dcmtk/ofstd/oftypes.h>
-
 #include "dcmtkpp/DataSet.h"
 #include "dcmtkpp/registry.h"
 #include "dcmtkpp/Request.h"

@@ -1,8 +1,5 @@
 #include <iostream>
 
-#include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmdata/dctk.h>
-
 #include "dcmtkpp/DataSet.h"
 #include "dcmtkpp/FindSCU.h"
 #include "dcmtkpp/registry.h"
@@ -29,12 +26,12 @@ int main()
     association.set_peer_ae_title("pacs");
     
     association.add_presentation_context(
-        UID_FINDStudyRootQueryRetrieveInformationModel,
-        { UID_LittleEndianImplicitTransferSyntax });
+        dcmtkpp::registry::StudyRootQueryRetrieveInformationModelFIND,
+        { dcmtkpp::registry::ImplicitVRLittleEndian });
     
     association.add_presentation_context(
-        UID_VerificationSOPClass,
-        { UID_LittleEndianImplicitTransferSyntax });
+        dcmtkpp::registry::VerificationSOPClass,
+        { dcmtkpp::registry::ImplicitVRLittleEndian });
     
     association.associate(network);
     
@@ -51,7 +48,7 @@ int main()
     query.add(dcmtkpp::registry::NumberOfStudyRelatedSeries);
     query.add("StudyDate");
     
-    scu.set_affected_sop_class(UID_FINDStudyRootQueryRetrieveInformationModel);
+    scu.set_affected_sop_class(dcmtkpp::registry::StudyRootQueryRetrieveInformationModelFIND);
     
     std::cout << "--------\n";
     std::cout << "Callback\n";

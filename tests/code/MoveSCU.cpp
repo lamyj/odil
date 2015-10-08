@@ -3,6 +3,7 @@
 
 #include "dcmtkpp/DataSet.h"
 #include "dcmtkpp/MoveSCU.h"
+#include "dcmtkpp/registry.h"
 
 #include "../PeerFixtureBase.h"
 
@@ -16,11 +17,11 @@ struct Fixture: public PeerFixtureBase
     : PeerFixtureBase(NET_ACCEPTORREQUESTOR, 11113, 10,
         {
             {
-                UID_MOVEPatientRootQueryRetrieveInformationModel,
-                { UID_LittleEndianImplicitTransferSyntax }
+                dcmtkpp::registry::PatientRootQueryRetrieveInformationModelMOVE,
+                { dcmtkpp::registry::ImplicitVRLittleEndian }
             },
             {
-                UID_RawDataStorage, { UID_LittleEndianImplicitTransferSyntax },
+                dcmtkpp::registry::RawDataStorage, { dcmtkpp::registry::ImplicitVRLittleEndian },
                 ASC_SC_ROLE_SCP
             }
         })
@@ -59,7 +60,7 @@ BOOST_FIXTURE_TEST_CASE(Move, Fixture)
     scu.set_association(&this->association);
     scu.set_move_destination("LOCAL");
 
-    scu.set_affected_sop_class(UID_MOVEPatientRootQueryRetrieveInformationModel);
+    scu.set_affected_sop_class(dcmtkpp::registry::PatientRootQueryRetrieveInformationModelMOVE);
     auto const results = scu.move(this->query);
 
     BOOST_REQUIRE_EQUAL(results.size(), 1);
@@ -75,7 +76,7 @@ BOOST_FIXTURE_TEST_CASE(MoveCallback, Fixture)
     scu.set_association(&this->association);
     scu.set_move_destination("LOCAL");
 
-    scu.set_affected_sop_class(UID_MOVEPatientRootQueryRetrieveInformationModel);
+    scu.set_affected_sop_class(dcmtkpp::registry::PatientRootQueryRetrieveInformationModelMOVE);
     scu.move(this->query, Fixture::callback);
 
     BOOST_CHECK(Fixture::called);

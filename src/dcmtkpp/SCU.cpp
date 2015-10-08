@@ -16,6 +16,7 @@
 #include "dcmtkpp/CEchoRequest.h"
 #include "dcmtkpp/CEchoResponse.h"
 #include "dcmtkpp/Message.h"
+#include "dcmtkpp/registry.h"
 
 namespace dcmtkpp
 {
@@ -53,7 +54,7 @@ SCU
 {
     Uint16 const message_id = this->_association->get_association()->nextMsgID++;
     
-    CEchoRequest const request(message_id, UID_VerificationSOPClass);
+    CEchoRequest const request(message_id, registry::VerificationSOPClass);
     this->_send(request, request.get_affected_sop_class_uid());
     
     CEchoResponse const response = this->_receive<CEchoResponse>();

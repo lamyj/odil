@@ -104,6 +104,13 @@ Value
     return this->_type;
 }
 
+bool
+Value
+::empty() const
+{
+    return (this->_type == Type::Empty);
+}
+
 #define DECLARE_CONST_ACCESSOR(type, name) \
 Value::type const & \
 Value \

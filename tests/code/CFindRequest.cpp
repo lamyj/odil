@@ -2,12 +2,12 @@
 #include <boost/test/unit_test.hpp>
 
 #include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmdata/dcuid.h>
 #include <dcmtk/dcmnet/dimse.h>
 
 #include "dcmtkpp/CFindRequest.h"
 #include "dcmtkpp/DataSet.h"
 #include "dcmtkpp/Message.h"
+#include "dcmtkpp/registry.h"
 
 #include "../MessageFixtureBase.h"
 
@@ -21,7 +21,7 @@ struct Fixture: public MessageFixtureBase<dcmtkpp::CFindRequest>
         this->command_set.add("CommandField", {dcmtkpp::Message::Command::C_FIND_RQ});
         this->command_set.add("MessageID", {1234});
         this->command_set.add("AffectedSOPClassUID",
-            {UID_FINDPatientRootQueryRetrieveInformationModel});
+            {dcmtkpp::registry::PatientRootQueryRetrieveInformationModelFIND});
         this->command_set.add("Priority", {DIMSE_PRIORITY_MEDIUM});
 
         this->query.add("PatientName", {"Doe^John"});
@@ -35,7 +35,7 @@ struct Fixture: public MessageFixtureBase<dcmtkpp::CFindRequest>
         BOOST_CHECK_EQUAL(message.get_message_id(), 1234);
         BOOST_CHECK_EQUAL(
             message.get_affected_sop_class_uid(),
-            UID_FINDPatientRootQueryRetrieveInformationModel);
+            dcmtkpp::registry::PatientRootQueryRetrieveInformationModelFIND);
         BOOST_CHECK(message.get_data_set() == this->query);
     }
 };
@@ -43,7 +43,7 @@ struct Fixture: public MessageFixtureBase<dcmtkpp::CFindRequest>
 BOOST_FIXTURE_TEST_CASE(Constructor, Fixture)
 {
     dcmtkpp::CFindRequest const message(
-        1234, UID_FINDPatientRootQueryRetrieveInformationModel,
+        1234, dcmtkpp::registry::PatientRootQueryRetrieveInformationModelFIND,
         DIMSE_PRIORITY_MEDIUM, this->query);
     this->check(message);
 }

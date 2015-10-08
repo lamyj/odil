@@ -6,6 +6,8 @@
 #include "dcmtkpp/Tag.h"
 #include "dcmtkpp/VR.h"
 
+#include "dcmtkpp/registry.h"
+
 BOOST_AUTO_TEST_CASE(Empty)
 {
     dcmtkpp::DataSet dataset;
