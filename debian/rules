@@ -26,4 +26,6 @@ override_dh_install:
 		--override s/libdcm.*-dev/libdcmtk-dev/ \
 		--override s/libof.*-dev/libdcmtk-dev/ \
 		--override s/libicuuc.*-dev/libicu-dev/ \
+                --override s/libboost_filesystem.*-dev/libboost-filesystem-dev/ \
+                --override s/libboost_system.*-dev/libboost-system-dev/ \
 		debian/tmp/usr/lib/*.so
