@@ -3,8 +3,6 @@
 
 #include "dcmtkpp/xml_converter.h"
 
-#include <boost/property_tree/xml_parser.hpp>
-
 void check_attributes(boost::property_tree::ptree const & xml,
                       std::string const & tag,
                       std::string const & vr,
@@ -896,11 +894,6 @@ BOOST_AUTO_TEST_CASE(AsDataSetDataSets)
         boost::property_tree::ptree dataset_xml;
         dataset_xml.add_child("NativeDicomModel", nativedicommodel);
 
-        std::stringstream xmldataset;
-        boost::property_tree::xml_writer_settings<char> settings(' ', 4);
-        boost::property_tree::write_xml(xmldataset, dataset_xml, settings);
-
-        std::cout << xmldataset.str() << std::endl;
         dcmtkpp::DataSet const data_set = dcmtkpp::as_dataset(dataset_xml);
         BOOST_REQUIRE_EQUAL(data_set.size(), 1);
         BOOST_REQUIRE(data_set.has("00101002"));
