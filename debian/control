@@ -18,8 +18,8 @@ Build-Depends: debhelper (>= 9),
                doxygen,
                graphviz
 Standards-Version: 3.9.6
-Vcs-Browser: http://anonscm.debian.org/viewvc/debian-med/trunk/packages/dcmtkpp/trunk/
-Vcs-Svn: svn://anonscm.debian.org/debian-med/trunk/packages/dcmtkpp/trunk/
+Vcs-Browser: https://anonscm.debian.org/cgit/debian-med/dcmtkpp.git/
+Vcs-Git: git://anonscm.debian.org/debian-med/dcmtkpp.git
 Homepage: https://github.com/lamyj/dcmtkpp
 
 Package: libdcmtkpp0
