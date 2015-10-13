@@ -325,7 +325,7 @@ ServiceRole::_receive_dataset(
         }
         else
         {
-            throw Exception("Unkown PDV type");
+            throw Exception("Unknown PDV type");
         }
 
         Reader reader(stream, transfer_syntax, keep_group_length);

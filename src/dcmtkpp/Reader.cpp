@@ -483,6 +483,11 @@ Reader::Visitor
             *reinterpret_cast<uint16_t*>(&value[i]) = item;
         }
     }
+    else if(this->vr == VR::UN)
+    {
+        value.resize(vl);
+        this->stream.read(reinterpret_cast<char*>(&value[0]), value.size());
+    }
     else
     {
         throw Exception("Cannot read "+as_string(this->vr)+" as binary");
