@@ -10,7 +10,6 @@
 
 #include <algorithm>
 #include <cstdint>
-#include <endian.h>
 #include <functional>
 #include <istream>
 #include <sstream>
@@ -19,6 +18,7 @@
 
 #include "dcmtkpp/DataSet.h"
 #include "dcmtkpp/Element.h"
+#include "dcmtkpp/endian.h"
 #include "dcmtkpp/Exception.h"
 #include "dcmtkpp/registry.h"
 #include "dcmtkpp/Tag.h"

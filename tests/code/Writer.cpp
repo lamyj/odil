@@ -1,7 +1,6 @@
 #define BOOST_TEST_MODULE Writer
 #include <boost/test/unit_test.hpp>
 
-#include <endian.h>
 #include <sstream>
 
 #include <dcmtk/config/osconfig.h>
@@ -9,6 +8,7 @@
 #include <dcmtk/dcmdata/dcistrmb.h>
 
 #include "dcmtkpp/conversion.h"
+#include "dcmtkpp/endian.h"
 #include "dcmtkpp/Element.h"
 #include "dcmtkpp/registry.h"
 #include "dcmtkpp/Writer.h"

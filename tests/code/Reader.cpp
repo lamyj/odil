@@ -1,7 +1,6 @@
 #define BOOST_TEST_MODULE Reader
 #include <boost/test/unit_test.hpp>
 
-#include <endian.h>
 #include <sstream>
 #include <tuple>
 
@@ -9,6 +8,7 @@
 #include <dcmtk/dcmdata/dctk.h>
 #include <dcmtk/dcmdata/dcostrmb.h>
 
+#include "dcmtkpp/endian.h"
 #include "dcmtkpp/conversion.h"
 #include "dcmtkpp/Element.h"
 #include "dcmtkpp/registry.h"

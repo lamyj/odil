@@ -9,13 +9,13 @@
 #include "dcmtkpp/Writer.h"
 
 #include <cstdint>
-#include <endian.h>
 #include <map>
 #include <ostream>
 #include <sstream>
 #include <string>
 
 #include "dcmtkpp/DataSet.h"
+#include "dcmtkpp/endian.h"
 #include "dcmtkpp/Element.h"
 #include "dcmtkpp/Exception.h"
 #include "dcmtkpp/registry.h"
