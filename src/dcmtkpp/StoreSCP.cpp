@@ -14,6 +14,7 @@
 #include "dcmtkpp/CStoreRequest.h"
 #include "dcmtkpp/CStoreResponse.h"
 #include "dcmtkpp/DataSet.h"
+#include "dcmtkpp/Value.h"
 
 namespace dcmtkpp
 {
@@ -65,7 +66,7 @@ StoreSCP
 ::store(CStoreRequest const & request, Callback callback) const
 {
     // Execute user callback
-    auto status = CStoreResponse::Success;
+    Value::Integer status = CStoreResponse::Success;
     if(!request.has_data_set() || request.get_data_set().empty())
     {
         status = CStoreResponse::ErrorCannotUnderstand;
