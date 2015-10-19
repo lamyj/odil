@@ -40,4 +40,33 @@ Response
     // Nothing to do.
 }
 
+bool
+Response
+::is_pending() const
+{
+    return (this->get_status()==Pending || this->get_status()==0xFF01);
+}
+
+bool
+Response
+::is_warning() const
+{
+    return (
+        this->get_status()==0x0001 || (this->get_status()>>12)==0xB ||
+        this->get_status() == AttributeListError ||
+        this->get_status() == AttributeValueOutOfRange);
+}
+
+bool
+Response
+::is_failure() const
+{
+    return (
+        (this->get_status()>>12)==0xA || (this->get_status()>>12)==0xC || (
+            (this->get_status()>>8) == 0x01 && this->get_status() != AttributeListError &&
+            this->get_status() != AttributeValueOutOfRange) ||
+        (this->get_status()>>8) == 0x02
+    );
+}
+
 }
