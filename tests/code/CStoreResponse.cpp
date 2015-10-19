@@ -1,9 +1,6 @@
 #define BOOST_TEST_MODULE CStoreResponse
 #include <boost/test/unit_test.hpp>
 
-#include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmnet/dimse.h>
-
 #include "dcmtkpp/CStoreResponse.h"
 #include "dcmtkpp/DataSet.h"
 #include "dcmtkpp/Message.h"
@@ -19,7 +16,7 @@ struct Fixture: public MessageFixtureBase<dcmtkpp::CStoreResponse>
     {
         this->command_set.add("CommandField", {dcmtkpp::Message::Command::C_STORE_RSP});
         this->command_set.add("MessageIDBeingRespondedTo", {1234});
-        this->command_set.add("Status", {STATUS_Success});
+        this->command_set.add("Status", {dcmtkpp::Response::Success});
 
         this->command_set.add("MessageID", {5678});
         this->command_set.add("AffectedSOPClassUID", {dcmtkpp::registry::MRImageStorage});
@@ -30,7 +27,7 @@ struct Fixture: public MessageFixtureBase<dcmtkpp::CStoreResponse>
     {
         BOOST_CHECK_EQUAL(message.get_command_field(), dcmtkpp::Message::Command::C_STORE_RSP);
         BOOST_CHECK_EQUAL(message.get_message_id_being_responded_to(), 1234);
-        BOOST_CHECK_EQUAL(message.get_status(), STATUS_Success);
+        BOOST_CHECK_EQUAL(message.get_status(), dcmtkpp::Response::Success);
         BOOST_CHECK(!message.has_data_set());
 
         BOOST_CHECK(message.has_message_id());
@@ -47,7 +44,7 @@ struct Fixture: public MessageFixtureBase<dcmtkpp::CStoreResponse>
 
 BOOST_FIXTURE_TEST_CASE(Constructor, Fixture)
 {
-    dcmtkpp::CStoreResponse message(1234, STATUS_Success);
+    dcmtkpp::CStoreResponse message(1234, dcmtkpp::Response::Success);
     message.set_message_id(5678);
     message.set_affected_sop_class_uid(dcmtkpp::registry::MRImageStorage);
     message.set_affected_sop_instance_uid("1.2.3.4");
@@ -66,3 +63,37 @@ BOOST_FIXTURE_TEST_CASE(MessageConstructorWrongCommandField, Fixture)
     this->check_message_constructor_throw(this->command_set);
 }
 
+BOOST_AUTO_TEST_CASE(StatusWarning)
+{
+    std::vector<dcmtkpp::Value::Integer> const statuses = {
+        dcmtkpp::CStoreResponse::CoercionOfDataElements,
+        dcmtkpp::CStoreResponse::DataSetDoesNotMatchSOPClass,
+        dcmtkpp::CStoreResponse::ElementsDiscarded
+    };
+
+    for(auto const status:statuses)
+    {
+        dcmtkpp::CStoreResponse response(1234, status);
+        BOOST_REQUIRE(!response.is_pending());
+        BOOST_REQUIRE(response.is_warning());
+        BOOST_REQUIRE(!response.is_failure());
+    }
+}
+
+
+BOOST_AUTO_TEST_CASE(StatusFailure)
+{
+    std::vector<dcmtkpp::Value::Integer> const statuses = {
+        dcmtkpp::CStoreResponse::RefusedOutOfResources,
+        dcmtkpp::CStoreResponse::ErrorDataSetDoesNotMatchSOPClass,
+        dcmtkpp::CStoreResponse::ErrorCannotUnderstand
+    };
+
+    for(auto const status:statuses)
+    {
+        dcmtkpp::CStoreResponse response(1234, status);
+        BOOST_REQUIRE(!response.is_pending());
+        BOOST_REQUIRE(!response.is_warning());
+        BOOST_REQUIRE(response.is_failure());
+    }
+}

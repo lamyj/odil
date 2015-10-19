@@ -20,6 +20,19 @@ namespace dcmtkpp
 class CStoreResponse: public Response
 {
 public:
+    /// @brief C-STORE status codes, PS 3.4, B.2.3
+    enum Status
+    {
+        // Failure
+        RefusedOutOfResources=0xA700,
+        ErrorDataSetDoesNotMatchSOPClass=0xA900,
+        ErrorCannotUnderstand=0xC000,
+        // Warning
+        CoercionOfDataElements=0xB000,
+        DataSetDoesNotMatchSOPClass=0xB007,
+        ElementsDiscarded=0xB006,
+    };
+
     /**
      * @brief Create an store response with given Message ID, and status.
      */
