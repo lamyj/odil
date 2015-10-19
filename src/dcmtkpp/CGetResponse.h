@@ -5,7 +5,7 @@
  * http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
  * for details.
  ************************************************************************/
- 
+
 #ifndef _7b9819f1_d7a2_4898_a850_3ed6a61f08c6
 #define _7b9819f1_d7a2_4898_a850_3ed6a61f08c6
 
@@ -21,6 +21,18 @@ namespace dcmtkpp
 class CGetResponse: public Response
 {
 public:
+    /// @brief C-GET status codes, PS 3.4, C.4.3.1.4
+    enum Status
+    {
+        // Failure
+        RefusedOutOfResourcesUnableToCalculateNumberOfMatches=0xA701,
+        RefusedOutOfResourcesUnableToPerformSubOperations=0xA702,
+        IdentifierDoesNotMatchSOPClass=0xA900,
+        UnableToProcess=0xC000,
+        // Warning
+        SubOperationsCompleteOneOrMoreFailuresOrWarnings=0xB000
+    };
+
     /**
      * @brief Create an get response with given Message ID, and status.
      */
@@ -44,7 +56,7 @@ public:
 
     /// @brief Destructor.
     virtual ~CGetResponse();
-    
+
     DCMTKPP_MESSAGE_OPTIONAL_FIELD_INTEGER_MACRO(message_id, registry::MessageID)
     DCMTKPP_MESSAGE_OPTIONAL_FIELD_STRING_MACRO(
         affected_sop_class_uid, registry::AffectedSOPClassUID)

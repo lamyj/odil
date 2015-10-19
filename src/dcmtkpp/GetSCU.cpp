@@ -12,9 +12,6 @@
 #include <sstream>
 #include <vector>
 
-#include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmnet/dimse.h>
-
 #include "dcmtkpp/CGetRequest.h"
 #include "dcmtkpp/CGetResponse.h"
 #include "dcmtkpp/CStoreRequest.h"
@@ -30,7 +27,7 @@ GetSCU
     // Nothing to do
 }
 
-void 
+void
 GetSCU
 ::get(DataSet const & query, Callback callback) const
 {
@@ -38,7 +35,7 @@ GetSCU
     CGetRequest request(this->_association->get_association()->nextMsgID++,
         this->_affected_sop_class, Message::Priority::MEDIUM, query);
     this->_send(request, this->_affected_sop_class);
-    
+
     // Receive the responses
     bool done = false;
     while(!done)
@@ -80,7 +77,7 @@ GetSCU
         result.push_back(dataset);
     };
     this->get(query, callback);
-    
+
     return result;
 }
 
@@ -88,8 +85,7 @@ bool
 GetSCU
 ::_get_response(CGetResponse const & response) const
 {
-    bool const done = (response.get_status() != STATUS_Pending);
-    return done;
+    return !response.is_pending();
 }
 
 void
