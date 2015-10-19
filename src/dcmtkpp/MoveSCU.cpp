@@ -36,7 +36,7 @@ MoveSCU
     // Nothing to do
 }
 
-std::string const & 
+std::string const &
 MoveSCU
 ::get_move_destination() const
 {
@@ -59,19 +59,19 @@ MoveSCU
         this->_affected_sop_class, Message::Priority::MEDIUM,
         this->_move_destination, query);
     this->_send(request, this->_affected_sop_class);
-    
+
     // Receive the responses
     Association store_association;
     bool done = false;
     while(!done)
     {
         // Use a small timeout to avoid blocking for a long time.
-        if(!store_association.is_associated() && 
+        if(!store_association.is_associated() &&
            this->_network->is_association_waiting(1))
         {
             store_association.receive(*this->_network, true);
         }
-        
+
         done = this->_dispatch(store_association, callback);
     }
 }
@@ -85,11 +85,11 @@ MoveSCU
         result.push_back(dataset);
     };
     this->move(query, callback);
-    
+
     return result;
 }
 
-bool 
+bool
 MoveSCU
 ::_dispatch(Association & association, Callback callback) const
 {
@@ -103,29 +103,29 @@ MoveSCU
     {
         ++size;
     }
-    
+
     // At this point, we should have a readable association.
-    if(!ASC_selectReadableAssociation(associations, size, 1)) 
+    if(!ASC_selectReadableAssociation(associations, size, 1))
     {
         throw Exception("No readable association");
     }
-    
+
     bool move_finished;
-    
-    if(associations[0] != NULL) 
+
+    if(associations[0] != NULL)
     {
         move_finished = this->_handle_main_association();
     }
-    else if(associations[1] != NULL) 
+    else if(associations[1] != NULL)
     {
-        bool const release = 
+        bool const release =
             this->_handle_store_association(association, callback);
         if(release)
         {
             association.drop();
         }
     }
-    
+
     return move_finished;
 }
 
@@ -134,7 +134,7 @@ MoveSCU
 ::_handle_main_association() const
 {
     Message const message = this->_receive();
-    
+
     if(message.get_command_field() != Message::Command::C_MOVE_RSP)
     {
         std::ostringstream exception_message;
@@ -142,11 +142,9 @@ MoveSCU
                 << std::hex << message.get_command_field();
         throw Exception(exception_message.str());
     }
-    
+
     CMoveResponse const response(message);
-    bool const done = (response.get_status() != STATUS_Pending);
-    
-    return done;
+    return !response.is_pending();
 }
 
 bool

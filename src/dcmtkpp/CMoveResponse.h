@@ -5,7 +5,7 @@
  * http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
  * for details.
  ************************************************************************/
- 
+
 #ifndef _b245f6f2_50c3_4c7c_80e1_f03d9c831301
 #define _b245f6f2_50c3_4c7c_80e1_f03d9c831301
 
@@ -21,6 +21,19 @@ namespace dcmtkpp
 class CMoveResponse: public Response
 {
 public:
+    /// @brief C-MOVE status codes, PS 3.4, C.4.2.1.5
+    enum Status
+    {
+        // Failure
+        RefusedOutOfResourcesUnableToCalculateNumberOfMatches=0xA701,
+        RefusedOutOfResourcesUnableToPerformSubOperations=0xA702,
+        RefusedMoveDestinationInknown=0xA801,
+        IdentifierDoesNotMatchSOPClass=0xA900,
+        UnableToProcess=0xC000,
+        // Warning
+        SubOperationsCompleteOneOrMoreFailuresOrWarnings=0xB000
+    };
+
     /**
      * @brief Create an move response with given Message ID, and status.
      */
@@ -44,7 +57,7 @@ public:
 
     /// @brief Destructor.
     virtual ~CMoveResponse();
-    
+
     DCMTKPP_MESSAGE_OPTIONAL_FIELD_INTEGER_MACRO(message_id, registry::MessageID)
     DCMTKPP_MESSAGE_OPTIONAL_FIELD_STRING_MACRO(
         affected_sop_class_uid, registry::AffectedSOPClassUID)
