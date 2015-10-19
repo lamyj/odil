@@ -1,9 +1,6 @@
 #define BOOST_TEST_MODULE CFindResponse
 #include <boost/test/unit_test.hpp>
 
-#include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmnet/dimse.h>
-
 #include "dcmtkpp/CFindResponse.h"
 #include "dcmtkpp/DataSet.h"
 #include "dcmtkpp/Message.h"
@@ -20,7 +17,7 @@ struct Fixture: public MessageFixtureBase<dcmtkpp::CFindResponse>
     {
         command_set.add("CommandField", {dcmtkpp::Message::Command::C_FIND_RSP});
         command_set.add("MessageIDBeingRespondedTo", {1234});
-        command_set.add("Status", {STATUS_Success});
+        command_set.add("Status", {dcmtkpp::Response::Success});
 
         command_set.add("MessageID", {5678});
         command_set.add("AffectedSOPClassUID",
@@ -36,7 +33,7 @@ struct Fixture: public MessageFixtureBase<dcmtkpp::CFindResponse>
     {
         BOOST_CHECK_EQUAL(message.get_command_field(), dcmtkpp::Message::Command::C_FIND_RSP);
         BOOST_CHECK_EQUAL(message.get_message_id_being_responded_to(), 1234);
-        BOOST_CHECK_EQUAL(message.get_status(), STATUS_Success);
+        BOOST_CHECK_EQUAL(message.get_status(), dcmtkpp::Response::Success);
 
         BOOST_CHECK(message.has_message_id());
         BOOST_CHECK_EQUAL(message.get_message_id(), 5678);
@@ -53,7 +50,7 @@ struct Fixture: public MessageFixtureBase<dcmtkpp::CFindResponse>
 
 BOOST_FIXTURE_TEST_CASE(Constructor, Fixture)
 {
-    dcmtkpp::CFindResponse message(1234, STATUS_Success, this->data_set);
+    dcmtkpp::CFindResponse message(1234, dcmtkpp::Response::Success, this->data_set);
     message.set_message_id(5678);
     message.set_affected_sop_class_uid(
         dcmtkpp::registry::StudyRootQueryRetrieveInformationModelFIND);
@@ -69,4 +66,36 @@ BOOST_FIXTURE_TEST_CASE(MessageConstructorWrongCommandField, Fixture)
 {
     this->command_set.as_int("CommandField") = {dcmtkpp::Message::Command::C_ECHO_RQ};
     this->check_message_constructor_throw(this->command_set, this->data_set);
+}
+
+BOOST_AUTO_TEST_CASE(StatusPending)
+{
+    std::vector<dcmtkpp::Value::Integer> const statuses = {
+        dcmtkpp::CFindResponse::PendingWarningOptionalKeysNotSupported,
+    };
+
+    for(auto const status:statuses)
+    {
+        dcmtkpp::CFindResponse response(1234, status);
+        BOOST_REQUIRE(response.is_pending());
+        BOOST_REQUIRE(!response.is_warning());
+        BOOST_REQUIRE(!response.is_failure());
+    }
+}
+
+BOOST_AUTO_TEST_CASE(StatusFailure)
+{
+    std::vector<dcmtkpp::Value::Integer> const statuses = {
+        dcmtkpp::CFindResponse::RefusedOutOfResources,
+        dcmtkpp::CFindResponse::IdentifierDoesNotMatchSOPClass,
+        dcmtkpp::CFindResponse::UnableToProcess
+    };
+
+    for(auto const status:statuses)
+    {
+        dcmtkpp::CFindResponse response(1234, status);
+        BOOST_REQUIRE(!response.is_pending());
+        BOOST_REQUIRE(!response.is_warning());
+        BOOST_REQUIRE(response.is_failure());
+    }
 }

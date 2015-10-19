@@ -12,9 +12,6 @@
 #include <sstream>
 #include <vector>
 
-#include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmnet/dimse.h>
-
 #include "dcmtkpp/DataSet.h"
 #include "dcmtkpp/Exception.h"
 #include "dcmtkpp/CFindRequest.h"
@@ -29,7 +26,7 @@ FindSCU
     // Nothing to do
 }
 
-void 
+void
 FindSCU
 ::find(DataSet const & query, Callback callback) const
 {
@@ -63,7 +60,7 @@ FindSCU
             throw Exception(message.str());
         }
 
-        done = !DICOM_PENDING_STATUS(response.get_status());
+        done = !response.is_pending();
         if(!done)
         {
             callback(response.get_data_set());
@@ -80,7 +77,7 @@ FindSCU
         result.push_back(dataset);
     };
     this->find(query, callback);
-    
+
     return result;
 }
 

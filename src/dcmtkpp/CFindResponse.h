@@ -5,7 +5,7 @@
  * http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
  * for details.
  ************************************************************************/
- 
+
 #ifndef _5fd36547_9498_4cf3_87cc_737af51e93a9
 #define _5fd36547_9498_4cf3_87cc_737af51e93a9
 
@@ -21,6 +21,17 @@ namespace dcmtkpp
 class CFindResponse: public Response
 {
 public:
+    /// @brief C-FIND status codes, PS 3.4, C.4.1.1.4
+    enum Status
+    {
+        // Failure
+        RefusedOutOfResources=0xA700,
+        IdentifierDoesNotMatchSOPClass=0xA900,
+        UnableToProcess=0xC000,
+        // Pending
+        PendingWarningOptionalKeysNotSupported=0xFF01,
+    };
+
     /**
      * @brief Create an find response with given Message ID, and status.
      */
@@ -44,7 +55,7 @@ public:
 
     /// @brief Destructor.
     virtual ~CFindResponse();
-    
+
     DCMTKPP_MESSAGE_OPTIONAL_FIELD_INTEGER_MACRO(message_id, registry::MessageID)
     DCMTKPP_MESSAGE_OPTIONAL_FIELD_STRING_MACRO(
         affected_sop_class_uid, registry::AffectedSOPClassUID)
