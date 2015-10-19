@@ -1,9 +1,6 @@
 #define BOOST_TEST_MODULE CEchoRequest
 #include <boost/test/unit_test.hpp>
 
-#include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmnet/dimse.h>
-
 #include "dcmtkpp/CEchoRequest.h"
 #include "dcmtkpp/DataSet.h"
 #include "dcmtkpp/Message.h"

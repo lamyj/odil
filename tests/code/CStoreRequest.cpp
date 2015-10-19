@@ -1,9 +1,6 @@
 #define BOOST_TEST_MODULE CStoreRequest
 #include <boost/test/unit_test.hpp>
 
-#include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmnet/dimse.h>
-
 #include "dcmtkpp/CStoreRequest.h"
 #include "dcmtkpp/DataSet.h"
 #include "dcmtkpp/Message.h"
@@ -22,7 +19,7 @@ struct Fixture: public MessageFixtureBase<dcmtkpp::CStoreRequest>
         this->command_set.add("MessageID", {1234});
         this->command_set.add("AffectedSOPClassUID", {dcmtkpp::registry::MRImageStorage});
         this->command_set.add("AffectedSOPInstanceUID", {"1.2.3.4"});
-        this->command_set.add("Priority", {DIMSE_PRIORITY_MEDIUM});
+        this->command_set.add("Priority", {dcmtkpp::Message::Priority::MEDIUM});
 
         this->command_set.add("MoveOriginatorApplicationEntityTitle", {"origin"});
         this->command_set.add("MoveOriginatorMessageID", {5678});
@@ -56,7 +53,8 @@ struct Fixture: public MessageFixtureBase<dcmtkpp::CStoreRequest>
 BOOST_FIXTURE_TEST_CASE(Constructor, Fixture)
 {
     dcmtkpp::CStoreRequest message(
-        1234, dcmtkpp::registry::MRImageStorage, "1.2.3.4", DIMSE_PRIORITY_MEDIUM,
+        1234, dcmtkpp::registry::MRImageStorage, "1.2.3.4",
+        dcmtkpp::Message::Priority::MEDIUM,
         this->data_set);
     message.set_move_originator_ae_title("origin");
     message.set_move_originator_message_id(5678);

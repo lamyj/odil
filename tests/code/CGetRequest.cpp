@@ -1,9 +1,6 @@
 #define BOOST_TEST_MODULE CGetRequest
 #include <boost/test/unit_test.hpp>
 
-#include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmnet/dimse.h>
-
 #include "dcmtkpp/CGetRequest.h"
 #include "dcmtkpp/DataSet.h"
 #include "dcmtkpp/DataSet.h"
@@ -23,7 +20,7 @@ struct Fixture: public MessageFixtureBase<dcmtkpp::CGetRequest>
         this->command_set.add("MessageID", {1234});
         this->command_set.add("AffectedSOPClassUID",
             {dcmtkpp::registry::PatientRootQueryRetrieveInformationModelGET});
-        this->command_set.add("Priority", {DIMSE_PRIORITY_MEDIUM});
+        this->command_set.add("Priority", {dcmtkpp::Message::Priority::MEDIUM});
 
         this->query.add("PatientName", {"Doe^John"});
         this->query.add("StudyDescription", {"Brain"});
@@ -46,7 +43,7 @@ BOOST_FIXTURE_TEST_CASE(Constructor, Fixture)
 {
     dcmtkpp::CGetRequest const message(
         1234, dcmtkpp::registry::PatientRootQueryRetrieveInformationModelGET,
-        DIMSE_PRIORITY_MEDIUM, this->query);
+        dcmtkpp::Message::Priority::MEDIUM, this->query);
     this->check(message);
 }
 

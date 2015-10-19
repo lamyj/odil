@@ -1,9 +1,6 @@
 #define BOOST_TEST_MODULE CEchoResponse
 #include <boost/test/unit_test.hpp>
 
-#include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmnet/dimse.h>
-
 #include "dcmtkpp/CEchoResponse.h"
 #include "dcmtkpp/DataSet.h"
 #include "dcmtkpp/Message.h"
@@ -19,7 +16,7 @@ struct Fixture: public MessageFixtureBase<dcmtkpp::CEchoResponse>
     {
         this->command_set.add("CommandField", {dcmtkpp::Message::Command::C_ECHO_RSP});
         this->command_set.add("MessageIDBeingRespondedTo", {1234});
-        this->command_set.add("Status", {STATUS_Success});
+        this->command_set.add("Status", {dcmtkpp::Response::Success});
         this->command_set.add("AffectedSOPClassUID", {dcmtkpp::registry::VerificationSOPClass});
     }
 
@@ -27,7 +24,7 @@ struct Fixture: public MessageFixtureBase<dcmtkpp::CEchoResponse>
     {
         BOOST_CHECK_EQUAL(message.get_command_field(), dcmtkpp::Message::Command::C_ECHO_RSP);
         BOOST_CHECK_EQUAL(message.get_message_id_being_responded_to(), 1234);
-        BOOST_CHECK_EQUAL(message.get_status(), STATUS_Success);
+        BOOST_CHECK_EQUAL(message.get_status(), dcmtkpp::Response::Success);
         BOOST_CHECK_EQUAL(message.get_affected_sop_class_uid(), dcmtkpp::registry::VerificationSOPClass);
         BOOST_CHECK(!message.has_data_set());
     }
@@ -36,7 +33,7 @@ struct Fixture: public MessageFixtureBase<dcmtkpp::CEchoResponse>
 BOOST_FIXTURE_TEST_CASE(Constructor, Fixture)
 {
     dcmtkpp::CEchoResponse const message(
-        1234, STATUS_Success, dcmtkpp::registry::VerificationSOPClass);
+        1234, dcmtkpp::Response::Success, dcmtkpp::registry::VerificationSOPClass);
     this->check(message);
 }
 

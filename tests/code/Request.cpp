@@ -1,8 +1,6 @@
 #define BOOST_TEST_MODULE Request
 #include <boost/test/unit_test.hpp>
 
-#include <dcmtk/config/osconfig.h>
-
 #include "dcmtkpp/DataSet.h"
 #include "dcmtkpp/Message.h"
 #include "dcmtkpp/Request.h"

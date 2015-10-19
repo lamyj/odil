@@ -8,9 +8,6 @@
 
 #include "SCP.h"
 
-#include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmnet/dimse.h>
-
 #include "dcmtkpp/CEchoRequest.h"
 #include "dcmtkpp/CEchoResponse.h"
 #include "dcmtkpp/ServiceRole.h"
@@ -36,7 +33,7 @@ SCP
 ::_send_echo_response(CEchoRequest const & request) const
 {
     CEchoResponse response(
-        request.get_message_id(), STATUS_Success,
+        request.get_message_id(), Response::Success,
         request.get_affected_sop_class_uid());
     this->_send(response, request.get_affected_sop_class_uid());
 }

@@ -18,7 +18,7 @@
 namespace dcmtkpp
 {
 
-bool 
+bool
 StoreSCP
 ::store(Callback callback) const
 {
@@ -39,7 +39,7 @@ StoreSCP
             return true;
         }
     }
-    
+
     if(request.get_command_field() == Message::Command::C_ECHO_RQ)
     {
         this->_send_echo_response(CEchoRequest(request));
@@ -52,11 +52,11 @@ StoreSCP
     else
     {
         std::ostringstream message;
-        message << "DIMSE: Unexpected Response Command Field: 0x" 
+        message << "DIMSE: Unexpected Response Command Field: 0x"
                 << std::hex << request.get_command_field();
         throw Exception(message.str());
     }
-    
+
     return false;
 }
 
@@ -65,10 +65,10 @@ StoreSCP
 ::store(CStoreRequest const & request, Callback callback) const
 {
     // Execute user callback
-    Uint16 status = STATUS_Success;
+    auto status = CStoreResponse::Success;
     if(!request.has_data_set() || request.get_data_set().empty())
     {
-        status = STATUS_STORE_Error_CannotUnderstand;
+        status = CStoreResponse::ErrorCannotUnderstand;
     }
     else
     {
@@ -79,10 +79,10 @@ StoreSCP
         catch(...)
         {
             // FIXME: logging
-            status = STATUS_STORE_Error_CannotUnderstand;
+            status = CStoreResponse::ErrorCannotUnderstand;
         }
     }
-    
+
     // Send store response
     CStoreResponse response(request.get_message_id(), status);
     response.set_affected_sop_class_uid(request.get_affected_sop_class_uid());

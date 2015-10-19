@@ -1,9 +1,6 @@
 #define BOOST_TEST_MODULE unicode
 #include <boost/test/unit_test.hpp>
 
-#include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmdata/dctk.h>
-
 #include "dcmtkpp/conversion.h"
 #include "dcmtkpp/DataSet.h"
 #include "dcmtkpp/unicode.h"
@@ -196,63 +193,3 @@ BOOST_AUTO_TEST_CASE(SCSX2)
         source, specific_character_set, true);
     BOOST_REQUIRE_EQUAL(utf8, expected);
 }
-
-/*
-dcmtkpp::DataSet read(std::string const & filename)
-{
-    DcmFileFormat format;
-
-    OFCondition const condition = format.loadFile(filename.c_str());
-    if(condition.bad())
-    {
-        throw dcmtkpp::Exception(condition);
-    }
-
-    dcmtkpp::DataSet const result = dcmtkpp::convert(format.getDataset());
-
-    return result;
-}
-
-
-int main(int argc, char ** argv)
-{
-    for(char** argument=argv+1; argument != argv+argc; ++argument)
-    {
-        std::cout << "Reading " << *argument << std::endl;
-
-        dcmtkpp::DataSet data_set;
-        try
-        {
-            data_set = read(*argument);
-        }
-        catch(dcmtkpp::Exception const & e)
-        {
-            std::cerr << "Could not read " << *argument << ": " << e.what() << "\n";
-            continue;
-        }
-
-        std::string patient_name;
-        try
-        {
-            patient_name = dcmtkpp::as_utf8(
-                data_set.as_string("PatientName")[0],
-                data_set.as_string("SpecificCharacterSet"), true);
-        }
-        catch(dcmtkpp::Exception const & e)
-        {
-            std::cerr << "Could not convert PatientName to UTF-8: " << e.what() << "\n";
-            continue;
-        }
-
-        std::cout << "    dcmtkpp::Value::Strings const specific_character_set = {\n";
-        for(auto const & c: data_set.as_string("SpecificCharacterSet"))
-        {
-            std::cout << "        " << "\"" << c << "\",\n";
-        }
-        std::cout << "    };\n";
-        std::cout << "Patient Name: \"" << patient_name << "\"\n";
-    }
-
-    return 0;
-}
-*/

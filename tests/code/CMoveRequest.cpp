@@ -1,9 +1,6 @@
 #define BOOST_TEST_MODULE CMoveRequest
 #include <boost/test/unit_test.hpp>
 
-#include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmnet/dimse.h>
-
 #include "dcmtkpp/CMoveRequest.h"
 #include "dcmtkpp/DataSet.h"
 #include "dcmtkpp/Message.h"
@@ -22,7 +19,7 @@ struct Fixture: public MessageFixtureBase<dcmtkpp::CMoveRequest>
         this->command_set.add("MessageID", {1234});
         this->command_set.add("AffectedSOPClassUID",
             {dcmtkpp::registry::PatientRootQueryRetrieveInformationModelMOVE});
-        this->command_set.add("Priority", {DIMSE_PRIORITY_MEDIUM});
+        this->command_set.add("Priority", {dcmtkpp::Message::Priority::MEDIUM});
         this->command_set.add("MoveDestination", {"destination"});
 
         this->query.add("PatientName", {"Doe^John"});
@@ -47,7 +44,7 @@ BOOST_FIXTURE_TEST_CASE(Constructor, Fixture)
 {
     dcmtkpp::CMoveRequest const message(
         1234, dcmtkpp::registry::PatientRootQueryRetrieveInformationModelMOVE,
-        DIMSE_PRIORITY_MEDIUM, "destination", this->query);
+        dcmtkpp::Message::Priority::MEDIUM, "destination", this->query);
     this->check(message);
 }
 
