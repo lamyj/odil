@@ -26,7 +26,7 @@ Association
 ::Association()
 : _own_ae_title(""),
   _peer_host_name(""), _peer_port(104), _peer_ae_title(""),
-  _user_identity_type(UserIdentityType::None), 
+  _user_identity_type(UserIdentityType::None),
   _user_identity_primary_field(""), _user_identity_secondary_field(""),
   _association(NULL)
 {
@@ -35,11 +35,11 @@ Association
 
 Association
 ::Association(Association const & other)
-: _own_ae_title(other.get_own_ae_title()), 
+: _own_ae_title(other.get_own_ae_title()),
   _peer_host_name(other.get_peer_host_name()), _peer_port(other.get_peer_port()),
   _peer_ae_title(other.get_peer_ae_title()),
-  _user_identity_type(other.get_user_identity_type()), 
-  _user_identity_primary_field(other.get_user_identity_primary_field()), 
+  _user_identity_type(other.get_user_identity_type()),
+  _user_identity_primary_field(other.get_user_identity_primary_field()),
   _user_identity_secondary_field(other.get_user_identity_secondary_field()),
   _association(NULL)
 {
@@ -68,7 +68,7 @@ Association
         this->set_user_identity_primary_field(other.get_user_identity_primary_field());
         this->set_user_identity_secondary_field(other.get_user_identity_secondary_field());
     }
-    
+
     return *this;
 }
 
@@ -87,7 +87,7 @@ Association
     {
         throw Exception("Cannot set member while associated");
     }
-    
+
     this->_own_ae_title = ae_title;
 }
 
@@ -106,7 +106,7 @@ Association
     {
         throw Exception("Cannot set member while associated");
     }
-    
+
     this->_peer_host_name = host_name;
 }
 
@@ -125,7 +125,7 @@ Association
     {
         throw Exception("Cannot set member while associated");
     }
-    
+
     this->_peer_port = port;
 }
 
@@ -144,7 +144,7 @@ Association
     {
         throw Exception("Cannot set member while associated");
     }
-    
+
     this->_peer_ae_title = ae_title;
 }
 
@@ -157,7 +157,7 @@ Association
     {
         throw Exception("Cannot set member while associated");
     }
-    
+
     this->_presentation_contexts.push_back(
         {abstract_syntax, transfer_syntaxes, role});
 }
@@ -177,7 +177,7 @@ Association
     {
         throw Exception("Cannot set member while associated");
     }
-    
+
     this->_user_identity_type = type;
 }
 
@@ -196,7 +196,7 @@ Association
     {
         throw Exception("Cannot set member while associated");
     }
-    
+
     this->_user_identity_primary_field = value;
 }
 
@@ -215,7 +215,7 @@ Association
     {
         throw Exception("Cannot set member while associated");
     }
-    
+
     this->_user_identity_secondary_field = value;
 }
 
@@ -246,7 +246,7 @@ Association
     this->set_user_identity_primary_field(username);
     this->set_user_identity_secondary_field(password);
 }
-    
+
 void
 Association
 ::set_user_identity_to_kerberos(std::string const & ticket)
@@ -280,35 +280,35 @@ Association
     {
         throw Exception("Network is not initialized");
     }
-    
+
     if(this->is_associated())
     {
         throw Exception("Already associated");
     }
-    
+
     OFCondition condition;
-    
+
     T_ASC_Parameters * params;
     condition = ASC_createAssociationParameters(&params, ASC_MAXIMUMPDUSIZE);
     if(condition.bad())
     {
         throw Exception(condition);
     }
-    
-    condition = ASC_setAPTitles(params, 
+
+    condition = ASC_setAPTitles(params,
         this->_own_ae_title.c_str(), this->_peer_ae_title.c_str(), NULL);
     if(condition.bad())
     {
         ASC_destroyAssociationParameters(&params);
         throw Exception(condition);
     }
-    
+
     std::string localhost(128, '\0');
     gethostname(&localhost[0], localhost.size()-1);
-    
+
     std::ostringstream peer;
     peer << this->_peer_host_name << ":" << this->_peer_port;
-    
+
     condition = ASC_setPresentationAddresses(params,
         "localhost", peer.str().c_str());
     if(condition.bad())
@@ -316,7 +316,7 @@ Association
         ASC_destroyAssociationParameters(&params);
         throw Exception(condition);
     }
-    
+
     unsigned int context_id = 1;
     for(auto const & context: this->_presentation_contexts)
     {
@@ -325,8 +325,8 @@ Association
         {
             transfer_syntaxes[i] = context.transfer_syntaxes[i].c_str();
         }
-        
-        condition = ASC_addPresentationContext(params, 
+
+        condition = ASC_addPresentationContext(params,
             context_id, context.abstract_syntax.c_str(),
             transfer_syntaxes, context.transfer_syntaxes.size(), context.role);
         if(condition.bad())
@@ -334,34 +334,34 @@ Association
             ASC_destroyAssociationParameters(&params);
             throw Exception(condition);
         }
-        
+
         context_id += 2;
     }
-    
+
     if(this->_user_identity_type == UserIdentityType::None)
     {
         // Nothing to do.
     }
     else if(this->_user_identity_type == UserIdentityType::Username)
     {
-        condition = ASC_setIdentRQUserOnly(params, 
+        condition = ASC_setIdentRQUserOnly(params,
             this->_user_identity_primary_field.c_str());
     }
     else if(this->_user_identity_type == UserIdentityType::UsernameAndPassword)
     {
-        condition = ASC_setIdentRQUserOnly(params, 
+        condition = ASC_setIdentRQUserOnly(params,
             this->_user_identity_primary_field.c_str(),
             this->_user_identity_secondary_field.c_str());
     }
     else if(this->_user_identity_type == UserIdentityType::Kerberos)
     {
-        condition = ASC_setIdentRQKerberos(params, 
+        condition = ASC_setIdentRQKerberos(params,
             this->_user_identity_primary_field.c_str(),
             this->_user_identity_primary_field.size());
     }
     else if(this->_user_identity_type == UserIdentityType::SAML)
     {
-        condition = ASC_setIdentRQSaml(params, 
+        condition = ASC_setIdentRQSaml(params,
             this->_user_identity_primary_field.c_str(),
             this->_user_identity_primary_field.size());
     }
@@ -370,28 +370,28 @@ Association
         ASC_destroyAssociationParameters(&params);
         throw Exception("Unknown identity type");
     }
-    
+
     if(condition.bad())
     {
         ASC_destroyAssociationParameters(&params);
         throw Exception(condition);
     }
-    
+
     condition = ASC_requestAssociation(
         network.get_network(), params, &this->_association);
     if(condition.bad())
     {
         OFString empty;
-        
+
         if(condition == DUL_ASSOCIATIONREJECTED)
         {
             T_ASC_RejectParameters rej;
             ASC_getRejectParameters(params, &rej);
-            
+
             ASC_destroyAssociationParameters(&params);
             throw Exception(ASC_printRejectParameters(empty, &rej).c_str());
-        } 
-        else 
+        }
+        else
         {
             ASC_destroyAssociationParameters(&params);
             throw Exception(DimseCondition::dump(empty, condition).c_str());
@@ -399,7 +399,7 @@ Association
     }
 }
 
-void 
+void
 Association
 ::receive(Network & network, bool accept_all)
 {
@@ -407,28 +407,28 @@ Association
     {
         throw Exception("Network is not initialized");
     }
-    
+
     if(this->is_associated())
     {
         throw Exception("Already associated");
     }
-    
+
     OFCondition condition;
-    
+
     condition = ASC_receiveAssociation(
         network.get_network(), &this->_association, ASC_DEFAULTMAXPDU);
     if(condition.bad())
     {
         throw Exception(condition);
     }
-    
+
     T_ASC_Parameters * const params = this->_association->params;
     DUL_ASSOCIATESERVICEPARAMETERS const dul = params->DULparams;
     // No peer port should be defined when receiving
     this->_peer_host_name = dul.callingPresentationAddress;
     this->_peer_port = 0;
     this->_peer_ae_title = dul.callingAPTitle;
-    
+
     if(accept_all)
     {
         unsigned int const pc_count = ASC_countPresentationContexts(params);
@@ -437,14 +437,14 @@ Association
             T_ASC_PresentationContext pc;
             memset(&pc, 0, sizeof(pc));
             ASC_getPresentationContext(params, pc_index, &pc);
-            
+
             for(unsigned int ts_index=0; ts_index<pc.transferSyntaxCount; ++ts_index)
             {
                 std::string const abstract_syntax = pc.abstractSyntax;
                 char const * abstract_syntax_data = abstract_syntax.c_str();
-                
+
                 condition = ASC_acceptContextsWithTransferSyntax(
-                    this->_association->params, 
+                    this->_association->params,
                     pc.proposedTransferSyntaxes[ts_index],
                     1, &abstract_syntax_data);
                 if(condition.bad())
@@ -474,8 +474,25 @@ Association
             }
         }
     }
-    
+
     condition = ASC_acknowledgeAssociation(this->_association);
+    if(condition.bad())
+    {
+        throw Exception(condition);
+    }
+}
+
+void
+Association
+::reject(Result result, ResultSource result_source, Diagnostic diagnostic)
+{
+    T_ASC_RejectParameters reject_parameters;
+    reject_parameters.result = T_ASC_RejectParametersResult(result);
+    reject_parameters.source = T_ASC_RejectParametersSource(result_source);
+    reject_parameters.reason = T_ASC_RejectParametersReason(diagnostic);
+
+    OFCondition const condition = ASC_rejectAssociation(
+        this->_association, &reject_parameters);
     if(condition.bad())
     {
         throw Exception(condition);
@@ -497,7 +514,7 @@ Association
     {
         throw Exception("Not associated");
     }
-    
+
     ASC_releaseAssociation(this->_association);
     ASC_destroyAssociation(&this->_association);
     this->_association = NULL;
@@ -511,7 +528,7 @@ Association
     {
         throw Exception("Not associated");
     }
-    
+
     ASC_abortAssociation(this->_association);
     ASC_destroyAssociation(&this->_association);
     this->_association = NULL;
@@ -525,7 +542,7 @@ Association
     {
         throw Exception("Not associated");
     }
-    
+
     ASC_acknowledgeRelease(this->_association);
     ASC_dropSCPAssociation(this->_association);
     ASC_destroyAssociation(&this->_association);
