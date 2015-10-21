@@ -15,6 +15,34 @@
 namespace dcmtkpp
 {
 
+bool
+Response
+::is_pending(Value::Integer status)
+{
+    return (status == Response::Pending || status == 0xFF01);
+}
+
+bool
+Response
+::is_warning(Value::Integer status)
+{
+    return (
+        status == 0x0001 || (status>>12) == 0xB ||
+        status == Response::AttributeListError ||
+        status == Response::AttributeValueOutOfRange);
+}
+
+bool
+Response
+::is_failure(Value::Integer status)
+{
+    return (
+        (status>>12) == 0xA || (status>>12) == 0xC ||
+        ((status>>8) == 0x01 && !is_warning(status)) ||
+        (status>>8) == 0x02
+    );
+}
+
 Response
 ::Response(Value::Integer message_id_being_responded_to, Value::Integer status)
 : Message()
@@ -44,29 +72,21 @@ bool
 Response
 ::is_pending() const
 {
-    return (this->get_status()==Pending || this->get_status()==0xFF01);
+    return Response::is_pending(this->get_status());
 }
 
 bool
 Response
 ::is_warning() const
 {
-    return (
-        this->get_status()==0x0001 || (this->get_status()>>12)==0xB ||
-        this->get_status() == AttributeListError ||
-        this->get_status() == AttributeValueOutOfRange);
+    return Response::is_warning(this->get_status());
 }
 
 bool
 Response
 ::is_failure() const
 {
-    return (
-        (this->get_status()>>12)==0xA || (this->get_status()>>12)==0xC || (
-            (this->get_status()>>8) == 0x01 && this->get_status() != AttributeListError &&
-            this->get_status() != AttributeValueOutOfRange) ||
-        (this->get_status()>>8) == 0x02
-    );
+    return Response::is_failure(this->get_status());
 }
 
 }

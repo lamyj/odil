@@ -56,6 +56,15 @@ public:
         RefusedNotAuthorized=0x0124,
     };
 
+    /// @brief Test whether the status class is pending.
+    static bool is_pending(Value::Integer status);
+
+    /// @brief Test whether the status class is warning.
+    static bool is_warning(Value::Integer status);
+
+    /// @brief Test whether the status class is failure.
+    static bool is_failure(Value::Integer status);
+
     /// @brief Create a response with given message id and status;
     Response(Value::Integer message_id_being_responded_to, Value::Integer status);
 

@@ -38,6 +38,10 @@ BOOST_AUTO_TEST_CASE(StatusPending)
 
     for(auto const status:statuses)
     {
+        BOOST_REQUIRE(dcmtkpp::Response::is_pending(status));
+        BOOST_REQUIRE(!dcmtkpp::Response::is_warning(status));
+        BOOST_REQUIRE(!dcmtkpp::Response::is_failure(status));
+
         dcmtkpp::Response response(1234, status);
         BOOST_REQUIRE(response.is_pending());
         BOOST_REQUIRE(!response.is_warning());
@@ -55,6 +59,10 @@ BOOST_AUTO_TEST_CASE(StatusWarning)
 
     for(auto const status:statuses)
     {
+        BOOST_REQUIRE(!dcmtkpp::Response::is_pending(status));
+        BOOST_REQUIRE(dcmtkpp::Response::is_warning(status));
+        BOOST_REQUIRE(!dcmtkpp::Response::is_failure(status));
+
         dcmtkpp::Response response(1234, status);
         BOOST_REQUIRE(!response.is_pending());
         BOOST_REQUIRE(response.is_warning());
@@ -89,6 +97,10 @@ BOOST_AUTO_TEST_CASE(StatusFailure)
 
     for(auto const status:statuses)
     {
+        BOOST_REQUIRE(!dcmtkpp::Response::is_pending(status));
+        BOOST_REQUIRE(!dcmtkpp::Response::is_warning(status));
+        BOOST_REQUIRE(dcmtkpp::Response::is_failure(status));
+
         dcmtkpp::Response response(1234, status);
         BOOST_REQUIRE(!response.is_pending());
         BOOST_REQUIRE(!response.is_warning());
