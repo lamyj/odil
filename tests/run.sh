@@ -50,7 +50,7 @@ export DCMTKPP_PEER_HOST_NAME=localhost
 export DCMTKPP_PEER_PORT=11112
 export DCMTKPP_PEER_AET=REMOTE
 
-ctest --no-compress-output -T Test || true
+ctest --no-compress-output -T Test $@ || true
 
 stop_scp
 clean
