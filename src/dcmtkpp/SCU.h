@@ -11,6 +11,8 @@
 
 #include <string>
 
+#include "dcmtkpp/Association.h"
+#include "dcmtkpp/Network.h"
 #include "dcmtkpp/ServiceRole.h"
 
 namespace dcmtkpp
@@ -20,8 +22,14 @@ namespace dcmtkpp
 class SCU: public ServiceRole
 {
 public:
+    /// @brief Create a default Service Class User.
     SCU();
-    ~SCU();
+
+    /// @brief Create a Service Class User with network and association.
+    SCU(Network * network, Association * association);
+
+    /// @brief Destructor.
+    virtual ~SCU();
     
     /// @brief Return the affected SOP class. Defaults to "".
     std::string const & get_affected_sop_class() const;

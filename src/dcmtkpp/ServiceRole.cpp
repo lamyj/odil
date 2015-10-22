@@ -31,6 +31,13 @@ ServiceRole
 }
 
 ServiceRole
+::ServiceRole(Network * network, Association * association)
+{
+    this->set_network(network);
+    this->set_association(association);
+}
+
+ServiceRole
 ::ServiceRole(ServiceRole const & other)
 : _association(other._association), _network(other._network)
 {

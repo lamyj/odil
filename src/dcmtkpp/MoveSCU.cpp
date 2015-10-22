@@ -8,16 +8,19 @@
 
 #include "dcmtkpp/MoveSCU.h"
 
+#include <functional>
 #include <vector>
 
 #include <dcmtk/config/osconfig.h>
 #include <dcmtk/dcmnet/dimse.h>
 
+#include "dcmtkpp/Association.h"
 #include "dcmtkpp/CMoveRequest.h"
 #include "dcmtkpp/CMoveResponse.h"
 #include "dcmtkpp/DataSet.h"
 #include "dcmtkpp/Exception.h"
 #include "dcmtkpp/Message.h"
+#include "dcmtkpp/Network.h"
 #include "dcmtkpp/StoreSCP.h"
 
 namespace dcmtkpp
@@ -26,6 +29,13 @@ namespace dcmtkpp
 MoveSCU
 ::MoveSCU()
 : SCU(), _move_destination("")
+{
+    // Nothing else.
+}
+
+MoveSCU
+::MoveSCU(Network * network, Association * association)
+: SCU(network, association), _move_destination("")
 {
     // Nothing else.
 }
@@ -81,8 +91,8 @@ MoveSCU
 ::move(DataSet const & query) const
 {
     std::vector<DataSet> result;
-    auto callback = [&result](DataSet const & dataset) {
-        result.push_back(dataset);
+    auto callback = [&result](DataSet const & data_set) {
+        result.push_back(data_set);
     };
     this->move(query, callback);
 
@@ -133,17 +143,7 @@ bool
 MoveSCU
 ::_handle_main_association() const
 {
-    Message const message = this->_receive();
-
-    if(message.get_command_field() != Message::Command::C_MOVE_RSP)
-    {
-        std::ostringstream exception_message;
-        exception_message << "DIMSE: Unexpected Response Command Field: 0x"
-                << std::hex << message.get_command_field();
-        throw Exception(exception_message.str());
-    }
-
-    CMoveResponse const response(message);
+    auto const response = this->_receive<CMoveResponse>();
     return !response.is_pending();
 }
 
@@ -151,10 +151,22 @@ bool
 MoveSCU
 ::_handle_store_association(Association & association, Callback callback) const
 {
-    StoreSCP scp;
-    scp.set_network(this->_network);
-    scp.set_association(&association);
-    return scp.store(callback);
+    bool result = false;
+    try
+    {
+        auto const store_callback = [&callback](CStoreRequest const & request) {
+            callback(request.get_data_set());
+            return Response::Success;
+        };
+        StoreSCP scp(this->_network, &association, store_callback);
+        scp.receive_and_process();
+    }
+    catch(Exception const &)
+    {
+        result = true;
+    }
+
+    return result;
 }
 
 }

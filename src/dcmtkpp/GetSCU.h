@@ -9,14 +9,15 @@
 #ifndef _f82a15e2_fd13_44b5_af7d_c6983494c9c6
 #define _f82a15e2_fd13_44b5_af7d_c6983494c9c6
 
-#include "SCU.h"
-
+#include <functional>
 #include <vector>
 
+#include "dcmtkpp/Association.h"
 #include "dcmtkpp/CGetResponse.h"
 #include "dcmtkpp/CStoreRequest.h"
 #include "dcmtkpp/DataSet.h"
-#include "dcmtkpp/StoreSCP.h"
+#include "dcmtkpp/Network.h"
+#include "dcmtkpp/SCU.h"
 
 namespace dcmtkpp
 {
@@ -26,8 +27,14 @@ class GetSCU: public SCU
 {
 public:
     /// @brief Callback called when a response is received.
-    typedef StoreSCP::Callback Callback;
-    
+    typedef std::function<void(DataSet const &)> Callback;
+
+    /// @brief Default constructor.
+    GetSCU();
+
+    /// @brief Constructor.
+    GetSCU(Network * network, Association * association);
+
     /// @brief Destructor.
     virtual ~GetSCU();
     

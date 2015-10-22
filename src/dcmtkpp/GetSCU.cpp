@@ -12,14 +12,31 @@
 #include <sstream>
 #include <vector>
 
+#include "dcmtkpp/Association.h"
 #include "dcmtkpp/CGetRequest.h"
 #include "dcmtkpp/CGetResponse.h"
 #include "dcmtkpp/CStoreRequest.h"
 #include "dcmtkpp/DataSet.h"
 #include "dcmtkpp/Exception.h"
+#include "dcmtkpp/Network.h"
+#include "dcmtkpp/StoreSCP.h"
 
 namespace dcmtkpp
 {
+
+GetSCU
+::GetSCU()
+: SCU()
+{
+    // Nothing else
+}
+
+GetSCU
+::GetSCU(Network * network, Association * association)
+: SCU(network, association)
+{
+    // Nothing else
+}
 
 GetSCU
 ::~GetSCU()
@@ -73,8 +90,8 @@ GetSCU
 ::get(DataSet const & query) const
 {
     std::vector<DataSet> result;
-    auto callback = [&result](DataSet const & dataset) {
-        result.push_back(dataset);
+    auto callback = [&result](DataSet const & data_set) {
+        result.push_back(data_set);
     };
     this->get(query, callback);
 
@@ -92,10 +109,12 @@ void
 GetSCU
 ::_store_request(CStoreRequest const & request, Callback callback) const
 {
-    StoreSCP scp;
-    scp.set_network(this->get_network());
-    scp.set_association(this->get_association());
-    scp.store(request, callback);
+    auto const store_callback = [&callback](CStoreRequest const & request) {
+        callback(request.get_data_set());
+        return Response::Success;
+    };
+    StoreSCP scp(this->_network, this->_association, store_callback);
+    scp(request);
 }
 
 }

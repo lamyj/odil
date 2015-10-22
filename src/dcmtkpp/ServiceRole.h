@@ -32,6 +32,9 @@ public:
     
     /// @brief Create a default Service Role with no network and no association.
     ServiceRole();
+
+    /// @brief Create a Service Role with network and association.
+    ServiceRole(Network * network, Association * association);
     
     /// @brief Copy the other service role.
     ServiceRole(ServiceRole const & other);

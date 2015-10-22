@@ -9,12 +9,14 @@
 #ifndef _5ff4d940_4db7_4d85_9d3a_230b944b31fe
 #define _5ff4d940_4db7_4d85_9d3a_230b944b31fe
 
+#include <functional>
 #include <string>
 #include <vector>
 
+#include "dcmtkpp/Association.h"
 #include "dcmtkpp/DataSet.h"
+#include "dcmtkpp/Network.h"
 #include "dcmtkpp/SCU.h"
-#include "dcmtkpp/StoreSCP.h"
 
 namespace dcmtkpp
 {
@@ -24,10 +26,13 @@ class MoveSCU: public SCU
 {
 public:
     /// @brief Callback called when a response is received.
-    typedef StoreSCP::Callback Callback;
+    typedef std::function<void(DataSet const &)> Callback;
     
-    /// @brief Constructor.
+    /// @brief Default constructor.
     MoveSCU();
+
+    /// @brief Constructor.
+    MoveSCU(Network * network, Association * association);
     
     /// @brief Destructor.
     virtual ~MoveSCU();

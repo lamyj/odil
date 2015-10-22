@@ -12,10 +12,12 @@
 
 #include <unistd.h>
 
+#include "dcmtkpp/Association.h"
 #include "dcmtkpp/Exception.h"
 #include "dcmtkpp/CEchoRequest.h"
 #include "dcmtkpp/CEchoResponse.h"
 #include "dcmtkpp/Message.h"
+#include "dcmtkpp/Network.h"
 #include "dcmtkpp/registry.h"
 
 namespace dcmtkpp
@@ -26,6 +28,13 @@ SCU
 : ServiceRole(), _affected_sop_class("")
 {
     // Nothing else
+}
+
+SCU
+::SCU(Network * network, Association * association)
+: ServiceRole(network, association), _affected_sop_class("")
+{
+    // Nothing else.
 }
 
 SCU

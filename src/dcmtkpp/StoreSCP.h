@@ -11,31 +11,48 @@
 
 #include <functional>
 
-#include "dcmtkpp/DataSet.h"
+#include "dcmtkpp/Association.h"
 #include "dcmtkpp/CStoreRequest.h"
+#include "dcmtkpp/Message.h"
+#include "dcmtkpp/Network.h"
 #include "dcmtkpp/SCP.h"
+#include "dcmtkpp/Value.h"
 
 namespace dcmtkpp
 {
 
+/// @brief SCP for C-Store services.
 class StoreSCP: public SCP
 {
 public:
-    /// @brief Callback called when a response is received.
-    typedef std::function<void(DataSet const &)> Callback;
-    
-    /**
-     * @brief Receive a store request and respond to it.
-     * @param callback function called with the dataset to be stored.
-     */
-    bool store(Callback callback) const;
-    
-    /**
-     * @brief Respond to a store request.
-     * @param request
-     * @param callback function called with the dataset to be stored.
-     */
-    void store(CStoreRequest const & request, Callback callback) const;
+    /// @brief Callback called when a request is received.
+    typedef std::function<Value::Integer(CStoreRequest const &)> Callback;
+
+    /// @brief Default constructor.
+    StoreSCP();
+
+    /// @brief Constructor with default callback.
+    StoreSCP(Network * network, Association * association);
+
+    /// @brief Constructor.
+    StoreSCP(
+        Network * network, Association * association,
+        Callback const & callback);
+
+    /// @brief Destructor.
+    virtual ~StoreSCP();
+
+    /// @brief Return the callback.
+    Callback const & get_callback() const;
+
+    /// @brief Set the callback.
+    void set_callback(Callback const & callback);
+
+    /// @brief Process a C-Store request.
+    virtual void operator()(Message const & message);
+
+private:
+    Callback _callback;
 };
 
 }
