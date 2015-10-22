@@ -16,7 +16,7 @@ add_definitions("-D HAVE_CONFIG_H")
 add_definitions("-D DCMTKPP_MAJOR_VERSION=${dcmtkpp_MAJOR_VERSION}")
 
 link_directories(${Boost_LIBRARY_DIRS})
-add_library(dcmtkpp SHARED ${files})
+add_library(dcmtkpp SHARED ${files} ${headers} ${templates})
 install(TARGETS dcmtkpp LIBRARY DESTINATION lib)
 install(FILES ${headers} ${templates} DESTINATION include/dcmtkpp)
 

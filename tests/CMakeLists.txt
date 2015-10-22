@@ -7,10 +7,12 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../src)
 add_definitions("-D HAVE_CONFIG_H")
 add_definitions("-D DCMTKPP_MAJOR_VERSION=${dcmtkpp_MAJOR_VERSION}")
 
+file(GLOB headers *.h)
+
 file(GLOB_RECURSE tests *.cpp)
 foreach(test_file ${tests})
     get_filename_component(test ${test_file} NAME_WE)
-    add_executable(${test} ${test_file})
+    add_executable(${test} ${test_file} ${headers})
     target_link_libraries(${test} dcmtkpp ${Boost_LIBRARIES})
     file(READ ${test_file} content)
 
