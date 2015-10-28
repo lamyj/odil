@@ -73,6 +73,7 @@ public:
     /// @brief Write a file (meta-information and data set).
     static void write_file(
         DataSet const &data_set, std::ostream & stream,
+        DataSet const & meta_information,
         std::string const & transfer_syntax,
         ItemEncoding item_encoding=ItemEncoding::ExplicitLength,
         bool use_group_length=false);

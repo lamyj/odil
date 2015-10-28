@@ -199,14 +199,14 @@ Writer
 
 void
 Writer
-::write_file(
-    DataSet const &data_set , std::ostream & stream,
-    std::string const & transfer_syntax, ItemEncoding item_encoding,
-    bool use_group_length)
+::write_file(DataSet const &data_set , std::ostream & stream,
+             dcmtkpp::DataSet const & meta_information,
+             std::string const & transfer_syntax, ItemEncoding item_encoding,
+             bool use_group_length)
 {
     // Build File Meta Information, PS3.10, 7.1
-    DataSet meta_information;
-    meta_information.add(
+    DataSet meta_info = meta_information;
+    meta_info.add(
         registry::FileMetaInformationVersion, Value::Binary({0x00, 0x01}));
 
     if(!data_set.has(registry::SOPClassUID))
@@ -222,7 +222,7 @@ Writer
         throw Exception("Empty SOP Class UID");
     }
 
-    meta_information.add(
+    meta_info.add(
         registry::MediaStorageSOPClassUID,
         data_set.as_string(registry::SOPClassUID));
 
@@ -239,19 +239,20 @@ Writer
         throw Exception("Empty SOP Instance UID");
     }
 
-    meta_information.add(registry::MediaStorageSOPInstanceUID,
+    meta_info.add(registry::MediaStorageSOPInstanceUID,
         data_set.as_string(registry::SOPInstanceUID));
 
-    meta_information.add(registry::TransferSyntaxUID, {transfer_syntax});
-    meta_information.add(
+    meta_info.add(registry::TransferSyntaxUID, {transfer_syntax});
+    meta_info.add(
         registry::ImplementationClassUID, {implementation_class_uid});
-    meta_information.add(
+    meta_info.add(
         registry::ImplementationVersionName,
         { "DCMTK++ " DCMTKPP_STRINGIFY(DCMTKPP_MAJOR_VERSION) });
 
-    // SourceApplicationEntityTitle
-    // SendingApplicationEntityTitle
-    // ReceivingApplicationEntityTitle
+    // Information set by input attribut 'meta_information':
+    // - SourceApplicationEntityTitle
+    // - SendingApplicationEntityTitle
+    // - ReceivingApplicationEntityTitle
 
     // File preamble
     for(unsigned int i=0; i<128; ++i)
@@ -277,7 +278,7 @@ Writer
     // Little Endian Transfer Syntax
     Writer meta_information_writer(
         stream, registry::ExplicitVRLittleEndian, item_encoding, use_group_length);
-    meta_information_writer.write_data_set(meta_information);
+    meta_information_writer.write_data_set(meta_info);
 
     // Data Set
     Writer data_set_writer(

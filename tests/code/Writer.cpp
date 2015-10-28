@@ -237,7 +237,7 @@ void do_file_test(
     std::stringstream stream;
 
     dcmtkpp::Writer::write_file(
-        dcmtkpp_data_set, stream, transfer_syntax,
+        dcmtkpp_data_set, stream, dcmtkpp::DataSet(), transfer_syntax,
         item_encoding, use_group_length);
 
     // Store data in a DCMTK stream
