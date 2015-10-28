@@ -14,6 +14,7 @@
 
 #include "dcmtkpp/DataSet.h"
 #include "dcmtkpp/Element.h"
+#include "dcmtkpp/registry.h"
 #include "dcmtkpp/Tag.h"
 #include "dcmtkpp/Value.h"
 #include "dcmtkpp/VR.h"
@@ -73,8 +74,8 @@ public:
     /// @brief Write a file (meta-information and data set).
     static void write_file(
         DataSet const &data_set, std::ostream & stream,
-        DataSet const & meta_information,
-        std::string const & transfer_syntax,
+        DataSet const & meta_information = DataSet(),
+        std::string const & transfer_syntax = registry::ExplicitVRLittleEndian,
         ItemEncoding item_encoding=ItemEncoding::ExplicitLength,
         bool use_group_length=false);
 
