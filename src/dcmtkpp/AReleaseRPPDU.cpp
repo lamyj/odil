@@ -9,6 +9,8 @@
 #include "dcmtkpp/AReleaseRPPDU.h"
 
 #include <cstdint>
+
+#include "dcmtkpp/endian.h"
 #include "dcmtkpp/Exception.h"
 #include "dcmtkpp/ProtocolDataUnit.h"
 
@@ -50,7 +52,7 @@ AReleaseRPPDU
     Data data(10);
     data[0] = this->get_pdu_type();
     data[1] = 0;
-    *reinterpret_cast<uint32_t*>(&data[2]) = 0x0004;
+    *reinterpret_cast<uint32_t*>(&data[2]) = htobe32(0x0004);
     data[6] = 0;
     data[7] = 0;
     data[8] = 0;
