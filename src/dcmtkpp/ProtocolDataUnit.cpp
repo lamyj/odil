@@ -13,6 +13,8 @@
 #include <vector>
 
 #include "dcmtkpp/AAbortPDU.h"
+#include "dcmtkpp/AReleaseRPPDU.h"
+#include "dcmtkpp/AReleaseRQPDU.h"
 #include "dcmtkpp/Exception.h"
 
 namespace dcmtkpp
@@ -28,7 +30,16 @@ ProtocolDataUnit
     }
 
     unsigned char const pdu_type = data[0];
-    if(pdu_type == A_ABORT)
+
+    if(pdu_type == A_RELEASE_RQ)
+    {
+        return std::make_shared<AReleaseRQPDU>(data);
+    }
+    else if(pdu_type == A_RELEASE_RP)
+    {
+        return std::make_shared<AReleaseRPPDU>(data);
+    }
+    else if(pdu_type == A_ABORT)
     {
         return std::make_shared<AAbortPDU>(data);
     }

@@ -6,7 +6,7 @@
  * for details.
  ************************************************************************/
 
-#include "dcmtkpp/AAbortPDU.h"
+#include "dcmtkpp/AReleaseRQPDU.h"
 
 #include <cstdint>
 #include "dcmtkpp/Exception.h"
@@ -15,18 +15,17 @@
 namespace dcmtkpp
 {
 
-AAbortPDU
-::AAbortPDU(unsigned char source, unsigned char reason)
-: ProtocolDataUnit(A_ABORT)
+AReleaseRQPDU
+::AReleaseRQPDU()
+: ProtocolDataUnit(A_RELEASE_RQ)
 {
-    this->set_source(source);
-    this->set_reason(reason);
+    // Nothing else
 }
 
 /// @brief Constructor for binary data.
-AAbortPDU
-::AAbortPDU(Data const & data)
-: ProtocolDataUnit(A_ABORT)
+AReleaseRQPDU
+::AReleaseRQPDU(Data const & data)
+: ProtocolDataUnit(A_RELEASE_RQ)
 {
     if(data.size() != 10)
     {
@@ -34,57 +33,18 @@ AAbortPDU
     }
     if(data[0] != this->get_pdu_type())
     {
-        throw Exception("Not an A-ABORT PDU");
+        throw Exception("Not an A-RELEASE-RQ PDU");
     }
-
-    this->set_source(data[8]);
-    this->set_reason(data[9]);
 }
 
-AAbortPDU
-::~AAbortPDU()
+AReleaseRQPDU
+::~AReleaseRQPDU()
 {
     // Nothing to do.
 }
 
-unsigned char
-AAbortPDU
-::get_source() const
-{
-    return this->_source;
-}
-
-void
-AAbortPDU
-::set_source(unsigned char source)
-{
-    if(source > 2)
-    {
-        throw Exception("Unknown source");
-    }
-    this->_source = source;
-}
-
-unsigned char
-AAbortPDU
-::get_reason() const
-{
-    return this->_reason;
-}
-
-void
-AAbortPDU
-::set_reason(unsigned char reason)
-{
-    if(reason > 6)
-    {
-        throw Exception("Unknown reason");
-    }
-    this->_reason = reason;
-}
-
 ProtocolDataUnit::Data
-AAbortPDU
+AReleaseRQPDU
 ::as_binary() const
 {
     Data data(10);
@@ -93,8 +53,8 @@ AAbortPDU
     *reinterpret_cast<uint32_t*>(&data[2]) = 0x0004;
     data[6] = 0;
     data[7] = 0;
-    data[8] = this->get_source();
-    data[9] = this->get_reason();
+    data[8] = 0;
+    data[9] = 0;
 
     return data;
 }
