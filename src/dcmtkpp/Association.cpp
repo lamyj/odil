@@ -403,6 +403,15 @@ void
 Association
 ::receive(Network & network, bool accept_all)
 {
+    this->receive(network, [](Association const &)->bool { return true; }, accept_all);
+}
+
+void
+Association
+::receive(Network &network,
+          std::function<bool (const Association &)> authenticator,
+          bool accept_all)
+{
     if(!network.is_initialized())
     {
         throw Exception("Network is not initialized");
@@ -475,12 +484,6 @@ Association
         }
     }
 
-    condition = ASC_acknowledgeAssociation(this->_association);
-    if(condition.bad())
-    {
-        throw Exception(condition);
-    }
-
     // Get user identity information
     UserIdentityNegotiationSubItemRQ* identity =
             this->_association->params->DULparams.reqUserIdentNeg;
@@ -519,6 +522,22 @@ Association
     else
     {
         throw Exception("Unknown user identity type");
+    }
+
+    // Authentication
+    if(authenticator(*this))
+    {
+        condition = ASC_acknowledgeAssociation(this->_association);
+        if(condition.bad())
+        {
+            throw Exception(condition);
+        }
+    }
+    else
+    {
+        this->reject(RejectedPermanent, ULServiceUser, NoReasonGiven);
+        this->drop();
+        throw Exception("Bad Authentication");
     }
 }
 

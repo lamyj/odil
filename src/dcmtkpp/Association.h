@@ -9,6 +9,7 @@
 #ifndef _a52696bc_5c6e_402d_a343_6cb085eb0138
 #define _a52696bc_5c6e_402d_a343_6cb085eb0138
 
+#include <functional>
 #include <string>
 #include <utility>
 #include <vector>
@@ -187,6 +188,8 @@ public:
      *  by peer.
      */
     void receive(Network & network, bool accept_all=false);
+
+    void receive(Network & network, std::function<bool(Association const&)> authenticator, bool accept_all=false);
 
     /// @brief Reject the received association request.
     void reject(Result result, ResultSource result_source, Diagnostic diagnostic);
