@@ -480,6 +480,46 @@ Association
     {
         throw Exception(condition);
     }
+
+    // Get user identity information
+    UserIdentityNegotiationSubItemRQ* identity =
+            this->_association->params->DULparams.reqUserIdentNeg;
+
+    this->_user_identity_primary_field = "";
+    this->_user_identity_secondary_field = "";
+    if (identity == NULL ||
+        identity->getIdentityType() == ASC_USER_IDENTITY_NONE)
+    {
+        this->_user_identity_type = UserIdentityType::None;
+    }
+    else if (identity->getIdentityType() != ASC_USER_IDENTITY_UNKNOWN)
+    {
+        this->_user_identity_type =
+                    (UserIdentityType)identity->getIdentityType();
+
+        // Get primary field
+        char * primary_field;
+        Uint16 primary_field_length;
+        identity->getPrimField(primary_field, primary_field_length);
+        // user is not NULL-terminated
+        this->_user_identity_primary_field = std::string(primary_field,
+                                                         primary_field_length);
+
+        if (identity->getIdentityType() == ASC_USER_IDENTITY_USER_PASSWORD)
+        {
+            // Get secondary field
+            char * secondary_field;
+            Uint16 secondary_field_length;
+            identity->getSecField(secondary_field, secondary_field_length);
+            // password is not NULL-terminated
+            this->_user_identity_primary_field =
+                    std::string(secondary_field, secondary_field_length);
+        }
+    }
+    else
+    {
+        throw Exception("Unknown user identity type");
+    }
 }
 
 void
