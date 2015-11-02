@@ -16,6 +16,7 @@
 #include "dcmtkpp/AReleaseRPPDU.h"
 #include "dcmtkpp/AReleaseRQPDU.h"
 #include "dcmtkpp/Exception.h"
+#include "dcmtkpp/PDataTFPDU.h"
 
 namespace dcmtkpp
 {
@@ -31,7 +32,11 @@ ProtocolDataUnit
 
     unsigned char const pdu_type = data[0];
 
-    if(pdu_type == A_RELEASE_RQ)
+    if(pdu_type == P_DATA_TF)
+    {
+        return std::make_shared<PDataTFPDU>(data);
+    }
+    else if(pdu_type == A_RELEASE_RQ)
     {
         return std::make_shared<AReleaseRQPDU>(data);
     }
