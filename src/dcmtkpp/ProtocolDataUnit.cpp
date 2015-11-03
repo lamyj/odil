@@ -13,6 +13,7 @@
 #include <vector>
 
 #include "dcmtkpp/AAbortPDU.h"
+#include "dcmtkpp/AAssociateRJPDU.h"
 #include "dcmtkpp/AReleaseRPPDU.h"
 #include "dcmtkpp/AReleaseRQPDU.h"
 #include "dcmtkpp/Exception.h"
@@ -32,7 +33,11 @@ ProtocolDataUnit
 
     unsigned char const pdu_type = data[0];
 
-    if(pdu_type == P_DATA_TF)
+    if(pdu_type == A_ASSOCIATE_RJ)
+    {
+        return std::make_shared<AAssociateRJPDU>(data);
+    }
+    else if(pdu_type == P_DATA_TF)
     {
         return std::make_shared<PDataTFPDU>(data);
     }
