@@ -189,7 +189,10 @@ public:
      */
     void receive(Network & network, bool accept_all=false);
 
-    void receive(Network & network, std::function<bool(Association const&)> authenticator, bool accept_all=false);
+    void receive(Network & network,
+                 std::function<bool(Association const&)> authenticator,
+                 std::vector<std::string> const & aetitles,
+                 bool accept_all=false);
 
     /// @brief Reject the received association request.
     void reject(Result result, ResultSource result_source, Diagnostic diagnostic);
