@@ -8,6 +8,7 @@
 
 #include "Association.h"
 
+#include <algorithm>
 #include <sstream>
 #include <string>
 #include <utility>
@@ -403,6 +404,17 @@ void
 Association
 ::receive(Network & network, bool accept_all)
 {
+    this->receive(network, [](Association const &)->bool { return true; }, {},
+                  accept_all);
+}
+
+void
+Association
+::receive(Network &network,
+          std::function<bool (const Association &)> authenticator,
+          std::vector<std::string> const & aetitles,
+          bool accept_all)
+{
     if(!network.is_initialized())
     {
         throw Exception("Network is not initialized");
@@ -429,6 +441,30 @@ Association
     this->_peer_port = 0;
     this->_peer_ae_title = dul.callingAPTitle;
 
+    // check Peer ae title
+    // '*' => everybody allowed
+    if (std::find(aetitles.begin(), aetitles.end(), "*") == aetitles.end() &&
+        std::find(aetitles.begin(), aetitles.end(),
+                  this->_peer_ae_title.c_str()) == aetitles.end())
+    {
+        this->reject(RejectedPermanent, ULServiceUser,
+                     CallingAETitleNotRecognized);
+        this->drop();
+        throw Exception("Bad AE Title");
+    }
+
+    // Check Application Context Name
+    char buf[BUFSIZ];
+    condition = ASC_getApplicationContextName(params, buf);
+    if (condition.bad() || std::string(buf) != DICOM_STDAPPLICATIONCONTEXT)
+    {
+        // reject: application context name not supported
+        this->reject(RejectedPermanent, ULServiceUser,
+                     ApplicationContextNameNotSupported);
+        this->drop();
+        throw Exception("Bad Application context name");
+    }
+
     if(accept_all)
     {
         unsigned int const pc_count = ASC_countPresentationContexts(params);
@@ -449,7 +485,8 @@ Association
                     1, &abstract_syntax_data);
                 if(condition.bad())
                 {
-                    this->abort();
+                    this->reject(RejectedPermanent, ULServiceUser, NoReasonGiven);
+                    this->drop();
                     throw Exception(condition);
                 }
             }
@@ -468,17 +505,68 @@ Association
                     1, &abstract_syntax);
                 if(condition.bad())
                 {
-                    this->abort();
+                    this->reject(RejectedPermanent, ULServiceUser, NoReasonGiven);
+                    this->drop();
                     throw Exception(condition);
                 }
             }
         }
     }
 
-    condition = ASC_acknowledgeAssociation(this->_association);
-    if(condition.bad())
+    // Get user identity information
+    UserIdentityNegotiationSubItemRQ* identity =
+            this->_association->params->DULparams.reqUserIdentNeg;
+
+    this->_user_identity_primary_field = "";
+    this->_user_identity_secondary_field = "";
+    if (identity == NULL ||
+        identity->getIdentityType() == ASC_USER_IDENTITY_NONE)
     {
-        throw Exception(condition);
+        this->_user_identity_type = UserIdentityType::None;
+    }
+    else if (identity->getIdentityType() != ASC_USER_IDENTITY_UNKNOWN)
+    {
+        this->_user_identity_type =
+                    (UserIdentityType)identity->getIdentityType();
+
+        // Get primary field
+        char * primary_field;
+        Uint16 primary_field_length;
+        identity->getPrimField(primary_field, primary_field_length);
+        // user is not NULL-terminated
+        this->_user_identity_primary_field = std::string(primary_field,
+                                                         primary_field_length);
+
+        if (identity->getIdentityType() == ASC_USER_IDENTITY_USER_PASSWORD)
+        {
+            // Get secondary field
+            char * secondary_field;
+            Uint16 secondary_field_length;
+            identity->getSecField(secondary_field, secondary_field_length);
+            // password is not NULL-terminated
+            this->_user_identity_primary_field =
+                    std::string(secondary_field, secondary_field_length);
+        }
+    }
+    else
+    {
+        throw Exception("Unknown user identity type");
+    }
+
+    // Authentication
+    if(authenticator(*this))
+    {
+        condition = ASC_acknowledgeAssociation(this->_association);
+        if(condition.bad())
+        {
+            throw Exception(condition);
+        }
+    }
+    else
+    {
+        this->reject(RejectedPermanent, ULServiceUser, NoReasonGiven);
+        this->drop();
+        throw Exception("Bad Authentication");
     }
 }
 
