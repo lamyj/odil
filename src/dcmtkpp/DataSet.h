@@ -181,8 +181,6 @@ public:
     const_iterator begin() const { return this->_elements.begin(); }
     const_iterator end() const { return this->_elements.end(); }
 
-    // FIXME: AT, binary
-
     /// @brief Equality test
     bool operator==(DataSet const & other) const;
 

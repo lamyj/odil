@@ -1,4 +1,4 @@
-#define BOOST_TEST_MODULE Message
+#define BOOST_TEST_MODULE Exception
 #include <boost/test/unit_test.hpp>
 
 #include <ostream>
