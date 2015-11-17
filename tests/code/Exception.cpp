@@ -31,6 +31,6 @@ BOOST_AUTO_TEST_CASE(ConditionConstructor)
 {
     dcmtkpp::Exception const exception(EC_IllegalParameter);
     BOOST_CHECK_EQUAL(exception.get_source(), dcmtkpp::Exception::Source::Condition);
-    BOOST_CHECK_EQUAL(exception.what(), EC_IllegalParameter.text());
+    BOOST_CHECK_EQUAL(exception.what(), OFCondition(EC_IllegalParameter).text());
     BOOST_CHECK(exception.get_condition() == EC_IllegalParameter);
 }
