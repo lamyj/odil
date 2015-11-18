@@ -419,16 +419,12 @@ operator<<(std::ostream & stream, ProtocolDataUnitItem const & item)
         }
         else if(type == ProtocolDataUnitItem::Field::Type::unsigned_int_16)
         {
-            uint16_t const value = htobe16(
-                *reinterpret_cast<uint16_t const *>(
-                    field.as_unsigned_int_16()));
+            uint16_t const value = htobe16(field.as_unsigned_int_16());
             stream.write(reinterpret_cast<char const*>(&value), sizeof(value));
         }
         else if(type == ProtocolDataUnitItem::Field::Type::unsigned_int_32)
         {
-            uint32_t const value = htobe32(
-                *reinterpret_cast<uint32_t const *>(
-                    field.as_unsigned_int_32()));
+            uint32_t const value = htobe32(field.as_unsigned_int_32());
             stream.write(reinterpret_cast<char const*>(&value), sizeof(value));
         }
         else if(type == ProtocolDataUnitItem::Field::Type::string)
