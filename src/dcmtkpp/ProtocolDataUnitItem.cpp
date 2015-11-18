@@ -8,6 +8,7 @@
 
 #include "dcmtkpp/ProtocolDataUnitItem.h"
 
+#include <algorithm>
 #include <cstdint>
 #include <istream>
 #include <ostream>
