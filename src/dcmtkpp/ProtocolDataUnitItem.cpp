@@ -393,13 +393,9 @@ ProtocolDataUnitItem
         {
             throw Exception("Could not read string field");
         }
+
+        this->add(name, Field(value));
     }
-    /*
-    else if(type == Field::Type::items)
-    {
-        // FIXME: size
-    }
-    */
     else
     {
         throw Exception("Unknown field type");

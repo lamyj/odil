@@ -10,6 +10,7 @@
 #define _30f1a581_9ae6_4a02_a455_bf2b6ea58bc6
 
 #include <cstdint>
+#include <istream>
 #include <string>
 #include <vector>
 
@@ -32,6 +33,9 @@ public:
 
     /// @brief Create a Presentation Context for a A-ASSOCIATE-AC PDU.
     PresentationContext(std::string const & transfer_syntax);
+
+    /// @brief Read a Presentation Context from a stream.
+    PresentationContext(std::istream & stream);
 
     /// @brief Read a Presentation Context from a stream.
     PresentationContext(std::istream & stream, uint16_t length);
@@ -77,6 +81,13 @@ private:
 
     /// @brief Add the fields to the PDU item.
     void _add_fields();
+
+    /// @brief Return the Abstract or Transfer syntaxes.
+    std::vector<std::string> _get_syntaxes(std::string const & type) const;
+
+    /// @brief Set the Abstract or Transfer syntaxes.
+    void _set_syntaxes(
+        std::string const & type, std::vector<std::string> const & syntaxes);
 
     /// @brief Update the size field.
     void _update_size();
