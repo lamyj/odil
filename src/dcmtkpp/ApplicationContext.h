@@ -34,7 +34,6 @@ public:
 
     /// @brief Set the name of the Application Context.
     void set_name(std::string const & name);
-
 };
 
 }
