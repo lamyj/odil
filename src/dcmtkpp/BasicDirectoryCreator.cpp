@@ -227,7 +227,7 @@ BasicDirectoryCreator
         }
     }
 
-    registry::RecordInUseFlag;
+    // TODO: registry::RecordInUseFlag;
 }
 
 BasicDirectoryCreator::LinearizedTree

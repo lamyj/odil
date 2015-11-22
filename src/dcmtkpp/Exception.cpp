@@ -8,6 +8,7 @@
 
 #include "dcmtkpp/Exception.h"
 
+#include <stdexcept>
 #include <string>
 
 #include <dcmtk/config/osconfig.h>
@@ -47,6 +48,10 @@ Exception
     else if(this->_source == Source::Condition)
     {
         return this->_condition.text();
+    }
+    else
+    {
+        throw std::runtime_error("Invalid source");
     }
 }
 
