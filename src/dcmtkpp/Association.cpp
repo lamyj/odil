@@ -404,8 +404,8 @@ void
 Association
 ::receive(Network & network, bool accept_all)
 {
-    this->receive(network, [](Association const &)->bool { return true; }, {},
-                  accept_all);
+    this->receive(
+        network, [](Association const &) { return true; }, {"*"}, accept_all);
 }
 
 void

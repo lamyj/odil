@@ -186,6 +186,8 @@ public:
      * @param network network to use for the data transmission.
      * @param accept_all if true, accept all presentations contexts proposed
      *  by peer.
+     *
+     * All AE titles are accepted as peers, and no authentication is performed.
      */
     void receive(Network & network, bool accept_all=false);
 
