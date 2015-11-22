@@ -91,7 +91,7 @@ std::string as_string(VR vr)
     }
 }
 
-VR as_vr(std::string const vr)
+VR as_vr(std::string const & vr)
 {
     try
     {

@@ -33,7 +33,7 @@ std::string as_string(VR vr);
  *
  * If the string does not represent a VR, a dcmtkpp::Exception is raised.
  */
-VR as_vr(std::string const vr);
+VR as_vr(std::string const & vr);
 
 /**
  * @brief Guess a VR from a tag.

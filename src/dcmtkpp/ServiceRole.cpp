@@ -25,7 +25,7 @@ namespace dcmtkpp
 
 ServiceRole
 ::ServiceRole()
-: _association(NULL), _network(NULL)
+: _network(NULL), _association(NULL)
 {
     // Nothing else
 }
@@ -39,12 +39,12 @@ ServiceRole
 
 ServiceRole
 ::ServiceRole(ServiceRole const & other)
-: _association(other._association), _network(other._network)
+: _network(other._network), _association(other._association)
 {
     // Nothing else
 }
 
-ServiceRole const &
+ServiceRole &
 ServiceRole
 ::operator=(ServiceRole const & other)
 {

@@ -40,7 +40,7 @@ public:
     ServiceRole(ServiceRole const & other);
     
     /// @brief Copy the other service role.
-    ServiceRole const & operator=(ServiceRole const & other);
+    ServiceRole & operator=(ServiceRole const & other);
     
     /// @brief Destructor, network and association are not modified.
     virtual ~ServiceRole();

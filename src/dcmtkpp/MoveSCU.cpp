@@ -135,6 +135,10 @@ MoveSCU
             association.drop();
         }
     }
+    else
+    {
+        throw Exception("No association available");
+    }
 
     return move_finished;
 }
