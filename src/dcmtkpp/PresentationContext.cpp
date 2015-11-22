@@ -350,7 +350,7 @@ PresentationContext
     auto const & abstract_syntaxes = (type=="Abstract")?syntaxes:other_syntaxes;
     auto const & transfer_syntaxes = (type=="Abstract")?other_syntaxes:syntaxes;
 
-    auto make_item = [] (std::string const & type, std::string const & name) {
+    auto make_item = [this] (std::string const & type, std::string const & name) {
         auto const padded = (name.size()%2==0)?name:(name+'\0');
         return PresentationContext::_make_string_item(type, padded);
     };
