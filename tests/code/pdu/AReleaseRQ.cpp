@@ -5,7 +5,6 @@
 #include <string>
 
 #include "dcmtkpp/pdu/AReleaseRQ.h"
-#include "dcmtkpp/ProtocolDataUnit.h"
 
 std::string const data = {
     0x05, 0x00,

@@ -6,7 +6,6 @@
 
 #include "dcmtkpp/pdu/AAbort.h"
 #include "dcmtkpp/Exception.h"
-#include "dcmtkpp/ProtocolDataUnit.h"
 
 std::string const data = {
     0x07, 0x00,

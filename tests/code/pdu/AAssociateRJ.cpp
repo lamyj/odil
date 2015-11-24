@@ -5,7 +5,6 @@
 
 #include "dcmtkpp/pdu/AAssociateRJ.h"
 #include "dcmtkpp/Exception.h"
-#include "dcmtkpp/ProtocolDataUnit.h"
 
 std::string const data = {
     0x03, 0x00,
