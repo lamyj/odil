@@ -115,10 +115,11 @@ ServiceRole
     
     return presentation_id;
 }
+
 void
 ServiceRole
 ::_send(
-    Message const & message, std::string const & abstract_syntax,
+    message::Message const & message, std::string const & abstract_syntax,
     ProgressCallback callback, void* callback_data) const
 {
     T_ASC_PresentationContextID const presentation_context = 
@@ -138,7 +139,7 @@ ServiceRole
     }
 }
 
-Message
+message::Message
 ServiceRole
 ::_receive(ProgressCallback callback, void* callback_data) const
 {
@@ -168,7 +169,9 @@ ServiceRole
         has_data_set = false;
     }
     
-    return has_data_set?Message(command_set, data_set):Message(command_set);
+    return (
+        has_data_set?
+        message::Message(command_set, data_set):message::Message(command_set));
 }
 
 void

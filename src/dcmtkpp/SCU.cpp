@@ -14,9 +14,9 @@
 
 #include "dcmtkpp/Association.h"
 #include "dcmtkpp/Exception.h"
-#include "dcmtkpp/CEchoRequest.h"
-#include "dcmtkpp/CEchoResponse.h"
-#include "dcmtkpp/Message.h"
+#include "dcmtkpp/message/CEchoRequest.h"
+#include "dcmtkpp/message/CEchoResponse.h"
+#include "dcmtkpp/message/Message.h"
 #include "dcmtkpp/Network.h"
 #include "dcmtkpp/registry.h"
 
@@ -63,10 +63,10 @@ SCU
 {
     Uint16 const message_id = this->_association->get_association()->nextMsgID++;
     
-    CEchoRequest const request(message_id, registry::VerificationSOPClass);
+    message::CEchoRequest const request(message_id, registry::VerificationSOPClass);
     this->_send(request, request.get_affected_sop_class_uid());
     
-    CEchoResponse const response = this->_receive<CEchoResponse>();
+    auto const response = this->_receive<message::CEchoResponse>();
     if(response.get_message_id_being_responded_to() != message_id)
     {
         std::ostringstream message;

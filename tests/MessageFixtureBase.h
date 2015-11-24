@@ -3,7 +3,7 @@
 
 #include "dcmtkpp/DataSet.h"
 #include "dcmtkpp/Exception.h"
-#include "dcmtkpp/Message.h"
+#include "dcmtkpp/message/Message.h"
 
 /// @brief Base class for fixtures of Message-derived classes.
 template<typename TMessage>
@@ -13,7 +13,7 @@ struct MessageFixtureBase
     void check_message_constructor(
         dcmtkpp::DataSet const & command_set)
     {
-        dcmtkpp::Message const generic_message(command_set);
+        dcmtkpp::message::Message const generic_message(command_set);
         TMessage const message(generic_message);
         this->check(message);
     }
@@ -22,7 +22,7 @@ struct MessageFixtureBase
     void check_message_constructor(
         dcmtkpp::DataSet const & command_set, dcmtkpp::DataSet const & data_set)
     {
-        dcmtkpp::Message const generic_message(command_set, data_set);
+        dcmtkpp::message::Message const generic_message(command_set, data_set);
         TMessage const message(generic_message);
         this->check(message);
     }
@@ -31,7 +31,7 @@ struct MessageFixtureBase
     void check_message_constructor_throw(
         dcmtkpp::DataSet const & command_set)
     {
-        dcmtkpp::Message const generic_message(command_set);
+        dcmtkpp::message::Message const generic_message(command_set);
         BOOST_CHECK_THROW(
             TMessage const message(generic_message),
             dcmtkpp::Exception);
@@ -41,7 +41,7 @@ struct MessageFixtureBase
     void check_message_constructor_throw(
         dcmtkpp::DataSet const & command_set, dcmtkpp::DataSet const & data_set)
     {
-        dcmtkpp::Message const generic_message(command_set, data_set);
+        dcmtkpp::message::Message const generic_message(command_set, data_set);
         BOOST_CHECK_THROW(
             TMessage const message(generic_message),
             dcmtkpp::Exception);

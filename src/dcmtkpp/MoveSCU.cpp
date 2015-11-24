@@ -15,11 +15,11 @@
 #include <dcmtk/dcmnet/dimse.h>
 
 #include "dcmtkpp/Association.h"
-#include "dcmtkpp/CMoveRequest.h"
-#include "dcmtkpp/CMoveResponse.h"
+#include "dcmtkpp/message/CMoveRequest.h"
+#include "dcmtkpp/message/CMoveResponse.h"
 #include "dcmtkpp/DataSet.h"
 #include "dcmtkpp/Exception.h"
-#include "dcmtkpp/Message.h"
+#include "dcmtkpp/message/Message.h"
 #include "dcmtkpp/Network.h"
 #include "dcmtkpp/StoreSCP.h"
 
@@ -65,8 +65,9 @@ MoveSCU
 ::move(DataSet const & query, Callback callback) const
 {
     // Send the request
-    CMoveRequest const request(this->_association->get_association()->nextMsgID++,
-        this->_affected_sop_class, Message::Priority::MEDIUM,
+    message::CMoveRequest const request(
+        this->_association->get_association()->nextMsgID++,
+        this->_affected_sop_class, message::Message::Priority::MEDIUM,
         this->_move_destination, query);
     this->_send(request, this->_affected_sop_class);
 
@@ -147,7 +148,7 @@ bool
 MoveSCU
 ::_handle_main_association() const
 {
-    auto const response = this->_receive<CMoveResponse>();
+    auto const response = this->_receive<message::CMoveResponse>();
     return !response.is_pending();
 }
 
@@ -158,9 +159,9 @@ MoveSCU
     bool result = false;
     try
     {
-        auto const store_callback = [&callback](CStoreRequest const & request) {
+        auto const store_callback = [&callback](message::CStoreRequest const & request) {
             callback(request.get_data_set());
-            return Response::Success;
+            return message::Response::Success;
         };
         StoreSCP scp(this->_network, &association, store_callback);
         scp.receive_and_process();

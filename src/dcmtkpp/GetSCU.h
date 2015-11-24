@@ -13,8 +13,8 @@
 #include <vector>
 
 #include "dcmtkpp/Association.h"
-#include "dcmtkpp/CGetResponse.h"
-#include "dcmtkpp/CStoreRequest.h"
+#include "dcmtkpp/message/CGetResponse.h"
+#include "dcmtkpp/message/CStoreRequest.h"
 #include "dcmtkpp/DataSet.h"
 #include "dcmtkpp/Network.h"
 #include "dcmtkpp/SCU.h"
@@ -47,8 +47,9 @@ public:
     std::vector<DataSet> get(DataSet const & query) const;
 
 private:
-    bool _get_response(CGetResponse const & response) const;
-    void _store_request(CStoreRequest const & request, Callback callback) const;
+    bool _get_response(message::CGetResponse const & response) const;
+    void _store_request(
+        message::CStoreRequest const & request, Callback callback) const;
 };
 
 }

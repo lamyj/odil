@@ -13,9 +13,9 @@
 #include <vector>
 
 #include "dcmtkpp/Association.h"
-#include "dcmtkpp/CGetRequest.h"
-#include "dcmtkpp/CGetResponse.h"
-#include "dcmtkpp/CStoreRequest.h"
+#include "dcmtkpp/message/CGetRequest.h"
+#include "dcmtkpp/message/CGetResponse.h"
+#include "dcmtkpp/message/CStoreRequest.h"
 #include "dcmtkpp/DataSet.h"
 #include "dcmtkpp/Exception.h"
 #include "dcmtkpp/Network.h"
@@ -49,25 +49,26 @@ GetSCU
 ::get(DataSet const & query, Callback callback) const
 {
     // Send the request
-    CGetRequest request(this->_association->get_association()->nextMsgID++,
-        this->_affected_sop_class, Message::Priority::MEDIUM, query);
+    message::CGetRequest request(
+        this->_association->get_association()->nextMsgID++,
+        this->_affected_sop_class, message::Message::Priority::MEDIUM, query);
     this->_send(request, this->_affected_sop_class);
 
     // Receive the responses
     bool done = false;
     while(!done)
     {
-        Message const message = this->_receive();
+        message::Message const message = this->_receive();
 
-        if(message.get_command_field() == Message::Command::C_GET_RSP)
+        if(message.get_command_field() == message::Message::Command::C_GET_RSP)
         {
-            done = this->_get_response(CGetResponse(message));
+            done = this->_get_response(message::CGetResponse(message));
         }
-        else if(message.get_command_field() == Message::Command::C_STORE_RQ)
+        else if(message.get_command_field() == message::Message::Command::C_STORE_RQ)
         {
             try
             {
-                this->_store_request(CStoreRequest(message), callback);
+                this->_store_request(message::CStoreRequest(message), callback);
             }
             catch(...)
             {
@@ -100,18 +101,18 @@ GetSCU
 
 bool
 GetSCU
-::_get_response(CGetResponse const & response) const
+::_get_response(message::CGetResponse const & response) const
 {
     return !response.is_pending();
 }
 
 void
 GetSCU
-::_store_request(CStoreRequest const & request, Callback callback) const
+::_store_request(message::CStoreRequest const & request, Callback callback) const
 {
-    auto const store_callback = [&callback](CStoreRequest const & request) {
+    auto const store_callback = [&callback](message::CStoreRequest const & request) {
         callback(request.get_data_set());
-        return Response::Success;
+        return message::Response::Success;
     };
     StoreSCP scp(this->_network, this->_association, store_callback);
     scp(request);

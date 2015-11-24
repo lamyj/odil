@@ -14,8 +14,8 @@
 
 #include "dcmtkpp/DataSet.h"
 #include "dcmtkpp/Exception.h"
-#include "dcmtkpp/CFindRequest.h"
-#include "dcmtkpp/CFindResponse.h"
+#include "dcmtkpp/message/CFindRequest.h"
+#include "dcmtkpp/message/CFindResponse.h"
 
 namespace dcmtkpp
 {
@@ -30,9 +30,9 @@ void
 FindSCU
 ::find(DataSet const & query, Callback callback) const
 {
-    CFindRequest request(
+    message::CFindRequest request(
         this->_association->get_association()->nextMsgID++,
-        this->_affected_sop_class, Message::Priority::MEDIUM, query);
+        this->_affected_sop_class, message::Message::Priority::MEDIUM, query);
     this->_send(request, this->_affected_sop_class);
 
     // Receive the responses
@@ -40,7 +40,7 @@ FindSCU
     while(!done)
     {
         // FIXME: include progress callback
-        auto response = this->_receive<CFindResponse>();
+        auto response = this->_receive<message::CFindResponse>();
 
         if(response.get_message_id_being_responded_to() != request.get_message_id())
         {

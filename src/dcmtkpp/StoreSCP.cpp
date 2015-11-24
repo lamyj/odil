@@ -11,10 +11,10 @@
 #include <functional>
 
 #include "dcmtkpp/Association.h"
-#include "dcmtkpp/CStoreRequest.h"
-#include "dcmtkpp/CStoreResponse.h"
+#include "dcmtkpp/message/CStoreRequest.h"
+#include "dcmtkpp/message/CStoreResponse.h"
 #include "dcmtkpp/Exception.h"
-#include "dcmtkpp/Message.h"
+#include "dcmtkpp/message/Message.h"
 #include "dcmtkpp/Network.h"
 #include "dcmtkpp/SCP.h"
 #include "dcmtkpp/Value.h"
@@ -65,11 +65,11 @@ StoreSCP
 
 void
 StoreSCP
-::operator()(Message const & message)
+::operator()(message::Message const & message)
 {
-    CStoreRequest const request(message);
+    message::CStoreRequest const request(message);
 
-    Value::Integer status=CStoreResponse::Success;
+    Value::Integer status=message::CStoreResponse::Success;
 
     try
     {
@@ -77,13 +77,13 @@ StoreSCP
     }
     catch(Exception const & exception)
     {
-        status = CStoreResponse::ProcessingFailure;
+        status = message::CStoreResponse::ProcessingFailure;
         // Error Comment
         // Error ID
         // Affected SOP Class UID
     }
 
-    CStoreResponse const response(request.get_message_id(), status);
+    message::CStoreResponse const response(request.get_message_id(), status);
     this->_send(response, request.get_affected_sop_class_uid());
 }
 

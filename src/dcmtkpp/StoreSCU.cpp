@@ -13,8 +13,8 @@
 #include <string>
 #include <vector>
 
-#include "dcmtkpp/CStoreRequest.h"
-#include "dcmtkpp/CStoreResponse.h"
+#include "dcmtkpp/message/CStoreRequest.h"
+#include "dcmtkpp/message/CStoreResponse.h"
 #include "dcmtkpp/Exception.h"
 #include "dcmtkpp/registry.h"
 
@@ -57,15 +57,15 @@ void
 StoreSCU
 ::store(DataSet const & dataset, ProgressCallback callback, void * data) const
 {
-    CStoreRequest const request(
+    message::CStoreRequest const request(
         this->_association->get_association()->nextMsgID++,
         this->_affected_sop_class,
         dataset.as_string(registry::SOPInstanceUID, 0),
-        Message::Priority::MEDIUM,
+        message::Message::Priority::MEDIUM,
         dataset);
     this->_send(request, this->_affected_sop_class, callback, data);
     
-    CStoreResponse const response = this->_receive<CStoreResponse>();
+    auto const response = this->_receive<message::CStoreResponse>();
 
     if(response.get_message_id_being_responded_to() != request.get_message_id())
     {

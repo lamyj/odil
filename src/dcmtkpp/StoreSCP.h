@@ -12,8 +12,8 @@
 #include <functional>
 
 #include "dcmtkpp/Association.h"
-#include "dcmtkpp/CStoreRequest.h"
-#include "dcmtkpp/Message.h"
+#include "dcmtkpp/message/CStoreRequest.h"
+#include "dcmtkpp/message/Message.h"
 #include "dcmtkpp/Network.h"
 #include "dcmtkpp/SCP.h"
 #include "dcmtkpp/Value.h"
@@ -26,7 +26,7 @@ class StoreSCP: public SCP
 {
 public:
     /// @brief Callback called when a request is received.
-    typedef std::function<Value::Integer(CStoreRequest const &)> Callback;
+    typedef std::function<Value::Integer(message::CStoreRequest const &)> Callback;
 
     /// @brief Default constructor.
     StoreSCP();
@@ -49,7 +49,7 @@ public:
     void set_callback(Callback const & callback);
 
     /// @brief Process a C-Store request.
-    virtual void operator()(Message const & message);
+    virtual void operator()(message::Message const & message);
 
 private:
     Callback _callback;

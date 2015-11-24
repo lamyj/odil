@@ -9,9 +9,9 @@
 #include "SCP.h"
 
 #include "dcmtkpp/Association.h"
-#include "dcmtkpp/CEchoRequest.h"
-#include "dcmtkpp/CEchoResponse.h"
-#include "dcmtkpp/Message.h"
+#include "dcmtkpp/message/CEchoRequest.h"
+#include "dcmtkpp/message/CEchoResponse.h"
+#include "dcmtkpp/message/Message.h"
 #include "dcmtkpp/Network.h"
 #include "dcmtkpp/ServiceRole.h"
 
@@ -48,10 +48,10 @@ SCP
 
 void
 SCP
-::_send_echo_response(CEchoRequest const & request) const
+::_send_echo_response(message::CEchoRequest const & request) const
 {
-    CEchoResponse response(
-        request.get_message_id(), CEchoResponse::Success,
+    message::CEchoResponse response(
+        request.get_message_id(), message::CEchoResponse::Success,
         request.get_affected_sop_class_uid());
     this->_send(response, request.get_affected_sop_class_uid());
 }

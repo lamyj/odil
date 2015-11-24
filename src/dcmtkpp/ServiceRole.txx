@@ -18,7 +18,7 @@
 #include <dcmtk/dcmnet/assoc.h>
 
 #include "dcmtkpp/Association.h"
-#include "dcmtkpp/Message.h"
+#include "dcmtkpp/message/Message.h"
 #include "dcmtkpp/Network.h"
 
 namespace dcmtkpp
@@ -29,7 +29,7 @@ TMessage
 ServiceRole
 ::_receive(ProgressCallback callback, void* callback_data) const
 {
-    Message const message = this->_receive(callback, callback_data);
+    message::Message const message = this->_receive(callback, callback_data);
     return TMessage(message);
 }
 

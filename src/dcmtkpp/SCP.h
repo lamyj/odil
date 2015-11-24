@@ -10,8 +10,8 @@
 #define _f4680d8c_18a8_4317_956d_3ae238cb39cc
 
 #include "dcmtkpp/Association.h"
-#include "dcmtkpp/CEchoRequest.h"
-#include "dcmtkpp/Message.h"
+#include "dcmtkpp/message/CEchoRequest.h"
+#include "dcmtkpp/message/Message.h"
 #include "dcmtkpp/Network.h"
 #include "dcmtkpp/ServiceRole.h"
 
@@ -35,10 +35,10 @@ public:
     void receive_and_process();
 
     /// @brief Process a message.
-    virtual void operator()(Message const & message) =0;
+    virtual void operator()(message::Message const & message) =0;
 protected:
     /// @brief Send a C-ECHO response.
-    void _send_echo_response(CEchoRequest const & request) const;
+    void _send_echo_response(message::CEchoRequest const & request) const;
 };
 
 }
