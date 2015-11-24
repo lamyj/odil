@@ -91,9 +91,6 @@ private:
     /// @brief Set the Abstract or Transfer syntaxes.
     void _set_syntaxes(
         std::string const & type, std::vector<std::string> const & syntaxes);
-
-    /// @brief Update the size field.
-    void _update_size();
 };
 
 }

@@ -63,10 +63,6 @@ public:
     void set_kerberos_service_ticket(std::string const & ticket);
 
     void set_saml_assertion(std::string const & assertion);
-
-private:
-    /// @brief Update the length field.
-    void _update_length();
 };
 
 }

@@ -111,7 +111,7 @@ UserInformation
         items.insert(items.begin(), item.get_item());
     }
 
-    this->_update_length();
+    this->_item.as_unsigned_int_16("Item-length") = this->_compute_length();
 }
 
 void
@@ -126,7 +126,7 @@ UserInformation
     }
     items.erase(it);
 
-    this->_update_length();
+    this->_item.as_unsigned_int_16("Item-length") = this->_compute_length();
 }
 
 bool
@@ -177,7 +177,7 @@ UserInformation
         items.insert(this->_find_sub_item(0x59), item.get_item());
     }
 
-    this->_update_length();
+    this->_item.as_unsigned_int_16("Item-length") = this->_compute_length();
 }
 
 void
@@ -192,7 +192,7 @@ UserInformation
     }
     items.erase(it);
 
-    this->_update_length();
+    this->_item.as_unsigned_int_16("Item-length") = this->_compute_length();
 }
 
 bool
@@ -239,7 +239,7 @@ UserInformation
         items.insert(this->_find_sub_item(0x60), item.get_item());
     }
 
-    this->_update_length();
+    this->_item.as_unsigned_int_16("Item-length") = this->_compute_length();
 }
 
 void
@@ -254,7 +254,7 @@ UserInformation
     }
     items.erase(it);
 
-    this->_update_length();
+    this->_item.as_unsigned_int_16("Item-length") = this->_compute_length();
 }
 
 UserInformation::Items::const_iterator
@@ -279,18 +279,6 @@ UserInformation
         [type](Item const & item)
         { return item.as_unsigned_int_8("Item-type") == type; });
     return it;
-}
-
-void
-UserInformation
-::_update_length()
-{
-    uint16_t length = 0;
-    for(auto const & item: this->_item.as_items("User-data"))
-    {
-        length += 4+item.as_unsigned_int_16("Item-length");
-    }
-    this->_item.as_unsigned_int_16("Item-length") = length;
 }
 
 }

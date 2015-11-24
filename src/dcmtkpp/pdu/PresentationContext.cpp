@@ -350,19 +350,7 @@ PresentationContext
         [&make_item](std::string const & name)
         { return make_item("Transfer", name); });
 
-    this->_update_size();
-}
-
-void
-PresentationContext
-::_update_size()
-{
-    uint16_t size = 4;
-    for(auto const & item: this->_item.as_items("Abstract/Transfer Syntax Sub-Items"))
-    {
-        size += 4 + item.as_unsigned_int_16("Item-length");
-    }
-    this->_item.as_unsigned_int_16("Item-length") = size;
+    this->_item.as_unsigned_int_16("Item-length") = this->_compute_length();
 }
 
 }

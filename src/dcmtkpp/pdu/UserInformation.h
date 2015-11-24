@@ -75,9 +75,6 @@ private:
 
     /// @brief Return the iterator to a sub-item or end.
     Items::iterator _find_sub_item(uint8_t type);
-
-    /// @brief Update the item length field.
-    void _update_length();
 };
 
 }

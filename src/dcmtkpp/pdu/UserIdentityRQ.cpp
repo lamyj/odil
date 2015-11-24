@@ -34,7 +34,7 @@ UserIdentityRQ
     this->_item.add("Secondary-field-length", uint16_t(0));
     this->_item.add("Secondary-field", std::string(""));
 
-    this->_update_length();
+    this->_item.as_unsigned_int_16("Item-length") = this->_compute_length();
 }
 
 UserIdentityRQ
@@ -108,7 +108,7 @@ UserIdentityRQ
 {
     this->_item.as_unsigned_int_16("Primary-field-length") = value.size();
     this->_item.as_string("Primary-field") = value;
-    this->_update_length();
+    this->_item.as_unsigned_int_16("Item-length") = this->_compute_length();
 }
 
 std::string const &
@@ -124,7 +124,7 @@ UserIdentityRQ
 {
     this->_item.as_unsigned_int_16("Secondary-field-length") = value.size();
     this->_item.as_string("Secondary-field") = value;
-    this->_update_length();
+    this->_item.as_unsigned_int_16("Item-length") = this->_compute_length();
 }
 
 void
@@ -162,16 +162,6 @@ UserIdentityRQ
     this->set_type(4);
     this->set_primary_field(assertion);
     this->set_secondary_field("");
-}
-
-void
-UserIdentityRQ
-::_update_length()
-{
-    this->_item.as_unsigned_int_16("Item-length") =
-        2+
-        2+this->get_primary_field().size()+
-        2+this->get_secondary_field().size();
 }
 
 }
