@@ -6,7 +6,7 @@
  * for details.
  ************************************************************************/
 
-#include "dcmtkpp/pdu/AAssociateAC.h"
+#include "dcmtkpp/pdu/AAssociate.h"
 
 #include <algorithm>
 #include <cstdint>
@@ -28,10 +28,24 @@ namespace dcmtkpp
 namespace pdu
 {
 
-AAssociateAC
-::AAssociateAC()
+AAssociate
+::AAssociate(Type type)
 {
-    this->_item.add("PDU-type", uint8_t(0x02));
+    uint8_t type_int;
+    if(type == Type::RQ)
+    {
+        type_int = 0x01;
+    }
+    else if(type == Type::AC)
+    {
+        type_int = 0x02;
+    }
+    else
+    {
+        throw Exception("Invalid PDU type");
+    }
+
+    this->_item.add("PDU-type", type_int);
     this->_item.add("Reserved-1", uint8_t(0));
     this->_item.add("PDU-length", uint32_t(0));
     this->_item.add("Protocol-version", uint16_t(0));
@@ -44,11 +58,12 @@ AAssociateAC
     this->_item.as_unsigned_int_32("PDU-length") = this->_compute_length();
 }
 
-AAssociateAC
-::AAssociateAC(std::istream & stream)
+AAssociate
+::AAssociate(std::istream & stream)
 {
     this->_item.read(stream, "PDU-type", Item::Field::Type::unsigned_int_8);
-    if(this->_item.as_unsigned_int_8("PDU-type") != 0x02)
+    auto const type = this->_item.as_unsigned_int_8("PDU-type");
+    if(type != 0x01 && type != 0x02)
     {
         throw Exception("Invalid PDU type");
     }
@@ -96,50 +111,69 @@ AAssociateAC
     this->_item.as_unsigned_int_32("PDU-length") = this->_compute_length();
 }
 
+AAssociate::Type
+AAssociate
+::get_type() const
+{
+    auto const type = this->_item.as_unsigned_int_8("PDU-type");
+    if(type == 0x01)
+    {
+        return Type::RQ;
+    }
+    else if(type == 0x02)
+    {
+        return Type::AC;
+    }
+    else
+    {
+        throw Exception("Invalid type");
+    }
+}
+
 uint16_t
-AAssociateAC
+AAssociate
 ::get_protocol_version() const
 {
     return this->_item.as_unsigned_int_16("Protocol-version");
 }
 
 void
-AAssociateAC
+AAssociate
 ::set_protocol_version(uint16_t value)
 {
     this->_item.as_unsigned_int_16("Protocol-version") = value;
 }
 
 std::string
-AAssociateAC
+AAssociate
 ::get_called_ae_title() const
 {
     return this->_decode_ae_title(this->_item.as_string("Called-AE-title"));
 }
 
 void
-AAssociateAC
+AAssociate
 ::set_called_ae_title(std::string const & value)
 {
     this->_item.as_string("Called-AE-title") = this->_encode_ae_title(value);
 }
 
 std::string
-AAssociateAC
+AAssociate
 ::get_calling_ae_title() const
 {
     return this->_decode_ae_title(this->_item.as_string("Calling-AE-title"));
 }
 
 void
-AAssociateAC
+AAssociate
 ::set_calling_ae_title(std::string const & value)
 {
     this->_item.as_string("Calling-AE-title") = this->_encode_ae_title(value);
 }
 
 ApplicationContext
-AAssociateAC
+AAssociate
 ::get_application_context() const
 {
     auto const & sub_items = this->_item.as_items("Variable-items");
@@ -158,7 +192,7 @@ AAssociateAC
 }
 
 void
-AAssociateAC
+AAssociate
 ::set_application_context(ApplicationContext const & value)
 {
     auto const & old_items = this->_item.as_items("Variable-items");
@@ -182,7 +216,7 @@ AAssociateAC
 }
 
 std::vector<PresentationContext>
-AAssociateAC
+AAssociate
 ::get_presentation_contexts() const
 {
     std::vector<PresentationContext> result;
@@ -200,7 +234,7 @@ AAssociateAC
 }
 
 void
-AAssociateAC
+AAssociate
 ::set_presentation_contexts(std::vector<PresentationContext> const & value)
 {
     auto const & old_items = this->_item.as_items("Variable-items");
@@ -225,7 +259,7 @@ AAssociateAC
 }
 
 UserInformation
-AAssociateAC
+AAssociate
 ::get_user_information() const
 {
     auto const & sub_items = this->_item.as_items("Variable-items");
@@ -244,7 +278,7 @@ AAssociateAC
 }
 
 void
-AAssociateAC
+AAssociate
 ::set_user_information(UserInformation const & value)
 {
     auto const & old_items = this->_item.as_items("Variable-items");
@@ -268,7 +302,7 @@ AAssociateAC
 }
 
 std::string
-AAssociateAC
+AAssociate
 ::_encode_ae_title(std::string const & value)
 {
     if(value.empty() || value.size() > 16)
@@ -281,7 +315,7 @@ AAssociateAC
 }
 
 std::string
-AAssociateAC
+AAssociate
 ::_decode_ae_title(std::string const & value)
 {
     auto const begin = value.find_first_not_of(' ');

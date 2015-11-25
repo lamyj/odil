@@ -25,15 +25,23 @@ namespace dcmtkpp
 namespace pdu
 {
 
-/// @brief A-ASSOCIATE-AC PDU, cf. PS 3.8, 9.3.3.
-class AAssociateAC: public Object
+/// @brief A-ASSOCIATE-RQ and A-ASSOCIATE-AC PDU, cf. PS 3.8, 9.3.2 and 9.3.3.
+class AAssociate: public Object
 {
 public:
+    enum class Type
+    {
+        RQ,
+        AC
+    };
+
     /// @brief Constructor.
-    AAssociateAC();
+    AAssociate(Type type);
 
     /// @brief Constructor for binary data.
-    AAssociateAC(std::istream & stream);
+    AAssociate(std::istream & stream);
+
+    Type get_type() const;
 
     /// @brief Return the protocol version.
     uint16_t get_protocol_version() const;
