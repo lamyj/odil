@@ -62,7 +62,7 @@ struct Transport
     void write(std::string const & data);
 
 private:
-    boost::asio::io_service _io_service;
+    boost::asio::io_service _service;
     std::shared_ptr<Socket> _socket;
 };
 

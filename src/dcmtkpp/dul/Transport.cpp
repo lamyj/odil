@@ -24,9 +24,37 @@ namespace dul
 
 Transport
 ::Transport()
-: _io_service(), _socket(nullptr)
+: _service(), _socket(nullptr)
 {
     // Nothing else
+}
+
+boost::asio::io_service const &
+Transport
+::get_service() const
+{
+    return this->_service;
+}
+
+boost::asio::io_service &
+Transport
+::get_service()
+{
+    return this->_service;
+}
+
+std::shared_ptr<Transport::Socket const>
+Transport
+::get_socket() const
+{
+    return this->_socket;
+}
+
+std::shared_ptr<Transport::Socket>
+Transport
+::get_socket()
+{
+    return this->_socket;
 }
 
 void
@@ -38,7 +66,7 @@ Transport
         throw Exception("Already connected");
     }
 
-    this->_socket = std::make_shared<Socket>(this->_io_service);
+    this->_socket = std::make_shared<Socket>(this->_service);
     this->_socket->connect(peer_endpoint);
 }
 
@@ -51,9 +79,9 @@ Transport
         throw Exception("Already connected");
     }
 
-    this->_socket = std::make_shared<Socket>(this->_io_service);
+    this->_socket = std::make_shared<Socket>(this->_service);
     // FIXME: should the acceptor scope be Transport instead of Transport::receive?
-    boost::asio::ip::tcp::acceptor acceptor(this->_io_service, endpoint);
+    boost::asio::ip::tcp::acceptor acceptor(this->_service, endpoint);
     acceptor.accept(*this->_socket);
 }
 
