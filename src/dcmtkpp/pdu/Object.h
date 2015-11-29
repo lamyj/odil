@@ -25,6 +25,9 @@ namespace pdu
 class Object
 {
 public:
+    /// @brief Destructor, makes the type polymorphic.
+    virtual ~Object();
+
     /// @brief Get the underlying item.
     Item const & get_item() const;
 

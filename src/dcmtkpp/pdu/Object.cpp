@@ -20,6 +20,12 @@ namespace dcmtkpp
 namespace pdu
 {
 
+Object
+::~Object()
+{
+    // Nothing to do.
+}
+
 Item const &
 Object
 ::get_item() const
