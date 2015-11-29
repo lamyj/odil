@@ -29,6 +29,15 @@ Transport
     // Nothing else
 }
 
+Transport
+::~Transport()
+{
+    if(this->is_open())
+    {
+        this->close();
+    }
+}
+
 boost::asio::io_service const &
 Transport
 ::get_service() const
@@ -57,11 +66,18 @@ Transport
     return this->_socket;
 }
 
+bool
+Transport
+::is_open() const
+{
+    return (this->_socket != nullptr && this->_socket->is_open());
+}
+
 void
 Transport
 ::connect(Socket::endpoint_type const & peer_endpoint)
 {
-    if(this->_socket != nullptr)
+    if(this->is_open())
     {
         throw Exception("Already connected");
     }
@@ -74,7 +90,7 @@ void
 Transport
 ::receive(Socket::endpoint_type const & endpoint)
 {
-    if(this->_socket != nullptr)
+    if(this->is_open())
     {
         throw Exception("Already connected");
     }
@@ -89,7 +105,7 @@ void
 Transport
 ::close()
 {
-    if(this->_socket == nullptr)
+    if(!this->is_open())
     {
         throw Exception("Not connected");
     }
@@ -102,7 +118,7 @@ std::string
 Transport
 ::read(std::size_t length)
 {
-    if(this->_socket == nullptr)
+    if(!this->is_open())
     {
         throw Exception("Not connected");
     }
@@ -147,7 +163,7 @@ void
 Transport
 ::write(std::string const & data)
 {
-    if(this->_socket == nullptr)
+    if(!this->is_open())
     {
         throw Exception("Not connected");
     }

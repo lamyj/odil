@@ -29,6 +29,9 @@ struct Transport
     /// @brief Constructor.
     Transport();
 
+    /// @brief Destructor.
+    ~Transport();
+
     /// @brief Return the io_service.
     boost::asio::io_service const & get_service() const;
 
@@ -40,6 +43,9 @@ struct Transport
 
     /// @brief Return the socket.
     std::shared_ptr<Socket> get_socket();
+
+    /// @brief Test whether the transport is open.
+    bool is_open() const;
 
     /**
      * @brief Connect to the specified endpoint, raise an exception upon error.
