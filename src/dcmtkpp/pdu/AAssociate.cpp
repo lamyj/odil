@@ -222,7 +222,8 @@ AAssociate
     std::vector<PresentationContext> result;
     for(auto const & item: this->_item.as_items("Variable-items"))
     {
-        if(item.as_unsigned_int_8("Item-type") == 0x21)
+        if(item.as_unsigned_int_8("Item-type") == 0x20 ||
+            item.as_unsigned_int_8("Item-type") == 0x21)
         {
             std::stringstream stream;
             stream << item;
@@ -292,7 +293,9 @@ AAssociate
     std::copy_if(
         old_items.begin(), old_items.end(), std::back_inserter(new_items),
         [](Item const & item) {
-            return item.as_unsigned_int_8("Item-type") == 0x21; });
+            return (
+                item.as_unsigned_int_8("Item-type") == 0x20 ||
+                item.as_unsigned_int_8("Item-type") == 0x21); });
 
     new_items.push_back(value.get_item());
 
