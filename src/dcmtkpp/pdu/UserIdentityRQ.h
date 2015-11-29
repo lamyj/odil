@@ -25,6 +25,9 @@ namespace pdu
 class UserIdentityRQ: public Object
 {
 public:
+    /// @brief Item type.
+    static uint8_t const type=0x58;
+
     /// @brief Create an User Identity.
     UserIdentityRQ();
 

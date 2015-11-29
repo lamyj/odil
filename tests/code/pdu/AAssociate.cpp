@@ -36,8 +36,9 @@ public:
 
         this->presentation_contexts = {pc1, pc2};
 
-        this->user_information.set_maximum_length(0x12345678);
-        this->user_information.set_user_identity_ac(
+        this->user_information.set_sub_item(
+            dcmtkpp::pdu::MaximumLength(0x12345678));
+        this->user_information.set_sub_item(
             dcmtkpp::pdu::UserIdentityAC("bar"));
     }
 
@@ -69,14 +70,16 @@ public:
     void check_user_information(
         dcmtkpp::pdu::UserInformation const & user_information) const
     {
-        BOOST_REQUIRE(user_information.has_maximum_length());
+        BOOST_REQUIRE(
+            user_information.has_sub_item<dcmtkpp::pdu::MaximumLength>());
         BOOST_REQUIRE_EQUAL(
-            user_information.get_maximum_length().get_maximum_length(),
+            user_information.get_sub_item<dcmtkpp::pdu::MaximumLength>().get_maximum_length(),
             0x12345678);
 
-        BOOST_REQUIRE(user_information.has_user_identity_ac());
+        BOOST_REQUIRE(
+            user_information.has_sub_item<dcmtkpp::pdu::UserIdentityAC>());
         BOOST_REQUIRE_EQUAL(
-            user_information.get_user_identity_ac().get_server_response(),
+            user_information.get_sub_item<dcmtkpp::pdu::UserIdentityAC>().get_server_response(),
             "bar");
     }
 };

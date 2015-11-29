@@ -24,6 +24,9 @@ namespace pdu
 class MaximumLength: public Object
 {
 public:
+    /// @brief Item type.
+    static uint8_t const type=0x51;
+
     /// @brief Create a Maximum Length item.
     MaximumLength(uint32_t maximum_length=0);
 

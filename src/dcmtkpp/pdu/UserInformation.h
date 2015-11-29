@@ -32,53 +32,37 @@ public:
     /// @brief Read a User Information item from a stream.
     UserInformation(std::istream & stream);
 
-    /// @brief Test whether the Maximum Length sub-item is set.
-    bool has_maximum_length() const;
+    /// @brief Test whether a sub-item is set.
+    template<typename TObject>
+    bool has_sub_item() const;
 
-    /// @brief Return the Maximum Length sub-item or throw an exception if not set.
-    MaximumLength get_maximum_length() const;
+    /// @brief Return a sub-item.
+    template<typename TObject>
+    TObject get_sub_item() const;
 
-    /// @brief Set the Maximum Length sub-item.
-    void set_maximum_length(MaximumLength const & item);
+    /// @brief Set a sub-item.
+    template<typename TObject>
+    void set_sub_item(TObject const & sub_item);
 
-    /// @brief Delete the Maximum Length sub-item.
-    void delete_maximum_length();
-
-    /// @brief Test whether the User Identity (A-ASSOCIATE-RQ) sub-item is set.
-    bool has_user_identity_rq() const;
-
-    /// @brief Return the User Identity (A-ASSOCIATE-RQ) sub-item.
-    UserIdentityRQ get_user_identity_rq() const;
-
-    /// @brief Set the User Identity (A-ASSOCIATE-RQ) sub-item.
-    void set_user_identity_rq(UserIdentityRQ const & item);
-
-    /// @brief Delete the User Identity (A-ASSOCIATE-RQ) sub-item.
-    void delete_user_identity_rq();
-
-    /// @brief Test whether the User Identity (A-ASSOCIATE-AC) sub-item is set.
-    bool has_user_identity_ac() const;
-
-    /// @brief Return the User Identity (A-ASSOCIATE-AC) sub-item.
-    UserIdentityAC get_user_identity_ac() const;
-
-    /// @brief Set the User Identity (A-ASSOCIATE-AC) sub-item.
-    void set_user_identity_ac(UserIdentityAC const & item);
-
-    /// @brief Delete the User Identity (A-ASSOCIATE-AC) sub-item.
-    void delete_user_identity_ac();
+    /// @brief Delete a sub-item.
+    template<typename TObject>
+    void delete_sub_item();
 private:
     typedef std::vector<Item> Items;
 
     /// @brief Return the iterator to a sub-item or end.
-    Items::const_iterator _find_sub_item(uint8_t type) const;
+    template<typename TObject>
+    Items::const_iterator _find_sub_item() const;
 
     /// @brief Return the iterator to a sub-item or end.
-    Items::iterator _find_sub_item(uint8_t type);
+    template<typename TObject>
+    Items::iterator _find_sub_item();
 };
 
 }
 
 }
+
+#include "dcmtkpp/pdu/UserInformation.txx"
 
 #endif // _7449339a_913f_4545_9846_311f055632c1

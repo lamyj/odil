@@ -24,6 +24,9 @@ namespace pdu
 class UserIdentityAC: public Object
 {
 public:
+    /// @brief Item type.
+    static uint8_t const type=0x59;
+
     /// @brief Create an User Identity.
     UserIdentityAC(std::string const & server_response="");
 
