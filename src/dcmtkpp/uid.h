@@ -11,9 +11,6 @@
 
 #include <string>
 
-#define DCMTKPP_STRINGIFY_HELPER(s) #s
-#define DCMTKPP_STRINGIFY(s) DCMTKPP_STRINGIFY_HELPER(s)
-
 namespace dcmtkpp
 {
 
@@ -22,6 +19,9 @@ std::string const uid_prefix="1.2.826.0.1.3680043.9.5560";
 
 /// @brief Implementation class UID of DCMTK++.
 extern std::string const implementation_class_uid;
+
+/// @brief Implementation version name of DCMTK++.
+extern std::string const implementation_version_name;
 
 /// @brief Generate a UID under the UID prefix.
 std::string generate_uid();

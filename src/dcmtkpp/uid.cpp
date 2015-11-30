@@ -14,12 +14,15 @@
 
 #include "dcmtkpp/Exception.h"
 
+#define DCMTKPP_STRINGIFY_HELPER(s) #s
+#define DCMTKPP_STRINGIFY(s) DCMTKPP_STRINGIFY_HELPER(s)
+
 namespace dcmtkpp
 {
 
 #ifdef DCMTKPP_MAJOR_VERSION
-/// @brief Implementation class UID of DCMTK++.
 std::string const implementation_class_uid=uid_prefix+"0." DCMTKPP_STRINGIFY(DCMTKPP_MAJOR_VERSION);
+std::string const implementation_version_name="DCMTK++ " DCMTKPP_STRINGIFY(DCMTKPP_MAJOR_VERSION);
 #else
 #error DCMTKPP_MAJOR_VERSION must be defined
 #endif

@@ -368,8 +368,7 @@ BasicDirectoryCreator
     meta_information.add(
         registry::ImplementationClassUID, { implementation_class_uid });
     meta_information.add(
-        registry::ImplementationVersionName,
-        { "DCMTK++ " DCMTKPP_STRINGIFY(DCMTKPP_MAJOR_VERSION) });
+        registry::ImplementationVersionName, { implementation_version_name });
 
     DataSet basic_directory;
 
