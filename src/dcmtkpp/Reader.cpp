@@ -50,6 +50,13 @@ type value; \
     value = *reinterpret_cast<type*>(&raw);\
 }
 
+#define dcmtkpp_ignore(stream, size) \
+    stream.ignore(size); \
+    if(!stream) \
+    { \
+        throw Exception("Could not read from stream"); \
+    }
+
 std::string read_string(std::istream & stream, unsigned int size)
 {
     std::string value(size, '\0');
@@ -431,8 +438,7 @@ Reader::Visitor
             else if(tag == registry::SequenceDelimitationItem)
             {
                 done = true;
-                dcmtkpp_read_binary(
-                    uint32_t, unused, this->stream, this->byte_ordering, 32);
+                dcmtkpp_ignore(this->stream, 32);
             }
             else
             {
@@ -504,8 +510,7 @@ Reader::Visitor
         if(vr == VR::OB || vr == VR::OW || vr == VR::OF || vr == VR::SQ ||
            vr == VR::UC || vr == VR::UR || vr == VR::UT || vr == VR::UN)
         {
-            dcmtkpp_read_binary(
-                uint16_t, reserved, this->stream, this->byte_ordering, 16);
+            dcmtkpp_ignore(this->stream, 16);
             dcmtkpp_read_binary(
                 uint32_t, vl, this->stream, this->byte_ordering, 32);
             length = vl;
@@ -594,8 +599,7 @@ Reader::Visitor
         {
             throw Exception("Unexpected tag: "+std::string(tag));
         }
-        dcmtkpp_read_binary(
-            uint32_t, unused, specific_stream, this->byte_ordering, 32);
+        dcmtkpp_ignore(specific_stream, 32);
     }
 
     return item;
@@ -603,4 +607,5 @@ Reader::Visitor
 
 }
 
+#undef dcmtkpp_ignore
 #undef dcmtkpp_read_binary
