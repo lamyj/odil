@@ -438,7 +438,7 @@ Reader::Visitor
             else if(tag == registry::SequenceDelimitationItem)
             {
                 done = true;
-                dcmtkpp_ignore(this->stream, 32);
+                dcmtkpp_ignore(this->stream, 4);
             }
             else
             {
@@ -510,7 +510,7 @@ Reader::Visitor
         if(vr == VR::OB || vr == VR::OW || vr == VR::OF || vr == VR::SQ ||
            vr == VR::UC || vr == VR::UR || vr == VR::UT || vr == VR::UN)
         {
-            dcmtkpp_ignore(this->stream, 16);
+            dcmtkpp_ignore(this->stream, 2);
             dcmtkpp_read_binary(
                 uint32_t, vl, this->stream, this->byte_ordering, 32);
             length = vl;
@@ -599,7 +599,7 @@ Reader::Visitor
         {
             throw Exception("Unexpected tag: "+std::string(tag));
         }
-        dcmtkpp_ignore(specific_stream, 32);
+        dcmtkpp_ignore(specific_stream, 4);
     }
 
     return item;
