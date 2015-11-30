@@ -17,6 +17,13 @@
 namespace dcmtkpp
 {
 
+#ifdef DCMTKPP_MAJOR_VERSION
+/// @brief Implementation class UID of DCMTK++.
+std::string const implementation_class_uid=uid_prefix+"0." DCMTKPP_STRINGIFY(DCMTKPP_MAJOR_VERSION);
+#else
+#error DCMTKPP_MAJOR_VERSION must be defined
+#endif
+
 std::string generate_uid()
 {
     if(uid_prefix.size() > 26)
