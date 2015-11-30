@@ -18,7 +18,9 @@ BOOST_AUTO_TEST_CASE(Connect)
     dcmtkpp::dul::Transport transport;
 
     boost::asio::ip::tcp::resolver resolver(transport.get_service());
-    boost::asio::ip::tcp::resolver::query const query("www.example.com", "80");
+    boost::asio::ip::tcp::resolver::query const query(
+        dcmtkpp::dul::Transport::Socket::protocol_type::v4(),
+        "www.example.com", "80");
     auto const endpoint_it = resolver.resolve(query);
 
     transport.connect(*endpoint_it);
