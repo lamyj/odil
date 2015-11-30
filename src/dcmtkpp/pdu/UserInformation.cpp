@@ -14,6 +14,7 @@
 
 #include "dcmtkpp/Exception.h"
 #include "dcmtkpp/pdu/ImplementationClassUID.h"
+#include "dcmtkpp/pdu/ImplementationVersionName.h"
 #include "dcmtkpp/pdu/MaximumLength.h"
 #include "dcmtkpp/pdu/Object.h"
 #include "dcmtkpp/pdu/UserIdentityAC.h"
@@ -59,12 +60,16 @@ UserInformation
             MaximumLength const sub_item(stream);
             this->set_sub_item(sub_item);
         }
-        if(type == 0x52)
+        else if(type == 0x52)
         {
             ImplementationClassUID const sub_item(stream);
             this->set_sub_item(sub_item);
         }
-        // 0x55: Implementation Version Name, PS 3.7 D.3.3.2.3
+        else if(type == 0x55)
+        {
+            ImplementationVersionName const sub_item(stream);
+            this->set_sub_item(sub_item);
+        }
         // 0x53: Asynchronous Operations Window, PS 3.7, D.3.3.3.1
         // 0x54: SCP/SCU Role Selection, PS 3.7, D.3.3.4.1
         // 0x56: SOP Class Extended Negotiation, PS 3.7, D.3.3.5.1

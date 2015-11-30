@@ -4,7 +4,6 @@
 #include <sstream>
 #include <string>
 
-#include "dcmtkpp/Exception.h"
 #include "dcmtkpp/pdu/ImplementationClassUID.h"
 
 std::string const data(
@@ -27,7 +26,7 @@ BOOST_AUTO_TEST_CASE(FromStream)
     BOOST_REQUIRE_EQUAL(item.get_implementation_class_uid(), "foo");
 }
 
-BOOST_AUTO_TEST_CASE(MaximumLength)
+BOOST_AUTO_TEST_CASE(ImplementationClassUID)
 {
     dcmtkpp::pdu::ImplementationClassUID item("foo");
     item.set_implementation_class_uid("bar");
