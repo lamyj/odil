@@ -115,7 +115,7 @@ BOOST_AUTO_TEST_CASE(StatusFailure)
     std::vector<dcmtkpp::Value::Integer> const statuses = {
         dcmtkpp::message::CMoveResponse::RefusedOutOfResourcesUnableToCalculateNumberOfMatches,
         dcmtkpp::message::CMoveResponse::RefusedOutOfResourcesUnableToPerformSubOperations,
-        dcmtkpp::message::CMoveResponse::RefusedMoveDestinationInknown,
+        dcmtkpp::message::CMoveResponse::RefusedMoveDestinationUnknown,
         dcmtkpp::message::CMoveResponse::IdentifierDoesNotMatchSOPClass,
         dcmtkpp::message::CMoveResponse::UnableToProcess
     };
