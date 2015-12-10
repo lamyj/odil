@@ -388,6 +388,18 @@ Reader::Visitor
         {
             value = this->split_strings(string);
         }
+
+        // Remove padding
+        static std::string const padding={ '\0', ' ' };
+
+        for(auto & item: value)
+        {
+            auto const last_char = item.find_last_not_of(padding);
+            if(last_char != std::string::npos)
+            {
+                item = item.substr(0, last_char+1);
+            }
+        }
     }
 }
 
@@ -552,18 +564,6 @@ Reader::Visitor
         ++index;
 
         begin = (end==std::string::npos)?string.size():(end+1);
-    }
-
-    if(!value.empty())
-    {
-        // Remove padding
-        static std::string const padding={ '\0', ' ' };
-        auto & last_item = value[value.size()-1];
-        auto const last_char = last_item.find_last_not_of(padding);
-        if(last_char != std::string::npos)
-        {
-            last_item = last_item.substr(0, last_char+1);
-        }
     }
 
     return value;
