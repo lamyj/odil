@@ -30,7 +30,7 @@ public:
         // Failure
         RefusedOutOfResourcesUnableToCalculateNumberOfMatches=0xA701,
         RefusedOutOfResourcesUnableToPerformSubOperations=0xA702,
-        RefusedMoveDestinationInknown=0xA801,
+        RefusedMoveDestinationUnknown=0xA801,
         IdentifierDoesNotMatchSOPClass=0xA900,
         UnableToProcess=0xC000,
         // Warning
