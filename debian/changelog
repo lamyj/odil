@@ -1,4 +1,10 @@
-dcmtkpp (0.3.1-2) UNRELEASED; urgency=medium
+dcmtkpp (0.3.1-3) unstable; urgency=medium
+
+  * Disable network-related tests at build time (Closes: #807675)
+
+ -- Julien Lamy <lamy@unistra.fr>  Sun, 13 Dec 2015 16:34:21 +0100
+
+dcmtkpp (0.3.1-2) unstable; urgency=medium
 
   * build-depend on libdcmtk (Closes: #804570)
 

@@ -1,0 +1,50 @@
+Subject: Disable network tests
+Author: Julien Lamy <lamy@unistra.fr>
+--- a/tests/run.sh
++++ b/tests/run.sh
+@@ -3,6 +3,13 @@
+ set -e
+ set -u
+ 
++if [ "${1:-}" = "--no-network" ]
++then
++    network="no"
++else
++    network="yes"
++fi
++
+ configure() {
+     cat > ${directory}/config  << EOF
+ HostTable BEGIN
+@@ -40,18 +47,23 @@ clean() {
+     rm -rf ${directory}
+ }
+ 
+-directory=$(mktemp -d dcmtkpp.XXX)
+-configure
+-start_scp
+-add_data
++if [ ${network} = "yes" ]
++then
++    directory=$(mktemp -d dcmtkpp.XXX)
++    configure
++    start_scp
++    add_data
++fi
+ 
+ export DCMTKPP_OWN_AET=LOCAL
+ export DCMTKPP_PEER_HOST_NAME=localhost
+ export DCMTKPP_PEER_PORT=11112
+ export DCMTKPP_PEER_AET=REMOTE
+ 
+-ctest --no-compress-output -T Test || true
+-
+-stop_scp
+-clean
++ctest --no-compress-output -T Test $@ || true
+ 
++if [ ${network} = "yes" ]
++then
++    stop_scp
++    clean
++fi

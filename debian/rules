@@ -15,7 +15,7 @@ override_dh_auto_build:
 	doxygen && mv doc build
 
 override_dh_auto_test:
-	cd build && ../tests/run.sh
+	cd build && ../tests/run.sh --no-network -E 'Association|Network|ServiceRole|SCP|SCU'
 
 override_dh_install:
 	dh_install
