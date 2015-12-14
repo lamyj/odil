@@ -8,11 +8,11 @@
 
 #include "dcmtkpp/dul/Transport.h"
 
-#include <iterator>
 #include <memory>
 #include <string>
 
 #include <boost/asio.hpp>
+#include <boost/date_time.hpp>
 
 #include "dcmtkpp/Exception.h"
 
@@ -24,7 +24,8 @@ namespace dul
 
 Transport
 ::Transport()
-: _service(), _socket(nullptr)
+: _service(), _socket(nullptr), _timeout(boost::posix_time::pos_infin),
+  _deadline(_service)
 {
     // Nothing else
 }
@@ -66,6 +67,20 @@ Transport
     return this->_socket;
 }
 
+Transport::duration_time
+Transport
+::get_timeout() const
+{
+    return this->_timeout;
+}
+
+void
+Transport
+::set_timeout(duration_time timeout)
+{
+    this->_timeout = timeout;
+}
+
 bool
 Transport
 ::is_open() const
@@ -82,8 +97,26 @@ Transport
         throw Exception("Already connected");
     }
 
+    this->_start_deadline();
+
     this->_socket = std::make_shared<Socket>(this->_service);
-    this->_socket->connect(peer_endpoint);
+    this->_socket->async_connect(
+        peer_endpoint,
+        [](boost::system::error_code const & error)
+        {
+            if(error == boost::asio::error::operation_aborted)
+            {
+                throw Exception("Connection timed out");
+            }
+            else if(error)
+            {
+                throw boost::system::system_error(error);
+            }
+        }
+    );
+
+    this->_service.run_one();
+    this->_stop_deadline();
 }
 
 void
@@ -95,10 +128,28 @@ Transport
         throw Exception("Already connected");
     }
 
+    this->_start_deadline();
+
     this->_socket = std::make_shared<Socket>(this->_service);
-    // FIXME: should the acceptor scope be Transport instead of Transport::receive?
     boost::asio::ip::tcp::acceptor acceptor(this->_service, endpoint);
-    acceptor.accept(*this->_socket);
+    acceptor.async_accept(
+        *this->_socket,
+        [](boost::system::error_code const & error)
+        {
+            if(error == boost::asio::error::operation_aborted)
+            {
+                throw Exception("Connection timed out");
+            }
+            else if(error)
+            {
+                throw boost::system::system_error(error);
+            }
+        }
+    );
+
+    this->_service.run_one();
+    this->_service.reset();
+    this->_stop_deadline();
 }
 
 void
@@ -123,38 +174,30 @@ Transport
         throw Exception("Not connected");
     }
 
-    std::string data;
-    bool done=false;
-    while(!done)
-    {
-        // FIXME: chunk size
-        std::string bytes(std::min<int>(length, 256), '\0');
-        std::size_t read=0;
-        try
+    std::string data(length, '\0');
+
+    this->_start_deadline();
+
+    boost::asio::async_read(
+        *this->_socket,
+        boost::asio::buffer(&data[0], data.size()),
+        [](boost::system::error_code const & error, std::size_t)
         {
-            read = this->_socket->read_some(
-                boost::asio::buffer(&bytes[0], bytes.size()));
-        }
-        catch(boost::system::system_error const & e)
-        {
-            if(e.code() == boost::asio::error::eof)
+            if(error == boost::asio::error::operation_aborted)
             {
-                done = true;
+                throw Exception("Connection timed out");
             }
-            else
+            else if(error)
             {
-                throw;
+                throw boost::system::system_error(error);
             }
         }
+    );
 
-        std::copy(
-            bytes.begin(), bytes.begin()+read, std::back_inserter(data));
+    this->_service.run_one();
+    this->_service.reset();
 
-        if(data.size() >= length)
-        {
-            done = true;
-        }
-    }
+    this->_stop_deadline();
 
     return data;
 }
@@ -168,7 +211,56 @@ Transport
         throw Exception("Not connected");
     }
 
-    this->_socket->write_some(boost::asio::buffer(data));
+    this->_start_deadline();
+    boost::asio::async_write(
+        *this->_socket, boost::asio::buffer(data),
+        [](boost::system::error_code const & error, std::size_t)
+        {
+            if(error == boost::asio::error::operation_aborted)
+            {
+                throw Exception("Connection timed out");
+            }
+            else if(error)
+            {
+                throw boost::system::system_error(error);
+            }
+        });
+
+    this->_service.run_one();
+    this->_service.reset();
+    this->_stop_deadline();
+}
+
+void
+Transport
+::_start_deadline()
+{
+    this->_deadline.expires_from_now(this->_timeout);
+    this->_deadline.async_wait(
+        [this](boost::system::error_code const & error)
+        {
+            if(!error)
+            {
+                this->close();
+            }
+            else if(error == boost::asio::error::operation_aborted)
+            {
+                // Do nothing.
+            }
+            else
+            {
+                throw boost::system::system_error(error);
+            }
+        }
+    );
+}
+
+void
+Transport
+::_stop_deadline()
+{
+    this->_deadline.cancel();
+    this->_deadline.expires_at(boost::posix_time::pos_infin);
 }
 
 }

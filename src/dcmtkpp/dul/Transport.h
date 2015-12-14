@@ -13,6 +13,7 @@
 #include <string>
 
 #include <boost/asio.hpp>
+#include <boost/date_time.hpp>
 
 namespace dcmtkpp
 {
@@ -20,11 +21,20 @@ namespace dcmtkpp
 namespace dul
 {
 
-/// @brief TCP transport for the DICOM Upper Layer.
+/**
+ * @brief TCP transport for the DICOM Upper Layer.
+ *
+ * The behavior of connect, receive, read and write is governed by the timeout
+ * value: if the timeout expires before the operation is completed, an exception
+ * will be raised.
+ */
 struct Transport
 {
     /// @brief Socket type.
     typedef boost::asio::ip::tcp::socket Socket;
+
+    /// @brief Duration of the timeout.
+    typedef boost::asio::deadline_timer::duration_type duration_time;
 
     /// @brief Constructor.
     Transport();
@@ -44,12 +54,16 @@ struct Transport
     /// @brief Return the socket.
     std::shared_ptr<Socket> get_socket();
 
+    /// @brief Return the timeout, default to infinity.
+    duration_time get_timeout() const;
+
+    /// @brief Set the timeout.
+    void set_timeout(duration_time timeout);
+
     /// @brief Test whether the transport is open.
     bool is_open() const;
 
-    /**
-     * @brief Connect to the specified endpoint, raise an exception upon error.
-     */
+    /// @brief Connect to the specified endpoint, raise an exception upon error.
     void connect(Socket::endpoint_type const & peer_endpoint);
 
     /**
@@ -70,6 +84,11 @@ struct Transport
 private:
     boost::asio::io_service _service;
     std::shared_ptr<Socket> _socket;
+    duration_time _timeout;
+    boost::asio::deadline_timer _deadline;
+
+    void _start_deadline();
+    void _stop_deadline();
 };
 
 }
