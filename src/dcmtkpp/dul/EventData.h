@@ -25,7 +25,6 @@ class EventData
 {
 public:
     Transport::Socket::endpoint_type peer_endpoint;
-    std::shared_ptr<Transport> transport;
     std::shared_ptr<pdu::Object> pdu;
 };
 

@@ -9,13 +9,18 @@
 #include "dcmtkpp/dul/StateMachine.h"
 
 #include <cstdint>
+#include <functional>
 #include <map>
 #include <sstream>
+#include <tuple>
 #include <utility>
+
+#include <boost/asio/steady_timer.hpp>
 
 #include "dcmtkpp/endian.h"
 #include "dcmtkpp/Exception.h"
 #include "dcmtkpp/dul/EventData.h"
+#include "dcmtkpp/dul/Transport.h"
 #include "dcmtkpp/pdu/AAbort.h"
 #include "dcmtkpp/pdu/AAssociate.h"
 #include "dcmtkpp/pdu/AAssociateRJ.h"
@@ -31,27 +36,32 @@ namespace dul
 
 StateMachine
 ::StateMachine()
-: _state(State::Sta1)
+: _state(State::Sta1), _artim_timer(_transport.get_service())
 {
-    // Nothing else.
+    this->set_timeout(boost::posix_time::pos_infin);
 }
 
 void
 StateMachine
 ::transition(Event const & event, EventData & data)
 {
-    auto const iterator = StateMachine::_transitions.find(
-        std::make_pair(this->_state, event));
-    if(iterator == StateMachine::_transitions.end())
+    auto const guard_iterator = StateMachine::_guards.find(
+        {this->_state, event});
+    auto const guard_value =
+        (guard_iterator == StateMachine::_guards.end())?
+        guard_iterator->second(*this):true;
+
+    auto const transition_iterator = StateMachine::_transitions.find(
+        {this->_state, event, guard_value});
+    if(transition_iterator == StateMachine::_transitions.end())
     {
         throw Exception("No such transition");
     }
 
-    auto const & action = iterator->second.first;
-    auto const & next_state = iterator->second.second;
+    auto const & action = transition_iterator->second.first;
+    auto const & next_state = transition_iterator->second.second;
 
     // Do action
-#define dispatch_action(id, data) if(action == Action::id) { this->id(data); }
     if(action == Action::AE_1) { this->AE_1(data); }
     else if(action == Action::AE_2) { this->AE_2(data); }
     else if(action == Action::AE_3) { this->AE_3(data); }
@@ -62,24 +72,24 @@ StateMachine
     else if(action == Action::AE_8) { this->AE_8(data); }
     else if(action == Action::DT_1) { this->DT_1(data); }
     else if(action == Action::DT_2) { this->DT_2(data); }
-//    dispatch_action(AR_1);
-//    dispatch_action(AR_2);
-//    dispatch_action(AR_3);
-//    dispatch_action(AR_4);
-//    dispatch_action(AR_5);
-//    dispatch_action(AR_6);
-//    dispatch_action(AR_7);
-//    dispatch_action(AR_8);
-//    dispatch_action(AR_9);
-//    dispatch_action(AR_10);
-//    dispatch_action(AA_1);
-//    dispatch_action(AA_2);
-//    dispatch_action(AA_3);
-//    dispatch_action(AA_4);
-//    dispatch_action(AA_5);
-//    dispatch_action(AA_6);
-//    dispatch_action(AA_7);
-//    dispatch_action(AA_8);
+    else if(action == Action::AR_1) { this->AR_1(data); }
+    else if(action == Action::AR_2) { this->AR_2(data); }
+    else if(action == Action::AR_3) { this->AR_3(data); }
+    else if(action == Action::AR_4) { this->AR_4(data); }
+    else if(action == Action::AR_5) { this->AR_5(data); }
+    else if(action == Action::AR_6) { this->AR_6(data); }
+    else if(action == Action::AR_7) { this->AR_7(data); }
+    else if(action == Action::AR_8) { this->AR_8(data); }
+    else if(action == Action::AR_9) { this->AR_9(data); }
+    else if(action == Action::AR_10) { this->AR_10(data); }
+    else if(action == Action::AA_1) { this->AA_1(data); }
+    else if(action == Action::AA_2) { this->AA_2(data); }
+    else if(action == Action::AA_3) { this->AA_3(data); }
+    else if(action == Action::AA_4) { this->AA_4(data); }
+    else if(action == Action::AA_5) { this->AA_5(data); }
+    else if(action == Action::AA_6) { this->AA_6(data); }
+    else if(action == Action::AA_7) { this->AA_7(data); }
+    else if(action == Action::AA_8) { this->AA_8(data); }
     else
     {
         throw Exception("Unknown action");
@@ -95,14 +105,46 @@ StateMachine
     return this->_state;
 }
 
+Transport const &
+StateMachine
+::get_transport() const
+{
+    return this->_transport;
+}
+
+Transport &
+StateMachine
+::get_transport()
+{
+    return this->_transport;
+}
+
+StateMachine::duration_time
+StateMachine
+::get_timeout() const
+{
+    return this->_timeout;
+}
+
+void
+StateMachine
+::set_timeout(duration_time timeout)
+{
+    this->_timeout = timeout;
+}
+
+void
+StateMachine
+::receive(EventData & data)
+{
+    this->_transport.receive(data.peer_endpoint);
+    this->transition(Event::TransportConnectionIndication, data);
+}
+
 void
 StateMachine
 ::send_pdu(EventData & data)
 {
-    if(data.transport == nullptr)
-    {
-        throw Exception("No transport");
-    }
     if(data.pdu == nullptr)
     {
         throw Exception("No PDU");
@@ -149,17 +191,12 @@ void
 StateMachine
 ::receive_pdu(EventData & data)
 {
-    if(data.transport == nullptr)
-    {
-        throw Exception("No transport");
-    }
-
-    auto const header = data.transport->read(6);
+    auto const header = this->_transport.read(6);
 
     uint8_t const type = header[0];
     uint32_t const length = be32toh(
         *reinterpret_cast<uint32_t const *>(&header[0]+2));
-    auto const pdu_data = data.transport->read(length);
+    auto const pdu_data = this->_transport.read(length);
 
     std::stringstream stream;
     stream.write(&header[0], header.size());
@@ -211,12 +248,44 @@ StateMachine
 
 }
 
-#define transition_full(start, event, action, end, guard) { \
-        { StateMachine::State::start, StateMachine::Event::event }, \
+void
+StateMachine
+::start_timer(EventData & data)
+{
+    this->_artim_timer.expires_from_now(this->_timeout);
+    this->_artim_timer.async_wait(
+        [this,&data](boost::system::error_code const & error)
+        {
+            if(!error)
+            {
+                this->transition(Event::ARTIMTimerExpired, data);
+            }
+            else if(error == boost::asio::error::operation_aborted)
+            {
+                // Do nothing
+            }
+            else
+            {
+                throw boost::system::system_error(error);
+            }
+        }
+    );
+}
+
+void
+StateMachine
+::stop_timer()
+{
+    this->_artim_timer.cancel();
+    this->_artim_timer.expires_at(boost::posix_time::pos_infin);
+}
+
+#define transition_full(start, event, guard, action, end) { \
+        { StateMachine::State::start, StateMachine::Event::event, guard }, \
         { StateMachine::Action::action, StateMachine::State::end } }
 
 #define transition(start, event, action, end) { \
-        { StateMachine::State::start, StateMachine::Event::event }, \
+        { StateMachine::State::start, StateMachine::Event::event, true }, \
         { StateMachine::Action::action, StateMachine::State::end } }
 
 StateMachine::TransitionMap const
@@ -227,8 +296,8 @@ StateMachine
 
     transition(Sta2, AAssociateACRemote, AA_1, Sta13),
     transition(Sta2, AAssociateRJRemote, AA_1, Sta13),
-    transition_full(Sta2, AAssociateRQRemote, AE_6, Sta3, is_association_request_acceptable),
-    transition_full(Sta2, AAssociateRQRemote, AE_6, Sta13, !is_association_request_acceptable),
+    transition_full(Sta2, AAssociateRQRemote, true, AE_6, Sta3),
+    transition_full(Sta2, AAssociateRQRemote, false, AE_6, Sta13),
     transition(Sta2, PDataTFRemote, AA_1, Sta13),
     transition(Sta2, AReleaseRQRemote, AA_1, Sta13),
     transition(Sta2, AReleaseRPRemote, AA_1, Sta13),
@@ -360,16 +429,23 @@ StateMachine
     transition(Sta13, InvalidPDU, AA_7, Sta13),
 };
 
+StateMachine::GuardMap const
+StateMachine
+::_guards = {
+    {
+        {StateMachine::State::Sta2, StateMachine::Event::AAssociateRQRemote},
+        [](StateMachine const & state_machine) {
+            return state_machine.is_association_acceptable().first; }
+    },
+};
+
 #undef transition
+#undef transition_full
 
 void
 StateMachine
 ::_send_pdu(EventData & data, uint8_t pdu_type)
 {
-    if(data.transport == nullptr)
-    {
-        throw Exception("No transport");
-    }
     if(data.pdu == nullptr)
     {
         throw Exception("No PDU");
@@ -383,14 +459,14 @@ StateMachine
 
     std::ostringstream stream;
     stream << item;
-    data.transport->write(stream.str());
+    this->_transport.write(stream.str());
 }
 
 void
 StateMachine
 ::AE_1(EventData & data)
 {
-    data.transport->connect(data.peer_endpoint);
+    this->_transport.connect(data.peer_endpoint);
 }
 
 void
@@ -402,46 +478,64 @@ StateMachine
 
 void
 StateMachine
-::AE_3(EventData & data)
+::AE_3(EventData & )
 {
-    // Do nothing ?
-
-    //this->_notify("A-ASSOCIATE", "confirmation (accept)");
-    //data.pdu = pdu::AAssociateAC(data.stream);
+    // Do nothing: notification is implicit since this function is only called
+    // by receive_pdu
 }
 
 void
 StateMachine
-::AE_4(EventData & data)
+::AE_4(EventData & )
 {
-    /*
-    data.pdu = pdu::AAssociateRJ(data.stream);
-    data.stream->close();
-    */
+    // Notification is implicit since this function is only called by
+    // receive_pdu
+    this->_transport.close();
 }
 
 void
 StateMachine
 ::AE_5(EventData & data)
 {
+    // Connection response has already been sent.
+    this->start_timer(data);
 }
 
 void
 StateMachine
 ::AE_6(EventData & data)
 {
+    this->stop_timer();
+    auto const acceptable = this->is_association_acceptable();
+    if(acceptable.first)
+    {
+        // Issue A-ASSOCIATE indication
+        // Do nothing: notification is implicit since this function is only
+        // called by receive_pdu
+    }
+    else
+    {
+        data.pdu = std::make_shared<pdu::AAssociateRJ>(
+            std::get<0>(acceptable.second), std::get<1>(acceptable.second),
+            std::get<2>(acceptable.second));
+        this->_send_pdu(data, 0x03);
+        data.pdu = NULL;
+    }
 }
 
 void
 StateMachine
 ::AE_7(EventData & data)
 {
+    this->_send_pdu(data, 0x02);
 }
 
 void
 StateMachine
 ::AE_8(EventData & data)
 {
+    this->_send_pdu(data, 0x03);
+    this->start_timer(data);
 }
 
 void
@@ -453,34 +547,157 @@ StateMachine
 
 void
 StateMachine
-::DT_2(EventData & transport)
+::DT_2(EventData & )
 {
-    /*
-    // FIXME, replace the test with:
-    // PDataPDU pdata(pdu);
-    if(data.pdu->get_item().as_unsigned_int_8("PDU-type") != 0x04)
-    {
-        throw Exception("Invalid PDU type");
-    }
-    this->_notify("P-DATA", "indication", *data.pdu);
-    */
+    // Do nothing: notification is implicit since this function is only called
+    // by receive_pdu
 }
 
-/*
 void
 StateMachine
-::_notify(std::string const & protocol, std::string const & type) const
+::AR_1(EventData & data)
 {
-    auto const iterator = this->_observers.find(std::make_pair(protocol, type));
-    if(iterator != this->_observers.end())
-    {
-        for(auto const & observer: iterator->second)
-        {
-            observer.second();
-        }
-    }
+    this->_send_pdu(data, 0x05);
 }
-*/
+
+void
+StateMachine
+::AR_2(EventData & )
+{
+    // Do nothing: notification is implicit since this function is only called
+    // by receive_pdu
+}
+
+void
+StateMachine
+::AR_3(EventData & )
+{
+    // Notification is implicit since this function is only called by
+    // receive_pdu
+    this->_transport.close();
+}
+
+void
+StateMachine
+::AR_4(EventData & data)
+{
+    this->_send_pdu(data, 0x06);
+    this->start_timer(data);
+}
+
+void
+StateMachine
+::AR_5(EventData & )
+{
+    this->stop_timer();
+}
+
+void
+StateMachine
+::AR_6(EventData & )
+{
+    // Do nothing: notification is implicit since this function is only called
+    // by receive_pdu
+}
+
+void
+StateMachine
+::AR_7(EventData & data)
+{
+    this->_send_pdu(data, 0x04);
+}
+
+void
+StateMachine
+::AR_8(EventData & )
+{
+    // Do nothing: notification is implicit since this function is only called
+    // by receive_pdu
+}
+
+void
+StateMachine
+::AR_9(EventData & data)
+{
+    this->_send_pdu(data, 0x06);
+}
+
+void
+StateMachine
+::AR_10(EventData & )
+{
+    // Do nothing: notification is implicit since this function is only called
+    // by receive_pdu
+}
+
+void
+StateMachine
+::AA_1(EventData & data)
+{
+    data.pdu = std::make_shared<pdu::AAbort>(1, 2);
+    this->send_pdu(data);
+
+    this->start_timer(data);
+}
+
+void
+StateMachine
+::AA_2(EventData & )
+{
+    this->stop_timer();
+    this->_transport.close();
+}
+
+/**
+ * @brief If (service-user inititated abort): issue A-ABORT indication and
+ * close transport connection ; otherwise (service-provider inititated
+ * abort): issue A-P-ABORT indication and close transport connection.
+ */
+void
+StateMachine
+::AA_3(EventData & data)
+{
+    throw Exception("Not implemented");
+}
+
+/// @brief Issue A-P-ABORT indication primitive.
+void
+StateMachine
+::AA_4(EventData & data)
+{
+    throw Exception("Not implemented");
+}
+
+void
+StateMachine
+::AA_5(EventData & )
+{
+    this->stop_timer();
+}
+
+void
+StateMachine
+::AA_6(EventData & )
+{
+    // Nothing to do.
+}
+
+void
+StateMachine
+::AA_7(EventData & data)
+{
+    this->_send_pdu(data, 0x07);
+}
+
+/** @brief Send A-ABORT PDU (service-provider source-), issue an A-P-ABORT
+ * indication, and start ARTIM timer.
+ */
+void
+StateMachine
+::AA_8(EventData & data)
+{
+    throw Exception("Not implemented");
+}
 
 }
 

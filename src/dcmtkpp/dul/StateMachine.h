@@ -9,10 +9,15 @@
 #ifndef _981c80db_b2ac_4f25_af6c_febf5563d178
 #define _981c80db_b2ac_4f25_af6c_febf5563d178
 
+#include <functional>
 #include <map>
+#include <tuple>
 #include <utility>
 
+#include <boost/asio/steady_timer.hpp>
+
 #include "dcmtkpp/dul/EventData.h"
+#include "dcmtkpp/dul/Transport.h"
 
 namespace dcmtkpp
 {
@@ -56,6 +61,9 @@ public:
         ARTIMTimerExpired, InvalidPDU,
     };
 
+    /// @brief Duration of the timeout.
+    typedef boost::asio::deadline_timer::duration_type duration_time;
+
     /// @brief Constructor, initializing to Sta1.
     StateMachine();
 
@@ -68,11 +76,47 @@ public:
     /// @brief Return the current state.
     State get_state() const;
 
+    /// @brief Return the TCP transport.
+    Transport const & get_transport() const;
+
+    /// @brief Return the TCP transport.
+    Transport & get_transport();
+
+    /// @brief Return the timeout, default to infinity.
+    duration_time get_timeout() const;
+
+    /// @brief Set the timeout.
+    void set_timeout(duration_time timeout);
+
+    /**
+     * @brief Receive a connection on the TCP transport, perform the
+     * corresponding transition.
+     */
+    void receive(EventData & data);
+
     /// @brief Send a PDU to the transport, perform the corresponding transition.
     void send_pdu(EventData & data);
 
     /// @brief Receive a PDU on the transport, perform the corresponding transition.
     void receive_pdu(EventData & data);
+
+    /// @brief Start (or re-start if already started) the ARTIM timer.
+    void start_timer(EventData & data);
+
+    /// @brief Stop the ARTIM timer.
+    void stop_timer();
+
+    /**
+     * @brief Callback to check whether the association request is acceptable.
+     *
+     * If the first element is true, then the association is acceptable and the
+     * second element does not contain meaningful data. If the first element is
+     * false, the the association will rejected with the result, source and
+     * reason stored in the second element (in that order).
+     */
+    std::function<std::pair<bool, std::tuple<int, int, int>>()>
+        is_association_acceptable;
+
 private:
 
     enum class Action
@@ -84,17 +128,35 @@ private:
     };
 
     typedef std::map<
-        std::pair<State, Event>,
+        std::tuple<State, Event, bool>,
         std::pair<Action, State>> TransitionMap;
+
+    typedef std::map<
+        std::pair<State, Event>,
+        std::function<bool(StateMachine const &)>> GuardMap;
+
     static TransitionMap const _transitions;
+    static GuardMap const _guards;
 
     /// @brief Current state.
     State _state;
 
+    /// @brief TCP transport.
+    Transport _transport;
+
+    /// @brief Timeout of the ARTIM timer.
+    duration_time _timeout;
+
+    /// @brief Association Request/Reject/Release Timer.
+    boost::asio::deadline_timer _artim_timer;
+
     /// @brief Check the PDU type in data and send it.
     void _send_pdu(EventData & data, uint8_t pdu_type);
 
-    /// @brief Issue TRANSPORT CONNECT request primitive to local transport service.
+    /**
+     * @brief Issue TRANSPORT CONNECT request primitive to local transport
+     * service.
+     */
     void AE_1(EventData & data);
 
     /// @brief Send A-ASSOCIATE-RQ-PDU.
@@ -103,7 +165,10 @@ private:
     /// @brief Issue A-ASSOCIATE confirmation (accept) primitive.
     void AE_3(EventData & data);
 
-    /// @brief Issue A-ASSOCIATE confirmation (reject) primitive and close transport connection.
+    /**
+     * @brief Issue A-ASSOCIATE confirmation (reject) primitive and close
+     * transport connection.
+     */
     void AE_4(EventData & data);
 
     /// @brief Issue Transport connection response primitive; start ARTIM timer.
@@ -115,7 +180,7 @@ private:
     /// @brief Send A-ASSOCIATE-AC PDU.
     void AE_7(EventData & data);
 
-    /// @brief Send A-ASSOCIATE-RJ PDU and start ARTIM timer
+    /// @brief Send A-ASSOCIATE-RJ PDU and start ARTIM timer.
     void AE_8(EventData & data);
 
     /// @brief Send P-DATA-TF PDU.
@@ -123,6 +188,73 @@ private:
 
     /// @brief Send P-DATA indication primitive.
     void DT_2(EventData & data);
+
+    /// @brief Send A-RELEASE-RQ PDU.
+    void AR_1(EventData & data);
+
+    /// @brief Issue A-RELEASE indication primitive.
+    void AR_2(EventData & data);
+
+    /**
+     * @brief Issue A-RELEASE confirmation primitive, and close transport.
+     * connection.
+     */
+    void AR_3(EventData & data);
+
+    /// @brief Issue A-RELEASE-RP PDU and start ARTIM timer.
+    void AR_4(EventData & data);
+
+    /// @brief Stop ARTIM timer.
+    void AR_5(EventData & data);
+
+    /// @brief Issue P-DATA indication.
+    void AR_6(EventData & data);
+
+    /// @brief Issue P-DATA-TF PDU.
+    void AR_7(EventData & data);
+
+    /// @brief Issue A-RELEASE indication (release collision).
+    void AR_8(EventData & data);
+
+    /// @brief Send A-RELEASE-RP PDU.
+    void AR_9(EventData & data);
+
+    /// @brief Issue A-RELEASE confirmation primitive.
+    void AR_10(EventData & data);
+
+    /**
+     * @brief Send A-ABORT PDU (service-user source) and start (or restart if
+     * already started) ARTIM timer.
+     */
+    void AA_1(EventData & data);
+
+    /// @brief Stop ARTIM timer if running. Close transport connection.
+    void AA_2(EventData & data);
+
+    /**
+     * @brief If (service-user inititated abort): issue A-ABORT indication and
+     * close transport connection ; otherwise (service-provider inititated
+     * abort): issue A-P-ABORT indication and close transport connection.
+     */
+    void AA_3(EventData & data);
+
+    /// @brief Issue A-P-ABORT indication primitive.
+    void AA_4(EventData & data);
+
+    /// @brief Stop ARTIM timer.
+    void AA_5(EventData & data);
+
+    /// @brief Ignore PDU.
+    void AA_6(EventData & data);
+
+    /// @brief Send A-ABORT PDU.
+    void AA_7(EventData & data);
+
+    /**
+     * @brief Send A-ABORT PDU (service-provider source-), issue an A-P-ABORT
+     * indication, and start ARTIM timer.
+     */
+    void AA_8(EventData & data);
 };
 
 }
