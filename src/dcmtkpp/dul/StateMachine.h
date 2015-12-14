@@ -14,7 +14,7 @@
 #include <tuple>
 #include <utility>
 
-#include <boost/asio/steady_timer.hpp>
+#include <boost/asio.hpp>
 
 #include "dcmtkpp/dul/EventData.h"
 #include "dcmtkpp/dul/Transport.h"
