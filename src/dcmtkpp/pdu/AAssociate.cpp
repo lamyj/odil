@@ -92,7 +92,7 @@ AAssociate
         {
             sub_item = ApplicationContext(stream).get_item();
         }
-        else if(type == 0x21)
+        else if(type == 0x20 || type == 0x21)
         {
             sub_item = PresentationContext(stream).get_item();
         }
