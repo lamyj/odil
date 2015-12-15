@@ -48,7 +48,7 @@ StateMachine
     auto const guard_iterator = StateMachine::_guards.find(
         {this->_state, event});
     auto const guard_value =
-        (guard_iterator == StateMachine::_guards.end())?
+        (guard_iterator != StateMachine::_guards.end())?
         guard_iterator->second(*this):true;
 
     auto const transition_iterator = StateMachine::_transitions.find(
