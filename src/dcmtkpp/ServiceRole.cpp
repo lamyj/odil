@@ -262,6 +262,8 @@ ServiceRole::_receive_dataset(
     DataSet data_set;
 
     std::stringstream stream;
+    std::string transfer_syntax;
+    bool keep_group_length;
 
     /* start a loop in which we want to read a DIMSE command from the incoming socket stream. */
     /* Since the command could stretch over more than one PDU, the use of a loop is mandatory. */
@@ -306,8 +308,6 @@ ServiceRole::_receive_dataset(
          */
         stream.write(reinterpret_cast<char *>(pdv.data), pdv.fragmentLength);
 
-        std::string transfer_syntax;
-        bool keep_group_length;
         if(pdv.pdvType == DUL_COMMANDPDV)
         {
             /* DIMSE commands are always specified in the little endian implicit
@@ -338,9 +338,6 @@ ServiceRole::_receive_dataset(
             throw Exception("Unknown PDV type");
         }
 
-        Reader reader(stream, transfer_syntax, keep_group_length);
-        data_set = reader.read_data_set();
-
         /* update the following variables which will be evaluated at the beginning of each loop iteration. */
         last = pdv.lastPDV;
         type = pdv.pdvType;
@@ -350,6 +347,9 @@ ServiceRole::_receive_dataset(
         /* loop iteration and dumping general information. */
         pdvCount++;
     }
+
+    Reader reader(stream, transfer_syntax, keep_group_length);
+    data_set = reader.read_data_set();
 
     return std::make_pair(data_set, type);
 }
