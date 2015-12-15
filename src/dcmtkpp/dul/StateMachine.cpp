@@ -52,7 +52,7 @@ StateMachine
         guard_iterator->second(*this):true;
 
     auto const transition_iterator = StateMachine::_transitions.find(
-        {this->_state, event, guard_value});
+        std::make_tuple(this->_state, event, guard_value));
     if(transition_iterator == StateMachine::_transitions.end())
     {
         throw Exception("No such transition");
@@ -281,12 +281,11 @@ StateMachine
 }
 
 #define transition_full(start, event, guard, action, end) { \
-        { StateMachine::State::start, StateMachine::Event::event, guard }, \
-        { StateMachine::Action::action, StateMachine::State::end } }
+    std::make_tuple(StateMachine::State::start, StateMachine::Event::event, guard), \
+    { StateMachine::Action::action, StateMachine::State::end } }
 
-#define transition(start, event, action, end) { \
-        { StateMachine::State::start, StateMachine::Event::event, true }, \
-        { StateMachine::Action::action, StateMachine::State::end } }
+#define transition(start, event, action, end) \
+    transition_full(start, event, true, action, end)
 
 StateMachine::TransitionMap const
 StateMachine
