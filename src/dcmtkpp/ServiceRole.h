@@ -15,7 +15,7 @@
 #include <dcmtk/config/osconfig.h>
 #include <dcmtk/dcmnet/assoc.h>
 
-#include "dcmtkpp/Association.h"
+#include "dcmtkpp/DcmtkAssociation.h"
 #include "dcmtkpp/DataSet.h"
 #include "dcmtkpp/message/Message.h"
 #include "dcmtkpp/Network.h"
@@ -34,7 +34,7 @@ public:
     ServiceRole();
 
     /// @brief Create a Service Role with network and association.
-    ServiceRole(Network * network, Association * association);
+    ServiceRole(Network * network, DcmtkAssociation * association);
     
     /// @brief Copy the other service role.
     ServiceRole(ServiceRole const & other);
@@ -51,9 +51,9 @@ public:
     void set_network(Network * network);
     
     /// @brief Return the association used by the ServiceRole.
-    Association * get_association() const;
+    DcmtkAssociation * get_association() const;
     /// @brief Set the association used by the ServiceRole.
-    void set_association(Association * association);
+    void set_association(DcmtkAssociation * association);
 
 protected:
     /// @brief Wrapper class for DMCTK progress callbacks.
@@ -70,7 +70,7 @@ protected:
     Network * _network;
     
     /// @brief Association used by the ServiceRole.
-    Association * _association;
+    DcmtkAssociation * _association;
 
     /// @brief Wrapper from ProgressCallback to DIMSE_ProgressCallback.
     static void _progress_callback_wrapper(void * data, unsigned long bytes_count);

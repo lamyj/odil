@@ -15,6 +15,7 @@
 #include <dcmtk/dcmnet/dimse.h>
 
 #include "dcmtkpp/DataSet.h"
+#include "dcmtkpp/DcmtkAssociation.h"
 #include "dcmtkpp/Exception.h"
 #include "dcmtkpp/Reader.h"
 #include "dcmtkpp/registry.h"
@@ -31,7 +32,7 @@ ServiceRole
 }
 
 ServiceRole
-::ServiceRole(Network * network, Association * association)
+::ServiceRole(Network * network, DcmtkAssociation * association)
 {
     this->set_network(network);
     this->set_association(association);
@@ -77,7 +78,7 @@ ServiceRole
     this->_network = network;
 }
 
-Association *
+DcmtkAssociation *
 ServiceRole
 ::get_association() const
 {
@@ -86,7 +87,7 @@ ServiceRole
 
 void
 ServiceRole
-::set_association(Association * association)
+::set_association(DcmtkAssociation * association)
 {
     this->_association = association;
 }

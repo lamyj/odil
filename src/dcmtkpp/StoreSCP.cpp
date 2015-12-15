@@ -10,7 +10,7 @@
 
 #include <functional>
 
-#include "dcmtkpp/Association.h"
+#include "dcmtkpp/DcmtkAssociation.h"
 #include "dcmtkpp/message/CStoreRequest.h"
 #include "dcmtkpp/message/CStoreResponse.h"
 #include "dcmtkpp/Exception.h"
@@ -30,14 +30,14 @@ StoreSCP
 }
 
 StoreSCP
-::StoreSCP(Network * network, Association * association)
+::StoreSCP(Network * network, DcmtkAssociation * association)
 : SCP(network, association), _callback()
 {
     // Nothing else.
 }
 
 StoreSCP
-::StoreSCP(Network * network, Association * association, Callback const & callback)
+::StoreSCP(Network * network, DcmtkAssociation * association, Callback const & callback)
 : SCP(network, association), _callback()
 {
     this->set_callback(callback);

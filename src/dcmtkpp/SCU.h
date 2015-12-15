@@ -11,7 +11,7 @@
 
 #include <string>
 
-#include "dcmtkpp/Association.h"
+#include "dcmtkpp/DcmtkAssociation.h"
 #include "dcmtkpp/Network.h"
 #include "dcmtkpp/ServiceRole.h"
 
@@ -26,7 +26,7 @@ public:
     SCU();
 
     /// @brief Create a Service Class User with network and association.
-    SCU(Network * network, Association * association);
+    SCU(Network * network, DcmtkAssociation * association);
 
     /// @brief Destructor.
     virtual ~SCU();
