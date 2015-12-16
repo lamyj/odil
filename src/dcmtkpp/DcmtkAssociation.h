@@ -76,6 +76,28 @@ public:
         NoPresentationServiceAccessPointAvailable=7,
     };
 
+    struct PresentationContext
+    {
+        std::string abstract_syntax;
+        std::vector<std::string> transfer_syntaxes;
+        T_ASC_SC_ROLE role;
+
+        PresentationContext():
+            abstract_syntax(""), transfer_syntaxes({}), role(ASC_SC_ROLE_DEFAULT)
+        {
+            // Nothing else.
+        }
+
+        PresentationContext(std::string const & abstract_s,
+                            std::vector<std::string> const & transfer_s,
+                            T_ASC_SC_ROLE role = ASC_SC_ROLE_DEFAULT):
+            abstract_syntax(abstract_s), transfer_syntaxes(transfer_s),
+            role(role)
+        {
+            // Nothing else.
+        }
+    };
+
     /// @brief Create a default, un-associated, association.
     DcmtkAssociation();
 
@@ -116,9 +138,10 @@ public:
     /// @name Presentation contexts
     /// @{
 
-    void add_presentation_context(std::string const & abstract_syntax,
-        std::vector<std::string> const & transfer_syntaxes,
-        T_ASC_SC_ROLE role=ASC_SC_ROLE_DEFAULT);
+    void set_presentation_contexts(
+            std::vector<PresentationContext> const & presentation_contexts);
+
+    std::vector<PresentationContext> get_presentation_contexts() const;
 
     /// @}
 
@@ -209,13 +232,6 @@ private:
     std::string _peer_host_name;
     uint16_t _peer_port;
     std::string _peer_ae_title;
-
-    struct PresentationContext
-    {
-        std::string abstract_syntax;
-        std::vector<std::string> transfer_syntaxes;
-        T_ASC_SC_ROLE role;
-    };
 
     std::vector<PresentationContext> _presentation_contexts;
 

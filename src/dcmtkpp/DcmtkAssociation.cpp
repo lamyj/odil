@@ -151,16 +151,22 @@ DcmtkAssociation
 
 void
 DcmtkAssociation
-::add_presentation_context(std::string const & abstract_syntax,
-    std::vector<std::string> const & transfer_syntaxes, T_ASC_SC_ROLE role)
+::set_presentation_contexts(std::vector<DcmtkAssociation::PresentationContext>
+                            const & presentation_contexts)
 {
     if(this->is_associated())
     {
         throw Exception("Cannot set member while associated");
     }
 
-    this->_presentation_contexts.push_back(
-        {abstract_syntax, transfer_syntaxes, role});
+    this->_presentation_contexts = presentation_contexts;
+}
+
+std::vector<DcmtkAssociation::PresentationContext>
+DcmtkAssociation
+::get_presentation_contexts() const
+{
+    return this->_presentation_contexts;
 }
 
 UserIdentityType
