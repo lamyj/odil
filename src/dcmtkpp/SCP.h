@@ -9,7 +9,7 @@
 #ifndef _f4680d8c_18a8_4317_956d_3ae238cb39cc
 #define _f4680d8c_18a8_4317_956d_3ae238cb39cc
 
-#include "dcmtkpp/Association.h"
+#include "dcmtkpp/DcmtkAssociation.h"
 #include "dcmtkpp/message/CEchoRequest.h"
 #include "dcmtkpp/message/Message.h"
 #include "dcmtkpp/Network.h"
@@ -26,7 +26,7 @@ public:
     SCP();
 
     /// @brief Create a Service Class Provider with network and association.
-    SCP(Network * network, Association * association);
+    SCP(Network * network, DcmtkAssociation * association);
 
     /// @brief Destructor
     virtual ~SCP();

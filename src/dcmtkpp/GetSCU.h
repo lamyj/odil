@@ -12,7 +12,7 @@
 #include <functional>
 #include <vector>
 
-#include "dcmtkpp/Association.h"
+#include "dcmtkpp/DcmtkAssociation.h"
 #include "dcmtkpp/message/CGetResponse.h"
 #include "dcmtkpp/message/CStoreRequest.h"
 #include "dcmtkpp/DataSet.h"
@@ -33,7 +33,7 @@ public:
     GetSCU();
 
     /// @brief Constructor.
-    GetSCU(Network * network, Association * association);
+    GetSCU(Network * network, DcmtkAssociation * association);
 
     /// @brief Destructor.
     virtual ~GetSCU();

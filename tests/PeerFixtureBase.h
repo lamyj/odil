@@ -9,7 +9,7 @@
 
 #include <boost/lexical_cast.hpp>
 
-#include "dcmtkpp/Association.h"
+#include "dcmtkpp/DcmtkAssociation.h"
 #include "dcmtkpp/Network.h"
 
 /// @brief Base class for fixtures of requiring a working association.
@@ -17,7 +17,7 @@ class PeerFixtureBase
 {
 public:
     dcmtkpp::Network network;
-    dcmtkpp::Association association;
+    dcmtkpp::DcmtkAssociation association;
 
     struct PresentationContext
     {

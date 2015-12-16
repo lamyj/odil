@@ -17,7 +17,7 @@
 #include <dcmtk/config/osconfig.h>
 #include <dcmtk/dcmnet/assoc.h>
 
-#include "dcmtkpp/Association.h"
+#include "dcmtkpp/DcmtkAssociation.h"
 #include "dcmtkpp/message/Message.h"
 #include "dcmtkpp/Network.h"
 

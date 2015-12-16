@@ -11,7 +11,7 @@
 
 #include <functional>
 
-#include "dcmtkpp/Association.h"
+#include "dcmtkpp/DcmtkAssociation.h"
 #include "dcmtkpp/message/CStoreRequest.h"
 #include "dcmtkpp/message/Message.h"
 #include "dcmtkpp/Network.h"
@@ -32,11 +32,11 @@ public:
     StoreSCP();
 
     /// @brief Constructor with default callback.
-    StoreSCP(Network * network, Association * association);
+    StoreSCP(Network * network, DcmtkAssociation * association);
 
     /// @brief Constructor.
     StoreSCP(
-        Network * network, Association * association,
+        Network * network, DcmtkAssociation * association,
         Callback const & callback);
 
     /// @brief Destructor.
