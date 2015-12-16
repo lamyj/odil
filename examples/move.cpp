@@ -27,7 +27,7 @@ int main()
     network.set_port(11112);
     network.initialize();
     
-    dcmtkpp::Association association;
+    dcmtkpp::DcmtkAssociation association;
     association.set_own_ae_title("myself");
     
     association.set_peer_host_name("pacs.example.com");

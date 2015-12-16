@@ -13,7 +13,7 @@
 #include <string>
 #include <vector>
 
-#include "dcmtkpp/Association.h"
+#include "dcmtkpp/DcmtkAssociation.h"
 #include "dcmtkpp/DataSet.h"
 #include "dcmtkpp/Network.h"
 #include "dcmtkpp/SCU.h"
@@ -32,7 +32,7 @@ public:
     MoveSCU();
 
     /// @brief Constructor.
-    MoveSCU(Network * network, Association * association);
+    MoveSCU(Network * network, DcmtkAssociation * association);
     
     /// @brief Destructor.
     virtual ~MoveSCU();
@@ -53,10 +53,10 @@ public:
 private:
     std::string _move_destination;
     
-    bool _dispatch(Association & association, Callback callback) const;
+    bool _dispatch(DcmtkAssociation & association, Callback callback) const;
     
     bool _handle_main_association() const;
-    bool _handle_store_association(Association & association, Callback callback) const;
+    bool _handle_store_association(DcmtkAssociation & association, Callback callback) const;
 };
 
 }

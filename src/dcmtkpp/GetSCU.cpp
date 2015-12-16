@@ -12,7 +12,7 @@
 #include <sstream>
 #include <vector>
 
-#include "dcmtkpp/Association.h"
+#include "dcmtkpp/DcmtkAssociation.h"
 #include "dcmtkpp/message/CGetRequest.h"
 #include "dcmtkpp/message/CGetResponse.h"
 #include "dcmtkpp/message/CStoreRequest.h"
@@ -32,7 +32,7 @@ GetSCU
 }
 
 GetSCU
-::GetSCU(Network * network, Association * association)
+::GetSCU(Network * network, DcmtkAssociation * association)
 : SCU(network, association)
 {
     // Nothing else

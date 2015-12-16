@@ -12,7 +12,7 @@
 
 #include <unistd.h>
 
-#include "dcmtkpp/Association.h"
+#include "dcmtkpp/DcmtkAssociation.h"
 #include "dcmtkpp/Exception.h"
 #include "dcmtkpp/message/CEchoRequest.h"
 #include "dcmtkpp/message/CEchoResponse.h"
@@ -31,7 +31,7 @@ SCU
 }
 
 SCU
-::SCU(Network * network, Association * association)
+::SCU(Network * network, DcmtkAssociation * association)
 : ServiceRole(network, association), _affected_sop_class("")
 {
     // Nothing else.

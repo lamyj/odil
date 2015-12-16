@@ -14,7 +14,7 @@
 #include <dcmtk/config/osconfig.h>
 #include <dcmtk/dcmnet/dimse.h>
 
-#include "dcmtkpp/Association.h"
+#include "dcmtkpp/DcmtkAssociation.h"
 #include "dcmtkpp/message/CMoveRequest.h"
 #include "dcmtkpp/message/CMoveResponse.h"
 #include "dcmtkpp/DataSet.h"
@@ -34,7 +34,7 @@ MoveSCU
 }
 
 MoveSCU
-::MoveSCU(Network * network, Association * association)
+::MoveSCU(Network * network, DcmtkAssociation * association)
 : SCU(network, association), _move_destination("")
 {
     // Nothing else.
@@ -72,7 +72,7 @@ MoveSCU
     this->_send(request, this->_affected_sop_class);
 
     // Receive the responses
-    Association store_association;
+    DcmtkAssociation store_association;
     bool done = false;
     while(!done)
     {
@@ -102,7 +102,7 @@ MoveSCU
 
 bool
 MoveSCU
-::_dispatch(Association & association, Callback callback) const
+::_dispatch(DcmtkAssociation & association, Callback callback) const
 {
     T_ASC_Association *associations[2];
     int size = 0;
@@ -154,7 +154,7 @@ MoveSCU
 
 bool
 MoveSCU
-::_handle_store_association(Association & association, Callback callback) const
+::_handle_store_association(DcmtkAssociation & association, Callback callback) const
 {
     bool result = false;
     try

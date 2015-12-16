@@ -8,7 +8,7 @@
 
 #include "SCP.h"
 
-#include "dcmtkpp/Association.h"
+#include "dcmtkpp/DcmtkAssociation.h"
 #include "dcmtkpp/message/CEchoRequest.h"
 #include "dcmtkpp/message/CEchoResponse.h"
 #include "dcmtkpp/message/Message.h"
@@ -26,7 +26,7 @@ SCP
 }
 
 SCP
-::SCP(Network * network, Association * association)
+::SCP(Network * network, DcmtkAssociation * association)
 : ServiceRole(network, association)
 {
     // Nothing else.
