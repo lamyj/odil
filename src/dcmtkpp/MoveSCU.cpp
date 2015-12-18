@@ -69,7 +69,7 @@ MoveSCU
         this->_association->get_association()->nextMsgID++,
         this->_affected_sop_class, message::Message::Priority::MEDIUM,
         this->_move_destination, query);
-    this->_send(request, this->_affected_sop_class);
+    this->_association->send(request, this->_affected_sop_class);
 
     // Receive the responses
     DcmtkAssociation store_association;
@@ -148,7 +148,7 @@ bool
 MoveSCU
 ::_handle_main_association() const
 {
-    auto const response = this->_receive<message::CMoveResponse>();
+    auto const response = this->_association->receive<message::CMoveResponse>();
     return !response.is_pending();
 }
 

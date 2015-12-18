@@ -42,7 +42,7 @@ void
 SCP
 ::receive_and_process()
 {
-    auto const message = this->_receive();
+    auto const message = this->_association->receive();
     (*this)(message);
 }
 
@@ -53,7 +53,7 @@ SCP
     message::CEchoResponse response(
         request.get_message_id(), message::CEchoResponse::Success,
         request.get_affected_sop_class_uid());
-    this->_send(response, request.get_affected_sop_class_uid());
+    this->_association->send(response, request.get_affected_sop_class_uid());
 }
 
 }

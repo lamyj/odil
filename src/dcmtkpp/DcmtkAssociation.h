@@ -18,6 +18,7 @@
 #include <dcmtk/dcmnet/assoc.h>
 
 #include "dcmtkpp/Association.h"
+#include "dcmtkpp/message/Message.h"
 #include "dcmtkpp/Network.h"
 
 namespace dcmtkpp
@@ -96,6 +97,19 @@ public:
         {
             // Nothing else.
         }
+    };
+
+    /// @brief Progress callback, following the semantics of DCMTK.
+    typedef std::function<void(void *, unsigned long)> ProgressCallback;
+
+    /// @brief Wrapper class for DMCTK progress callbacks.
+    struct ProgressCallbackData
+    {
+        /// @brief Callback function.
+        ProgressCallback callback;
+
+        /// @brief Callback data.
+        void * data;
     };
 
     /// @brief Create a default, un-associated, association.
@@ -181,6 +195,17 @@ public:
 
     /// @}
 
+    /// @name Network Timeout
+    /// @{
+
+    /// @brief Set the Network timeout.
+    void set_network_timeout(int timeout);
+
+    /// @brief Return associated Network timeout.
+    int get_network_timeout() const;
+
+    /// @}
+
     /// @name Association
     /// @{
 
@@ -226,6 +251,23 @@ public:
 
     /// @}
 
+    /// @brief Receive a generic DIMSE message.
+    message::Message receive(
+        ProgressCallback callback=NULL, void* callback_data=NULL);
+
+    /**
+     * @brief Receive a DIMSE message of specific type.
+     *
+     * Throw an exception if the received message is not of the requested type.
+     */
+    template<typename TMessage>
+    TMessage receive(ProgressCallback callback=NULL, void* callback_data=NULL);
+
+    /// @brief Send a DIMSE message.
+    void send(
+        message::Message const & message, std::string const & abstract_syntax,
+        ProgressCallback callback=NULL, void* callback_data=NULL);
+
 private:
     std::string _own_ae_title;
 
@@ -240,9 +282,31 @@ private:
     std::string _user_identity_secondary_field;
 
     T_ASC_Association * _association;
+
+    int _network_timeout;
+
+    /// @brief Find an accepted presentation context.
+    T_ASC_PresentationContextID _find_presentation_context(
+        std::string const & abstract_syntax) const;
+
+    std::pair<DataSet, DUL_DATAPDV> _receive_dataset(
+        ProgressCallback callback, void *callbackContext);
+
+    void _send(
+        DataSet const & obj, T_ASC_PresentationContextID presID,
+        std::string const & transfer_syntax, DUL_DATAPDV pdvType,
+        ProgressCallback callback, void *callbackContext);
+
+    DUL_PDV _read_next_pdv();
+
+    /// @brief Wrapper from ProgressCallback to DIMSE_ProgressCallback.
+    static void _progress_callback_wrapper(void * data, unsigned long bytes_count);
+
 };
 
 }
+
+#include "DcmtkAssociation.txx"
 
 #endif // _b76e1bde_7daf_41f4_82f1_af94e1c22285
 

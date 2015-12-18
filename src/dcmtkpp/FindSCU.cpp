@@ -33,14 +33,14 @@ FindSCU
     message::CFindRequest request(
         this->_association->get_association()->nextMsgID++,
         this->_affected_sop_class, message::Message::Priority::MEDIUM, query);
-    this->_send(request, this->_affected_sop_class);
+    this->_association->send(request, this->_affected_sop_class);
 
     // Receive the responses
     bool done = false;
     while(!done)
     {
         // FIXME: include progress callback
-        auto response = this->_receive<message::CFindResponse>();
+        auto response = this->_association->receive<message::CFindResponse>();
 
         if(response.get_message_id_being_responded_to() != request.get_message_id())
         {

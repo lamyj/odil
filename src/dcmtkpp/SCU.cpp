@@ -64,9 +64,9 @@ SCU
     Uint16 const message_id = this->_association->get_association()->nextMsgID++;
     
     message::CEchoRequest const request(message_id, registry::VerificationSOPClass);
-    this->_send(request, request.get_affected_sop_class_uid());
+    this->_association->send(request, request.get_affected_sop_class_uid());
     
-    auto const response = this->_receive<message::CEchoResponse>();
+    auto const response = this->_association->receive<message::CEchoResponse>();
     if(response.get_message_id_being_responded_to() != message_id)
     {
         std::ostringstream message;
