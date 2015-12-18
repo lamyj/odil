@@ -52,13 +52,13 @@ GetSCU
     message::CGetRequest request(
         this->_association->get_association()->nextMsgID++,
         this->_affected_sop_class, message::Message::Priority::MEDIUM, query);
-    this->_send(request, this->_affected_sop_class);
+    this->_association->send(request, this->_affected_sop_class);
 
     // Receive the responses
     bool done = false;
     while(!done)
     {
-        message::Message const message = this->_receive();
+        message::Message const message = this->_association->receive();
 
         if(message.get_command_field() == message::Message::Command::C_GET_RSP)
         {

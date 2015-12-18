@@ -84,7 +84,7 @@ StoreSCP
     }
 
     message::CStoreResponse const response(request.get_message_id(), status);
-    this->_send(response, request.get_affected_sop_class_uid());
+    this->_association->send(response, request.get_affected_sop_class_uid());
 }
 
 }

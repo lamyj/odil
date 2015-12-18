@@ -55,7 +55,8 @@ StoreSCU
 
 void 
 StoreSCU
-::store(DataSet const & dataset, ProgressCallback callback, void * data) const
+::store(DataSet const & dataset, DcmtkAssociation::ProgressCallback callback,
+        void * data) const
 {
     message::CStoreRequest const request(
         this->_association->get_association()->nextMsgID++,
@@ -63,9 +64,9 @@ StoreSCU
         dataset.as_string(registry::SOPInstanceUID, 0),
         message::Message::Priority::MEDIUM,
         dataset);
-    this->_send(request, this->_affected_sop_class, callback, data);
+    this->_association->send(request, this->_affected_sop_class, callback, data);
     
-    auto const response = this->_receive<message::CStoreResponse>();
+    auto const response = this->_association->receive<message::CStoreResponse>();
 
     if(response.get_message_id_being_responded_to() != request.get_message_id())
     {

@@ -47,13 +47,18 @@ public:
             this->_get_environment_variable<uint16_t>("DCMTKPP_PEER_PORT"));
         this->association.set_peer_ae_title(
             this->_get_environment_variable("DCMTKPP_PEER_AET"));
+
+        std::vector<dcmtkpp::DcmtkAssociation::PresentationContext>
+                pres_contexts;
         for(auto const & presentation_context: presentation_contexts)
         {
-            this->association.add_presentation_context(
-                presentation_context.abstract_syntax,
-                presentation_context.transfer_syntaxes,
-                presentation_context.role);
+            pres_contexts.push_back(
+                        dcmtkpp::DcmtkAssociation::PresentationContext(
+                            presentation_context.abstract_syntax,
+                            presentation_context.transfer_syntaxes,
+                            presentation_context.role));
         }
+        this->association.set_presentation_contexts(pres_contexts);
 
         this->association.associate(this->network);
     }

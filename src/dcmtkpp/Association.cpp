@@ -440,6 +440,7 @@ Association
     this->_peer_host_name = dul.callingPresentationAddress;
     this->_peer_port = 0;
     this->_peer_ae_title = dul.callingAPTitle;
+    this->_own_ae_title = dul.calledAPTitle;
 
     // check Peer ae title
     // '*' => everybody allowed

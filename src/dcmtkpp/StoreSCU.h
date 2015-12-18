@@ -12,6 +12,7 @@
 #include "SCU.h"
 
 #include "dcmtkpp/DataSet.h"
+#include "dcmtkpp/DcmtkAssociation.h"
 
 namespace dcmtkpp
 {
@@ -28,7 +29,8 @@ public:
     
     /// @brief Perform the C-STORE using an optional callback.
     void store(DataSet const & dataset,
-        ProgressCallback callback=NULL, void * data=NULL) const;
+               DcmtkAssociation::ProgressCallback callback=NULL,
+               void * data=NULL) const;
 };
 
 }

@@ -33,19 +33,27 @@ int main()
     association.set_peer_host_name("pacs.example.com");
     association.set_peer_port(11112);
     association.set_peer_ae_title("pacs");
-    
-    association.add_presentation_context(
-        dcmtkpp::registry::StudyRootQueryRetrieveInformationModelMOVE,
-        { dcmtkpp::registry::ImplicitVRLittleEndian });
-    
-    association.add_presentation_context(
-         dcmtkpp::registry::MRImageStorage,
-        { dcmtkpp::registry::ImplicitVRLittleEndian },
-        ASC_SC_ROLE_SCP);
-    
-    association.add_presentation_context(
-         dcmtkpp::registry::VerificationSOPClass,
-        { dcmtkpp::registry::ImplicitVRLittleEndian });
+
+    std::vector<dcmtkpp::DcmtkAssociation::PresentationContext>
+            presentation_contexts;
+
+    presentation_contexts.push_back(
+                dcmtkpp::DcmtkAssociation::PresentationContext(
+                    dcmtkpp::registry::StudyRootQueryRetrieveInformationModelMOVE,
+                    { dcmtkpp::registry::ImplicitVRLittleEndian }));
+
+    presentation_contexts.push_back(
+                dcmtkpp::DcmtkAssociation::PresentationContext(
+                    dcmtkpp::registry::MRImageStorage,
+                    { dcmtkpp::registry::ImplicitVRLittleEndian },
+                    ASC_SC_ROLE_SCP));
+
+    presentation_contexts.push_back(
+                dcmtkpp::DcmtkAssociation::PresentationContext(
+                    dcmtkpp::registry::VerificationSOPClass,
+                    { dcmtkpp::registry::ImplicitVRLittleEndian }));
+
+    association.set_presentation_contexts(presentation_contexts);
     
     association.associate(network);
     

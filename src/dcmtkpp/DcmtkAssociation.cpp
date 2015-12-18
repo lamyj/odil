@@ -17,8 +17,12 @@
 #include <dcmtk/config/osconfig.h>
 #include <dcmtk/dcmnet/assoc.h>
 #include <dcmtk/dcmnet/cond.h>
+#include <dcmtk/dcmnet/dimse.h>
 
 #include "dcmtkpp/Exception.h"
+#include "dcmtkpp/Reader.h"
+#include "dcmtkpp/registry.h"
+#include "dcmtkpp/Writer.h"
 
 namespace dcmtkpp
 {
@@ -27,9 +31,9 @@ DcmtkAssociation
 ::DcmtkAssociation()
 : _own_ae_title(""),
   _peer_host_name(""), _peer_port(104), _peer_ae_title(""),
-  _user_identity_type(UserIdentityType::None),
+  _presentation_contexts({}), _user_identity_type(UserIdentityType::None),
   _user_identity_primary_field(""), _user_identity_secondary_field(""),
-  _association(NULL)
+  _association(NULL), _network_timeout(30)
 {
     // Nothing else
 }
@@ -39,10 +43,11 @@ DcmtkAssociation
 : _own_ae_title(other.get_own_ae_title()),
   _peer_host_name(other.get_peer_host_name()), _peer_port(other.get_peer_port()),
   _peer_ae_title(other.get_peer_ae_title()),
+  _presentation_contexts(other._presentation_contexts),
   _user_identity_type(other.get_user_identity_type()),
   _user_identity_primary_field(other.get_user_identity_primary_field()),
   _user_identity_secondary_field(other.get_user_identity_secondary_field()),
-  _association(NULL)
+  _association(NULL), _network_timeout(other._network_timeout)
 {
 }
 
@@ -65,9 +70,11 @@ DcmtkAssociation
         this->set_peer_host_name(other.get_peer_host_name());
         this->set_peer_port(other.get_peer_port());
         this->set_peer_ae_title(other.get_peer_ae_title());
+        this->set_presentation_contexts(other.get_presentation_contexts());
         this->set_user_identity_type(other.get_user_identity_type());
         this->set_user_identity_primary_field(other.get_user_identity_primary_field());
         this->set_user_identity_secondary_field(other.get_user_identity_secondary_field());
+        this->set_network_timeout(other.get_network_timeout());
     }
 
     return *this;
@@ -151,16 +158,22 @@ DcmtkAssociation
 
 void
 DcmtkAssociation
-::add_presentation_context(std::string const & abstract_syntax,
-    std::vector<std::string> const & transfer_syntaxes, T_ASC_SC_ROLE role)
+::set_presentation_contexts(std::vector<DcmtkAssociation::PresentationContext>
+                            const & presentation_contexts)
 {
     if(this->is_associated())
     {
         throw Exception("Cannot set member while associated");
     }
 
-    this->_presentation_contexts.push_back(
-        {abstract_syntax, transfer_syntaxes, role});
+    this->_presentation_contexts = presentation_contexts;
+}
+
+std::vector<DcmtkAssociation::PresentationContext>
+DcmtkAssociation
+::get_presentation_contexts() const
+{
+    return this->_presentation_contexts;
 }
 
 UserIdentityType
@@ -264,6 +277,20 @@ DcmtkAssociation
     this->set_user_identity_type(UserIdentityType::SAML);
     this->set_user_identity_primary_field(assertion);
     this->set_user_identity_secondary_field("");
+}
+
+void
+DcmtkAssociation
+::set_network_timeout(int timeout)
+{
+    this->_network_timeout = timeout;
+}
+
+int
+DcmtkAssociation
+::get_network_timeout() const
+{
+    return this->_network_timeout;
 }
 
 bool
@@ -398,6 +425,8 @@ DcmtkAssociation
             throw Exception(DimseCondition::dump(empty, condition).c_str());
         }
     }
+
+    this->set_network_timeout(network.get_timeout());
 }
 
 void
@@ -440,6 +469,7 @@ DcmtkAssociation
     this->_peer_host_name = dul.callingPresentationAddress;
     this->_peer_port = 0;
     this->_peer_ae_title = dul.callingAPTitle;
+    this->_own_ae_title = dul.calledAPTitle;
 
     // check Peer ae title
     // '*' => everybody allowed
@@ -568,6 +598,8 @@ DcmtkAssociation
         this->drop();
         throw Exception("Bad Authentication");
     }
+
+    this->set_network_timeout(network.get_timeout());
 }
 
 void
@@ -635,6 +667,337 @@ DcmtkAssociation
     ASC_dropSCPAssociation(this->_association);
     ASC_destroyAssociation(&this->_association);
     this->_association = NULL;
+}
+
+message::Message
+DcmtkAssociation
+::receive(DcmtkAssociation::ProgressCallback callback,
+           void *callback_data)
+{
+    // Receive command set
+    auto const command = this->_receive_dataset(callback, callback_data);
+    if(command.second != DUL_COMMANDPDV)
+    {
+        throw Exception("Did not receive command set");
+    }
+    DataSet const & command_set = command.first;
+
+    // Receive potential data set
+    DataSet data_set;
+    bool has_data_set;
+    if(command_set.as_int(registry::CommandDataSetType, 0) != DIMSE_DATASET_NULL)
+    {
+        auto const data = this->_receive_dataset(callback, callback_data);
+        if(data.second != DUL_DATASETPDV)
+        {
+            throw Exception("Did not receive data set");
+        }
+        data_set = data.first;
+        has_data_set = true;
+    }
+    else
+    {
+        has_data_set = false;
+    }
+
+    return (
+        has_data_set?
+        message::Message(command_set, data_set):message::Message(command_set));
+}
+
+std::pair<DataSet, DUL_DATAPDV>
+DcmtkAssociation
+::_receive_dataset(DcmtkAssociation::ProgressCallback callback,
+                   void *callbackContext)
+{
+    DataSet data_set;
+
+    std::stringstream stream;
+    std::string transfer_syntax;
+    bool keep_group_length;
+
+    /* start a loop in which we want to read a DIMSE command from the incoming socket stream. */
+    /* Since the command could stretch over more than one PDU, the use of a loop is mandatory. */
+    DUL_DATAPDV type;
+    bool last = false;
+    DIC_UL pdvCount = 0;
+    T_ASC_PresentationContextID pid = 0;
+    while(!last)
+    {
+        DUL_PDV const pdv = this->_read_next_pdv();
+
+        /* if this is the first loop iteration, get the presentation context ID
+         * which is captured in the current PDV. If this is not the first loop
+         * iteration, check if the presentation context IDs in the current PDV
+         * and in the last PDV are identical. If they are not, return an error.
+         */
+        if (pdvCount == 0)
+        {
+            pid = pdv.presentationContextID;
+        }
+        else if (pdv.presentationContextID != pid)
+        {
+            std::ostringstream message;
+            message << "Different presentation IDs inside Command Set: "
+                    << pid << " != " << pdv.presentationContextID;
+            throw Exception(message.str());
+        }
+
+        /* check if the fragment length of the current PDV is odd. This should */
+        /* never happen (see DICOM standard (year 2000) part 7, annex F) (or */
+        /* the corresponding section in a later version of the standard.) */
+        if ((pdv.fragmentLength % 2) != 0)
+        {
+            /* This should NEVER happen.  See Part 7, Annex F. */
+            std::ostringstream message;
+            message << "Odd fragment length: " << pdv.fragmentLength;
+            throw Exception(message.str());
+        }
+
+        /* if information is contained the PDVs fragment, we want to insert
+         * this information into the buffer
+         */
+        stream.write(reinterpret_cast<char *>(pdv.data), pdv.fragmentLength);
+
+        if(pdv.pdvType == DUL_COMMANDPDV)
+        {
+            /* DIMSE commands are always specified in the little endian implicit
+             * transfer syntax. Additionally, we want to remove group length
+             * tags.
+             */
+            transfer_syntax = registry::ImplicitVRLittleEndian;
+            keep_group_length = false;
+        }
+        else if(pdv.pdvType == DUL_DATASETPDV)
+        {
+            /* figure out if is this a valid presentation context */
+            T_ASC_PresentationContext pc;
+            OFCondition const cond =
+                ASC_findAcceptedPresentationContext(
+                    this->_association->params, pid, &pc);
+            if (cond.bad())
+            {
+                throw Exception("No valid presentation context");
+            }
+
+            /* determine the transfer syntax which is specified in the presentation context */
+            transfer_syntax = pc.acceptedTransferSyntax;
+            keep_group_length = true;
+        }
+        else
+        {
+            throw Exception("Unknown PDV type");
+        }
+
+        /* update the following variables which will be evaluated at the beginning of each loop iteration. */
+        last = pdv.lastPDV;
+        type = pdv.pdvType;
+
+        /* update the counter that counts how many PDVs were received on the incoming */
+        /* socket stream. This variable will be used for determining the first */
+        /* loop iteration and dumping general information. */
+        pdvCount++;
+    }
+
+    Reader reader(stream, transfer_syntax, keep_group_length);
+    data_set = reader.read_data_set();
+
+    return std::make_pair(data_set, type);
+}
+
+void
+DcmtkAssociation
+::send(message::Message const & message, std::string const & abstract_syntax,
+       DcmtkAssociation::ProgressCallback callback, void *callback_data)
+{
+    T_ASC_PresentationContextID const presentation_context =
+        this->_find_presentation_context(abstract_syntax);
+
+    this->_send(
+        message.get_command_set(),
+        presentation_context, registry::ImplicitVRLittleEndian,
+        DUL_COMMANDPDV, NULL, NULL);
+    if(message.has_data_set() && !message.get_data_set().empty())
+    {
+        // FIXME: transfer syntax
+        this->_send(
+            message.get_data_set(),
+            presentation_context, registry::ImplicitVRLittleEndian,
+            DUL_DATASETPDV, callback, callback_data);
+    }
+}
+
+T_ASC_PresentationContextID
+DcmtkAssociation
+::_find_presentation_context(const std::string &abstract_syntax) const
+{
+    T_ASC_PresentationContextID const presentation_id =
+        ASC_findAcceptedPresentationContextID(
+            this->_association,
+            abstract_syntax.c_str());
+    if(presentation_id == 0)
+    {
+        throw Exception("No Presentation Context for Get Operation");
+    }
+
+    return presentation_id;
+}
+
+void
+DcmtkAssociation
+::_send(DataSet const & obj, T_ASC_PresentationContextID presID,
+        std::string const & transfer_syntax, DUL_DATAPDV pdvType,
+        DcmtkAssociation::ProgressCallback callback, void *callbackContext)
+    /*
+     * This function sends all information which is included in a DcmDataset object over
+     * the network which is provided in assoc.
+     *
+     * Parameters:
+     *   obj             - [in] Contains the information which shall be sent over the network.
+     *   presId          - [in] The ID of the presentation context which shall be used
+     *   xferSyntax      - [in] The transfer syntax which shall be used.
+     *   pdvType         - [in] Specifies if the information in this DcmDataset object belongs to
+     *                          a DIMSE command (as for example C-STORE) (DUL_COMMANDPDV) or if
+     *                          the information is actual instance information (DUL_DATASETPDV).
+     *   callback        - [in] Pointer to a function which shall be called to indicate progress.
+     *   callbackContext - []
+     */
+{
+    bool const use_group_length = (pdvType == DUL_COMMANDPDV);
+    std::stringstream stream;
+    Writer writer(
+        stream, transfer_syntax, Writer::ItemEncoding::ExplicitLength,
+        use_group_length);
+    writer.write_data_set(obj);
+    std::string const data = stream.str();
+
+    /* we may wish to restrict output PDU size */
+    /* max PDV size is max PDU size minus 12 bytes PDU/PDV header */
+    unsigned long bufLen = this->_association->sendPDVLength;
+    if (bufLen + 12 > dcmMaxOutgoingPDUSize.get())
+    {
+        bufLen = dcmMaxOutgoingPDUSize.get() - 12;
+    }
+
+    bool done = false;
+    unsigned long bytesTransmitted=0;
+    while(!done)
+    {
+        std::string const buffer = data.substr(bytesTransmitted, bufLen);
+
+        /* count the bytes and the amount of PDVs which were transmitted */
+        bytesTransmitted += buffer.size();
+        done = (bytesTransmitted>=data.size());
+
+        /* initialize a DUL_PDV variable with the buffer's data */
+        DUL_PDV pdv;
+        pdv.fragmentLength = buffer.size();
+        pdv.presentationContextID = presID;
+        pdv.pdvType = pdvType;
+        pdv.lastPDV = done;
+        pdv.data = reinterpret_cast<void*>(const_cast<char*>(&buffer[0]));
+
+        /* append this PDV to a PDV list structure, set the counter variable */
+        /* to 1 since this structure contains only 1 element */
+        DUL_PDVLIST pdvList;
+        pdvList.count = 1;
+        pdvList.pdv = &pdv;
+
+        /* send information over the network to the other DICOM application */
+        OFCondition const dulCond = DUL_WritePDVs(
+            &this->get_association()->DULassociation, &pdvList);
+        if (dulCond.bad())
+        {
+            throw Exception(
+                makeDcmnetSubCondition(
+                    DIMSEC_SENDFAILED, OF_error, "DIMSE Failed to send message",
+                    dulCond));
+        }
+
+        /* execute callback function to indicate progress */
+        if(callback)
+        {
+            callback(callbackContext, bytesTransmitted);
+        }
+    }
+}
+
+DUL_PDV
+DcmtkAssociation
+::_read_next_pdv()
+    /*
+     * This function returns the next PDV which was (earlier or just now) received on the incoming
+     * socket stream. If there are no PDVs (which were already received earlier) waiting to be picked
+     * up, this function will go ahead and read a new PDU (containing one or more new PDVs) from the
+     * incoming socket stream.
+     */
+{
+    /* get the next PDV from the association, in case there are still some PDVs waiting to be picked up */
+    DUL_PDV pdv;
+    OFCondition cond = DUL_NextPDV(
+        &this->get_association()->DULassociation, &pdv);
+
+    if (cond.bad())
+    {
+        /* in case DUL_NextPDV(...) did not return DUL_NORMAL, the association */
+        /* did not contain any more PDVs that are waiting to be picked up. Hence, */
+        /* we need to read new PDVs from the incoming socket stream. */
+
+        /* if the blocking mode is DIMSE_NONBLOCKING and there is no data waiting after timeout seconds, report an error */
+        if(!ASC_dataWaiting(
+            this->get_association(), this->get_network_timeout()))
+        {
+            throw Exception(DIMSE_NODATAAVAILABLE);
+        }
+
+        /* try to receive new PDVs on the incoming socket stream (in detail, try to receive one PDU) */
+        cond = DUL_ReadPDVs(
+            &this->get_association()->DULassociation, NULL,
+            DUL_BLOCK, this->get_network_timeout());
+
+        /* check return value, if it is different from DUL_PDATAPDUARRIVED, an error occurred */
+        if (cond != DUL_PDATAPDUARRIVED)
+        {
+            if (cond == DUL_NULLKEY || cond == DUL_ILLEGALKEY)
+            {
+                throw Exception(DIMSE_ILLEGALASSOCIATION);
+            }
+            else if (cond == DUL_PEERREQUESTEDRELEASE ||
+                cond == DUL_PEERABORTEDASSOCIATION)
+            {
+                throw Exception(cond);
+            }
+            else
+            {
+                throw Exception(
+                    makeDcmnetSubCondition(
+                        DIMSEC_READPDVFAILED, OF_error,
+                        "DIMSE Read PDV failed", cond));
+            }
+        }
+
+        /* get the next PDV, assign it to pdv */
+        cond = DUL_NextPDV(
+            &this->get_association()->DULassociation, &pdv);
+        if (cond.bad())
+        {
+            throw Exception(
+                makeDcmnetSubCondition(
+                    DIMSEC_READPDVFAILED, OF_error,
+                    "DIMSE Read PDV failed", cond));
+        }
+    }
+
+    return pdv;
+}
+
+void
+DcmtkAssociation
+::_progress_callback_wrapper(void *data, unsigned long bytes_count)
+{
+    ProgressCallbackData * encapsulated =
+        reinterpret_cast<ProgressCallbackData*>(data);
+    encapsulated->callback(encapsulated->data, bytes_count);
 }
 
 }

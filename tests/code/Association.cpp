@@ -223,10 +223,15 @@ BOOST_AUTO_TEST_CASE(Associate)
         fixture.association.set_peer_port(1234), dcmtkpp::Exception);
     BOOST_CHECK_THROW(
         fixture.association.set_peer_ae_title("foo"), dcmtkpp::Exception);
+
+    std::vector<dcmtkpp::DcmtkAssociation::PresentationContext>
+            presentation_contexts;
+    presentation_contexts.push_back(
+                dcmtkpp::DcmtkAssociation::PresentationContext(
+                    dcmtkpp::registry::PatientRootQueryRetrieveInformationModelGET,
+                    { dcmtkpp::registry::ImplicitVRLittleEndian }));
     BOOST_CHECK_THROW(
-        fixture.association.add_presentation_context(
-                dcmtkpp::registry::PatientRootQueryRetrieveInformationModelGET,
-                { dcmtkpp::registry::ImplicitVRLittleEndian }),
+        fixture.association.set_presentation_contexts(presentation_contexts),
         dcmtkpp::Exception);
     BOOST_CHECK_THROW(
         fixture.association.set_user_identity_type(dcmtkpp::UserIdentityType::SAML), 
