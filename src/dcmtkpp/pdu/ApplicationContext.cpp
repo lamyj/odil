@@ -52,21 +52,17 @@ std::string
 ApplicationContext
 ::get_name() const
 {
-    auto const & value = this->_item.as_string("Application-context-name");
-    auto const clamped =
-        (value[value.size()-1]=='\0')?
-            (value.substr(0, value.size()-1)):
-            value;
-    return clamped;
+    // Application Context is not padded: PS 3.8 F.1
+    return this->_item.as_string("Application-context-name");
 }
 
 void
 ApplicationContext
 ::set_name(std::string const & name)
 {
-    auto const padded = (name.size()%2==0)?name:(name+'\0');
-    this->_item.as_unsigned_int_16("Item-length") = padded.size();
-    this->_item.as_string("Application-context-name") = padded;
+    // Application Context is not padded: PS 3.8 F.1
+    this->_item.as_string("Application-context-name") = name;
+    this->_item.as_unsigned_int_16("Item-length") = this->_compute_length();
 }
 
 }
