@@ -25,7 +25,7 @@ BOOST_AUTO_TEST_CASE(DefaultConstructor)
     dcmtkpp::Association association;
     BOOST_CHECK_EQUAL(association.get_own_ae_title(), "");
 
-    BOOST_CHECK_EQUAL(association.get_peer_host_name(), "");
+    BOOST_CHECK_EQUAL(association.get_peer_host(), "");
     BOOST_CHECK_EQUAL(association.get_peer_port(), 104);
     BOOST_CHECK_EQUAL(association.get_peer_ae_title(), "");
 
@@ -35,8 +35,6 @@ BOOST_AUTO_TEST_CASE(DefaultConstructor)
     BOOST_CHECK_EQUAL(association.get_user_identity_secondary_field(), "");
 
     BOOST_CHECK(!association.is_associated());
-    BOOST_CHECK_EQUAL(
-        association.get_association(), static_cast<T_ASC_Association*>(NULL));
 }
 
 BOOST_AUTO_TEST_CASE(CopyConstructor)
@@ -44,7 +42,7 @@ BOOST_AUTO_TEST_CASE(CopyConstructor)
     dcmtkpp::Association association;
     association.set_own_ae_title("local");
 
-    association.set_peer_host_name("pacs.example.com");
+    association.set_peer_host("pacs.example.com");
     association.set_peer_port(11112);
     association.set_peer_ae_title("remote");
 
@@ -54,8 +52,7 @@ BOOST_AUTO_TEST_CASE(CopyConstructor)
 
     BOOST_CHECK_EQUAL(other.get_own_ae_title(), association.get_own_ae_title());
 
-    BOOST_CHECK_EQUAL(
-        other.get_peer_host_name(), association.get_peer_host_name());
+    BOOST_CHECK_EQUAL(other.get_peer_host(), association.get_peer_host());
     BOOST_CHECK_EQUAL(other.get_peer_port(), association.get_peer_port());
     BOOST_CHECK_EQUAL(
         other.get_peer_ae_title(), association.get_peer_ae_title());
@@ -75,7 +72,7 @@ BOOST_AUTO_TEST_CASE(Assignment)
     dcmtkpp::Association association;
     association.set_own_ae_title("local");
 
-    association.set_peer_host_name("pacs.example.com");
+    association.set_peer_host("pacs.example.com");
     association.set_peer_port(11112);
     association.set_peer_ae_title("remote");
 
@@ -86,8 +83,7 @@ BOOST_AUTO_TEST_CASE(Assignment)
 
     BOOST_CHECK_EQUAL(other.get_own_ae_title(), association.get_own_ae_title());
 
-    BOOST_CHECK_EQUAL(
-        other.get_peer_host_name(), association.get_peer_host_name());
+    BOOST_CHECK_EQUAL(other.get_peer_host(), association.get_peer_host());
     BOOST_CHECK_EQUAL(other.get_peer_port(), association.get_peer_port());
     BOOST_CHECK_EQUAL(
         other.get_peer_ae_title(), association.get_peer_ae_title());
@@ -112,8 +108,8 @@ BOOST_AUTO_TEST_CASE(OwnAETitle)
 BOOST_AUTO_TEST_CASE(PeerHostName)
 {
     dcmtkpp::Association association;
-    association.set_peer_host_name("pacs.example.com");
-    BOOST_CHECK_EQUAL(association.get_peer_host_name(), "pacs.example.com");
+    association.set_peer_host("pacs.example.com");
+    BOOST_CHECK_EQUAL(association.get_peer_host(), "pacs.example.com");
 }
 
 BOOST_AUTO_TEST_CASE(PeerPort)
@@ -253,5 +249,5 @@ BOOST_AUTO_TEST_CASE(Release)
 BOOST_AUTO_TEST_CASE(Abort)
 {
     dcmtkpp::Association association;
-    BOOST_CHECK_THROW(association.abort(), dcmtkpp::Exception);
+    BOOST_CHECK_THROW(association.abort(2, 4), dcmtkpp::Exception);
 }

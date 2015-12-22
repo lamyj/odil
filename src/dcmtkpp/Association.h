@@ -11,13 +11,10 @@
 
 #include <functional>
 #include <string>
-#include <utility>
 #include <vector>
 
-#include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmnet/assoc.h>
-
-#include "dcmtkpp/Network.h"
+#include "dcmtkpp/dul/StateMachine.h"
+#include "dcmtkpp/message/Message.h"
 
 namespace dcmtkpp
 {
@@ -33,17 +30,15 @@ enum class UserIdentityType
 };
 
 /**
- * @brief Wrapper around the T_ASC_Association class.
- *
- * No member can be set while the object is associated.
+ * @brief Association.
  */
 class Association
 {
 public:
-    /// @brief Association result (PS 3.8, 7.1.1.7 and PS 3.8, 9.3.4).
+    /// @brief Association result (ITU-T X.227, PS 3.8, 7.1.1.7 and PS 3.8, 9.3.4).
     enum Result
     {
-        //Accepted,
+        Accepted=0,
         RejectedPermanent=1,
         RejectedTransient=2,
     };
@@ -85,6 +80,12 @@ public:
         NoPresentationServiceAccessPointAvailable=7,
     };
 
+    struct PresentationContext
+    {
+        std::string abstract_syntax;
+        std::vector<std::string> transfer_syntaxes;
+    };
+
     /// @brief Create a default, un-associated, association.
     Association();
 
@@ -106,9 +107,9 @@ public:
     /// @{
 
     /// @brief Return the host name of the peer. Defaults to "".
-    std::string const & get_peer_host_name() const;
+    std::string const & get_peer_host() const;
     /// @brief Set the host name of the peer.
-    void set_peer_host_name(std::string const & host_name);
+    void set_peer_host(std::string const & host);
 
     /// @brief Return the port of the peer. Defaults to 104.
     uint16_t get_peer_port() const;
@@ -122,12 +123,17 @@ public:
 
     /// @}
 
+    // Hide PDU items from user when possible?
+    bool has_maximum_length() const;
+    int get_maximum_length() const;
+    void set_maximum_length(int value);
+    void remove_maximum_length();
+
     /// @name Presentation contexts
     /// @{
 
-    void add_presentation_context(std::string const & abstract_syntax,
-        std::vector<std::string> const & transfer_syntaxes,
-        T_ASC_SC_ROLE role=ASC_SC_ROLE_DEFAULT);
+    std::vector<PresentationContext> const & get_presentation_contexts() const;
+    void set_presentation_contexts(std::vector<PresentationContext> const & value);
 
     /// @}
 
@@ -173,66 +179,52 @@ public:
     /// @brief Test whether the object is currently associated to its peer.
     bool is_associated() const;
 
-    /**
-     * @brief Request an association with the peer.
-     * @param network network to use for the data transmission.
-     *
-     * Throws an exception if already associated.
-     */
-    void associate(Network & network);
+    /// @brief Request an association with the peer.
+    void associate();
 
-    /**
-     * @brief Receive an association for a peer.
-     * @param network network to use for the data transmission.
-     * @param accept_all if true, accept all presentations contexts proposed
-     *  by peer.
-     *
-     * All AE titles are accepted as peers, and no authentication is performed.
-     */
-    void receive(Network & network, bool accept_all=false);
+    /// @brief Receive an association from a peer.
+    void receive_association();
 
-    void receive(Network & network,
-                 std::function<bool(Association const&)> authenticator,
-                 std::vector<std::string> const & aetitles,
-                 bool accept_all=false);
+    void receive_association(std::function<bool(Association const&)> accpetor);
 
     /// @brief Reject the received association request.
     void reject(Result result, ResultSource result_source, Diagnostic diagnostic);
 
-    /// @brief Return the association object.
-    T_ASC_Association * get_association();
-
     /// @brief Gracefully release the association. Throws an exception if not associated.
     void release();
     /// @brief Forcefully release the association. Throws an exception if not associated.
-    void abort();
-
-    /// @brief Drop an association that has been released by the peer.
-    void drop();
+    void abort(int source, int reason);
 
     /// @}
 
+    /// @brief Receive a generic DIMSE message.
+    message::Message receive_message();
+
+    /**
+     * @brief Receive a DIMSE message of specific type.
+     *
+     * Throw an exception if the received message is not of the requested type.
+     */
+    template<typename TMessage>
+    TMessage receive_message();
+
+    /// @brief Send a DIMSE message.
+    void send_message(message::Message const & message);
+
 private:
-    std::string _own_ae_title;
+    dul::StateMachine _state_machine;
 
-    std::string _peer_host_name;
+    std::string _peer_host;
     uint16_t _peer_port;
-    std::string _peer_ae_title;
 
-    struct PresentationContext
-    {
-        std::string abstract_syntax;
-        std::vector<std::string> transfer_syntaxes;
-        T_ASC_SC_ROLE role;
-    };
+    std::string _own_ae_title;
+    std::string _peer_ae_title;
 
     std::vector<PresentationContext> _presentation_contexts;
 
     UserIdentityType _user_identity_type;
     std::string _user_identity_primary_field;
     std::string _user_identity_secondary_field;
-
-    T_ASC_Association * _association;
 };
 
 }

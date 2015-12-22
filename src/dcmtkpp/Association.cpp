@@ -8,42 +8,52 @@
 
 #include "Association.h"
 
-#include <algorithm>
-#include <sstream>
+#include <functional>
 #include <string>
-#include <utility>
 #include <vector>
 
-#include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmnet/assoc.h>
-#include <dcmtk/dcmnet/cond.h>
-
+#include "dcmtkpp/DataSet.h"
 #include "dcmtkpp/Exception.h"
+#include "dcmtkpp/uid.h"
+#include "dcmtkpp/dul/StateMachine.h"
+#include "dcmtkpp/message/Message.h"
+#include "dcmtkpp/pdu/AAbort.h"
+#include "dcmtkpp/pdu/AAssociate.h"
+#include "dcmtkpp/pdu/AAssociateRJ.h"
+#include "dcmtkpp/pdu/AReleaseRQ.h"
+#include "dcmtkpp/pdu/ImplementationClassUID.h"
+#include "dcmtkpp/pdu/ImplementationVersionName.h"
+#include "dcmtkpp/pdu/PDataTF.h"
+#include "dcmtkpp/pdu/PresentationContext.h"
+#include "dcmtkpp/pdu/UserIdentityRQ.h"
+#include "dcmtkpp/pdu/UserInformation.h"
+#include "dcmtkpp/Reader.h"
+#include "dcmtkpp/Writer.h"
 
 namespace dcmtkpp
 {
 
 Association
 ::Association()
-: _own_ae_title(""),
-  _peer_host_name(""), _peer_port(104), _peer_ae_title(""),
-  _user_identity_type(UserIdentityType::None),
-  _user_identity_primary_field(""), _user_identity_secondary_field(""),
-  _association(NULL)
+: _state_machine(), _peer_host(""), _peer_port(104), _peer_ae_title(""),
+  _own_ae_title(""), _presentation_contexts(),
+  _user_identity_type(UserIdentityType::None), _user_identity_primary_field(""),
+  _user_identity_secondary_field("")
 {
     // Nothing else
 }
 
 Association
 ::Association(Association const & other)
-: _own_ae_title(other.get_own_ae_title()),
-  _peer_host_name(other.get_peer_host_name()), _peer_port(other.get_peer_port()),
-  _peer_ae_title(other.get_peer_ae_title()),
-  _user_identity_type(other.get_user_identity_type()),
-  _user_identity_primary_field(other.get_user_identity_primary_field()),
-  _user_identity_secondary_field(other.get_user_identity_secondary_field()),
-  _association(NULL)
+: _state_machine(), _peer_host(other._peer_host),
+  _peer_port(other._peer_port), _peer_ae_title(other._peer_ae_title),
+  _own_ae_title(other._own_ae_title),
+  _presentation_contexts(other._presentation_contexts),
+  _user_identity_type(other._user_identity_type),
+  _user_identity_primary_field(other._user_identity_primary_field),
+  _user_identity_secondary_field(other._user_identity_secondary_field)
 {
+    // Nothing else
 }
 
 Association
@@ -62,7 +72,7 @@ Association
     if(this != &other)
     {
         this->set_own_ae_title(other.get_own_ae_title());
-        this->set_peer_host_name(other.get_peer_host_name());
+        this->set_peer_host(other.get_peer_host());
         this->set_peer_port(other.get_peer_port());
         this->set_peer_ae_title(other.get_peer_ae_title());
         this->set_user_identity_type(other.get_user_identity_type());
@@ -94,21 +104,21 @@ Association
 
 std::string const &
 Association
-::get_peer_host_name() const
+::get_peer_host() const
 {
-    return this->_peer_host_name;
+    return this->_peer_host;
 }
 
 void
 Association
-::set_peer_host_name(std::string const & host_name)
+::set_peer_host(std::string const & host)
 {
     if(this->is_associated())
     {
         throw Exception("Cannot set member while associated");
     }
 
-    this->_peer_host_name = host_name;
+    this->_peer_host = host;
 }
 
 uint16_t
@@ -149,18 +159,23 @@ Association
     this->_peer_ae_title = ae_title;
 }
 
+std::vector<Association::PresentationContext> const &
+Association
+::get_presentation_contexts() const
+{
+    return this->_presentation_contexts;
+}
+
 void
 Association
-::add_presentation_context(std::string const & abstract_syntax,
-    std::vector<std::string> const & transfer_syntaxes, T_ASC_SC_ROLE role)
+::set_presentation_contexts(std::vector<PresentationContext> const & value)
 {
     if(this->is_associated())
     {
         throw Exception("Cannot set member while associated");
     }
 
-    this->_presentation_contexts.push_back(
-        {abstract_syntax, transfer_syntaxes, role});
+    this->_presentation_contexts = value;
 }
 
 UserIdentityType
@@ -270,329 +285,129 @@ bool
 Association
 ::is_associated() const
 {
-    return (this->_association != NULL);
+    return this->_state_machine.get_transport().is_open();
 }
 
 void
 Association
-::associate(Network & network)
+::associate()
 {
-    if(!network.is_initialized())
+    boost::asio::ip::tcp::resolver resolver(
+        this->_state_machine.get_transport().get_service());
+    boost::asio::ip::tcp::resolver::query const query(this->_peer_host, "");
+    auto const endpoint_it = resolver.resolve(query);
+
+    dul::EventData data;
+    data.peer_endpoint = *endpoint_it;
+    data.peer_endpoint.port(this->_peer_port);
+
+    auto request = std::make_shared<pdu::AAssociate>(pdu::AAssociate::Type::RQ);
+    request->set_protocol_version(1);
+    request->set_application_context(std::string("1.2.840.10008.3.1.1.1"));
+    request->set_called_ae_title(this->_peer_ae_title);
+    request->set_calling_ae_title(this->_own_ae_title);
+
+    std::vector<pdu::PresentationContext> presentation_contexts;
+    presentation_contexts.reserve(this->_presentation_contexts.size());
+    for(int i=0; i<this->_presentation_contexts.size(); ++i)
     {
-        throw Exception("Network is not initialized");
+        auto const & source = this->_presentation_contexts[i];
+        pdu::PresentationContext destination(
+            source.abstract_syntax, source.transfer_syntaxes);
+        destination.set_id(1+2*i);
+        presentation_contexts.push_back(destination);
+    }
+    request->set_presentation_contexts(presentation_contexts);
+
+    pdu::UserInformation user_information;
+
+    // TODO
+    user_information.set_sub_item<pdu::MaximumLength>(16384);
+
+    user_information.set_sub_item<pdu::ImplementationClassUID>(implementation_class_uid);
+    user_information.set_sub_item<pdu::ImplementationVersionName>(implementation_version_name);
+
+    if(this->_user_identity_type != UserIdentityType::None)
+    {
+        pdu::UserIdentityRQ identity;
+        identity.set_type(static_cast<int>(this->_user_identity_type));
+        identity.set_primary_field(this->_user_identity_primary_field);
+        identity.set_secondary_field(this->_user_identity_secondary_field);
+
+        // TODO
+        identity.set_positive_response_requested(true);
+
+        user_information.set_sub_item<pdu::UserIdentityRQ>(identity);
     }
 
-    if(this->is_associated())
-    {
-        throw Exception("Already associated");
-    }
+    request->set_user_information(user_information);
 
-    OFCondition condition;
+    data.pdu = request;
 
-    T_ASC_Parameters * params;
-    condition = ASC_createAssociationParameters(&params, ASC_MAXIMUMPDUSIZE);
-    if(condition.bad())
-    {
-        throw Exception(condition);
-    }
+    this->_state_machine.send_pdu(data);
+    this->_state_machine.receive_pdu(data);
 
-    condition = ASC_setAPTitles(params,
-        this->_own_ae_title.c_str(), this->_peer_ae_title.c_str(), NULL);
-    if(condition.bad())
+    if(data.pdu == nullptr)
     {
-        ASC_destroyAssociationParameters(&params);
-        throw Exception(condition);
-    }
-
-    std::string localhost(128, '\0');
-    gethostname(&localhost[0], localhost.size()-1);
-
-    std::ostringstream peer;
-    peer << this->_peer_host_name << ":" << this->_peer_port;
-
-    condition = ASC_setPresentationAddresses(params,
-        "localhost", peer.str().c_str());
-    if(condition.bad())
-    {
-        ASC_destroyAssociationParameters(&params);
-        throw Exception(condition);
-    }
-
-    unsigned int context_id = 1;
-    for(auto const & context: this->_presentation_contexts)
-    {
-        char const ** transfer_syntaxes = new char const *[context.transfer_syntaxes.size()];
-        for(std::size_t i = 0; i < context.transfer_syntaxes.size(); ++i)
-        {
-            transfer_syntaxes[i] = context.transfer_syntaxes[i].c_str();
-        }
-
-        condition = ASC_addPresentationContext(params,
-            context_id, context.abstract_syntax.c_str(),
-            transfer_syntaxes, context.transfer_syntaxes.size(), context.role);
-        if(condition.bad())
-        {
-            ASC_destroyAssociationParameters(&params);
-            throw Exception(condition);
-        }
-
-        context_id += 2;
-    }
-
-    if(this->_user_identity_type == UserIdentityType::None)
-    {
-        // Nothing to do.
-    }
-    else if(this->_user_identity_type == UserIdentityType::Username)
-    {
-        condition = ASC_setIdentRQUserOnly(params,
-            this->_user_identity_primary_field.c_str());
-    }
-    else if(this->_user_identity_type == UserIdentityType::UsernameAndPassword)
-    {
-        condition = ASC_setIdentRQUserOnly(params,
-            this->_user_identity_primary_field.c_str(),
-            this->_user_identity_secondary_field.c_str());
-    }
-    else if(this->_user_identity_type == UserIdentityType::Kerberos)
-    {
-        condition = ASC_setIdentRQKerberos(params,
-            this->_user_identity_primary_field.c_str(),
-            this->_user_identity_primary_field.size());
-    }
-    else if(this->_user_identity_type == UserIdentityType::SAML)
-    {
-        condition = ASC_setIdentRQSaml(params,
-            this->_user_identity_primary_field.c_str(),
-            this->_user_identity_primary_field.size());
+        throw Exception("No response received");
     }
     else
     {
-        ASC_destroyAssociationParameters(&params);
-        throw Exception("Unknown identity type");
-    }
-
-    if(condition.bad())
-    {
-        ASC_destroyAssociationParameters(&params);
-        throw Exception(condition);
-    }
-
-    condition = ASC_requestAssociation(
-        network.get_network(), params, &this->_association);
-    if(condition.bad())
-    {
-        OFString empty;
-
-        if(condition == DUL_ASSOCIATIONREJECTED)
+        auto const acceptation = std::dynamic_pointer_cast<pdu::AAssociate>(data.pdu);
+        auto const rejection = std::dynamic_pointer_cast<pdu::AAssociateRJ>(data.pdu);
+        if(acceptation != nullptr && acceptation->get_type() == pdu::AAssociate::Type::AC)
         {
-            T_ASC_RejectParameters rej;
-            ASC_getRejectParameters(params, &rej);
-
-            ASC_destroyAssociationParameters(&params);
-            throw Exception(ASC_printRejectParameters(empty, &rej).c_str());
+            std::cout << "Accepted" << std::endl;
+        }
+        else if(rejection != nullptr)
+        {
+            throw Exception("Association rejected");
         }
         else
         {
-            ASC_destroyAssociationParameters(&params);
-            throw Exception(DimseCondition::dump(empty, condition).c_str());
+            throw Exception("Invalid response");
         }
     }
 }
 
 void
 Association
-::receive(Network & network, bool accept_all)
+::receive_association()
 {
-    this->receive(
-        network, [](Association const &) { return true; }, {"*"}, accept_all);
+    this->receive_association([](Association const &) { return true; });
 }
 
 void
 Association
-::receive(Network &network,
-          std::function<bool (const Association &)> authenticator,
-          std::vector<std::string> const & aetitles,
-          bool accept_all)
+::receive_association(std::function<bool (const Association &)> acceptor)
 {
-    if(!network.is_initialized())
-    {
-        throw Exception("Network is not initialized");
-    }
+    dul::EventData data;
+    data.peer_endpoint = dul::Transport::Socket::endpoint_type(
+        boost::asio::ip::tcp::v4(), 11112);
 
-    if(this->is_associated())
-    {
-        throw Exception("Already associated");
-    }
-
-    OFCondition condition;
-
-    condition = ASC_receiveAssociation(
-        network.get_network(), &this->_association, ASC_DEFAULTMAXPDU);
-    if(condition.bad())
-    {
-        throw Exception(condition);
-    }
-
-    T_ASC_Parameters * const params = this->_association->params;
-    DUL_ASSOCIATESERVICEPARAMETERS const dul = params->DULparams;
-    // No peer port should be defined when receiving
-    this->_peer_host_name = dul.callingPresentationAddress;
-    this->_peer_port = 0;
-    this->_peer_ae_title = dul.callingAPTitle;
-    this->_own_ae_title = dul.calledAPTitle;
-
-    // check Peer ae title
-    // '*' => everybody allowed
-    if (std::find(aetitles.begin(), aetitles.end(), "*") == aetitles.end() &&
-        std::find(aetitles.begin(), aetitles.end(),
-                  this->_peer_ae_title.c_str()) == aetitles.end())
-    {
-        this->reject(RejectedPermanent, ULServiceUser,
-                     CallingAETitleNotRecognized);
-        this->drop();
-        throw Exception("Bad AE Title");
-    }
-
-    // Check Application Context Name
-    char buf[BUFSIZ];
-    condition = ASC_getApplicationContextName(params, buf);
-    if (condition.bad() || std::string(buf) != DICOM_STDAPPLICATIONCONTEXT)
-    {
-        // reject: application context name not supported
-        this->reject(RejectedPermanent, ULServiceUser,
-                     ApplicationContextNameNotSupported);
-        this->drop();
-        throw Exception("Bad Application context name");
-    }
-
-    if(accept_all)
-    {
-        unsigned int const pc_count = ASC_countPresentationContexts(params);
-        for(unsigned int pc_index=0; pc_index<pc_count; ++pc_index)
+    this->_state_machine.is_association_acceptable =
+        []()
         {
-            T_ASC_PresentationContext pc;
-            memset(&pc, 0, sizeof(pc));
-            ASC_getPresentationContext(params, pc_index, &pc);
+            return std::make_pair(false, std::tuple<int, int, int>(1, 2, 3));
+        };
 
-            for(unsigned int ts_index=0; ts_index<pc.transferSyntaxCount; ++ts_index)
-            {
-                std::string const abstract_syntax = pc.abstractSyntax;
-                char const * abstract_syntax_data = abstract_syntax.c_str();
+    this->_state_machine.receive(data);
+    this->_state_machine.receive_pdu(data);
 
-                condition = ASC_acceptContextsWithTransferSyntax(
-                    this->_association->params,
-                    pc.proposedTransferSyntaxes[ts_index],
-                    1, &abstract_syntax_data);
-                if(condition.bad())
-                {
-                    this->reject(RejectedPermanent, ULServiceUser, NoReasonGiven);
-                    this->drop();
-                    throw Exception(condition);
-                }
-            }
-        }
+    if(data.pdu == NULL)
+    {
+        // We have rejected the request
+        //return false;
     }
     else
     {
-        for(auto const & context: this->_presentation_contexts)
+        auto const request = std::dynamic_pointer_cast<pdu::AAssociate>(data.pdu);
+        if(request == nullptr || request->get_type() != pdu::AAssociate::Type::RQ)
         {
-            for(std::size_t i = 0; i < context.transfer_syntaxes.size(); ++i)
-            {
-                char const * abstract_syntax = context.abstract_syntax.c_str();
-                char const * transfer_syntax = context.transfer_syntaxes[i].c_str();
-                condition = ASC_acceptContextsWithTransferSyntax(
-                    this->_association->params, transfer_syntax,
-                    1, &abstract_syntax);
-                if(condition.bad())
-                {
-                    this->reject(RejectedPermanent, ULServiceUser, NoReasonGiven);
-                    this->drop();
-                    throw Exception(condition);
-                }
-            }
+            throw Exception("Invalid response");
         }
+        //return true;
     }
-
-    // Get user identity information
-    UserIdentityNegotiationSubItemRQ* identity =
-            this->_association->params->DULparams.reqUserIdentNeg;
-
-    this->_user_identity_primary_field = "";
-    this->_user_identity_secondary_field = "";
-    if (identity == NULL ||
-        identity->getIdentityType() == ASC_USER_IDENTITY_NONE)
-    {
-        this->_user_identity_type = UserIdentityType::None;
-    }
-    else if (identity->getIdentityType() != ASC_USER_IDENTITY_UNKNOWN)
-    {
-        this->_user_identity_type =
-                    (UserIdentityType)identity->getIdentityType();
-
-        // Get primary field
-        char * primary_field;
-        Uint16 primary_field_length;
-        identity->getPrimField(primary_field, primary_field_length);
-        // user is not NULL-terminated
-        this->_user_identity_primary_field = std::string(primary_field,
-                                                         primary_field_length);
-
-        if (identity->getIdentityType() == ASC_USER_IDENTITY_USER_PASSWORD)
-        {
-            // Get secondary field
-            char * secondary_field;
-            Uint16 secondary_field_length;
-            identity->getSecField(secondary_field, secondary_field_length);
-            // password is not NULL-terminated
-            this->_user_identity_primary_field =
-                    std::string(secondary_field, secondary_field_length);
-        }
-    }
-    else
-    {
-        throw Exception("Unknown user identity type");
-    }
-
-    // Authentication
-    if(authenticator(*this))
-    {
-        condition = ASC_acknowledgeAssociation(this->_association);
-        if(condition.bad())
-        {
-            throw Exception(condition);
-        }
-    }
-    else
-    {
-        this->reject(RejectedPermanent, ULServiceUser, NoReasonGiven);
-        this->drop();
-        throw Exception("Bad Authentication");
-    }
-}
-
-void
-Association
-::reject(Result result, ResultSource result_source, Diagnostic diagnostic)
-{
-    T_ASC_RejectParameters reject_parameters;
-    reject_parameters.result = T_ASC_RejectParametersResult(result);
-    reject_parameters.source = T_ASC_RejectParametersSource(result_source);
-    reject_parameters.reason = T_ASC_RejectParametersReason(diagnostic);
-
-    OFCondition const condition = ASC_rejectAssociation(
-        this->_association, &reject_parameters);
-    if(condition.bad())
-    {
-        throw Exception(condition);
-    }
-}
-
-T_ASC_Association *
-Association
-::get_association()
-{
-    return this->_association;
 }
 
 void
@@ -604,38 +419,127 @@ Association
         throw Exception("Not associated");
     }
 
-    ASC_releaseAssociation(this->_association);
-    ASC_destroyAssociation(&this->_association);
-    this->_association = NULL;
+    auto pdu = std::make_shared<pdu::AReleaseRQ>();
+    dul::EventData data;
+    data.pdu = pdu;
+    this->_state_machine.send_pdu(data);
 }
 
 void
 Association
-::abort()
+::abort(int source, int reason)
 {
     if(!this->is_associated())
     {
         throw Exception("Not associated");
     }
 
-    ASC_abortAssociation(this->_association);
-    ASC_destroyAssociation(&this->_association);
-    this->_association = NULL;
+    auto pdu = std::make_shared<pdu::AAbort>(source, reason);
+    dul::EventData data;
+    data.pdu = pdu;
+    this->_state_machine.send_pdu(data);
+
+    this->_state_machine.get_transport().close();
+}
+
+message::Message
+Association
+::receive_message()
+{
+    bool done = false;
+    DataSet command_set, data_set;
+
+    std::stringstream command_set_stream;
+    std::stringstream data_set_stream;
+    bool command_set_received=false;
+    bool has_data_set=true;
+    bool data_set_received=false;
+
+    while(!done)
+    {
+        dul::EventData data;
+        //data.transport = this->_transport;
+        data.pdu = nullptr;
+        this->_state_machine.receive_pdu(data);
+
+        auto const p_data_tf = std::dynamic_pointer_cast<pdu::PDataTF>(data.pdu);
+        if(p_data_tf == nullptr)
+        {
+            throw Exception("Invalid PDU received");
+        }
+
+        for(auto const & pdv: p_data_tf->get_pdv_items())
+        {
+            bool & received = pdv.is_command()?command_set_received:data_set_received;
+            received |= pdv.is_last_fragment();
+
+            auto const & fragment = pdv.get_fragment();
+            auto & stream = pdv.is_command()?command_set_stream:data_set_stream;
+            stream.write(&fragment[0], fragment.size());
+        }
+
+        if(command_set_received && command_set.empty())
+        {
+            Reader reader(command_set_stream, registry::ImplicitVRLittleEndian);
+            command_set = reader.read_data_set();
+            has_data_set = (
+                command_set.has(registry::CommandDataSetType) &&
+                command_set.as_int(registry::CommandDataSetType) !=
+                    Value::Integers({message::Message::DataSetType::ABSENT}));
+        }
+
+        done = command_set_received && (!has_data_set || data_set_received);
+    }
+
+    if(has_data_set)
+    {
+        // FIXME: transfer syntax from presentation context
+        Reader reader(data_set_stream, registry::ImplicitVRLittleEndian);
+        data_set = reader.read_data_set();
+    }
+
+    if(has_data_set)
+    {
+        return message::Message(command_set, data_set);
+    }
+    else
+    {
+        return message::Message(command_set);
+    }
 }
 
 void
 Association
-::drop()
+::send_message(message::Message const & message)
 {
-    if(!this->is_associated())
+    std::vector<pdu::PDataTF::PresentationDataValueItem> pdv_items;
+
+    std::ostringstream command_stream;
+    Writer command_writer(
+        command_stream, registry::ImplicitVRLittleEndian, // implicit vr for command
+        Writer::ItemEncoding::ExplicitLength, true); // true for Command
+    command_writer.write_data_set(message.get_command_set());
+    pdv_items.push_back(
+        pdu::PDataTF::PresentationDataValueItem(1, 3, command_stream.str()));
+
+    if (message.has_data_set())
     {
-        throw Exception("Not associated");
+        std::ostringstream data_stream;
+        // FIXME: transfer syntax?
+        Writer data_writer(
+            data_stream, registry::ImplicitVRLittleEndian,
+            Writer::ItemEncoding::ExplicitLength, false);
+        data_writer.write_data_set(message.get_data_set());
+        pdv_items.push_back(
+            pdu::PDataTF::PresentationDataValueItem(1, 2, data_stream.str()));
     }
 
-    ASC_acknowledgeRelease(this->_association);
-    ASC_dropSCPAssociation(this->_association);
-    ASC_destroyAssociation(&this->_association);
-    this->_association = NULL;
+    auto pdu = std::make_shared<pdu::PDataTF>(pdv_items);
+
+    dul::EventData data;
+    data.pdu = pdu;
+
+    this->_state_machine.send_pdu(data);
 }
 
 }
