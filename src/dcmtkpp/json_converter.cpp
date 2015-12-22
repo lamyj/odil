@@ -11,7 +11,7 @@
 #include <dcmtk/config/osconfig.h>
 #include <dcmtk/ofstd/ofstd.h>
 #include <dcmtk/ofstd/ofstream.h>
-#include <jsoncpp/json/json.h>
+#include <json/json.h>
 
 #include "dcmtkpp/DataSet.h"
 #include "dcmtkpp/Exception.h"
