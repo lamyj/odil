@@ -102,7 +102,7 @@ Transport
     this->_socket = std::make_shared<Socket>(this->_service);
     this->_socket->async_connect(
         peer_endpoint,
-        [](boost::system::error_code const & error)
+        [this](boost::system::error_code const & error)
         {
             if(error == boost::asio::error::operation_aborted)
             {
@@ -112,11 +112,12 @@ Transport
             {
                 throw boost::system::system_error(error);
             }
+            this->_stop_deadline();
         }
     );
 
-    this->_service.run_one();
-    this->_stop_deadline();
+    this->_service.run();
+    this->_service.reset();
 }
 
 void
@@ -134,7 +135,7 @@ Transport
     boost::asio::ip::tcp::acceptor acceptor(this->_service, endpoint);
     acceptor.async_accept(
         *this->_socket,
-        [](boost::system::error_code const & error)
+        [this](boost::system::error_code const & error)
         {
             if(error == boost::asio::error::operation_aborted)
             {
@@ -144,12 +145,12 @@ Transport
             {
                 throw boost::system::system_error(error);
             }
+            this->_stop_deadline();
         }
     );
 
-    this->_service.run_one();
+    this->_service.run();
     this->_service.reset();
-    this->_stop_deadline();
 }
 
 void
@@ -181,7 +182,7 @@ Transport
     boost::asio::async_read(
         *this->_socket,
         boost::asio::buffer(&data[0], data.size()),
-        [](boost::system::error_code const & error, std::size_t)
+        [this](boost::system::error_code const & error, std::size_t)
         {
             if(error == boost::asio::error::operation_aborted)
             {
@@ -191,13 +192,12 @@ Transport
             {
                 throw boost::system::system_error(error);
             }
+            this->_stop_deadline();
         }
     );
 
-    this->_service.run_one();
+    this->_service.run();
     this->_service.reset();
-
-    this->_stop_deadline();
 
     return data;
 }
@@ -214,7 +214,7 @@ Transport
     this->_start_deadline();
     boost::asio::async_write(
         *this->_socket, boost::asio::buffer(data),
-        [](boost::system::error_code const & error, std::size_t)
+        [this](boost::system::error_code const & error, std::size_t)
         {
             if(error == boost::asio::error::operation_aborted)
             {
@@ -224,11 +224,11 @@ Transport
             {
                 throw boost::system::system_error(error);
             }
+            this->_stop_deadline();
         });
 
-    this->_service.run_one();
+    this->_service.run();
     this->_service.reset();
-    this->_stop_deadline();
 }
 
 void
@@ -236,6 +236,7 @@ Transport
 ::_start_deadline()
 {
     this->_deadline.expires_from_now(this->_timeout);
+
     this->_deadline.async_wait(
         [this](boost::system::error_code const & error)
         {
