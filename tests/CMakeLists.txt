@@ -1,8 +1,10 @@
 find_package(Boost COMPONENTS unit_test_framework REQUIRED)
+find_package(JsonCpp REQUIRED)
+
 link_directories(${Boost_LIBRARY_DIRS})
 add_definitions(-DBOOST_TEST_DYN_LINK)
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../src)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../src ${JsonCpp_INCLUDE_DIRS})
 
 add_definitions("-D HAVE_CONFIG_H")
 add_definitions("-D DCMTKPP_MAJOR_VERSION=${dcmtkpp_MAJOR_VERSION}")
