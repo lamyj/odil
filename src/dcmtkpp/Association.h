@@ -10,6 +10,7 @@
 #define _a52696bc_5c6e_402d_a343_6cb085eb0138
 
 #include <functional>
+#include <map>
 #include <string>
 #include <vector>
 
@@ -200,16 +201,9 @@ public:
     /// @brief Receive a generic DIMSE message.
     message::Message receive_message();
 
-    /**
-     * @brief Receive a DIMSE message of specific type.
-     *
-     * Throw an exception if the received message is not of the requested type.
-     */
-    template<typename TMessage>
-    TMessage receive_message();
-
     /// @brief Send a DIMSE message.
-    void send_message(message::Message const & message);
+    void send_message(
+        message::Message const & message, std::string const & abstract_syntax);
 
 private:
     dul::StateMachine _state_machine;
@@ -225,6 +219,9 @@ private:
     UserIdentityType _user_identity_type;
     std::string _user_identity_primary_field;
     std::string _user_identity_secondary_field;
+
+    std::map<std::string, std::string> _transfer_syntaxes_by_abstract_syntax;
+    std::map<uint8_t, std::string> _transfer_syntaxes_by_id;
 };
 
 }

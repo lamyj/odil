@@ -8,7 +8,9 @@
 
 #include "Association.h"
 
+#include <algorithm>
 #include <functional>
+#include <map>
 #include <string>
 #include <vector>
 
@@ -41,6 +43,8 @@ Association
   _user_identity_secondary_field("")
 {
     // Nothing else
+    this->_state_machine.set_timeout(boost::posix_time::seconds(5));
+    this->_state_machine.get_transport().set_timeout(boost::posix_time::seconds(20));
 }
 
 Association
@@ -324,8 +328,10 @@ Association
     // TODO
     user_information.set_sub_item<pdu::MaximumLength>(16384);
 
-    user_information.set_sub_item<pdu::ImplementationClassUID>(implementation_class_uid);
-    user_information.set_sub_item<pdu::ImplementationVersionName>(implementation_version_name);
+    user_information.set_sub_item<pdu::ImplementationClassUID>(
+        implementation_class_uid);
+    user_information.set_sub_item<pdu::ImplementationVersionName>(
+        implementation_version_name);
 
     if(this->_user_identity_type != UserIdentityType::None)
     {
@@ -358,9 +364,44 @@ Association
         if(acceptation != nullptr && acceptation->get_type() == pdu::AAssociate::Type::AC)
         {
             std::cout << "Accepted" << std::endl;
+            this->_transfer_syntaxes_by_abstract_syntax.clear();
+            this->_transfer_syntaxes_by_id.clear();
+            auto const requested_pc = request->get_presentation_contexts();
+            for(auto const & accepted_pc: acceptation->get_presentation_contexts())
+            {
+                if(accepted_pc.get_result_reason() != 0)
+                {
+                    continue;
+                }
+
+                auto const id = accepted_pc.get_id();
+                auto const ts = accepted_pc.get_transfer_syntax();
+
+                this->_transfer_syntaxes_by_id[id] = ts;
+
+                auto const requested_pc_it = std::find_if(
+                    requested_pc.begin(), requested_pc.end(),
+                    [&id](pdu::PresentationContext const & pc)
+                    {
+                        return pc.get_id() == id;
+                    }
+                );
+
+                if(requested_pc_it == requested_pc.end())
+                {
+                    throw Exception("No such presentation context ID");
+                }
+
+                auto const as = requested_pc_it->get_abstract_syntax();
+                this->_transfer_syntaxes_by_abstract_syntax[as] = ts;
+            }
         }
         else if(rejection != nullptr)
         {
+            std::cout <<
+                int(rejection->get_result()) << " " <<
+                int(rejection->get_source()) << " " <<
+                int(rejection->get_reason()) << " " << std::endl;
             throw Exception("Association rejected");
         }
         else
@@ -449,8 +490,6 @@ Association
     bool done = false;
     DataSet command_set, data_set;
 
-    std::stringstream command_set_stream;
-    std::stringstream data_set_stream;
     bool command_set_received=false;
     bool has_data_set=true;
     bool data_set_received=false;
@@ -458,7 +497,6 @@ Association
     while(!done)
     {
         dul::EventData data;
-        //data.transport = this->_transport;
         data.pdu = nullptr;
         this->_state_machine.receive_pdu(data);
 
@@ -473,29 +511,44 @@ Association
             bool & received = pdv.is_command()?command_set_received:data_set_received;
             received |= pdv.is_last_fragment();
 
-            auto const & fragment = pdv.get_fragment();
-            auto & stream = pdv.is_command()?command_set_stream:data_set_stream;
-            stream.write(&fragment[0], fragment.size());
-        }
+            auto const & fragment_data = pdv.get_fragment();
+            std::stringstream stream;
+            stream.write(&fragment_data[0], fragment_data.size());
 
-        if(command_set_received && command_set.empty())
-        {
-            Reader reader(command_set_stream, registry::ImplicitVRLittleEndian);
-            command_set = reader.read_data_set();
-            has_data_set = (
-                command_set.has(registry::CommandDataSetType) &&
-                command_set.as_int(registry::CommandDataSetType) !=
-                    Value::Integers({message::Message::DataSetType::ABSENT}));
+            auto transfer_syntax = registry::ImplicitVRLittleEndian;
+            if(!pdv.is_command())
+            {
+                auto const id = pdv.get_presentation_context_id();
+                auto const transfer_syntax_it =
+                    this->_transfer_syntaxes_by_id.find(id);
+                if(transfer_syntax_it == this->_transfer_syntaxes_by_id.end())
+                {
+                    throw Exception("No such Presentation Context ID");
+                }
+                transfer_syntax = transfer_syntax_it->second;
+            }
+
+            Reader reader(stream, transfer_syntax);
+            auto const fragment = reader.read_data_set();
+
+            auto & destination = pdv.is_command()?command_set:data_set;
+            for(auto const & element: fragment)
+            {
+                destination.add(element.first, element.second);
+            }
+
+            if(pdv.is_command() && command_set.has(registry::CommandDataSetType))
+            {
+                auto const & value =
+                    command_set.as_int(registry::CommandDataSetType);
+                if(value == Value::Integers({message::Message::DataSetType::ABSENT}))
+                {
+                    has_data_set = false;
+                }
+            }
         }
 
         done = command_set_received && (!has_data_set || data_set_received);
-    }
-
-    if(has_data_set)
-    {
-        // FIXME: transfer syntax from presentation context
-        Reader reader(data_set_stream, registry::ImplicitVRLittleEndian);
-        data_set = reader.read_data_set();
     }
 
     if(has_data_set)
@@ -510,7 +563,8 @@ Association
 
 void
 Association
-::send_message(message::Message const & message)
+::send_message(
+    message::Message const & message, std::string const & abstract_syntax)
 {
     std::vector<pdu::PDataTF::PresentationDataValueItem> pdv_items;
 
@@ -524,10 +578,16 @@ Association
 
     if (message.has_data_set())
     {
+        auto const transfer_syntax_it =
+            this->_transfer_syntaxes_by_abstract_syntax.find(abstract_syntax);
+        if(transfer_syntax_it == this->_transfer_syntaxes_by_abstract_syntax.end())
+        {
+            throw Exception("No transfer syntax for "+abstract_syntax);
+        }
+
         std::ostringstream data_stream;
-        // FIXME: transfer syntax?
         Writer data_writer(
-            data_stream, registry::ImplicitVRLittleEndian,
+            data_stream, transfer_syntax_it->second,
             Writer::ItemEncoding::ExplicitLength, false);
         data_writer.write_data_set(message.get_data_set());
         pdv_items.push_back(
