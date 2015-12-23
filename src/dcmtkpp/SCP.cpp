@@ -8,26 +8,17 @@
 
 #include "SCP.h"
 
-#include "dcmtkpp/DcmtkAssociation.h"
+#include "dcmtkpp/Association.h"
 #include "dcmtkpp/message/CEchoRequest.h"
 #include "dcmtkpp/message/CEchoResponse.h"
 #include "dcmtkpp/message/Message.h"
-#include "dcmtkpp/Network.h"
-#include "dcmtkpp/ServiceRole.h"
 
 namespace dcmtkpp
 {
 
 SCP
-::SCP()
-: ServiceRole()
-{
-    // Nothing else.
-}
-
-SCP
-::SCP(Network * network, DcmtkAssociation * association)
-: ServiceRole(network, association)
+::SCP(Association & association)
+: _association(association)
 {
     // Nothing else.
 }
@@ -42,7 +33,7 @@ void
 SCP
 ::receive_and_process()
 {
-    auto const message = this->_association->receive();
+    auto const message = this->_association.receive_message();
     (*this)(message);
 }
 
@@ -53,7 +44,8 @@ SCP
     message::CEchoResponse response(
         request.get_message_id(), message::CEchoResponse::Success,
         request.get_affected_sop_class_uid());
-    this->_association->send(response, request.get_affected_sop_class_uid());
+    this->_association.send_message(
+        response, request.get_affected_sop_class_uid());
 }
 
 }

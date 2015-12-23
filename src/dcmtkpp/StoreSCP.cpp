@@ -10,35 +10,28 @@
 
 #include <functional>
 
-#include "dcmtkpp/DcmtkAssociation.h"
-#include "dcmtkpp/message/CStoreRequest.h"
-#include "dcmtkpp/message/CStoreResponse.h"
+#include "dcmtkpp/Association.h"
 #include "dcmtkpp/Exception.h"
-#include "dcmtkpp/message/Message.h"
-#include "dcmtkpp/Network.h"
 #include "dcmtkpp/SCP.h"
 #include "dcmtkpp/Value.h"
+#include "dcmtkpp/message/CStoreRequest.h"
+#include "dcmtkpp/message/CStoreResponse.h"
+#include "dcmtkpp/message/CStoreRequest.h"
+#include "dcmtkpp/message/CStoreResponse.h"
 
 namespace dcmtkpp
 {
 
 StoreSCP
-::StoreSCP()
-: SCP(), _callback()
+::StoreSCP(Association & association)
+: SCP(association), _callback()
 {
     // Nothing else.
 }
 
 StoreSCP
-::StoreSCP(Network * network, DcmtkAssociation * association)
-: SCP(network, association), _callback()
-{
-    // Nothing else.
-}
-
-StoreSCP
-::StoreSCP(Network * network, DcmtkAssociation * association, Callback const & callback)
-: SCP(network, association), _callback()
+::StoreSCP(Association & association, Callback const & callback)
+: SCP(association), _callback()
 {
     this->set_callback(callback);
 }
@@ -84,7 +77,8 @@ StoreSCP
     }
 
     message::CStoreResponse const response(request.get_message_id(), status);
-    this->_association->send(response, request.get_affected_sop_class_uid());
+    this->_association.send_message(
+        response, request.get_affected_sop_class_uid());
 }
 
 }

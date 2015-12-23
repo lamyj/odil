@@ -11,12 +11,11 @@
 
 #include <functional>
 
-#include "dcmtkpp/DcmtkAssociation.h"
-#include "dcmtkpp/message/CStoreRequest.h"
-#include "dcmtkpp/message/Message.h"
-#include "dcmtkpp/Network.h"
+#include "dcmtkpp/Association.h"
 #include "dcmtkpp/SCP.h"
 #include "dcmtkpp/Value.h"
+#include "dcmtkpp/message/CStoreRequest.h"
+#include "dcmtkpp/message/Message.h"
 
 namespace dcmtkpp
 {
@@ -28,16 +27,11 @@ public:
     /// @brief Callback called when a request is received.
     typedef std::function<Value::Integer(message::CStoreRequest const &)> Callback;
 
-    /// @brief Default constructor.
-    StoreSCP();
-
-    /// @brief Constructor with default callback.
-    StoreSCP(Network * network, DcmtkAssociation * association);
+    /// @brief Constructor.
+    StoreSCP(Association & association);
 
     /// @brief Constructor.
-    StoreSCP(
-        Network * network, DcmtkAssociation * association,
-        Callback const & callback);
+    StoreSCP(Association & association, Callback const & callback);
 
     /// @brief Destructor.
     virtual ~StoreSCP();

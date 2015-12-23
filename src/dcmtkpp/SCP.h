@@ -9,24 +9,19 @@
 #ifndef _f4680d8c_18a8_4317_956d_3ae238cb39cc
 #define _f4680d8c_18a8_4317_956d_3ae238cb39cc
 
-#include "dcmtkpp/DcmtkAssociation.h"
+#include "dcmtkpp/Association.h"
 #include "dcmtkpp/message/CEchoRequest.h"
 #include "dcmtkpp/message/Message.h"
-#include "dcmtkpp/Network.h"
-#include "dcmtkpp/ServiceRole.h"
 
 namespace dcmtkpp
 {
 
 /// @brief Base class for all Service Class Providers.
-class SCP: public ServiceRole
+class SCP
 {
 public:
-    /// @brief Create a default Service Class Provider with no network and no association.
-    SCP();
-
-    /// @brief Create a Service Class Provider with network and association.
-    SCP(Network * network, DcmtkAssociation * association);
+    /// @brief Create a Service Class Provider.
+    SCP(Association & association);
 
     /// @brief Destructor
     virtual ~SCP();
@@ -37,6 +32,7 @@ public:
     /// @brief Process a message.
     virtual void operator()(message::Message const & message) =0;
 protected:
+    Association & _association;
     /// @brief Send a C-ECHO response.
     void _send_echo_response(message::CEchoRequest const & request) const;
 };
