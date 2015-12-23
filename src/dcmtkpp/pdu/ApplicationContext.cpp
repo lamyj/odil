@@ -52,7 +52,6 @@ std::string
 ApplicationContext
 ::get_name() const
 {
-    // Application Context is not padded: PS 3.8 F.1
     return this->_item.as_string("Application-context-name");
 }
 
@@ -60,7 +59,6 @@ void
 ApplicationContext
 ::set_name(std::string const & name)
 {
-    // Application Context is not padded: PS 3.8 F.1
     this->_item.as_string("Application-context-name") = name;
     this->_item.as_unsigned_int_16("Item-length") = this->_compute_length();
 }

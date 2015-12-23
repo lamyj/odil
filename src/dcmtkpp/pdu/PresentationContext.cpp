@@ -306,11 +306,7 @@ PresentationContext
             if(item.as_unsigned_int_8("Item-type") == item_type)
             {
                 auto const value = item.as_string(type+"-syntax-name");
-                auto const clamped =
-                    (value[value.size()-1]=='\0')?
-                        (value.substr(0, value.size()-1)):
-                        value;
-                result.push_back(clamped);
+                result.push_back(value);
             }
         });
 
@@ -333,22 +329,17 @@ PresentationContext
     auto const & abstract_syntaxes = (type=="Abstract")?syntaxes:other_syntaxes;
     auto const & transfer_syntaxes = (type=="Abstract")?other_syntaxes:syntaxes;
 
-    auto make_item = [this] (std::string const & type, std::string const & name) {
-        auto const padded = (name.size()%2==0)?name:(name+'\0');
-        return PresentationContext::_make_string_item(type, padded);
-    };
-
     std::transform(
         abstract_syntaxes.begin(), abstract_syntaxes.end(),
         sub_items.begin(),
-        [&make_item](std::string const & name)
-        { return make_item("Abstract", name); });
+        [](std::string const & name)
+        { return PresentationContext::_make_string_item("Abstract", name); });
 
     std::transform(
         transfer_syntaxes.begin(), transfer_syntaxes.end(),
         sub_items.begin()+abstract_syntaxes.size(),
-        [&make_item](std::string const & name)
-        { return make_item("Transfer", name); });
+        [](std::string const & name)
+        { return PresentationContext::_make_string_item("Transfer", name); });
 
     this->_item.as_unsigned_int_16("Item-length") = this->_compute_length();
 }
