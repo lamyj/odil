@@ -44,3 +44,5 @@ foreach(test_file ${tests})
     endforeach()
 
 endforeach()
+
+add_custom_target(Runner ${CMAKE_COMMAND} -E echo "Test runner" SOURCES run.sh)

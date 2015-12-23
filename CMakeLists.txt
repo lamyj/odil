@@ -21,3 +21,7 @@ endif()
 if(BUILD_TESTING)
     add_subdirectory("tests")
 endif()
+
+add_custom_target(
+    CIIntegration ${CMAKE_COMMAND} -E echo "CI Integration"
+    SOURCES appveyor.yml .travis.yml)
