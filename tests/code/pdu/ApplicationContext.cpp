@@ -7,6 +7,12 @@
 #include "dcmtkpp/Exception.h"
 #include "dcmtkpp/pdu/ApplicationContext.h"
 
+std::string const data(
+    "\x10\x00\x00\x03"
+    "foo",
+    7
+);
+
 BOOST_AUTO_TEST_CASE(FromString)
 {
     dcmtkpp::pdu::ApplicationContext const context("foo");
@@ -15,11 +21,6 @@ BOOST_AUTO_TEST_CASE(FromString)
 
 BOOST_AUTO_TEST_CASE(FromStream)
 {
-    std::string const data(
-        "\x10\x00\x00\x04"
-        "foo\0",
-        8
-    );
     std::istringstream stream(data);
 
     dcmtkpp::pdu::ApplicationContext const context(stream);
@@ -36,14 +37,8 @@ BOOST_AUTO_TEST_CASE(Name)
 BOOST_AUTO_TEST_CASE(Write)
 {
     dcmtkpp::pdu::ApplicationContext const context("foo");
-    std::ostringstream data;
-    data << context;
+    std::ostringstream stream;
+    stream << context;
 
-    std::string const expected(
-        "\x10\x00\x00\x04"
-        "foo\0",
-        8
-    );
-
-    BOOST_REQUIRE_EQUAL(data.str(), expected);
+    BOOST_REQUIRE_EQUAL(stream.str(), data);
 }

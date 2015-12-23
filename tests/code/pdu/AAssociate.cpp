@@ -90,7 +90,7 @@ Fixture
     // Header, 6 bytes
 
     "\x02\x00"
-    "\x00\x00\x00\x9b"
+    "\x00\x00\x00\x98"
 
     // Items: 68 bytes
 
@@ -100,20 +100,20 @@ Fixture
     "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
     "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
 
-    // Application Context, 8 bytes
+    // Application Context, 7 bytes
 
-    "\x10\x00\x00\x04"
-    "foo\0"
+    "\x10\x00\x00\x03"
+    "foo"
 
-    // Presentation Contexts, 28+30 bytes
+    // Presentation Contexts, 27+29 bytes
 
-    "\x21\x00\x00\x18"
+    "\x21\x00\x00\x17"
     "\x03\x00\x01\x00"
-    "\x40\x00\x00\x10""transfer_syntax\x00"
+    "\x40\x00\x00\x0f""transfer_syntax"
 
-    "\x21\x00\x00\x1a"
+    "\x21\x00\x00\x19"
     "\x05\x00\x02\x00"
-    "\x40\x00\x00\x12""transfer_syntax_2\x00"
+    "\x40\x00\x00\x11""transfer_syntax_2"
 
     // User Information, 21 bytes
 
@@ -123,7 +123,7 @@ Fixture
     "\x59\x00\x00\x05"
     "\x00\x03" "bar"
     ,
-    161
+    158
 );
 
 std::string const
@@ -132,7 +132,7 @@ Fixture
     // Header, 6 bytes
 
     "\x02\x00"
-    "\x00\x00\x00\x9b"
+    "\x00\x00\x00\x98"
 
     // Items: 68 bytes
 
@@ -142,20 +142,20 @@ Fixture
     "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
     "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
 
-    // Application Context, 8 bytes
+    // Application Context, 7 bytes
 
-    "\x10\x00\x00\x04"
-    "foo\0"
+    "\x10\x00\x00\x03"
+    "foo"
 
-    // Presentation Contexts, 28+30 bytes
+    // Presentation Contexts, 27+29 bytes
 
-    "\x21\x00\x00\x18"
+    "\x21\x00\x00\x17"
     "\x03\x00\x01\x00"
-    "\x40\x00\x00\x10""transfer_syntax\x00"
+    "\x40\x00\x00\x0f""transfer_syntax"
 
-    "\x21\x00\x00\x1a"
+    "\x21\x00\x00\x19"
     "\x05\x00\x02\x00"
-    "\x40\x00\x00\x12""transfer_syntax_2\x00"
+    "\x40\x00\x00\x11""transfer_syntax_2"
 
     // User Information, 21 bytes
 
@@ -165,7 +165,7 @@ Fixture
     "\x59\x00\x00\x05"
     "\x00\x03" "bar"
     ,
-    161
+    158
 );
 
 BOOST_AUTO_TEST_CASE(Constructor)

@@ -332,13 +332,13 @@ PresentationContext
     std::transform(
         abstract_syntaxes.begin(), abstract_syntaxes.end(),
         sub_items.begin(),
-        [](std::string const & name)
+        [this](std::string const & name)
         { return PresentationContext::_make_string_item("Abstract", name); });
 
     std::transform(
         transfer_syntaxes.begin(), transfer_syntaxes.end(),
         sub_items.begin()+abstract_syntaxes.size(),
-        [](std::string const & name)
+        [this](std::string const & name)
         { return PresentationContext::_make_string_item("Transfer", name); });
 
     this->_item.as_unsigned_int_16("Item-length") = this->_compute_length();

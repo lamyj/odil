@@ -8,6 +8,22 @@
 #include "dcmtkpp/Exception.h"
 #include "dcmtkpp/pdu/PresentationContext.h"
 
+std::string const rq_data(
+    "\x20\x00\x00\x25"
+    "\x03\x00\x00\x00"
+    "\x30\x00\x00\x0f""abstract_syntax"
+    "\x40\x00\x00\x03""ts1"
+    "\x40\x00\x00\x03""ts2",
+    41
+);
+
+std::string const ac_data(
+    "\x21\x00\x00\x17"
+    "\x03\x00\x01\x00"
+    "\x40\x00\x00\x0f""transfer_syntax",
+    27
+);
+
 BOOST_AUTO_TEST_CASE(RQContext)
 {
     dcmtkpp::pdu::PresentationContext const context(
@@ -118,16 +134,7 @@ BOOST_AUTO_TEST_CASE(WriteRQ)
     std::ostringstream stream;
     stream << context;
 
-    std::string const expected(
-        "\x20\x00\x00\x28"
-        "\x03\x00\x00\x00"
-        "\x30\x00\x00\x10""abstract_syntax\x00"
-        "\x40\x00\x00\x4""ts1\x00"
-        "\x40\x00\x00\x4""ts2\x00",
-        44
-    );
-
-    BOOST_REQUIRE_EQUAL(stream.str(), expected);
+    BOOST_REQUIRE_EQUAL(stream.str(), rq_data);
 }
 
 BOOST_AUTO_TEST_CASE(WriteAC)
@@ -139,27 +146,12 @@ BOOST_AUTO_TEST_CASE(WriteAC)
     std::ostringstream stream;
     stream << context;
 
-    std::string const expected(
-        "\x21\x00\x00\x18"
-        "\x03\x00\x01\x00"
-        "\x40\x00\x00\x10""transfer_syntax\x00",
-        28
-    );
-
-    BOOST_REQUIRE_EQUAL(stream.str(), expected);
+    BOOST_REQUIRE_EQUAL(stream.str(), ac_data);
 }
 
 BOOST_AUTO_TEST_CASE(ReadRQ)
 {
-    std::string const data(
-        "\x20\x00\x00\x28"
-        "\x03\x00\x00\x00"
-        "\x30\x00\x00\x10""abstract_syntax\x00"
-        "\x40\x00\x00\x4""ts1\x00"
-        "\x40\x00\x00\x4""ts2\x00",
-        44
-    );
-    std::istringstream stream(data);
+    std::istringstream stream(rq_data);
 
     dcmtkpp::pdu::PresentationContext const context(stream);
 
@@ -175,13 +167,7 @@ BOOST_AUTO_TEST_CASE(ReadRQ)
 
 BOOST_AUTO_TEST_CASE(ReadAC)
 {
-    std::string const data(
-        "\x21\x00\x00\x18"
-        "\x03\x00\x01\x00"
-        "\x40\x00\x00\x10""transfer_syntax\x00",
-        28
-    );
-    std::istringstream stream(data);
+    std::istringstream stream(ac_data);
 
     dcmtkpp::pdu::PresentationContext const context(stream);
 
