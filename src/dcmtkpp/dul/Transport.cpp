@@ -67,7 +67,7 @@ Transport
     return this->_socket;
 }
 
-Transport::duration_time
+Transport::duration_type
 Transport
 ::get_timeout() const
 {
@@ -76,7 +76,7 @@ Transport
 
 void
 Transport
-::set_timeout(duration_time timeout)
+::set_timeout(duration_type timeout)
 {
     this->_timeout = timeout;
 }

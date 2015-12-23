@@ -41,11 +41,10 @@ Association
   _peer_ae_title(""), _presentation_contexts(),
   _user_identity_type(UserIdentityType::None), _user_identity_primary_field(""),
   _user_identity_secondary_field(""), _transfer_syntaxes_by_abstract_syntax(),
-  _transfer_syntaxes_by_id()
+  _transfer_syntaxes_by_id(), _next_message_id(1)
 {
-    // Nothing else
-    this->_state_machine.set_timeout(boost::posix_time::seconds(5));
-    this->_state_machine.get_transport().set_timeout(boost::posix_time::seconds(20));
+    this->set_tcp_timeout(boost::posix_time::pos_infin);
+    this->set_message_timeout(boost::posix_time::seconds(30));
 }
 
 Association
@@ -57,18 +56,17 @@ Association
   _user_identity_type(other._user_identity_type),
   _user_identity_primary_field(other._user_identity_primary_field),
   _user_identity_secondary_field(other._user_identity_secondary_field),
-  _transfer_syntaxes_by_abstract_syntax(), _transfer_syntaxes_by_id()
+  _transfer_syntaxes_by_abstract_syntax(), _transfer_syntaxes_by_id(),
+  _next_message_id(other._next_message_id)
 {
-    // Nothing else
+    this->set_tcp_timeout(other.get_tcp_timeout());
+    this->set_message_timeout(other.get_message_timeout());
 }
 
 Association
 ::~Association()
 {
-    if(this->is_associated())
-    {
-        this->release();
-    }
+    // Nothing to do, everything is taken care of by the StateMachine
 }
 
 Association &
@@ -287,6 +285,34 @@ Association
     this->set_user_identity_secondary_field("");
 }
 
+Association::duration_type
+Association
+::get_tcp_timeout() const
+{
+    return this->_state_machine.get_transport().get_timeout();
+}
+
+void
+Association
+::set_tcp_timeout(duration_type const & duration)
+{
+    this->_state_machine.get_transport().set_timeout(duration);
+}
+
+Association::duration_type
+Association
+::get_message_timeout() const
+{
+    return this->_state_machine.get_timeout();
+}
+
+void
+Association
+::set_message_timeout(duration_type const & duration)
+{
+    this->_state_machine.set_timeout(duration);
+}
+
 bool
 Association
 ::is_associated() const
@@ -477,8 +503,6 @@ Association
     dul::EventData data;
     data.pdu = pdu;
     this->_state_machine.send_pdu(data);
-
-    this->_state_machine.get_transport().close();
 }
 
 message::Message

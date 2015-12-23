@@ -34,7 +34,7 @@ struct Transport
     typedef boost::asio::ip::tcp::socket Socket;
 
     /// @brief Duration of the timeout.
-    typedef boost::asio::deadline_timer::duration_type duration_time;
+    typedef boost::asio::deadline_timer::duration_type duration_type;
 
     /// @brief Constructor.
     Transport();
@@ -55,10 +55,10 @@ struct Transport
     std::shared_ptr<Socket> get_socket();
 
     /// @brief Return the timeout, default to infinity.
-    duration_time get_timeout() const;
+    duration_type get_timeout() const;
 
     /// @brief Set the timeout.
-    void set_timeout(duration_time timeout);
+    void set_timeout(duration_type timeout);
 
     /// @brief Test whether the transport is open.
     bool is_open() const;
@@ -84,7 +84,7 @@ struct Transport
 private:
     boost::asio::io_service _service;
     std::shared_ptr<Socket> _socket;
-    duration_time _timeout;
+    duration_type _timeout;
     boost::asio::deadline_timer _deadline;
 
     void _start_deadline();

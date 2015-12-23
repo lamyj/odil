@@ -9,6 +9,7 @@
 #ifndef _a52696bc_5c6e_402d_a343_6cb085eb0138
 #define _a52696bc_5c6e_402d_a343_6cb085eb0138
 
+#include <cstdint>
 #include <functional>
 #include <map>
 #include <string>
@@ -88,6 +89,7 @@ public:
     };
 
     typedef dul::StateMachine::AssociationAcceptor AssociationAcceptor;
+    typedef dul::StateMachine::duration_type duration_type;
 
     /// @brief Create a default, un-associated, association.
     Association();
@@ -173,6 +175,23 @@ public:
 
     /// @brief Authenticate user using a SAML assertion.
     void set_user_identity_to_saml(std::string const & assertion);
+
+    /// @}
+
+    /// @name Timeouts
+    /// @{
+
+    /// @brief Return the TCP timeout, default to infinity.
+    duration_type get_tcp_timeout() const;
+
+    /// @brief Set the timeout.
+    void set_tcp_timeout(duration_type const & duration);
+
+    /// @brief Return the DIMSE timeout, default to 30s.
+    duration_type get_message_timeout() const;
+
+    /// @brief Set the DIMSE timeout.
+    void set_message_timeout(duration_type const & duration);
 
     /// @}
 

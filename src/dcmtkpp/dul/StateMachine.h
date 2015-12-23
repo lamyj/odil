@@ -62,7 +62,7 @@ public:
     };
 
     /// @brief Duration of the timeout.
-    typedef boost::asio::deadline_timer::duration_type duration_time;
+    typedef boost::asio::deadline_timer::duration_type duration_type;
 
     /**
      * @brief Callback to check whether the association request is acceptable.
@@ -77,6 +77,9 @@ public:
 
     /// @brief Constructor, initializing to Sta1.
     StateMachine();
+
+    /// @brief Destructor, closing the transport.
+    ~StateMachine();
 
     /**
      * @brief Perform the transition related to the event and current state.
@@ -94,10 +97,10 @@ public:
     Transport & get_transport();
 
     /// @brief Return the timeout, default to infinity.
-    duration_time get_timeout() const;
+    duration_type get_timeout() const;
 
     /// @brief Set the timeout.
-    void set_timeout(duration_time timeout);
+    void set_timeout(duration_type timeout);
 
     /**
      * @brief Receive a connection on the TCP transport, perform the
@@ -159,7 +162,7 @@ private:
     Transport _transport;
 
     /// @brief Timeout of the ARTIM timer.
-    duration_time _timeout;
+    duration_type _timeout;
 
     /// @brief Association Request/Reject/Release Timer.
     boost::asio::deadline_timer _artim_timer;

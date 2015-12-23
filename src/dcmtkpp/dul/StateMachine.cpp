@@ -46,6 +46,12 @@ StateMachine
     // Nothing else.
 }
 
+StateMachine
+::~StateMachine()
+{
+    // Nothing to to, transport is closed by ~Transport.
+}
+
 void
 StateMachine
 ::transition(Event const & event, EventData & data)
@@ -124,7 +130,7 @@ StateMachine
     return this->_transport;
 }
 
-StateMachine::duration_time
+StateMachine::duration_type
 StateMachine
 ::get_timeout() const
 {
@@ -133,7 +139,7 @@ StateMachine
 
 void
 StateMachine
-::set_timeout(duration_time timeout)
+::set_timeout(duration_type timeout)
 {
     this->_timeout = timeout;
 }
