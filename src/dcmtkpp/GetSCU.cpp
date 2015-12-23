@@ -55,13 +55,14 @@ GetSCU
 
         if(message.get_command_field() == message::Message::Command::C_GET_RSP)
         {
-            done = this->_get_response(message::CGetResponse(message));
+            done = this->_handle_get_response(message::CGetResponse(message));
         }
         else if(message.get_command_field() == message::Message::Command::C_STORE_RQ)
         {
             try
             {
-                this->_store_request(message::CStoreRequest(message), callback);
+                this->_handle_store_request(
+                    message::CStoreRequest(message), callback);
             }
             catch(...)
             {
@@ -94,14 +95,15 @@ GetSCU
 
 bool
 GetSCU
-::_get_response(message::CGetResponse const & response) const
+::_handle_get_response(message::CGetResponse const & response) const
 {
     return !response.is_pending();
 }
 
 void
 GetSCU
-::_store_request(message::CStoreRequest const & request, Callback callback) const
+::_handle_store_request(
+    message::CStoreRequest const & request, Callback callback) const
 {
     auto const store_callback = [&callback](message::CStoreRequest const & request) {
         callback(request.get_data_set());

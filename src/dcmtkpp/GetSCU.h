@@ -44,8 +44,8 @@ public:
     std::vector<DataSet> get(DataSet const & query) const;
 
 private:
-    bool _get_response(message::CGetResponse const & response) const;
-    void _store_request(
+    bool _handle_get_response(message::CGetResponse const & response) const;
+    void _handle_store_request(
         message::CStoreRequest const & request, Callback callback) const;
 };
 
