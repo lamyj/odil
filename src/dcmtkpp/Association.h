@@ -220,7 +220,8 @@ private:
     std::string _user_identity_primary_field;
     std::string _user_identity_secondary_field;
 
-    std::map<std::string, std::string> _transfer_syntaxes_by_abstract_syntax;
+    std::map<std::string, std::pair<uint8_t, std::string>>
+        _transfer_syntaxes_by_abstract_syntax;
     std::map<uint8_t, std::string> _transfer_syntaxes_by_id;
 };
 

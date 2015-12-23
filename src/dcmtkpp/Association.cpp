@@ -363,7 +363,6 @@ Association
         auto const rejection = std::dynamic_pointer_cast<pdu::AAssociateRJ>(data.pdu);
         if(acceptation != nullptr && acceptation->get_type() == pdu::AAssociate::Type::AC)
         {
-            std::cout << "Accepted" << std::endl;
             this->_transfer_syntaxes_by_abstract_syntax.clear();
             this->_transfer_syntaxes_by_id.clear();
             auto const requested_pc = request->get_presentation_contexts();
@@ -393,15 +392,11 @@ Association
                 }
 
                 auto const as = requested_pc_it->get_abstract_syntax();
-                this->_transfer_syntaxes_by_abstract_syntax[as] = ts;
+                this->_transfer_syntaxes_by_abstract_syntax[as] = {id, ts};
             }
         }
         else if(rejection != nullptr)
         {
-            std::cout <<
-                int(rejection->get_result()) << " " <<
-                int(rejection->get_source()) << " " <<
-                int(rejection->get_reason()) << " " << std::endl;
             throw Exception("Association rejected");
         }
         else
@@ -566,6 +561,16 @@ Association
 ::send_message(
     message::Message const & message, std::string const & abstract_syntax)
 {
+    auto const transfer_syntax_it =
+        this->_transfer_syntaxes_by_abstract_syntax.find(abstract_syntax);
+    if(transfer_syntax_it == this->_transfer_syntaxes_by_abstract_syntax.end())
+    {
+        throw Exception("No transfer syntax for "+abstract_syntax);
+    }
+
+    auto const & transfer_syntax = transfer_syntax_it->second.second;
+    auto const & id = transfer_syntax_it->second.first;
+
     std::vector<pdu::PDataTF::PresentationDataValueItem> pdv_items;
 
     std::ostringstream command_stream;
@@ -574,24 +579,18 @@ Association
         Writer::ItemEncoding::ExplicitLength, true); // true for Command
     command_writer.write_data_set(message.get_command_set());
     pdv_items.push_back(
-        pdu::PDataTF::PresentationDataValueItem(1, 3, command_stream.str()));
+        pdu::PDataTF::PresentationDataValueItem(id, 3, command_stream.str()));
 
     if (message.has_data_set())
     {
-        auto const transfer_syntax_it =
-            this->_transfer_syntaxes_by_abstract_syntax.find(abstract_syntax);
-        if(transfer_syntax_it == this->_transfer_syntaxes_by_abstract_syntax.end())
-        {
-            throw Exception("No transfer syntax for "+abstract_syntax);
-        }
-
         std::ostringstream data_stream;
         Writer data_writer(
-            data_stream, transfer_syntax_it->second,
+            data_stream, transfer_syntax,
             Writer::ItemEncoding::ExplicitLength, false);
         data_writer.write_data_set(message.get_data_set());
         pdv_items.push_back(
-            pdu::PDataTF::PresentationDataValueItem(1, 2, data_stream.str()));
+            pdu::PDataTF::PresentationDataValueItem(
+                transfer_syntax_it->second.first, 2, data_stream.str()));
     }
 
     auto pdu = std::make_shared<pdu::PDataTF>(pdv_items);
