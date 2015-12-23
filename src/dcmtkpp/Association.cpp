@@ -37,10 +37,11 @@ namespace dcmtkpp
 
 Association
 ::Association()
-: _state_machine(), _peer_host(""), _peer_port(104), _peer_ae_title(""),
-  _own_ae_title(""), _presentation_contexts(),
+: _state_machine(), _peer_host(""), _peer_port(104), _own_ae_title(""),
+  _peer_ae_title(""), _presentation_contexts(),
   _user_identity_type(UserIdentityType::None), _user_identity_primary_field(""),
-  _user_identity_secondary_field("")
+  _user_identity_secondary_field(""), _transfer_syntaxes_by_abstract_syntax(),
+  _transfer_syntaxes_by_id()
 {
     // Nothing else
     this->_state_machine.set_timeout(boost::posix_time::seconds(5));
@@ -50,12 +51,13 @@ Association
 Association
 ::Association(Association const & other)
 : _state_machine(), _peer_host(other._peer_host),
-  _peer_port(other._peer_port), _peer_ae_title(other._peer_ae_title),
-  _own_ae_title(other._own_ae_title),
+  _peer_port(other._peer_port), _own_ae_title(other._own_ae_title),
+  _peer_ae_title(other._peer_ae_title),
   _presentation_contexts(other._presentation_contexts),
   _user_identity_type(other._user_identity_type),
   _user_identity_primary_field(other._user_identity_primary_field),
-  _user_identity_secondary_field(other._user_identity_secondary_field)
+  _user_identity_secondary_field(other._user_identity_secondary_field),
+  _transfer_syntaxes_by_abstract_syntax(), _transfer_syntaxes_by_id()
 {
     // Nothing else
 }
@@ -313,7 +315,7 @@ Association
 
     std::vector<pdu::PresentationContext> presentation_contexts;
     presentation_contexts.reserve(this->_presentation_contexts.size());
-    for(int i=0; i<this->_presentation_contexts.size(); ++i)
+    for(unsigned int i=0; i<this->_presentation_contexts.size(); ++i)
     {
         auto const & source = this->_presentation_contexts[i];
         pdu::PresentationContext destination(
@@ -410,22 +412,23 @@ void
 Association
 ::receive_association()
 {
-    this->receive_association([](Association const &) { return true; });
+    this->receive_association(
+        []()
+        {
+            return std::make_pair(true, std::make_tuple(0, 0, 0));
+        }
+    );
 }
 
 void
 Association
-::receive_association(std::function<bool (const Association &)> acceptor)
+::receive_association(AssociationAcceptor acceptor)
 {
     dul::EventData data;
     data.peer_endpoint = dul::Transport::Socket::endpoint_type(
         boost::asio::ip::tcp::v4(), 11112);
 
-    this->_state_machine.is_association_acceptable =
-        []()
-        {
-            return std::make_pair(false, std::tuple<int, int, int>(1, 2, 3));
-        };
+    this->_state_machine.set_association_acceptor(acceptor);
 
     this->_state_machine.receive(data);
     this->_state_machine.receive_pdu(data);

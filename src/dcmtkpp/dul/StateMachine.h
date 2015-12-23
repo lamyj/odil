@@ -64,6 +64,17 @@ public:
     /// @brief Duration of the timeout.
     typedef boost::asio::deadline_timer::duration_type duration_time;
 
+    /**
+     * @brief Callback to check whether the association request is acceptable.
+     *
+     * If the first element is true, then the association is acceptable and the
+     * second element does not contain meaningful data. If the first element is
+     * false, the the association will rejected with the result, source and
+     * reason stored in the second element (in that order).
+     */
+    typedef std::function<std::pair<bool, std::tuple<int, int, int>>()>
+        AssociationAcceptor;
+
     /// @brief Constructor, initializing to Sta1.
     StateMachine();
 
@@ -107,15 +118,18 @@ public:
     void stop_timer();
 
     /**
-     * @brief Callback to check whether the association request is acceptable.
+     * @brief Return the callback checking whether the association request is
+     * acceptable.
      *
-     * If the first element is true, then the association is acceptable and the
-     * second element does not contain meaningful data. If the first element is
-     * false, the the association will rejected with the result, source and
-     * reason stored in the second element (in that order).
+     * By default, all association requests are accepted.
      */
-    std::function<std::pair<bool, std::tuple<int, int, int>>()>
-        is_association_acceptable;
+    AssociationAcceptor const & get_association_acceptor() const;
+
+    /**
+     * @brief Set the callback checking whether the association request is
+     * acceptable.
+     */
+    void set_association_acceptor(AssociationAcceptor const & acceptor);
 
 private:
 
@@ -149,6 +163,9 @@ private:
 
     /// @brief Association Request/Reject/Release Timer.
     boost::asio::deadline_timer _artim_timer;
+
+    /// @brief Callback checking whether an association request is acceptable.
+    AssociationAcceptor _association_acceptor;
 
     /// @brief Check the PDU type in data and send it.
     void _send_pdu(EventData & data, uint8_t pdu_type);

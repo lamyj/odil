@@ -87,6 +87,8 @@ public:
         std::vector<std::string> transfer_syntaxes;
     };
 
+    typedef dul::StateMachine::AssociationAcceptor AssociationAcceptor;
+
     /// @brief Create a default, un-associated, association.
     Association();
 
@@ -186,7 +188,7 @@ public:
     /// @brief Receive an association from a peer.
     void receive_association();
 
-    void receive_association(std::function<bool(Association const&)> accpetor);
+    void receive_association(AssociationAcceptor accpetor);
 
     /// @brief Reject the received association request.
     void reject(Result result, ResultSource result_source, Diagnostic diagnostic);

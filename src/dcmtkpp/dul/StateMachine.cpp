@@ -36,9 +36,14 @@ namespace dul
 
 StateMachine
 ::StateMachine()
-: _state(State::Sta1), _artim_timer(_transport.get_service())
+: _state(State::Sta1), _timeout(boost::posix_time::pos_infin),
+  _artim_timer(_transport.get_service()), _association_acceptor(
+    []()
+    {
+        return std::make_pair(true, std::make_tuple(0, 0, 0));
+    })
 {
-    this->set_timeout(boost::posix_time::pos_infin);
+    // Nothing else.
 }
 
 void
@@ -280,6 +285,20 @@ StateMachine
     this->_artim_timer.expires_at(boost::posix_time::pos_infin);
 }
 
+StateMachine::AssociationAcceptor const &
+StateMachine
+::get_association_acceptor() const
+{
+    return this->_association_acceptor;
+}
+
+void
+StateMachine
+::set_association_acceptor(AssociationAcceptor const & acceptor)
+{
+    this->_association_acceptor = acceptor;
+}
+
 #define transition_full(start, event, guard, action, end) { \
     std::make_tuple(StateMachine::State::start, StateMachine::Event::event, guard), \
     { StateMachine::Action::action, StateMachine::State::end } }
@@ -434,7 +453,7 @@ StateMachine
     {
         {StateMachine::State::Sta2, StateMachine::Event::AAssociateRQRemote},
         [](StateMachine const & state_machine) {
-            return state_machine.is_association_acceptable().first; }
+            return state_machine.get_association_acceptor()().first; }
     },
 };
 
@@ -505,7 +524,7 @@ StateMachine
 ::AE_6(EventData & data)
 {
     this->stop_timer();
-    auto const acceptable = this->is_association_acceptable();
+    auto const acceptable = this->_association_acceptor();
     if(acceptable.first)
     {
         // Issue A-ASSOCIATE indication
@@ -656,7 +675,7 @@ void
 StateMachine
 ::AA_3(EventData & data)
 {
-    throw Exception("Not implemented");
+    throw Exception("AA-3 Not implemented");
 }
 
 /// @brief Issue A-P-ABORT indication primitive.
@@ -664,7 +683,7 @@ void
 StateMachine
 ::AA_4(EventData & data)
 {
-    throw Exception("Not implemented");
+    throw Exception("AA-4 Not implemented");
 }
 
 void
@@ -695,7 +714,7 @@ void
 StateMachine
 ::AA_8(EventData & data)
 {
-    throw Exception("Not implemented");
+    throw Exception("AA-8 Not implemented");
 }
 
 }
