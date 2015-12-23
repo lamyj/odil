@@ -19,7 +19,7 @@ before_build:
   - cmd: md build
   - cmd: cd build
   - set PATH=C:\Program Files (x86)\MSBuild\14.0\Bin;%PATH%
-  - cmake -DCMAKE_BUILD_TYPE=%configuration% -DBOOST_ROOT="%BOOST_ROOT%" -DBOOST_LIBRARYDIR="%BOOST_LIBRARYDIR%" -DBoost_USE_STATIC_LIBS="ON"
+  - cmake -DCMAKE_BUILD_TYPE=%configuration% -DBOOST_ROOT="%BOOST_ROOT%" -DBOOST_LIBRARYDIR="%BOOST_LIBRARYDIR%" -DBoost_USE_STATIC_LIBS="ON" ..
 
 build:
   project: C:\projects\dcmtkpp\build\dcmtkpp.sln

@@ -628,4 +628,11 @@ Association
     this->_state_machine.send_pdu(data);
 }
 
+uint16_t
+Association
+::next_message_id()
+{
+    return ++this->_next_message_id;
+}
+
 }

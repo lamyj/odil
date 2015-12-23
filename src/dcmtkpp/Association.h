@@ -219,12 +219,20 @@ public:
 
     /// @}
 
+    /// @name DIMSE messages sending and reception.
+    /// @{
+
     /// @brief Receive a generic DIMSE message.
     message::Message receive_message();
 
     /// @brief Send a DIMSE message.
     void send_message(
         message::Message const & message, std::string const & abstract_syntax);
+
+    /// @brief Return the next available message id.
+    uint16_t next_message_id();
+
+    /// @}
 
 private:
     dul::StateMachine _state_machine;
@@ -244,6 +252,8 @@ private:
     std::map<std::string, std::pair<uint8_t, std::string>>
         _transfer_syntaxes_by_abstract_syntax;
     std::map<uint8_t, std::string> _transfer_syntaxes_by_id;
+
+    uint16_t _next_message_id;
 };
 
 }
