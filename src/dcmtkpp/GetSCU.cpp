@@ -12,28 +12,21 @@
 #include <sstream>
 #include <vector>
 
-#include "dcmtkpp/DcmtkAssociation.h"
-#include "dcmtkpp/message/CGetRequest.h"
-#include "dcmtkpp/message/CGetResponse.h"
-#include "dcmtkpp/message/CStoreRequest.h"
+#include "dcmtkpp/Association.h"
 #include "dcmtkpp/DataSet.h"
 #include "dcmtkpp/Exception.h"
 #include "dcmtkpp/Network.h"
 #include "dcmtkpp/StoreSCP.h"
+#include "dcmtkpp/message/CGetRequest.h"
+#include "dcmtkpp/message/CGetResponse.h"
+#include "dcmtkpp/message/CStoreRequest.h"
 
 namespace dcmtkpp
 {
 
 GetSCU
-::GetSCU()
-: SCU()
-{
-    // Nothing else
-}
-
-GetSCU
-::GetSCU(Network * network, DcmtkAssociation * association)
-: SCU(network, association)
+::GetSCU(Association & association)
+: SCU(association)
 {
     // Nothing else
 }
@@ -50,15 +43,15 @@ GetSCU
 {
     // Send the request
     message::CGetRequest request(
-        this->_association->get_association()->nextMsgID++,
+        this->_association.next_message_id(),
         this->_affected_sop_class, message::Message::Priority::MEDIUM, query);
-    this->_association->send(request, this->_affected_sop_class);
+    this->_association.send_message(request, this->_affected_sop_class);
 
     // Receive the responses
     bool done = false;
     while(!done)
     {
-        message::Message const message = this->_association->receive();
+        message::Message const message = this->_association.receive_message();
 
         if(message.get_command_field() == message::Message::Command::C_GET_RSP)
         {
@@ -114,7 +107,7 @@ GetSCU
         callback(request.get_data_set());
         return message::Response::Success;
     };
-    StoreSCP scp(this->_network, this->_association, store_callback);
+    StoreSCP scp(this->_association, store_callback);
     scp(request);
 }
 

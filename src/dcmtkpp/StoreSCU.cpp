@@ -15,11 +15,20 @@
 
 #include "dcmtkpp/message/CStoreRequest.h"
 #include "dcmtkpp/message/CStoreResponse.h"
+#include "dcmtkpp/DataSet.h"
 #include "dcmtkpp/Exception.h"
 #include "dcmtkpp/registry.h"
+#include "dcmtkpp/SCU.h"
 
 namespace dcmtkpp
 {
+
+StoreSCU
+::StoreSCU(Association & association)
+: SCU(association)
+{
+    // Nothing else.
+}
 
 StoreSCU
 ::~StoreSCU()
@@ -55,18 +64,17 @@ StoreSCU
 
 void 
 StoreSCU
-::store(DataSet const & dataset, DcmtkAssociation::ProgressCallback callback,
-        void * data) const
+::store(DataSet const & dataset) const
 {
     message::CStoreRequest const request(
-        this->_association->get_association()->nextMsgID++,
+        this->_association.next_message_id(),
         this->_affected_sop_class,
         dataset.as_string(registry::SOPInstanceUID, 0),
         message::Message::Priority::MEDIUM,
         dataset);
-    this->_association->send(request, this->_affected_sop_class, callback, data);
+    this->_association.send_message(request, this->_affected_sop_class);
     
-    auto const response = this->_association->receive<message::CStoreResponse>();
+    message::CStoreResponse const response = this->_association.receive_message();
 
     if(response.get_message_id_being_responded_to() != request.get_message_id())
     {

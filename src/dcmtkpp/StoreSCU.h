@@ -9,10 +9,9 @@
 #ifndef _1b2f876e_1ad2_464d_9423_28181320aed0
 #define _1b2f876e_1ad2_464d_9423_28181320aed0
 
-#include "SCU.h"
-
+#include "dcmtkpp/Association.h"
 #include "dcmtkpp/DataSet.h"
-#include "dcmtkpp/DcmtkAssociation.h"
+#include "dcmtkpp/SCU.h"
 
 namespace dcmtkpp
 {
@@ -21,16 +20,17 @@ namespace dcmtkpp
 class StoreSCU: public SCU
 {
 public:
+    /// @brief Constructor.
+    StoreSCU(Association & association);
+
     /// @brief Destructor.
     virtual ~StoreSCU();
     
     /// @brief Set the affected SOP class based on the dataset.
     void set_affected_sop_class(DataSet const & dataset);
     
-    /// @brief Perform the C-STORE using an optional callback.
-    void store(DataSet const & dataset,
-               DcmtkAssociation::ProgressCallback callback=NULL,
-               void * data=NULL) const;
+    /// @brief Perform the C-STORE.
+    void store(DataSet const & dataset) const;
 };
 
 }

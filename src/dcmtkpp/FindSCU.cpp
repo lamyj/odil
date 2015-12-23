@@ -12,6 +12,7 @@
 #include <sstream>
 #include <vector>
 
+#include "dcmtkpp/Association.h"
 #include "dcmtkpp/DataSet.h"
 #include "dcmtkpp/Exception.h"
 #include "dcmtkpp/message/CFindRequest.h"
@@ -19,6 +20,13 @@
 
 namespace dcmtkpp
 {
+
+FindSCU
+::FindSCU(Association & asociation)
+: SCU(asociation)
+{
+    // Nothing else.
+}
 
 FindSCU
 ::~FindSCU()
@@ -31,16 +39,17 @@ FindSCU
 ::find(DataSet const & query, Callback callback) const
 {
     message::CFindRequest request(
-        this->_association->get_association()->nextMsgID++,
+        this->_association.next_message_id(),
         this->_affected_sop_class, message::Message::Priority::MEDIUM, query);
-    this->_association->send(request, this->_affected_sop_class);
+    this->_association.send_message(request, this->_affected_sop_class);
 
     // Receive the responses
     bool done = false;
     while(!done)
     {
         // FIXME: include progress callback
-        auto response = this->_association->receive<message::CFindResponse>();
+        message::CFindResponse const response =
+            this->_association.receive_message();
 
         if(response.get_message_id_being_responded_to() != request.get_message_id())
         {

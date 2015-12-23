@@ -11,6 +11,7 @@
 
 #include <vector>
 
+#include "dcmtkpp/Association.h"
 #include "dcmtkpp/DataSet.h"
 #include "dcmtkpp/SCU.h"
 
@@ -23,6 +24,8 @@ class FindSCU: public SCU
 public:
     /// @brief Callback called when a response is received.
     typedef std::function<void(DataSet const &)> Callback;
+
+    FindSCU(Association & association);
     
     /// @brief Destructor.
     virtual ~FindSCU();

@@ -14,28 +14,20 @@
 #include <dcmtk/config/osconfig.h>
 #include <dcmtk/dcmnet/dimse.h>
 
-#include "dcmtkpp/DcmtkAssociation.h"
-#include "dcmtkpp/message/CMoveRequest.h"
-#include "dcmtkpp/message/CMoveResponse.h"
+#include "dcmtkpp/Association.h"
 #include "dcmtkpp/DataSet.h"
 #include "dcmtkpp/Exception.h"
-#include "dcmtkpp/message/Message.h"
-#include "dcmtkpp/Network.h"
 #include "dcmtkpp/StoreSCP.h"
+#include "dcmtkpp/message/CMoveRequest.h"
+#include "dcmtkpp/message/CMoveResponse.h"
+#include "dcmtkpp/message/Message.h"
 
 namespace dcmtkpp
 {
 
 MoveSCU
-::MoveSCU()
-: SCU(), _move_destination("")
-{
-    // Nothing else.
-}
-
-MoveSCU
-::MoveSCU(Network * network, DcmtkAssociation * association)
-: SCU(network, association), _move_destination("")
+::MoveSCU(Association & association)
+: SCU(association), _move_destination("")
 {
     // Nothing else.
 }
@@ -66,22 +58,24 @@ MoveSCU
 {
     // Send the request
     message::CMoveRequest const request(
-        this->_association->get_association()->nextMsgID++,
+        this->_association.next_message_id(),
         this->_affected_sop_class, message::Message::Priority::MEDIUM,
         this->_move_destination, query);
-    this->_association->send(request, this->_affected_sop_class);
+    this->_association.send_message(request, this->_affected_sop_class);
 
     // Receive the responses
-    DcmtkAssociation store_association;
+    Association store_association;
     bool done = false;
     while(!done)
     {
         // Use a small timeout to avoid blocking for a long time.
+        /*
         if(!store_association.is_associated() &&
            this->_network->is_association_waiting(1))
         {
             store_association.receive(*this->_network, true);
         }
+        */
 
         done = this->_dispatch(store_association, callback);
     }
@@ -102,8 +96,9 @@ MoveSCU
 
 bool
 MoveSCU
-::_dispatch(DcmtkAssociation & association, Callback callback) const
+::_dispatch(Association & association, Callback callback) const
 {
+    /*
     T_ASC_Association *associations[2];
     int size = 0;
 
@@ -142,19 +137,21 @@ MoveSCU
     }
 
     return move_finished;
+    */
+    return true;
 }
 
 bool
 MoveSCU
 ::_handle_main_association() const
 {
-    auto const response = this->_association->receive<message::CMoveResponse>();
+    message::CMoveResponse const response = this->_association.receive_message();
     return !response.is_pending();
 }
 
 bool
 MoveSCU
-::_handle_store_association(DcmtkAssociation & association, Callback callback) const
+::_handle_store_association(Association & association, Callback callback) const
 {
     bool result = false;
     try
@@ -163,7 +160,7 @@ MoveSCU
             callback(request.get_data_set());
             return message::Response::Success;
         };
-        StoreSCP scp(this->_network, &association, store_callback);
+        StoreSCP scp(association, store_callback);
         scp.receive_and_process();
     }
     catch(Exception const &)

@@ -12,12 +12,12 @@
 #include <functional>
 #include <vector>
 
-#include "dcmtkpp/DcmtkAssociation.h"
-#include "dcmtkpp/message/CGetResponse.h"
-#include "dcmtkpp/message/CStoreRequest.h"
+#include "dcmtkpp/Association.h"
 #include "dcmtkpp/DataSet.h"
 #include "dcmtkpp/Network.h"
 #include "dcmtkpp/SCU.h"
+#include "dcmtkpp/message/CGetResponse.h"
+#include "dcmtkpp/message/CStoreRequest.h"
 
 namespace dcmtkpp
 {
@@ -29,11 +29,8 @@ public:
     /// @brief Callback called when a response is received.
     typedef std::function<void(DataSet const &)> Callback;
 
-    /// @brief Default constructor.
-    GetSCU();
-
     /// @brief Constructor.
-    GetSCU(Network * network, DcmtkAssociation * association);
+    GetSCU(Association & association);
 
     /// @brief Destructor.
     virtual ~GetSCU();

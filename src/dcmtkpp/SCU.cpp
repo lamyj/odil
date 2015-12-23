@@ -10,29 +10,19 @@
 
 #include <string>
 
-#include <unistd.h>
-
-#include "dcmtkpp/DcmtkAssociation.h"
+#include "dcmtkpp/Association.h"
 #include "dcmtkpp/Exception.h"
 #include "dcmtkpp/message/CEchoRequest.h"
 #include "dcmtkpp/message/CEchoResponse.h"
 #include "dcmtkpp/message/Message.h"
-#include "dcmtkpp/Network.h"
 #include "dcmtkpp/registry.h"
 
 namespace dcmtkpp
 {
 
 SCU
-::SCU()
-: ServiceRole(), _affected_sop_class("")
-{
-    // Nothing else
-}
-
-SCU
-::SCU(Network * network, DcmtkAssociation * association)
-: ServiceRole(network, association), _affected_sop_class("")
+::SCU(Association & association)
+: _association(association), _affected_sop_class("")
 {
     // Nothing else.
 }
@@ -61,12 +51,14 @@ void
 SCU
 ::echo() const
 {
-    Uint16 const message_id = this->_association->get_association()->nextMsgID++;
+    auto const message_id = this->_association.next_message_id();
     
-    message::CEchoRequest const request(message_id, registry::VerificationSOPClass);
-    this->_association->send(request, request.get_affected_sop_class_uid());
+    message::CEchoRequest const request(
+        message_id, registry::VerificationSOPClass);
+    this->_association.send_message(
+        request, request.get_affected_sop_class_uid());
     
-    auto const response = this->_association->receive<message::CEchoResponse>();
+    message::CEchoResponse const response = this->_association.receive_message();
     if(response.get_message_id_being_responded_to() != message_id)
     {
         std::ostringstream message;
