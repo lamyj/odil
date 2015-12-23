@@ -518,11 +518,13 @@ Association
 ::receive_message()
 {
     bool done = false;
-    DataSet command_set, data_set;
-
+    int presentation_context_id;
     bool command_set_received=false;
     bool has_data_set=true;
     bool data_set_received=false;
+
+    DataSet command_set;
+    std::stringstream command_stream, data_stream;
 
     while(!done)
     {
@@ -538,39 +540,24 @@ Association
 
         for(auto const & pdv: p_data_tf->get_pdv_items())
         {
-            bool & received = pdv.is_command()?command_set_received:data_set_received;
+            presentation_context_id = pdv.get_presentation_context_id();
+            bool & received =
+                pdv.is_command()?command_set_received:data_set_received;
             received |= pdv.is_last_fragment();
 
             auto const & fragment_data = pdv.get_fragment();
-            std::stringstream stream;
+
+            std::stringstream  & stream =
+                pdv.is_command()?command_stream:data_stream;
             stream.write(&fragment_data[0], fragment_data.size());
 
-            auto transfer_syntax = registry::ImplicitVRLittleEndian;
-            if(!pdv.is_command())
+            if(command_set_received && command_set.empty())
             {
-                auto const id = pdv.get_presentation_context_id();
-                auto const transfer_syntax_it =
-                    this->_transfer_syntaxes_by_id.find(id);
-                if(transfer_syntax_it == this->_transfer_syntaxes_by_id.end())
-                {
-                    throw Exception("No such Presentation Context ID");
-                }
-                transfer_syntax = transfer_syntax_it->second;
-            }
-
-            Reader reader(stream, transfer_syntax);
-            auto const fragment = reader.read_data_set();
-
-            auto & destination = pdv.is_command()?command_set:data_set;
-            for(auto const & element: fragment)
-            {
-                destination.add(element.first, element.second);
-            }
-
-            if(pdv.is_command() && command_set.has(registry::CommandDataSetType))
-            {
-                auto const & value =
+                Reader reader(stream, registry::ImplicitVRLittleEndian);
+                command_set = reader.read_data_set();
+                auto const value =
                     command_set.as_int(registry::CommandDataSetType);
+
                 if(value == Value::Integers({message::Message::DataSetType::ABSENT}))
                 {
                     has_data_set = false;
@@ -583,6 +570,16 @@ Association
 
     if(has_data_set)
     {
+        auto const transfer_syntax_it =
+            this->_transfer_syntaxes_by_id.find(presentation_context_id);
+        if(transfer_syntax_it == this->_transfer_syntaxes_by_id.end())
+        {
+            throw Exception("No such Presentation Context ID");
+        }
+
+        Reader reader(data_stream, transfer_syntax_it->second);
+        auto const data_set = reader.read_data_set();
+
         return message::Message(command_set, data_set);
     }
     else
