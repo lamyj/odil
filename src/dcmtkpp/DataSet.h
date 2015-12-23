@@ -41,7 +41,7 @@ Value::Type const & as_##name(Tag const & tag) const \
     } \
     return it->second.as_##name(); \
 } \
-Value::Type::value_type const & as_##name(Tag const & tag, int position) const \
+Value::Type::value_type const & as_##name(Tag const & tag, unsigned int position) const \
 { \
     auto const & data = this->as_##name(tag); \
     if(data.size() <= position) \
