@@ -22,6 +22,7 @@
 #include "dcmtkpp/pdu/AAbort.h"
 #include "dcmtkpp/pdu/AAssociate.h"
 #include "dcmtkpp/pdu/AAssociateRJ.h"
+#include "dcmtkpp/pdu/AReleaseRP.h"
 #include "dcmtkpp/pdu/AReleaseRQ.h"
 #include "dcmtkpp/pdu/ImplementationClassUID.h"
 #include "dcmtkpp/pdu/ImplementationVersionName.h"
@@ -488,6 +489,13 @@ Association
     dul::EventData data;
     data.pdu = pdu;
     this->_state_machine.send_pdu(data);
+    this->_state_machine.receive_pdu(data);
+
+    auto const reply = std::dynamic_pointer_cast<pdu::AReleaseRP>(data.pdu);
+    if(reply == nullptr)
+    {
+        // Invalid response, accept it nevertheless.
+    }
 }
 
 void
