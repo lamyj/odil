@@ -1,25 +1,25 @@
-version: build.{build}
+version: {build}
 
 os: Windows Server 2012 R2
 
 clone_folder: c:\projects\dcmtkpp
 
+environment:
+  BOOST_ROOT: C:\Libraries\boost
+  BOOST_LIBRARYDIR: C:\Libraries\boost\lib64-msvc-12.0
+
 platform:
-  - Win32
   - x64
 
 configuration:
-  - Debug
-  - Release
+  - RelWithDebInfo
 
 before_build:
-  - echo "Running cmake..."
   - cd c:\projects\dcmtkpp
-  - cmake --version
+  - cmd: md build
+  - cmd: cd build
   - set PATH=C:\Program Files (x86)\MSBuild\14.0\Bin;%PATH%
-  - if %PLATFORM% == Win32 cmake .
-  - if %PLATFORM% == x64 cmake -G "Visual Studio 12 2013 Win64" .
+  - cmake -DCMAKE_BUILD_TYPE=%configuration% -DBOOST_ROOT="%BOOST_ROOT%" -DBOOST_LIBRARYDIR="%BOOST_LIBRARYDIR%" -DBoost_USE_STATIC_LIBS="ON"
 
 build:
-  project: dcmtkpp.sln
-
+  project: C:\projects\dcmtkpp\build\dcmtkpp.sln
