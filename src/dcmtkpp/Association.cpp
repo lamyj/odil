@@ -555,12 +555,12 @@ Association
 
             if(command_set_received && command_set.empty())
             {
-                Reader reader(stream, registry::ImplicitVRLittleEndian);
+                Reader reader(command_stream, registry::ImplicitVRLittleEndian);
                 command_set = reader.read_data_set();
                 auto const value =
-                    command_set.as_int(registry::CommandDataSetType);
+                    command_set.as_int(registry::CommandDataSetType, 0);
 
-                if(value == Value::Integers({message::Message::DataSetType::ABSENT}))
+                if(value == message::Message::DataSetType::ABSENT)
                 {
                     has_data_set = false;
                 }
