@@ -437,9 +437,10 @@ Association
 
 void
 Association
-::receive_association()
+::receive_association(
+    boost::asio::ip::tcp const & protocol, unsigned short port)
 {
-    this->receive_association(
+    this->receive_association(protocol, port,
         []()
         {
             return std::make_pair(true, std::make_tuple(0, 0, 0));
@@ -449,11 +450,12 @@ Association
 
 void
 Association
-::receive_association(AssociationAcceptor acceptor)
+::receive_association(
+    boost::asio::ip::tcp const & protocol, unsigned short port,
+    AssociationAcceptor acceptor)
 {
     dul::EventData data;
-    data.peer_endpoint = dul::Transport::Socket::endpoint_type(
-        boost::asio::ip::tcp::v4(), 11112);
+    data.peer_endpoint = dul::Transport::Socket::endpoint_type(protocol, port);
 
     this->_state_machine.set_association_acceptor(acceptor);
 

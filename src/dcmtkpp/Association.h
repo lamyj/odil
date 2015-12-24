@@ -205,9 +205,12 @@ public:
     void associate();
 
     /// @brief Receive an association from a peer.
-    void receive_association();
+    void receive_association(
+        boost::asio::ip::tcp const & protocol, unsigned short port);
 
-    void receive_association(AssociationAcceptor accpetor);
+    void receive_association(
+        boost::asio::ip::tcp const & protocol, unsigned short port,
+        AssociationAcceptor accpetor);
 
     /// @brief Reject the received association request.
     void reject(Result result, ResultSource result_source, Diagnostic diagnostic);
