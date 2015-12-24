@@ -97,27 +97,21 @@ Transport
         throw Exception("Already connected");
     }
 
-    this->_start_deadline();
+    auto source = Source::NONE;
+    boost::system::error_code error;
+    this->_start_deadline(source, error);
 
     this->_socket = std::make_shared<Socket>(this->_service);
     this->_socket->async_connect(
         peer_endpoint,
-        [this](boost::system::error_code const & error)
+        [&source,&error](boost::system::error_code const & e)
         {
-            if(error == boost::asio::error::operation_aborted)
-            {
-                throw Exception("Connection timed out");
-            }
-            else if(error)
-            {
-                throw boost::system::system_error(error);
-            }
-            this->_stop_deadline();
+            source = Source::OPERATION;
+            error = e;
         }
     );
 
-    this->_service.run();
-    this->_service.reset();
+    this->_run(source, error);
 }
 
 void
@@ -129,28 +123,22 @@ Transport
         throw Exception("Already connected");
     }
 
-    this->_start_deadline();
+    auto source = Source::NONE;
+    boost::system::error_code error;
+    this->_start_deadline(source, error);
 
     this->_socket = std::make_shared<Socket>(this->_service);
     boost::asio::ip::tcp::acceptor acceptor(this->_service, endpoint);
     acceptor.async_accept(
         *this->_socket,
-        [this](boost::system::error_code const & error)
+        [&source,&error](boost::system::error_code const & e)
         {
-            if(error == boost::asio::error::operation_aborted)
-            {
-                throw Exception("Connection timed out");
-            }
-            else if(error)
-            {
-                throw boost::system::system_error(error);
-            }
-            this->_stop_deadline();
+            source = Source::OPERATION;
+            error = e;
         }
     );
 
-    this->_service.run();
-    this->_service.reset();
+    this->_run(source, error);
 }
 
 void
@@ -175,29 +163,23 @@ Transport
         throw Exception("Not connected");
     }
 
-    std::string data(length, '\0');
+    std::string data(length, 'a');
 
-    this->_start_deadline();
+    auto source = Source::NONE;
+    boost::system::error_code error;
+    this->_start_deadline(source, error);
 
     boost::asio::async_read(
         *this->_socket,
         boost::asio::buffer(&data[0], data.size()),
-        [this](boost::system::error_code const & error, std::size_t)
+        [&source,&error](boost::system::error_code const & e, std::size_t)
         {
-            if(error == boost::asio::error::operation_aborted)
-            {
-                throw Exception("Connection timed out");
-            }
-            else if(error)
-            {
-                throw boost::system::system_error(error);
-            }
-            this->_stop_deadline();
+            source = Source::OPERATION;
+            error = e;
         }
     );
 
-    this->_service.run();
-    this->_service.reset();
+    this->_run(source, error);
 
     return data;
 }
@@ -211,47 +193,37 @@ Transport
         throw Exception("Not connected");
     }
 
-    this->_start_deadline();
+    auto source = Source::NONE;
+    boost::system::error_code error;
+    this->_start_deadline(source, error);
+
     boost::asio::async_write(
         *this->_socket, boost::asio::buffer(data),
-        [this](boost::system::error_code const & error, std::size_t)
+        [&source,&error](boost::system::error_code const & e, std::size_t)
         {
-            if(error == boost::asio::error::operation_aborted)
-            {
-                throw Exception("Connection timed out");
-            }
-            else if(error)
-            {
-                throw boost::system::system_error(error);
-            }
-            this->_stop_deadline();
-        });
+            source = Source::OPERATION;
+            error = e;
+        }
+    );
 
-    this->_service.run();
-    this->_service.reset();
+    this->_run(source, error);
 }
 
 void
 Transport
-::_start_deadline()
+::_start_deadline(Source & source, boost::system::error_code & error)
 {
-    this->_deadline.expires_from_now(this->_timeout);
+    auto const canceled = this->_deadline.expires_from_now(this->_timeout);
+    if(canceled != 0)
+    {
+        throw Exception("TCP timer started with pending operations");
+    }
 
     this->_deadline.async_wait(
-        [this](boost::system::error_code const & error)
+        [&source,&error](boost::system::error_code const & e)
         {
-            if(!error)
-            {
-                this->close();
-            }
-            else if(error == boost::asio::error::operation_aborted)
-            {
-                // Do nothing.
-            }
-            else
-            {
-                throw boost::system::system_error(error);
-            }
+            source = Source::TIMER;
+            error = e;
         }
     );
 }
@@ -260,8 +232,57 @@ void
 Transport
 ::_stop_deadline()
 {
-    this->_deadline.cancel();
     this->_deadline.expires_at(boost::posix_time::pos_infin);
+}
+
+void
+Transport
+::_run(Source & source, boost::system::error_code & error)
+{
+    // WARNING: it seems that run_one runs a *simple* operation, not a
+    // *composed* operation, as is done by async_read/async_write
+    while(source == Source::NONE)
+    {
+        auto const ran = this->_service.run_one();
+        if(ran == 0)
+        {
+            throw Exception("No operations ran");
+        }
+        this->_service.reset();
+    }
+
+    if(source == Source::OPERATION)
+    {
+        if(error)
+        {
+            throw Exception("Operation error: "+error.message());
+        }
+
+        source = Source::NONE;
+        this->_stop_deadline();
+        auto const polled = this->_service.run_one();
+        if(polled == 0)
+        {
+            throw Exception("No operations polled");
+        }
+        this->_service.reset();
+        if(source != Source::TIMER)
+        {
+            throw Exception("Unknown event");
+        }
+        else if(error != boost::asio::error::operation_aborted)
+        {
+            throw Exception("TCP timer error: "+error.message());
+        }
+    }
+    else if(source == Source::TIMER)
+    {
+        throw Exception("TCP time out");
+    }
+    else
+    {
+        throw Exception("Unknown source");
+    }
 }
 
 }

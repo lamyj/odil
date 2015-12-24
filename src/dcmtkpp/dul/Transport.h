@@ -87,8 +87,17 @@ private:
     duration_type _timeout;
     boost::asio::deadline_timer _deadline;
 
-    void _start_deadline();
+    enum class Source
+    {
+        NONE,
+        TIMER,
+        OPERATION,
+    };
+
+    void _start_deadline(Source & source, boost::system::error_code & error);
     void _stop_deadline();
+
+    void _run(Source & source, boost::system::error_code & error);
 };
 
 }
