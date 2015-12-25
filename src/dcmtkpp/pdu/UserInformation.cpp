@@ -17,6 +17,7 @@
 #include "dcmtkpp/pdu/ImplementationVersionName.h"
 #include "dcmtkpp/pdu/MaximumLength.h"
 #include "dcmtkpp/pdu/Object.h"
+#include "dcmtkpp/pdu/RoleSelection.h"
 #include "dcmtkpp/pdu/UserIdentityAC.h"
 #include "dcmtkpp/pdu/UserIdentityRQ.h"
 
@@ -65,13 +66,17 @@ UserInformation
             ImplementationClassUID const sub_item(stream);
             this->set_sub_item(sub_item);
         }
+        // 0x53: Asynchronous Operations Window, PS 3.7, D.3.3.3.1
+        else if(type == 0x54)
+        {
+            RoleSelection const sub_item(stream);
+            this->set_sub_item(sub_item);
+        }
         else if(type == 0x55)
         {
             ImplementationVersionName const sub_item(stream);
             this->set_sub_item(sub_item);
         }
-        // 0x53: Asynchronous Operations Window, PS 3.7, D.3.3.3.1
-        // 0x54: SCP/SCU Role Selection, PS 3.7, D.3.3.4.1
         // 0x56: SOP Class Extended Negotiation, PS 3.7, D.3.3.5.1
         // 0x57: SOP Class Common Extended Negotiation, PS 3.7, D.3.3.6.1
         else if(type == 0x58)
