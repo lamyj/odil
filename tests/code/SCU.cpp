@@ -9,34 +9,31 @@
 struct Fixture: public PeerFixtureBase
 {
     Fixture()
-    : PeerFixtureBase(NET_REQUESTOR, 104, 10,
-        {
-            { dcmtkpp::registry::VerificationSOPClass,
-                {dcmtkpp::registry::ImplicitVRLittleEndian}
-            }
-        })
+    : PeerFixtureBase({
+        { dcmtkpp::registry::VerificationSOPClass,
+          {dcmtkpp::registry::ImplicitVRLittleEndian}
+        }
+    })
     {
         // Nothing else
     }
 };
 
-BOOST_AUTO_TEST_CASE(DefaultConstructor)
+BOOST_FIXTURE_TEST_CASE(DefaultConstructor, Fixture)
 {
-    dcmtkpp::SCU const scu;
+    dcmtkpp::SCU const scu(this->association);
     BOOST_CHECK_EQUAL(scu.get_affected_sop_class(), "");
 }
 
-BOOST_AUTO_TEST_CASE(AffectedSOPClassUID)
+BOOST_FIXTURE_TEST_CASE(AffectedSOPClassUID, Fixture)
 {
-    dcmtkpp::SCU scu;
+    dcmtkpp::SCU scu(this->association);
     scu.set_affected_sop_class("1.2.3");
     BOOST_CHECK_EQUAL(scu.get_affected_sop_class(), "1.2.3");
 }
 
 BOOST_FIXTURE_TEST_CASE(Echo, Fixture)
 {
-    dcmtkpp::SCU scu;
-    scu.set_network(&this->network);
-    scu.set_association(&this->association);
+    dcmtkpp::SCU scu(this->association);
     scu.echo();
 }

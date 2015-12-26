@@ -14,15 +14,14 @@ struct Fixture: public PeerFixtureBase
     dcmtkpp::DataSet query;
 
     Fixture()
-    : PeerFixtureBase(NET_REQUESTOR, 104, 10,
-        {
+    : PeerFixtureBase({
             {
                 dcmtkpp::registry::PatientRootQueryRetrieveInformationModelGET,
                 { dcmtkpp::registry::ImplicitVRLittleEndian }
             },
             {
-                dcmtkpp::registry::RawDataStorage, { dcmtkpp::registry::ImplicitVRLittleEndian },
-                ASC_SC_ROLE_SCP
+                dcmtkpp::registry::RawDataStorage,
+                { dcmtkpp::registry::ImplicitVRLittleEndian }
             }
         })
     {
@@ -43,26 +42,25 @@ bool Fixture::called = false;
 
 BOOST_FIXTURE_TEST_CASE(Get, Fixture)
 {
-    dcmtkpp::GetSCU scu;
-    scu.set_network(&this->network);
-    scu.set_association(&this->association);
+    dcmtkpp::GetSCU scu(this->association);
 
-    scu.set_affected_sop_class(dcmtkpp::registry::PatientRootQueryRetrieveInformationModelGET);
+    scu.set_affected_sop_class(
+        dcmtkpp::registry::PatientRootQueryRetrieveInformationModelGET);
     auto const results = scu.get(this->query);
 
     BOOST_REQUIRE_EQUAL(results.size(), 1);
     BOOST_CHECK(
         results[0].as_string("SOPInstanceUID") ==
-            dcmtkpp::Value::Strings({"2.25.95090344942250266709587559073467305647"}));
+            dcmtkpp::Value::Strings(
+                {"2.25.95090344942250266709587559073467305647"}));
 }
 
 BOOST_FIXTURE_TEST_CASE(GetCallback, Fixture)
 {
-    dcmtkpp::GetSCU scu;
-    scu.set_network(&this->network);
-    scu.set_association(&this->association);
+    dcmtkpp::GetSCU scu(this->association);
 
-    scu.set_affected_sop_class(dcmtkpp::registry::PatientRootQueryRetrieveInformationModelGET);
+    scu.set_affected_sop_class(
+        dcmtkpp::registry::PatientRootQueryRetrieveInformationModelGET);
     scu.get(this->query, Fixture::callback);
 
     BOOST_CHECK(Fixture::called);

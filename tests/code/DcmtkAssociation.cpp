@@ -5,6 +5,7 @@
 
 #include "dcmtkpp/DcmtkAssociation.h"
 #include "dcmtkpp/Exception.h"
+#include "dcmtkpp/Network.h"
 #include "dcmtkpp/registry.h"
 
 #include "../PeerFixtureBase.h"
@@ -209,41 +210,53 @@ BOOST_AUTO_TEST_CASE(UserIdentitySAML)
 
 BOOST_AUTO_TEST_CASE(Associate)
 {
-    PeerFixtureBase fixture(NET_REQUESTOR, 0, 10,
-        {
-            { dcmtkpp::registry::VerificationSOPClass,
-                {dcmtkpp::registry::ImplicitVRLittleEndian}
-            }
-        });
+    dcmtkpp::Network network(NET_REQUESTOR, 0, 10);
+    network.initialize();
 
-    BOOST_CHECK_THROW(
-        fixture.association.set_own_ae_title("foo"), dcmtkpp::Exception);
-    BOOST_CHECK_THROW(
-        fixture.association.set_peer_host_name("foo"), dcmtkpp::Exception);
-    BOOST_CHECK_THROW(
-        fixture.association.set_peer_port(1234), dcmtkpp::Exception);
-    BOOST_CHECK_THROW(
-        fixture.association.set_peer_ae_title("foo"), dcmtkpp::Exception);
+    dcmtkpp::DcmtkAssociation dcmtk_association;
+    dcmtk_association.set_own_ae_title(
+        PeerFixtureBase::get_environment_variable("DCMTKPP_OWN_AET"));
+    dcmtk_association.set_peer_host_name(
+        PeerFixtureBase::get_environment_variable("DCMTKPP_PEER_HOST_NAME"));
+    dcmtk_association.set_peer_port(
+        PeerFixtureBase::get_environment_variable<uint16_t>("DCMTKPP_PEER_PORT"));
+    dcmtk_association.set_peer_ae_title(
+        PeerFixtureBase::get_environment_variable("DCMTKPP_PEER_AET"));
+    dcmtk_association.set_presentation_contexts({
+        {
+            dcmtkpp::registry::VerificationSOPClass,
+            {dcmtkpp::registry::ImplicitVRLittleEndian}
+        }
+    });
+    dcmtk_association.associate(network);
+
+    BOOST_CHECK_THROW(dcmtk_association.set_own_ae_title("foo"), dcmtkpp::Exception);
+    BOOST_CHECK_THROW(dcmtk_association.set_peer_host_name("foo"), dcmtkpp::Exception);
+    BOOST_CHECK_THROW(dcmtk_association.set_peer_port(1234), dcmtkpp::Exception);
+    BOOST_CHECK_THROW(dcmtk_association.set_peer_ae_title("foo"), dcmtkpp::Exception);
 
     std::vector<dcmtkpp::DcmtkAssociation::PresentationContext>
-            presentation_contexts;
+        presentation_contexts;
     presentation_contexts.push_back(
-                dcmtkpp::DcmtkAssociation::PresentationContext(
-                    dcmtkpp::registry::PatientRootQueryRetrieveInformationModelGET,
-                    { dcmtkpp::registry::ImplicitVRLittleEndian }));
+        {
+            dcmtkpp::registry::PatientRootQueryRetrieveInformationModelGET,
+            { dcmtkpp::registry::ImplicitVRLittleEndian }
+        });
     BOOST_CHECK_THROW(
-        fixture.association.set_presentation_contexts(presentation_contexts),
+        dcmtk_association.set_presentation_contexts(presentation_contexts),
         dcmtkpp::Exception);
 
     BOOST_CHECK_THROW(
-        fixture.association.set_user_identity_type(dcmtkpp::UserIdentityType::SAML),
+        dcmtk_association.set_user_identity_type(dcmtkpp::UserIdentityType::SAML),
         dcmtkpp::Exception);
     BOOST_CHECK_THROW(
-        fixture.association.set_user_identity_primary_field("foo"),
+        dcmtk_association.set_user_identity_primary_field("foo"),
         dcmtkpp::Exception);
     BOOST_CHECK_THROW(
-        fixture.association.set_user_identity_secondary_field("foo"),
+        dcmtk_association.set_user_identity_secondary_field("foo"),
         dcmtkpp::Exception);
+
+    network.drop();
 }
 
 BOOST_AUTO_TEST_CASE(Release)

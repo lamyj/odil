@@ -364,11 +364,14 @@ Association
         {implementation_version_name});
 
     // TODO
+    std::vector<pdu::RoleSelection> roles;
     for(auto const & presentation_context: this->_presentation_contexts)
     {
         pdu::RoleSelection const role(
             presentation_context.abstract_syntax, true, true);
+        roles.push_back(role);
     }
+    user_information.set_sub_items(roles);
 
     if(this->_user_identity_type != UserIdentityType::None)
     {

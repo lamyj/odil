@@ -205,8 +205,7 @@ BOOST_AUTO_TEST_CASE(UserIdentitySAML)
 
 BOOST_AUTO_TEST_CASE(Associate)
 {
-    PeerFixtureBase fixture(NET_REQUESTOR, 0, 10, 
-        {
+    PeerFixtureBase fixture({
             { dcmtkpp::registry::VerificationSOPClass,
                 {dcmtkpp::registry::ImplicitVRLittleEndian}
             }
@@ -214,18 +213,18 @@ BOOST_AUTO_TEST_CASE(Associate)
     BOOST_CHECK_THROW(
         fixture.association.set_own_ae_title("foo"), dcmtkpp::Exception);
     BOOST_CHECK_THROW(
-        fixture.association.set_peer_host_name("foo"), dcmtkpp::Exception);
+        fixture.association.set_peer_host("foo"), dcmtkpp::Exception);
     BOOST_CHECK_THROW(
         fixture.association.set_peer_port(1234), dcmtkpp::Exception);
     BOOST_CHECK_THROW(
         fixture.association.set_peer_ae_title("foo"), dcmtkpp::Exception);
 
-    std::vector<dcmtkpp::DcmtkAssociation::PresentationContext>
-            presentation_contexts;
+    std::vector<dcmtkpp::Association::PresentationContext> presentation_contexts;
     presentation_contexts.push_back(
-                dcmtkpp::DcmtkAssociation::PresentationContext(
-                    dcmtkpp::registry::PatientRootQueryRetrieveInformationModelGET,
-                    { dcmtkpp::registry::ImplicitVRLittleEndian }));
+        {
+            dcmtkpp::registry::PatientRootQueryRetrieveInformationModelGET,
+            { dcmtkpp::registry::ImplicitVRLittleEndian }
+        });
     BOOST_CHECK_THROW(
         fixture.association.set_presentation_contexts(presentation_contexts),
         dcmtkpp::Exception);

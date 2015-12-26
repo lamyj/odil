@@ -14,8 +14,7 @@ struct Fixture: public PeerFixtureBase
     dcmtkpp::DataSet query;
 
     Fixture()
-    : PeerFixtureBase(NET_REQUESTOR, 104, 10,
-        {
+    : PeerFixtureBase({
             {
                 dcmtkpp::registry::PatientRootQueryRetrieveInformationModelFIND,
                 { dcmtkpp::registry::ImplicitVRLittleEndian }
@@ -40,9 +39,7 @@ bool Fixture::called = false;
 
 BOOST_FIXTURE_TEST_CASE(Find, Fixture)
 {
-    dcmtkpp::FindSCU scu;
-    scu.set_network(&this->network);
-    scu.set_association(&this->association);
+    dcmtkpp::FindSCU scu(this->association);
 
     scu.set_affected_sop_class(dcmtkpp::registry::PatientRootQueryRetrieveInformationModelFIND);
     auto const results = scu.find(this->query);
@@ -55,9 +52,7 @@ BOOST_FIXTURE_TEST_CASE(Find, Fixture)
 
 BOOST_FIXTURE_TEST_CASE(FindCallback, Fixture)
 {
-    dcmtkpp::FindSCU scu;
-    scu.set_network(&this->network);
-    scu.set_association(&this->association);
+    dcmtkpp::FindSCU scu(this->association);
 
     scu.set_affected_sop_class(dcmtkpp::registry::PatientRootQueryRetrieveInformationModelFIND);
     scu.find(this->query, Fixture::callback);

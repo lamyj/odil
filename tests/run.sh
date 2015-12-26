@@ -46,7 +46,7 @@ start_scp
 add_data
 
 export DCMTKPP_OWN_AET=LOCAL
-export DCMTKPP_PEER_HOST_NAME=localhost
+export DCMTKPP_PEER_HOST_NAME=127.0.0.1
 export DCMTKPP_PEER_PORT=11112
 export DCMTKPP_PEER_AET=REMOTE
 
