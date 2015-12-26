@@ -36,10 +36,10 @@ public:
 
         this->presentation_contexts = {pc1, pc2};
 
-        this->user_information.set_sub_item(
-            dcmtkpp::pdu::MaximumLength(0x12345678));
-        this->user_information.set_sub_item(
-            dcmtkpp::pdu::UserIdentityAC("bar"));
+        this->user_information.set_sub_items<dcmtkpp::pdu::MaximumLength>(
+            { { 0x12345678 } });
+        this->user_information.set_sub_items<dcmtkpp::pdu::UserIdentityAC>(
+            { { "bar" } });
     }
 
     void check_application_context(
@@ -71,15 +71,15 @@ public:
         dcmtkpp::pdu::UserInformation const & user_information) const
     {
         BOOST_REQUIRE(
-            user_information.has_sub_item<dcmtkpp::pdu::MaximumLength>());
+            !user_information.get_sub_items<dcmtkpp::pdu::MaximumLength>().empty());
         BOOST_REQUIRE_EQUAL(
-            user_information.get_sub_item<dcmtkpp::pdu::MaximumLength>().get_maximum_length(),
+            user_information.get_sub_items<dcmtkpp::pdu::MaximumLength>()[0].get_maximum_length(),
             0x12345678);
 
         BOOST_REQUIRE(
-            user_information.has_sub_item<dcmtkpp::pdu::UserIdentityAC>());
+            !user_information.get_sub_items<dcmtkpp::pdu::UserIdentityAC>().empty());
         BOOST_REQUIRE_EQUAL(
-            user_information.get_sub_item<dcmtkpp::pdu::UserIdentityAC>().get_server_response(),
+            user_information.get_sub_items<dcmtkpp::pdu::UserIdentityAC>()[0].get_server_response(),
             "bar");
     }
 };

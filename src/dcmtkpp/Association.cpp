@@ -28,6 +28,7 @@
 #include "dcmtkpp/pdu/ImplementationVersionName.h"
 #include "dcmtkpp/pdu/PDataTF.h"
 #include "dcmtkpp/pdu/PresentationContext.h"
+#include "dcmtkpp/pdu/RoleSelection.h"
 #include "dcmtkpp/pdu/UserIdentityRQ.h"
 #include "dcmtkpp/pdu/UserInformation.h"
 #include "dcmtkpp/Reader.h"
@@ -355,12 +356,19 @@ Association
     pdu::UserInformation user_information;
 
     // TODO
-    user_information.set_sub_item<pdu::MaximumLength>(16384);
+    user_information.set_sub_items<pdu::MaximumLength>({16384});
 
-    user_information.set_sub_item<pdu::ImplementationClassUID>(
-        implementation_class_uid);
-    user_information.set_sub_item<pdu::ImplementationVersionName>(
-        implementation_version_name);
+    user_information.set_sub_items<pdu::ImplementationClassUID>(
+        {implementation_class_uid});
+    user_information.set_sub_items<pdu::ImplementationVersionName>(
+        {implementation_version_name});
+
+    // TODO
+    for(auto const & presentation_context: this->_presentation_contexts)
+    {
+        pdu::RoleSelection const role(
+            presentation_context.abstract_syntax, true, true);
+    }
 
     if(this->_user_identity_type != UserIdentityType::None)
     {
@@ -372,7 +380,7 @@ Association
         // TODO
         identity.set_positive_response_requested(true);
 
-        user_information.set_sub_item<pdu::UserIdentityRQ>(identity);
+        user_information.set_sub_items<pdu::UserIdentityRQ>({identity});
     }
 
     request->set_user_information(user_information);

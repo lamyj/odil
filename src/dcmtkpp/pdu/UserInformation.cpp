@@ -53,47 +53,59 @@ UserInformation
     auto const begin = stream.tellg();
     auto const item_length = this->_item.as_unsigned_int_16("Item-length");
 
+    // Store sub-items so that all sub-items of a given type are adjacent, and
+    // that their type is in growing order.
+
+    std::vector<MaximumLength> maximum_length;
+    std::vector<ImplementationClassUID> implementation_class_uid;
+    std::vector<RoleSelection> role_selection;
+    std::vector<ImplementationVersionName> implementation_version_name;
+    std::vector<UserIdentityRQ> user_identity_rq;
+    std::vector<UserIdentityAC> user_identity_ac;
+
     while(stream.tellg()-begin < item_length)
     {
         uint8_t const type = stream.peek();
         if(type == 0x51)
         {
-            MaximumLength const sub_item(stream);
-            this->set_sub_item(sub_item);
+            maximum_length.push_back(MaximumLength(stream));
         }
         else if(type == 0x52)
         {
-            ImplementationClassUID const sub_item(stream);
-            this->set_sub_item(sub_item);
+            implementation_class_uid.push_back(ImplementationClassUID(stream));
         }
         // 0x53: Asynchronous Operations Window, PS 3.7, D.3.3.3.1
         else if(type == 0x54)
         {
-            RoleSelection const sub_item(stream);
-            this->set_sub_item(sub_item);
+            role_selection.push_back(RoleSelection(stream));
         }
         else if(type == 0x55)
         {
-            ImplementationVersionName const sub_item(stream);
-            this->set_sub_item(sub_item);
+            implementation_version_name.push_back(
+                ImplementationVersionName(stream));
         }
         // 0x56: SOP Class Extended Negotiation, PS 3.7, D.3.3.5.1
         // 0x57: SOP Class Common Extended Negotiation, PS 3.7, D.3.3.6.1
         else if(type == 0x58)
         {
-            UserIdentityRQ const sub_item(stream);
-            this->set_sub_item(sub_item);
+            user_identity_rq.push_back(UserIdentityRQ(stream));
         }
         else if(type == 0x59)
         {
-            UserIdentityAC const sub_item(stream);
-            this->set_sub_item(sub_item);
+            user_identity_ac.push_back(UserIdentityAC(stream));
         }
         else
         {
             throw Exception("Invalid sub-item type");
         }
     }
+
+    this->set_sub_items(maximum_length);
+    this->set_sub_items(implementation_class_uid);
+    this->set_sub_items(role_selection);
+    this->set_sub_items(implementation_version_name);
+    this->set_sub_items(user_identity_rq);
+    this->set_sub_items(user_identity_ac);
 }
 
 }

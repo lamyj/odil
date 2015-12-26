@@ -9,7 +9,9 @@
 #ifndef _7449339a_913f_4545_9846_311f055632c1
 #define _7449339a_913f_4545_9846_311f055632c1
 
+#include <initializer_list>
 #include <istream>
+#include <vector>
 
 #include "dcmtkpp/pdu/MaximumLength.h"
 #include "dcmtkpp/pdu/Object.h"
@@ -32,31 +34,27 @@ public:
     /// @brief Read a User Information item from a stream.
     UserInformation(std::istream & stream);
 
-    /// @brief Test whether a sub-item is set.
+    /// @brief Return sub-items of given type.
     template<typename TObject>
-    bool has_sub_item() const;
+    std::vector<TObject> get_sub_items() const;
 
-    /// @brief Return a sub-item.
+    /// @brief Set a sequence of sub-items.
     template<typename TObject>
-    TObject get_sub_item() const;
+    void set_sub_items(std::vector<TObject> const & sub_item);
 
-    /// @brief Set a sub-item.
+    /// @brief Delete sub-items of given type.
     template<typename TObject>
-    void set_sub_item(TObject const & sub_item);
-
-    /// @brief Delete a sub-item.
-    template<typename TObject>
-    void delete_sub_item();
+    void delete_sub_items();
 private:
     typedef std::vector<Item> Items;
 
-    /// @brief Return the iterator to a sub-item or end.
+    /// @brief Return the iterators to the sub items of given type.
     template<typename TObject>
-    Items::const_iterator _find_sub_item() const;
+    std::vector<Items::const_iterator> _find_sub_items() const;
 
-    /// @brief Return the iterator to a sub-item or end.
+    /// @brief Return the iterators to the sub items of given type.
     template<typename TObject>
-    Items::iterator _find_sub_item();
+    std::vector<Items::iterator> _find_sub_items();
 };
 
 }
