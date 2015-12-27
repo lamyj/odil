@@ -6,9 +6,9 @@
 #include <string>
 #include <vector>
 
-#include "dcmtkpp/pdu/AAssociate.h"
+#include "dcmtkpp/pdu/AAssociateAC.h"
 #include "dcmtkpp/pdu/ApplicationContext.h"
-#include "dcmtkpp/pdu/PresentationContext.h"
+#include "dcmtkpp/pdu/PresentationContextAC.h"
 #include "dcmtkpp/pdu/UserIdentityAC.h"
 #include "dcmtkpp/pdu/UserInformation.h"
 #include "dcmtkpp/Exception.h"
@@ -20,14 +20,14 @@ public:
     static std::string const write_data;
 
     dcmtkpp::pdu::ApplicationContext application_context;
-    std::vector<dcmtkpp::pdu::PresentationContext> presentation_contexts;
+    std::vector<dcmtkpp::pdu::PresentationContextAC> presentation_contexts;
     dcmtkpp::pdu::UserInformation user_information;
 
     Fixture()
     : application_context("foo")
     {
-        dcmtkpp::pdu::PresentationContext pc1(3, "transfer_syntax", 1);
-        dcmtkpp::pdu::PresentationContext pc2(5, "transfer_syntax_2", 2);
+        dcmtkpp::pdu::PresentationContextAC pc1(3, "transfer_syntax", 1);
+        dcmtkpp::pdu::PresentationContextAC pc2(5, "transfer_syntax_2", 2);
         this->presentation_contexts = {pc1, pc2};
 
         this->user_information.set_sub_items<dcmtkpp::pdu::MaximumLength>(
@@ -44,7 +44,7 @@ public:
     }
 
     void check_presentation_contexts(
-        std::vector<dcmtkpp::pdu::PresentationContext> const & contexts)
+        std::vector<dcmtkpp::pdu::PresentationContextAC> const & contexts)
     {
         BOOST_REQUIRE_EQUAL(contexts.size(), presentation_contexts.size());
         for(int i=0; i<contexts.size(); ++i)
@@ -164,9 +164,8 @@ Fixture
 
 BOOST_AUTO_TEST_CASE(Constructor)
 {
-    dcmtkpp::pdu::AAssociate const pdu(dcmtkpp::pdu::AAssociate::Type::AC);
+    dcmtkpp::pdu::AAssociateAC const pdu;
 
-    BOOST_REQUIRE(pdu.get_type() == dcmtkpp::pdu::AAssociate::Type::AC);
     BOOST_REQUIRE_EQUAL(pdu.get_called_ae_title(), "");
     BOOST_REQUIRE_EQUAL(pdu.get_calling_ae_title(), "");
     BOOST_REQUIRE_EQUAL(pdu.get_protocol_version(), 0);
@@ -178,9 +177,8 @@ BOOST_AUTO_TEST_CASE(Constructor)
 BOOST_FIXTURE_TEST_CASE(ConstructorStream, Fixture)
 {
     std::istringstream stream(read_data);
-    dcmtkpp::pdu::AAssociate const pdu(stream);
+    dcmtkpp::pdu::AAssociateAC const pdu(stream);
 
-    BOOST_REQUIRE(pdu.get_type() == dcmtkpp::pdu::AAssociate::Type::AC);
     BOOST_REQUIRE_EQUAL(pdu.get_called_ae_title(), "CALLED_AE");
     BOOST_REQUIRE_EQUAL(pdu.get_calling_ae_title(), "CALLING_AE");
     BOOST_REQUIRE_EQUAL(pdu.get_protocol_version(), 1);
@@ -191,7 +189,7 @@ BOOST_FIXTURE_TEST_CASE(ConstructorStream, Fixture)
 
 BOOST_AUTO_TEST_CASE(ProtocolVersion)
 {
-    dcmtkpp::pdu::AAssociate pdu(dcmtkpp::pdu::AAssociate::Type::AC);
+    dcmtkpp::pdu::AAssociateAC pdu;
     BOOST_REQUIRE_EQUAL(pdu.get_protocol_version(), 0);
     pdu.set_protocol_version(2);
     BOOST_REQUIRE_EQUAL(pdu.get_protocol_version(), 2);
@@ -199,7 +197,7 @@ BOOST_AUTO_TEST_CASE(ProtocolVersion)
 
 BOOST_AUTO_TEST_CASE(CalledAETitle)
 {
-    dcmtkpp::pdu::AAssociate pdu(dcmtkpp::pdu::AAssociate::Type::AC);
+    dcmtkpp::pdu::AAssociateAC pdu;
     BOOST_REQUIRE_EQUAL(pdu.get_called_ae_title(), "");
     pdu.set_called_ae_title("called");
     BOOST_REQUIRE_EQUAL(pdu.get_called_ae_title(), "called");
@@ -207,7 +205,7 @@ BOOST_AUTO_TEST_CASE(CalledAETitle)
 
 BOOST_AUTO_TEST_CASE(CallingAETitle)
 {
-    dcmtkpp::pdu::AAssociate pdu(dcmtkpp::pdu::AAssociate::Type::AC);
+    dcmtkpp::pdu::AAssociateAC pdu;
     BOOST_REQUIRE_EQUAL(pdu.get_calling_ae_title(), "");
     pdu.set_calling_ae_title("calling");
     BOOST_REQUIRE_EQUAL(pdu.get_calling_ae_title(), "calling");
@@ -215,7 +213,7 @@ BOOST_AUTO_TEST_CASE(CallingAETitle)
 
 BOOST_FIXTURE_TEST_CASE(ApplicationContext, Fixture)
 {
-    dcmtkpp::pdu::AAssociate pdu(dcmtkpp::pdu::AAssociate::Type::AC);
+    dcmtkpp::pdu::AAssociateAC pdu;
     BOOST_REQUIRE_THROW(pdu.get_application_context(), dcmtkpp::Exception);
     pdu.set_application_context(application_context);
     this->check_application_context(pdu.get_application_context());
@@ -223,7 +221,7 @@ BOOST_FIXTURE_TEST_CASE(ApplicationContext, Fixture)
 
 BOOST_FIXTURE_TEST_CASE(PresentationContexts, Fixture)
 {
-    dcmtkpp::pdu::AAssociate pdu(dcmtkpp::pdu::AAssociate::Type::AC);
+    dcmtkpp::pdu::AAssociateAC pdu;
     BOOST_REQUIRE(pdu.get_presentation_contexts().empty());
     pdu.set_presentation_contexts(presentation_contexts);
     this->check_presentation_contexts(pdu.get_presentation_contexts());
@@ -231,7 +229,7 @@ BOOST_FIXTURE_TEST_CASE(PresentationContexts, Fixture)
 
 BOOST_FIXTURE_TEST_CASE(UserInformation, Fixture)
 {
-    dcmtkpp::pdu::AAssociate pdu(dcmtkpp::pdu::AAssociate::Type::AC);
+    dcmtkpp::pdu::AAssociateAC pdu;
     BOOST_REQUIRE_THROW(pdu.get_user_information(), dcmtkpp::Exception);
     pdu.set_user_information(user_information);
     this->check_user_information(pdu.get_user_information());
@@ -239,7 +237,7 @@ BOOST_FIXTURE_TEST_CASE(UserInformation, Fixture)
 
 BOOST_FIXTURE_TEST_CASE(Write, Fixture)
 {
-    dcmtkpp::pdu::AAssociate pdu(dcmtkpp::pdu::AAssociate::Type::AC);
+    dcmtkpp::pdu::AAssociateAC pdu;
     pdu.set_protocol_version(1);
     pdu.set_called_ae_title("CALLED_AE");
     pdu.set_calling_ae_title("CALLING_AE");
@@ -256,26 +254,26 @@ BOOST_FIXTURE_TEST_CASE(Write, Fixture)
 
 BOOST_AUTO_TEST_CASE(CalledAETitleEmpty)
 {
-    dcmtkpp::pdu::AAssociate pdu(dcmtkpp::pdu::AAssociate::Type::AC);
+    dcmtkpp::pdu::AAssociateAC pdu;
     BOOST_REQUIRE_THROW(pdu.set_called_ae_title(""), dcmtkpp::Exception);
 }
 
 BOOST_AUTO_TEST_CASE(CalledAETitleTooLong)
 {
-    dcmtkpp::pdu::AAssociate pdu(dcmtkpp::pdu::AAssociate::Type::AC);
+    dcmtkpp::pdu::AAssociateAC pdu;
     BOOST_REQUIRE_THROW(
         pdu.set_called_ae_title("123456789abcdef01"), dcmtkpp::Exception);
 }
 
 BOOST_AUTO_TEST_CASE(CallingAETitleEmpty)
 {
-    dcmtkpp::pdu::AAssociate pdu(dcmtkpp::pdu::AAssociate::Type::AC);
+    dcmtkpp::pdu::AAssociateAC pdu;
     BOOST_REQUIRE_THROW(pdu.set_calling_ae_title(""), dcmtkpp::Exception);
 }
 
 BOOST_AUTO_TEST_CASE(CallingAETitleTooLong)
 {
-    dcmtkpp::pdu::AAssociate pdu(dcmtkpp::pdu::AAssociate::Type::AC);
+    dcmtkpp::pdu::AAssociateAC pdu;
     BOOST_REQUIRE_THROW(
         pdu.set_calling_ae_title("123456789abcdef01"), dcmtkpp::Exception);
 }

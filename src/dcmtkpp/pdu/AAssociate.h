@@ -12,11 +12,9 @@
 #include <cstdint>
 #include <istream>
 #include <string>
-#include <vector>
 
 #include "dcmtkpp/pdu/ApplicationContext.h"
 #include "dcmtkpp/pdu/Object.h"
-#include "dcmtkpp/pdu/PresentationContext.h"
 #include "dcmtkpp/pdu/UserInformation.h"
 
 namespace dcmtkpp
@@ -29,17 +27,14 @@ namespace pdu
 class AAssociate: public Object
 {
 public:
-    enum class Type
-    {
-        RQ,
-        AC
-    };
-
     /// @brief Constructor.
-    AAssociate(Type type);
+    AAssociate();
 
     /// @brief Constructor for binary data.
     AAssociate(std::istream & stream);
+
+    /// @brief Destructor.
+    virtual ~AAssociate() =0;
 
     Type get_type() const;
 
@@ -76,12 +71,6 @@ public:
 
     /// @brief Set the Application Context sub-item.
     void set_application_context(ApplicationContext const & value);
-
-    /// @brief Return the Presentation Context sub-items.
-    std::vector<PresentationContext> get_presentation_contexts() const;
-
-    /// @brief Set the Presentation Context sub-items.
-    void set_presentation_contexts(std::vector<PresentationContext> const & value);
 
     /// @brief Return the User Information sub-item.
     UserInformation get_user_information() const;

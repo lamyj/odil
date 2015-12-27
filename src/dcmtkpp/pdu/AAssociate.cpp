@@ -19,7 +19,6 @@
 #include "dcmtkpp/pdu/ApplicationContext.h"
 #include "dcmtkpp/pdu/Item.h"
 #include "dcmtkpp/pdu/Object.h"
-#include "dcmtkpp/pdu/PresentationContext.h"
 #include "dcmtkpp/pdu/UserInformation.h"
 
 namespace dcmtkpp
@@ -31,21 +30,7 @@ namespace pdu
 AAssociate
 ::AAssociate(Type type)
 {
-    uint8_t type_int;
-    if(type == Type::RQ)
-    {
-        type_int = 0x01;
-    }
-    else if(type == Type::AC)
-    {
-        type_int = 0x02;
-    }
-    else
-    {
-        throw Exception("Invalid PDU type");
-    }
-
-    this->_item.add("PDU-type", type_int);
+    this->_item.add("PDU-type", 0);
     this->_item.add("Reserved-1", uint8_t(0));
     this->_item.add("PDU-length", uint32_t(0));
     this->_item.add("Protocol-version", uint16_t(0));
@@ -92,9 +77,13 @@ AAssociate
         {
             sub_item = ApplicationContext(stream).get_item();
         }
-        else if(type == 0x20 || type == 0x21)
+        else if(type == 0x20)
         {
-            sub_item = PresentationContext(stream).get_item();
+            sub_item = PresentationContextRQ(stream).get_item();
+        }
+        else if(type == 0x21)
+        {
+            sub_item = PresentationContextAC(stream).get_item();
         }
         else if(type == 0x50)
         {
@@ -109,25 +98,6 @@ AAssociate
     }
 
     this->_item.as_unsigned_int_32("PDU-length") = this->_compute_length();
-}
-
-AAssociate::Type
-AAssociate
-::get_type() const
-{
-    auto const type = this->_item.as_unsigned_int_8("PDU-type");
-    if(type == 0x01)
-    {
-        return Type::RQ;
-    }
-    else if(type == 0x02)
-    {
-        return Type::AC;
-    }
-    else
-    {
-        throw Exception("Invalid type");
-    }
 }
 
 uint16_t
@@ -212,50 +182,6 @@ AAssociate
 
     this->_item.as_items("Variable-items") = new_items;
 
-    this->_item.as_unsigned_int_32("PDU-length") = this->_compute_length();
-}
-
-std::vector<PresentationContext>
-AAssociate
-::get_presentation_contexts() const
-{
-    std::vector<PresentationContext> result;
-    for(auto const & item: this->_item.as_items("Variable-items"))
-    {
-        if(item.as_unsigned_int_8("Item-type") == 0x20 ||
-            item.as_unsigned_int_8("Item-type") == 0x21)
-        {
-            std::stringstream stream;
-            stream << item;
-            result.push_back(PresentationContext(stream));
-        }
-    }
-
-    return result;
-}
-
-void
-AAssociate
-::set_presentation_contexts(std::vector<PresentationContext> const & value)
-{
-    auto const & old_items = this->_item.as_items("Variable-items");
-    std::vector<Item> new_items;
-
-    std::copy_if(
-        old_items.begin(), old_items.end(), std::back_inserter(new_items),
-        [](Item const & item)  {
-            return item.as_unsigned_int_8("Item-type") == 0x10; });
-
-    std::transform(
-        value.begin(), value.end(), std::back_inserter(new_items),
-        [](PresentationContext const & x) { return x.get_item(); });
-
-    std::copy_if(
-        old_items.begin(), old_items.end(), std::back_inserter(new_items),
-        [](Item const & item) {
-            return item.as_unsigned_int_8("Item-type") == 0x50; });
-
-    this->_item.as_items("Variable-items") = new_items;
     this->_item.as_unsigned_int_32("PDU-length") = this->_compute_length();
 }
 
