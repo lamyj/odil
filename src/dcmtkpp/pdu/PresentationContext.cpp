@@ -24,28 +24,9 @@ namespace pdu
 {
 
 PresentationContext
-::PresentationContext(
-    uint8_t id, std::string const & abstract_syntax,
-    std::vector<std::string> const & transfer_syntaxes)
+::PresentationContext()
 {
-    this->_add_fields();
-
-    this->_item.as_unsigned_int_8("Item-type") = 0x20;
-    this->set_id(id);
-    this->set_abstract_syntax(abstract_syntax);
-    this->set_transfer_syntaxes(transfer_syntaxes);
-}
-
-PresentationContext
-::PresentationContext(
-    uint8_t id, std::string const & transfer_syntax, uint8_t result_reason)
-{
-    this->_add_fields();
-
-    this->_item.as_unsigned_int_8("Item-type") = 0x21;
-    this->set_id(id);
-    this->set_transfer_syntax(transfer_syntax);
-    this->set_result_reason(result_reason);
+    // Nothing to do.
 }
 
 PresentationContext
@@ -124,129 +105,6 @@ PresentationContext
 ::set_id(u_int8_t id)
 {
     this->_item.as_unsigned_int_8("Presentation-context-id") = id;
-}
-
-uint8_t
-PresentationContext
-::get_result_reason() const
-{
-    if(this->_item.as_unsigned_int_8("Item-type") != 0x21)
-    {
-        throw dcmtkpp::Exception(
-            "Only valid for A-ASSOCIATE-AC Presentation context");
-    }
-    return this->_item.as_unsigned_int_8("Result/Reason");
-}
-
-void
-PresentationContext
-::set_result_reason(u_int8_t result_reason)
-{
-    if(this->_item.as_unsigned_int_8("Item-type") != 0x21)
-    {
-        throw dcmtkpp::Exception(
-            "Only valid for A-ASSOCIATE-AC Presentation context");
-    }
-    this->_item.as_unsigned_int_8("Result/Reason") = result_reason;
-}
-
-std::string
-PresentationContext
-::get_abstract_syntax() const
-{
-    if(this->_item.as_unsigned_int_8("Item-type") != 0x20)
-    {
-        throw dcmtkpp::Exception(
-            "Only valid for A-ASSOCIATE-RQ Presentation context");
-    }
-
-    auto const & syntaxes = this->_get_syntaxes("Abstract");
-    if(syntaxes.empty())
-    {
-        throw Exception("No Abstract Syntax sub-item");
-    }
-    else if(syntaxes.size() > 1)
-    {
-        throw Exception("Several Abstract Syntax sub-items");
-    }
-
-    return syntaxes[0];
-}
-
-void
-PresentationContext
-::set_abstract_syntax(std::string const & abstract_syntax)
-{
-    if(this->_item.as_unsigned_int_8("Item-type") != 0x20)
-    {
-        throw dcmtkpp::Exception(
-            "Only valid for A-ASSOCIATE-RQ Presentation context");
-    }
-
-    this->_set_syntaxes("Abstract", {abstract_syntax});
-}
-
-std::vector<std::string>
-PresentationContext
-::get_transfer_syntaxes() const
-{
-    if(this->_item.as_unsigned_int_8("Item-type") != 0x20)
-    {
-        throw dcmtkpp::Exception(
-            "Only valid for A-ASSOCIATE-RQ Presentation context");
-    }
-
-    return this->_get_syntaxes("Transfer");
-}
-
-void
-PresentationContext
-::set_transfer_syntaxes(
-    std::vector<std::string> const & transfer_syntaxes)
-{
-    if(this->_item.as_unsigned_int_8("Item-type") != 0x20)
-    {
-        throw dcmtkpp::Exception(
-            "Only valid for A-ASSOCIATE-RQ Presentation context");
-    }
-
-    this->_set_syntaxes("Transfer", transfer_syntaxes);
-}
-
-std::string
-PresentationContext
-::get_transfer_syntax() const
-{
-    if(this->_item.as_unsigned_int_8("Item-type") != 0x21)
-    {
-        throw dcmtkpp::Exception(
-            "Only valid for A-ASSOCIATE-AC Presentation context");
-    }
-
-    auto const & syntaxes = this->_get_syntaxes("Transfer");
-    if(syntaxes.empty())
-    {
-        throw Exception("No Transfer Syntax sub-item");
-    }
-    else if(syntaxes.size() > 1)
-    {
-        throw Exception("Several Transfer Syntax sub-items");
-    }
-
-    return syntaxes[0];
-}
-
-void
-PresentationContext
-::set_transfer_syntax(std::string const & transfer_syntax)
-{
-    if(this->_item.as_unsigned_int_8("Item-type") != 0x21)
-    {
-        throw dcmtkpp::Exception(
-            "Only valid for A-ASSOCIATE-AC Presentation context");
-    }
-
-    this->_set_syntaxes("Transfer", {transfer_syntax});
 }
 
 Item

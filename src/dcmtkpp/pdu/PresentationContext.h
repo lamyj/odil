@@ -29,20 +29,14 @@ namespace pdu
 class PresentationContext: public Object
 {
 public:
-    /// @brief Create a Presentation Context for a A-ASSOCIATE-RQ PDU.
-    PresentationContext(
-        uint8_t id, std::string const & abstract_syntax,
-        std::vector<std::string> const & transfer_syntaxes);
+    /// @brief Constructor
+    PresentationContext();
 
-    /// @brief Create a Presentation Context for a A-ASSOCIATE-AC PDU.
-    PresentationContext(
-        uint8_t id, std::string const & transfer_syntax, uint8_t result_reason);
-
-    /// @brief Read a Presentation Context from a stream.
+    /// @brief Read from a stream.
     PresentationContext(std::istream & stream);
 
-    /// @brief Read a Presentation Context from a stream.
-    PresentationContext(std::istream & stream, uint16_t length);
+    /// @brief Destructor, make the class pure virtual.
+    virtual ~PresentationContext() =0;
 
     /// @brief Return the Item-type.
     uint8_t get_item_type() const;
@@ -53,38 +47,10 @@ public:
     /// @brief Set the Presentation context id.
     void set_id(u_int8_t id);
 
-    /// @brief Return the Result/Reason (only for A-ASSOCIATE-AC PDU).
-    uint8_t get_result_reason() const;
-
-    /// @brief Set the Result/Reason (only for A-ASSOCIATE-AC PDU).
-    void set_result_reason(u_int8_t result_reason);
-
-    /// @brief Return the Abstract Syntax (only for A-ASSOCIATE-RQ PDU).
-    std::string get_abstract_syntax() const;
-
-    /// @brief Set the Abstract Syntax sub-item (only for A-ASSOCIATE-RQ PDU).
-    void set_abstract_syntax(std::string const & abstract_syntax);
-
-    /// @brief Return the Transfer Syntaxes (only for A-ASSOCIATE-RQ PDU).
-    std::vector<std::string> get_transfer_syntaxes() const;
-
-    /// @brief Set the Transfer Syntax sub-items (only for A-ASSOCIATE-RQ PDU).
-    void set_transfer_syntaxes(
-        std::vector<std::string> const & transfer_syntaxes);
-
-    /// @brief Return the Transfer Syntax (only for A-ASSOCIATE-AC PDU).
-    std::string get_transfer_syntax() const;
-
-    /// @brief Set the Transfer Syntax sub-item (only for A-ASSOCIATE-AC PDU).
-    void set_transfer_syntax(std::string const & transfer_syntax);
-
-private:
+protected:
     /// @brief Create an Abstract Syntax or Transfer Syntax sub-item.
     static Item _make_string_item(
         std::string const & type, std::string const & value);
-
-    /// @brief Add the fields to the PDU item.
-    void _add_fields();
 
     /// @brief Return the Abstract or Transfer syntaxes.
     std::vector<std::string> _get_syntaxes(std::string const & type) const;
