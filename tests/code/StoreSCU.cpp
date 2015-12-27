@@ -14,10 +14,11 @@ struct Fixture: public PeerFixtureBase
 
     Fixture()
     : PeerFixtureBase({
-            { dcmtkpp::registry::RawDataStorage,
-              {dcmtkpp::registry::ImplicitVRLittleEndian}
-            }
-        })
+        {
+            1, dcmtkpp::registry::RawDataStorage,
+            {dcmtkpp::registry::ImplicitVRLittleEndian}, true, false
+        }
+    })
     {
         this->dataset.add("ImageType", {"ORIGINAL", "PRIMARY", "OTHER"});
         this->dataset.add("PatientID", {"1234"});

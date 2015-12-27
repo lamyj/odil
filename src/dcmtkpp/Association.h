@@ -106,13 +106,13 @@ public:
     /// @}
 
     /// @brief Return the association parameters.
-    AssociationParameters const & get_association_parameters() const;
+    AssociationParameters const & get_parameters() const;
 
     /// @brief Return the association parameters.
-    AssociationParameters & get_association_parameters();
+    AssociationParameters & update_parameters();
 
     /// @brief Set the association parameters, throw an exception when associated.
-    void set_association_parameters(AssociationParameters const & value);
+    void set_parameters(AssociationParameters const & value);
 
     /// @name Timeouts
     /// @{

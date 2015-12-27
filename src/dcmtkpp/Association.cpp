@@ -80,7 +80,7 @@ Association
     {
         this->set_peer_host(other.get_peer_host());
         this->set_peer_port(other.get_peer_port());
-        this->set_association_parameters(other.get_association_parameters());
+        this->set_parameters(other.get_parameters());
     }
 
     return *this;
@@ -126,14 +126,14 @@ Association
 
 AssociationParameters const &
 Association
-::get_association_parameters() const
+::get_parameters() const
 {
     return this->_association_parameters;
 }
 
 AssociationParameters &
 Association
-::get_association_parameters()
+::update_parameters()
 {
     if(this->is_associated())
     {
@@ -145,7 +145,7 @@ Association
 
 void
 Association
-::set_association_parameters(AssociationParameters const & value)
+::set_parameters(AssociationParameters const & value)
 {
     if(this->is_associated())
     {

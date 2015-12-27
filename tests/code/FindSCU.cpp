@@ -16,8 +16,8 @@ struct Fixture: public PeerFixtureBase
     Fixture()
     : PeerFixtureBase({
             {
-                dcmtkpp::registry::PatientRootQueryRetrieveInformationModelFIND,
-                { dcmtkpp::registry::ImplicitVRLittleEndian }
+                1, dcmtkpp::registry::PatientRootQueryRetrieveInformationModelFIND,
+                { dcmtkpp::registry::ImplicitVRLittleEndian }, true, false
             }
         })
     {

@@ -53,7 +53,7 @@ BOOST_AUTO_TEST_CASE(DefaultConstructor)
     BOOST_CHECK_EQUAL(association.get_peer_host(), "");
     BOOST_CHECK_EQUAL(association.get_peer_port(), 104);
     BOOST_CHECK(
-        association.get_association_parameters() ==
+        association.get_parameters() ==
             dcmtkpp::AssociationParameters()
     );
 
@@ -65,7 +65,7 @@ BOOST_AUTO_TEST_CASE(CopyConstructor)
     dcmtkpp::Association association;
     association.set_peer_host("pacs.example.com");
     association.set_peer_port(11112);
-    association.get_association_parameters()
+    association.update_parameters()
         .set_called_ae_title("remote")
         .set_user_identity_to_username_and_password("foo", "bar");
 
@@ -74,8 +74,8 @@ BOOST_AUTO_TEST_CASE(CopyConstructor)
     BOOST_CHECK_EQUAL(other.get_peer_host(), association.get_peer_host());
     BOOST_CHECK_EQUAL(other.get_peer_port(), association.get_peer_port());
     BOOST_CHECK(
-        association.get_association_parameters() ==
-            other.get_association_parameters()
+        association.get_parameters() ==
+            other.get_parameters()
     );
 }
 
@@ -84,7 +84,7 @@ BOOST_AUTO_TEST_CASE(Assignment)
     dcmtkpp::Association association;
     association.set_peer_host("pacs.example.com");
     association.set_peer_port(11112);
-    association.get_association_parameters()
+    association.update_parameters()
         .set_called_ae_title("remote")
         .set_user_identity_to_username_and_password("foo", "bar");
 
@@ -94,8 +94,8 @@ BOOST_AUTO_TEST_CASE(Assignment)
     BOOST_CHECK_EQUAL(other.get_peer_host(), association.get_peer_host());
     BOOST_CHECK_EQUAL(other.get_peer_port(), association.get_peer_port());
     BOOST_CHECK(
-        association.get_association_parameters() ==
-            other.get_association_parameters()
+        association.get_parameters() ==
+            other.get_parameters()
     );
 }
 
@@ -119,24 +119,25 @@ BOOST_AUTO_TEST_CASE(AssociationParameters)
 
     dcmtkpp::AssociationParameters parameters;
     parameters.set_calling_ae_title("foo");
-    association.set_association_parameters(parameters);
+    association.set_parameters(parameters);
 
-    BOOST_REQUIRE(association.get_association_parameters() == parameters);
+    BOOST_REQUIRE(association.get_parameters() == parameters);
 }
 
 BOOST_AUTO_TEST_CASE(Associate)
 {
     PeerFixtureBase fixture({
-            { dcmtkpp::registry::VerificationSOPClass,
-                {dcmtkpp::registry::ImplicitVRLittleEndian}
-            }
-        });
+        {
+            1, dcmtkpp::registry::VerificationSOPClass,
+            { dcmtkpp::registry::ImplicitVRLittleEndian }, true, false
+        }
+    });
     BOOST_CHECK_THROW(
         fixture.association.set_peer_host("foo"), dcmtkpp::Exception);
     BOOST_CHECK_THROW(
         fixture.association.set_peer_port(1234), dcmtkpp::Exception);
     BOOST_CHECK_THROW(
-        fixture.association.get_association_parameters().set_maximum_length(123),
+        fixture.association.update_parameters().set_maximum_length(123),
         dcmtkpp::Exception);
 }
 

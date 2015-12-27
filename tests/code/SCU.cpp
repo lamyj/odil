@@ -10,8 +10,9 @@ struct Fixture: public PeerFixtureBase
 {
     Fixture()
     : PeerFixtureBase({
-        { dcmtkpp::registry::VerificationSOPClass,
-          {dcmtkpp::registry::ImplicitVRLittleEndian}
+        {
+            1, dcmtkpp::registry::VerificationSOPClass,
+            {dcmtkpp::registry::ImplicitVRLittleEndian}, true, false
         }
     })
     {

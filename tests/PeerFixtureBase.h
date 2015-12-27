@@ -25,7 +25,7 @@ public:
             this->get_environment_variable("DCMTKPP_PEER_HOST_NAME"));
         this->association.set_peer_port(
             this->get_environment_variable<uint16_t>("DCMTKPP_PEER_PORT"));
-        this->association.get_association_parameters()
+        this->association.update_parameters()
             .set_calling_ae_title(
                 this->get_environment_variable("DCMTKPP_OWN_AET"))
             .set_called_ae_title(
