@@ -38,74 +38,6 @@
 namespace dcmtkpp
 {
 
-std::shared_ptr<pdu::AAssociate> _make_a_associate(
-    AssociationParameters const & parameters, pdu::AAssociate::Type type)
-{
-    auto pdu = std::make_shared<pdu::AAssociate>(type);
-    pdu->set_protocol_version(1);
-    pdu->set_application_context(std::string("1.2.840.10008.3.1.1.1"));
-    pdu->set_called_ae_title(parameters.get_called_ae_title());
-    pdu->set_calling_ae_title(parameters.get_calling_ae_title());
-
-    // Presentation contexts
-    {
-        auto const & source = parameters.get_presentation_contexts();
-
-        std::vector<pdu::PresentationContext> destination;
-        destination.reserve(source.size());
-
-        for(unsigned int i=0; i<source.size(); ++i)
-        {
-            pdu::PresentationContext pc(
-                source[i].abstract_syntax, source[i].transfer_syntaxes);
-            pc.set_id(1+2*i);
-
-            destination.push_back(pc);
-        }
-
-        pdu->set_presentation_contexts(destination);
-    }
-
-    pdu::UserInformation user_information;
-
-    user_information.set_sub_items<pdu::MaximumLength>(
-        {parameters.get_maximum_length()});
-
-    user_information.set_sub_items<pdu::ImplementationClassUID>(
-        {implementation_class_uid});
-    user_information.set_sub_items<pdu::ImplementationVersionName>(
-        {implementation_version_name});
-
-    std::vector<pdu::RoleSelection> roles;
-    for(auto const & presentation_context: parameters.get_presentation_contexts())
-    {
-        pdu::RoleSelection const role(
-            presentation_context.abstract_syntax,
-            presentation_context.scu_role_support,
-            presentation_context.scp_role_support);
-        roles.push_back(role);
-    }
-    user_information.set_sub_items(roles);
-
-    auto const & user_identity = parameters.get_user_identity();
-    if(user_identity.type != AssociationParameters::UserIdentity::Type::None)
-    {
-        pdu::UserIdentityRQ sub_item;
-        sub_item.set_type(static_cast<int>(user_identity.type));
-        sub_item.set_primary_field(user_identity.primary_field);
-        sub_item.set_secondary_field(user_identity.secondary_field);
-
-        // TODO
-        sub_item.set_positive_response_requested(true);
-
-        user_information.set_sub_items<pdu::UserIdentityRQ>({sub_item});
-    }
-
-    pdu->set_user_information(user_information);
-
-    return pdu;
-}
-
 Association
 ::Association()
 : _state_machine(), _peer_host(""), _peer_port(104), _association_parameters(),
@@ -271,8 +203,9 @@ Association
     data.peer_endpoint = *endpoint_it;
     data.peer_endpoint.port(this->_peer_port);
 
-    auto const request = _make_a_associate(
-        this->_association_parameters, pdu::AAssociate::Type::RQ);
+    auto const request =
+        std::make_shared<pdu::AAssociate>(
+            this->_association_parameters.as_pdu(pdu::AAssociate::Type::RQ));
 
     data.pdu = request;
 
@@ -359,8 +292,8 @@ Association
             throw Exception("Invalid response");
         }
 
-        data.pdu = _make_a_associate(
-            data.association_parameters, pdu::AAssociate::Type::AC);
+        data.pdu = std::make_shared<pdu::AAssociate>(
+            data.association_parameters.as_pdu(pdu::AAssociate::Type::AC));
         this->_state_machine.send_pdu(data);
     }
 }
