@@ -17,7 +17,7 @@
 #include <dcmtk/config/osconfig.h>
 #include <dcmtk/dcmnet/assoc.h>
 
-#include "dcmtkpp/Association.h"
+#include "dcmtkpp/AssociationParameters.h"
 #include "dcmtkpp/message/Message.h"
 #include "dcmtkpp/Network.h"
 
@@ -98,6 +98,8 @@ public:
             // Nothing else.
         }
     };
+
+    typedef AssociationParameters::UserIdentity::Type UserIdentityType;
 
     /// @brief Progress callback, following the semantics of DCMTK.
     typedef std::function<void(void *, unsigned long)> ProgressCallback;

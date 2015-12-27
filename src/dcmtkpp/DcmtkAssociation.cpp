@@ -19,6 +19,7 @@
 #include <dcmtk/dcmnet/cond.h>
 #include <dcmtk/dcmnet/dimse.h>
 
+#include "dcmtkpp/AssociationParameters.h"
 #include "dcmtkpp/Exception.h"
 #include "dcmtkpp/Reader.h"
 #include "dcmtkpp/registry.h"
@@ -31,7 +32,8 @@ DcmtkAssociation
 ::DcmtkAssociation()
 : _own_ae_title(""),
   _peer_host_name(""), _peer_port(104), _peer_ae_title(""),
-  _presentation_contexts({}), _user_identity_type(UserIdentityType::None),
+  _presentation_contexts({}),
+  _user_identity_type(AssociationParameters::UserIdentity::Type::None),
   _user_identity_primary_field(""), _user_identity_secondary_field(""),
   _association(NULL), _network_timeout(30)
 {
@@ -176,7 +178,7 @@ DcmtkAssociation
     return this->_presentation_contexts;
 }
 
-UserIdentityType
+DcmtkAssociation::UserIdentityType
 DcmtkAssociation
 ::get_user_identity_type() const
 {
@@ -557,7 +559,7 @@ DcmtkAssociation
     else if (identity->getIdentityType() != ASC_USER_IDENTITY_UNKNOWN)
     {
         this->_user_identity_type =
-                    (UserIdentityType)identity->getIdentityType();
+            (UserIdentityType)identity->getIdentityType();
 
         // Get primary field
         char * primary_field;

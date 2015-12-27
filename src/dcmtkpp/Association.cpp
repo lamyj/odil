@@ -14,6 +14,7 @@
 #include <string>
 #include <vector>
 
+#include "dcmtkpp/AssociationParameters.h"
 #include "dcmtkpp/DataSet.h"
 #include "dcmtkpp/Exception.h"
 #include "dcmtkpp/uid.h"
@@ -37,13 +38,79 @@
 namespace dcmtkpp
 {
 
+std::shared_ptr<pdu::AAssociate> _make_a_associate(
+    AssociationParameters const & parameters, pdu::AAssociate::Type type)
+{
+    auto pdu = std::make_shared<pdu::AAssociate>(type);
+    pdu->set_protocol_version(1);
+    pdu->set_application_context(std::string("1.2.840.10008.3.1.1.1"));
+    pdu->set_called_ae_title(parameters.get_called_ae_title());
+    pdu->set_calling_ae_title(parameters.get_calling_ae_title());
+
+    // Presentation contexts
+    {
+        auto const & source = parameters.get_presentation_contexts();
+
+        std::vector<pdu::PresentationContext> destination;
+        destination.reserve(source.size());
+
+        for(unsigned int i=0; i<source.size(); ++i)
+        {
+            pdu::PresentationContext pc(
+                source[i].abstract_syntax, source[i].transfer_syntaxes);
+            pc.set_id(1+2*i);
+
+            destination.push_back(pc);
+        }
+
+        pdu->set_presentation_contexts(destination);
+    }
+
+    pdu::UserInformation user_information;
+
+    user_information.set_sub_items<pdu::MaximumLength>(
+        {parameters.get_maximum_length()});
+
+    user_information.set_sub_items<pdu::ImplementationClassUID>(
+        {implementation_class_uid});
+    user_information.set_sub_items<pdu::ImplementationVersionName>(
+        {implementation_version_name});
+
+    std::vector<pdu::RoleSelection> roles;
+    for(auto const & presentation_context: parameters.get_presentation_contexts())
+    {
+        pdu::RoleSelection const role(
+            presentation_context.abstract_syntax,
+            presentation_context.scu_role_support,
+            presentation_context.scp_role_support);
+        roles.push_back(role);
+    }
+    user_information.set_sub_items(roles);
+
+    auto const & user_identity = parameters.get_user_identity();
+    if(user_identity.type != AssociationParameters::UserIdentity::Type::None)
+    {
+        pdu::UserIdentityRQ sub_item;
+        sub_item.set_type(static_cast<int>(user_identity.type));
+        sub_item.set_primary_field(user_identity.primary_field);
+        sub_item.set_secondary_field(user_identity.secondary_field);
+
+        // TODO
+        sub_item.set_positive_response_requested(true);
+
+        user_information.set_sub_items<pdu::UserIdentityRQ>({sub_item});
+    }
+
+    pdu->set_user_information(user_information);
+
+    return pdu;
+}
+
 Association
 ::Association()
-: _state_machine(), _peer_host(""), _peer_port(104), _own_ae_title(""),
-  _peer_ae_title(""), _presentation_contexts(),
-  _user_identity_type(UserIdentityType::None), _user_identity_primary_field(""),
-  _user_identity_secondary_field(""), _transfer_syntaxes_by_abstract_syntax(),
-  _transfer_syntaxes_by_id(), _next_message_id(1)
+: _state_machine(), _peer_host(""), _peer_port(104), _association_parameters(),
+  _transfer_syntaxes_by_abstract_syntax(), _transfer_syntaxes_by_id(),
+  _next_message_id(1)
 {
     this->set_tcp_timeout(boost::posix_time::pos_infin);
     this->set_message_timeout(boost::posix_time::seconds(30));
@@ -51,13 +118,8 @@ Association
 
 Association
 ::Association(Association const & other)
-: _state_machine(), _peer_host(other._peer_host),
-  _peer_port(other._peer_port), _own_ae_title(other._own_ae_title),
-  _peer_ae_title(other._peer_ae_title),
-  _presentation_contexts(other._presentation_contexts),
-  _user_identity_type(other._user_identity_type),
-  _user_identity_primary_field(other._user_identity_primary_field),
-  _user_identity_secondary_field(other._user_identity_secondary_field),
+: _state_machine(), _peer_host(other._peer_host), _peer_port(other._peer_port),
+  _association_parameters(other._association_parameters),
   _transfer_syntaxes_by_abstract_syntax(), _transfer_syntaxes_by_id(),
   _next_message_id(other._next_message_id)
 {
@@ -71,41 +133,25 @@ Association
     // Nothing to do, everything is taken care of by the StateMachine
 }
 
+dul::Transport &
+Association
+::get_transport()
+{
+    return this->_state_machine.get_transport();
+}
+
 Association &
 Association
 ::operator=(Association const & other)
 {
     if(this != &other)
     {
-        this->set_own_ae_title(other.get_own_ae_title());
         this->set_peer_host(other.get_peer_host());
         this->set_peer_port(other.get_peer_port());
-        this->set_peer_ae_title(other.get_peer_ae_title());
-        this->set_user_identity_type(other.get_user_identity_type());
-        this->set_user_identity_primary_field(other.get_user_identity_primary_field());
-        this->set_user_identity_secondary_field(other.get_user_identity_secondary_field());
+        this->set_association_parameters(other.get_association_parameters());
     }
 
     return *this;
-}
-
-std::string const &
-Association
-::get_own_ae_title() const
-{
-    return this->_own_ae_title;
-}
-
-void
-Association
-::set_own_ae_title(std::string const & ae_title)
-{
-    if(this->is_associated())
-    {
-        throw Exception("Cannot set member while associated");
-    }
-
-    this->_own_ae_title = ae_title;
 }
 
 std::string const &
@@ -146,145 +192,35 @@ Association
     this->_peer_port = port;
 }
 
-std::string const &
+AssociationParameters const &
 Association
-::get_peer_ae_title() const
+::get_association_parameters() const
 {
-    return this->_peer_ae_title;
+    return this->_association_parameters;
 }
 
-void
+AssociationParameters &
 Association
-::set_peer_ae_title(std::string const & ae_title)
+::get_association_parameters()
 {
     if(this->is_associated())
     {
         throw Exception("Cannot set member while associated");
     }
 
-    this->_peer_ae_title = ae_title;
-}
-
-std::vector<Association::PresentationContext> const &
-Association
-::get_presentation_contexts() const
-{
-    return this->_presentation_contexts;
+    return this->_association_parameters;
 }
 
 void
 Association
-::set_presentation_contexts(std::vector<PresentationContext> const & value)
+::set_association_parameters(AssociationParameters const & value)
 {
     if(this->is_associated())
     {
         throw Exception("Cannot set member while associated");
     }
 
-    this->_presentation_contexts = value;
-}
-
-UserIdentityType
-Association
-::get_user_identity_type() const
-{
-    return this->_user_identity_type;
-}
-
-void
-Association
-::set_user_identity_type(UserIdentityType type)
-{
-    if(this->is_associated())
-    {
-        throw Exception("Cannot set member while associated");
-    }
-
-    this->_user_identity_type = type;
-}
-
-std::string const &
-Association
-::get_user_identity_primary_field() const
-{
-    return this->_user_identity_primary_field;
-}
-
-void
-Association
-::set_user_identity_primary_field(std::string const & value)
-{
-    if(this->is_associated())
-    {
-        throw Exception("Cannot set member while associated");
-    }
-
-    this->_user_identity_primary_field = value;
-}
-
-std::string const &
-Association
-::get_user_identity_secondary_field() const
-{
-    return this->_user_identity_secondary_field;
-}
-
-void
-Association
-::set_user_identity_secondary_field(std::string const & value)
-{
-    if(this->is_associated())
-    {
-        throw Exception("Cannot set member while associated");
-    }
-
-    this->_user_identity_secondary_field = value;
-}
-
-void
-Association
-::set_user_identity_to_none()
-{
-    this->set_user_identity_type(UserIdentityType::None);
-    this->set_user_identity_primary_field("");
-    this->set_user_identity_secondary_field("");
-}
-
-void
-Association
-::set_user_identity_to_username(std::string const & username)
-{
-    this->set_user_identity_type(UserIdentityType::Username);
-    this->set_user_identity_primary_field(username);
-    this->set_user_identity_secondary_field("");
-}
-
-void
-Association
-::set_user_identity_to_username_and_password(
-    std::string const & username, std::string const & password)
-{
-    this->set_user_identity_type(UserIdentityType::UsernameAndPassword);
-    this->set_user_identity_primary_field(username);
-    this->set_user_identity_secondary_field(password);
-}
-
-void
-Association
-::set_user_identity_to_kerberos(std::string const & ticket)
-{
-    this->set_user_identity_type(UserIdentityType::Kerberos);
-    this->set_user_identity_primary_field(ticket);
-    this->set_user_identity_secondary_field("");
-}
-
-void
-Association
-::set_user_identity_to_saml(std::string const & assertion)
-{
-    this->set_user_identity_type(UserIdentityType::SAML);
-    this->set_user_identity_primary_field(assertion);
-    this->set_user_identity_secondary_field("");
+    this->_association_parameters = value;
 }
 
 Association::duration_type
@@ -335,58 +271,8 @@ Association
     data.peer_endpoint = *endpoint_it;
     data.peer_endpoint.port(this->_peer_port);
 
-    auto request = std::make_shared<pdu::AAssociate>(pdu::AAssociate::Type::RQ);
-    request->set_protocol_version(1);
-    request->set_application_context(std::string("1.2.840.10008.3.1.1.1"));
-    request->set_called_ae_title(this->_peer_ae_title);
-    request->set_calling_ae_title(this->_own_ae_title);
-
-    std::vector<pdu::PresentationContext> presentation_contexts;
-    presentation_contexts.reserve(this->_presentation_contexts.size());
-    for(unsigned int i=0; i<this->_presentation_contexts.size(); ++i)
-    {
-        auto const & source = this->_presentation_contexts[i];
-        pdu::PresentationContext destination(
-            source.abstract_syntax, source.transfer_syntaxes);
-        destination.set_id(1+2*i);
-        presentation_contexts.push_back(destination);
-    }
-    request->set_presentation_contexts(presentation_contexts);
-
-    pdu::UserInformation user_information;
-
-    // TODO
-    user_information.set_sub_items<pdu::MaximumLength>({16384});
-
-    user_information.set_sub_items<pdu::ImplementationClassUID>(
-        {implementation_class_uid});
-    user_information.set_sub_items<pdu::ImplementationVersionName>(
-        {implementation_version_name});
-
-    // TODO
-    std::vector<pdu::RoleSelection> roles;
-    for(auto const & presentation_context: this->_presentation_contexts)
-    {
-        pdu::RoleSelection const role(
-            presentation_context.abstract_syntax, true, true);
-        roles.push_back(role);
-    }
-    user_information.set_sub_items(roles);
-
-    if(this->_user_identity_type != UserIdentityType::None)
-    {
-        pdu::UserIdentityRQ identity;
-        identity.set_type(static_cast<int>(this->_user_identity_type));
-        identity.set_primary_field(this->_user_identity_primary_field);
-        identity.set_secondary_field(this->_user_identity_secondary_field);
-
-        // TODO
-        identity.set_positive_response_requested(true);
-
-        user_information.set_sub_items<pdu::UserIdentityRQ>({identity});
-    }
-
-    request->set_user_information(user_information);
+    auto const request = _make_a_associate(
+        this->_association_parameters, pdu::AAssociate::Type::RQ);
 
     data.pdu = request;
 
@@ -449,19 +335,6 @@ Association
 void
 Association
 ::receive_association(
-    boost::asio::ip::tcp const & protocol, unsigned short port)
-{
-    this->receive_association(protocol, port,
-        []()
-        {
-            return std::make_pair(true, std::make_tuple(0, 0, 0));
-        }
-    );
-}
-
-void
-Association
-::receive_association(
     boost::asio::ip::tcp const & protocol, unsigned short port,
     AssociationAcceptor acceptor)
 {
@@ -480,12 +353,15 @@ Association
     }
     else
     {
-        auto const request = std::dynamic_pointer_cast<pdu::AAssociate>(data.pdu);
+        auto const & request = std::dynamic_pointer_cast<pdu::AAssociate>(data.pdu);
         if(request == nullptr || request->get_type() != pdu::AAssociate::Type::RQ)
         {
             throw Exception("Invalid response");
         }
-        //return true;
+
+        data.pdu = _make_a_associate(
+            data.association_parameters, pdu::AAssociate::Type::AC);
+        this->_state_machine.send_pdu(data);
     }
 }
 

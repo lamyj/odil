@@ -15,21 +15,13 @@
 #include <string>
 #include <vector>
 
+#include "dcmtkpp/AssociationAcceptor.h"
+#include "dcmtkpp/AssociationParameters.h"
 #include "dcmtkpp/dul/StateMachine.h"
 #include "dcmtkpp/message/Message.h"
 
 namespace dcmtkpp
 {
-
-/// @brief User identity types as defined by PS3.8 2013 D.3.3.7
-enum class UserIdentityType
-{
-    None = 0,
-    Username = 1,
-    UsernameAndPassword = 2,
-    Kerberos = 3,
-    SAML = 4
-};
 
 /**
  * @brief Association.
@@ -82,13 +74,6 @@ public:
         NoPresentationServiceAccessPointAvailable=7,
     };
 
-    struct PresentationContext
-    {
-        std::string abstract_syntax;
-        std::vector<std::string> transfer_syntaxes;
-    };
-
-    typedef dul::StateMachine::AssociationAcceptor AssociationAcceptor;
     typedef dul::StateMachine::duration_type duration_type;
 
     /// @brief Create a default, un-associated, association.
@@ -100,13 +85,10 @@ public:
     /// @brief Destroy the association, release it if necessary.
     ~Association();
 
+    dul::Transport & get_transport();
+
     /// @brief Assing an un-associated association; it remains un-associated.
     Association & operator=(Association const & other);
-
-    /// @brief Return the AE title of the caller. Defaults to "".
-    std::string const & get_own_ae_title() const;
-    /// @brief Set the AE title of the caller.
-    void set_own_ae_title(std::string const & ae_title);
 
     /// @name Peer
     /// @{
@@ -121,62 +103,16 @@ public:
     /// @brief Set the port of the peer.
     void set_peer_port(uint16_t port);
 
-    /// @brief Return the AE title of the peer. Defaults to "".
-    std::string const & get_peer_ae_title() const;
-    /// @brief Set the AE title of the peer.
-    void set_peer_ae_title(std::string const & ae_title);
-
     /// @}
 
-    // Hide PDU items from user when possible?
-    bool has_maximum_length() const;
-    int get_maximum_length() const;
-    void set_maximum_length(int value);
-    void remove_maximum_length();
+    /// @brief Return the association parameters.
+    AssociationParameters const & get_association_parameters() const;
 
-    /// @name Presentation contexts
-    /// @{
+    /// @brief Return the association parameters.
+    AssociationParameters & get_association_parameters();
 
-    std::vector<PresentationContext> const & get_presentation_contexts() const;
-    void set_presentation_contexts(std::vector<PresentationContext> const & value);
-
-    /// @}
-
-    /// @name User identity
-    /// @{
-
-    /// @brief Return the user identity type. Defaults to None.
-    UserIdentityType get_user_identity_type() const;
-    /// @brief Set the user identity type.
-    void set_user_identity_type(UserIdentityType type);
-
-    /// @brief Return the user identity primary field. Defaults to "".
-    std::string const & get_user_identity_primary_field() const;
-    /// @brief Set the user identity primary field.
-    void set_user_identity_primary_field(std::string const & value);
-
-    /// @brief Return the user identity secondary field. Defaults to "".
-    std::string const & get_user_identity_secondary_field() const;
-    /// @brief Set the user identity secondary field.
-    void set_user_identity_secondary_field(std::string const & value);
-
-    /// @brief Do no authenticate user.
-    void set_user_identity_to_none();
-
-    /// @brief Authenticate user using only a username.
-    void set_user_identity_to_username(std::string const & username);
-
-    /// @brief Authenticate user using a username and a password.
-    void set_user_identity_to_username_and_password(
-        std::string const & username, std::string const & password);
-
-    /// @brief Authenticate user using a Kerberos ticket.
-    void set_user_identity_to_kerberos(std::string const & ticket);
-
-    /// @brief Authenticate user using a SAML assertion.
-    void set_user_identity_to_saml(std::string const & assertion);
-
-    /// @}
+    /// @brief Set the association parameters, throw an exception when associated.
+    void set_association_parameters(AssociationParameters const & value);
 
     /// @name Timeouts
     /// @{
@@ -206,11 +142,8 @@ public:
 
     /// @brief Receive an association from a peer.
     void receive_association(
-        boost::asio::ip::tcp const & protocol, unsigned short port);
-
-    void receive_association(
         boost::asio::ip::tcp const & protocol, unsigned short port,
-        AssociationAcceptor accpetor);
+        AssociationAcceptor acceptor=default_association_acceptor);
 
     /// @brief Reject the received association request.
     void reject(Result result, ResultSource result_source, Diagnostic diagnostic);
@@ -243,14 +176,7 @@ private:
     std::string _peer_host;
     uint16_t _peer_port;
 
-    std::string _own_ae_title;
-    std::string _peer_ae_title;
-
-    std::vector<PresentationContext> _presentation_contexts;
-
-    UserIdentityType _user_identity_type;
-    std::string _user_identity_primary_field;
-    std::string _user_identity_secondary_field;
+    AssociationParameters _association_parameters;
 
     std::map<std::string, std::pair<uint8_t, std::string>>
         _transfer_syntaxes_by_abstract_syntax;

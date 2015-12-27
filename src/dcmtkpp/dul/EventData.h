@@ -11,6 +11,8 @@
 
 #include <memory>
 
+#include "dcmtkpp/AssociationAcceptor.h"
+#include "dcmtkpp/AssociationParameters.h"
 #include "dcmtkpp/dul/Transport.h"
 #include "dcmtkpp/pdu/Object.h"
 
@@ -26,6 +28,8 @@ class EventData
 public:
     Transport::Socket::endpoint_type peer_endpoint;
     std::shared_ptr<pdu::Object> pdu;
+    AssociationParameters association_parameters;
+    std::shared_ptr<AssociationRejected> reject;
 };
 
 }

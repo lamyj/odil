@@ -37,11 +37,8 @@ namespace dul
 StateMachine
 ::StateMachine()
 : _state(State::Sta1), _timeout(boost::posix_time::pos_infin),
-  _artim_timer(_transport.get_service()), _association_acceptor(
-    []()
-    {
-        return std::make_pair(true, std::make_tuple(0, 0, 0));
-    })
+  _artim_timer(_transport.get_service()),
+  _association_acceptor(default_association_acceptor)
 {
     // Nothing else.
 }
@@ -60,7 +57,7 @@ StateMachine
         {this->_state, event});
     auto const guard_value =
         (guard_iterator != StateMachine::_guards.end())?
-        guard_iterator->second(*this):true;
+        guard_iterator->second(*this, data):true;
 
     auto const transition_iterator = StateMachine::_transitions.find(
         std::make_tuple(this->_state, event, guard_value));
@@ -263,21 +260,34 @@ void
 StateMachine
 ::start_timer(EventData & data)
 {
-    this->_artim_timer.expires_from_now(this->_timeout);
+    return;
+
+
+    std::cout << "Starting ARTIM timer" << std::endl;
+    auto const canceled = this->_artim_timer.expires_from_now(this->_timeout);
+    if(canceled != 0)
+    {
+        throw Exception("ARTIM timer started with pending operations");
+    }
+
     this->_artim_timer.async_wait(
-        [this,&data](boost::system::error_code const & error)
+        [this,&data](boost::system::error_code const & e)
         {
-            if(!error)
+            std::cout << "state machine timer handler" << e.message() << std::endl;
+            //source = Source::TIMER;
+            //error = e;
+
+            if(!e)
             {
                 this->transition(Event::ARTIMTimerExpired, data);
             }
-            else if(error == boost::asio::error::operation_aborted)
+            else if(e == boost::asio::error::operation_aborted)
             {
                 // Do nothing
             }
             else
             {
-                throw boost::system::system_error(error);
+                throw boost::system::system_error(e);
             }
         }
     );
@@ -287,11 +297,28 @@ void
 StateMachine
 ::stop_timer()
 {
-    this->_artim_timer.cancel();
+    return;
+
+
     this->_artim_timer.expires_at(boost::posix_time::pos_infin);
+    std::cout << "Polling in stop_timer" << std::endl;
+    this->_transport.get_service().poll();
+    // FIXME: check that the timer was aborted
+    /*
+        if(source != Source::TIMER)
+        {
+            throw Exception("Unknown event");
+        }
+        else if(error != boost::asio::error::operation_aborted)
+        {
+            throw Exception("TCP timer error: "+error.message());
+        }
+    */
+    this->_transport.get_service().reset();
+    std::cout << "leaving stop_timer" << std::endl;
 }
 
-StateMachine::AssociationAcceptor const &
+AssociationAcceptor const &
 StateMachine
 ::get_association_acceptor() const
 {
@@ -458,8 +485,21 @@ StateMachine
 ::_guards = {
     {
         {StateMachine::State::Sta2, StateMachine::Event::AAssociateRQRemote},
-        [](StateMachine const & state_machine) {
-            return state_machine.get_association_acceptor()().first; }
+        [](StateMachine const & state_machine, EventData & data)
+        {
+            try
+            {
+                data.association_parameters =
+                    state_machine.get_association_acceptor()(
+                        data.association_parameters);
+            }
+            catch(AssociationRejected const & reject)
+            {
+                data.reject = std::make_shared<AssociationRejected>(reject);
+                return false;
+            }
+            return true;
+        }
     },
 };
 
@@ -530,20 +570,20 @@ StateMachine
 ::AE_6(EventData & data)
 {
     this->stop_timer();
-    auto const acceptable = this->_association_acceptor();
-    if(acceptable.first)
+
+    if(data.reject)
+    {
+        data.pdu = std::make_shared<pdu::AAssociateRJ>(
+            data.reject->get_result(), data.reject->get_source(),
+            data.reject->get_reason());
+        this->_send_pdu(data, 0x03);
+        data.pdu = NULL;
+    }
+    else
     {
         // Issue A-ASSOCIATE indication
         // Do nothing: notification is implicit since this function is only
         // called by receive_pdu
-    }
-    else
-    {
-        data.pdu = std::make_shared<pdu::AAssociateRJ>(
-            std::get<0>(acceptable.second), std::get<1>(acceptable.second),
-            std::get<2>(acceptable.second));
-        this->_send_pdu(data, 0x03);
-        data.pdu = NULL;
     }
 }
 
@@ -559,6 +599,7 @@ StateMachine
 ::AE_8(EventData & data)
 {
     this->_send_pdu(data, 0x03);
+    std::cout << "AE-8" << std::endl;
     this->start_timer(data);
 }
 
@@ -606,6 +647,7 @@ StateMachine
 ::AR_4(EventData & data)
 {
     this->_send_pdu(data, 0x06);
+    std::cout << "AR-4" << std::endl;
     this->start_timer(data);
 }
 
@@ -661,6 +703,7 @@ StateMachine
     data.pdu = std::make_shared<pdu::AAbort>(1, 2);
     this->send_pdu(data);
 
+    std::cout << "AA-1" << std::endl;
     this->start_timer(data);
 }
 

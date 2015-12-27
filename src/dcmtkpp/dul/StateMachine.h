@@ -16,6 +16,7 @@
 
 #include <boost/asio.hpp>
 
+#include "dcmtkpp/AssociationAcceptor.h"
 #include "dcmtkpp/dul/EventData.h"
 #include "dcmtkpp/dul/Transport.h"
 
@@ -63,17 +64,6 @@ public:
 
     /// @brief Duration of the timeout.
     typedef boost::asio::deadline_timer::duration_type duration_type;
-
-    /**
-     * @brief Callback to check whether the association request is acceptable.
-     *
-     * If the first element is true, then the association is acceptable and the
-     * second element does not contain meaningful data. If the first element is
-     * false, the the association will rejected with the result, source and
-     * reason stored in the second element (in that order).
-     */
-    typedef std::function<std::pair<bool, std::tuple<int, int, int>>()>
-        AssociationAcceptor;
 
     /// @brief Constructor, initializing to Sta1.
     StateMachine();
@@ -150,7 +140,7 @@ private:
 
     typedef std::map<
         std::pair<State, Event>,
-        std::function<bool(StateMachine const &)>> GuardMap;
+        std::function<bool(StateMachine const &, EventData &)>> GuardMap;
 
     static TransitionMap const _transitions;
     static GuardMap const _guards;

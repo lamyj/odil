@@ -14,15 +14,14 @@ struct Fixture: public PeerFixtureBase
     dcmtkpp::DataSet query;
 
     Fixture()
-    : PeerFixtureBase(NET_ACCEPTORREQUESTOR, 11113, 10,
-        {
+    : PeerFixtureBase({
             {
                 dcmtkpp::registry::PatientRootQueryRetrieveInformationModelMOVE,
                 { dcmtkpp::registry::ImplicitVRLittleEndian }
             },
             {
-                dcmtkpp::registry::RawDataStorage, { dcmtkpp::registry::ImplicitVRLittleEndian },
-                ASC_SC_ROLE_SCP
+                dcmtkpp::registry::RawDataStorage,
+                { dcmtkpp::registry::ImplicitVRLittleEndian },
             }
         })
     {
@@ -40,27 +39,26 @@ struct Fixture: public PeerFixtureBase
 
 bool Fixture::called = false;
 
-BOOST_AUTO_TEST_CASE(DefaultConstructor)
+BOOST_FIXTURE_TEST_CASE(DefaultConstructor, Fixture)
 {
-    dcmtkpp::MoveSCU const scu;
+    dcmtkpp::MoveSCU const scu(this->association);
     BOOST_CHECK_EQUAL(scu.get_move_destination(), "");
 }
 
-BOOST_AUTO_TEST_CASE(MoveDestination)
+BOOST_FIXTURE_TEST_CASE(MoveDestination, Fixture)
 {
-    dcmtkpp::MoveSCU scu;
+    dcmtkpp::MoveSCU scu(this->association);
     scu.set_move_destination("remote");
     BOOST_CHECK_EQUAL(scu.get_move_destination(), "remote");
 }
 
 BOOST_FIXTURE_TEST_CASE(Move, Fixture)
 {
-    dcmtkpp::MoveSCU scu;
-    scu.set_network(&this->network);
-    scu.set_association(&this->association);
+    dcmtkpp::MoveSCU scu(this->association);
     scu.set_move_destination("LOCAL");
 
-    scu.set_affected_sop_class(dcmtkpp::registry::PatientRootQueryRetrieveInformationModelMOVE);
+    scu.set_affected_sop_class(
+        dcmtkpp::registry::PatientRootQueryRetrieveInformationModelMOVE);
     auto const results = scu.move(this->query);
 
     BOOST_REQUIRE_EQUAL(results.size(), 1);
@@ -71,12 +69,11 @@ BOOST_FIXTURE_TEST_CASE(Move, Fixture)
 
 BOOST_FIXTURE_TEST_CASE(MoveCallback, Fixture)
 {
-    dcmtkpp::MoveSCU scu;
-    scu.set_network(&this->network);
-    scu.set_association(&this->association);
+    dcmtkpp::MoveSCU scu(this->association);
     scu.set_move_destination("LOCAL");
 
-    scu.set_affected_sop_class(dcmtkpp::registry::PatientRootQueryRetrieveInformationModelMOVE);
+    scu.set_affected_sop_class(
+        dcmtkpp::registry::PatientRootQueryRetrieveInformationModelMOVE);
     scu.move(this->query, Fixture::callback);
 
     BOOST_CHECK(Fixture::called);

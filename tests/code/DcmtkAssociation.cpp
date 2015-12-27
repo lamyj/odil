@@ -10,17 +10,6 @@
 
 #include "../PeerFixtureBase.h"
 
-namespace dcmtkpp
-{
-
-std::ostream & operator<<(std::ostream & stream, UserIdentityType const & type)
-{
-    stream << int(type);
-    return stream;
-}
-
-}
-
 BOOST_AUTO_TEST_CASE(DefaultConstructor)
 {
     dcmtkpp::DcmtkAssociation association;
@@ -30,8 +19,9 @@ BOOST_AUTO_TEST_CASE(DefaultConstructor)
     BOOST_CHECK_EQUAL(association.get_peer_port(), 104);
     BOOST_CHECK_EQUAL(association.get_peer_ae_title(), "");
 
-    BOOST_CHECK_EQUAL(
-        association.get_user_identity_type(), dcmtkpp::UserIdentityType::None);
+    BOOST_CHECK(
+        association.get_user_identity_type() ==
+            dcmtkpp::DcmtkAssociation::UserIdentityType::None);
     BOOST_CHECK_EQUAL(association.get_user_identity_primary_field(), "");
     BOOST_CHECK_EQUAL(association.get_user_identity_secondary_field(), "");
 
@@ -61,8 +51,8 @@ BOOST_AUTO_TEST_CASE(CopyConstructor)
     BOOST_CHECK_EQUAL(
         other.get_peer_ae_title(), association.get_peer_ae_title());
 
-    BOOST_CHECK_EQUAL(
-        other.get_user_identity_type(), association.get_user_identity_type());
+    BOOST_CHECK(
+        other.get_user_identity_type() == association.get_user_identity_type());
     BOOST_CHECK_EQUAL(
         other.get_user_identity_primary_field(),
         association.get_user_identity_primary_field());
@@ -93,8 +83,8 @@ BOOST_AUTO_TEST_CASE(Assignment)
     BOOST_CHECK_EQUAL(
         other.get_peer_ae_title(), association.get_peer_ae_title());
 
-    BOOST_CHECK_EQUAL(
-        other.get_user_identity_type(), association.get_user_identity_type());
+    BOOST_CHECK(
+        other.get_user_identity_type() == association.get_user_identity_type());
     BOOST_CHECK_EQUAL(
         other.get_user_identity_primary_field(),
         association.get_user_identity_primary_field());
@@ -134,10 +124,11 @@ BOOST_AUTO_TEST_CASE(PeerAETitle)
 BOOST_AUTO_TEST_CASE(UserIdentityType)
 {
     dcmtkpp::DcmtkAssociation association;
-    association.set_user_identity_type(dcmtkpp::UserIdentityType::Username);
-    BOOST_CHECK_EQUAL(
-        association.get_user_identity_type(),
-        dcmtkpp::UserIdentityType::Username);
+    association.set_user_identity_type(
+        dcmtkpp::DcmtkAssociation::UserIdentityType::Username);
+    BOOST_CHECK(
+        association.get_user_identity_type() ==
+            dcmtkpp::DcmtkAssociation::UserIdentityType::Username);
 }
 
 BOOST_AUTO_TEST_CASE(UserIdentityPrimaryField)
@@ -167,9 +158,9 @@ BOOST_AUTO_TEST_CASE(UserIdentityUsername)
 {
     dcmtkpp::DcmtkAssociation association;
     association.set_user_identity_to_username("user");
-    BOOST_CHECK_EQUAL(
-        association.get_user_identity_type(),
-        dcmtkpp::UserIdentityType::Username);
+    BOOST_CHECK(
+        association.get_user_identity_type() ==
+            dcmtkpp::DcmtkAssociation::UserIdentityType::Username);
     BOOST_CHECK_EQUAL(association.get_user_identity_primary_field(), "user");
     BOOST_CHECK_EQUAL(association.get_user_identity_secondary_field(), "");
 }
@@ -178,9 +169,9 @@ BOOST_AUTO_TEST_CASE(UserIdentityUsernameAndPassword)
 {
     dcmtkpp::DcmtkAssociation association;
     association.set_user_identity_to_username_and_password("user", "password");
-    BOOST_CHECK_EQUAL(
-        association.get_user_identity_type(),
-        dcmtkpp::UserIdentityType::UsernameAndPassword);
+    BOOST_CHECK(
+        association.get_user_identity_type() ==
+            dcmtkpp::DcmtkAssociation::UserIdentityType::UsernameAndPassword);
     BOOST_CHECK_EQUAL(association.get_user_identity_primary_field(), "user");
     BOOST_CHECK_EQUAL(
         association.get_user_identity_secondary_field(), "password");
@@ -190,9 +181,9 @@ BOOST_AUTO_TEST_CASE(UserIdentityKerberos)
 {
     dcmtkpp::DcmtkAssociation association;
     association.set_user_identity_to_kerberos("ticket");
-    BOOST_CHECK_EQUAL(
-        association.get_user_identity_type(),
-        dcmtkpp::UserIdentityType::Kerberos);
+    BOOST_CHECK(
+        association.get_user_identity_type() ==
+            dcmtkpp::DcmtkAssociation::UserIdentityType::Kerberos);
     BOOST_CHECK_EQUAL(association.get_user_identity_primary_field(), "ticket");
     BOOST_CHECK_EQUAL(association.get_user_identity_secondary_field(), "");
 }
@@ -201,8 +192,9 @@ BOOST_AUTO_TEST_CASE(UserIdentitySAML)
 {
     dcmtkpp::DcmtkAssociation association;
     association.set_user_identity_to_saml("assertion");
-    BOOST_CHECK_EQUAL(
-        association.get_user_identity_type(), dcmtkpp::UserIdentityType::SAML);
+    BOOST_CHECK(
+        association.get_user_identity_type() ==
+            dcmtkpp::DcmtkAssociation::UserIdentityType::SAML);
     BOOST_CHECK_EQUAL(
         association.get_user_identity_primary_field(), "assertion");
     BOOST_CHECK_EQUAL(association.get_user_identity_secondary_field(), "");
@@ -247,7 +239,8 @@ BOOST_AUTO_TEST_CASE(Associate)
         dcmtkpp::Exception);
 
     BOOST_CHECK_THROW(
-        dcmtk_association.set_user_identity_type(dcmtkpp::UserIdentityType::SAML),
+        dcmtk_association.set_user_identity_type(
+            dcmtkpp::DcmtkAssociation::UserIdentityType::SAML),
         dcmtkpp::Exception);
     BOOST_CHECK_THROW(
         dcmtk_association.set_user_identity_primary_field("foo"),

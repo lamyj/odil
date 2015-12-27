@@ -9,26 +9,28 @@
 #include <boost/lexical_cast.hpp>
 
 #include "dcmtkpp/Association.h"
+#include "dcmtkpp/AssociationParameters.h"
 
 /// @brief Base class for fixtures of requiring a working association.
 class PeerFixtureBase
 {
 public:
-    typedef dcmtkpp::Association::PresentationContext PresentationContext;
+    typedef
+        dcmtkpp::AssociationParameters::PresentationContext PresentationContext;
     dcmtkpp::Association association;
 
     PeerFixtureBase(std::vector<PresentationContext> const & contexts)
     {
-        this->association.set_own_ae_title(
-            this->get_environment_variable("DCMTKPP_OWN_AET"));
         this->association.set_peer_host(
             this->get_environment_variable("DCMTKPP_PEER_HOST_NAME"));
         this->association.set_peer_port(
             this->get_environment_variable<uint16_t>("DCMTKPP_PEER_PORT"));
-        this->association.set_peer_ae_title(
-            this->get_environment_variable("DCMTKPP_PEER_AET"));
-
-        this->association.set_presentation_contexts(contexts);
+        this->association.get_association_parameters()
+            .set_calling_ae_title(
+                this->get_environment_variable("DCMTKPP_OWN_AET"))
+            .set_called_ae_title(
+                this->get_environment_variable("DCMTKPP_PEER_AET"))
+            .set_presentation_contexts(contexts);
 
         this->association.associate();
     }
