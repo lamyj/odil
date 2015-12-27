@@ -10,6 +10,7 @@
 
 #include <cstdint>
 #include <map>
+#include <set>
 #include <string>
 #include <vector>
 
@@ -163,6 +164,21 @@ AssociationParameters &
 AssociationParameters
 ::set_presentation_contexts(std::vector<PresentationContext> const & value)
 {
+    std::set<uint8_t> ids;
+    for(auto const context: value)
+    {
+        auto const id = context.id;
+        if(id%2 == 0)
+        {
+            throw Exception("Presentation Context ID must be odd");
+        }
+        ids.insert(id);
+    }
+    if(ids.size() != value.size())
+    {
+        throw Exception("All Presentation Context IDs must be unique");
+    }
+
     this->_presentation_contexts = value;
     return *this;
 }

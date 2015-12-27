@@ -28,10 +28,21 @@ public:
      */
     struct PresentationContext
     {
+        enum class Result
+        {
+            Acceptance = 0,
+            UserRejection = 1,
+            NoReason = 2,
+            AbstractSyntaxNotSupported = 3,
+            TransferSyntaxesNotSupported = 4,
+        };
+
+        uint8_t id;
         std::string abstract_syntax;
         std::vector<std::string> transfer_syntaxes;
         bool scu_role_support;
         bool scp_role_support;
+        Result result;
     };
 
     /// @brief User Identity, cf. PS3.8 D.3.3.7
@@ -82,7 +93,7 @@ public:
     /// @brief Return the presentation contexts, default to empty.
     std::vector<PresentationContext> const & get_presentation_contexts() const;
 
-    /// @brief Set the presentation contexts.
+    /// @brief Set the presentation contexts. All ids must be odd and unique.
     AssociationParameters &
     set_presentation_contexts(std::vector<PresentationContext> const & value);
 

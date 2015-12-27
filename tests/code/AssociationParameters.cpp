@@ -54,12 +54,13 @@ BOOST_AUTO_TEST_CASE(PresentationContexts)
 {
     dcmtkpp::AssociationParameters parameters;
     parameters.set_presentation_contexts({
-        { "abstract1", { "transfer1", "transfer2" }, true, false },
-        { "abstract2", { "transfer3" }, false, true }
+        { 1, "abstract1", { "transfer1", "transfer2" }, true, false },
+        { 3, "abstract2", { "transfer3" }, false, true }
     });
 
     BOOST_REQUIRE_EQUAL(parameters.get_presentation_contexts().size(), 2);
 
+    BOOST_REQUIRE_EQUAL(parameters.get_presentation_contexts()[0].id, 1);
     BOOST_REQUIRE_EQUAL(
         parameters.get_presentation_contexts()[0].abstract_syntax, "abstract1");
     BOOST_REQUIRE_EQUAL(
@@ -73,6 +74,7 @@ BOOST_AUTO_TEST_CASE(PresentationContexts)
     BOOST_REQUIRE(parameters.get_presentation_contexts()[0].scu_role_support);
     BOOST_REQUIRE(!parameters.get_presentation_contexts()[0].scp_role_support);
 
+    BOOST_REQUIRE_EQUAL(parameters.get_presentation_contexts()[1].id, 3);
     BOOST_REQUIRE_EQUAL(
         parameters.get_presentation_contexts()[1].abstract_syntax, "abstract2");
     BOOST_REQUIRE_EQUAL(
@@ -158,7 +160,7 @@ BOOST_AUTO_TEST_CASE(ChainedSetters)
     parameters
         .set_called_ae_title("called")
         .set_calling_ae_title("calling")
-        .set_presentation_contexts({ { "abstract", { "transfer" }, true, true } })
+        .set_presentation_contexts({ { 1, "abstract", { "transfer" }, true, true } })
         .set_user_identity_to_username_and_password("foo", "bar")
         .set_maximum_length(0x12345678);
 
