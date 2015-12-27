@@ -17,6 +17,7 @@
 
 #include <boost/asio.hpp>
 
+#include "dcmtkpp/AssociationParameters.h"
 #include "dcmtkpp/endian.h"
 #include "dcmtkpp/Exception.h"
 #include "dcmtkpp/dul/EventData.h"
@@ -489,9 +490,10 @@ StateMachine
         {
             try
             {
+                AssociationParameters const input_parameters(
+                    *std::dynamic_pointer_cast<pdu::AAssociate>(data.pdu));
                 data.association_parameters =
-                    state_machine.get_association_acceptor()(
-                        data.association_parameters);
+                    state_machine.get_association_acceptor()(input_parameters);
             }
             catch(AssociationRejected const & reject)
             {
