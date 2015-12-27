@@ -232,7 +232,7 @@ AssociationParameters
 ::as_pdu(pdu::AAssociate::Type type) const
 
 {
-    pdu::AAssociate pdu (type);
+    pdu::AAssociate pdu(type);
     pdu.set_protocol_version(1);
     pdu.set_application_context(std::string("1.2.840.10008.3.1.1.1"));
     pdu.set_called_ae_title(this->get_called_ae_title());
@@ -248,8 +248,7 @@ AssociationParameters
         for(unsigned int i=0; i<source.size(); ++i)
         {
             pdu::PresentationContext pc(
-                source[i].abstract_syntax, source[i].transfer_syntaxes);
-            pc.set_id(1+2*i);
+                2*i+1, source[i].abstract_syntax, source[i].transfer_syntaxes);
 
             destination.push_back(pc);
         }

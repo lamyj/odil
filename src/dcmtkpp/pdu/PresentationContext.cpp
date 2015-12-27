@@ -25,23 +25,27 @@ namespace pdu
 
 PresentationContext
 ::PresentationContext(
-    std::string const & abstract_syntax,
+    uint8_t id, std::string const & abstract_syntax,
     std::vector<std::string> const & transfer_syntaxes)
 {
     this->_add_fields();
 
     this->_item.as_unsigned_int_8("Item-type") = 0x20;
+    this->set_id(id);
     this->set_abstract_syntax(abstract_syntax);
     this->set_transfer_syntaxes(transfer_syntaxes);
 }
 
 PresentationContext
-::PresentationContext(std::string const & transfer_syntax)
+::PresentationContext(
+    uint8_t id, std::string const & transfer_syntax, uint8_t result_reason)
 {
     this->_add_fields();
 
     this->_item.as_unsigned_int_8("Item-type") = 0x21;
+    this->set_id(id);
     this->set_transfer_syntax(transfer_syntax);
+    this->set_result_reason(result_reason);
 }
 
 PresentationContext

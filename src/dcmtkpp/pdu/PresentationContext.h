@@ -31,11 +31,12 @@ class PresentationContext: public Object
 public:
     /// @brief Create a Presentation Context for a A-ASSOCIATE-RQ PDU.
     PresentationContext(
-        std::string const & abstract_syntax,
+        uint8_t id, std::string const & abstract_syntax,
         std::vector<std::string> const & transfer_syntaxes);
 
     /// @brief Create a Presentation Context for a A-ASSOCIATE-AC PDU.
-    PresentationContext(std::string const & transfer_syntax);
+    PresentationContext(
+        uint8_t id, std::string const & transfer_syntax, uint8_t result_reason);
 
     /// @brief Read a Presentation Context from a stream.
     PresentationContext(std::istream & stream);

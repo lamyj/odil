@@ -27,10 +27,10 @@ std::string const ac_data(
 BOOST_AUTO_TEST_CASE(RQContext)
 {
     dcmtkpp::pdu::PresentationContext const context(
-        "abstract_syntax", {"ts1", "ts2"});
+        1, "abstract_syntax", {"ts1", "ts2"});
 
     BOOST_REQUIRE_EQUAL(context.get_item_type(), 0x20);
-    BOOST_REQUIRE_EQUAL(context.get_id(), 0x0);
+    BOOST_REQUIRE_EQUAL(context.get_id(), 1);
     BOOST_REQUIRE_THROW(context.get_result_reason(), dcmtkpp::Exception);
     BOOST_REQUIRE_EQUAL(context.get_abstract_syntax(), "abstract_syntax");
     BOOST_REQUIRE(
@@ -41,11 +41,11 @@ BOOST_AUTO_TEST_CASE(RQContext)
 
 BOOST_AUTO_TEST_CASE(ACContext)
 {
-    dcmtkpp::pdu::PresentationContext const context("transfer_syntax");
+    dcmtkpp::pdu::PresentationContext const context(1, "transfer_syntax", 2);
 
     BOOST_REQUIRE_EQUAL(context.get_item_type(), 0x21);
-    BOOST_REQUIRE_EQUAL(context.get_id(), 0x0);
-    BOOST_REQUIRE_EQUAL(context.get_result_reason(), 0x0);
+    BOOST_REQUIRE_EQUAL(context.get_id(), 0x1);
+    BOOST_REQUIRE_EQUAL(context.get_result_reason(), 0x2);
     BOOST_REQUIRE_THROW(context.get_abstract_syntax(), dcmtkpp::Exception);
     BOOST_REQUIRE_THROW(context.get_transfer_syntaxes(), dcmtkpp::Exception);
     BOOST_REQUIRE_EQUAL(context.get_transfer_syntax(), "transfer_syntax");
@@ -54,14 +54,14 @@ BOOST_AUTO_TEST_CASE(ACContext)
 BOOST_AUTO_TEST_CASE(RQId)
 {
     dcmtkpp::pdu::PresentationContext context(
-        "abstract_syntax", {"ts1", "ts2"});
+        1, "abstract_syntax", {"ts1", "ts2"});
     context.set_id(123);
     BOOST_REQUIRE_EQUAL(context.get_id(), 123);
 }
 
 BOOST_AUTO_TEST_CASE(ACId)
 {
-    dcmtkpp::pdu::PresentationContext context("transfer_syntax");
+    dcmtkpp::pdu::PresentationContext context(1, "transfer_syntax", 1);
     context.set_id(123);
     BOOST_REQUIRE_EQUAL(context.get_id(), 123);
 }
@@ -69,35 +69,35 @@ BOOST_AUTO_TEST_CASE(ACId)
 BOOST_AUTO_TEST_CASE(RQResultReason)
 {
     dcmtkpp::pdu::PresentationContext context(
-        "abstract_syntax", {"ts1", "ts2"});
+        1, "abstract_syntax", {"ts1", "ts2"});
     BOOST_REQUIRE_THROW(context.set_result_reason(1), dcmtkpp::Exception);
 }
 
 BOOST_AUTO_TEST_CASE(ACResultReason)
 {
-    dcmtkpp::pdu::PresentationContext context("transfer_syntax");
-    context.set_result_reason(1);
-    BOOST_REQUIRE_EQUAL(context.get_result_reason(), 1);
+    dcmtkpp::pdu::PresentationContext context(1, "transfer_syntax", 1);
+    context.set_result_reason(2);
+    BOOST_REQUIRE_EQUAL(context.get_result_reason(), 2);
 }
 
 BOOST_AUTO_TEST_CASE(RQAbstractSyntax)
 {
     dcmtkpp::pdu::PresentationContext context(
-        "abstract_syntax", {"ts1", "ts2"});
+        1, "abstract_syntax", {"ts1", "ts2"});
     context.set_abstract_syntax("foo");
     BOOST_REQUIRE_EQUAL(context.get_abstract_syntax(), "foo");
 }
 
 BOOST_AUTO_TEST_CASE(ACAbstractSyntax)
 {
-    dcmtkpp::pdu::PresentationContext context("transfer_syntax");
+    dcmtkpp::pdu::PresentationContext context(1, "transfer_syntax", 1);
     BOOST_REQUIRE_THROW(context.set_abstract_syntax("foo"), dcmtkpp::Exception);
 }
 
 BOOST_AUTO_TEST_CASE(RQTransferSyntaxes)
 {
     dcmtkpp::pdu::PresentationContext context(
-        "abstract_syntax", {"ts1", "ts2"});
+        1, "abstract_syntax", {"ts1", "ts2"});
     context.set_transfer_syntaxes({"foo", "bar"});
     BOOST_REQUIRE(
         context.get_transfer_syntaxes() ==
@@ -106,7 +106,7 @@ BOOST_AUTO_TEST_CASE(RQTransferSyntaxes)
 
 BOOST_AUTO_TEST_CASE(ACTransferSyntaxes)
 {
-    dcmtkpp::pdu::PresentationContext context("transfer_syntax");
+    dcmtkpp::pdu::PresentationContext context(1, "transfer_syntax", 1);
     BOOST_REQUIRE_THROW(
         context.set_transfer_syntaxes({"foo", "bar"}), dcmtkpp::Exception);
 }
@@ -114,13 +114,13 @@ BOOST_AUTO_TEST_CASE(ACTransferSyntaxes)
 BOOST_AUTO_TEST_CASE(RQTransferSyntax)
 {
     dcmtkpp::pdu::PresentationContext context(
-        "abstract_syntax", {"ts1", "ts2"});
+        1, "abstract_syntax", {"ts1", "ts2"});
     BOOST_REQUIRE_THROW(context.set_transfer_syntax("foo"), dcmtkpp::Exception);
 }
 
 BOOST_AUTO_TEST_CASE(ACTransferSyntax)
 {
-    dcmtkpp::pdu::PresentationContext context("transfer_syntax");
+    dcmtkpp::pdu::PresentationContext context(1, "transfer_syntax", 1);
     context.set_transfer_syntax("foo");
     BOOST_REQUIRE_EQUAL(context.get_transfer_syntax(), "foo");
 }
@@ -128,8 +128,7 @@ BOOST_AUTO_TEST_CASE(ACTransferSyntax)
 BOOST_AUTO_TEST_CASE(WriteRQ)
 {
     dcmtkpp::pdu::PresentationContext context(
-        "abstract_syntax", {"ts1", "ts2"});
-    context.set_id(3);
+        3, "abstract_syntax", {"ts1", "ts2"});
 
     std::ostringstream stream;
     stream << context;
@@ -139,9 +138,7 @@ BOOST_AUTO_TEST_CASE(WriteRQ)
 
 BOOST_AUTO_TEST_CASE(WriteAC)
 {
-    dcmtkpp::pdu::PresentationContext context("transfer_syntax");
-    context.set_id(3);
-    context.set_result_reason(1);
+    dcmtkpp::pdu::PresentationContext context(3, "transfer_syntax", 1);
 
     std::ostringstream stream;
     stream << context;

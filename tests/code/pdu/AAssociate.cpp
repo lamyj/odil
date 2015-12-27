@@ -26,14 +26,8 @@ public:
     Fixture()
     : application_context("foo")
     {
-        dcmtkpp::pdu::PresentationContext pc1("transfer_syntax");
-        pc1.set_id(3);
-        pc1.set_result_reason(1);
-
-        dcmtkpp::pdu::PresentationContext pc2("transfer_syntax_2");
-        pc2.set_id(5);
-        pc2.set_result_reason(2);
-
+        dcmtkpp::pdu::PresentationContext pc1(3, "transfer_syntax", 1);
+        dcmtkpp::pdu::PresentationContext pc2(5, "transfer_syntax_2", 2);
         this->presentation_contexts = {pc1, pc2};
 
         this->user_information.set_sub_items<dcmtkpp::pdu::MaximumLength>(
