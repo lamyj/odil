@@ -601,7 +601,6 @@ StateMachine
 ::AE_8(EventData & data)
 {
     this->_send_pdu(data, 0x03);
-    std::cout << "AE-8" << std::endl;
     this->start_timer(data);
 }
 
@@ -649,7 +648,6 @@ StateMachine
 ::AR_4(EventData & data)
 {
     this->_send_pdu(data, 0x06);
-    std::cout << "AR-4" << std::endl;
     this->start_timer(data);
 }
 
@@ -705,7 +703,6 @@ StateMachine
     data.pdu = std::make_shared<pdu::AAbort>(1, 2);
     this->send_pdu(data);
 
-    std::cout << "AA-1" << std::endl;
     this->start_timer(data);
 }
 
