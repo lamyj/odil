@@ -755,14 +755,14 @@ StateMachine
     this->_send_pdu(data, 0x07);
 }
 
-/** @brief Send A-ABORT PDU (service-provider source-), issue an A-P-ABORT
- * indication, and start ARTIM timer.
- */
 void
 StateMachine
 ::AA_8(EventData & data)
 {
-    throw Exception("AA-8 Not implemented");
+    data.pdu = std::make_shared<pdu::AAbort>(2, 2);
+    this->_send_pdu(data, 0x07);
+    // Notification is implicit
+    this->start_timer(data);
 }
 
 }
