@@ -158,7 +158,12 @@ public:
     /// @name DIMSE messages sending and reception.
     /// @{
 
-    /// @brief Receive a generic DIMSE message.
+    /**
+     * @brief Receive a generic DIMSE message.
+     *
+     * Throw an AssociationReleased or AssociationAborted if the peer released
+     * or aborted the association.
+     */
     message::Message receive_message();
 
     /// @brief Send a DIMSE message.
@@ -183,6 +188,29 @@ private:
     std::map<uint8_t, std::string> _transfer_syntaxes_by_id;
 
     uint16_t _next_message_id;
+};
+
+class AssociationReleased: public Exception
+{
+public:
+    AssociationReleased()
+    : Exception("Association released")
+    {
+        // Nothing else.
+    }
+};
+
+class AssociationAborted: public Exception
+{
+public:
+    uint8_t source;
+    uint8_t reason;
+
+    AssociationAborted(unsigned char source, unsigned char reason)
+    : Exception("Association aborted"), source(source), reason(reason)
+    {
+        // Nothing else.
+    }
 };
 
 }

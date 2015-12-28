@@ -363,7 +363,22 @@ Association
         data.pdu = nullptr;
         this->_state_machine.receive_pdu(data);
 
+        auto const a_release_rq = std::dynamic_pointer_cast<pdu::AReleaseRQ>(data.pdu);
+        if(a_release_rq != nullptr)
+        {
+            data.pdu = std::make_shared<pdu::AReleaseRP>();
+            this->_state_machine.send_pdu(data);
+            throw AssociationReleased();
+        }
+
+        auto const a_abort = std::dynamic_pointer_cast<pdu::AAbort>(data.pdu);
+        if(a_abort != nullptr)
+        {
+            throw AssociationAborted(a_abort->get_source(), a_abort->get_reason());
+        }
+
         auto const p_data_tf = std::dynamic_pointer_cast<pdu::PDataTF>(data.pdu);
+
         if(p_data_tf == nullptr)
         {
             throw Exception("Invalid PDU received");

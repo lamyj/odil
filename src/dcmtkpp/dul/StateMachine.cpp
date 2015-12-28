@@ -215,12 +215,12 @@ StateMachine
     Event event = Event::None;
     if(type == 0x01)
     {
-        data.pdu = std::make_shared<pdu::AAssociate>(stream);
+        data.pdu = std::make_shared<pdu::AAssociateRQ>(stream);
         event = Event::AAssociateRQRemote;
     }
     else if(type == 0x02)
     {
-        data.pdu = std::make_shared<pdu::AAssociate>(stream);
+        data.pdu = std::make_shared<pdu::AAssociateAC>(stream);
         event = Event::AAssociateACRemote;
     }
     else if(type == 0x03)
@@ -491,7 +491,7 @@ StateMachine
             try
             {
                 AssociationParameters const input_parameters(
-                    *std::dynamic_pointer_cast<pdu::AAssociate>(data.pdu));
+                    *std::dynamic_pointer_cast<pdu::AAssociateRQ>(data.pdu));
                 data.association_parameters =
                     state_machine.get_association_acceptor()(input_parameters);
             }
@@ -717,24 +717,21 @@ StateMachine
     this->_transport.close();
 }
 
-/**
- * @brief If (service-user inititated abort): issue A-ABORT indication and
- * close transport connection ; otherwise (service-provider inititated
- * abort): issue A-P-ABORT indication and close transport connection.
- */
 void
 StateMachine
-::AA_3(EventData & data)
+::AA_3(EventData & )
 {
-    throw Exception("AA-3 Not implemented");
+    // Notification is implicit since this function is only called
+    // by receive_pdu
+    this->_transport.close();
 }
 
-/// @brief Issue A-P-ABORT indication primitive.
 void
 StateMachine
-::AA_4(EventData & data)
+::AA_4(EventData & )
 {
-    throw Exception("AA-4 Not implemented");
+    // Do nothing: notification is implicit since this function is only called
+    // by receive_pdu
 }
 
 void
