@@ -341,10 +341,11 @@ AssociationParameters
         std::vector<pdu::PresentationContextRQ> destination;
         destination.reserve(source.size());
 
-        for(unsigned int i=0; i<source.size(); ++i)
+        for(auto const & source_pc: source)
         {
             pdu::PresentationContextRQ const pc(
-                2*i+1, source[i].abstract_syntax, source[i].transfer_syntaxes);
+                source_pc.id, source_pc.abstract_syntax,
+                source_pc.transfer_syntaxes);
             destination.push_back(pc);
         }
 
@@ -408,11 +409,11 @@ AssociationParameters
         std::vector<pdu::PresentationContextAC> destination;
         destination.reserve(source.size());
 
-        for(unsigned int i=0; i<source.size(); ++i)
+        for(auto const & source_pc: source)
         {
             pdu::PresentationContextAC const pc(
-                2*i+1, source[i].transfer_syntaxes[0],
-                static_cast<uint8_t>(source[i].result));
+                source_pc.id, source_pc.transfer_syntaxes[0],
+                static_cast<uint8_t>(source_pc.result));
             destination.push_back(pc);
         }
 
