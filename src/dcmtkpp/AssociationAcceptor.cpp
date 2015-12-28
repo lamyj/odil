@@ -32,6 +32,8 @@ default_association_acceptor(AssociationParameters const & input)
     {
         presentation_context.transfer_syntaxes =
             { presentation_context.transfer_syntaxes[0] };
+        presentation_context.result =
+            AssociationParameters::PresentationContext::Result::Acceptance;
     }
     output.set_presentation_contexts(presentation_contexts);
 

@@ -22,8 +22,6 @@ BOOST_AUTO_TEST_CASE(Constructor)
     BOOST_REQUIRE_EQUAL(context.get_item_type(), 0x21);
     BOOST_REQUIRE_EQUAL(context.get_id(), 0x1);
     BOOST_REQUIRE_EQUAL(context.get_result_reason(), 0x2);
-    BOOST_REQUIRE_THROW(context.get_abstract_syntax(), dcmtkpp::Exception);
-    BOOST_REQUIRE_THROW(context.get_transfer_syntaxes(), dcmtkpp::Exception);
     BOOST_REQUIRE_EQUAL(context.get_transfer_syntax(), "transfer_syntax");
 }
 
@@ -60,7 +58,5 @@ BOOST_AUTO_TEST_CASE(Read)
     BOOST_REQUIRE_EQUAL(context.get_item_type(), 0x21);
     BOOST_REQUIRE_EQUAL(context.get_id(), 3);
     BOOST_REQUIRE_EQUAL(context.get_result_reason(), 1);
-    BOOST_REQUIRE_THROW(context.get_abstract_syntax(), dcmtkpp::Exception);
-    BOOST_REQUIRE_THROW(context.get_transfer_syntaxes(), dcmtkpp::Exception);
     BOOST_REQUIRE_EQUAL(context.get_transfer_syntax(), "transfer_syntax");
 }

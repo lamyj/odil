@@ -14,11 +14,14 @@
 #include <string>
 #include <vector>
 
-#include "dcmtkpp/pdu/AAssociate.h"
+#include "dcmtkpp/pdu/AAssociateAC.h"
+#include "dcmtkpp/pdu/AAssociateRQ.h"
 #include "dcmtkpp/Exception.h"
 #include "dcmtkpp/uid.h"
 #include "dcmtkpp/pdu/ImplementationClassUID.h"
 #include "dcmtkpp/pdu/ImplementationVersionName.h"
+#include "dcmtkpp/pdu/PresentationContextAC.h"
+#include "dcmtkpp/pdu/PresentationContextRQ.h"
 #include "dcmtkpp/pdu/RoleSelection.h"
 
 namespace dcmtkpp
@@ -33,13 +36,8 @@ AssociationParameters
 }
 
 AssociationParameters
-::AssociationParameters(pdu::AAssociate const & pdu)
+::AssociationParameters(pdu::AAssociateRQ const & pdu)
 {
-    if(pdu.get_type() != pdu::AAssociate::Type::RQ)
-    {
-        throw Exception("Expected an A-ASSOCIATE-RQ PDU");
-    }
-    AssociationParameters parameters;
     this->set_called_ae_title(pdu.get_called_ae_title());
     this->set_calling_ae_title(pdu.get_calling_ae_title());
 
@@ -63,6 +61,8 @@ AssociationParameters
     for(auto const & pc_pdu: pcs_pdu)
     {
         AssociationParameters::PresentationContext pc_parameters;
+
+        pc_parameters.id = pc_pdu.get_id();
         pc_parameters.abstract_syntax = pc_pdu.get_abstract_syntax();
         pc_parameters.transfer_syntaxes = pc_pdu.get_transfer_syntaxes();
 
@@ -101,6 +101,87 @@ AssociationParameters
         {
             this->set_user_identity_to_saml(
                 user_identity[0].get_primary_field());
+        }
+    }
+
+    // Maximum length
+    auto const maximum_length =
+        user_information.get_sub_items<pdu::MaximumLength>();
+    if(!maximum_length.empty())
+    {
+        this->set_maximum_length(maximum_length[0].get_maximum_length());
+    }
+}
+
+AssociationParameters
+::AssociationParameters(
+    pdu::AAssociateAC const & pdu, AssociationParameters const & request)
+{
+    // Calling and Called AE titles are not meaningful in A-ASSOCIATE-AC
+    this->set_called_ae_title(request.get_called_ae_title());
+    this->set_calling_ae_title(request.get_calling_ae_title());
+
+    auto const user_information = pdu.get_user_information();
+
+    // Presentation contexts
+    auto const & pcs_request = request.get_presentation_contexts();
+    std::map<uint8_t, PresentationContext> pcs_request_map;
+    for(auto const & pc: pcs_request)
+    {
+        pcs_request_map[pc.id] = pc;
+    }
+
+    auto const & pcs_pdu = pdu.get_presentation_contexts();
+
+    std::map<std::string, std::pair<bool, bool>> roles_map;
+    auto const roles = user_information.get_sub_items<pdu::RoleSelection>();
+    for(auto const & role: roles)
+    {
+        roles_map[role.get_sop_class_uid()] =
+            std::make_pair(
+                role.get_scu_role_support(),
+                role.get_scp_role_support());
+    }
+
+    std::vector<AssociationParameters::PresentationContext> pcs_parameters;
+    pcs_parameters.reserve(pcs_pdu.size());
+    for(auto const & pc_pdu: pcs_pdu)
+    {
+        AssociationParameters::PresentationContext pc_parameters;
+        auto const & pc_request = pcs_request_map.at(pc_pdu.get_id());
+
+        pc_parameters.id = pc_pdu.get_id();
+        pc_parameters.abstract_syntax = pc_request.abstract_syntax;
+        pc_parameters.transfer_syntaxes = { pc_pdu.get_transfer_syntax() };
+
+        auto const it = roles_map.find(pc_request.abstract_syntax);
+        pc_parameters.scu_role_support =
+            (it!=roles_map.end())?it->second.first:pc_request.scu_role_support;
+        pc_parameters.scp_role_support =
+            (it!=roles_map.end())?it->second.second:pc_request.scp_role_support;
+
+        pc_parameters.result =
+            static_cast<PresentationContext::Result>(pc_pdu.get_result_reason());
+
+        pcs_parameters.push_back(pc_parameters);
+    }
+    this->set_presentation_contexts(pcs_parameters);
+
+    // User identity
+    auto const user_identity =
+        user_information.get_sub_items<pdu::UserIdentityAC>();
+    if(!user_identity.empty())
+    {
+        auto const type = request.get_user_identity().type;
+        if(type == UserIdentity::Type::Kerberos)
+        {
+            this->set_user_identity_to_kerberos(
+                user_identity[0].get_server_response());
+        }
+        else if(type == UserIdentity::Type::SAML)
+        {
+            this->set_user_identity_to_saml(
+                user_identity[0].get_server_response());
         }
     }
 
@@ -243,12 +324,11 @@ AssociationParameters
     return *this;
 }
 
-pdu::AAssociate
+pdu::AAssociateRQ
 AssociationParameters
-::as_pdu(pdu::AAssociate::Type type) const
-
+::as_a_associate_rq() const
 {
-    pdu::AAssociate pdu(type);
+    pdu::AAssociateRQ pdu;
     pdu.set_protocol_version(1);
     pdu.set_application_context(std::string("1.2.840.10008.3.1.1.1"));
     pdu.set_called_ae_title(this->get_called_ae_title());
@@ -258,14 +338,13 @@ AssociationParameters
     {
         auto const & source = this->get_presentation_contexts();
 
-        std::vector<pdu::PresentationContext> destination;
+        std::vector<pdu::PresentationContextRQ> destination;
         destination.reserve(source.size());
 
         for(unsigned int i=0; i<source.size(); ++i)
         {
-            pdu::PresentationContext pc(
+            pdu::PresentationContextRQ const pc(
                 2*i+1, source[i].abstract_syntax, source[i].transfer_syntaxes);
-
             destination.push_back(pc);
         }
 
@@ -306,6 +385,60 @@ AssociationParameters
 
         user_information.set_sub_items<pdu::UserIdentityRQ>({sub_item});
     }
+
+    pdu.set_user_information(user_information);
+
+    return pdu;
+}
+
+pdu::AAssociateAC
+AssociationParameters
+::as_a_associate_ac() const
+{
+    pdu::AAssociateAC pdu;
+    pdu.set_protocol_version(1);
+    pdu.set_application_context(std::string("1.2.840.10008.3.1.1.1"));
+    pdu.set_called_ae_title(this->get_called_ae_title());
+    pdu.set_calling_ae_title(this->get_calling_ae_title());
+
+    // Presentation contexts
+    {
+        auto const & source = this->get_presentation_contexts();
+
+        std::vector<pdu::PresentationContextAC> destination;
+        destination.reserve(source.size());
+
+        for(unsigned int i=0; i<source.size(); ++i)
+        {
+            pdu::PresentationContextAC const pc(
+                2*i+1, source[i].transfer_syntaxes[0],
+                static_cast<uint8_t>(source[i].result));
+            destination.push_back(pc);
+        }
+
+        pdu.set_presentation_contexts(destination);
+    }
+
+    pdu::UserInformation user_information;
+
+    user_information.set_sub_items<pdu::MaximumLength>(
+        {this->get_maximum_length()});
+
+    user_information.set_sub_items<pdu::ImplementationClassUID>(
+        {implementation_class_uid});
+    user_information.set_sub_items<pdu::ImplementationVersionName>(
+        {implementation_version_name});
+
+    std::vector<pdu::RoleSelection> roles;
+    for(auto const & presentation_context: this->get_presentation_contexts())
+    {
+        pdu::RoleSelection const role(
+            presentation_context.abstract_syntax,
+            presentation_context.scu_role_support,
+            presentation_context.scp_role_support);
+        roles.push_back(role);
+    }
+    user_information.set_sub_items(roles);
 
     pdu.set_user_information(user_information);
 

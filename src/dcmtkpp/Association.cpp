@@ -28,7 +28,8 @@
 #include "dcmtkpp/pdu/ImplementationClassUID.h"
 #include "dcmtkpp/pdu/ImplementationVersionName.h"
 #include "dcmtkpp/pdu/PDataTF.h"
-#include "dcmtkpp/pdu/PresentationContext.h"
+#include "dcmtkpp/pdu/PresentationContextAC.h"
+#include "dcmtkpp/pdu/PresentationContextRQ.h"
 #include "dcmtkpp/pdu/RoleSelection.h"
 #include "dcmtkpp/pdu/UserIdentityRQ.h"
 #include "dcmtkpp/pdu/UserInformation.h"
@@ -204,8 +205,8 @@ Association
     data.peer_endpoint.port(this->_peer_port);
 
     auto const request =
-        std::make_shared<pdu::AAssociate>(
-            this->_association_parameters.as_pdu(pdu::AAssociate::Type::RQ));
+        std::make_shared<pdu::AAssociateRQ>(
+            this->_association_parameters.as_a_associate_rq());
 
     data.pdu = request;
 
@@ -218,40 +219,26 @@ Association
     }
     else
     {
-        auto const acceptation = std::dynamic_pointer_cast<pdu::AAssociate>(data.pdu);
+        auto const acceptation = std::dynamic_pointer_cast<pdu::AAssociateAC>(data.pdu);
         auto const rejection = std::dynamic_pointer_cast<pdu::AAssociateRJ>(data.pdu);
-        if(acceptation != nullptr && acceptation->get_type() == pdu::AAssociate::Type::AC)
+        if(acceptation != nullptr)
         {
+            AssociationParameters negotiated_parameters(
+                *acceptation, this->_association_parameters);
+
             this->_transfer_syntaxes_by_abstract_syntax.clear();
             this->_transfer_syntaxes_by_id.clear();
-            auto const requested_pc = request->get_presentation_contexts();
-            for(auto const & accepted_pc: acceptation->get_presentation_contexts())
+
+            for(auto const & pc: negotiated_parameters.get_presentation_contexts())
             {
-                if(accepted_pc.get_result_reason() != 0)
+                if(pc.result != AssociationParameters::PresentationContext::Result::Acceptance)
                 {
                     continue;
                 }
 
-                auto const id = accepted_pc.get_id();
-                auto const ts = accepted_pc.get_transfer_syntax();
-
-                this->_transfer_syntaxes_by_id[id] = ts;
-
-                auto const requested_pc_it = std::find_if(
-                    requested_pc.begin(), requested_pc.end(),
-                    [&id](pdu::PresentationContext const & pc)
-                    {
-                        return pc.get_id() == id;
-                    }
-                );
-
-                if(requested_pc_it == requested_pc.end())
-                {
-                    throw Exception("No such presentation context ID");
-                }
-
-                auto const as = requested_pc_it->get_abstract_syntax();
-                this->_transfer_syntaxes_by_abstract_syntax[as] = {id, ts};
+                this->_transfer_syntaxes_by_id[pc.id] = pc.transfer_syntaxes[0];
+                this->_transfer_syntaxes_by_abstract_syntax[pc.abstract_syntax] =
+                    {pc.id, pc.transfer_syntaxes[0]};
             }
         }
         else if(rejection != nullptr)
@@ -286,14 +273,36 @@ Association
     }
     else
     {
-        auto const & request = std::dynamic_pointer_cast<pdu::AAssociate>(data.pdu);
-        if(request == nullptr || request->get_type() != pdu::AAssociate::Type::RQ)
+        auto const & request = std::dynamic_pointer_cast<pdu::AAssociateRQ>(data.pdu);
+        if(request == nullptr)
         {
             throw Exception("Invalid response");
         }
 
-        data.pdu = std::make_shared<pdu::AAssociate>(
-            data.association_parameters.as_pdu(pdu::AAssociate::Type::AC));
+        auto const endpoint =
+            this->_state_machine.get_transport().get_socket()->remote_endpoint();
+        this->_peer_host = endpoint.address().to_string();
+        this->_peer_port = endpoint.port();
+
+        auto const negotiated_parameters = data.association_parameters;
+
+        this->_transfer_syntaxes_by_abstract_syntax.clear();
+        this->_transfer_syntaxes_by_id.clear();
+
+        for(auto const & pc: negotiated_parameters.get_presentation_contexts())
+        {
+            if(pc.result != AssociationParameters::PresentationContext::Result::Acceptance)
+            {
+                continue;
+            }
+
+            this->_transfer_syntaxes_by_id[pc.id] = pc.transfer_syntaxes[0];
+            this->_transfer_syntaxes_by_abstract_syntax[pc.abstract_syntax] =
+                {pc.id, pc.transfer_syntaxes[0]};
+        }
+
+        data.pdu = std::make_shared<pdu::AAssociateAC>(
+            negotiated_parameters.as_a_associate_ac());
         this->_state_machine.send_pdu(data);
     }
 }

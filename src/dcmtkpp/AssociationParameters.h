@@ -13,7 +13,8 @@
 #include <string>
 #include <vector>
 
-#include "dcmtkpp/pdu/AAssociate.h"
+#include "dcmtkpp/pdu/AAssociateAC.h"
+#include "dcmtkpp/pdu/AAssociateRQ.h"
 
 namespace dcmtkpp
 {
@@ -66,7 +67,11 @@ public:
     AssociationParameters();
 
     /// @brief Constructor from an A-ASSOCIATE-RQ PDU.
-    AssociationParameters(pdu::AAssociate const & pdu);
+    AssociationParameters(pdu::AAssociateRQ const & pdu);
+
+    /// @brief Constructor from an A-ASSOCIATE-RQ PDU.
+    AssociationParameters(
+        pdu::AAssociateAC const & pdu, AssociationParameters const & request);
 
     /// @brief Return the called AE title, default to empty.
     std::string const & get_called_ae_title() const;
@@ -129,8 +134,11 @@ public:
      */
     AssociationParameters & set_maximum_length(uint32_t value);
 
-    /// @brief Create an A-ASSOCIATE PDU.
-    pdu::AAssociate as_pdu(pdu::AAssociate::Type type) const;
+    /// @brief Create an A-ASSOCIATE-RQ PDU.
+    pdu::AAssociateRQ as_a_associate_rq() const;
+
+    /// @brief Create an A-ASSOCIATE-AC PDU.
+    pdu::AAssociateAC as_a_associate_ac() const;
 
 private:
     std::string _called_ae_title;

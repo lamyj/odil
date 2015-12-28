@@ -52,6 +52,9 @@ protected:
     static Item _make_string_item(
         std::string const & type, std::string const & value);
 
+    /// @brief Add common fields.
+    void _add_fields();
+
     /// @brief Return the Abstract or Transfer syntaxes.
     std::vector<std::string> _get_syntaxes(std::string const & type) const;
 

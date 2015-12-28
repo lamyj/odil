@@ -19,6 +19,8 @@
 #include "dcmtkpp/pdu/ApplicationContext.h"
 #include "dcmtkpp/pdu/Item.h"
 #include "dcmtkpp/pdu/Object.h"
+#include "dcmtkpp/pdu/PresentationContextAC.h"
+#include "dcmtkpp/pdu/PresentationContextRQ.h"
 #include "dcmtkpp/pdu/UserInformation.h"
 
 namespace dcmtkpp
@@ -28,9 +30,9 @@ namespace pdu
 {
 
 AAssociate
-::AAssociate(Type type)
+::AAssociate()
 {
-    this->_item.add("PDU-type", 0);
+    this->_item.add("PDU-type", uint8_t(0));
     this->_item.add("Reserved-1", uint8_t(0));
     this->_item.add("PDU-length", uint32_t(0));
     this->_item.add("Protocol-version", uint16_t(0));
@@ -98,6 +100,12 @@ AAssociate
     }
 
     this->_item.as_unsigned_int_32("PDU-length") = this->_compute_length();
+}
+
+AAssociate
+::~AAssociate()
+{
+    // Nothing to do.
 }
 
 uint16_t

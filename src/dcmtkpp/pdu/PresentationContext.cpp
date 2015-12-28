@@ -86,6 +86,13 @@ PresentationContext
     this->_item.add("Abstract/Transfer Syntax Sub-Items", sub_items);
 }
 
+PresentationContext
+::~PresentationContext()
+{
+    // Nothing to do.
+}
+
+
 uint8_t
 PresentationContext
 ::get_item_type() const

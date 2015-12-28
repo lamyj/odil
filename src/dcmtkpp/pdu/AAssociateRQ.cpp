@@ -26,14 +26,14 @@ AAssociateRQ
 ::AAssociateRQ()
 : AAssociate()
 {
-    this->as_unsigned_int_8("PDU-Type") = 0x01;
+    this->_item.as_unsigned_int_8("PDU-type") = 0x01;
 }
 
 AAssociateRQ
 ::AAssociateRQ(std::istream & stream)
 : AAssociate(stream)
 {
-    if(type != 0x01)
+    if(this->_item.as_unsigned_int_8("PDU-type") != 0x01)
     {
         throw Exception("Invalid PDU type");
     }

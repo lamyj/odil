@@ -26,14 +26,14 @@ AAssociateAC
 ::AAssociateAC()
 : AAssociate()
 {
-    this->as_unsigned_int_8("PDU-Type") = 0x02;
+    this->_item.as_unsigned_int_8("PDU-type") = 0x02;
 }
 
 AAssociateAC
 ::AAssociateAC(std::istream & stream)
 : AAssociate(stream)
 {
-    if(type != 0x02)
+    if(this->_item.as_unsigned_int_8("PDU-type") != 0x02)
     {
         throw Exception("Invalid PDU type");
     }
@@ -52,7 +52,7 @@ AAssociateAC
     std::vector<PresentationContextAC> result;
     for(auto const & item: this->_item.as_items("Variable-items"))
     {
-        if(item.as_unsigned_int_8("Item-type") == 0x20)
+        if(item.as_unsigned_int_8("Item-type") == 0x21)
         {
             std::stringstream stream;
             stream << item;

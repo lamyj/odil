@@ -24,12 +24,10 @@ BOOST_AUTO_TEST_CASE(Constructor)
 
     BOOST_REQUIRE_EQUAL(context.get_item_type(), 0x20);
     BOOST_REQUIRE_EQUAL(context.get_id(), 1);
-    BOOST_REQUIRE_THROW(context.get_result_reason(), dcmtkpp::Exception);
     BOOST_REQUIRE_EQUAL(context.get_abstract_syntax(), "abstract_syntax");
     BOOST_REQUIRE(
         context.get_transfer_syntaxes() ==
             std::vector<std::string>({"ts1", "ts2"}));
-    BOOST_REQUIRE_THROW(context.get_transfer_syntax(), dcmtkpp::Exception);
 }
 
 BOOST_AUTO_TEST_CASE(Id)
@@ -77,10 +75,8 @@ BOOST_AUTO_TEST_CASE(Read)
 
     BOOST_REQUIRE_EQUAL(context.get_item_type(), 0x20);
     BOOST_REQUIRE_EQUAL(context.get_id(), 3);
-    BOOST_REQUIRE_THROW(context.get_result_reason(), dcmtkpp::Exception);
     BOOST_REQUIRE_EQUAL(context.get_abstract_syntax(), "abstract_syntax");
     BOOST_REQUIRE(
         context.get_transfer_syntaxes() ==
             std::vector<std::string>({"ts1", "ts2"}));
-    BOOST_REQUIRE_THROW(context.get_transfer_syntax(), dcmtkpp::Exception);
 }

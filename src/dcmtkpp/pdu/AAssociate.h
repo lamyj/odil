@@ -36,8 +36,6 @@ public:
     /// @brief Destructor.
     virtual ~AAssociate() =0;
 
-    Type get_type() const;
-
     /// @brief Return the protocol version.
     uint16_t get_protocol_version() const;
 
