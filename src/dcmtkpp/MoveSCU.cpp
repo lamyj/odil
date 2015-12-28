@@ -8,7 +8,9 @@
 
 #include "dcmtkpp/MoveSCU.h"
 
+#include <chrono>
 #include <functional>
+#include <thread>
 #include <vector>
 
 #include <dcmtk/config/osconfig.h>
@@ -69,16 +71,33 @@ MoveSCU
     while(!done)
     {
         // Use a small timeout to avoid blocking for a long time.
-        /*
-        if(!store_association.is_associated() &&
-           this->_network->is_association_waiting(1))
-        {
-            store_association.receive(*this->_network, true);
-        }
-        */
+        boost::posix_time::milliseconds const timeout(1000);
+        store_association.set_tcp_timeout(timeout);
+        store_association.set_message_timeout(timeout);
 
-        done = this->_dispatch(store_association, callback);
+        if(!store_association.is_associated())
+        {
+            try
+            {
+                store_association.receive_association(boost::asio::ip::tcp::v4(), 11113);
+                store_association.set_tcp_timeout(
+                    this->_association.get_tcp_timeout());
+                store_association.set_message_timeout(
+                    this->_association.get_message_timeout());
+            }
+            catch(Exception const & e)
+            {
+                // Ignore
+            }
+
+            if(store_association.is_associated())
+            {
+                done = true;
+            }
+        }
     }
+
+    this->_dispatch(store_association, callback);
 }
 
 std::vector<DataSet>
@@ -94,51 +113,26 @@ MoveSCU
     return result;
 }
 
-bool
+void
 MoveSCU
-::_dispatch(Association & association, Callback callback) const
+::_dispatch(Association & store_association, Callback callback) const
 {
-    /*
-    T_ASC_Association *associations[2];
-    int size = 0;
-
-    associations[0] = this->_association->get_association();
-    size = 1;
-    associations[1] = association.get_association();
-    if(association.is_associated())
+    bool store_done = false;
+    bool main_done = false;
+    while(!(store_done && main_done))
     {
-        ++size;
-    }
-
-    // At this point, we should have a readable association.
-    if(!ASC_selectReadableAssociation(associations, size, 1))
-    {
-        throw Exception("No readable association");
-    }
-
-    bool move_finished;
-
-    if(associations[0] != NULL)
-    {
-        move_finished = this->_handle_main_association();
-    }
-    else if(associations[1] != NULL)
-    {
-        bool const release =
-            this->_handle_store_association(association, callback);
-        if(release)
+        if(store_association.get_transport().get_socket()->available() > 0)
         {
-            association.drop();
+            store_done =
+                this->_handle_store_association(store_association, callback);
         }
-    }
-    else
-    {
-        throw Exception("No association available");
-    }
+        if(this->_association.get_transport().get_socket()->available() > 0)
+        {
+            main_done = this->_handle_main_association();
+        }
 
-    return move_finished;
-    */
-    return true;
+        usleep(10000);
+    }
 }
 
 bool
@@ -163,8 +157,20 @@ MoveSCU
         StoreSCP scp(association, store_callback);
         scp.receive_and_process();
     }
-    catch(Exception const &)
+    catch(dcmtkpp::AssociationReleased const &)
     {
+        //std::cout << "Peer released association" << std::endl;
+        result = true;
+    }
+    catch(dcmtkpp::AssociationAborted const & e)
+    {
+        /*
+        std::cout
+            << "Peer aborted association, "
+            << "source: " << int(e.source) << ", "
+            << "reason: " << int(e.reason)
+            << std::endl;
+        */
         result = true;
     }
 

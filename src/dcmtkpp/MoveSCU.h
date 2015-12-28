@@ -49,7 +49,7 @@ public:
 private:
     std::string _move_destination;
     
-    bool _dispatch(Association & association, Callback callback) const;
+    void _dispatch(Association & store_association, Callback callback) const;
     
     bool _handle_main_association() const;
     bool _handle_store_association(Association & association, Callback callback) const;

@@ -16,12 +16,12 @@ struct Fixture: public PeerFixtureBase
     Fixture()
     : PeerFixtureBase({
             {
-                dcmtkpp::registry::PatientRootQueryRetrieveInformationModelMOVE,
-                { dcmtkpp::registry::ImplicitVRLittleEndian }
+                1, dcmtkpp::registry::PatientRootQueryRetrieveInformationModelMOVE,
+                { dcmtkpp::registry::ImplicitVRLittleEndian }, true, false
             },
             {
-                dcmtkpp::registry::RawDataStorage,
-                { dcmtkpp::registry::ImplicitVRLittleEndian },
+                3, dcmtkpp::registry::RawDataStorage,
+                { dcmtkpp::registry::ImplicitVRLittleEndian }, false, true
             }
         })
     {
