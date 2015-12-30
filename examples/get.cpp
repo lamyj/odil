@@ -23,27 +23,27 @@ void print_informations(dcmtkpp::DataSet const & response)
 int main()
 {
     dcmtkpp::Association association;
-    association.set_peer_host("184.73.255.26 ");
+    association.set_peer_host("184.73.255.26");
     association.set_peer_port(11112);
-    association.get_association_parameters()
+    association.update_parameters()
         .set_calling_ae_title("myself")
         .set_called_ae_title("AWSPIXELMEDPUB")
         .set_presentation_contexts({
             {
-                dcmtkpp::registry::StudyRootQueryRetrieveInformationModelFIND,
-                { dcmtkpp::registry::ImplicitVRLittleEndian }
+                1, dcmtkpp::registry::StudyRootQueryRetrieveInformationModelFIND,
+                { dcmtkpp::registry::ImplicitVRLittleEndian }, true, false
             },
             {
-                dcmtkpp::registry::StudyRootQueryRetrieveInformationModelGET,
-                { dcmtkpp::registry::ImplicitVRLittleEndian }
+                3, dcmtkpp::registry::StudyRootQueryRetrieveInformationModelGET,
+                { dcmtkpp::registry::ImplicitVRLittleEndian }, true, false
             },
             {
-                dcmtkpp::registry::MRImageStorage,
-                { dcmtkpp::registry::ImplicitVRLittleEndian }
+                5, dcmtkpp::registry::MRImageStorage,
+                { dcmtkpp::registry::ImplicitVRLittleEndian }, false, true
             },
             {
-                dcmtkpp::registry::VerificationSOPClass,
-                { dcmtkpp::registry::ImplicitVRLittleEndian }
+                7, dcmtkpp::registry::VerificationSOPClass,
+                { dcmtkpp::registry::ImplicitVRLittleEndian }, true, false
             }
         });
     

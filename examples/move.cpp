@@ -1,82 +1,103 @@
 #include <iostream>
 
-#include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmdata/dctk.h>
-
+#include "dcmtkpp/Association.h"
 #include "dcmtkpp/DataSet.h"
+#include "dcmtkpp/FindSCU.h"
 #include "dcmtkpp/MoveSCU.h"
 #include "dcmtkpp/registry.h"
 
 void print_informations(dcmtkpp::DataSet const & response)
 {
+    auto const name = response.has("PatientName")?
+        response.as_string("PatientName", 0):"(no name)";
+    auto const study = response.has("StudyDescription")?
+        response.as_string("StudyDescription", 0):"(no study description)";
+    auto const series = response.has("SeriesDescription")?
+        response.as_string("SeriesDescription", 0):"(no series description)";
+    auto const instance = response.has("InstanceNumber")?
+        response.as_int("InstanceNumber", 0):(-1);
     std::cout
-        << response.as_string("PatientName", 0)
-        << ": "
-        << response.as_string("StudyDescription", 0)
-        << " / "
-        << response.as_string("SeriesDescription", 0)
-        << ": "
-        << response.as_string("InstanceNumber", 0)
-        << "\n";
+        << name << ": " << study << " / " << series << ": " << instance << "\n";
 }
 
 int main()
 {
-    dcmtkpp::Network network;
-    network.set_role(NET_ACCEPTORREQUESTOR);
-    network.set_port(11112);
-    network.initialize();
-    
-    dcmtkpp::DcmtkAssociation association;
-    association.set_own_ae_title("myself");
-    
-    association.set_peer_host_name("pacs.example.com");
+    dcmtkpp::Association association;
+    association.set_peer_host("184.73.255.26");
     association.set_peer_port(11112);
-    association.set_peer_ae_title("pacs");
-
-    std::vector<dcmtkpp::DcmtkAssociation::PresentationContext>
-            presentation_contexts;
-
-    presentation_contexts.push_back(
-                dcmtkpp::DcmtkAssociation::PresentationContext(
-                    dcmtkpp::registry::StudyRootQueryRetrieveInformationModelMOVE,
-                    { dcmtkpp::registry::ImplicitVRLittleEndian }));
-
-    presentation_contexts.push_back(
-                dcmtkpp::DcmtkAssociation::PresentationContext(
-                    dcmtkpp::registry::MRImageStorage,
-                    { dcmtkpp::registry::ImplicitVRLittleEndian },
-                    ASC_SC_ROLE_SCP));
-
-    presentation_contexts.push_back(
-                dcmtkpp::DcmtkAssociation::PresentationContext(
-                    dcmtkpp::registry::VerificationSOPClass,
-                    { dcmtkpp::registry::ImplicitVRLittleEndian }));
-
-    association.set_presentation_contexts(presentation_contexts);
+    association.update_parameters()
+        .set_calling_ae_title("myself")
+        .set_called_ae_title("AWSPIXELMEDPUB")
+        .set_presentation_contexts({
+            {
+                1, dcmtkpp::registry::StudyRootQueryRetrieveInformationModelFIND,
+                { dcmtkpp::registry::ImplicitVRLittleEndian }, true, false
+            },
+            {
+                3, dcmtkpp::registry::StudyRootQueryRetrieveInformationModelMOVE,
+                { dcmtkpp::registry::ImplicitVRLittleEndian }, true, false
+            },
+            {
+                5, dcmtkpp::registry::MRImageStorage,
+                { dcmtkpp::registry::ImplicitVRLittleEndian }, false, true
+            },
+            {
+                7, dcmtkpp::registry::VerificationSOPClass,
+                { dcmtkpp::registry::ImplicitVRLittleEndian }, true, false
+            }
+        });
     
-    association.associate(network);
-    
-    dcmtkpp::MoveSCU scu;
-    scu.set_network(&network);
-    scu.set_association(&association);
-    scu.set_move_destination(association.get_own_ae_title());
-    
-    scu.echo();
-    
+    association.associate();
+
+    dcmtkpp::FindSCU find_scu(association);
+    find_scu.set_affected_sop_class(
+        dcmtkpp::registry::StudyRootQueryRetrieveInformationModelFIND);
+
     dcmtkpp::DataSet query;
-    query.add("PatientID",{ "1234" });
-    query.add("QueryRetrieveLevel", { "SERIES" });
-    query.add("StudyInstanceUID", { "1.2.3.4.5" });
-    query.add("SeriesInstanceUID", { "1.2.3.4.5.1" });
+    query.add("QueryRetrieveLevel", { "STUDY" });
+    query.add("StudyInstanceUID");
+    query.add("NumberOfStudyRelatedSeries");
+
+    auto const studies = find_scu.find(query);
+    dcmtkpp::DataSet series;
+    for(auto const & study: studies)
+    {
+        if(!study.has("StudyInstanceUID"))
+        {
+            continue;
+        }
+
+        query = dcmtkpp::DataSet();
+        query.add("QueryRetrieveLevel", {"SERIES"});
+        query.add("Modality", {"MR"});
+        query.add("StudyInstanceUID", study.as_string("StudyInstanceUID"));
+        query.add("SeriesInstanceUID");
+
+        auto const study_series = find_scu.find(query);
+
+        if(!study_series.empty())
+        {
+            series = study_series[0];
+            break;
+        }
+    }
     
-    scu.set_affected_sop_class(dcmtkpp::registry::StudyRootQueryRetrieveInformationModelMOVE);
+    dcmtkpp::MoveSCU move_scu(association);
+    move_scu.set_affected_sop_class(
+        dcmtkpp::registry::StudyRootQueryRetrieveInformationModelMOVE);
+    move_scu.set_move_destination(
+        association.get_parameters().get_calling_ae_title());
+    
+    query = dcmtkpp::DataSet();
+    query.add("QueryRetrieveLevel", { "SERIES" });
+    query.add("StudyInstanceUID", series["StudyInstanceUID"]);
+    query.add("SeriesInstanceUID", series["SeriesInstanceUID"]);
     
     std::cout << "--------\n";
     std::cout << "Callback\n";
     std::cout << "--------\n\n";
     
-    scu.move(query, print_informations);
+    move_scu.move(query, print_informations);
     
     std::cout << "\n";
     
@@ -84,12 +105,11 @@ int main()
     std::cout << "vector\n";
     std::cout << "------\n\n";
     
-    std::vector<dcmtkpp::DataSet> result = scu.move(query);
+    std::vector<dcmtkpp::DataSet> result = move_scu.move(query);
     for(auto dataset: result)
     {
         print_informations(dataset);
     }
     
     association.release();
-    network.drop();
 }

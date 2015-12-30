@@ -20,19 +20,19 @@ void print_informations(dcmtkpp::DataSet const & response)
 int main()
 {
     dcmtkpp::Association association;
-    association.set_peer_host("184.73.255.26 ");
+    association.set_peer_host("184.73.255.26");
     association.set_peer_port(11112);
-    association.get_association_parameters()
+    association.update_parameters()
         .set_calling_ae_title("myself")
         .set_called_ae_title("AWSPIXELMEDPUB")
         .set_presentation_contexts({
             {
-                dcmtkpp::registry::StudyRootQueryRetrieveInformationModelFIND,
-                { dcmtkpp::registry::ExplicitVRLittleEndian }
+                1, dcmtkpp::registry::StudyRootQueryRetrieveInformationModelFIND,
+                { dcmtkpp::registry::ExplicitVRLittleEndian }, true, false
             },
             {
-                dcmtkpp::registry::VerificationSOPClass,
-                { dcmtkpp::registry::ExplicitVRLittleEndian }
+                3, dcmtkpp::registry::VerificationSOPClass,
+                { dcmtkpp::registry::ExplicitVRLittleEndian }, true, false
             }
         });
     

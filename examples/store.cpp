@@ -1,71 +1,41 @@
-#include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmdata/dctk.h>
-
-#include "dcmtkpp/conversion.h"
+#include "dcmtkpp/Association.h"
 #include "dcmtkpp/DataSet.h"
+#include "dcmtkpp/Reader.h"
 #include "dcmtkpp/StoreSCU.h"
-
-void progress_callback(void * data, unsigned long bytes_count)
-{
-    long file_size = *reinterpret_cast<long*>(data);
-    std::cout << bytes_count << "/" << file_size << std::endl;
-}
 
 int main(int argc, char** argv)
 {
-    dcmtkpp::Network network;
-    network.initialize();
-    
-    dcmtkpp::DcmtkAssociation association;
-    
-    association.set_own_ae_title("myself");
-    
-    association.set_peer_host_name("pacs.example.com");
+    dcmtkpp::Association association;
+    association.set_peer_host("184.73.255.26");
     association.set_peer_port(11112);
-    association.set_peer_ae_title("pacs");
-
-    std::vector<dcmtkpp::DcmtkAssociation::PresentationContext>
-            presentation_contexts;
-
-    presentation_contexts.push_back(
-                dcmtkpp::DcmtkAssociation::PresentationContext(
-                    dcmtkpp::registry::MRImageStorage,
-                    { dcmtkpp::registry::ImplicitVRLittleEndian }));
-
-    presentation_contexts.push_back(
-                dcmtkpp::DcmtkAssociation::PresentationContext(
-                    dcmtkpp::registry::EnhancedMRImageStorage,
-                    { dcmtkpp::registry::ImplicitVRLittleEndian }));
-
-    presentation_contexts.push_back(
-                dcmtkpp::DcmtkAssociation::PresentationContext(
-                    dcmtkpp::registry::VerificationSOPClass,
-                    { dcmtkpp::registry::ImplicitVRLittleEndian }));
-
-    association.set_presentation_contexts(presentation_contexts);
+    association.update_parameters()
+        .set_calling_ae_title("myself")
+        .set_called_ae_title("AWSPIXELMEDPUB")
+        .set_presentation_contexts({
+            {
+                1, dcmtkpp::registry::MRImageStorage,
+                { dcmtkpp::registry::ImplicitVRLittleEndian }, false, true
+            },
+            {
+                3, dcmtkpp::registry::VerificationSOPClass,
+                { dcmtkpp::registry::ImplicitVRLittleEndian }, true, false
+            }
+        });
     
-    association.associate(network);
+    association.associate();
     
-    dcmtkpp::StoreSCU scu;
-    scu.set_network(&network);
-    scu.set_association(&association);
+    dcmtkpp::StoreSCU scu(association);
     
     scu.echo();
     
     for(int i=1; i<argc; ++i)
     {
-        std::cout << "Storing " << argv[i] << std::endl;
+        std::ifstream stream(argv[i], std::ios::binary);
+        auto const header_and_data_set = dcmtkpp::Reader::read_file(stream);
         
-        long file_size = OFStandard::getFileSize(argv[i]);
-        DcmFileFormat file;
-        file.loadFile(argv[i]);
-
-        dcmtkpp::DataSet const data_set = dcmtkpp::convert(file.getDataset());
-        
-        scu.set_affected_sop_class(data_set);
-        scu.store(data_set, progress_callback, &file_size);
+        scu.set_affected_sop_class(header_and_data_set.first);
+        scu.store(header_and_data_set.first);
     }
     
     association.release();
-    network.drop();
 }
