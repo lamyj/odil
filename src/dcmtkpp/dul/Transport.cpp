@@ -260,12 +260,17 @@ Transport
 
         source = Source::NONE;
         this->_stop_deadline();
-        auto const polled = this->_service.run_one();
-        if(polled == 0)
+
+        while(source == Source::NONE)
         {
-            throw Exception("No operations polled");
+            auto const polled = this->_service.poll_one();
+            if(polled == 0)
+            {
+                throw Exception("No operations polled");
+            }
+            this->_service.reset();
         }
-        this->_service.reset();
+
         if(source != Source::TIMER)
         {
             throw Exception("Unknown event");

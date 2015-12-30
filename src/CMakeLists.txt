@@ -16,6 +16,7 @@ include_directories(
     ${JsonCpp_INCLUDE_DIRS})
 add_definitions("-D HAVE_CONFIG_H")
 add_definitions("-D DCMTKPP_MAJOR_VERSION=${dcmtkpp_MAJOR_VERSION}")
+add_definitions("-D BOOST_ASIO_SEPARATE_COMPILATION")
 
 link_directories(${Boost_LIBRARY_DIRS})
 add_library(dcmtkpp SHARED ${files} ${headers} ${templates})

@@ -1,6 +1,8 @@
 find_package(JsonCpp REQUIRED)
 
 add_definitions("-D HAVE_CONFIG_H")
+add_definitions("-D DCMTKPP_MAJOR_VERSION=${dcmtkpp_MAJOR_VERSION}")
+add_definitions("-D BOOST_ASIO_DYN_LINK")
 
 include_directories(${CMAKE_SOURCE_DIR}/src ${JsonCpp_INCLUDE_DIRS})
 

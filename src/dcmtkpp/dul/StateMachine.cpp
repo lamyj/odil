@@ -16,6 +16,7 @@
 #include <utility>
 
 #include <boost/asio.hpp>
+#include <boost/system/system_error.hpp>
 
 #include "dcmtkpp/AssociationParameters.h"
 #include "dcmtkpp/endian.h"
@@ -264,7 +265,6 @@ StateMachine
     return;
 
 
-    std::cout << "Starting ARTIM timer" << std::endl;
     auto const canceled = this->_artim_timer.expires_from_now(this->_timeout);
     if(canceled != 0)
     {
@@ -274,7 +274,6 @@ StateMachine
     this->_artim_timer.async_wait(
         [this,&data](boost::system::error_code const & e)
         {
-            std::cout << "state machine timer handler" << e.message() << std::endl;
             //source = Source::TIMER;
             //error = e;
 
@@ -302,7 +301,6 @@ StateMachine
 
 
     this->_artim_timer.expires_at(boost::posix_time::pos_infin);
-    std::cout << "Polling in stop_timer" << std::endl;
     this->_transport.get_service().poll();
     // FIXME: check that the timer was aborted
     /*
@@ -316,7 +314,6 @@ StateMachine
         }
     */
     this->_transport.get_service().reset();
-    std::cout << "leaving stop_timer" << std::endl;
 }
 
 AssociationAcceptor const &

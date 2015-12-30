@@ -8,6 +8,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../src ${JsonCpp_INCLUDE_DIRS})
 
 add_definitions("-D HAVE_CONFIG_H")
 add_definitions("-D DCMTKPP_MAJOR_VERSION=${dcmtkpp_MAJOR_VERSION}")
+add_definitions("-D BOOST_ASIO_DYN_LINK")
 
 file(GLOB headers *.h)
 

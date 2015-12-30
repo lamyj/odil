@@ -159,18 +159,10 @@ MoveSCU
     }
     catch(dcmtkpp::AssociationReleased const &)
     {
-        //std::cout << "Peer released association" << std::endl;
         result = true;
     }
     catch(dcmtkpp::AssociationAborted const & e)
     {
-        /*
-        std::cout
-            << "Peer aborted association, "
-            << "source: " << int(e.source) << ", "
-            << "reason: " << int(e.reason)
-            << std::endl;
-        */
         result = true;
     }
 
