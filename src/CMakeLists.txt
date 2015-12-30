@@ -20,7 +20,11 @@ add_definitions("-D BOOST_ASIO_SEPARATE_COMPILATION")
 
 link_directories(${Boost_LIBRARY_DIRS})
 add_library(dcmtkpp SHARED ${files} ${headers} ${templates})
-install(TARGETS dcmtkpp LIBRARY DESTINATION lib)
+install(
+    TARGETS dcmtkpp
+    ARCHIVE DESTINATION lib
+    LIBRARY DESTINATION lib
+    RUNTIME DESTINATION bin)
 install(FILES ${headers} ${templates} DESTINATION include/dcmtkpp)
 
 target_link_libraries(dcmtkpp

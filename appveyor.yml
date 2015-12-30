@@ -5,21 +5,39 @@ os: Visual Studio 2015
 clone_folder: c:\projects\dcmtkpp
 
 environment:
-  BOOST_ROOT: c:\Libraries\boost
-  BOOST_LIBRARYDIR: c:\Libraries\boost\stage\lib
+  BOOST_ROOT: C:/Libraries/boost_1_59_0
+  BOOST_LIBRARYDIR: C:/Libraries/boost_1_59_0/lib64-msvc-14.0
+  ICU_INCLUDE_DIR: C:/projects/icu/include
+  ICU_LIBRARY: C:/projects/icu/lib64/icuuc.lib
+  JsonCpp_INCLUDE_DIR: C:/projects/jsoncpp-0.10.5/include
+  JsonCpp_LIBRARY: C:/projects/jsoncpp-0.10.5/build/src/lib_json/Release/jsoncpp.lib
 
-init:
-- ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+#init:
+#- ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+
+install:
+- '"C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" x64'
+  # ICU4C
+- ps: Start-FileDownload http://download.icu-project.org/files/icu4c/56.1/icu4c-56_1-Win64-msvc10.zip
+- 7z x -oC:\projects icu4c-56_1-Win64-msvc10.zip
+  # JsonCpp
+- ps: Start-FileDownload https://github.com/open-source-parsers/jsoncpp/archive/0.10.5.zip
+- 7z x -oC:\projects 0.10.5.zip
+- cd C:\projects\jsoncpp-0.10.5
+- mkdir build
+- cd build
+- cmake -G "Visual Studio 14 2015 Win64" ..
+- cmake --build . --config release
 
 before_build:
   - cd c:\projects\dcmtkpp
   - md build
   - cd build
   - set PATH=C:\Program Files (x86)\MSBuild\14.0\Bin;%PATH%
-  - cmake -G "Visual Studio 14 2015 Win64" -DBOOST_ROOT="%BOOST_ROOT%" -DBOOST_LIBRARYDIR="%BOOST_LIBRARYDIR%" ..
+  - cmake -G "Visual Studio 14 2015 Win64" -DBOOST_ROOT="%BOOST_ROOT%" -DBOOST_LIBRARYDIR="%BOOST_LIBRARYDIR%" -DICU_INCLUDE_DIR="%ICU_INCLUDE_DIR%" -DICU_LIBRARY="%ICU_LIBRARY%" -DJsonCpp_INCLUDE_DIR="%JsonCpp_INCLUDE_DIR%" -DJsonCpp_LIBRARY="%JsonCpp_LIBRARY%" ..
 
 build:
   project: C:\projects\dcmtkpp\build\dcmtkpp.sln
 
-on_finish:
-- ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+#on_finish:
+#- ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
