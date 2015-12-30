@@ -1,25 +1,25 @@
 version: "{build}"
 
-os: Windows Server 2012 R2
+os: Visual Studio 2015
 
 clone_folder: c:\projects\dcmtkpp
 
 environment:
-  BOOST_ROOT: C:\Libraries\boost
-  BOOST_LIBRARYDIR: C:\Libraries\boost\lib64-msvc-12.0
+  BOOST_ROOT: c:\Libraries\boost
+  BOOST_LIBRARYDIR: c:\Libraries\boost\stage\lib
 
-platform:
-  - x64
-
-configuration:
-  - RelWithDebInfo
+init:
+- ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
 
 before_build:
   - cd c:\projects\dcmtkpp
-  - cmd: md build
-  - cmd: cd build
+  - md build
+  - cd build
   - set PATH=C:\Program Files (x86)\MSBuild\14.0\Bin;%PATH%
-  - cmake -DCMAKE_BUILD_TYPE=%configuration% -DBOOST_ROOT="%BOOST_ROOT%" -DBOOST_LIBRARYDIR="%BOOST_LIBRARYDIR%" -DBoost_USE_STATIC_LIBS="ON" ..
+  - cmake -G "Visual Studio 14 2015 Win64" -DBOOST_ROOT="%BOOST_ROOT%" -DBOOST_LIBRARYDIR="%BOOST_LIBRARYDIR%" ..
 
 build:
   project: C:\projects\dcmtkpp\build\dcmtkpp.sln
+
+on_finish:
+- ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
