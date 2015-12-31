@@ -9,6 +9,7 @@
 #include "dcmtkpp/unicode.h"
 
 #include <algorithm>
+#include <iterator>
 #include <map>
 #include <set>
 #include <sstream>
