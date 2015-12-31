@@ -11,6 +11,8 @@ environment:
   ICU_LIBRARY: C:/projects/icu/lib64/icuuc.lib
   JsonCpp_INCLUDE_DIR: C:/projects/jsoncpp-0.10.5/include
   JsonCpp_LIBRARY: C:/projects/jsoncpp-0.10.5/build/src/lib_json/Release/jsoncpp.lib
+  DCMTK_INCLUDE_DIR: C:\projects\dcmtk-3.6.1_20150924\install_dir\include
+  DCMTK_LIBRARY: C:\projects\dcmtk-3.6.1_20150924\install_dir\lib\dcmdata.lib
 
 #init:
 #- ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
@@ -28,13 +30,22 @@ install:
 - cd build
 - cmake -G "Visual Studio 14 2015 Win64" ..
 - cmake --build . --config release
+  # DCMTK
+- ps: Start-FileDownload http://dicom.offis.de/download/dcmtk/snapshot/dcmtk-3.6.1_20150924.tar.gz
+- 7z x -so dcmtk-3.6.1_20150924.tar.gz | 7z x -si -oC:\projects -ttar
+- cd C:\projects\dcmtk-3.6.1_20150924
+- mkdir build
+- cd build
+- cmake -G "Visual Studio 14 2015 Win64" -D CMAKE_INSTALL_PREFIX=c:\projects\dcmtk-3.6.1_20150924\install_dir ..
+- cmake --build . --config release
+- cmake --build . --config release --target install
 
 before_build:
   - cd c:\projects\dcmtkpp
   - md build
   - cd build
   - set PATH=C:\Program Files (x86)\MSBuild\14.0\Bin;%PATH%
-  - cmake -G "Visual Studio 14 2015 Win64" -DBOOST_ROOT="%BOOST_ROOT%" -DBOOST_LIBRARYDIR="%BOOST_LIBRARYDIR%" -DICU_INCLUDE_DIR="%ICU_INCLUDE_DIR%" -DICU_LIBRARY="%ICU_LIBRARY%" -DJsonCpp_INCLUDE_DIR="%JsonCpp_INCLUDE_DIR%" -DJsonCpp_LIBRARY="%JsonCpp_LIBRARY%" ..
+  - cmake -G "Visual Studio 14 2015 Win64" -DBOOST_ROOT="%BOOST_ROOT%" -DBOOST_LIBRARYDIR="%BOOST_LIBRARYDIR%" -DICU_INCLUDE_DIR="%ICU_INCLUDE_DIR%" -DICU_LIBRARY="%ICU_LIBRARY%" -DJsonCpp_INCLUDE_DIR="%JsonCpp_INCLUDE_DIR%" -DJsonCpp_LIBRARY="%JsonCpp_LIBRARY%" -DDCMTK_INCLUDE_DIR="%DCMTK_INCLUDE_DIR%" -DDCMTK_LIBRARY="%DCMTK_LIBRARY%" ..
 
 build:
   project: C:\projects\dcmtkpp\build\dcmtkpp.sln
