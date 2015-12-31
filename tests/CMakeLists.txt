@@ -1,22 +1,26 @@
 find_package(Boost COMPONENTS unit_test_framework REQUIRED)
+find_package(DCMTK REQUIRED)
 find_package(JsonCpp REQUIRED)
 
-link_directories(${Boost_LIBRARY_DIRS})
-add_definitions(-DBOOST_TEST_DYN_LINK)
+file(GLOB headers *.h)
+file(GLOB_RECURSE tests *.cpp)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../src ${JsonCpp_INCLUDE_DIRS})
+add_definitions(
+    ${DCMTK_DEFINITIONS}
+    -D BOOST_ASIO_DYN_LINK
+    -D DCMTKPP_MAJOR_VERSION=${dcmtkpp_MAJOR_VERSION}
+    -DBOOST_TEST_DYN_LINK
+)
+link_directories(${Boost_LIBRARY_DIRS})
 
-add_definitions("-D HAVE_CONFIG_H")
-add_definitions("-D DCMTKPP_MAJOR_VERSION=${dcmtkpp_MAJOR_VERSION}")
-add_definitions("-D BOOST_ASIO_DYN_LINK")
 
-file(GLOB headers *.h)
-
-file(GLOB_RECURSE tests *.cpp)
 foreach(test_file ${tests})
     get_filename_component(test ${test_file} NAME_WE)
+
     add_executable(${test} ${test_file} ${headers})
     target_link_libraries(${test} dcmtkpp ${Boost_LIBRARIES})
+
     file(READ ${test_file} content)
 
     set(pattern "BOOST_(AUTO|FIXTURE)_TEST_CASE\\(([^),]+)")
