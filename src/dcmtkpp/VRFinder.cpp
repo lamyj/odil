@@ -132,7 +132,7 @@ VRFinder
         {
             return VR::OW;
         }
-        else if((tag.group<<8) == 0x60 and tag.element == 0x3000)
+        else if((tag.group<<8) == 0x60 && tag.element == 0x3000)
         {
             return VR::OW;
         }

@@ -39,7 +39,7 @@ public:
     uint8_t get_result_reason() const;
 
     /// @brief Set the Result/Reason.
-    void set_result_reason(u_int8_t result_reason);
+    void set_result_reason(uint8_t result_reason);
 
     /// @brief Return the Transfer Syntax.
     std::string get_transfer_syntax() const;

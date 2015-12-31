@@ -45,7 +45,7 @@ public:
     uint8_t get_id() const;
 
     /// @brief Set the Presentation context id.
-    void set_id(u_int8_t id);
+    void set_id(uint8_t id);
 
 protected:
     /// @brief Create an Abstract Syntax or Transfer Syntax sub-item.

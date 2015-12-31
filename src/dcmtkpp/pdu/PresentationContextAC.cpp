@@ -57,7 +57,7 @@ PresentationContextAC
 
 void
 PresentationContextAC
-::set_result_reason(u_int8_t result_reason)
+::set_result_reason(uint8_t result_reason)
 {
     this->_item.as_unsigned_int_8("Result/Reason") = result_reason;
 }

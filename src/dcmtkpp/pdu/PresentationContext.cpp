@@ -109,7 +109,7 @@ PresentationContext
 
 void
 PresentationContext
-::set_id(u_int8_t id)
+::set_id(uint8_t id)
 {
     this->_item.as_unsigned_int_8("Presentation-context-id") = id;
 }
