@@ -19,7 +19,7 @@ if(USE_WRAP)
     set(DCMTK_LIBRARIES ${DCMTK_LIBRARIES} wrap)
 endif()
 
-get_filename_component(DCMTK_LIBRARY_DIRS "${DCMTK_LIBRARY}" DIRECTORY)
+get_filename_component(DCMTK_LIBRARY_DIRS "${DCMTK_LIBRARY}" PATH)
 
 include(FindPackageHandleStandardArgs)
 # handle the QUIETLY and REQUIRED arguments and set DCMTK_FOUND to TRUE
