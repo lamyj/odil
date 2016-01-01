@@ -14,22 +14,39 @@ environment:
   DCMTK_INCLUDE_DIR: C:/Libraries/dcmtk-3.6.1_20150924/include
   DCMTK_LIBRARY: C:/Libraries/dcmtk-3.6.1_20150924/lib/dcmdata.lib
 
+#init:
+#- ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+
 install:
   # ICU4C
 - ps: Start-FileDownload http://download.icu-project.org/files/icu4c/56.1/icu4c-56_1-Win64-msvc10.zip
 - 7z x -oC:\Libraries icu4c-56_1-Win64-msvc10.zip
   # JsonCpp
-- ps: Start-FileDownload https://github.com/lamyj/jsoncpp/releases/download/0.10.5/jsoncpp_0_10_5_Win64_msvc14.zip
-- 7z x -oC:\Libraries jsoncpp_0_10_5_Win64_msvc14.zip
+- ps: Start-FileDownload https://github.com/open-source-parsers/jsoncpp/archive/0.10.5.zip
+- 7z x -oC:\projects 0.10.5.zip
+- cd C:\projects\jsoncpp-0.10.5
+- mkdir build
+- cd build
+- cmake -D CMAKE_INSTALL_PREFIX=c:\Libraries\jsoncpp_0_10_5 ..
+- cmake --build . --config release --target install
   # DCMTK
-- ps: Start-FileDownload https://github.com/lamyj/dcmtk/releases/download/DCMTK-3.6.1_20150924/dcmtk-3.6.1_20150924_Win64_msvc14.zip
-- 7z x -oC:\Libraries dcmtk-3.6.1_20150924_Win64_msvc14.zip
+- ps: Start-FileDownload http://dicom.offis.de/download/dcmtk/snapshot/dcmtk-3.6.1_20150924.tar.gz
+- 7z x -so dcmtk-3.6.1_20150924.tar.gz | 7z x -si -oC:\projects -ttar
+- cd C:\projects\dcmtk-3.6.1_20150924
+- mkdir build
+- cd build
+- cmake -D CMAKE_INSTALL_PREFIX=c:\Libraries\dcmtk-3.6.1_20150924 ..
+- cmake --build . --config release --target install
 
 before_build:
   - cd c:\projects\dcmtkpp
   - md build
   - cd build
+  - set PATH=C:\Program Files (x86)\MSBuild\14.0\Bin;%PATH%
   - cmake -DBOOST_ROOT="%BOOST_ROOT%" -DBOOST_LIBRARYDIR="%BOOST_LIBRARYDIR%" -DICU_INCLUDE_DIR="%ICU_INCLUDE_DIR%" -DICU_LIBRARY="%ICU_LIBRARY%" -DJsonCpp_INCLUDE_DIR="%JsonCpp_INCLUDE_DIR%" -DJsonCpp_LIBRARY="%JsonCpp_LIBRARY%" -DDCMTK_INCLUDE_DIR="%DCMTK_INCLUDE_DIR%" -DDCMTK_LIBRARY="%DCMTK_LIBRARY%" ..
 
 build:
   project: C:\projects\dcmtkpp\build\dcmtkpp.sln
+
+#on_finish:
+#- ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
