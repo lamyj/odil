@@ -204,7 +204,7 @@ StateMachine
     auto const header = this->_transport.read(6);
 
     uint8_t const type = header[0];
-    uint32_t const length = be32toh(
+    uint32_t const length = big_endian_to_host(
         *reinterpret_cast<uint32_t const *>(&header[0]+2));
     auto const pdu_data = this->_transport.read(length);
 

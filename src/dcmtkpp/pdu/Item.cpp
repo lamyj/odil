@@ -373,7 +373,7 @@ Item
             throw Exception("Could not read unsigned_int_16 field");
         }
 
-        value = be16toh(value);
+        value = big_endian_to_host(value);
         this->add(name, Field(value));
     }
     else if(type == Field::Type::unsigned_int_32)
@@ -385,7 +385,7 @@ Item
             throw Exception("Could not read unsigned_int_32 field");
         }
 
-        value = be32toh(value);
+        value = big_endian_to_host(value);
         this->add(name, Field(value));
     }
     else if(type == Field::Type::string)
@@ -419,12 +419,12 @@ operator<<(std::ostream & stream, Item const & item)
         }
         else if(type == Item::Field::Type::unsigned_int_16)
         {
-            uint16_t const value = htobe16(field.as_unsigned_int_16());
+            auto const value = host_to_big_endian(field.as_unsigned_int_16());
             stream.write(reinterpret_cast<char const*>(&value), sizeof(value));
         }
         else if(type == Item::Field::Type::unsigned_int_32)
         {
-            uint32_t const value = htobe32(field.as_unsigned_int_32());
+            auto const value = host_to_big_endian(field.as_unsigned_int_32());
             stream.write(reinterpret_cast<char const*>(&value), sizeof(value));
         }
         else if(type == Item::Field::Type::string)

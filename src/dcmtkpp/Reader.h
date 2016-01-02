@@ -16,6 +16,7 @@
 
 #include "dcmtkpp/DataSet.h"
 #include "dcmtkpp/Element.h"
+#include "dcmtkpp/endian.h"
 #include "dcmtkpp/Tag.h"
 #include "dcmtkpp/Value.h"
 #include "dcmtkpp/VR.h"
@@ -33,8 +34,8 @@ public:
     /// @brief Transfer syntax used to read the file.
     std::string transfer_syntax;
 
-    /// @brief Endianness (LITTLE_ENDIAN or BIG_ENDIAN).
-    int byte_ordering;
+    /// @brief Endianness.
+    ByteOrdering byte_ordering;
 
     /// @brief Explicit-ness of the Value Representations.
     bool explicit_vr;
@@ -79,13 +80,13 @@ private:
         VR vr;
 
         std::string transfer_syntax;
-        int byte_ordering;
+        ByteOrdering byte_ordering;
         bool explicit_vr;
         bool keep_group_length;
 
         Visitor(
             std::istream & stream, VR vr, std::string const & transfer_syntax,
-            int byte_ordering, bool explicit_vr, bool keep_group_length);
+            ByteOrdering byte_ordering, bool explicit_vr, bool keep_group_length);
 
         result_type operator()(Value::Integers & value) const;
         result_type operator()(Value::Reals & value) const;

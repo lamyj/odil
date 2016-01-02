@@ -17,8 +17,8 @@
 BOOST_AUTO_TEST_CASE(Constructor)
 {
     std::ostringstream stream;
-    dcmtkpp::Writer const writer(stream, BIG_ENDIAN, true);
-    BOOST_REQUIRE(writer.byte_ordering == BIG_ENDIAN);
+    dcmtkpp::Writer const writer(stream, dcmtkpp::ByteOrdering::BigEndian, true);
+    BOOST_REQUIRE(writer.byte_ordering == dcmtkpp::ByteOrdering::BigEndian);
     BOOST_REQUIRE(writer.explicit_vr == true);
 }
 
@@ -26,7 +26,7 @@ BOOST_AUTO_TEST_CASE(ConstructorTransferSyntax)
 {
     std::ostringstream stream;
     dcmtkpp::Writer const writer(stream, dcmtkpp::registry::ExplicitVRBigEndian_Retired);
-    BOOST_REQUIRE(writer.byte_ordering == BIG_ENDIAN);
+    BOOST_REQUIRE(writer.byte_ordering == dcmtkpp::ByteOrdering::BigEndian);
     BOOST_REQUIRE(writer.explicit_vr == true);
 }
 

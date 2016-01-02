@@ -14,6 +14,7 @@
 
 #include "dcmtkpp/DataSet.h"
 #include "dcmtkpp/Element.h"
+#include "dcmtkpp/endian.h"
 #include "dcmtkpp/registry.h"
 #include "dcmtkpp/Tag.h"
 #include "dcmtkpp/Value.h"
@@ -36,8 +37,8 @@ public:
     /// @brief Output stream.
     std::ostream & stream;
 
-    /// @brief Endianness (LITTLE_ENDIAN or BIG_ENDIAN).
-    int byte_ordering;
+    /// @brief Endianness.
+    ByteOrdering byte_ordering;
     /// @brief Explicit-ness of the Value Representations.
     bool explicit_vr;
     /// @brief Encoding of sequence items.
@@ -48,7 +49,7 @@ public:
     /// @brief Build a writer.
     Writer(
         std::ostream & stream,
-        int byte_ordering, bool explicit_vr,
+        ByteOrdering byte_ordering, bool explicit_vr,
         ItemEncoding item_encoding=ItemEncoding::ExplicitLength,
         bool use_group_length=false);
 
@@ -88,14 +89,14 @@ private:
         std::ostream & stream;
         VR vr;
 
-        int byte_ordering;
+        ByteOrdering byte_ordering;
         bool explicit_vr;
         ItemEncoding item_encoding;
         bool use_group_length;
 
         Visitor(
             std::ostream & stream, VR vr,
-            int byte_ordering, bool explicit_vr, ItemEncoding item_encoding,
+            ByteOrdering byte_ordering, bool explicit_vr, ItemEncoding item_encoding,
             bool use_group_length);
 
         result_type operator()(Value::Integers const & value) const;

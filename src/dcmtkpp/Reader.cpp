@@ -35,13 +35,13 @@ type value; \
     { \
         throw Exception("Could not read from stream"); \
     } \
-    if(byte_ordering == LITTLE_ENDIAN) \
+    if(byte_ordering == ByteOrdering::LittleEndian) \
     { \
-        raw = le##size##toh(raw); \
+        raw = little_endian_to_host(raw); \
     } \
-    else if(byte_ordering == BIG_ENDIAN) \
+    else if(byte_ordering == ByteOrdering::BigEndian) \
     { \
-        raw = be##size##toh(raw); \
+        raw = big_endian_to_host(raw); \
     } \
     else \
     { \
@@ -78,7 +78,7 @@ Reader
 : stream(stream), transfer_syntax(transfer_syntax),
     byte_ordering(
         (transfer_syntax==registry::ExplicitVRBigEndian_Retired)?
-        BIG_ENDIAN:LITTLE_ENDIAN),
+        ByteOrdering::BigEndian:ByteOrdering::LittleEndian),
     explicit_vr(transfer_syntax!=registry::ImplicitVRLittleEndian),
     keep_group_length(keep_group_length)
 {
@@ -230,7 +230,7 @@ Reader
 Reader::Visitor
 ::Visitor(
     std::istream & stream, VR vr, std::string const & transfer_syntax,
-    int byte_ordering, bool explicit_vr, bool keep_group_length)
+    ByteOrdering byte_ordering, bool explicit_vr, bool keep_group_length)
 : stream(stream), vr(vr), transfer_syntax(transfer_syntax),
     byte_ordering(byte_ordering), explicit_vr(explicit_vr),
     keep_group_length(keep_group_length)

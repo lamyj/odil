@@ -25,15 +25,14 @@
 
 #define dcmtkpp_write_binary(value, stream, byte_ordering, size) \
 { \
-    auto const copy = value; \
-    uint##size##_t raw = *reinterpret_cast<uint##size##_t const *>(&copy); \
-    if(byte_ordering == LITTLE_ENDIAN) \
+    auto raw = value; \
+    if(byte_ordering == ByteOrdering::LittleEndian) \
     { \
-        raw = htole##size(raw); \
+        raw = host_to_little_endian(raw); \
     } \
-    else if(byte_ordering == BIG_ENDIAN) \
+    else if(byte_ordering == ByteOrdering::BigEndian) \
     { \
-        raw = htobe##size(raw); \
+        raw = host_to_big_endian(raw); \
     } \
     else \
     { \
@@ -52,7 +51,7 @@ namespace dcmtkpp
 Writer
 ::Writer(
     std::ostream & stream,
-    int byte_ordering, bool explicit_vr, ItemEncoding item_encoding,
+    ByteOrdering byte_ordering, bool explicit_vr, ItemEncoding item_encoding,
     bool use_group_length)
 : stream(stream), byte_ordering(byte_ordering), explicit_vr(explicit_vr),
     item_encoding(item_encoding), use_group_length(use_group_length)
@@ -68,7 +67,7 @@ Writer
 : stream(stream),
     byte_ordering(
         (transfer_syntax==registry::ExplicitVRBigEndian_Retired)?
-        BIG_ENDIAN:LITTLE_ENDIAN),
+        ByteOrdering::BigEndian:ByteOrdering::LittleEndian),
     explicit_vr(transfer_syntax!=registry::ImplicitVRLittleEndian),
     item_encoding(item_encoding), use_group_length(use_group_length)
 {
@@ -288,7 +287,7 @@ Writer
 Writer::Visitor
 ::Visitor(
     std::ostream & stream, VR vr,
-    int byte_ordering, bool explicit_vr, Writer::ItemEncoding item_encoding,
+    ByteOrdering byte_ordering, bool explicit_vr, Writer::ItemEncoding item_encoding,
     bool use_group_length)
 : stream(stream), vr(vr), byte_ordering(byte_ordering), explicit_vr(explicit_vr),
     item_encoding(item_encoding), use_group_length(use_group_length)

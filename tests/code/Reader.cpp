@@ -19,7 +19,7 @@ BOOST_AUTO_TEST_CASE(Constructor)
 {
     std::istringstream stream;
     dcmtkpp::Reader const reader(stream, dcmtkpp::registry::ExplicitVRBigEndian_Retired);
-    BOOST_REQUIRE(reader.byte_ordering == BIG_ENDIAN);
+    BOOST_REQUIRE(reader.byte_ordering == dcmtkpp::ByteOrdering::BigEndian);
     BOOST_REQUIRE(reader.explicit_vr == true);
 }
 
