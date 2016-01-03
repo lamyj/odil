@@ -15,6 +15,9 @@ environment:
   DCMTK_LIBRARY: C:/Libraries/dcmtk-3.6.1_20150924/lib/dcmdata.lib
 
 install:
+- set
+- cmake -version
+- call "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" amd64
   # ICU4C
 - ps: Start-FileDownload http://download.icu-project.org/files/icu4c/56.1/icu4c-56_1-Win64-msvc10.zip
 - 7z x -bd -oC:\Libraries icu4c-56_1-Win64-msvc10.zip
@@ -29,7 +32,7 @@ before_build:
   - cd c:\projects\dcmtkpp
   - md build
   - cd build
-  - cmake -G "Visual Studio 14 2015 Win64" -DBOOST_ROOT="%BOOST_ROOT%" -DBOOST_LIBRARYDIR="%BOOST_LIBRARYDIR%" -DICU_INCLUDE_DIR="%ICU_INCLUDE_DIR%" -DICU_LIBRARY="%ICU_LIBRARY%" -DJsonCpp_INCLUDE_DIR="%JsonCpp_INCLUDE_DIR%" -DJsonCpp_LIBRARY="%JsonCpp_LIBRARY%" -DDCMTK_INCLUDE_DIR="%DCMTK_INCLUDE_DIR%" -DDCMTK_LIBRARY="%DCMTK_LIBRARY%" ..
+  - cmake -DBOOST_ROOT="%BOOST_ROOT%" -DBOOST_LIBRARYDIR="%BOOST_LIBRARYDIR%" -DICU_INCLUDE_DIR="%ICU_INCLUDE_DIR%" -DICU_LIBRARY="%ICU_LIBRARY%" -DJsonCpp_INCLUDE_DIR="%JsonCpp_INCLUDE_DIR%" -DJsonCpp_LIBRARY="%JsonCpp_LIBRARY%" -DDCMTK_INCLUDE_DIR="%DCMTK_INCLUDE_DIR%" -DDCMTK_LIBRARY="%DCMTK_LIBRARY%" ..
 
 build:
   project: C:\projects\dcmtkpp\build\dcmtkpp.sln
