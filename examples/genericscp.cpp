@@ -32,6 +32,18 @@ public:
         this->_request =
             std::make_shared<dcmtkpp::message::CFindRequest>(request);
         this->_state = State::Pending;
+
+        dcmtkpp::DataSet data_set_1;
+        data_set_1.add(dcmtkpp::registry::PatientName, {"Hello^World"});
+        data_set_1.add(dcmtkpp::registry::PatientID, {"1234"});
+        this->_responses.push_back(data_set_1);
+
+        dcmtkpp::DataSet data_set_2;
+        data_set_2.add(dcmtkpp::registry::PatientName, {"Doe^John"});
+        data_set_2.add(dcmtkpp::registry::PatientID, {"5678"});
+        this->_responses.push_back(data_set_2);
+
+        this->_response_iterator = this->_responses.begin();
     }
 
     virtual bool done() const
@@ -47,13 +59,10 @@ public:
         }
         else if(this->_state == State::Pending)
         {
-            dcmtkpp::DataSet data_set;
-            data_set.add(dcmtkpp::registry::PatientName, {"Hello^World"});
-            data_set.add(dcmtkpp::registry::PatientID, {"1234"});
-
             return dcmtkpp::message::CFindResponse(
                 this->_request->get_message_id(),
-                dcmtkpp::message::CFindResponse::Pending, data_set);
+                dcmtkpp::message::CFindResponse::Pending,
+                *this->_response_iterator);
         }
         else if(this->_state == State::Final)
         {
@@ -79,7 +88,11 @@ public:
         }
         else if(this->_state == State::Pending)
         {
-            this->_state = State::Final;
+            ++this->_response_iterator;
+            if(this->_response_iterator == this->_responses.end())
+            {
+                this->_state = State::Final;
+            }
         }
         else if(this->_state == State::Final)
         {
@@ -107,6 +120,9 @@ private:
 
     std::shared_ptr<dcmtkpp::message::CFindRequest> _request;
     State _state;
+
+    std::vector<dcmtkpp::DataSet> _responses;
+    std::vector<dcmtkpp::DataSet>::const_iterator _response_iterator;
 };
 
 dcmtkpp::Value::Integer echo(dcmtkpp::message::CEchoRequest const & request)
