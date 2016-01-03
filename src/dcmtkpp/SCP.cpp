@@ -9,15 +9,15 @@
 #include "SCP.h"
 
 #include "dcmtkpp/Association.h"
+#include "dcmtkpp/DataSet.h"
 #include "dcmtkpp/message/Message.h"
 #include "dcmtkpp/message/Request.h"
-#include "dcmtkpp/message/Response.h"
 
 namespace dcmtkpp
 {
 
-SCP::ResponseGenerator
-::~ResponseGenerator()
+SCP::DataSetGenerator
+::~DataSetGenerator()
 {
     // Nothing to do.
 }

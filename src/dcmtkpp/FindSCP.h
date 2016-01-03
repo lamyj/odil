@@ -29,22 +29,22 @@ public:
     /// @brief Constructor.
     FindSCP(
         Association & association,
-        std::shared_ptr<ResponseGenerator> const & generator);
+        std::shared_ptr<DataSetGenerator> const & generator);
 
     /// @brief Destructor.
     virtual ~FindSCP();
 
     /// @brief Return the generator.
-    ResponseGenerator const & get_generator() const;
+    DataSetGenerator const & get_generator() const;
 
     /// @brief Set the generator.
-    void set_generator(std::shared_ptr<ResponseGenerator> const & generator);
+    void set_generator(std::shared_ptr<DataSetGenerator> const & generator);
 
     /// @brief Process a C-Find request.
     virtual void operator()(message::Message const & message);
 
 private:
-    std::shared_ptr<SCP::ResponseGenerator> _generator;
+    std::shared_ptr<DataSetGenerator> _generator;
 };
 
 }

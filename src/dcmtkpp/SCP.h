@@ -10,9 +10,9 @@
 #define _f4680d8c_18a8_4317_956d_3ae238cb39cc
 
 #include "dcmtkpp/Association.h"
+#include "dcmtkpp/DataSet.h"
 #include "dcmtkpp/message/Message.h"
 #include "dcmtkpp/message/Request.h"
-#include "dcmtkpp/message/Response.h"
 
 namespace dcmtkpp
 {
@@ -21,24 +21,18 @@ namespace dcmtkpp
 class SCP
 {
 public:
-    /**
-     * @brief Abstract base class for SCP returning multiple responses.
-     *
-     * Concrete classes inheriting from ResponseGenerator shall return all
-     * the responses required by the corresponding protocol, including the
-     * eventual non-pending final anwser.
-     */
-    class ResponseGenerator
+    /// @brief Abstract base class for SCP returning multiple data sets.
+    class DataSetGenerator
     {
     public:
-        virtual ~ResponseGenerator() =0;
+        virtual ~DataSetGenerator() =0;
 
         virtual void initialize(message::Request const & request) =0;
 
         virtual bool done() const =0;
         virtual void next() =0;
 
-        virtual message::Response get() const =0;
+        virtual DataSet get() const =0;
     };
 
     /// @brief Create a Service Class Provider.

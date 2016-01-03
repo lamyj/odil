@@ -1,6 +1,7 @@
 #include <boost/asio.hpp>
 
 #include "dcmtkpp/Association.h"
+#include "dcmtkpp/DataSet.h"
 #include "dcmtkpp/EchoSCP.h"
 #include "dcmtkpp/FindSCP.h"
 #include "dcmtkpp/StoreSCP.h"
@@ -13,11 +14,10 @@
 #include "dcmtkpp/message/CFindResponse.h"
 #include "dcmtkpp/message/CStoreRequest.h"
 
-class FindGenerator: public dcmtkpp::SCP::ResponseGenerator
+class FindGenerator: public dcmtkpp::SCP::DataSetGenerator
 {
 public:
     FindGenerator()
-    : _request(nullptr), _state(State::NotInitialized)
     {
         // Nothing to do
     }
@@ -27,12 +27,8 @@ public:
         // Nothing to do.
     }
 
-    virtual void initialize(dcmtkpp::message::Request const & request)
+    virtual void initialize(dcmtkpp::message::Request const & )
     {
-        this->_request =
-            std::make_shared<dcmtkpp::message::CFindRequest>(request);
-        this->_state = State::Pending;
-
         dcmtkpp::DataSet data_set_1;
         data_set_1.add(dcmtkpp::registry::PatientName, {"Hello^World"});
         data_set_1.add(dcmtkpp::registry::PatientID, {"1234"});
@@ -48,79 +44,21 @@ public:
 
     virtual bool done() const
     {
-        return this->_state == State::Done;
+        return (this->_response_iterator == this->_responses.end());
     }
 
-    virtual dcmtkpp::message::Response get() const
+    virtual dcmtkpp::DataSet get() const
     {
-        if(this->_state == State::NotInitialized)
-        {
-            throw dcmtkpp::Exception("Find generator not initialized");
-        }
-        else if(this->_state == State::Pending)
-        {
-            return dcmtkpp::message::CFindResponse(
-                this->_request->get_message_id(),
-                dcmtkpp::message::CFindResponse::Pending,
-                *this->_response_iterator);
-        }
-        else if(this->_state == State::Final)
-        {
-            return dcmtkpp::message::CFindResponse(
-                this->_request->get_message_id(),
-                dcmtkpp::message::CFindResponse::Success);
-        }
-        else if(this->_state == State::Done)
-        {
-            throw dcmtkpp::Exception("Generator is finished");
-        }
-        else
-        {
-            throw dcmtkpp::Exception("Unknown state");
-        }
+        return *this->_response_iterator;
     }
 
     virtual void next()
     {
-        if(this->_state == State::NotInitialized)
-        {
-            throw dcmtkpp::Exception("Find generator not initialized");
-        }
-        else if(this->_state == State::Pending)
-        {
-            ++this->_response_iterator;
-            if(this->_response_iterator == this->_responses.end())
-            {
-                this->_state = State::Final;
-            }
-        }
-        else if(this->_state == State::Final)
-        {
-            this->_state = State::Done;
-        }
-        else if(this->_state == State::Done)
-        {
-            throw dcmtkpp::Exception("Generator is finished");
-        }
-        else
-        {
-            throw dcmtkpp::Exception("Unknown state");
-        }
+        ++this->_response_iterator;
     }
 
 
 private:
-    enum class State
-    {
-        NotInitialized,
-        Pending,
-        Final,
-        Done
-    };
-
-    std::shared_ptr<dcmtkpp::message::CFindRequest> _request;
-    State _state;
-
     std::vector<dcmtkpp::DataSet> _responses;
     std::vector<dcmtkpp::DataSet>::const_iterator _response_iterator;
 };

@@ -30,7 +30,7 @@ FindSCP
 FindSCP
 ::FindSCP(
     Association & association,
-    std::shared_ptr<ResponseGenerator> const & generator)
+    std::shared_ptr<DataSetGenerator> const & generator)
 : SCP(association), _generator(nullptr)
 {
     this->set_generator(generator);
@@ -42,7 +42,7 @@ FindSCP
     // Nothing to do.
 }
 
-SCP::ResponseGenerator const &
+SCP::DataSetGenerator const &
 FindSCP
 ::get_generator() const
 {
@@ -51,7 +51,7 @@ FindSCP
 
 void
 FindSCP
-::set_generator(std::shared_ptr<ResponseGenerator> const & generator)
+::set_generator(std::shared_ptr<DataSetGenerator> const & generator)
 {
     this->_generator = generator;
 }
@@ -67,9 +67,12 @@ FindSCP
         this->_generator->initialize(request);
         while(!this->_generator->done())
         {
-            auto const message = this->_generator->get();
+            auto const data_set = this->_generator->get();
+            message::CFindResponse const response(
+                request.get_message_id(), message::CFindResponse::Pending,
+                data_set);
             this->_association.send_message(
-                message, request.get_affected_sop_class_uid());
+                response, request.get_affected_sop_class_uid());
             this->_generator->next();
         }
     }
@@ -81,6 +84,11 @@ FindSCP
             response, request.get_affected_sop_class_uid());
         return;
     }
+
+    message::CFindResponse response(
+        request.get_message_id(), message::CFindResponse::Success);
+    this->_association.send_message(
+        response, request.get_affected_sop_class_uid());
 }
 
 }
