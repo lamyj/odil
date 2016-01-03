@@ -17,7 +17,7 @@ class FindGenerator: public dcmtkpp::SCP::ResponseGenerator
 {
 public:
     FindGenerator()
-    : _request(nullptr)
+    : _request(nullptr), _state(State::NotInitialized)
     {
         // Nothing to do
     }
@@ -31,34 +31,82 @@ public:
     {
         this->_request =
             std::make_shared<dcmtkpp::message::CFindRequest>(request);
-        this->_count = 0;
+        this->_state = State::Pending;
     }
 
     virtual bool done() const
     {
-        return (this->_count>0);
+        return this->_state == State::Done;
     }
 
     virtual dcmtkpp::message::Response get() const
     {
-        dcmtkpp::DataSet data_set;
-        data_set.add(dcmtkpp::registry::PatientName, {"Hello^World"});
-        data_set.add(dcmtkpp::registry::PatientID, {"1234"});
+        if(this->_state == State::NotInitialized)
+        {
+            throw dcmtkpp::Exception("Find generator not initialized");
+        }
+        else if(this->_state == State::Pending)
+        {
+            dcmtkpp::DataSet data_set;
+            data_set.add(dcmtkpp::registry::PatientName, {"Hello^World"});
+            data_set.add(dcmtkpp::registry::PatientID, {"1234"});
 
-        return dcmtkpp::message::CFindResponse(
-            this->_request->get_message_id(),
-            dcmtkpp::message::CFindResponse::Pending, data_set);
+            return dcmtkpp::message::CFindResponse(
+                this->_request->get_message_id(),
+                dcmtkpp::message::CFindResponse::Pending, data_set);
+        }
+        else if(this->_state == State::Final)
+        {
+            return dcmtkpp::message::CFindResponse(
+                this->_request->get_message_id(),
+                dcmtkpp::message::CFindResponse::Success);
+        }
+        else if(this->_state == State::Done)
+        {
+            throw dcmtkpp::Exception("Generator is finished");
+        }
+        else
+        {
+            throw dcmtkpp::Exception("Unknown state");
+        }
     }
 
     virtual void next()
     {
-        ++this->_count;
+        if(this->_state == State::NotInitialized)
+        {
+            throw dcmtkpp::Exception("Find generator not initialized");
+        }
+        else if(this->_state == State::Pending)
+        {
+            this->_state = State::Final;
+        }
+        else if(this->_state == State::Final)
+        {
+            this->_state = State::Done;
+        }
+        else if(this->_state == State::Done)
+        {
+            throw dcmtkpp::Exception("Generator is finished");
+        }
+        else
+        {
+            throw dcmtkpp::Exception("Unknown state");
+        }
     }
 
 
 private:
+    enum class State
+    {
+        NotInitialized,
+        Pending,
+        Final,
+        Done
+    };
+
     std::shared_ptr<dcmtkpp::message::CFindRequest> _request;
-    int _count;
+    State _state;
 };
 
 dcmtkpp::Value::Integer echo(dcmtkpp::message::CEchoRequest const & request)

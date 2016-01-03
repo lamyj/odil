@@ -21,7 +21,13 @@ namespace dcmtkpp
 class SCP
 {
 public:
-    /// @brief Abstract base class for SCP returning multiple responses.
+    /**
+     * @brief Abstract base class for SCP returning multiple responses.
+     *
+     * Concrete classes inheriting from ResponseGenerator shall return all
+     * the responses required by the corresponding protocol, including the
+     * eventual non-pending final anwser.
+     */
     class ResponseGenerator
     {
     public:

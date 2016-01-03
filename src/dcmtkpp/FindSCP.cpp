@@ -81,11 +81,6 @@ FindSCP
             response, request.get_affected_sop_class_uid());
         return;
     }
-
-    message::CFindResponse response(
-        request.get_message_id(), message::CFindResponse::Success);
-    this->_association.send_message(
-        response, request.get_affected_sop_class_uid());
 }
 
 }
