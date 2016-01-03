@@ -9,12 +9,18 @@
 #include "SCP.h"
 
 #include "dcmtkpp/Association.h"
-#include "dcmtkpp/message/CEchoRequest.h"
-#include "dcmtkpp/message/CEchoResponse.h"
 #include "dcmtkpp/message/Message.h"
+#include "dcmtkpp/message/Request.h"
+#include "dcmtkpp/message/Response.h"
 
 namespace dcmtkpp
 {
+
+SCP::ResponseGenerator
+::~ResponseGenerator()
+{
+    // Nothing to do.
+}
 
 SCP
 ::SCP(Association & association)
@@ -35,17 +41,6 @@ SCP
 {
     auto const message = this->_association.receive_message();
     (*this)(message);
-}
-
-void
-SCP
-::_send_echo_response(message::CEchoRequest const & request) const
-{
-    message::CEchoResponse response(
-        request.get_message_id(), message::CEchoResponse::Success,
-        request.get_affected_sop_class_uid());
-    this->_association.send_message(
-        response, request.get_affected_sop_class_uid());
 }
 
 }

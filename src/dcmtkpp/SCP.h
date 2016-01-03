@@ -10,8 +10,9 @@
 #define _f4680d8c_18a8_4317_956d_3ae238cb39cc
 
 #include "dcmtkpp/Association.h"
-#include "dcmtkpp/message/CEchoRequest.h"
 #include "dcmtkpp/message/Message.h"
+#include "dcmtkpp/message/Request.h"
+#include "dcmtkpp/message/Response.h"
 
 namespace dcmtkpp
 {
@@ -20,6 +21,20 @@ namespace dcmtkpp
 class SCP
 {
 public:
+    /// @brief Abstract base class for SCP returning multiple responses.
+    class ResponseGenerator
+    {
+    public:
+        virtual ~ResponseGenerator() =0;
+
+        virtual void initialize(message::Request const & request) =0;
+
+        virtual bool done() const =0;
+        virtual void next() =0;
+
+        virtual message::Response get() const =0;
+    };
+
     /// @brief Create a Service Class Provider.
     SCP(Association & association);
 
@@ -33,8 +48,6 @@ public:
     virtual void operator()(message::Message const & message) =0;
 protected:
     Association & _association;
-    /// @brief Send a C-ECHO response.
-    void _send_echo_response(message::CEchoRequest const & request) const;
 };
 
 }
