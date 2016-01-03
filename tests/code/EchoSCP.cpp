@@ -3,7 +3,6 @@
 
 #include <chrono>
 #include <cstdlib>
-#include <memory>
 #include <thread>
 
 #include <boost/asio.hpp>
