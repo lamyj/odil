@@ -102,7 +102,7 @@ public:
     typedef AssociationParameters::UserIdentity::Type UserIdentityType;
 
     /// @brief Progress callback, following the semantics of DCMTK.
-    typedef std::function<void(void *, unsigned long)> ProgressCallback;
+    typedef void(*ProgressCallback)(void *, unsigned long);
 
     /// @brief Wrapper class for DMCTK progress callbacks.
     struct ProgressCallbackData
