@@ -156,6 +156,13 @@ Association
     this->_association_parameters = value;
 }
 
+AssociationParameters const &
+Association
+::get_negotiated_parameters() const
+{
+    return this->_negotiated_parameters;
+}
+
 Association::duration_type
 Association
 ::get_tcp_timeout() const
@@ -223,13 +230,13 @@ Association
         auto const rejection = std::dynamic_pointer_cast<pdu::AAssociateRJ>(data.pdu);
         if(acceptation != nullptr)
         {
-            AssociationParameters negotiated_parameters(
+            this->_negotiated_parameters = AssociationParameters(
                 *acceptation, this->_association_parameters);
 
             this->_transfer_syntaxes_by_abstract_syntax.clear();
             this->_transfer_syntaxes_by_id.clear();
 
-            for(auto const & pc: negotiated_parameters.get_presentation_contexts())
+            for(auto const & pc: this->_negotiated_parameters.get_presentation_contexts())
             {
                 if(pc.result != AssociationParameters::PresentationContext::Result::Acceptance)
                 {
@@ -284,12 +291,12 @@ Association
         this->_peer_host = endpoint.address().to_string();
         this->_peer_port = endpoint.port();
 
-        auto const negotiated_parameters = data.association_parameters;
+        this->_negotiated_parameters = data.association_parameters;
 
         this->_transfer_syntaxes_by_abstract_syntax.clear();
         this->_transfer_syntaxes_by_id.clear();
 
-        for(auto const & pc: negotiated_parameters.get_presentation_contexts())
+        for(auto const & pc: this->_negotiated_parameters.get_presentation_contexts())
         {
             if(pc.result != AssociationParameters::PresentationContext::Result::Acceptance)
             {
@@ -302,7 +309,7 @@ Association
         }
 
         data.pdu = std::make_shared<pdu::AAssociateAC>(
-            negotiated_parameters.as_a_associate_ac());
+            this->_negotiated_parameters.as_a_associate_ac());
         this->_state_machine.send_pdu(data);
     }
 }

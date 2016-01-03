@@ -114,6 +114,9 @@ public:
     /// @brief Set the association parameters, throw an exception when associated.
     void set_parameters(AssociationParameters const & value);
 
+    /// @brief Return the negotiated association parameters.
+    AssociationParameters const & get_negotiated_parameters() const;
+
     /// @name Timeouts
     /// @{
 
@@ -182,6 +185,7 @@ private:
     uint16_t _peer_port;
 
     AssociationParameters _association_parameters;
+    AssociationParameters _negotiated_parameters;
 
     std::map<std::string, std::pair<uint8_t, std::string>>
         _transfer_syntaxes_by_abstract_syntax;
