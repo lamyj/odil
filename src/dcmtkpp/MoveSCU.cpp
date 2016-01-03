@@ -13,9 +13,6 @@
 #include <thread>
 #include <vector>
 
-#include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmnet/dimse.h>
-
 #include "dcmtkpp/Association.h"
 #include "dcmtkpp/DataSet.h"
 #include "dcmtkpp/Exception.h"
@@ -131,7 +128,7 @@ MoveSCU
             main_done = this->_handle_main_association();
         }
 
-        usleep(10000);
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
 }
 
