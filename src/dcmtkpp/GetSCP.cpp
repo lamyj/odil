@@ -13,6 +13,7 @@
 #include "dcmtkpp/Association.h"
 #include "dcmtkpp/Exception.h"
 #include "dcmtkpp/SCP.h"
+#include "dcmtkpp/StoreSCU.h"
 #include "dcmtkpp/message/CGetRequest.h"
 #include "dcmtkpp/message/CGetResponse.h"
 #include "dcmtkpp/message/Response.h"
@@ -30,7 +31,7 @@ GetSCP
 GetSCP
 ::GetSCP(
     Association & association,
-    std::shared_ptr<ResponseGenerator> const & generator)
+    std::shared_ptr<DataSetGenerator> const & generator)
 : SCP(association), _generator(nullptr)
 {
     this->set_generator(generator);
@@ -42,7 +43,7 @@ GetSCP
     // Nothing to do.
 }
 
-SCP::ResponseGenerator const &
+SCP::DataSetGenerator const &
 GetSCP
 ::get_generator() const
 {
@@ -51,7 +52,7 @@ GetSCP
 
 void
 GetSCP
-::set_generator(std::shared_ptr<ResponseGenerator> const & generator)
+::set_generator(std::shared_ptr<DataSetGenerator> const & generator)
 {
     this->_generator = generator;
 }
@@ -62,14 +63,35 @@ GetSCP
 {
     message::CGetRequest const request(message);
 
+    StoreSCU store_scu(this->_association);
+
+    unsigned int remaining_sub_operations=0;
+    unsigned int completed_sub_operations=0;
+    unsigned int failed_sub_operations=0;
+    unsigned int warning_sub_operations=0;
+
     try
     {
         this->_generator->initialize(request);
         while(!this->_generator->done())
         {
-            auto const message = this->_generator->get();
+            auto const data_set = this->_generator->get();
+            store_scu.set_affected_sop_class(data_set);
+            store_scu.store(data_set);
+
+            message::CGetResponse response(
+                request.get_message_id(), message::CGetResponse::Pending);
+            response.set_number_of_remaining_sub_operations(
+                remaining_sub_operations);
+            response.set_number_of_completed_sub_operations(
+                completed_sub_operations);
+            response.set_number_of_failed_sub_operations(
+                failed_sub_operations);
+            response.set_number_of_warning_sub_operations(
+                warning_sub_operations);
             this->_association.send_message(
-                message, request.get_affected_sop_class_uid());
+                response, request.get_affected_sop_class_uid());
+
             this->_generator->next();
         }
     }
@@ -77,10 +99,31 @@ GetSCP
     {
         message::CGetResponse response(
             request.get_message_id(), message::CGetResponse::UnableToProcess);
+        response.set_number_of_remaining_sub_operations(
+            remaining_sub_operations);
+        response.set_number_of_completed_sub_operations(
+            completed_sub_operations);
+        response.set_number_of_failed_sub_operations(
+            failed_sub_operations);
+        response.set_number_of_warning_sub_operations(
+            warning_sub_operations);
         this->_association.send_message(
             response, request.get_affected_sop_class_uid());
         return;
     }
+
+    message::CGetResponse response(
+        request.get_message_id(), message::CGetResponse::Success);
+    response.set_number_of_remaining_sub_operations(
+        remaining_sub_operations);
+    response.set_number_of_completed_sub_operations(
+        completed_sub_operations);
+    response.set_number_of_failed_sub_operations(
+        failed_sub_operations);
+    response.set_number_of_warning_sub_operations(
+        warning_sub_operations);
+    this->_association.send_message(
+        response, request.get_affected_sop_class_uid());
 }
 
 }
