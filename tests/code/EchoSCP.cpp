@@ -23,18 +23,19 @@ struct Status
 void run_server(Status * status)
 {
     dcmtkpp::Association association;
-
-    association.receive_association(boost::asio::ip::tcp::v4(), 11113);
-
-    dcmtkpp::EchoSCP echo_scp(association,
-        [status](dcmtkpp::message::CEchoRequest const &)
-        {
-            status->called = true;
-            return dcmtkpp::message::Response::Success;
-        });
+    association.set_tcp_timeout(boost::posix_time::seconds(1));
 
     try
     {
+        association.receive_association(boost::asio::ip::tcp::v4(), 11113);
+
+        dcmtkpp::EchoSCP echo_scp(association,
+            [status](dcmtkpp::message::CEchoRequest const &)
+            {
+                status->called = true;
+                return dcmtkpp::message::Response::Success;
+            });
+
         // Get echo message
         auto const message = association.receive_message();
         echo_scp(message);

@@ -77,15 +77,16 @@ private:
 void run_server(Status * status)
 {
     dcmtkpp::Association association;
-
-    association.receive_association(boost::asio::ip::tcp::v4(), 11113);
-
-    dcmtkpp::FindSCP find_scp(association);
-    auto const generator = std::make_shared<Generator>(status);
-    find_scp.set_generator(generator);
+    association.set_tcp_timeout(boost::posix_time::seconds(1));
 
     try
     {
+        association.receive_association(boost::asio::ip::tcp::v4(), 11113);
+
+        dcmtkpp::FindSCP find_scp(association);
+        auto const generator = std::make_shared<Generator>(status);
+        find_scp.set_generator(generator);
+
         // Get echo message
         auto const message = association.receive_message();
         find_scp(message);
