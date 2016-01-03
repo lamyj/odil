@@ -5,28 +5,30 @@
 #include <cstdlib>
 #include <memory>
 #include <thread>
+#include <vector>
 
 #include <boost/asio.hpp>
+#include <boost/filesystem.hpp>
 
 #include "dcmtkpp/Association.h"
 #include "dcmtkpp/DataSet.h"
 #include "dcmtkpp/FindSCP.h"
 #include "dcmtkpp/Exception.h"
-#include "dcmtkpp/message/Response.h"
 #include "dcmtkpp/SCP.h"
+#include "dcmtkpp/Reader.h"
+#include "dcmtkpp/message/Response.h"
 
 struct Status
 {
     int client;
     std::string server;
-    int called;
+    std::vector<dcmtkpp::DataSet> responses;
 };
 
 class Generator: public dcmtkpp::SCP::DataSetGenerator
 {
 public:
-    Generator(Status * status)
-    : _status(status)
+    Generator()
     {
         // Nothing else.
     }
@@ -58,7 +60,6 @@ public:
 
     virtual dcmtkpp::DataSet get() const
     {
-        ++this->_status->called;
         return *this->_response_iterator;
     }
 
@@ -69,7 +70,6 @@ public:
 
 
 private:
-    Status * _status;
     std::vector<dcmtkpp::DataSet> _responses;
     std::vector<dcmtkpp::DataSet>::const_iterator _response_iterator;
 };
@@ -84,7 +84,7 @@ void run_server(Status * status)
         association.receive_association(boost::asio::ip::tcp::v4(), 11113);
 
         dcmtkpp::FindSCP find_scp(association);
-        auto const generator = std::make_shared<Generator>(status);
+        auto const generator = std::make_shared<Generator>();
         find_scp.set_generator(generator);
 
         // Get echo message
@@ -116,13 +116,34 @@ void run_client(Status * status)
     std::string command = "findscu "
         "-P -k QueryRetrieveLevel=PATIENT "
         "-k PatientID=* -k PatientName "
+        "-q -X "
         "127.0.0.1 11113";
     status->client = system(command.c_str());
+
+    boost::filesystem::directory_iterator end;
+    for(boost::filesystem::directory_iterator it("."); it != end; ++it )
+    {
+        if(!boost::filesystem::is_regular_file(it->status()))
+        {
+            continue;
+        }
+        auto const filename = it->path().stem().string();
+        if(filename.substr(0, 3) != "rsp")
+        {
+            continue;
+        }
+
+        std::ifstream stream(it->path().string());
+        auto const data_set = dcmtkpp::Reader::read_file(stream).second;
+        status->responses.push_back(data_set);
+
+        boost::filesystem::remove(it->path());
+    }
 }
 
 BOOST_AUTO_TEST_CASE(Release)
 {
-    Status status = { -1, "", 0 };
+    Status status = { -1, "", {} };
 
     std::thread server(run_server, &status);
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
@@ -133,5 +154,13 @@ BOOST_AUTO_TEST_CASE(Release)
 
     BOOST_REQUIRE_EQUAL(status.client, 0);
     BOOST_REQUIRE_EQUAL(status.server, "release");
-    BOOST_REQUIRE_EQUAL(status.called, 2);
+    BOOST_REQUIRE_EQUAL(status.responses.size(), 2);
+
+    BOOST_REQUIRE_EQUAL(status.responses[0].size(), 2);
+    BOOST_REQUIRE_EQUAL(status.responses[0].as_string("PatientName", 0), "Hello^World");
+    BOOST_REQUIRE_EQUAL(status.responses[0].as_string("PatientID", 0), "1234");
+
+    BOOST_REQUIRE_EQUAL(status.responses[1].size(), 2);
+    BOOST_REQUIRE_EQUAL(status.responses[1].as_string("PatientName", 0), "Doe^John");
+    BOOST_REQUIRE_EQUAL(status.responses[1].as_string("PatientID", 0), "5678");
 }
