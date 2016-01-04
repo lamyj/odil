@@ -37,7 +37,6 @@ std::string generate_uid()
     {
         result += std::to_string(digits(generator));
     }
-    std::cout << result << std::endl;
     return result;
 }
 
