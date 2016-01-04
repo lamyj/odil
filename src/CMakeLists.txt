@@ -1,4 +1,4 @@
-find_package(Boost REQUIRED COMPONENTS filesystem random system)
+find_package(Boost REQUIRED COMPONENTS filesystem system)
 find_package(DCMTK REQUIRED)
 find_package(ICU REQUIRED)
 find_package(JsonCpp REQUIRED)
@@ -20,8 +20,7 @@ link_directories(${Boost_LIBRARY_DIRS} ${DCMTK_LIBRARY_DIRS})
 add_library(dcmtkpp SHARED ${files} ${headers} ${templates})
 
 target_link_libraries(dcmtkpp
-    ${Boost_LIBRARIES} ${DCMTK_LIBRARIES} ${ICU_LIBRARIES} ${JsonCpp_LIBRARIES}
-    uuid)
+    ${Boost_LIBRARIES} ${DCMTK_LIBRARIES} ${ICU_LIBRARIES} ${JsonCpp_LIBRARIES})
 set_target_properties(dcmtkpp PROPERTIES
     VERSION ${dcmtkpp_VERSION}
     SOVERSION ${dcmtkpp_MAJOR_VERSION})

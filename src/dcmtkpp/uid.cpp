@@ -8,10 +8,8 @@
 
 #include "dcmtkpp/uid.h"
 
+#include <random>
 #include <string>
-
-#include <boost/random/uniform_int_distribution.hpp>
-#include <boost/random/random_device.hpp>
 
 #include "dcmtkpp/Exception.h"
 
@@ -30,15 +28,16 @@ std::string const implementation_version_name="DCMTK++ " DCMTKPP_STRINGIFY(DCMTK
 
 std::string generate_uid()
 {
-    boost::random::random_device generator;
-    boost::random::uniform_int_distribution<> non_zero(1, 9);
-    boost::random::uniform_int_distribution<> digits(0, 9);
+    static std::random_device generator;
+    std::uniform_int_distribution<> non_zero(1, 9);
+    std::uniform_int_distribution<> digits(0, 9);
 
     std::string result = uid_prefix + "." + std::to_string(non_zero(generator));
     while(result.size()<64)
     {
         result += std::to_string(digits(generator));
     }
+    std::cout << result << std::endl;
     return result;
 }
 

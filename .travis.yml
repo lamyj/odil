@@ -10,7 +10,6 @@ addons:
     - libwrap0-dev
     - libjsoncpp-dev
     - libicu-dev
-    - uuid-dev
     - zlib1g-dev
     - libboost-dev
     - libboost-filesystem-dev
