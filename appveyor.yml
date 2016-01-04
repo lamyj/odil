@@ -1,6 +1,6 @@
 version: "{build}"
 
-os: Visual Studio 2015
+os: Windows Server 2012 R2
 platform: x64
 
 clone_folder: c:\projects\dcmtkpp
@@ -19,7 +19,6 @@ init:
 - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
 
 install:
-- call "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" amd64
   # ICU4C
 - ps: Start-FileDownload http://download.icu-project.org/files/icu4c/56.1/icu4c-56_1-Win64-msvc10.zip
 - 7z x -bd -oC:\Libraries icu4c-56_1-Win64-msvc10.zip
