@@ -9,15 +9,15 @@
 set(DCMTK_DEFINITIONS "-D HAVE_CONFIG_H")
 
 find_path(DCMTK_INCLUDE_DIR "dcmtk/dcmdata/dctk.h")
-find_library(DCMTK_LIBRARY NAMES dcmdata)
+find_library(DCMTK_LIBRARY dcmdata)
 
 set(DCMTK_INCLUDE_DIRS ${DCMTK_INCLUDE_DIR})
 
-set(DCMTK_LIBRARIES ${DCMTK_LIBRARY} dcmnet dcmdata oflog ofstd pthread z)
+set(DCMTK_LIBRARIES ${DCMTK_LIBRARY} dcmnet dcmdata oflog ofstd z)
 foreach(library pthread wrap)
-    find_library(USE_${library} ${library})
-    if(USE_${library})
-        set(DCMTK_LIBRARIES ${DCMTK_LIBRARIES} ${library})
+    find_library(${library}_LIBRARY ${library})
+    if(${library}_LIBRARY)
+        set(DCMTK_LIBRARIES ${DCMTK_LIBRARIES} ${${library}_LIBRARY})
     endif()
 endforeach()
 
