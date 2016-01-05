@@ -14,6 +14,9 @@ environment:
   DCMTK_INCLUDE_DIR: C:/Libraries/dcmtk-3.6.1_20150924/include
   DCMTK_LIBRARY: C:/Libraries/dcmtk-3.6.1_20150924/lib/dcmdata.lib
 
+configuration:
+  - Release
+
 install:
   # ICU4C
 - ps: Start-FileDownload http://download.icu-project.org/files/icu4c/56.1/icu4c-56_1-Win64-msvc10.zip
