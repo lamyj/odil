@@ -14,10 +14,12 @@ find_library(DCMTK_LIBRARY NAMES dcmdata)
 set(DCMTK_INCLUDE_DIRS ${DCMTK_INCLUDE_DIR})
 
 set(DCMTK_LIBRARIES ${DCMTK_LIBRARY} dcmnet dcmdata oflog ofstd pthread z)
-find_library(USE_WRAP wrap)
-if(USE_WRAP)
-    set(DCMTK_LIBRARIES ${DCMTK_LIBRARIES} wrap)
-endif()
+foreach(library pthread wrap)
+    find_library(USE_${library} ${library})
+    if(USE_${library})
+        set(DCMTK_LIBRARIES ${DCMTK_LIBRARIES} ${library})
+    endif()
+endforeach()
 
 get_filename_component(DCMTK_LIBRARY_DIRS "${DCMTK_LIBRARY}" PATH)
 
