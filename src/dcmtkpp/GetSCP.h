@@ -23,6 +23,12 @@ class GetSCP: public SCP
 {
 public:
 
+    class DataSetGenerator: public SCP::DataSetGenerator
+    {
+    public:
+        virtual unsigned int count() const =0;
+    };
+
     /// @brief Constructor.
     GetSCP(Association & association);
 

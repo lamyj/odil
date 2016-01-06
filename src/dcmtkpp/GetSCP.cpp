@@ -43,7 +43,7 @@ GetSCP
     // Nothing to do.
 }
 
-SCP::DataSetGenerator const &
+GetSCP::DataSetGenerator const &
 GetSCP
 ::get_generator() const
 {
@@ -65,7 +65,7 @@ GetSCP
 
     StoreSCU store_scu(this->_association);
 
-    unsigned int remaining_sub_operations=0;
+    unsigned int remaining_sub_operations = 0;
     unsigned int completed_sub_operations=0;
     unsigned int failed_sub_operations=0;
     unsigned int warning_sub_operations=0;
@@ -73,12 +73,10 @@ GetSCP
     try
     {
         this->_generator->initialize(request);
+        remaining_sub_operations = this->_generator->count();
+
         while(!this->_generator->done())
         {
-            auto const data_set = this->_generator->get();
-            store_scu.set_affected_sop_class(data_set);
-            store_scu.store(data_set);
-
             message::CGetResponse response(
                 request.get_message_id(), message::CGetResponse::Pending);
             response.set_number_of_remaining_sub_operations(
@@ -91,6 +89,20 @@ GetSCP
                 warning_sub_operations);
             this->_association.send_message(
                 response, request.get_affected_sop_class_uid());
+
+            auto const data_set = this->_generator->get();
+            store_scu.set_affected_sop_class(data_set);
+            try
+            {
+                store_scu.store(data_set);
+
+                --remaining_sub_operations;
+                ++completed_sub_operations;
+            }
+            catch(Exception const & e)
+            {
+                ++failed_sub_operations;
+            }
 
             this->_generator->next();
         }

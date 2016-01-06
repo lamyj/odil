@@ -14,7 +14,7 @@ find_library(DCMTK_LIBRARY dcmdata)
 set(DCMTK_INCLUDE_DIRS ${DCMTK_INCLUDE_DIR})
 
 set(DCMTK_LIBRARIES ${DCMTK_LIBRARY} dcmnet dcmdata oflog ofstd)
-foreach(library pthread wrap z)
+foreach(library iconv pthread wrap z)
     find_library(${library}_LIBRARY ${library})
     if(${library}_LIBRARY)
         set(DCMTK_LIBRARIES ${DCMTK_LIBRARIES} ${${library}_LIBRARY})
