@@ -9,11 +9,11 @@
 #include <dcmtk/dcmdata/dcostrmb.h>
 
 #include "dcmtkpp/endian.h"
-#include "dcmtkpp/conversion.h"
 #include "dcmtkpp/Element.h"
 #include "dcmtkpp/registry.h"
 #include "dcmtkpp/Reader.h"
 #include "dcmtkpp/VR.h"
+#include "dcmtkpp/dcmtk/conversion.h"
 
 BOOST_AUTO_TEST_CASE(Constructor)
 {
@@ -28,7 +28,8 @@ void do_test(
     E_EncodingType item_encoding, E_GrpLenEncoding group_length_encoding)
 {
     // Write input data set
-    auto const dcmtk_data_set = dynamic_cast<DcmDataset*>(dcmtkpp::convert(dcmtkpp_data_set));
+    auto const dcmtk_data_set =
+        dynamic_cast<DcmDataset*>(dcmtkpp::dcmtk::convert(dcmtkpp_data_set));
     std::string data(1000000, '\0');
     DcmOutputBufferStream dcmtk_stream(&data[0], data.size());
     dcmtk_data_set->transferInit();
@@ -232,7 +233,8 @@ void do_file_test(
     E_EncodingType item_encoding, E_GrpLenEncoding group_length_encoding)
 {
     // Write input data set
-    auto const dcmtk_data_set = dynamic_cast<DcmDataset*>(dcmtkpp::convert(dcmtkpp_data_set));
+    auto const dcmtk_data_set =
+        dynamic_cast<DcmDataset*>(dcmtkpp::dcmtk::convert(dcmtkpp_data_set));
 
     DcmFileFormat file_format(dcmtk_data_set);
     file_format.getMetaInfo()->putAndInsertString(

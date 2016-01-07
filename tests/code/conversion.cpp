@@ -4,18 +4,18 @@
 #include <dcmtk/config/osconfig.h>
 #include <dcmtk/dcmdata/dctk.h>
 
-#include "dcmtkpp/conversion.h"
 #include "dcmtkpp/DataSet.h"
-#include "dcmtkpp/ElementAccessor.h"
 #include "dcmtkpp/Tag.h"
 #include "dcmtkpp/Value.h"
 #include "dcmtkpp/VR.h"
 #include "dcmtkpp/VRTraits.h"
+#include "dcmtkpp/dcmtk/conversion.h"
+#include "dcmtkpp/dcmtk/ElementAccessor.h"
 
 BOOST_AUTO_TEST_CASE(TagFromDcmtkpp)
 {
     dcmtkpp::Tag const source(0xdead, 0xbeef);
-    DcmTagKey const destination = dcmtkpp::convert(source);
+    DcmTagKey const destination = dcmtkpp::dcmtk::convert(source);
 
     BOOST_CHECK_EQUAL(destination.getGroup(), 0xdead);
     BOOST_CHECK_EQUAL(destination.getElement(), 0xbeef);
@@ -24,7 +24,7 @@ BOOST_AUTO_TEST_CASE(TagFromDcmtkpp)
 BOOST_AUTO_TEST_CASE(TagFromDcmtk)
 {
     DcmTagKey const source(0xdead, 0xbeef);
-    dcmtkpp::Tag const destination = dcmtkpp::convert(source);
+    dcmtkpp::Tag const destination = dcmtkpp::dcmtk::convert(source);
 
     BOOST_CHECK_EQUAL(destination.group, 0xdead);
     BOOST_CHECK_EQUAL(destination.element, 0xbeef);
@@ -50,11 +50,11 @@ void test_element_from_dcmtkpp(
     TInputType const & (dcmtkpp::Element::*getter)() const)
 {
     dcmtkpp::Tag const source_tag(0xdead, 0xbeef);
-    DcmTagKey const destination_tag = dcmtkpp::convert(source_tag);
+    DcmTagKey const destination_tag = dcmtkpp::dcmtk::convert(source_tag);
 
     dcmtkpp::Element const source(source_value, VVR);
 
-    DcmElement * destination = dcmtkpp::convert(source_tag, source);
+    DcmElement * destination = dcmtkpp::dcmtk::convert(source_tag, source);
     BOOST_CHECK_NE(destination, (DcmElement const *)(NULL));
 
     BOOST_CHECK_EQUAL(destination->getVR(), VEVR);
@@ -68,13 +68,13 @@ void test_element_from_dcmtkpp(
         if(typeid(TInputType) == typeid(dcmtkpp::Value::Reals))
         {
             compare<ValueType>(
-                dcmtkpp::ElementAccessor<ValueType>::element_get(*destination, i),
+                dcmtkpp::dcmtk::ElementAccessor<ValueType>::element_get(*destination, i),
                 (source.*getter)()[i]);
         }
         else
         {
             BOOST_CHECK_EQUAL(
-                dcmtkpp::ElementAccessor<ValueType>::element_get(*destination, i),
+                dcmtkpp::dcmtk::ElementAccessor<ValueType>::element_get(*destination, i),
                 (source.*getter)()[i]);
         }
     }
@@ -117,12 +117,12 @@ void test_element_to_dcmtkpp(
         for(unsigned int i=0; i<source_value.size(); ++i)
         {
             auto const & item = source_value[i];
-            dcmtkpp::ElementAccessor<typename dcmtkpp::VRTraits<VEVR>::ValueType>::element_set(
+            dcmtkpp::dcmtk::ElementAccessor<typename dcmtkpp::VRTraits<VEVR>::ValueType>::element_set(
                 source, item, i);
         }
     }
 
-    dcmtkpp::Element const destination = dcmtkpp::convert(&source);
+    dcmtkpp::Element const destination = dcmtkpp::dcmtk::convert(&source);
 
     BOOST_CHECK(VVR == destination.vr);
     BOOST_CHECK_EQUAL(source.getVM(), destination.size());
@@ -132,13 +132,13 @@ void test_element_to_dcmtkpp(
         if(typeid(TInputType) == typeid(dcmtkpp::Value::Reals))
         {
             compare<ValueType>(
-                dcmtkpp::ElementAccessor<ValueType>::element_get(source, i),
+                dcmtkpp::dcmtk::ElementAccessor<ValueType>::element_get(source, i),
                 (destination.*getter)()[i]);
         }
         else
         {
             BOOST_CHECK_EQUAL(
-                dcmtkpp::ElementAccessor<ValueType>::element_get(source, i),
+                dcmtkpp::dcmtk::ElementAccessor<ValueType>::element_get(source, i),
                 (destination.*getter)()[i]);
         }
     }
@@ -261,12 +261,12 @@ BOOST_AUTO_TEST_CASE(ATFromDcmtkpp)
     dcmtkpp::Element const source(
         dcmtkpp::Value::Strings({"deadbeef", "beeff00d"}), dcmtkpp::VR::AT);
 
-    DcmElement * destination = dcmtkpp::convert(
+    DcmElement * destination = dcmtkpp::dcmtk::convert(
         dcmtkpp::Tag(0x1234, 0x5678), source);
 
     BOOST_CHECK_NE(destination, (DcmElement const *)(NULL));
 
-    BOOST_CHECK_EQUAL(destination->getVR(), dcmtkpp::convert(source.vr));
+    BOOST_CHECK_EQUAL(destination->getVR(), dcmtkpp::dcmtk::convert(source.vr));
     BOOST_CHECK_NE(
         dynamic_cast<DcmAttributeTag *>(destination),
         (DcmAttributeTag *)(NULL));
@@ -280,7 +280,7 @@ BOOST_AUTO_TEST_CASE(ATFromDcmtkpp)
         OFCondition const condition = destination->getTagVal(destination_tag, i);
         BOOST_CHECK(condition.good());
 
-        BOOST_CHECK(source_tag == dcmtkpp::convert(destination_tag));
+        BOOST_CHECK(source_tag == dcmtkpp::dcmtk::convert(destination_tag));
     }
 }
 
@@ -290,9 +290,9 @@ BOOST_AUTO_TEST_CASE(ATToDcmtkpp)
     source.putTagVal(DcmTagKey(0xdead, 0xbeef), 0);
     source.putTagVal(DcmTagKey(0xbeef, 0xf00d), 1);
 
-    dcmtkpp::Element const destination = dcmtkpp::convert(&source);
+    dcmtkpp::Element const destination = dcmtkpp::dcmtk::convert(&source);
 
-    BOOST_CHECK(destination.vr == dcmtkpp::convert(source.getVR()));
+    BOOST_CHECK(destination.vr == dcmtkpp::dcmtk::convert(source.getVR()));
     BOOST_CHECK_EQUAL(source.getVM(), destination.size());
     for(std::size_t i=0; i<destination.size(); ++i)
     {
@@ -300,7 +300,7 @@ BOOST_AUTO_TEST_CASE(ATToDcmtkpp)
         source.getTagVal(source_tag, i);
 
         dcmtkpp::Tag const & destination_tag = destination.as_string()[i];
-        BOOST_CHECK(dcmtkpp::convert(source_tag) == destination_tag);
+        BOOST_CHECK(dcmtkpp::dcmtk::convert(source_tag) == destination_tag);
     }
 }
 
@@ -315,11 +315,11 @@ BOOST_AUTO_TEST_CASE(SQFromDcmtkpp)
 
     dcmtkpp::Tag const source_tag(0xdead, 0xbeef);
 
-    DcmElement * destination = dcmtkpp::convert(source_tag, source);
+    DcmElement * destination = dcmtkpp::dcmtk::convert(source_tag, source);
 
     BOOST_CHECK_NE(destination, (DcmElement const *)(NULL));
 
-    BOOST_CHECK_EQUAL(destination->getVR(), dcmtkpp::convert(source.vr));
+    BOOST_CHECK_EQUAL(destination->getVR(), dcmtkpp::dcmtk::convert(source.vr));
     BOOST_CHECK_NE(
         dynamic_cast<DcmSequenceOfItems *>(destination),
         (DcmSequenceOfItems *)(NULL));
@@ -329,7 +329,7 @@ BOOST_AUTO_TEST_CASE(SQFromDcmtkpp)
     {
         dcmtkpp::DataSet const & source_item = source.as_data_set()[i];
         DcmItem * destination_item = dynamic_cast<DcmSequenceOfItems *>(destination)->getItem(i);
-        BOOST_CHECK(source_item == dcmtkpp::convert(destination_item));
+        BOOST_CHECK(source_item == dcmtkpp::dcmtk::convert(destination_item));
     }
 }
 
@@ -341,9 +341,9 @@ BOOST_AUTO_TEST_CASE(SQToDcmtkpp)
     DcmSequenceOfItems source(DcmTag(0xdead, 0xbeef, EVR_SQ));
     source.append(item);
 
-    dcmtkpp::Element const destination = dcmtkpp::convert(&source);
+    dcmtkpp::Element const destination = dcmtkpp::dcmtk::convert(&source);
 
-    BOOST_CHECK(destination.vr == dcmtkpp::convert(source.getVR()));
+    BOOST_CHECK(destination.vr == dcmtkpp::dcmtk::convert(source.getVR()));
     BOOST_CHECK_EQUAL(source.getVM(), destination.size());
     for(std::size_t i=0; i<destination.size(); ++i)
     {
@@ -352,21 +352,21 @@ BOOST_AUTO_TEST_CASE(SQToDcmtkpp)
         BOOST_REQUIRE(source_item != NULL);
 
         dcmtkpp::DataSet const & destination_item = destination.as_data_set()[i];
-        BOOST_CHECK(dcmtkpp::convert(source_item) == destination_item);
+        BOOST_CHECK(dcmtkpp::dcmtk::convert(source_item) == destination_item);
     }
 }
 
 BOOST_AUTO_TEST_CASE(EmptyDataSetFromDcmtkpp)
 {
     dcmtkpp::DataSet empty;
-    DcmItem * result = dcmtkpp::convert(empty);
+    DcmItem * result = dcmtkpp::dcmtk::convert(empty);
     BOOST_CHECK_EQUAL(result->card(), 0);
 }
 
 BOOST_AUTO_TEST_CASE(EmptyDataSetFromDcmtk)
 {
     DcmDataset empty;
-    dcmtkpp::DataSet const result = dcmtkpp::convert(&empty);
+    dcmtkpp::DataSet const result = dcmtkpp::dcmtk::convert(&empty);
     BOOST_CHECK(result.empty());
 }
 
@@ -381,7 +381,7 @@ BOOST_AUTO_TEST_CASE(DataSetFromDcmtkpp)
     source.add(dcmtkpp::Tag("PatientID"), patient_id_source);
     source.add(dcmtkpp::Tag("PixelSpacing"), pixel_spacing_source);
 
-    DcmItem * result = dcmtkpp::convert(source);
+    DcmItem * result = dcmtkpp::dcmtk::convert(source);
     BOOST_CHECK_EQUAL(result->card(), 2);
 
     DcmElement * patient_id;
@@ -389,7 +389,7 @@ BOOST_AUTO_TEST_CASE(DataSetFromDcmtkpp)
         result->findAndGetElement(DCM_PatientID, patient_id);
     BOOST_CHECK(patient_id_ok.good());
     BOOST_CHECK(
-        dcmtkpp::convert(patient_id).as_string() ==
+        dcmtkpp::dcmtk::convert(patient_id).as_string() ==
             patient_id_source.as_string());
 
     DcmElement * pixel_spacing;
@@ -397,7 +397,7 @@ BOOST_AUTO_TEST_CASE(DataSetFromDcmtkpp)
         result->findAndGetElement(DCM_PixelSpacing, pixel_spacing);
     BOOST_CHECK(pixel_spacing_ok.good());
     BOOST_CHECK(
-        dcmtkpp::convert(pixel_spacing).as_real() ==
+        dcmtkpp::dcmtk::convert(pixel_spacing).as_real() ==
             pixel_spacing_source.as_real());
 }
 
@@ -409,10 +409,10 @@ BOOST_AUTO_TEST_CASE(DataSetFromDcmtk)
         dcmtkpp::Value::Reals({1.23, 4.56}), dcmtkpp::VR::DS);
 
     DcmDataset source;
-    source.insert(dcmtkpp::convert(dcmtkpp::Tag("PatientID"), patient_id_source));
-    source.insert(dcmtkpp::convert(dcmtkpp::Tag("PixelSpacing"), pixel_spacing_source));
+    source.insert(dcmtkpp::dcmtk::convert(dcmtkpp::Tag("PatientID"), patient_id_source));
+    source.insert(dcmtkpp::dcmtk::convert(dcmtkpp::Tag("PixelSpacing"), pixel_spacing_source));
 
-    dcmtkpp::DataSet const result = dcmtkpp::convert(&source);
+    dcmtkpp::DataSet const result = dcmtkpp::dcmtk::convert(&source);
     BOOST_CHECK_EQUAL(result.size(), 2);
     BOOST_CHECK(
         result.as_string(dcmtkpp::Tag("PatientID")) ==

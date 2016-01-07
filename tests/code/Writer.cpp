@@ -7,12 +7,12 @@
 #include <dcmtk/dcmdata/dctk.h>
 #include <dcmtk/dcmdata/dcistrmb.h>
 
-#include "dcmtkpp/conversion.h"
 #include "dcmtkpp/endian.h"
 #include "dcmtkpp/Element.h"
 #include "dcmtkpp/registry.h"
 #include "dcmtkpp/Writer.h"
 #include "dcmtkpp/VR.h"
+#include "dcmtkpp/dcmtk/conversion.h"
 
 BOOST_AUTO_TEST_CASE(Constructor)
 {
@@ -54,7 +54,7 @@ void do_test(
     BOOST_REQUIRE_EQUAL(dcmtk_stream.avail(), 0);
     dcmtk_data_set.transferEnd();
 
-    auto const other_dcmtkpp_dataset = dcmtkpp::convert(&dcmtk_data_set);
+    auto const other_dcmtkpp_dataset = dcmtkpp::dcmtk::convert(&dcmtk_data_set);
     BOOST_REQUIRE(dcmtkpp_data_set == other_dcmtkpp_dataset);
 }
 
@@ -255,13 +255,14 @@ void do_file_test(
     format.transferEnd();
 
     DcmMetaInfo * dcmtk_meta_information = format.getMetaInfo();
-    auto const dcmtkpp_meta_information = dcmtkpp::convert(dcmtk_meta_information);
+    auto const dcmtkpp_meta_information =
+        dcmtkpp::dcmtk::convert(dcmtk_meta_information);
     BOOST_REQUIRE(
         dcmtkpp_meta_information.as_string(dcmtkpp::registry::TransferSyntaxUID) ==
             dcmtkpp::Value::Strings({ transfer_syntax }));
 
     DcmDataset * dcmtk_data_set = format.getDataset();
-    auto const other_dcmtkpp_dataset = dcmtkpp::convert(dcmtk_data_set);
+    auto const other_dcmtkpp_dataset = dcmtkpp::dcmtk::convert(dcmtk_data_set);
     BOOST_REQUIRE(dcmtkpp_data_set == other_dcmtkpp_dataset);
 
     BOOST_REQUIRE(

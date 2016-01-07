@@ -4,9 +4,9 @@
 #include <ostream>
 
 #include "dcmtkpp/dcmtk/Association.h"
-#include "dcmtkpp/Exception.h"
-#include "dcmtkpp/Network.h"
 #include "dcmtkpp/registry.h"
+#include "dcmtkpp/dcmtk/Exception.h"
+#include "dcmtkpp/dcmtk/Network.h"
 
 #include "../PeerFixtureBase.h"
 
@@ -202,7 +202,7 @@ BOOST_AUTO_TEST_CASE(UserIdentitySAML)
 
 BOOST_AUTO_TEST_CASE(Associate)
 {
-    dcmtkpp::Network network(NET_REQUESTOR, 0, 10);
+    dcmtkpp::dcmtk::Network network(NET_REQUESTOR, 0, 10);
     network.initialize();
 
     dcmtkpp::dcmtk::Association dcmtk_association;

@@ -19,7 +19,7 @@
 
 #include "dcmtkpp/AssociationParameters.h"
 #include "dcmtkpp/message/Message.h"
-#include "dcmtkpp/Network.h"
+#include "dcmtkpp/dcmtk/Network.h"
 
 namespace dcmtkpp
 {

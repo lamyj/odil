@@ -1,9 +1,9 @@
 #define BOOST_TEST_MODULE unicode
 #include <boost/test/unit_test.hpp>
 
-#include "dcmtkpp/conversion.h"
 #include "dcmtkpp/DataSet.h"
 #include "dcmtkpp/unicode.h"
+#include "dcmtkpp/dcmtk/conversion.h"
 
 BOOST_AUTO_TEST_CASE(SCSARAB)
 {

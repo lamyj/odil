@@ -30,4 +30,11 @@ Exception
     // Nothing to do.
 }
 
+char const *
+Exception
+::what() const throw()
+{
+    return this->_message.c_str();
+}
+
 }

@@ -15,7 +15,6 @@
 #include "dcmtkpp/Association.h"
 #include "dcmtkpp/DataSet.h"
 #include "dcmtkpp/Exception.h"
-#include "dcmtkpp/Network.h"
 #include "dcmtkpp/StoreSCP.h"
 #include "dcmtkpp/message/CGetRequest.h"
 #include "dcmtkpp/message/CGetResponse.h"

@@ -6,15 +6,18 @@
  * for details.
  ************************************************************************/
 
-#include "dcmtkpp/Network.h"
+#include "dcmtkpp/dcmtk/Network.h"
 
 #include <dcmtk/config/osconfig.h>
 #include <dcmtk/dcmnet/assoc.h>
 #include <dcmtk/dcmnet/cond.h>
 
-#include "dcmtkpp/Exception.h"
+#include "dcmtkpp/dcmtk/Exception.h"
 
 namespace dcmtkpp
+{
+
+namespace dcmtk
 {
 
 Network
@@ -196,6 +199,8 @@ Network
 ::is_initialized() const
 {
     return (this->_network != NULL);
+}
+
 }
 
 }

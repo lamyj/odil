@@ -18,7 +18,7 @@
 #include <dcmtk/dcmnet/assoc.h>
 
 #include "dcmtkpp/message/Message.h"
-#include "dcmtkpp/Network.h"
+#include "dcmtkpp/dcmtk/Network.h"
 
 namespace dcmtkpp
 {

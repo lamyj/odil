@@ -15,6 +15,9 @@
 namespace dcmtkpp
 {
 
+namespace dcmtk
+{
+
 /**
  * @brief Wrapper around the T_ASC_Network class.
  * 
@@ -85,6 +88,8 @@ private:
     
     T_ASC_Network * _network;
 };
+
+}
 
 }
 

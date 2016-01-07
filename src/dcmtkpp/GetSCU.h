@@ -14,7 +14,6 @@
 
 #include "dcmtkpp/Association.h"
 #include "dcmtkpp/DataSet.h"
-#include "dcmtkpp/Network.h"
 #include "dcmtkpp/SCU.h"
 #include "dcmtkpp/message/CGetResponse.h"
 #include "dcmtkpp/message/CStoreRequest.h"
