@@ -90,7 +90,7 @@ public:
     {
         dcmtkpp::Association move_association;
         move_association.set_peer_host(this->_association.get_peer_host());
-        move_association.set_peer_port(this->_association.get_peer_port());
+        move_association.set_peer_port(11114);
 
         // FIXME: max length, user_identity
         std::vector<dcmtkpp::AssociationParameters::PresentationContext>
@@ -117,12 +117,6 @@ public:
             .set_presentation_contexts(presentation_contexts);
 
         return move_association;
-    }
-
-    virtual std::pair<std::string, uint16_t> get_peer(
-        std::string const & ) const
-    {
-        return std::make_pair(this->_association.get_peer_host(), 11112);
     }
 
 private:
@@ -173,7 +167,7 @@ void run_client(Status * status)
     std::string command = "movescu "
         "-P -k QueryRetrieveLevel=PATIENT "
         "-k PatientID=* -k PatientName "
-        "-d 127.0.0.1 11113";
+        "+P 11114 127.0.0.1 11113";
     status->client = system(command.c_str());
 
     boost::filesystem::directory_iterator end;

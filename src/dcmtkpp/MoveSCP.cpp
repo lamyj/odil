@@ -67,6 +67,7 @@ MoveSCP
     message::CMoveRequest const request(message);
 
     auto move_association = this->_generator->get_association(request);
+    move_association.associate();
     StoreSCU store_scu(move_association);
 
     unsigned int remaining_sub_operations = 0;
@@ -105,6 +106,7 @@ MoveSCP
             }
             catch(Exception const &)
             {
+                --remaining_sub_operations;
                 ++failed_sub_operations;
             }
 
