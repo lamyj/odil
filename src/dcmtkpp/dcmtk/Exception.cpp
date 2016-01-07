@@ -8,6 +8,8 @@
 
 #include "dcmtkpp/dcmtk/Exception.h"
 
+#include <stdexcept>
+
 #include <dcmtk/config/osconfig.h>
 #include <dcmtk/ofstd/ofcond.h>
 

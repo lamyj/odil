@@ -11,9 +11,6 @@
 #include <stdexcept>
 #include <string>
 
-#include <dcmtk/config/osconfig.h>
-#include <dcmtk/ofstd/ofcond.h>
-
 namespace dcmtkpp
 {
 
