@@ -23,13 +23,18 @@
 namespace dcmtkpp
 {
 
+namespace dcmtk
+{
+
 template<typename TMessage>
 TMessage
-DcmtkAssociation
+Association
 ::receive(ProgressCallback callback, void* callback_data)
 {
     message::Message const message = this->receive(callback, callback_data);
     return TMessage(message);
+}
+
 }
 
 }

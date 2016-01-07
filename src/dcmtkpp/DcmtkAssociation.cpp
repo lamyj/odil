@@ -28,8 +28,11 @@
 namespace dcmtkpp
 {
 
-DcmtkAssociation
-::DcmtkAssociation()
+namespace dcmtk
+{
+
+Association
+::Association()
 : _own_ae_title(""),
   _peer_host_name(""), _peer_port(104), _peer_ae_title(""),
   _presentation_contexts({}),
@@ -40,8 +43,8 @@ DcmtkAssociation
     // Nothing else
 }
 
-DcmtkAssociation
-::DcmtkAssociation(DcmtkAssociation const & other)
+Association
+::Association(Association const & other)
 : _own_ae_title(other.get_own_ae_title()),
   _peer_host_name(other.get_peer_host_name()), _peer_port(other.get_peer_port()),
   _peer_ae_title(other.get_peer_ae_title()),
@@ -53,8 +56,8 @@ DcmtkAssociation
 {
 }
 
-DcmtkAssociation
-::~DcmtkAssociation()
+Association
+::~Association()
 {
     if(this->is_associated())
     {
@@ -62,9 +65,9 @@ DcmtkAssociation
     }
 }
 
-DcmtkAssociation &
-DcmtkAssociation
-::operator=(DcmtkAssociation const & other)
+Association &
+Association
+::operator=(Association const & other)
 {
     if(this != &other)
     {
@@ -83,14 +86,14 @@ DcmtkAssociation
 }
 
 std::string const &
-DcmtkAssociation
+Association
 ::get_own_ae_title() const
 {
     return this->_own_ae_title;
 }
 
 void
-DcmtkAssociation
+Association
 ::set_own_ae_title(std::string const & ae_title)
 {
     if(this->is_associated())
@@ -102,14 +105,14 @@ DcmtkAssociation
 }
 
 std::string const &
-DcmtkAssociation
+Association
 ::get_peer_host_name() const
 {
     return this->_peer_host_name;
 }
 
 void
-DcmtkAssociation
+Association
 ::set_peer_host_name(std::string const & host_name)
 {
     if(this->is_associated())
@@ -121,14 +124,14 @@ DcmtkAssociation
 }
 
 uint16_t
-DcmtkAssociation
+Association
 ::get_peer_port() const
 {
     return this->_peer_port;
 }
 
 void
-DcmtkAssociation
+Association
 ::set_peer_port(uint16_t port)
 {
     if(this->is_associated())
@@ -140,14 +143,14 @@ DcmtkAssociation
 }
 
 std::string const &
-DcmtkAssociation
+Association
 ::get_peer_ae_title() const
 {
     return this->_peer_ae_title;
 }
 
 void
-DcmtkAssociation
+Association
 ::set_peer_ae_title(std::string const & ae_title)
 {
     if(this->is_associated())
@@ -159,8 +162,8 @@ DcmtkAssociation
 }
 
 void
-DcmtkAssociation
-::set_presentation_contexts(std::vector<DcmtkAssociation::PresentationContext>
+Association
+::set_presentation_contexts(std::vector<Association::PresentationContext>
                             const & presentation_contexts)
 {
     if(this->is_associated())
@@ -171,22 +174,22 @@ DcmtkAssociation
     this->_presentation_contexts = presentation_contexts;
 }
 
-std::vector<DcmtkAssociation::PresentationContext>
-DcmtkAssociation
+std::vector<Association::PresentationContext>
+Association
 ::get_presentation_contexts() const
 {
     return this->_presentation_contexts;
 }
 
-DcmtkAssociation::UserIdentityType
-DcmtkAssociation
+Association::UserIdentityType
+Association
 ::get_user_identity_type() const
 {
     return this->_user_identity_type;
 }
 
 void
-DcmtkAssociation
+Association
 ::set_user_identity_type(UserIdentityType type)
 {
     if(this->is_associated())
@@ -198,14 +201,14 @@ DcmtkAssociation
 }
 
 std::string const &
-DcmtkAssociation
+Association
 ::get_user_identity_primary_field() const
 {
     return this->_user_identity_primary_field;
 }
 
 void
-DcmtkAssociation
+Association
 ::set_user_identity_primary_field(std::string const & value)
 {
     if(this->is_associated())
@@ -217,14 +220,14 @@ DcmtkAssociation
 }
 
 std::string const &
-DcmtkAssociation
+Association
 ::get_user_identity_secondary_field() const
 {
     return this->_user_identity_secondary_field;
 }
 
 void
-DcmtkAssociation
+Association
 ::set_user_identity_secondary_field(std::string const & value)
 {
     if(this->is_associated())
@@ -236,7 +239,7 @@ DcmtkAssociation
 }
 
 void
-DcmtkAssociation
+Association
 ::set_user_identity_to_none()
 {
     this->set_user_identity_type(UserIdentityType::None);
@@ -245,7 +248,7 @@ DcmtkAssociation
 }
 
 void
-DcmtkAssociation
+Association
 ::set_user_identity_to_username(std::string const & username)
 {
     this->set_user_identity_type(UserIdentityType::Username);
@@ -254,7 +257,7 @@ DcmtkAssociation
 }
 
 void
-DcmtkAssociation
+Association
 ::set_user_identity_to_username_and_password(
     std::string const & username, std::string const & password)
 {
@@ -264,7 +267,7 @@ DcmtkAssociation
 }
 
 void
-DcmtkAssociation
+Association
 ::set_user_identity_to_kerberos(std::string const & ticket)
 {
     this->set_user_identity_type(UserIdentityType::Kerberos);
@@ -273,7 +276,7 @@ DcmtkAssociation
 }
 
 void
-DcmtkAssociation
+Association
 ::set_user_identity_to_saml(std::string const & assertion)
 {
     this->set_user_identity_type(UserIdentityType::SAML);
@@ -282,28 +285,28 @@ DcmtkAssociation
 }
 
 void
-DcmtkAssociation
+Association
 ::set_network_timeout(int timeout)
 {
     this->_network_timeout = timeout;
 }
 
 int
-DcmtkAssociation
+Association
 ::get_network_timeout() const
 {
     return this->_network_timeout;
 }
 
 bool
-DcmtkAssociation
+Association
 ::is_associated() const
 {
     return (this->_association != NULL);
 }
 
 void
-DcmtkAssociation
+Association
 ::associate(Network & network)
 {
     if(!network.is_initialized())
@@ -432,17 +435,17 @@ DcmtkAssociation
 }
 
 void
-DcmtkAssociation
+Association
 ::receive(Network & network, bool accept_all)
 {
     this->receive(
-        network, [](DcmtkAssociation const &) { return true; }, {"*"}, accept_all);
+        network, [](Association const &) { return true; }, {"*"}, accept_all);
 }
 
 void
-DcmtkAssociation
+Association
 ::receive(Network &network,
-          std::function<bool (const DcmtkAssociation &)> authenticator,
+          std::function<bool (const Association &)> authenticator,
           std::vector<std::string> const & aetitles,
           bool accept_all)
 {
@@ -605,7 +608,7 @@ DcmtkAssociation
 }
 
 void
-DcmtkAssociation
+Association
 ::reject(Result result, ResultSource result_source, Diagnostic diagnostic)
 {
     T_ASC_RejectParameters reject_parameters;
@@ -622,14 +625,14 @@ DcmtkAssociation
 }
 
 T_ASC_Association *
-DcmtkAssociation
+Association
 ::get_association()
 {
     return this->_association;
 }
 
 void
-DcmtkAssociation
+Association
 ::release()
 {
     if(!this->is_associated())
@@ -643,7 +646,7 @@ DcmtkAssociation
 }
 
 void
-DcmtkAssociation
+Association
 ::abort()
 {
     if(!this->is_associated())
@@ -657,7 +660,7 @@ DcmtkAssociation
 }
 
 void
-DcmtkAssociation
+Association
 ::drop()
 {
     if(!this->is_associated())
@@ -672,8 +675,8 @@ DcmtkAssociation
 }
 
 message::Message
-DcmtkAssociation
-::receive(DcmtkAssociation::ProgressCallback callback,
+Association
+::receive(Association::ProgressCallback callback,
            void *callback_data)
 {
     // Receive command set
@@ -708,8 +711,8 @@ DcmtkAssociation
 }
 
 std::pair<DataSet, DUL_DATAPDV>
-DcmtkAssociation
-::_receive_dataset(DcmtkAssociation::ProgressCallback callback,
+Association
+::_receive_dataset(Association::ProgressCallback callback,
                    void *callbackContext)
 {
     DataSet data_set;
@@ -808,9 +811,9 @@ DcmtkAssociation
 }
 
 void
-DcmtkAssociation
+Association
 ::send(message::Message const & message, std::string const & abstract_syntax,
-       DcmtkAssociation::ProgressCallback callback, void *callback_data)
+       Association::ProgressCallback callback, void *callback_data)
 {
     T_ASC_PresentationContextID const presentation_context =
         this->_find_presentation_context(abstract_syntax);
@@ -830,7 +833,7 @@ DcmtkAssociation
 }
 
 T_ASC_PresentationContextID
-DcmtkAssociation
+Association
 ::_find_presentation_context(const std::string &abstract_syntax) const
 {
     T_ASC_PresentationContextID const presentation_id =
@@ -846,10 +849,10 @@ DcmtkAssociation
 }
 
 void
-DcmtkAssociation
+Association
 ::_send(DataSet const & obj, T_ASC_PresentationContextID presID,
         std::string const & transfer_syntax, DUL_DATAPDV pdvType,
-        DcmtkAssociation::ProgressCallback callback, void *callbackContext)
+        Association::ProgressCallback callback, void *callbackContext)
     /*
      * This function sends all information which is included in a DcmDataset object over
      * the network which is provided in assoc.
@@ -925,7 +928,7 @@ DcmtkAssociation
 }
 
 DUL_PDV
-DcmtkAssociation
+Association
 ::_read_next_pdv()
     /*
      * This function returns the next PDV which was (earlier or just now) received on the incoming
@@ -994,12 +997,14 @@ DcmtkAssociation
 }
 
 void
-DcmtkAssociation
+Association
 ::_progress_callback_wrapper(void *data, unsigned long bytes_count)
 {
     ProgressCallbackData * encapsulated =
         reinterpret_cast<ProgressCallbackData*>(data);
     encapsulated->callback(encapsulated->data, bytes_count);
+}
+
 }
 
 }

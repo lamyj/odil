@@ -24,12 +24,15 @@
 namespace dcmtkpp
 {
 
+namespace dcmtk
+{
+
 /**
  * @brief Wrapper around the T_ASC_Association class.
  *
  * No member can be set while the object is associated.
  */
-class DcmtkAssociation
+class Association
 {
 public:
     /// @brief Association result (PS 3.8, 7.1.1.7 and PS 3.8, 9.3.4).
@@ -115,16 +118,16 @@ public:
     };
 
     /// @brief Create a default, un-associated, association.
-    DcmtkAssociation();
+    Association();
 
     /// @brief Create an un-associated association.
-    DcmtkAssociation(DcmtkAssociation const & other);
+    Association(Association const & other);
 
     /// @brief Destroy the association, release it if necessary.
-    ~DcmtkAssociation();
+    ~Association();
 
     /// @brief Assing an un-associated association; it remains un-associated.
-    DcmtkAssociation & operator=(DcmtkAssociation const & other);
+    Association & operator=(Association const & other);
 
     /// @brief Return the AE title of the caller. Defaults to "".
     std::string const & get_own_ae_title() const;
@@ -233,7 +236,7 @@ public:
     void receive(Network & network, bool accept_all=false);
 
     void receive(Network & network,
-                 std::function<bool(DcmtkAssociation const&)> authenticator,
+                 std::function<bool(Association const&)> authenticator,
                  std::vector<std::string> const & aetitles,
                  bool accept_all=false);
 
@@ -308,7 +311,8 @@ private:
 
 }
 
+}
+
 #include "DcmtkAssociation.txx"
 
 #endif // _b76e1bde_7daf_41f4_82f1_af94e1c22285
-
