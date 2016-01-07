@@ -6,7 +6,7 @@
  * for details.
  ************************************************************************/
 
-#include "dcmtkpp/ElementTraits.h"
+#include "dcmtkpp/dcmtk/ElementTraits.h"
 
 #include <functional>
 #include <string>
@@ -18,6 +18,9 @@
 #include "dcmtkpp/Exception.h"
 
 namespace dcmtkpp
+{
+
+namespace dcmtk
 {
 
 OFCondition
@@ -73,5 +76,7 @@ DEFINE_ELEMENT_TRAITS(Uint16, &DcmElement::getUint16, &DcmElement::putUint16)
 DEFINE_ELEMENT_TRAITS(Uint32, &DcmElement::getUint32, &DcmElement::putUint32)
 
 #undef DEFINE_ELEMENT_TRAITS
+
+}
 
 }

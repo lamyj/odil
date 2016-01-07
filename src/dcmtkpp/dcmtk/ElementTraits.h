@@ -19,6 +19,9 @@
 namespace dcmtkpp
 {
 
+namespace dcmtk
+{
+
 /**
  * @class dcmtkpp::ElementTraits
  * @brief Traits for generic data access to values of DcmElement.
@@ -41,6 +44,8 @@ struct ElementTraits
     /** @brief Setter function (one of the put??? functions of DcmElement). */
     static SetterType const setter;
 };
+
+}
 
 }
 

@@ -15,7 +15,7 @@
 #include <dcmtk/dcmdata/dcelem.h>
 #include <dcmtk/dcmdata/dcdatset.h>
 
-#include "dcmtkpp/ElementTraits.h"
+#include "dcmtkpp/dcmtk/ElementTraits.h"
 #include "dcmtkpp/dcmtk/Exception.h"
 
 namespace dcmtkpp
