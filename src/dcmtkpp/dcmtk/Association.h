@@ -313,6 +313,6 @@ private:
 
 }
 
-#include "DcmtkAssociation.txx"
+#include "dcmtkpp/dcmtk/Association.txx"
 
 #endif // _b76e1bde_7daf_41f4_82f1_af94e1c22285

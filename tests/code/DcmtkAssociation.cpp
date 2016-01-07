@@ -1,9 +1,9 @@
-#define BOOST_TEST_MODULE dcmtk::Association
+#define BOOST_TEST_MODULE DcmtkAssociation
 #include <boost/test/unit_test.hpp>
 
 #include <ostream>
 
-#include "dcmtkpp/DcmtkAssociation.h"
+#include "dcmtkpp/dcmtk/Association.h"
 #include "dcmtkpp/Exception.h"
 #include "dcmtkpp/Network.h"
 #include "dcmtkpp/registry.h"

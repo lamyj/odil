@@ -9,7 +9,7 @@
 #ifndef _8ac39caa_b7b1_44a8_82fc_e8e3de18b2f8
 #define _8ac39caa_b7b1_44a8_82fc_e8e3de18b2f8
 
-#include "DcmtkAssociation.h"
+#include "dcmtkpp/dcmtk/Association.h"
 
 #include <functional>
 #include <utility>

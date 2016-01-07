@@ -6,7 +6,7 @@
  * for details.
  ************************************************************************/
 
-#include "DcmtkAssociation.h"
+#include "dcmtkpp/dcmtk/Association.h"
 
 #include <algorithm>
 #include <sstream>
