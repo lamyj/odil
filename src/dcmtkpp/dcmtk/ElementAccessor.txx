@@ -9,7 +9,7 @@
 #ifndef _f9af3e63_3597_4513_8c10_b55058f5370b
 #define _f9af3e63_3597_4513_8c10_b55058f5370b
 
-#include "ElementAccessor.h"
+#include "dcmtkpp/dcmtk/ElementAccessor.h"
 
 #include <dcmtk/config/osconfig.h>
 #include <dcmtk/dcmdata/dcdatset.h>
@@ -18,6 +18,9 @@
 #include <dcmtk/ofstd/ofstring.h>
 
 namespace dcmtkpp
+{
+
+namespace dcmtk
 {
 
 template<typename TValueType>
@@ -199,6 +202,8 @@ set_binary(
     DcmElement & element, TValueType const & value,
     unsigned long const position)
 {
+
+}
 
 }
 

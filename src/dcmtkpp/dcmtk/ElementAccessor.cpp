@@ -6,12 +6,15 @@
  * for details.
  ************************************************************************/
 
-#include "dcmtkpp/ElementAccessor.h"
+#include "dcmtkpp/dcmtk/ElementAccessor.h"
 
 #include <string>
 #include <vector>
 
 namespace dcmtkpp
+{
+
+namespace dcmtk
 {
 
 #define DEFINE_ELEMENT_ACCESSOR(TValueType, getter, setter) \
@@ -35,5 +38,7 @@ DEFINE_ELEMENT_ACCESSOR(Uint16, get_default, set_default)
 DEFINE_ELEMENT_ACCESSOR(Uint32, get_default, set_default)
 
 #undef DEFINE_ELEMENT_ACCESSOR
+
+}
 
 }

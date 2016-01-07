@@ -16,9 +16,12 @@
 #include <dcmtk/dcmdata/dcdatset.h>
 
 #include "dcmtkpp/ElementTraits.h"
-#include "dcmtkpp/Exception.h"
+#include "dcmtkpp/dcmtk/Exception.h"
 
 namespace dcmtkpp
+{
+
+namespace dcmtk
 {
 
 /// @brief Generic access to values in DcmElement.
@@ -58,6 +61,8 @@ struct ElementAccessor
 
 }
 
-#include "ElementAccessor.txx"
+}
+
+#include "dcmtkpp/dcmtk/ElementAccessor.txx"
 
 #endif // _dfa4858b_1c9d_4ce9_b220_a1c15d873602

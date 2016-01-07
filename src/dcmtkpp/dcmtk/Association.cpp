@@ -20,10 +20,10 @@
 #include <dcmtk/dcmnet/dimse.h>
 
 #include "dcmtkpp/AssociationParameters.h"
-#include "dcmtkpp/Exception.h"
 #include "dcmtkpp/Reader.h"
 #include "dcmtkpp/registry.h"
 #include "dcmtkpp/Writer.h"
+#include "dcmtkpp/dcmtk/Exception.h"
 
 namespace dcmtkpp
 {
