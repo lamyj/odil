@@ -2,8 +2,10 @@ find_package(Boost COMPONENTS unit_test_framework REQUIRED)
 find_package(DCMTK REQUIRED)
 find_package(JsonCpp REQUIRED)
 
+add_subdirectory(tools)
+
 file(GLOB headers *.h)
-file(GLOB_RECURSE tests *.cpp)
+file(GLOB_RECURSE tests code/*.cpp)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../src ${JsonCpp_INCLUDE_DIRS})
 add_definitions(

@@ -129,6 +129,7 @@ void run_client(Status * status)
     std::string command = "getscu "
         "-P -k QueryRetrieveLevel=PATIENT "
         "-k PatientID=* -k PatientName "
+        "+B "
         "127.0.0.1 11113";
     status->client = system(command.c_str());
 
@@ -140,7 +141,7 @@ void run_client(Status * status)
             continue;
         }
         auto const filename = it->path().stem().string();
-        if(filename.substr(0, 3) != "RAW")
+        if(filename.substr(0, dcmtkpp::uid_prefix.size()) != dcmtkpp::uid_prefix)
         {
             continue;
         }

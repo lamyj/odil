@@ -99,7 +99,7 @@ GetSCP
                 --remaining_sub_operations;
                 ++completed_sub_operations;
             }
-            catch(Exception const & e)
+            catch(Exception const &)
             {
                 ++failed_sub_operations;
             }
@@ -107,7 +107,7 @@ GetSCP
             this->_generator->next();
         }
     }
-    catch(Exception const & e)
+    catch(Exception const &)
     {
         message::CGetResponse response(
             request.get_message_id(), message::CGetResponse::UnableToProcess);
