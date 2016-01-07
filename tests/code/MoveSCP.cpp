@@ -189,6 +189,15 @@ void run_client(Status * status)
 
         boost::filesystem::remove(it->path());
     }
+
+    std::sort(
+        status->responses.begin(), status->responses.end(),
+        [](dcmtkpp::DataSet const & left, dcmtkpp::DataSet const & right)
+        {
+            auto const & left_uid = left.as_string("SOPInstanceUID", 0);
+            auto const & right_uid = right.as_string("SOPInstanceUID", 0);
+            return (left_uid < right_uid);
+        });
 }
 
 BOOST_AUTO_TEST_CASE(Release)
