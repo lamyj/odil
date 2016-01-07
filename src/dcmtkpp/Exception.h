@@ -12,9 +12,6 @@
 #include <exception>
 #include <string>
 
-#include <dcmtk/config/osconfig.h>
-#include <dcmtk/ofstd/ofcond.h>
-
 namespace dcmtkpp
 {
 
@@ -22,43 +19,17 @@ namespace dcmtkpp
 class Exception: public std::exception
 {
 public: 
-    /** 
-     * @brief Source of the Exception: either a message string or an 
-     * OFCondition.
-     */
-    enum class Source { Message, Condition };
-    
-    /// @brief Message string constructor, set the source to Source::Message.
-    Exception(std::string const & message);
-    
-    /// @brief Condition constructor, set the source to Source::Condition.
-    Exception(OFCondition const & condition);
-    
+    /// @brief Message string constructor.
+    Exception(std::string const & message="");
+
     /// @brief Destructor.
     virtual ~Exception() throw();
     
-    /**
-     * @brief Return the reason for the exception.
-     * 
-     * The reason for the exception is set to the message (for Source::Message) or
-     * to the text of the condition (for Source::Condition).
-     */
+    /// @brief Return the reason for the exception.
     virtual const char* what() const throw();
-    
-    /// @brief Return the exception source.
-    Source get_source() const;
-    
-    /**
-     * @brief Return the condition that was used to create this exception.
-     * 
-     * If the source is not Source::Condition, throw an exception.
-     */
-    OFCondition const & get_condition() const;
 
-private:
-    Source _source;
+protected:
     std::string _message;
-    OFCondition _condition;
 };
 
 }
