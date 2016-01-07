@@ -66,19 +66,7 @@ MoveSCP
 {
     message::CMoveRequest const request(message);
 
-    auto const peer = this->_generator->get_peer(
-        request.get_move_destination());
-
-    Association move_association;
-    move_association.set_peer_host(peer.first);
-    move_association.set_peer_port(peer.second);
-
-    // FIXME: presentation contexts, max length, user_identity
-    move_association.update_parameters()
-        .set_calling_ae_title(
-            this->_association.get_negotiated_parameters().get_called_ae_title())
-        .set_called_ae_title(request.get_move_destination());
-
+    auto move_association = this->_generator->get_association(request);
     StoreSCU store_scu(move_association);
 
     unsigned int remaining_sub_operations = 0;

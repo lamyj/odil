@@ -16,6 +16,7 @@
 
 #include "dcmtkpp/Association.h"
 #include "dcmtkpp/SCP.h"
+#include "dcmtkpp/message/CMoveRequest.h"
 #include "dcmtkpp/message/Message.h"
 
 namespace dcmtkpp
@@ -30,8 +31,7 @@ public:
     {
     public:
         virtual unsigned int count() const =0;
-        virtual std::pair<std::string, uint16_t> get_peer(
-            std::string const & destination) const =0;
+        virtual Association get_association(message::CMoveRequest const &) const =0;
     };
 
     /// @brief Constructor.

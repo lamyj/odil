@@ -11,12 +11,14 @@
 #include <boost/filesystem.hpp>
 
 #include "dcmtkpp/Association.h"
+#include "dcmtkpp/AssociationParameters.h"
 #include "dcmtkpp/DataSet.h"
 #include "dcmtkpp/MoveSCP.h"
 #include "dcmtkpp/Exception.h"
 #include "dcmtkpp/SCP.h"
 #include "dcmtkpp/uid.h"
 #include "dcmtkpp/Reader.h"
+#include "dcmtkpp/registry.h"
 #include "dcmtkpp/message/Response.h"
 
 struct Status
@@ -29,7 +31,8 @@ struct Status
 class Generator: public dcmtkpp::MoveSCP::DataSetGenerator
 {
 public:
-    Generator()
+    Generator(dcmtkpp::Association & association)
+    : _association(association)
     {
         // Nothing else.
     }
@@ -82,22 +85,50 @@ public:
         return 2;
     }
 
-    virtual std::pair<std::string, uint16_t> get_peer(
-        std::string const & destination) const
+    virtual dcmtkpp::Association get_association(
+        dcmtkpp::message::CMoveRequest const & request) const
     {
-        if(destination == "FOO")
+        dcmtkpp::Association move_association;
+        move_association.set_peer_host(this->_association.get_peer_host());
+        move_association.set_peer_port(this->_association.get_peer_port());
+
+        // FIXME: max length, user_identity
+        std::vector<dcmtkpp::AssociationParameters::PresentationContext>
+            presentation_contexts;
+        for(auto const & uid: dcmtkpp::registry::uids_dictionary)
         {
-            return std::make_pair("pacs.example.com", 11112);
+            auto const & name = uid.second.name;
+            if(name.substr(name.size()-7, std::string::npos) == "Storage")
+            {
+                dcmtkpp::AssociationParameters::PresentationContext
+                    presentation_context = {
+                        static_cast<uint8_t>(1+2*presentation_contexts.size()),
+                        uid.first,
+                        { dcmtkpp::registry::ImplicitVRLittleEndian },
+                        true, false
+                };
+                presentation_contexts.push_back(presentation_context);
+            }
         }
-        else
-        {
-            throw dcmtkpp::Exception("Unknown peer");
-        }
+        move_association.update_parameters()
+            .set_calling_ae_title(
+                this->_association.get_negotiated_parameters().get_called_ae_title())
+            .set_called_ae_title(request.get_move_destination())
+            .set_presentation_contexts(presentation_contexts);
+
+        return move_association;
+    }
+
+    virtual std::pair<std::string, uint16_t> get_peer(
+        std::string const & ) const
+    {
+        return std::make_pair(this->_association.get_peer_host(), 11112);
     }
 
 private:
     std::vector<dcmtkpp::DataSet> _responses;
     std::vector<dcmtkpp::DataSet>::const_iterator _response_iterator;
+    dcmtkpp::Association & _association;
 };
 
 void run_server(Status * status)
@@ -110,7 +141,7 @@ void run_server(Status * status)
         association.receive_association(boost::asio::ip::tcp::v4(), 11113);
 
         dcmtkpp::MoveSCP move_scp(association);
-        auto const generator = std::make_shared<Generator>();
+        auto const generator = std::make_shared<Generator>(association);
         move_scp.set_generator(generator);
 
         // Get move message
@@ -142,7 +173,7 @@ void run_client(Status * status)
     std::string command = "movescu "
         "-P -k QueryRetrieveLevel=PATIENT "
         "-k PatientID=* -k PatientName "
-        "127.0.0.1 11113";
+        "-d 127.0.0.1 11113";
     status->client = system(command.c_str());
 
     boost::filesystem::directory_iterator end;
