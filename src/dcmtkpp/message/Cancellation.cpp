@@ -20,7 +20,7 @@ namespace message
 {
 
 Cancellation
-::Cancellation(Uint16 message_id_being_responded_to)
+::Cancellation(uint16_t message_id_being_responded_to)
 : Message()
 {
     this->set_command_field(Command::C_CANCEL_RQ);

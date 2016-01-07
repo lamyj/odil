@@ -10,7 +10,6 @@
 
 #include <string>
 
-#include "dcmtkpp/ElementAccessor.h"
 #include "dcmtkpp/Exception.h"
 #include "dcmtkpp/message/Request.h"
 

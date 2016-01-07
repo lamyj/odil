@@ -9,14 +9,17 @@
 #ifndef _665b5269_140c_4320_94f2_ad8a7c052e9b
 #define _665b5269_140c_4320_94f2_ad8a7c052e9b
 
-#include "dcmtkpp/conversion.h"
+#include "dcmtkpp/dcmtk/conversion.h"
 
 #include <sstream>
 
 #include "dcmtkpp/Element.h"
-#include "dcmtkpp/ElementAccessor.h"
+#include "dcmtkpp/dcmtk/ElementAccessor.h"
 
 namespace dcmtkpp
+{
+
+namespace dcmtk
 {
 
 template<typename TSourceType, typename TDestinationType>
@@ -73,8 +76,10 @@ void convert(
     for(auto i = 0; i<source->getVM(); ++i)
     {
         destination_values.push_back(
-            dcmtkpp::ElementAccessor<TSourceType>::element_get(*source, i));
+            ElementAccessor<TSourceType>::element_get(*source, i));
     }
+}
+
 }
 
 }

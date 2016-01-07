@@ -24,7 +24,7 @@ class Cancellation: public Message
 {
 public:
     /// @brief Create a response with given message id being responded to.
-    Cancellation(Uint16 message_id_being_responded_to);
+    Cancellation(uint16_t message_id_being_responded_to);
 
     /**
      * @brief Create a response from the Message ID Being Responded To.

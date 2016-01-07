@@ -20,6 +20,9 @@
 namespace dcmtkpp
 {
 
+namespace dcmtk
+{
+
 /// @brief Convert a dcmtkpp::VR to a DcmVR.
 DcmEVR convert(VR vr);
 
@@ -70,6 +73,8 @@ DataSet convert(DcmItem * source);
 
 }
 
-#include <dcmtkpp/conversion.txx>
+}
+
+#include "dcmtkpp/dcmtk/conversion.txx"
 
 #endif // _d5ecacb8_04ff_48b0_8026_570c9b2ae360

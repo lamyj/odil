@@ -6,18 +6,21 @@
  * for details.
  ************************************************************************/
 
-#include "dcmtkpp/conversion.h"
+#include "dcmtkpp/dcmtk/conversion.h"
 
 #include <dcmtk/config/osconfig.h>
 #include <dcmtk/dcmdata/dctk.h>
 
 #include "dcmtkpp/DataSet.h"
 #include "dcmtkpp/Element.h"
-#include "dcmtkpp/Exception.h"
 #include "dcmtkpp/Tag.h"
 #include "dcmtkpp/VR.h"
+#include "dcmtkpp/dcmtk/Exception.h"
 
 namespace dcmtkpp
+{
+
+namespace dcmtk
 {
 
 DcmEVR convert(VR vr)
@@ -331,7 +334,7 @@ void convert<std::vector<uint8_t>, Value::Binary>(
 {
     auto & destination_values = (destination.*getter)();
     destination_values =
-        dcmtkpp::ElementAccessor<std::vector<uint8_t>>::element_get(*source, 0);
+        ElementAccessor<std::vector<uint8_t>>::element_get(*source, 0);
 }
 
 Element convert(DcmElement * source)
@@ -516,6 +519,8 @@ DataSet convert(DcmItem * source)
         destination.add(destination_tag, destination_element);
     }
     return destination;
+}
+
 }
 
 }
