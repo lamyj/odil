@@ -6,13 +6,11 @@
  * for details.
  ************************************************************************/
 
+#include <iterator>
 #include <map>
 #include <vector>
 
-#include <dcmtk/config/osconfig.h>
-#include <dcmtk/ofstd/ofstd.h>
-#include <dcmtk/ofstd/ofstream.h>
-
+#include "dcmtkpp/base64.h"
 #include "dcmtkpp/registry.h"
 #include "dcmtkpp/xml_converter.h"
 
@@ -216,11 +214,10 @@ struct ToXMLVisitor
 
         boost::property_tree::ptree tag_value;
 
-        unsigned char const * data =
-            reinterpret_cast<unsigned char const *>(&value[0]);
-        OFStringStream stream;
-        OFStandard::encodeBase64(stream, data, value.size());
-        tag_value.put_value(stream.str().c_str());
+        std::string encoded;
+        encoded.reserve(value.size()*4/3);
+        base64::encode(value.begin(), value.end(), std::back_inserter(encoded));
+        tag_value.put_value(encoded);
 
         result.add_child("InlineBinary", tag_value);
 
@@ -569,16 +566,11 @@ DataSet as_dataset(boost::property_tree::ptree const & xml)
                 }
 
                 auto const & encoded = it_value->second.get_value<std::string>();
-                OFString const encoded_dcmtk(encoded.c_str());
-                unsigned char * decoded;
-                size_t const decoded_size =
-                    OFStandard::decodeBase64(encoded_dcmtk, decoded);
-
-                element.as_binary().resize(decoded_size);
-                std::copy(decoded, decoded+decoded_size,
-                          element.as_binary().begin());
-
-                delete[] decoded;
+                auto & decoded = element.as_binary();
+                decoded.reserve(encoded.size()*3/4);
+                base64::decode(
+                    encoded.begin(), encoded.end(),
+                    std::back_inserter(decoded));
 
                 find_inline_binary = true;
             }

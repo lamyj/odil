@@ -8,11 +8,11 @@
 
 #include "dcmtkpp/json_converter.h"
 
-#include <dcmtk/config/osconfig.h>
-#include <dcmtk/ofstd/ofstd.h>
-#include <dcmtk/ofstd/ofstream.h>
+#include <iterator>
+
 #include <json/json.h>
 
+#include "dcmtkpp/base64.h"
 #include "dcmtkpp/DataSet.h"
 #include "dcmtkpp/Exception.h"
 #include "dcmtkpp/Value.h"
@@ -141,11 +141,10 @@ struct ToJSONVisitor
 
         result["vr"] = as_string(vr);
 
-        unsigned char const * data =
-            reinterpret_cast<unsigned char const *>(&value[0]);
-        OFStringStream stream;
-        OFStandard::encodeBase64(stream, data, value.size());
-        result["InlineBinary"] = stream.str().c_str();
+        std::string encoded;
+        encoded.reserve(value.size()*4/3);
+        base64::encode(value.begin(), value.end(), std::back_inserter(encoded));
+        result["InlineBinary"] = encoded;
 
         return result;
     }
@@ -256,15 +255,10 @@ DataSet as_dataset(Json::Value const & json)
             element = Element(Value::Binary(), vr);
 
             auto const & encoded = json_element["InlineBinary"].asString();
-            OFString const encoded_dcmtk(encoded.c_str());
-            unsigned char * decoded;
-            size_t const decoded_size =
-                OFStandard::decodeBase64(encoded_dcmtk, decoded);
-
-            element.as_binary().resize(decoded_size);
-            std::copy(decoded, decoded+decoded_size, element.as_binary().begin());
-
-            delete[] decoded;
+            auto & decoded = element.as_binary();
+            decoded.reserve(encoded.size()*3/4);
+            base64::decode(
+                encoded.begin(), encoded.end(), std::back_inserter(decoded));
         }
         else
         {
