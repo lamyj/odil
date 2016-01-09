@@ -26,10 +26,14 @@ namespace dcmtkpp
 class BasicDirectoryCreator
 {
 public:
+    /// @brief The tag and its associated type in the record.
     typedef std::pair<Tag, int> RecordKey;
 
+    /// @brief Map from a record type to the extra keys.
+    typedef std::map<std::string, std::vector<RecordKey>> RecordKeyMap;
+
     /// @brief Default record keys, classified by record type.
-    static std::map<std::string, std::vector<RecordKey>> const default_record_keys;
+    static RecordKeyMap const default_record_keys;
 
     /**
      * @brief Root of the DICOM files and location of the output DICOMDIR file.
@@ -47,7 +51,7 @@ public:
     std::vector<std::string> files;
 
     /// @brief User-defined record keys, classified by record type.
-    std::map<std::string, std::vector<RecordKey>> extra_record_keys;
+    RecordKeyMap extra_record_keys;
 
     /// @brief Encoding of sequence items, defaults to Writer::ItemEncoding::ExplicitLength.
     Writer::ItemEncoding item_encoding;
@@ -55,8 +59,7 @@ public:
     BasicDirectoryCreator(
         std::string const & root="",
         std::vector<std::string> const & files=std::vector<std::string>(),
-        std::map<std::string, std::vector<RecordKey>> const & extra_record_keys=
-            std::map<std::string, std::vector<RecordKey>>(),
+        RecordKeyMap const & extra_record_keys=RecordKeyMap(),
         Writer::ItemEncoding item_encoding=Writer::ItemEncoding::ExplicitLength
         );
 
