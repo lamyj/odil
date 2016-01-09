@@ -232,12 +232,12 @@ BOOST_AUTO_TEST_CASE(DifferenceDataSets)
 
 struct Visitor
 {
-    typedef bool result_type;
+    typedef std::string result_type;
 
     template<typename T>
-    bool operator()(T const & container) const
+    result_type operator()(T const & container) const
     {
-        return true;
+        return typeid(container).name();
     }
 };
 
@@ -247,4 +247,44 @@ BOOST_AUTO_TEST_CASE(VisitorEmpty)
     BOOST_CHECK_THROW(
         dcmtkpp::apply_visitor(Visitor(), value),
         dcmtkpp::Exception);
+}
+
+BOOST_AUTO_TEST_CASE(VisitorIntegers)
+{
+    dcmtkpp::Value const value({1234});
+    BOOST_REQUIRE_EQUAL(
+        dcmtkpp::apply_visitor(Visitor(), value),
+        typeid(dcmtkpp::Value::Integers).name());
+}
+
+BOOST_AUTO_TEST_CASE(VisitorReals)
+{
+    dcmtkpp::Value const value({12.34});
+    BOOST_REQUIRE_EQUAL(
+        dcmtkpp::apply_visitor(Visitor(), value),
+        typeid(dcmtkpp::Value::Reals).name());
+}
+
+BOOST_AUTO_TEST_CASE(VisitorStrings)
+{
+    dcmtkpp::Value const value({"foo"});
+    BOOST_REQUIRE_EQUAL(
+        dcmtkpp::apply_visitor(Visitor(), value),
+        typeid(dcmtkpp::Value::Strings).name());
+}
+
+BOOST_AUTO_TEST_CASE(VisitorDataSets)
+{
+    dcmtkpp::Value const value({dcmtkpp::DataSet()});
+    BOOST_REQUIRE_EQUAL(
+        dcmtkpp::apply_visitor(Visitor(), value),
+        typeid(dcmtkpp::Value::DataSets).name());
+}
+
+BOOST_AUTO_TEST_CASE(VisitorBinary)
+{
+    dcmtkpp::Value const value({dcmtkpp::Value::Binary()});
+    BOOST_REQUIRE_EQUAL(
+        dcmtkpp::apply_visitor(Visitor(), value),
+        typeid(dcmtkpp::Value::Binary).name());
 }
