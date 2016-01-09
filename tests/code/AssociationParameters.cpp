@@ -1,4 +1,4 @@
-#define BOOST_TEST_MODULE Writer
+#define BOOST_TEST_MODULE AssociationParameters
 #include <boost/test/unit_test.hpp>
 
 #include "dcmtkpp/AssociationParameters.h"

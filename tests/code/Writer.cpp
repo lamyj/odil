@@ -87,6 +87,15 @@ void do_test(dcmtkpp::DataSet const & dcmtkpp_data_set)
     }
 }
 
+BOOST_AUTO_TEST_CASE(AT)
+{
+    dcmtkpp::Element dcmtkpp_element({"00100020", "0008103e"}, dcmtkpp::VR::AT);
+    dcmtkpp::DataSet dcmtkpp_data_set;
+    dcmtkpp_data_set.add(dcmtkpp::registry::SelectorATValue, dcmtkpp_element);
+
+    do_test(dcmtkpp_data_set);
+}
+
 BOOST_AUTO_TEST_CASE(CS)
 {
     dcmtkpp::Element dcmtkpp_element({"ABC", "DEF"}, dcmtkpp::VR::CS);

@@ -75,6 +75,7 @@ BOOST_AUTO_TEST_CASE(UInt8)
     dcmtkpp::pdu::Item item;
     item.add("foo", uint8_t(123));
     BOOST_REQUIRE_EQUAL(item.size(), 1);
+    BOOST_REQUIRE_EQUAL(item.has_field("foo"), true);
     BOOST_REQUIRE_EQUAL(item.as_unsigned_int_8("foo"), 123);
 }
 

@@ -13,7 +13,7 @@
 #include "dcmtkpp/Value.h"
 #include "dcmtkpp/VR.h"
 
-BOOST_AUTO_TEST_CASE(AsJSONEmpty)
+BOOST_AUTO_TEST_CASE(AsJSONEmptyDataSet)
 {
     dcmtkpp::DataSet data_set;
     auto const json = dcmtkpp::as_json(data_set);
@@ -47,6 +47,16 @@ void check_json_string(Json::Value const & object, std::string const & expected_
 {
     BOOST_REQUIRE(object.isString());
     BOOST_REQUIRE_EQUAL(object.asString(), expected_value);
+}
+
+BOOST_AUTO_TEST_CASE(AsJSONEmptyElement)
+{
+    dcmtkpp::DataSet data_set;
+    data_set.add(0xdeadbeef, dcmtkpp::VR::SS);
+    auto const json = dcmtkpp::as_json(data_set);
+    check_json_object(json, {"deadbeef"});
+    check_json_object(json["deadbeef"], {"vr"});
+    check_json_string(json["deadbeef"]["vr"], "SS");
 }
 
 BOOST_AUTO_TEST_CASE(AsJSONIntegers)

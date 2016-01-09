@@ -71,6 +71,24 @@ void run_client(Status * status, bool use_abort)
     status->client = system(command.c_str());
 }
 
+BOOST_AUTO_TEST_CASE(Callback)
+{
+    dcmtkpp::Association association;
+    dcmtkpp::EchoSCP scp(association);
+
+    bool called = false;
+    auto const callback =
+        [&called](dcmtkpp::message::CEchoRequest const &)
+        {
+            called = true;
+            return dcmtkpp::message::Response::Success;
+        };
+
+    scp.set_callback(callback);
+    scp.get_callback()(dcmtkpp::message::CEchoRequest(1, ""));
+    BOOST_REQUIRE_EQUAL(called, true);
+}
+
 BOOST_AUTO_TEST_CASE(Release)
 {
     Status status = { -1, "", false };

@@ -33,6 +33,18 @@ BOOST_AUTO_TEST_CASE(ModifyInt)
     BOOST_CHECK(value == dcmtkpp::Value::Integers({0, 1}));
 }
 
+BOOST_AUTO_TEST_CASE(ModifyInt2)
+{
+    dcmtkpp::Element element({dcmtkpp::Value::Integer(0)});
+    element.as_int().push_back(1);
+
+    BOOST_CHECK(!element.empty());
+    BOOST_CHECK_EQUAL(element.size(), 2);
+
+    std::vector<int64_t> const & value = element.as_int();
+    BOOST_CHECK(value == dcmtkpp::Value::Integers({0, 1}));
+}
+
 BOOST_AUTO_TEST_CASE(IntWrong)
 {
     dcmtkpp::Element element((dcmtkpp::Value::Integers()));

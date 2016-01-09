@@ -78,7 +78,7 @@ BOOST_AUTO_TEST_CASE(AddInvalidTag)
     BOOST_CHECK_THROW(dataset.add(tag), dcmtkpp::Exception);
 }
 
-BOOST_AUTO_TEST_CASE(AddInt)
+BOOST_AUTO_TEST_CASE(AddIntEmpty)
 {
     dcmtkpp::Tag const tag("Rows");
 
@@ -93,7 +93,7 @@ BOOST_AUTO_TEST_CASE(AddInt)
     BOOST_CHECK(value.empty());
 }
 
-BOOST_AUTO_TEST_CASE(AddDouble)
+BOOST_AUTO_TEST_CASE(AddDoubleEmpty)
 {
     dcmtkpp::Tag const tag("SpacingBetweenSlices");
 
@@ -108,7 +108,7 @@ BOOST_AUTO_TEST_CASE(AddDouble)
     BOOST_CHECK(value.empty());
 }
 
-BOOST_AUTO_TEST_CASE(AddString)
+BOOST_AUTO_TEST_CASE(AddStringEmpty)
 {
     dcmtkpp::Tag const tag("PatientID");
 
@@ -123,7 +123,7 @@ BOOST_AUTO_TEST_CASE(AddString)
     BOOST_CHECK(value.empty());
 }
 
-BOOST_AUTO_TEST_CASE(AddDataSet)
+BOOST_AUTO_TEST_CASE(AddDataSetEmpty)
 {
     dcmtkpp::Tag const tag("ReferencedStudySequence");
 
@@ -136,6 +136,84 @@ BOOST_AUTO_TEST_CASE(AddDataSet)
 
     dcmtkpp::Value::DataSets const & value = dataset.as_data_set(tag);
     BOOST_CHECK(value.empty());
+}
+
+BOOST_AUTO_TEST_CASE(AddBinaryEmpty)
+{
+    dcmtkpp::Tag const tag("BadPixelImage");
+
+    dcmtkpp::DataSet dataset;
+    dataset.add(tag);
+
+    BOOST_CHECK(dataset.is_binary(tag));
+    BOOST_CHECK(dataset.empty(tag));
+    BOOST_CHECK_EQUAL(dataset.size(tag), 0);
+
+    auto const & value = dataset.as_binary(tag);
+    BOOST_CHECK(value.empty());
+}
+
+BOOST_AUTO_TEST_CASE(AddInt)
+{
+    dcmtkpp::Tag const tag("Rows");
+
+    dcmtkpp::DataSet dataset;
+    dataset.add(tag, {123});
+
+    BOOST_CHECK(dataset.is_int(tag));
+    BOOST_REQUIRE_EQUAL(dataset.size(tag), 1);
+    BOOST_REQUIRE(dataset.as_int(tag) == dcmtkpp::Value::Integers({123}));
+}
+
+BOOST_AUTO_TEST_CASE(AddDouble)
+{
+    dcmtkpp::Tag const tag("SpacingBetweenSlices");
+
+    dcmtkpp::DataSet dataset;
+    dataset.add(tag, {123.456});
+
+    BOOST_CHECK(dataset.is_real(tag));
+    BOOST_REQUIRE_EQUAL(dataset.size(tag), 1);
+    BOOST_REQUIRE(dataset.as_real(tag) == dcmtkpp::Value::Reals({123.456}));
+}
+
+BOOST_AUTO_TEST_CASE(AddString)
+{
+    dcmtkpp::Tag const tag("PatientID");
+
+    dcmtkpp::DataSet dataset;
+    dataset.add(tag, {"DJ123"});
+
+    BOOST_CHECK(dataset.is_string(tag));
+    BOOST_REQUIRE_EQUAL(dataset.size(tag), 1);
+    BOOST_REQUIRE(dataset.as_string(tag) == dcmtkpp::Value::Strings({"DJ123"}));
+}
+
+BOOST_AUTO_TEST_CASE(AddDataSet)
+{
+    dcmtkpp::Tag const tag("ReferencedStudySequence");
+    dcmtkpp::DataSet item;
+    item.add(dcmtkpp::registry::StudyInstanceUID, {"1.2.3"});
+
+    dcmtkpp::DataSet dataset;
+    dataset.add(tag, {item});
+
+    BOOST_CHECK(dataset.is_data_set(tag));
+    BOOST_REQUIRE_EQUAL(dataset.size(tag), 1);
+    BOOST_REQUIRE(dataset.as_data_set(tag, 0) == item);
+}
+
+BOOST_AUTO_TEST_CASE(AddBinary)
+{
+    dcmtkpp::Tag const tag("BadPixelImage");
+
+    dcmtkpp::DataSet dataset;
+    dataset.add(tag, dcmtkpp::Value::Binary({0x01, 0x02}));
+
+    BOOST_CHECK(dataset.is_binary(tag));
+    BOOST_REQUIRE_EQUAL(dataset.size(tag), 2);
+    BOOST_REQUIRE(
+        dataset.as_binary(tag) == dcmtkpp::Value::Binary({ 0x01, 0x02 }));
 }
 
 BOOST_AUTO_TEST_CASE(ModifyInt)

@@ -22,9 +22,6 @@ namespace dcmtkpp
 class SCPDispatcher
 {
 public:
-    /// @brief Create a default dispatcher with no network and no association.
-    SCPDispatcher();
-
     /// @brief Create a dispatcher with network and association.
     SCPDispatcher(Association & association);
 
