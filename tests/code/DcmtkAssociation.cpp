@@ -7,6 +7,8 @@
 #include "dcmtkpp/registry.h"
 #include "dcmtkpp/dcmtk/Exception.h"
 #include "dcmtkpp/dcmtk/Network.h"
+#include "dcmtkpp/message/CEchoRequest.h"
+#include "dcmtkpp/message/CEchoResponse.h"
 
 #include "../PeerFixtureBase.h"
 
@@ -248,7 +250,41 @@ BOOST_AUTO_TEST_CASE(Associate)
     BOOST_CHECK_THROW(
         dcmtk_association.set_user_identity_secondary_field("foo"),
         dcmtkpp::Exception);
+}
 
+BOOST_AUTO_TEST_CASE(SendAndReceive)
+{
+    dcmtkpp::dcmtk::Network network(NET_REQUESTOR, 0, 10);
+    network.initialize();
+
+    dcmtkpp::dcmtk::Association dcmtk_association;
+    dcmtk_association.set_own_ae_title(
+        PeerFixtureBase::get_environment_variable("DCMTKPP_OWN_AET"));
+    dcmtk_association.set_peer_host_name(
+        PeerFixtureBase::get_environment_variable("DCMTKPP_PEER_HOST_NAME"));
+    dcmtk_association.set_peer_port(
+        PeerFixtureBase::get_environment_variable<uint16_t>("DCMTKPP_PEER_PORT"));
+    dcmtk_association.set_peer_ae_title(
+        PeerFixtureBase::get_environment_variable("DCMTKPP_PEER_AET"));
+    dcmtk_association.set_presentation_contexts({
+        {
+            dcmtkpp::registry::VerificationSOPClass,
+            {dcmtkpp::registry::ImplicitVRLittleEndian}
+        }
+    });
+    dcmtk_association.associate(network);
+
+    dcmtkpp::message::CEchoRequest const
+        request(1, dcmtkpp::registry::VerificationSOPClass);
+    dcmtk_association.send(request, dcmtkpp::registry::VerificationSOPClass);
+
+    dcmtkpp::message::CEchoResponse const response = dcmtk_association.receive();
+    BOOST_REQUIRE_EQUAL(
+        response.get_affected_sop_class_uid(),
+        dcmtkpp::registry::VerificationSOPClass);
+    BOOST_REQUIRE_EQUAL(response.get_message_id_being_responded_to(), 1);
+
+    dcmtk_association.release();
     network.drop();
 }
 
