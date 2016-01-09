@@ -220,7 +220,7 @@ Item
         this->_fields.begin(), this->_fields.end(),
         [&name](std::pair<std::string, Field> const & x)
         { return (x.first == name); });
-    return (iterator == this->_fields.end());
+    return (iterator != this->_fields.end());
 }
 
 Item::Field const &
