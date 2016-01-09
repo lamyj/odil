@@ -158,7 +158,7 @@ BOOST_AUTO_TEST_CASE(AddInt)
     dcmtkpp::Tag const tag("Rows");
 
     dcmtkpp::DataSet dataset;
-    dataset.add(tag, {123});
+    dataset.add(tag, dcmtkpp::Value::Integers({123}));
 
     BOOST_CHECK(dataset.is_int(tag));
     BOOST_REQUIRE_EQUAL(dataset.size(tag), 1);
@@ -170,7 +170,7 @@ BOOST_AUTO_TEST_CASE(AddDouble)
     dcmtkpp::Tag const tag("SpacingBetweenSlices");
 
     dcmtkpp::DataSet dataset;
-    dataset.add(tag, {123.456});
+    dataset.add(tag, dcmtkpp::Value::Reals({123.456}));
 
     BOOST_CHECK(dataset.is_real(tag));
     BOOST_REQUIRE_EQUAL(dataset.size(tag), 1);
@@ -182,7 +182,7 @@ BOOST_AUTO_TEST_CASE(AddString)
     dcmtkpp::Tag const tag("PatientID");
 
     dcmtkpp::DataSet dataset;
-    dataset.add(tag, {"DJ123"});
+    dataset.add(tag, dcmtkpp::Value::Strings({"DJ123"}));
 
     BOOST_CHECK(dataset.is_string(tag));
     BOOST_REQUIRE_EQUAL(dataset.size(tag), 1);
@@ -190,6 +190,69 @@ BOOST_AUTO_TEST_CASE(AddString)
 }
 
 BOOST_AUTO_TEST_CASE(AddDataSet)
+{
+    dcmtkpp::Tag const tag("ReferencedStudySequence");
+    dcmtkpp::DataSet item;
+    item.add(dcmtkpp::registry::StudyInstanceUID, {"1.2.3"});
+
+    dcmtkpp::DataSet dataset;
+    dataset.add(tag, dcmtkpp::Value::DataSets({item}));
+
+    BOOST_CHECK(dataset.is_data_set(tag));
+    BOOST_REQUIRE_EQUAL(dataset.size(tag), 1);
+    BOOST_REQUIRE(dataset.as_data_set(tag, 0) == item);
+}
+
+BOOST_AUTO_TEST_CASE(AddIntInitializer1)
+{
+    dcmtkpp::Tag const tag("Rows");
+
+    dcmtkpp::DataSet dataset;
+    dataset.add(tag, {123});
+
+    BOOST_CHECK(dataset.is_int(tag));
+    BOOST_REQUIRE_EQUAL(dataset.size(tag), 1);
+    BOOST_REQUIRE(dataset.as_int(tag) == dcmtkpp::Value::Integers({123}));
+}
+
+BOOST_AUTO_TEST_CASE(AddIntInitializer2)
+{
+    dcmtkpp::Tag const tag("Rows");
+
+    dcmtkpp::DataSet dataset;
+    dataset.add(tag, {dcmtkpp::Value::Integer(123)});
+
+    BOOST_CHECK(dataset.is_int(tag));
+    BOOST_REQUIRE_EQUAL(dataset.size(tag), 1);
+    BOOST_REQUIRE(dataset.as_int(tag) == dcmtkpp::Value::Integers({123}));
+}
+
+
+BOOST_AUTO_TEST_CASE(AddDoubleInitializer)
+{
+    dcmtkpp::Tag const tag("SpacingBetweenSlices");
+
+    dcmtkpp::DataSet dataset;
+    dataset.add(tag, {123.456});
+
+    BOOST_CHECK(dataset.is_real(tag));
+    BOOST_REQUIRE_EQUAL(dataset.size(tag), 1);
+    BOOST_REQUIRE(dataset.as_real(tag) == dcmtkpp::Value::Reals({123.456}));
+}
+
+BOOST_AUTO_TEST_CASE(AddStringInitializer)
+{
+    dcmtkpp::Tag const tag("PatientID");
+
+    dcmtkpp::DataSet dataset;
+    dataset.add(tag, {"DJ123"});
+
+    BOOST_CHECK(dataset.is_string(tag));
+    BOOST_REQUIRE_EQUAL(dataset.size(tag), 1);
+    BOOST_REQUIRE(dataset.as_string(tag) == dcmtkpp::Value::Strings({"DJ123"}));
+}
+
+BOOST_AUTO_TEST_CASE(AddDataSetInitializer)
 {
     dcmtkpp::Tag const tag("ReferencedStudySequence");
     dcmtkpp::DataSet item;
@@ -276,6 +339,18 @@ BOOST_AUTO_TEST_CASE(ModifyDataSet)
     BOOST_CHECK(value[0].has("PatientID"));
     BOOST_CHECK(
         value[0].as_string("PatientID") == dcmtkpp::Value::Strings({"DJ1234"}));
+}
+
+BOOST_AUTO_TEST_CASE(ElementAccessor)
+{
+    dcmtkpp::Tag const tag("PatientID");
+
+    dcmtkpp::DataSet dataset;
+    dataset.add(tag, {"Foo^Bar"});
+    BOOST_REQUIRE(
+        dataset[tag].as_string() == dcmtkpp::Value::Strings({"Foo^Bar"}));
+    BOOST_REQUIRE_THROW(
+        dataset[dcmtkpp::registry::PatientName], dcmtkpp::Exception);
 }
 
 BOOST_AUTO_TEST_CASE(GetVRMissing)
