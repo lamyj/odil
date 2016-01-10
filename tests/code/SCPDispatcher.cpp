@@ -1,13 +1,77 @@
 #define BOOST_TEST_MODULE SCPDispatcher
 #include <boost/test/unit_test.hpp>
 
+#include <chrono>
 #include <memory>
+#include <thread>
 
 #include "dcmtkpp/Association.h"
 #include "dcmtkpp/EchoSCP.h"
 #include "dcmtkpp/Exception.h"
 #include "dcmtkpp/SCPDispatcher.h"
 #include "dcmtkpp/message/Message.h"
+#include "dcmtkpp/message/Response.h"
+
+struct Status
+{
+    int client;
+    std::string server;
+    bool called;
+};
+
+void run_server(Status * status, bool with_echo)
+{
+    dcmtkpp::Association association;
+    association.set_tcp_timeout(boost::posix_time::seconds(1));
+
+    try
+    {
+        association.receive_association(boost::asio::ip::tcp::v4(), 11113);
+
+        auto echo_scp = std::make_shared<dcmtkpp::EchoSCP>(association,
+            [&status](dcmtkpp::message::CEchoRequest const &)
+            {
+                status->called = true;
+                return dcmtkpp::message::Response::Success;
+            });
+
+        dcmtkpp::SCPDispatcher dispatcher(association);
+
+        if(with_echo)
+        {
+            dispatcher.set_scp(
+                dcmtkpp::message::Message::Command::C_ECHO_RQ, echo_scp);
+        }
+
+        dispatcher.dispatch();
+
+        // Should throw with peer closing connection
+        association.receive_message();
+    }
+    catch(dcmtkpp::AssociationAborted const &)
+    {
+        status->server = "abort";
+    }
+    catch(dcmtkpp::AssociationReleased const &)
+    {
+        status->server = "release";
+    }
+    catch(dcmtkpp::Exception const & e)
+    {
+        status->server = e.what();
+    }
+    catch(...)
+    {
+        status->server = "Other exception";
+    }
+}
+
+void run_echo_client(Status * status)
+{
+    std::string command = "echoscu";
+    command += " 127.0.0.1 11113";
+    status->client = system(command.c_str());
+}
 
 BOOST_AUTO_TEST_CASE(Empty)
 {
@@ -33,4 +97,36 @@ BOOST_AUTO_TEST_CASE(SCP)
 
     BOOST_REQUIRE_NO_THROW(
         dispatcher.get_scp(dcmtkpp::message::Message::Command::C_ECHO_RQ));
+}
+
+BOOST_AUTO_TEST_CASE(DispatchWithEcho)
+{
+    Status status = { -1, "", false };
+
+    std::thread server(run_server, &status, true);
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    std::thread client(run_echo_client, &status);
+
+    server.join();
+    client.join();
+
+    BOOST_REQUIRE_EQUAL(status.client, 0);
+    BOOST_REQUIRE_EQUAL(status.server, "release");
+    BOOST_REQUIRE_EQUAL(status.called, true);
+}
+
+BOOST_AUTO_TEST_CASE(DispatchWithoutEcho)
+{
+    Status status = { -1, "", false };
+
+    std::thread server(run_server, &status, false);
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    std::thread client(run_echo_client, &status);
+
+    server.join();
+    client.join();
+
+    BOOST_REQUIRE_EQUAL(status.client, 0);
+    BOOST_REQUIRE_EQUAL(status.server, "No such provider");
+    BOOST_REQUIRE_EQUAL(status.called, false);
 }
