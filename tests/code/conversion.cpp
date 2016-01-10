@@ -8,7 +8,7 @@
 #include "dcmtkpp/Tag.h"
 #include "dcmtkpp/Value.h"
 #include "dcmtkpp/VR.h"
-#include "dcmtkpp/VRTraits.h"
+#include "dcmtkpp/dcmtk/VRTraits.h"
 #include "dcmtkpp/dcmtk/conversion.h"
 #include "dcmtkpp/dcmtk/ElementAccessor.h"
 
@@ -64,7 +64,7 @@ void test_element_from_dcmtkpp(
     BOOST_CHECK_EQUAL(destination->getVM(), source.size());
     for(std::size_t i=0; i<source.size(); ++i)
     {
-        typedef typename dcmtkpp::VRTraits<VEVR>::ValueType ValueType;
+        typedef typename dcmtkpp::dcmtk::VRTraits<VEVR>::ValueType ValueType;
         if(typeid(TInputType) == typeid(dcmtkpp::Value::Reals))
         {
             compare<ValueType>(
@@ -117,7 +117,7 @@ void test_element_to_dcmtkpp(
         for(unsigned int i=0; i<source_value.size(); ++i)
         {
             auto const & item = source_value[i];
-            dcmtkpp::dcmtk::ElementAccessor<typename dcmtkpp::VRTraits<VEVR>::ValueType>::element_set(
+            dcmtkpp::dcmtk::ElementAccessor<typename dcmtkpp::dcmtk::VRTraits<VEVR>::ValueType>::element_set(
                 source, item, i);
         }
     }
@@ -128,7 +128,7 @@ void test_element_to_dcmtkpp(
     BOOST_CHECK_EQUAL(source.getVM(), destination.size());
     for(std::size_t i=0; i<destination.size(); ++i)
     {
-        typedef typename dcmtkpp::VRTraits<VEVR>::ValueType ValueType;
+        typedef typename dcmtkpp::dcmtk::VRTraits<VEVR>::ValueType ValueType;
         if(typeid(TInputType) == typeid(dcmtkpp::Value::Reals))
         {
             compare<ValueType>(

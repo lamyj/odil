@@ -9,7 +9,15 @@
 #ifndef _4f556093_02e3_4659_9026_2b16bc2c8a51
 #define _4f556093_02e3_4659_9026_2b16bc2c8a51
 
+#include <vector>
+
+#include <dcmtk/config/osconfig.h>
+#include <dcmtk/dcmdata/dcvr.h>
+
 namespace dcmtkpp
+{
+
+namespace dcmtk
 {
 
 /**
@@ -60,6 +68,8 @@ DECLARE_VR_TRAITS(EVR_US, Uint16)
 DECLARE_VR_TRAITS(EVR_UT, std::string)
 
 #undef DECLARE_VR_TRAITS
+
+}
 
 }
 

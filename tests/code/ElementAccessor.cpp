@@ -7,7 +7,7 @@
 #include <dcmtk/dcmnet/dimse.h>
 
 #include "dcmtkpp/dcmtk/ElementAccessor.h"
-#include "dcmtkpp/VRTraits.h"
+#include "dcmtkpp/dcmtk/VRTraits.h"
 
 struct Fixture
 {
@@ -41,7 +41,7 @@ BOOST_FIXTURE_TEST_CASE(GetCorrectVRString, Fixture)
 {
     BOOST_CHECK_EQUAL(
         dcmtkpp::dcmtk::ElementAccessor<
-            typename dcmtkpp::VRTraits<EVR_LO>::ValueType
+            typename dcmtkpp::dcmtk::VRTraits<EVR_LO>::ValueType
         >::get(this->dataset, DCM_PatientID),
         "DJ123");
 }
@@ -57,7 +57,7 @@ BOOST_FIXTURE_TEST_CASE(GetCorrectVRNonString, Fixture)
 {
     BOOST_CHECK_EQUAL(
         dcmtkpp::dcmtk::ElementAccessor<
-            typename dcmtkpp::VRTraits<EVR_US>::ValueType
+            typename dcmtkpp::dcmtk::VRTraits<EVR_US>::ValueType
         >::get(this->dataset, DCM_MessageID),
         1234);
 }
