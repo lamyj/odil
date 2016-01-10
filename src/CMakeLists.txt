@@ -13,21 +13,21 @@ include_directories(
 add_definitions(
     ${DCMTK_DEFINITIONS}
     -D BOOST_ASIO_SEPARATE_COMPILATION
-    -D DCMTKPP_MAJOR_VERSION=${dcmtkpp_MAJOR_VERSION}
+    -D ODIL_MAJOR_VERSION=${odil_MAJOR_VERSION}
 )
 link_directories(${Boost_LIBRARY_DIRS} ${DCMTK_LIBRARY_DIRS})
 
-add_library(dcmtkpp SHARED ${files} ${headers} ${templates})
+add_library(odil SHARED ${files} ${headers} ${templates})
 
-target_link_libraries(dcmtkpp
+target_link_libraries(odil
     ${Boost_LIBRARIES} ${DCMTK_LIBRARIES} ${ICU_LIBRARIES} ${JsonCpp_LIBRARIES})
-set_target_properties(dcmtkpp PROPERTIES
-    VERSION ${dcmtkpp_VERSION}
-    SOVERSION ${dcmtkpp_MAJOR_VERSION})
+set_target_properties(odil PROPERTIES
+    VERSION ${odil_VERSION}
+    SOVERSION ${odil_MAJOR_VERSION})
 
-install(FILES ${headers} ${templates} DESTINATION include/dcmtkpp)
+install(FILES ${headers} ${templates} DESTINATION include/odil)
 install(
-    TARGETS dcmtkpp
+    TARGETS odil
     ARCHIVE DESTINATION lib
     LIBRARY DESTINATION lib
     RUNTIME DESTINATION bin)

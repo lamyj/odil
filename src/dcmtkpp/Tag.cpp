@@ -1,22 +1,22 @@
 /*************************************************************************
- * dcmtkpp - Copyright (C) Universite de Strasbourg
+ * odil - Copyright (C) Universite de Strasbourg
  * Distributed under the terms of the CeCILL-B license, as published by
  * the CEA-CNRS-INRIA. Refer to the LICENSE file or to
  * http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
  * for details.
  ************************************************************************/
 
-#include "dcmtkpp/Tag.h"
+#include "odil/Tag.h"
 
 #include <iomanip>
 #include <ostream>
 #include <sstream>
 #include <string>
 
-#include "dcmtkpp/Exception.h"
-#include "dcmtkpp/registry.h"
+#include "odil/Exception.h"
+#include "odil/registry.h"
 
-namespace dcmtkpp
+namespace odil
 {
 
 Tag

@@ -1,11 +1,11 @@
 cmake_minimum_required(VERSION 2.8)
 
-project("dcmtkpp")
-set(dcmtkpp_MAJOR_VERSION 0)
-set(dcmtkpp_MINOR_VERSION 4)
-set(dcmtkpp_PATCH_VERSION 0)
-set(dcmtkpp_VERSION 
-    ${dcmtkpp_MAJOR_VERSION}.${dcmtkpp_MINOR_VERSION}.${dcmtkpp_PATCH_VERSION})
+project("odil")
+set(odil_MAJOR_VERSION 0)
+set(odil_MINOR_VERSION 4)
+set(odil_PATCH_VERSION 0)
+set(odil_VERSION 
+    ${odil_MAJOR_VERSION}.${odil_MINOR_VERSION}.${odil_PATCH_VERSION})
 
 option(BUILD_EXAMPLES "Build the examples directory." ON)
 

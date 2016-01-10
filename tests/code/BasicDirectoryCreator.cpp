@@ -3,48 +3,48 @@
 
 #include <fstream>
 
-#include "dcmtkpp/BasicDirectoryCreator.h"
-#include "dcmtkpp/json_converter.h"
-#include "dcmtkpp/Reader.h"
-#include "dcmtkpp/registry.h"
-#include "dcmtkpp/Writer.h"
+#include "odil/BasicDirectoryCreator.h"
+#include "odil/json_converter.h"
+#include "odil/Reader.h"
+#include "odil/registry.h"
+#include "odil/Writer.h"
 
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/fstream.hpp>
 
 BOOST_AUTO_TEST_CASE(DefaultConstructor)
 {
-    dcmtkpp::BasicDirectoryCreator const creator;
+    odil::BasicDirectoryCreator const creator;
     BOOST_REQUIRE_EQUAL(creator.root.empty(), true);
     BOOST_REQUIRE_EQUAL(creator.files.empty(), true);
     BOOST_REQUIRE_EQUAL(creator.extra_record_keys.empty(), true);
     BOOST_REQUIRE(
-        creator.item_encoding == dcmtkpp::Writer::ItemEncoding::ExplicitLength);
+        creator.item_encoding == odil::Writer::ItemEncoding::ExplicitLength);
 }
 
 BOOST_AUTO_TEST_CASE(Constructor)
 {
-    dcmtkpp::BasicDirectoryCreator::RecordKeyMap const extra_records(
+    odil::BasicDirectoryCreator::RecordKeyMap const extra_records(
         {
             {
                 "PATIENT",
                 {
-                    {dcmtkpp::registry::PatientBirthDate, 1},
-                    {dcmtkpp::registry::OtherPatientIDs, 3},
+                    {odil::registry::PatientBirthDate, 1},
+                    {odil::registry::OtherPatientIDs, 3},
                 }
             }
         });
 
-    dcmtkpp::BasicDirectoryCreator const creator(
+    odil::BasicDirectoryCreator const creator(
         "root", {"a.dcm", "b.dcm"}, extra_records,
-        dcmtkpp::Writer::ItemEncoding::UndefinedLength);
+        odil::Writer::ItemEncoding::UndefinedLength);
     BOOST_REQUIRE_EQUAL(creator.root, "root");
     BOOST_REQUIRE(
         creator.files == std::vector<std::string>({"a.dcm", "b.dcm"}));
     BOOST_REQUIRE(
         creator.extra_record_keys == extra_records);
     BOOST_REQUIRE(
-        creator.item_encoding == dcmtkpp::Writer::ItemEncoding::UndefinedLength);
+        creator.item_encoding == odil::Writer::ItemEncoding::UndefinedLength);
 }
 
 BOOST_AUTO_TEST_CASE(BasicDirectory)
@@ -53,7 +53,7 @@ BOOST_AUTO_TEST_CASE(BasicDirectory)
     stream1 <<  "{";
 
     {
-        dcmtkpp::DataSet data_set;
+        odil::DataSet data_set;
         data_set.add("PatientID", {"DJ123"});
         data_set.add("StudyDate", {"19100110"});
         data_set.add("StudyTime", {"1234"});
@@ -66,14 +66,14 @@ BOOST_AUTO_TEST_CASE(BasicDirectory)
         data_set.add("SeriesDescription", {"Series"});
         data_set.add("InstanceNumber", {1});
         data_set.add("SOPInstanceUID", {"1.2.3.4.1.1"});
-        data_set.add("SOPClassUID", {dcmtkpp::registry::RawDataStorage});
+        data_set.add("SOPClassUID", {odil::registry::RawDataStorage});
 
         std::ofstream stream("a.dcm");
-        dcmtkpp::Writer::write_file(data_set, stream);
+        odil::Writer::write_file(data_set, stream);
     }
 
     {
-        dcmtkpp::DataSet data_set;
+        odil::DataSet data_set;
         data_set.add("PatientID", {"DJ123"});
         data_set.add("StudyDate", {"19100110"});
         data_set.add("StudyTime", {"1234"});
@@ -86,28 +86,28 @@ BOOST_AUTO_TEST_CASE(BasicDirectory)
         data_set.add("SeriesDescription", {"Series"});
         data_set.add("InstanceNumber", {2});
         data_set.add("SOPInstanceUID", {"1.2.3.4.1.2"});
-        data_set.add("SOPClassUID", {dcmtkpp::registry::RawDataStorage});
+        data_set.add("SOPClassUID", {odil::registry::RawDataStorage});
 
         std::ofstream stream("b.dcm");
-        dcmtkpp::Writer::write_file(data_set, stream);
+        odil::Writer::write_file(data_set, stream);
     }
 
-    dcmtkpp::BasicDirectoryCreator::RecordKeyMap const extra_records(
-        { { "SERIES", { {dcmtkpp::registry::SeriesDescription, 1} } } });
+    odil::BasicDirectoryCreator::RecordKeyMap const extra_records(
+        { { "SERIES", { {odil::registry::SeriesDescription, 1} } } });
 
-    dcmtkpp::BasicDirectoryCreator const creator(
+    odil::BasicDirectoryCreator const creator(
         ".", {"a.dcm", "b.dcm"}, extra_records);
     creator();
 
     boost::filesystem::ifstream stream(boost::filesystem::path(".")/"DICOMDIR");
-    auto const dicomdir_and_header = dcmtkpp::Reader::read_file(stream);
+    auto const dicomdir_and_header = odil::Reader::read_file(stream);
 
     BOOST_REQUIRE(
         dicomdir_and_header.first.as_string("MediaStorageSOPClassUID") ==
-            dcmtkpp::Value::Strings({dcmtkpp::registry::MediaStorageDirectoryStorage}));
+            odil::Value::Strings({odil::registry::MediaStorageDirectoryStorage}));
     BOOST_REQUIRE(
         dicomdir_and_header.first.as_string("TransferSyntaxUID") ==
-            dcmtkpp::Value::Strings({dcmtkpp::registry::ExplicitVRLittleEndian}));
+            odil::Value::Strings({odil::registry::ExplicitVRLittleEndian}));
 
     auto const & records =
         dicomdir_and_header.second.as_data_set("DirectoryRecordSequence");
@@ -115,44 +115,44 @@ BOOST_AUTO_TEST_CASE(BasicDirectory)
 
     BOOST_REQUIRE(
         records[0].as_string("DirectoryRecordType") ==
-            dcmtkpp::Value::Strings({"PATIENT"}));
+            odil::Value::Strings({"PATIENT"}));
     BOOST_REQUIRE(
         records[0].as_string("PatientID") ==
-            dcmtkpp::Value::Strings({"DJ123"}));
+            odil::Value::Strings({"DJ123"}));
 
     BOOST_REQUIRE(
         records[1].as_string("DirectoryRecordType") ==
-            dcmtkpp::Value::Strings({"STUDY"}));
+            odil::Value::Strings({"STUDY"}));
     BOOST_REQUIRE(
         records[1].as_string("StudyInstanceUID") ==
-            dcmtkpp::Value::Strings({"1.2.3.4"}));
+            odil::Value::Strings({"1.2.3.4"}));
     BOOST_REQUIRE(
         records[1].as_string("StudyDescription") ==
-            dcmtkpp::Value::Strings({"Study"}));
+            odil::Value::Strings({"Study"}));
 
     BOOST_REQUIRE(
         records[2].as_string("DirectoryRecordType") ==
-            dcmtkpp::Value::Strings({"SERIES"}));
+            odil::Value::Strings({"SERIES"}));
     BOOST_REQUIRE(
         records[2].as_string("SeriesInstanceUID") ==
-            dcmtkpp::Value::Strings({"1.2.3.4.1"}));
+            odil::Value::Strings({"1.2.3.4.1"}));
     BOOST_REQUIRE(
         records[2].as_string("SeriesDescription") ==
-            dcmtkpp::Value::Strings({"Series"}));
+            odil::Value::Strings({"Series"}));
 
     BOOST_REQUIRE(
         records[3].as_string("DirectoryRecordType") ==
-            dcmtkpp::Value::Strings({"IMAGE"}));
+            odil::Value::Strings({"IMAGE"}));
     BOOST_REQUIRE(
         records[3].as_int("InstanceNumber") ==
-            dcmtkpp::Value::Integers({1}));
+            odil::Value::Integers({1}));
 
     BOOST_REQUIRE(
         records[4].as_string("DirectoryRecordType") ==
-            dcmtkpp::Value::Strings({"IMAGE"}));
+            odil::Value::Strings({"IMAGE"}));
     BOOST_REQUIRE(
         records[4].as_int("InstanceNumber") ==
-            dcmtkpp::Value::Integers({2}));
+            odil::Value::Integers({2}));
 
     boost::filesystem::remove("a.dcm");
     boost::filesystem::remove("b.dcm");

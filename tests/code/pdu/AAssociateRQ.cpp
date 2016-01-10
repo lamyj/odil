@@ -6,12 +6,12 @@
 #include <string>
 #include <vector>
 
-#include "dcmtkpp/pdu/AAssociateRQ.h"
-#include "dcmtkpp/pdu/ApplicationContext.h"
-#include "dcmtkpp/pdu/PresentationContextRQ.h"
-#include "dcmtkpp/pdu/UserIdentityRQ.h"
-#include "dcmtkpp/pdu/UserInformation.h"
-#include "dcmtkpp/Exception.h"
+#include "odil/pdu/AAssociateRQ.h"
+#include "odil/pdu/ApplicationContext.h"
+#include "odil/pdu/PresentationContextRQ.h"
+#include "odil/pdu/UserIdentityRQ.h"
+#include "odil/pdu/UserInformation.h"
+#include "odil/Exception.h"
 
 struct Fixture
 {
@@ -19,34 +19,34 @@ public:
     static std::string const read_data;
     static std::string const write_data;
 
-    dcmtkpp::pdu::ApplicationContext application_context;
-    std::vector<dcmtkpp::pdu::PresentationContextRQ> presentation_contexts;
-    dcmtkpp::pdu::UserInformation user_information;
+    odil::pdu::ApplicationContext application_context;
+    std::vector<odil::pdu::PresentationContextRQ> presentation_contexts;
+    odil::pdu::UserInformation user_information;
 
     Fixture()
     : application_context("foo")
     {
-        dcmtkpp::pdu::PresentationContextRQ pc1(3, "abstract_syntax", {"ts1", "ts2"});
+        odil::pdu::PresentationContextRQ pc1(3, "abstract_syntax", {"ts1", "ts2"});
         this->presentation_contexts = {pc1};
 
-        this->user_information.set_sub_items<dcmtkpp::pdu::MaximumLength>(
+        this->user_information.set_sub_items<odil::pdu::MaximumLength>(
             { { 0x12345678 } });
-        dcmtkpp::pdu::UserIdentityRQ user_identity;
+        odil::pdu::UserIdentityRQ user_identity;
         user_identity.set_username_and_passcode("foo", "bar");
         user_identity.set_positive_response_requested(true);
-        this->user_information.set_sub_items<dcmtkpp::pdu::UserIdentityRQ>(
+        this->user_information.set_sub_items<odil::pdu::UserIdentityRQ>(
             { user_identity });
     }
 
     void check_application_context(
-        dcmtkpp::pdu::ApplicationContext const & context) const
+        odil::pdu::ApplicationContext const & context) const
     {
         BOOST_REQUIRE_EQUAL(
             context.get_name(), this->application_context.get_name());
     }
 
     void check_presentation_contexts(
-        std::vector<dcmtkpp::pdu::PresentationContextRQ> const & contexts)
+        std::vector<odil::pdu::PresentationContextRQ> const & contexts)
     {
         BOOST_REQUIRE_EQUAL(contexts.size(), presentation_contexts.size());
         for(int i=0; i<contexts.size(); ++i)
@@ -64,27 +64,27 @@ public:
     }
 
     void check_user_information(
-        dcmtkpp::pdu::UserInformation const & user_information) const
+        odil::pdu::UserInformation const & user_information) const
     {
         BOOST_REQUIRE(
-            !user_information.get_sub_items<dcmtkpp::pdu::MaximumLength>().empty());
+            !user_information.get_sub_items<odil::pdu::MaximumLength>().empty());
         BOOST_REQUIRE_EQUAL(
-            user_information.get_sub_items<dcmtkpp::pdu::MaximumLength>()[0].get_maximum_length(),
+            user_information.get_sub_items<odil::pdu::MaximumLength>()[0].get_maximum_length(),
             0x12345678);
 
         BOOST_REQUIRE(
-            !user_information.get_sub_items<dcmtkpp::pdu::UserIdentityRQ>().empty());
+            !user_information.get_sub_items<odil::pdu::UserIdentityRQ>().empty());
         BOOST_REQUIRE_EQUAL(
-            user_information.get_sub_items<dcmtkpp::pdu::UserIdentityRQ>()[0].get_type(),
+            user_information.get_sub_items<odil::pdu::UserIdentityRQ>()[0].get_type(),
             2);
         BOOST_REQUIRE_EQUAL(
-            user_information.get_sub_items<dcmtkpp::pdu::UserIdentityRQ>()[0].get_positive_response_requested(),
+            user_information.get_sub_items<odil::pdu::UserIdentityRQ>()[0].get_positive_response_requested(),
             true);
         BOOST_REQUIRE_EQUAL(
-            user_information.get_sub_items<dcmtkpp::pdu::UserIdentityRQ>()[0].get_primary_field(),
+            user_information.get_sub_items<odil::pdu::UserIdentityRQ>()[0].get_primary_field(),
             "foo");
         BOOST_REQUIRE_EQUAL(
-            user_information.get_sub_items<dcmtkpp::pdu::UserIdentityRQ>()[0].get_secondary_field(),
+            user_information.get_sub_items<odil::pdu::UserIdentityRQ>()[0].get_secondary_field(),
             "bar");
     }
 };
@@ -175,20 +175,20 @@ Fixture
 
 BOOST_AUTO_TEST_CASE(Constructor)
 {
-    dcmtkpp::pdu::AAssociateRQ const pdu;
+    odil::pdu::AAssociateRQ const pdu;
 
     BOOST_REQUIRE_EQUAL(pdu.get_called_ae_title(), "");
     BOOST_REQUIRE_EQUAL(pdu.get_calling_ae_title(), "");
     BOOST_REQUIRE_EQUAL(pdu.get_protocol_version(), 0);
-    BOOST_REQUIRE_THROW(pdu.get_application_context(), dcmtkpp::Exception);
+    BOOST_REQUIRE_THROW(pdu.get_application_context(), odil::Exception);
     BOOST_REQUIRE(pdu.get_presentation_contexts().empty());
-    BOOST_REQUIRE_THROW(pdu.get_user_information(), dcmtkpp::Exception);
+    BOOST_REQUIRE_THROW(pdu.get_user_information(), odil::Exception);
 }
 
 BOOST_FIXTURE_TEST_CASE(ConstructorStream, Fixture)
 {
     std::istringstream stream(read_data);
-    dcmtkpp::pdu::AAssociateRQ const pdu(stream);
+    odil::pdu::AAssociateRQ const pdu(stream);
 
     BOOST_REQUIRE_EQUAL(pdu.get_called_ae_title(), "CALLED_AE");
     BOOST_REQUIRE_EQUAL(pdu.get_calling_ae_title(), "CALLING_AE");
@@ -200,7 +200,7 @@ BOOST_FIXTURE_TEST_CASE(ConstructorStream, Fixture)
 
 BOOST_AUTO_TEST_CASE(ProtocolVersion)
 {
-    dcmtkpp::pdu::AAssociateRQ pdu;
+    odil::pdu::AAssociateRQ pdu;
     BOOST_REQUIRE_EQUAL(pdu.get_protocol_version(), 0);
     pdu.set_protocol_version(2);
     BOOST_REQUIRE_EQUAL(pdu.get_protocol_version(), 2);
@@ -208,7 +208,7 @@ BOOST_AUTO_TEST_CASE(ProtocolVersion)
 
 BOOST_AUTO_TEST_CASE(CalledAETitle)
 {
-    dcmtkpp::pdu::AAssociateRQ pdu;
+    odil::pdu::AAssociateRQ pdu;
     BOOST_REQUIRE_EQUAL(pdu.get_called_ae_title(), "");
     pdu.set_called_ae_title("called");
     BOOST_REQUIRE_EQUAL(pdu.get_called_ae_title(), "called");
@@ -216,7 +216,7 @@ BOOST_AUTO_TEST_CASE(CalledAETitle)
 
 BOOST_AUTO_TEST_CASE(CallingAETitle)
 {
-    dcmtkpp::pdu::AAssociateRQ pdu;
+    odil::pdu::AAssociateRQ pdu;
     BOOST_REQUIRE_EQUAL(pdu.get_calling_ae_title(), "");
     pdu.set_calling_ae_title("calling");
     BOOST_REQUIRE_EQUAL(pdu.get_calling_ae_title(), "calling");
@@ -224,15 +224,15 @@ BOOST_AUTO_TEST_CASE(CallingAETitle)
 
 BOOST_FIXTURE_TEST_CASE(ApplicationContext, Fixture)
 {
-    dcmtkpp::pdu::AAssociateRQ pdu;
-    BOOST_REQUIRE_THROW(pdu.get_application_context(), dcmtkpp::Exception);
+    odil::pdu::AAssociateRQ pdu;
+    BOOST_REQUIRE_THROW(pdu.get_application_context(), odil::Exception);
     pdu.set_application_context(application_context);
     this->check_application_context(pdu.get_application_context());
 }
 
 BOOST_FIXTURE_TEST_CASE(PresentationContexts, Fixture)
 {
-    dcmtkpp::pdu::AAssociateRQ pdu;
+    odil::pdu::AAssociateRQ pdu;
     BOOST_REQUIRE(pdu.get_presentation_contexts().empty());
     pdu.set_presentation_contexts(presentation_contexts);
     this->check_presentation_contexts(pdu.get_presentation_contexts());
@@ -240,15 +240,15 @@ BOOST_FIXTURE_TEST_CASE(PresentationContexts, Fixture)
 
 BOOST_FIXTURE_TEST_CASE(UserInformation, Fixture)
 {
-    dcmtkpp::pdu::AAssociateRQ pdu;
-    BOOST_REQUIRE_THROW(pdu.get_user_information(), dcmtkpp::Exception);
+    odil::pdu::AAssociateRQ pdu;
+    BOOST_REQUIRE_THROW(pdu.get_user_information(), odil::Exception);
     pdu.set_user_information(user_information);
     this->check_user_information(pdu.get_user_information());
 }
 
 BOOST_FIXTURE_TEST_CASE(Write, Fixture)
 {
-    dcmtkpp::pdu::AAssociateRQ pdu;
+    odil::pdu::AAssociateRQ pdu;
     pdu.set_protocol_version(1);
     pdu.set_called_ae_title("CALLED_AE");
     pdu.set_calling_ae_title("CALLING_AE");
@@ -265,26 +265,26 @@ BOOST_FIXTURE_TEST_CASE(Write, Fixture)
 
 BOOST_AUTO_TEST_CASE(CalledAETitleEmpty)
 {
-    dcmtkpp::pdu::AAssociateRQ pdu;
-    BOOST_REQUIRE_THROW(pdu.set_called_ae_title(""), dcmtkpp::Exception);
+    odil::pdu::AAssociateRQ pdu;
+    BOOST_REQUIRE_THROW(pdu.set_called_ae_title(""), odil::Exception);
 }
 
 BOOST_AUTO_TEST_CASE(CalledAETitleTooLong)
 {
-    dcmtkpp::pdu::AAssociateRQ pdu;
+    odil::pdu::AAssociateRQ pdu;
     BOOST_REQUIRE_THROW(
-        pdu.set_called_ae_title("123456789abcdef01"), dcmtkpp::Exception);
+        pdu.set_called_ae_title("123456789abcdef01"), odil::Exception);
 }
 
 BOOST_AUTO_TEST_CASE(CallingAETitleEmpty)
 {
-    dcmtkpp::pdu::AAssociateRQ pdu;
-    BOOST_REQUIRE_THROW(pdu.set_calling_ae_title(""), dcmtkpp::Exception);
+    odil::pdu::AAssociateRQ pdu;
+    BOOST_REQUIRE_THROW(pdu.set_calling_ae_title(""), odil::Exception);
 }
 
 BOOST_AUTO_TEST_CASE(CallingAETitleTooLong)
 {
-    dcmtkpp::pdu::AAssociateRQ pdu;
+    odil::pdu::AAssociateRQ pdu;
     BOOST_REQUIRE_THROW(
-        pdu.set_calling_ae_title("123456789abcdef01"), dcmtkpp::Exception);
+        pdu.set_calling_ae_title("123456789abcdef01"), odil::Exception);
 }

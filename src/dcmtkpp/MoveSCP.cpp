@@ -1,27 +1,27 @@
 /*************************************************************************
- * dcmtkpp - Copyright (C) Universite de Strasbourg
+ * odil - Copyright (C) Universite de Strasbourg
  * Distributed under the terms of the CeCILL-B license, as published by
  * the CEA-CNRS-INRIA. Refer to the LICENSE file or to
  * http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
  * for details.
  ************************************************************************/
 
-#include "dcmtkpp/MoveSCP.h"
+#include "odil/MoveSCP.h"
 
 #include <cstdint>
 #include <memory>
 #include <string>
 #include <utility>
 
-#include "dcmtkpp/Association.h"
-#include "dcmtkpp/Exception.h"
-#include "dcmtkpp/SCP.h"
-#include "dcmtkpp/StoreSCU.h"
-#include "dcmtkpp/message/CMoveRequest.h"
-#include "dcmtkpp/message/CMoveResponse.h"
-#include "dcmtkpp/message/Response.h"
+#include "odil/Association.h"
+#include "odil/Exception.h"
+#include "odil/SCP.h"
+#include "odil/StoreSCU.h"
+#include "odil/message/CMoveRequest.h"
+#include "odil/message/CMoveResponse.h"
+#include "odil/message/Response.h"
 
-namespace dcmtkpp
+namespace odil
 {
 
 MoveSCP

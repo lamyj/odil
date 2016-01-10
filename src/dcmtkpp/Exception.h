@@ -1,5 +1,5 @@
 /*************************************************************************
- * dcmtkpp - Copyright (C) Universite de Strasbourg
+ * odil - Copyright (C) Universite de Strasbourg
  * Distributed under the terms of the CeCILL-B license, as published by
  * the CEA-CNRS-INRIA. Refer to the LICENSE file or to
  * http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
@@ -12,10 +12,10 @@
 #include <exception>
 #include <string>
 
-namespace dcmtkpp
+namespace odil
 {
 
-/// @brief Base class for dcmtkpp exceptions.
+/// @brief Base class for odil exceptions.
 class Exception: public std::exception
 {
 public: 

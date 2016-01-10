@@ -4,7 +4,7 @@
 #include <sstream>
 #include <string>
 
-#include "dcmtkpp/pdu/RoleSelection.h"
+#include "odil/pdu/RoleSelection.h"
 
 #include <iostream>
 
@@ -17,7 +17,7 @@ std::string const data(
 
 BOOST_AUTO_TEST_CASE(DefaultConstructor)
 {
-    dcmtkpp::pdu::RoleSelection const item;
+    odil::pdu::RoleSelection const item;
     BOOST_REQUIRE_EQUAL(item.get_sop_class_uid(), "");
     BOOST_REQUIRE_EQUAL(item.get_scu_role_support(), false);
     BOOST_REQUIRE_EQUAL(item.get_scp_role_support(), false);
@@ -25,7 +25,7 @@ BOOST_AUTO_TEST_CASE(DefaultConstructor)
 
 BOOST_AUTO_TEST_CASE(Constructor)
 {
-    dcmtkpp::pdu::RoleSelection const item("1.2.3.4", true, true);
+    odil::pdu::RoleSelection const item("1.2.3.4", true, true);
     BOOST_REQUIRE_EQUAL(item.get_sop_class_uid(), "1.2.3.4");
     BOOST_REQUIRE_EQUAL(item.get_scu_role_support(), true);
     BOOST_REQUIRE_EQUAL(item.get_scp_role_support(), true);
@@ -34,7 +34,7 @@ BOOST_AUTO_TEST_CASE(Constructor)
 BOOST_AUTO_TEST_CASE(FromStream)
 {
     std::istringstream stream(data);
-    dcmtkpp::pdu::RoleSelection const item(stream);
+    odil::pdu::RoleSelection const item(stream);
 
     BOOST_REQUIRE_EQUAL(item.get_sop_class_uid(), "1.2.3.4");
     BOOST_REQUIRE_EQUAL(item.get_scu_role_support(), true);
@@ -43,21 +43,21 @@ BOOST_AUTO_TEST_CASE(FromStream)
 
 BOOST_AUTO_TEST_CASE(SOPClassUID)
 {
-    dcmtkpp::pdu::RoleSelection item;
+    odil::pdu::RoleSelection item;
     item.set_sop_class_uid("1.2.3.4");
     BOOST_REQUIRE_EQUAL(item.get_sop_class_uid(), "1.2.3.4");
 }
 
 BOOST_AUTO_TEST_CASE(SCURoleSupport)
 {
-    dcmtkpp::pdu::RoleSelection item;
+    odil::pdu::RoleSelection item;
     item.set_scu_role_support(true);
     BOOST_REQUIRE_EQUAL(item.get_scu_role_support(), true);
 }
 
 BOOST_AUTO_TEST_CASE(SCPRoleSupport)
 {
-    dcmtkpp::pdu::RoleSelection item;
+    odil::pdu::RoleSelection item;
     item.set_scp_role_support(true);
     BOOST_REQUIRE_EQUAL(item.get_scp_role_support(), true);
 }
@@ -65,7 +65,7 @@ BOOST_AUTO_TEST_CASE(SCPRoleSupport)
 
 BOOST_AUTO_TEST_CASE(Write)
 {
-    dcmtkpp::pdu::RoleSelection item("1.2.3.4", true, true);
+    odil::pdu::RoleSelection item("1.2.3.4", true, true);
 
     std::ostringstream stream;
     stream << item;

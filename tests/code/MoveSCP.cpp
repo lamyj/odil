@@ -10,28 +10,28 @@
 #include <boost/asio.hpp>
 #include <boost/filesystem.hpp>
 
-#include "dcmtkpp/Association.h"
-#include "dcmtkpp/AssociationParameters.h"
-#include "dcmtkpp/DataSet.h"
-#include "dcmtkpp/MoveSCP.h"
-#include "dcmtkpp/Exception.h"
-#include "dcmtkpp/SCP.h"
-#include "dcmtkpp/uid.h"
-#include "dcmtkpp/Reader.h"
-#include "dcmtkpp/registry.h"
-#include "dcmtkpp/message/Response.h"
+#include "odil/Association.h"
+#include "odil/AssociationParameters.h"
+#include "odil/DataSet.h"
+#include "odil/MoveSCP.h"
+#include "odil/Exception.h"
+#include "odil/SCP.h"
+#include "odil/uid.h"
+#include "odil/Reader.h"
+#include "odil/registry.h"
+#include "odil/message/Response.h"
 
 struct Status
 {
     int client;
     std::string server;
-    std::vector<dcmtkpp::DataSet> responses;
+    std::vector<odil::DataSet> responses;
 };
 
-class Generator: public dcmtkpp::MoveSCP::DataSetGenerator
+class Generator: public odil::MoveSCP::DataSetGenerator
 {
 public:
-    Generator(dcmtkpp::Association & association)
+    Generator(odil::Association & association)
     : _association(association)
     {
         // Nothing else.
@@ -42,10 +42,10 @@ public:
         // Nothing to do.
     }
 
-    virtual void initialize(dcmtkpp::message::Request const & )
+    virtual void initialize(odil::message::Request const & )
     {
-        dcmtkpp::DataSet data_set_1;
-        data_set_1.add("SOPClassUID", {dcmtkpp::registry::RawDataStorage});
+        odil::DataSet data_set_1;
+        data_set_1.add("SOPClassUID", {odil::registry::RawDataStorage});
         data_set_1.add(
             "SOPInstanceUID",
             {"1.2.826.0.1.3680043.9.5560.3127449359877365688774406533090568532"});
@@ -53,8 +53,8 @@ public:
         data_set_1.add("PatientID", {"1234"});
         this->_responses.push_back(data_set_1);
 
-        dcmtkpp::DataSet data_set_2;
-        data_set_2.add("SOPClassUID", {dcmtkpp::registry::RawDataStorage});
+        odil::DataSet data_set_2;
+        data_set_2.add("SOPClassUID", {odil::registry::RawDataStorage});
         data_set_2.add(
             "SOPInstanceUID",
             {"1.2.826.0.1.3680043.9.5560.3221615743193123463515381981101110692"});
@@ -70,7 +70,7 @@ public:
         return (this->_response_iterator == this->_responses.end());
     }
 
-    virtual dcmtkpp::DataSet get() const
+    virtual odil::DataSet get() const
     {
         return *this->_response_iterator;
     }
@@ -85,26 +85,26 @@ public:
         return 2;
     }
 
-    virtual dcmtkpp::Association get_association(
-        dcmtkpp::message::CMoveRequest const & request) const
+    virtual odil::Association get_association(
+        odil::message::CMoveRequest const & request) const
     {
-        dcmtkpp::Association move_association;
+        odil::Association move_association;
         move_association.set_peer_host(this->_association.get_peer_host());
         move_association.set_peer_port(11114);
 
         // FIXME: max length, user_identity
-        std::vector<dcmtkpp::AssociationParameters::PresentationContext>
+        std::vector<odil::AssociationParameters::PresentationContext>
             presentation_contexts;
-        for(auto const & uid: dcmtkpp::registry::uids_dictionary)
+        for(auto const & uid: odil::registry::uids_dictionary)
         {
             auto const & name = uid.second.name;
             if(name.substr(name.size()-7, std::string::npos) == "Storage")
             {
-                dcmtkpp::AssociationParameters::PresentationContext
+                odil::AssociationParameters::PresentationContext
                     presentation_context = {
                         static_cast<uint8_t>(1+2*presentation_contexts.size()),
                         uid.first,
-                        { dcmtkpp::registry::ImplicitVRLittleEndian },
+                        { odil::registry::ImplicitVRLittleEndian },
                         true, false
                 };
                 presentation_contexts.push_back(presentation_context);
@@ -120,21 +120,21 @@ public:
     }
 
 private:
-    std::vector<dcmtkpp::DataSet> _responses;
-    std::vector<dcmtkpp::DataSet>::const_iterator _response_iterator;
-    dcmtkpp::Association & _association;
+    std::vector<odil::DataSet> _responses;
+    std::vector<odil::DataSet>::const_iterator _response_iterator;
+    odil::Association & _association;
 };
 
 void run_server(Status * status)
 {
-    dcmtkpp::Association association;
+    odil::Association association;
     association.set_tcp_timeout(boost::posix_time::seconds(1));
 
     try
     {
         association.receive_association(boost::asio::ip::tcp::v4(), 11113);
 
-        dcmtkpp::MoveSCP move_scp(association);
+        odil::MoveSCP move_scp(association);
         auto const generator = std::make_shared<Generator>(association);
         move_scp.set_generator(generator);
 
@@ -144,17 +144,17 @@ void run_server(Status * status)
         // Should throw with peer closing connection
         association.receive_message();
     }
-    catch(dcmtkpp::AssociationAborted const &)
+    catch(odil::AssociationAborted const &)
     {
         status->server = "abort";
     }
-    catch(dcmtkpp::AssociationReleased const &)
+    catch(odil::AssociationReleased const &)
     {
         status->server = "release";
     }
-    catch(dcmtkpp::Exception const &)
+    catch(odil::Exception const &)
     {
-        status->server = "Other DCMTK++ exception";
+        status->server = "Other Odil exception";
     }
     catch(...)
     {
@@ -184,7 +184,7 @@ void run_client(Status * status)
         }
 
         std::ifstream stream(it->path().string());
-        auto const data_set = dcmtkpp::Reader::read_file(stream).second;
+        auto const data_set = odil::Reader::read_file(stream).second;
         status->responses.push_back(data_set);
 
         boost::filesystem::remove(it->path());
@@ -192,7 +192,7 @@ void run_client(Status * status)
 
     std::sort(
         status->responses.begin(), status->responses.end(),
-        [](dcmtkpp::DataSet const & left, dcmtkpp::DataSet const & right)
+        [](odil::DataSet const & left, odil::DataSet const & right)
         {
             auto const & left_uid = left.as_string("SOPInstanceUID", 0);
             auto const & right_uid = right.as_string("SOPInstanceUID", 0);
@@ -221,7 +221,7 @@ BOOST_AUTO_TEST_CASE(Release)
         "1.2.826.0.1.3680043.9.5560.3127449359877365688774406533090568532");
     BOOST_REQUIRE_EQUAL(
         status.responses[0].as_string("SOPClassUID", 0),
-        dcmtkpp::registry::RawDataStorage);
+        odil::registry::RawDataStorage);
     BOOST_REQUIRE_EQUAL(status.responses[0].as_string("PatientName", 0), "Hello^World");
     BOOST_REQUIRE_EQUAL(status.responses[0].as_string("PatientID", 0), "1234");
 
@@ -231,7 +231,7 @@ BOOST_AUTO_TEST_CASE(Release)
         "1.2.826.0.1.3680043.9.5560.3221615743193123463515381981101110692");
     BOOST_REQUIRE_EQUAL(
         status.responses[1].as_string("SOPClassUID", 0),
-        dcmtkpp::registry::RawDataStorage);
+        odil::registry::RawDataStorage);
     BOOST_REQUIRE_EQUAL(status.responses[1].as_string("PatientName", 0), "Doe^John");
     BOOST_REQUIRE_EQUAL(status.responses[1].as_string("PatientID", 0), "5678");
 }

@@ -3,13 +3,13 @@
 
 #include <ostream>
 
-#include "dcmtkpp/Association.h"
-#include "dcmtkpp/Exception.h"
-#include "dcmtkpp/registry.h"
+#include "odil/Association.h"
+#include "odil/Exception.h"
+#include "odil/registry.h"
 
 #include "../PeerFixtureBase.h"
 
-namespace dcmtkpp
+namespace odil
 {
 
 bool
@@ -49,12 +49,12 @@ operator==(
 
 BOOST_AUTO_TEST_CASE(DefaultConstructor)
 {
-    dcmtkpp::Association association;
+    odil::Association association;
     BOOST_CHECK_EQUAL(association.get_peer_host(), "");
     BOOST_CHECK_EQUAL(association.get_peer_port(), 104);
     BOOST_CHECK(
         association.get_parameters() ==
-            dcmtkpp::AssociationParameters()
+            odil::AssociationParameters()
     );
 
     BOOST_CHECK(!association.is_associated());
@@ -62,14 +62,14 @@ BOOST_AUTO_TEST_CASE(DefaultConstructor)
 
 BOOST_AUTO_TEST_CASE(CopyConstructor)
 {
-    dcmtkpp::Association association;
+    odil::Association association;
     association.set_peer_host("pacs.example.com");
     association.set_peer_port(11112);
     association.update_parameters()
         .set_called_ae_title("remote")
         .set_user_identity_to_username_and_password("foo", "bar");
 
-    dcmtkpp::Association const other(association);
+    odil::Association const other(association);
 
     BOOST_CHECK_EQUAL(other.get_peer_host(), association.get_peer_host());
     BOOST_CHECK_EQUAL(other.get_peer_port(), association.get_peer_port());
@@ -81,14 +81,14 @@ BOOST_AUTO_TEST_CASE(CopyConstructor)
 
 BOOST_AUTO_TEST_CASE(Assignment)
 {
-    dcmtkpp::Association association;
+    odil::Association association;
     association.set_peer_host("pacs.example.com");
     association.set_peer_port(11112);
     association.update_parameters()
         .set_called_ae_title("remote")
         .set_user_identity_to_username_and_password("foo", "bar");
 
-    dcmtkpp::Association other;
+    odil::Association other;
     other = association;
 
     BOOST_CHECK_EQUAL(other.get_peer_host(), association.get_peer_host());
@@ -101,23 +101,23 @@ BOOST_AUTO_TEST_CASE(Assignment)
 
 BOOST_AUTO_TEST_CASE(PeerHostName)
 {
-    dcmtkpp::Association association;
+    odil::Association association;
     association.set_peer_host("pacs.example.com");
     BOOST_CHECK_EQUAL(association.get_peer_host(), "pacs.example.com");
 }
 
 BOOST_AUTO_TEST_CASE(PeerPort)
 {
-    dcmtkpp::Association association;
+    odil::Association association;
     association.set_peer_port(11112);
     BOOST_CHECK_EQUAL(association.get_peer_port(), 11112);
 }
 
 BOOST_AUTO_TEST_CASE(AssociationParameters)
 {
-    dcmtkpp::Association association;
+    odil::Association association;
 
-    dcmtkpp::AssociationParameters parameters;
+    odil::AssociationParameters parameters;
     parameters.set_calling_ae_title("foo");
     association.set_parameters(parameters);
 
@@ -128,27 +128,27 @@ BOOST_AUTO_TEST_CASE(Associate)
 {
     PeerFixtureBase fixture({
         {
-            1, dcmtkpp::registry::VerificationSOPClass,
-            { dcmtkpp::registry::ImplicitVRLittleEndian }, true, false
+            1, odil::registry::VerificationSOPClass,
+            { odil::registry::ImplicitVRLittleEndian }, true, false
         }
     });
     BOOST_CHECK_THROW(
-        fixture.association.set_peer_host("foo"), dcmtkpp::Exception);
+        fixture.association.set_peer_host("foo"), odil::Exception);
     BOOST_CHECK_THROW(
-        fixture.association.set_peer_port(1234), dcmtkpp::Exception);
+        fixture.association.set_peer_port(1234), odil::Exception);
     BOOST_CHECK_THROW(
         fixture.association.update_parameters().set_maximum_length(123),
-        dcmtkpp::Exception);
+        odil::Exception);
 }
 
 BOOST_AUTO_TEST_CASE(Release)
 {
-    dcmtkpp::Association association;
-    BOOST_CHECK_THROW(association.release(), dcmtkpp::Exception);
+    odil::Association association;
+    BOOST_CHECK_THROW(association.release(), odil::Exception);
 }
 
 BOOST_AUTO_TEST_CASE(Abort)
 {
-    dcmtkpp::Association association;
-    BOOST_CHECK_THROW(association.abort(2, 4), dcmtkpp::Exception);
+    odil::Association association;
+    BOOST_CHECK_THROW(association.abort(2, 4), odil::Exception);
 }

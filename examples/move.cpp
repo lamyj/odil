@@ -1,12 +1,12 @@
 #include <iostream>
 
-#include "dcmtkpp/Association.h"
-#include "dcmtkpp/DataSet.h"
-#include "dcmtkpp/FindSCU.h"
-#include "dcmtkpp/MoveSCU.h"
-#include "dcmtkpp/registry.h"
+#include "odil/Association.h"
+#include "odil/DataSet.h"
+#include "odil/FindSCU.h"
+#include "odil/MoveSCU.h"
+#include "odil/registry.h"
 
-void print_informations(dcmtkpp::DataSet const & response)
+void print_informations(odil::DataSet const & response)
 {
     auto const name = response.has("PatientName")?
         response.as_string("PatientName", 0):"(no name)";
@@ -22,7 +22,7 @@ void print_informations(dcmtkpp::DataSet const & response)
 
 int main()
 {
-    dcmtkpp::Association association;
+    odil::Association association;
     association.set_peer_host("184.73.255.26");
     association.set_peer_port(11112);
     association.update_parameters()
@@ -30,36 +30,36 @@ int main()
         .set_called_ae_title("AWSPIXELMEDPUB")
         .set_presentation_contexts({
             {
-                1, dcmtkpp::registry::StudyRootQueryRetrieveInformationModelFIND,
-                { dcmtkpp::registry::ImplicitVRLittleEndian }, true, false
+                1, odil::registry::StudyRootQueryRetrieveInformationModelFIND,
+                { odil::registry::ImplicitVRLittleEndian }, true, false
             },
             {
-                3, dcmtkpp::registry::StudyRootQueryRetrieveInformationModelMOVE,
-                { dcmtkpp::registry::ImplicitVRLittleEndian }, true, false
+                3, odil::registry::StudyRootQueryRetrieveInformationModelMOVE,
+                { odil::registry::ImplicitVRLittleEndian }, true, false
             },
             {
-                5, dcmtkpp::registry::MRImageStorage,
-                { dcmtkpp::registry::ImplicitVRLittleEndian }, false, true
+                5, odil::registry::MRImageStorage,
+                { odil::registry::ImplicitVRLittleEndian }, false, true
             },
             {
-                7, dcmtkpp::registry::VerificationSOPClass,
-                { dcmtkpp::registry::ImplicitVRLittleEndian }, true, false
+                7, odil::registry::VerificationSOPClass,
+                { odil::registry::ImplicitVRLittleEndian }, true, false
             }
         });
     
     association.associate();
 
-    dcmtkpp::FindSCU find_scu(association);
+    odil::FindSCU find_scu(association);
     find_scu.set_affected_sop_class(
-        dcmtkpp::registry::StudyRootQueryRetrieveInformationModelFIND);
+        odil::registry::StudyRootQueryRetrieveInformationModelFIND);
 
-    dcmtkpp::DataSet query;
+    odil::DataSet query;
     query.add("QueryRetrieveLevel", { "STUDY" });
     query.add("StudyInstanceUID");
     query.add("NumberOfStudyRelatedSeries");
 
     auto const studies = find_scu.find(query);
-    dcmtkpp::DataSet series;
+    odil::DataSet series;
     for(auto const & study: studies)
     {
         if(!study.has("StudyInstanceUID"))
@@ -67,7 +67,7 @@ int main()
             continue;
         }
 
-        query = dcmtkpp::DataSet();
+        query = odil::DataSet();
         query.add("QueryRetrieveLevel", {"SERIES"});
         query.add("Modality", {"MR"});
         query.add("StudyInstanceUID", study.as_string("StudyInstanceUID"));
@@ -82,13 +82,13 @@ int main()
         }
     }
     
-    dcmtkpp::MoveSCU move_scu(association);
+    odil::MoveSCU move_scu(association);
     move_scu.set_affected_sop_class(
-        dcmtkpp::registry::StudyRootQueryRetrieveInformationModelMOVE);
+        odil::registry::StudyRootQueryRetrieveInformationModelMOVE);
     move_scu.set_move_destination(
         association.get_parameters().get_calling_ae_title());
     
-    query = dcmtkpp::DataSet();
+    query = odil::DataSet();
     query.add("QueryRetrieveLevel", { "SERIES" });
     query.add("StudyInstanceUID", series["StudyInstanceUID"]);
     query.add("SeriesInstanceUID", series["SeriesInstanceUID"]);
@@ -105,7 +105,7 @@ int main()
     std::cout << "vector\n";
     std::cout << "------\n\n";
     
-    std::vector<dcmtkpp::DataSet> result = move_scu.move(query);
+    std::vector<odil::DataSet> result = move_scu.move(query);
     for(auto dataset: result)
     {
         print_informations(dataset);

@@ -1,5 +1,5 @@
 /*************************************************************************
- * dcmtkpp - Copyright (C) Universite de Strasbourg
+ * odil - Copyright (C) Universite de Strasbourg
  * Distributed under the terms of the CeCILL-B license, as published by
  * the CEA-CNRS-INRIA. Refer to the LICENSE file or to
  * http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
@@ -9,7 +9,7 @@
 #ifndef _bb325c55_d983_41e3_b6c4_e3b957baedba
 #define _bb325c55_d983_41e3_b6c4_e3b957baedba
 
-#include "dcmtkpp/pdu/UserInformation.h"
+#include "odil/pdu/UserInformation.h"
 
 #include <algorithm>
 #include <initializer_list>
@@ -18,14 +18,14 @@
 #include <sstream>
 #include <vector>
 
-#include "dcmtkpp/Exception.h"
-#include "dcmtkpp/pdu/Item.h"
-#include "dcmtkpp/pdu/MaximumLength.h"
-#include "dcmtkpp/pdu/Object.h"
-#include "dcmtkpp/pdu/UserIdentityAC.h"
-#include "dcmtkpp/pdu/UserIdentityRQ.h"
+#include "odil/Exception.h"
+#include "odil/pdu/Item.h"
+#include "odil/pdu/MaximumLength.h"
+#include "odil/pdu/Object.h"
+#include "odil/pdu/UserIdentityAC.h"
+#include "odil/pdu/UserIdentityRQ.h"
 
-namespace dcmtkpp
+namespace odil
 {
 
 namespace pdu

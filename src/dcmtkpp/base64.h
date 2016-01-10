@@ -1,5 +1,5 @@
 /*************************************************************************
- * dcmtkpp - Copyright (C) Universite de Strasbourg
+ * odil - Copyright (C) Universite de Strasbourg
  * Distributed under the terms of the CeCILL-B license, as published by
  * the CEA-CNRS-INRIA. Refer to the LICENSE file or to
  * http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
@@ -11,7 +11,7 @@
 
 #include <string>
 
-namespace dcmtkpp
+namespace odil
 {
 
 namespace base64
@@ -37,6 +37,6 @@ void decode(
 
 }
 
-#include "dcmtkpp/base64.txx"
+#include "odil/base64.txx"
 
 #endif // _203e7be8_beaa_4d97_94b2_6a0070f158a1

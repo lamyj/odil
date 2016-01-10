@@ -1,88 +1,88 @@
 #define BOOST_TEST_MODULE DataSet
 #include <boost/test/unit_test.hpp>
 
-#include "dcmtkpp/DataSet.h"
-#include "dcmtkpp/Exception.h"
-#include "dcmtkpp/Tag.h"
-#include "dcmtkpp/VR.h"
+#include "odil/DataSet.h"
+#include "odil/Exception.h"
+#include "odil/Tag.h"
+#include "odil/VR.h"
 
-#include "dcmtkpp/registry.h"
+#include "odil/registry.h"
 
 BOOST_AUTO_TEST_CASE(Empty)
 {
-    dcmtkpp::DataSet dataset;
+    odil::DataSet dataset;
     BOOST_CHECK(dataset.empty());
     BOOST_CHECK_EQUAL(dataset.size(), 0);
-    BOOST_CHECK(!dataset.has(dcmtkpp::Tag("PatientName")));
+    BOOST_CHECK(!dataset.has(odil::Tag("PatientName")));
 }
 
 BOOST_AUTO_TEST_CASE(AddExplicitVR)
 {
-    dcmtkpp::Tag const tag("PatientName");
+    odil::Tag const tag("PatientName");
 
-    dcmtkpp::DataSet dataset;
-    dataset.add(tag, dcmtkpp::VR::PN);
+    odil::DataSet dataset;
+    dataset.add(tag, odil::VR::PN);
 
     BOOST_CHECK(!dataset.empty());
     BOOST_CHECK_EQUAL(dataset.size(), 1);
     BOOST_CHECK(dataset.has(tag));
-    BOOST_CHECK(dataset.get_vr(tag) == dcmtkpp::VR::PN);
+    BOOST_CHECK(dataset.get_vr(tag) == odil::VR::PN);
 }
 
 BOOST_AUTO_TEST_CASE(AddImplicitVR)
 {
-    dcmtkpp::Tag const tag("PatientName");
+    odil::Tag const tag("PatientName");
 
-    dcmtkpp::DataSet dataset;
+    odil::DataSet dataset;
     dataset.add(tag);
 
     BOOST_CHECK(!dataset.empty());
     BOOST_CHECK_EQUAL(dataset.size(), 1);
     BOOST_CHECK(dataset.has(tag));
-    BOOST_CHECK(dataset.get_vr(tag) == dcmtkpp::VR::PN);
+    BOOST_CHECK(dataset.get_vr(tag) == odil::VR::PN);
 }
 
 BOOST_AUTO_TEST_CASE(AddValueExplicitVR)
 {
-    dcmtkpp::Tag const tag("PatientName");
+    odil::Tag const tag("PatientName");
 
-    dcmtkpp::DataSet dataset;
-    dataset.add(tag, { "Doe^John"}, dcmtkpp::VR::PN);
+    odil::DataSet dataset;
+    dataset.add(tag, { "Doe^John"}, odil::VR::PN);
 
     BOOST_CHECK(!dataset.empty());
     BOOST_CHECK_EQUAL(dataset.size(), 1);
     BOOST_CHECK(dataset.has(tag));
-    BOOST_CHECK(dataset.get_vr(tag) == dcmtkpp::VR::PN);
-    BOOST_CHECK(dataset.as_string(tag) == dcmtkpp::Value::Strings({ "Doe^John" }));
+    BOOST_CHECK(dataset.get_vr(tag) == odil::VR::PN);
+    BOOST_CHECK(dataset.as_string(tag) == odil::Value::Strings({ "Doe^John" }));
 }
 
 BOOST_AUTO_TEST_CASE(AddValueImplicitVR)
 {
-    dcmtkpp::Tag const tag("PatientName");
+    odil::Tag const tag("PatientName");
 
-    dcmtkpp::DataSet dataset;
+    odil::DataSet dataset;
     dataset.add(tag, { "Doe^John"});
 
     BOOST_CHECK(!dataset.empty());
     BOOST_CHECK_EQUAL(dataset.size(), 1);
     BOOST_CHECK(dataset.has(tag));
-    BOOST_CHECK(dataset.get_vr(tag) == dcmtkpp::VR::PN);
-    BOOST_CHECK(dataset.as_string(tag) == dcmtkpp::Value::Strings({ "Doe^John" }));
+    BOOST_CHECK(dataset.get_vr(tag) == odil::VR::PN);
+    BOOST_CHECK(dataset.as_string(tag) == odil::Value::Strings({ "Doe^John" }));
 }
 
 BOOST_AUTO_TEST_CASE(AddInvalidTag)
 {
-    dcmtkpp::Tag const tag(0xdead, 0xbeef);
-    dcmtkpp::DataSet dataset;
+    odil::Tag const tag(0xdead, 0xbeef);
+    odil::DataSet dataset;
 
-    BOOST_CHECK_THROW(dataset.add(tag), dcmtkpp::Exception);
+    BOOST_CHECK_THROW(dataset.add(tag), odil::Exception);
 }
 
 BOOST_AUTO_TEST_CASE(AddIntEmpty)
 {
-    dcmtkpp::Tag const tag("Rows");
+    odil::Tag const tag("Rows");
 
-    dcmtkpp::DataSet dataset;
+    odil::DataSet dataset;
     dataset.add(tag);
 
     BOOST_CHECK(dataset.is_int(tag));
@@ -95,9 +95,9 @@ BOOST_AUTO_TEST_CASE(AddIntEmpty)
 
 BOOST_AUTO_TEST_CASE(AddDoubleEmpty)
 {
-    dcmtkpp::Tag const tag("SpacingBetweenSlices");
+    odil::Tag const tag("SpacingBetweenSlices");
 
-    dcmtkpp::DataSet dataset;
+    odil::DataSet dataset;
     dataset.add(tag);
 
     BOOST_CHECK(dataset.is_real(tag));
@@ -110,9 +110,9 @@ BOOST_AUTO_TEST_CASE(AddDoubleEmpty)
 
 BOOST_AUTO_TEST_CASE(AddStringEmpty)
 {
-    dcmtkpp::Tag const tag("PatientID");
+    odil::Tag const tag("PatientID");
 
-    dcmtkpp::DataSet dataset;
+    odil::DataSet dataset;
     dataset.add(tag);
 
     BOOST_CHECK(dataset.is_string(tag));
@@ -125,24 +125,24 @@ BOOST_AUTO_TEST_CASE(AddStringEmpty)
 
 BOOST_AUTO_TEST_CASE(AddDataSetEmpty)
 {
-    dcmtkpp::Tag const tag("ReferencedStudySequence");
+    odil::Tag const tag("ReferencedStudySequence");
 
-    dcmtkpp::DataSet dataset;
+    odil::DataSet dataset;
     dataset.add(tag);
 
     BOOST_CHECK(dataset.is_data_set(tag));
     BOOST_CHECK(dataset.empty(tag));
     BOOST_CHECK_EQUAL(dataset.size(tag), 0);
 
-    dcmtkpp::Value::DataSets const & value = dataset.as_data_set(tag);
+    odil::Value::DataSets const & value = dataset.as_data_set(tag);
     BOOST_CHECK(value.empty());
 }
 
 BOOST_AUTO_TEST_CASE(AddBinaryEmpty)
 {
-    dcmtkpp::Tag const tag("BadPixelImage");
+    odil::Tag const tag("BadPixelImage");
 
-    dcmtkpp::DataSet dataset;
+    odil::DataSet dataset;
     dataset.add(tag);
 
     BOOST_CHECK(dataset.is_binary(tag));
@@ -155,48 +155,48 @@ BOOST_AUTO_TEST_CASE(AddBinaryEmpty)
 
 BOOST_AUTO_TEST_CASE(AddInt)
 {
-    dcmtkpp::Tag const tag("Rows");
+    odil::Tag const tag("Rows");
 
-    dcmtkpp::DataSet dataset;
-    dataset.add(tag, dcmtkpp::Value::Integers({123}));
+    odil::DataSet dataset;
+    dataset.add(tag, odil::Value::Integers({123}));
 
     BOOST_CHECK(dataset.is_int(tag));
     BOOST_REQUIRE_EQUAL(dataset.size(tag), 1);
-    BOOST_REQUIRE(dataset.as_int(tag) == dcmtkpp::Value::Integers({123}));
+    BOOST_REQUIRE(dataset.as_int(tag) == odil::Value::Integers({123}));
 }
 
 BOOST_AUTO_TEST_CASE(AddDouble)
 {
-    dcmtkpp::Tag const tag("SpacingBetweenSlices");
+    odil::Tag const tag("SpacingBetweenSlices");
 
-    dcmtkpp::DataSet dataset;
-    dataset.add(tag, dcmtkpp::Value::Reals({123.456}));
+    odil::DataSet dataset;
+    dataset.add(tag, odil::Value::Reals({123.456}));
 
     BOOST_CHECK(dataset.is_real(tag));
     BOOST_REQUIRE_EQUAL(dataset.size(tag), 1);
-    BOOST_REQUIRE(dataset.as_real(tag) == dcmtkpp::Value::Reals({123.456}));
+    BOOST_REQUIRE(dataset.as_real(tag) == odil::Value::Reals({123.456}));
 }
 
 BOOST_AUTO_TEST_CASE(AddString)
 {
-    dcmtkpp::Tag const tag("PatientID");
+    odil::Tag const tag("PatientID");
 
-    dcmtkpp::DataSet dataset;
-    dataset.add(tag, dcmtkpp::Value::Strings({"DJ123"}));
+    odil::DataSet dataset;
+    dataset.add(tag, odil::Value::Strings({"DJ123"}));
 
     BOOST_CHECK(dataset.is_string(tag));
     BOOST_REQUIRE_EQUAL(dataset.size(tag), 1);
-    BOOST_REQUIRE(dataset.as_string(tag) == dcmtkpp::Value::Strings({"DJ123"}));
+    BOOST_REQUIRE(dataset.as_string(tag) == odil::Value::Strings({"DJ123"}));
 }
 
 BOOST_AUTO_TEST_CASE(AddDataSet)
 {
-    dcmtkpp::Tag const tag("ReferencedStudySequence");
-    dcmtkpp::DataSet item;
-    item.add(dcmtkpp::registry::StudyInstanceUID, {"1.2.3"});
+    odil::Tag const tag("ReferencedStudySequence");
+    odil::DataSet item;
+    item.add(odil::registry::StudyInstanceUID, {"1.2.3"});
 
-    dcmtkpp::DataSet dataset;
-    dataset.add(tag, dcmtkpp::Value::DataSets({item}));
+    odil::DataSet dataset;
+    dataset.add(tag, odil::Value::DataSets({item}));
 
     BOOST_CHECK(dataset.is_data_set(tag));
     BOOST_REQUIRE_EQUAL(dataset.size(tag), 1);
@@ -205,60 +205,60 @@ BOOST_AUTO_TEST_CASE(AddDataSet)
 
 BOOST_AUTO_TEST_CASE(AddIntInitializer1)
 {
-    dcmtkpp::Tag const tag("Rows");
+    odil::Tag const tag("Rows");
 
-    dcmtkpp::DataSet dataset;
+    odil::DataSet dataset;
     dataset.add(tag, {123});
 
     BOOST_CHECK(dataset.is_int(tag));
     BOOST_REQUIRE_EQUAL(dataset.size(tag), 1);
-    BOOST_REQUIRE(dataset.as_int(tag) == dcmtkpp::Value::Integers({123}));
+    BOOST_REQUIRE(dataset.as_int(tag) == odil::Value::Integers({123}));
 }
 
 BOOST_AUTO_TEST_CASE(AddIntInitializer2)
 {
-    dcmtkpp::Tag const tag("Rows");
+    odil::Tag const tag("Rows");
 
-    dcmtkpp::DataSet dataset;
-    dataset.add(tag, {dcmtkpp::Value::Integer(123)});
+    odil::DataSet dataset;
+    dataset.add(tag, {odil::Value::Integer(123)});
 
     BOOST_CHECK(dataset.is_int(tag));
     BOOST_REQUIRE_EQUAL(dataset.size(tag), 1);
-    BOOST_REQUIRE(dataset.as_int(tag) == dcmtkpp::Value::Integers({123}));
+    BOOST_REQUIRE(dataset.as_int(tag) == odil::Value::Integers({123}));
 }
 
 
 BOOST_AUTO_TEST_CASE(AddDoubleInitializer)
 {
-    dcmtkpp::Tag const tag("SpacingBetweenSlices");
+    odil::Tag const tag("SpacingBetweenSlices");
 
-    dcmtkpp::DataSet dataset;
+    odil::DataSet dataset;
     dataset.add(tag, {123.456});
 
     BOOST_CHECK(dataset.is_real(tag));
     BOOST_REQUIRE_EQUAL(dataset.size(tag), 1);
-    BOOST_REQUIRE(dataset.as_real(tag) == dcmtkpp::Value::Reals({123.456}));
+    BOOST_REQUIRE(dataset.as_real(tag) == odil::Value::Reals({123.456}));
 }
 
 BOOST_AUTO_TEST_CASE(AddStringInitializer)
 {
-    dcmtkpp::Tag const tag("PatientID");
+    odil::Tag const tag("PatientID");
 
-    dcmtkpp::DataSet dataset;
+    odil::DataSet dataset;
     dataset.add(tag, {"DJ123"});
 
     BOOST_CHECK(dataset.is_string(tag));
     BOOST_REQUIRE_EQUAL(dataset.size(tag), 1);
-    BOOST_REQUIRE(dataset.as_string(tag) == dcmtkpp::Value::Strings({"DJ123"}));
+    BOOST_REQUIRE(dataset.as_string(tag) == odil::Value::Strings({"DJ123"}));
 }
 
 BOOST_AUTO_TEST_CASE(AddDataSetInitializer)
 {
-    dcmtkpp::Tag const tag("ReferencedStudySequence");
-    dcmtkpp::DataSet item;
-    item.add(dcmtkpp::registry::StudyInstanceUID, {"1.2.3"});
+    odil::Tag const tag("ReferencedStudySequence");
+    odil::DataSet item;
+    item.add(odil::registry::StudyInstanceUID, {"1.2.3"});
 
-    dcmtkpp::DataSet dataset;
+    odil::DataSet dataset;
     dataset.add(tag, {item});
 
     BOOST_CHECK(dataset.is_data_set(tag));
@@ -268,22 +268,22 @@ BOOST_AUTO_TEST_CASE(AddDataSetInitializer)
 
 BOOST_AUTO_TEST_CASE(AddBinary)
 {
-    dcmtkpp::Tag const tag("BadPixelImage");
+    odil::Tag const tag("BadPixelImage");
 
-    dcmtkpp::DataSet dataset;
-    dataset.add(tag, dcmtkpp::Value::Binary({0x01, 0x02}));
+    odil::DataSet dataset;
+    dataset.add(tag, odil::Value::Binary({0x01, 0x02}));
 
     BOOST_CHECK(dataset.is_binary(tag));
     BOOST_REQUIRE_EQUAL(dataset.size(tag), 2);
     BOOST_REQUIRE(
-        dataset.as_binary(tag) == dcmtkpp::Value::Binary({ 0x01, 0x02 }));
+        dataset.as_binary(tag) == odil::Value::Binary({ 0x01, 0x02 }));
 }
 
 BOOST_AUTO_TEST_CASE(ModifyInt)
 {
-    dcmtkpp::Tag const tag("Rows");
+    odil::Tag const tag("Rows");
 
-    dcmtkpp::DataSet dataset;
+    odil::DataSet dataset;
     dataset.add(tag);
     dataset.as_int(tag).push_back(256);
 
@@ -294,9 +294,9 @@ BOOST_AUTO_TEST_CASE(ModifyInt)
 
 BOOST_AUTO_TEST_CASE(ModifyDouble)
 {
-    dcmtkpp::Tag const tag("SpacingBetweenSlices");
+    odil::Tag const tag("SpacingBetweenSlices");
 
-    dcmtkpp::DataSet dataset;
+    odil::DataSet dataset;
     dataset.add(tag);
     dataset.as_real(tag).push_back(3.14);
 
@@ -307,9 +307,9 @@ BOOST_AUTO_TEST_CASE(ModifyDouble)
 
 BOOST_AUTO_TEST_CASE(ModifyString)
 {
-    dcmtkpp::Tag const tag("PatientID");
+    odil::Tag const tag("PatientID");
 
-    dcmtkpp::DataSet dataset;
+    odil::DataSet dataset;
     dataset.add(tag);
     dataset.as_string(tag).push_back("FooBar");
 
@@ -320,64 +320,64 @@ BOOST_AUTO_TEST_CASE(ModifyString)
 
 BOOST_AUTO_TEST_CASE(ModifyDataSet)
 {
-    dcmtkpp::Tag const tag("ReferencedStudySequence");
+    odil::Tag const tag("ReferencedStudySequence");
 
-    dcmtkpp::DataSet dataset;
+    odil::DataSet dataset;
     dataset.add(tag);
 
-    dcmtkpp::DataSet item;
+    odil::DataSet item;
     item.add("PatientID", {"DJ1234"});
     dataset.as_data_set(tag).push_back(item);
 
     BOOST_CHECK(!dataset.empty(tag));
     BOOST_CHECK_EQUAL(dataset.size(tag), 1);
 
-    dcmtkpp::Value::DataSets const & value = dataset.as_data_set(tag);
+    odil::Value::DataSets const & value = dataset.as_data_set(tag);
     BOOST_CHECK_EQUAL(value.size(), 1);
     BOOST_CHECK_EQUAL(value.size(), 1);
     BOOST_CHECK_EQUAL(value[0].size(), 1);
     BOOST_CHECK(value[0].has("PatientID"));
     BOOST_CHECK(
-        value[0].as_string("PatientID") == dcmtkpp::Value::Strings({"DJ1234"}));
+        value[0].as_string("PatientID") == odil::Value::Strings({"DJ1234"}));
 }
 
 BOOST_AUTO_TEST_CASE(ElementAccessor)
 {
-    dcmtkpp::Tag const tag("PatientID");
+    odil::Tag const tag("PatientID");
 
-    dcmtkpp::DataSet dataset;
+    odil::DataSet dataset;
     dataset.add(tag, {"Foo^Bar"});
     BOOST_REQUIRE(
-        dataset[tag].as_string() == dcmtkpp::Value::Strings({"Foo^Bar"}));
+        dataset[tag].as_string() == odil::Value::Strings({"Foo^Bar"}));
     BOOST_REQUIRE_THROW(
-        dataset[dcmtkpp::registry::PatientName], dcmtkpp::Exception);
+        dataset[odil::registry::PatientName], odil::Exception);
 }
 
 BOOST_AUTO_TEST_CASE(GetVRMissing)
 {
-    dcmtkpp::Tag const tag("PatientID");
-    dcmtkpp::DataSet dataset;
-    BOOST_CHECK_THROW(dataset.get_vr(tag), dcmtkpp::Exception);
+    odil::Tag const tag("PatientID");
+    odil::DataSet dataset;
+    BOOST_CHECK_THROW(dataset.get_vr(tag), odil::Exception);
 }
 
 BOOST_AUTO_TEST_CASE(TestEmptyMissing)
 {
-    dcmtkpp::Tag const tag("PatientID");
-    dcmtkpp::DataSet dataset;
-    BOOST_CHECK_THROW(dataset.empty(tag), dcmtkpp::Exception);
+    odil::Tag const tag("PatientID");
+    odil::DataSet dataset;
+    BOOST_CHECK_THROW(dataset.empty(tag), odil::Exception);
 }
 
 BOOST_AUTO_TEST_CASE(SizeMissing)
 {
-    dcmtkpp::Tag const tag("PatientID");
-    dcmtkpp::DataSet dataset;
-    BOOST_CHECK_THROW(dataset.size(tag), dcmtkpp::Exception);
+    odil::Tag const tag("PatientID");
+    odil::DataSet dataset;
+    BOOST_CHECK_THROW(dataset.size(tag), odil::Exception);
 }
 
 BOOST_AUTO_TEST_CASE(Remove)
 {
-    dcmtkpp::Tag const tag("PatientID");
-    dcmtkpp::DataSet dataset;
+    odil::Tag const tag("PatientID");
+    odil::DataSet dataset;
     dataset.add(tag);
 
     dataset.remove(tag);
@@ -386,26 +386,26 @@ BOOST_AUTO_TEST_CASE(Remove)
 
 BOOST_AUTO_TEST_CASE(RemoveMissing)
 {
-    dcmtkpp::Tag const tag("PatientID");
-    dcmtkpp::DataSet dataset;
+    odil::Tag const tag("PatientID");
+    odil::DataSet dataset;
     dataset.add(tag);
 
-    dcmtkpp::Tag const other("PatientName");
+    odil::Tag const other("PatientName");
 
     BOOST_CHECK_THROW(
         dataset.remove(other),
-        dcmtkpp::Exception);
+        odil::Exception);
 }
 
 BOOST_AUTO_TEST_CASE(Equality)
 {
-    dcmtkpp::DataSet dataset1;
+    odil::DataSet dataset1;
     dataset1.add("PatientID", {"DJ1234"});
 
-    dcmtkpp::DataSet dataset2;
+    odil::DataSet dataset2;
     dataset2.add("PatientID", {"DJ1234"});
 
-    dcmtkpp::DataSet dataset3;
+    odil::DataSet dataset3;
     dataset3.add("PatientAge", {"042Y"});
 
     BOOST_CHECK(dataset1 == dataset2);
@@ -414,13 +414,13 @@ BOOST_AUTO_TEST_CASE(Equality)
 
 BOOST_AUTO_TEST_CASE(Difference)
 {
-    dcmtkpp::DataSet dataset1;
+    odil::DataSet dataset1;
     dataset1.add("PatientID", {"DJ1234"});
 
-    dcmtkpp::DataSet dataset2;
+    odil::DataSet dataset2;
     dataset2.add("PatientID", {"DJ1234"});
 
-    dcmtkpp::DataSet dataset3;
+    odil::DataSet dataset3;
     dataset3.add("PatientAge", {"042Y"});
 
     BOOST_CHECK(! (dataset1 != dataset2));

@@ -1,5 +1,5 @@
 /*************************************************************************
- * dcmtkpp - Copyright (C) Universite de Strasbourg
+ * odil - Copyright (C) Universite de Strasbourg
  * Distributed under the terms of the CeCILL-B license, as published by
  * the CEA-CNRS-INRIA. Refer to the LICENSE file or to
  * http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
@@ -9,12 +9,12 @@
 #ifndef _5fd36547_9498_4cf3_87cc_737af51e93a9
 #define _5fd36547_9498_4cf3_87cc_737af51e93a9
 
-#include "dcmtkpp/DataSet.h"
-#include "dcmtkpp/registry.h"
-#include "dcmtkpp/message/Response.h"
-#include "dcmtkpp/Value.h"
+#include "odil/DataSet.h"
+#include "odil/registry.h"
+#include "odil/message/Response.h"
+#include "odil/Value.h"
 
-namespace dcmtkpp
+namespace odil
 {
 
 namespace message
@@ -59,8 +59,8 @@ public:
     /// @brief Destructor.
     virtual ~CFindResponse();
 
-    DCMTKPP_MESSAGE_OPTIONAL_FIELD_INTEGER_MACRO(message_id, registry::MessageID)
-    DCMTKPP_MESSAGE_OPTIONAL_FIELD_STRING_MACRO(
+    ODIL_MESSAGE_OPTIONAL_FIELD_INTEGER_MACRO(message_id, registry::MessageID)
+    ODIL_MESSAGE_OPTIONAL_FIELD_STRING_MACRO(
         affected_sop_class_uid, registry::AffectedSOPClassUID)
 };
 

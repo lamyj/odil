@@ -11,7 +11,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../src ${JsonCpp_INCLUDE_DIRS})
 add_definitions(
     ${DCMTK_DEFINITIONS}
     -D BOOST_ASIO_DYN_LINK
-    -D DCMTKPP_MAJOR_VERSION=${dcmtkpp_MAJOR_VERSION}
+    -D ODIL_MAJOR_VERSION=${odil_MAJOR_VERSION}
     -DBOOST_TEST_DYN_LINK
 )
 link_directories(${Boost_LIBRARY_DIRS})
@@ -21,7 +21,7 @@ foreach(test_file ${tests})
     get_filename_component(test ${test_file} NAME_WE)
 
     add_executable(${test} ${test_file} ${headers})
-    target_link_libraries(${test} dcmtkpp ${Boost_LIBRARIES})
+    target_link_libraries(${test} odil ${Boost_LIBRARIES})
 
     file(READ ${test_file} content)
 
@@ -43,10 +43,10 @@ foreach(test_file ${tests})
     foreach(match ${matches})
         string(REGEX REPLACE ${pattern} "\\1" vr ${match})
 
-        set(case "${vr}FromDcmtkpp")
+        set(case "${vr}FromOdil")
         add_test("${test}_${case}" "${test}" "--run_test=${case}")
 
-        set(case "${vr}ToDcmtkpp")
+        set(case "${vr}ToOdil")
         add_test("${test}_${case}" "${test}" "--run_test=${case}")
     endforeach()
 

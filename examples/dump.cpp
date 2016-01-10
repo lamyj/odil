@@ -4,9 +4,9 @@
 #include <string>
 #include <utility>
 
-#include <dcmtkpp/DataSet.h>
-#include <dcmtkpp/Reader.h>
-#include <dcmtkpp/Value.h>
+#include <odil/DataSet.h>
+#include <odil/Reader.h>
+#include <odil/Value.h>
 
 struct Printer
 {
@@ -30,7 +30,7 @@ struct Printer
         }
     }
 
-    void operator()(dcmtkpp::Value::DataSets const & value) const
+    void operator()(odil::Value::DataSets const & value) const
     {
         this->stream << "\n";
 
@@ -46,17 +46,17 @@ struct Printer
         }
     }
 
-    void operator()(dcmtkpp::Value::Binary const & value) const
+    void operator()(odil::Value::Binary const & value) const
     {
         this->stream << this->indent << "(binary)";
     }
 
-    void operator()(dcmtkpp::DataSet const & data_set) const
+    void operator()(odil::DataSet const & data_set) const
     {
         for(auto const & item: data_set)
         {
             this->stream << this->indent << item.first << " " << as_string(item.second.vr) << " ";
-            dcmtkpp::apply_visitor(*this, item.second.get_value());
+            odil::apply_visitor(*this, item.second.get_value());
             this->stream << "\n";
         }
     }
@@ -68,10 +68,10 @@ int main(int argc, char** argv)
     {
         std::ifstream stream(argv[i], std::ios::in | std::ios::binary);
 
-        std::pair<dcmtkpp::DataSet, dcmtkpp::DataSet> file;
+        std::pair<odil::DataSet, odil::DataSet> file;
         try
         {
-            file = dcmtkpp::Reader::read_file(stream);
+            file = odil::Reader::read_file(stream);
         }
         catch(std::exception & e)
         {

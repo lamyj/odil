@@ -1,5 +1,5 @@
 /*************************************************************************
- * dcmtkpp - Copyright (C) Universite de Strasbourg
+ * odil - Copyright (C) Universite de Strasbourg
  * Distributed under the terms of the CeCILL-B license, as published by
  * the CEA-CNRS-INRIA. Refer to the LICENSE file or to
  * http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
@@ -14,7 +14,7 @@
 #include <string>
 #include <vector>
 
-namespace dcmtkpp
+namespace odil
 {
 
 class DataSet;
@@ -99,70 +99,70 @@ public:
     /**
      * @brief Return the integers contained in the value.
      *
-     * If the value does not contain integers, a dcmtkpp::Exception is raised.
+     * If the value does not contain integers, a odil::Exception is raised.
      */
     Integers const & as_integers() const;
 
     /**
      * @brief Return the integers contained in the value.
      *
-     * If the value does not contain integers, a dcmtkpp::Exception is raised.
+     * If the value does not contain integers, a odil::Exception is raised.
      */
     Integers & as_integers();
 
     /**
      * @brief Return the reals contained in the value.
      *
-     * If the value does not contain reals, a dcmtkpp::Exception is raised.
+     * If the value does not contain reals, a odil::Exception is raised.
      */
     Reals const & as_reals() const;
 
     /**
      * @brief Return the reals contained in the value.
      *
-     * If the value does not contain reals, a dcmtkpp::Exception is raised.
+     * If the value does not contain reals, a odil::Exception is raised.
      */
     Reals & as_reals();
 
     /**
      * @brief Return the strings contained in the value.
      *
-     * If the value does not contain strings, a dcmtkpp::Exception is raised.
+     * If the value does not contain strings, a odil::Exception is raised.
      */
     Strings const & as_strings() const;
 
     /**
      * @brief Return the strings contained in the value.
      *
-     * If the value does not contain strings, a dcmtkpp::Exception is raised.
+     * If the value does not contain strings, a odil::Exception is raised.
      */
     Strings & as_strings();
 
     /**
      * @brief Return the data sets contained in the value.
      *
-     * If the value does not contain data sets, a dcmtkpp::Exception is raised.
+     * If the value does not contain data sets, a odil::Exception is raised.
      */
     DataSets const & as_data_sets() const;
 
     /**
      * @brief Return the data sets contained in the value.
      *
-     * If the value does not contain data sets, a dcmtkpp::Exception is raised.
+     * If the value does not contain data sets, a odil::Exception is raised.
      */
     DataSets & as_data_sets();
 
     /**
      * @brief Return the binary data contained in the value.
      *
-     * If the value does not contain binary data, a dcmtkpp::Exception is raised.
+     * If the value does not contain binary data, a odil::Exception is raised.
      */
     Binary const & as_binary() const;
 
     /**
      * @brief Return the binary data contained in the value.
      *
-     * If the value does not contain binary data, a dcmtkpp::Exception is raised.
+     * If the value does not contain binary data, a odil::Exception is raised.
      */
     Binary & as_binary();
 
@@ -198,6 +198,6 @@ apply_visitor(TVisitor const & visitor, Value & value);
 
 }
 
-#include "dcmtkpp/Value.txx"
+#include "odil/Value.txx"
 
 #endif // _dca5b15b_b8df_4925_a446_d42efe06c923

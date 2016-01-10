@@ -1,12 +1,12 @@
 /*************************************************************************
- * dcmtkpp - Copyright (C) Universite de Strasbourg
+ * odil - Copyright (C) Universite de Strasbourg
  * Distributed under the terms of the CeCILL-B license, as published by
  * the CEA-CNRS-INRIA. Refer to the LICENSE file or to
  * http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
  * for details.
  ************************************************************************/
 
-#include "dcmtkpp/dul/StateMachine.h"
+#include "odil/dul/StateMachine.h"
 
 #include <cstdint>
 #include <functional>
@@ -18,19 +18,19 @@
 #include <boost/asio.hpp>
 #include <boost/system/system_error.hpp>
 
-#include "dcmtkpp/AssociationParameters.h"
-#include "dcmtkpp/endian.h"
-#include "dcmtkpp/Exception.h"
-#include "dcmtkpp/dul/EventData.h"
-#include "dcmtkpp/dul/Transport.h"
-#include "dcmtkpp/pdu/AAbort.h"
-#include "dcmtkpp/pdu/AAssociate.h"
-#include "dcmtkpp/pdu/AAssociateRJ.h"
-#include "dcmtkpp/pdu/AReleaseRP.h"
-#include "dcmtkpp/pdu/AReleaseRQ.h"
-#include "dcmtkpp/pdu/PDataTF.h"
+#include "odil/AssociationParameters.h"
+#include "odil/endian.h"
+#include "odil/Exception.h"
+#include "odil/dul/EventData.h"
+#include "odil/dul/Transport.h"
+#include "odil/pdu/AAbort.h"
+#include "odil/pdu/AAssociate.h"
+#include "odil/pdu/AAssociateRJ.h"
+#include "odil/pdu/AReleaseRP.h"
+#include "odil/pdu/AReleaseRQ.h"
+#include "odil/pdu/PDataTF.h"
 
-namespace dcmtkpp
+namespace odil
 {
 
 namespace dul

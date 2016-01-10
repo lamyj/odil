@@ -1,12 +1,12 @@
 /*************************************************************************
- * dcmtkpp - Copyright (C) Universite de Strasbourg
+ * odil - Copyright (C) Universite de Strasbourg
  * Distributed under the terms of the CeCILL-B license, as published by
  * the CEA-CNRS-INRIA. Refer to the LICENSE file or to
  * http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
  * for details.
  ************************************************************************/
 
-#include "dcmtkpp/BasicDirectoryCreator.h"
+#include "odil/BasicDirectoryCreator.h"
 
 #include <algorithm>
 #include <fstream>
@@ -22,14 +22,14 @@
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/fstream.hpp>
 
-#include "dcmtkpp/DataSet.h"
-#include "dcmtkpp/Exception.h"
-#include "dcmtkpp/Reader.h"
-#include "dcmtkpp/registry.h"
-#include "dcmtkpp/Tag.h"
-#include "dcmtkpp/uid.h"
+#include "odil/DataSet.h"
+#include "odil/Exception.h"
+#include "odil/Reader.h"
+#include "odil/registry.h"
+#include "odil/Tag.h"
+#include "odil/uid.h"
 
-namespace dcmtkpp
+namespace odil
 {
 
 std::map<std::string, std::vector<BasicDirectoryCreator::RecordKey>> const

@@ -1,5 +1,5 @@
 /*************************************************************************
- * dcmtkpp - Copyright (C) Universite de Strasbourg
+ * odil - Copyright (C) Universite de Strasbourg
  * Distributed under the terms of the CeCILL-B license, as published by
  * the CEA-CNRS-INRIA. Refer to the LICENSE file or to
  * http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
@@ -9,7 +9,7 @@
 #ifndef _f9af3e63_3597_4513_8c10_b55058f5370b
 #define _f9af3e63_3597_4513_8c10_b55058f5370b
 
-#include "dcmtkpp/dcmtk/ElementAccessor.h"
+#include "odil/dcmtk/ElementAccessor.h"
 
 #include <dcmtk/config/osconfig.h>
 #include <dcmtk/dcmdata/dcdatset.h>
@@ -17,7 +17,7 @@
 #include <dcmtk/dcmdata/dcerror.h>
 #include <dcmtk/ofstd/ofstring.h>
 
-namespace dcmtkpp
+namespace odil
 {
 
 namespace dcmtk

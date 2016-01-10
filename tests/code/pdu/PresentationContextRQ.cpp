@@ -5,8 +5,8 @@
 #include <string>
 #include <vector>
 
-#include "dcmtkpp/Exception.h"
-#include "dcmtkpp/pdu/PresentationContextRQ.h"
+#include "odil/Exception.h"
+#include "odil/pdu/PresentationContextRQ.h"
 
 std::string const data(
     "\x20\x00\x00\x25"
@@ -19,7 +19,7 @@ std::string const data(
 
 BOOST_AUTO_TEST_CASE(Constructor)
 {
-    dcmtkpp::pdu::PresentationContextRQ const context(
+    odil::pdu::PresentationContextRQ const context(
         1, "abstract_syntax", {"ts1", "ts2"});
 
     BOOST_REQUIRE_EQUAL(context.get_item_type(), 0x20);
@@ -32,7 +32,7 @@ BOOST_AUTO_TEST_CASE(Constructor)
 
 BOOST_AUTO_TEST_CASE(Id)
 {
-    dcmtkpp::pdu::PresentationContextRQ context(
+    odil::pdu::PresentationContextRQ context(
         1, "abstract_syntax", {"ts1", "ts2"});
     context.set_id(123);
     BOOST_REQUIRE_EQUAL(context.get_id(), 123);
@@ -40,7 +40,7 @@ BOOST_AUTO_TEST_CASE(Id)
 
 BOOST_AUTO_TEST_CASE(AbstractSyntax)
 {
-    dcmtkpp::pdu::PresentationContextRQ context(
+    odil::pdu::PresentationContextRQ context(
         1, "abstract_syntax", {"ts1", "ts2"});
     context.set_abstract_syntax("foo");
     BOOST_REQUIRE_EQUAL(context.get_abstract_syntax(), "foo");
@@ -48,7 +48,7 @@ BOOST_AUTO_TEST_CASE(AbstractSyntax)
 
 BOOST_AUTO_TEST_CASE(TransferSyntaxes)
 {
-    dcmtkpp::pdu::PresentationContextRQ context(
+    odil::pdu::PresentationContextRQ context(
         1, "abstract_syntax", {"ts1", "ts2"});
     context.set_transfer_syntaxes({"foo", "bar"});
     BOOST_REQUIRE(
@@ -58,7 +58,7 @@ BOOST_AUTO_TEST_CASE(TransferSyntaxes)
 
 BOOST_AUTO_TEST_CASE(Write)
 {
-    dcmtkpp::pdu::PresentationContextRQ context(
+    odil::pdu::PresentationContextRQ context(
         3, "abstract_syntax", {"ts1", "ts2"});
 
     std::ostringstream stream;
@@ -71,7 +71,7 @@ BOOST_AUTO_TEST_CASE(Read)
 {
     std::istringstream stream(data);
 
-    dcmtkpp::pdu::PresentationContextRQ const context(stream);
+    odil::pdu::PresentationContextRQ const context(stream);
 
     BOOST_REQUIRE_EQUAL(context.get_item_type(), 0x20);
     BOOST_REQUIRE_EQUAL(context.get_id(), 3);

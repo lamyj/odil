@@ -1,5 +1,5 @@
 /*************************************************************************
- * dcmtkpp - Copyright (C) Universite de Strasbourg
+ * odil - Copyright (C) Universite de Strasbourg
  * Distributed under the terms of the CeCILL-B license, as published by
  * the CEA-CNRS-INRIA. Refer to the LICENSE file or to
  * http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
@@ -12,15 +12,15 @@
 #include <ostream>
 #include <string>
 
-#include "dcmtkpp/DataSet.h"
-#include "dcmtkpp/Element.h"
-#include "dcmtkpp/endian.h"
-#include "dcmtkpp/registry.h"
-#include "dcmtkpp/Tag.h"
-#include "dcmtkpp/Value.h"
-#include "dcmtkpp/VR.h"
+#include "odil/DataSet.h"
+#include "odil/Element.h"
+#include "odil/endian.h"
+#include "odil/registry.h"
+#include "odil/Tag.h"
+#include "odil/Value.h"
+#include "odil/VR.h"
 
-namespace dcmtkpp
+namespace odil
 {
 
 /// @brief Write DICOM objects to a stream.

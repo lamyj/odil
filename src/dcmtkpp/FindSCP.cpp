@@ -1,23 +1,23 @@
 /*************************************************************************
- * dcmtkpp - Copyright (C) Universite de Strasbourg
+ * odil - Copyright (C) Universite de Strasbourg
  * Distributed under the terms of the CeCILL-B license, as published by
  * the CEA-CNRS-INRIA. Refer to the LICENSE file or to
  * http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
  * for details.
  ************************************************************************/
 
-#include "dcmtkpp/FindSCP.h"
+#include "odil/FindSCP.h"
 
 #include <memory>
 
-#include "dcmtkpp/Association.h"
-#include "dcmtkpp/Exception.h"
-#include "dcmtkpp/SCP.h"
-#include "dcmtkpp/message/CFindRequest.h"
-#include "dcmtkpp/message/CFindResponse.h"
-#include "dcmtkpp/message/Response.h"
+#include "odil/Association.h"
+#include "odil/Exception.h"
+#include "odil/SCP.h"
+#include "odil/message/CFindRequest.h"
+#include "odil/message/CFindResponse.h"
+#include "odil/message/Response.h"
 
-namespace dcmtkpp
+namespace odil
 {
 
 FindSCP

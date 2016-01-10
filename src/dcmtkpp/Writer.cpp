@@ -1,12 +1,12 @@
 /*************************************************************************
- * dcmtkpp - Copyright (C) Universite de Strasbourg
+ * odil - Copyright (C) Universite de Strasbourg
  * Distributed under the terms of the CeCILL-B license, as published by
  * the CEA-CNRS-INRIA. Refer to the LICENSE file or to
  * http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
  * for details.
  ************************************************************************/
 
-#include "dcmtkpp/Writer.h"
+#include "odil/Writer.h"
 
 #include <cstdint>
 #include <map>
@@ -14,16 +14,16 @@
 #include <sstream>
 #include <string>
 
-#include "dcmtkpp/DataSet.h"
-#include "dcmtkpp/endian.h"
-#include "dcmtkpp/Element.h"
-#include "dcmtkpp/Exception.h"
-#include "dcmtkpp/registry.h"
-#include "dcmtkpp/Tag.h"
-#include "dcmtkpp/uid.h"
-#include "dcmtkpp/VR.h"
+#include "odil/DataSet.h"
+#include "odil/endian.h"
+#include "odil/Element.h"
+#include "odil/Exception.h"
+#include "odil/registry.h"
+#include "odil/Tag.h"
+#include "odil/uid.h"
+#include "odil/VR.h"
 
-#define dcmtkpp_write_binary(value, stream, byte_ordering, size) \
+#define odil_write_binary(value, stream, byte_ordering, size) \
 { \
     auto raw = value; \
     if(byte_ordering == ByteOrdering::LittleEndian) \
@@ -45,7 +45,7 @@
     } \
 }
 
-namespace dcmtkpp
+namespace odil
 {
 
 Writer
@@ -129,8 +129,8 @@ void
 Writer
 ::write_tag(Tag const & tag) const
 {
-    dcmtkpp_write_binary(tag.group, this->stream, this->byte_ordering, 16);
-    dcmtkpp_write_binary(tag.element, this->stream, this->byte_ordering, 16);
+    odil_write_binary(tag.group, this->stream, this->byte_ordering, 16);
+    odil_write_binary(tag.element, this->stream, this->byte_ordering, 16);
 }
 
 void
@@ -165,7 +165,7 @@ Writer
         if(vr == VR::OB || vr == VR::OW || vr == VR::OF || vr == VR::SQ ||
            vr == VR::UC || vr == VR::UR || vr == VR::UT || vr == VR::UN)
         {
-            dcmtkpp_write_binary(uint16_t(0), this->stream, this->byte_ordering, 16);
+            odil_write_binary(uint16_t(0), this->stream, this->byte_ordering, 16);
 
             uint32_t vl;
             if(vr == VR::SQ &&
@@ -177,16 +177,16 @@ Writer
             {
                vl = value_stream.tellp();
             }
-            dcmtkpp_write_binary(vl, this->stream, this->byte_ordering, 32);
+            odil_write_binary(vl, this->stream, this->byte_ordering, 32);
         }
         else
         {
-            dcmtkpp_write_binary(uint16_t(value_stream.tellp()), this->stream, this->byte_ordering, 16);
+            odil_write_binary(uint16_t(value_stream.tellp()), this->stream, this->byte_ordering, 16);
         }
     }
     else
     {
-        dcmtkpp_write_binary(uint32_t(value_stream.tellp()), this->stream, this->byte_ordering, 32);
+        odil_write_binary(uint32_t(value_stream.tellp()), this->stream, this->byte_ordering, 32);
     }
 
     this->stream.write(value_stream.str().c_str(), value_stream.tellp());
@@ -199,7 +199,7 @@ Writer
 void
 Writer
 ::write_file(DataSet const &data_set , std::ostream & stream,
-             dcmtkpp::DataSet const & meta_information,
+             odil::DataSet const & meta_information,
              std::string const & transfer_syntax, ItemEncoding item_encoding,
              bool use_group_length)
 {
@@ -307,7 +307,7 @@ Writer::Visitor
     {
         for(auto item: value)
         {
-            dcmtkpp_write_binary(
+            odil_write_binary(
                 int32_t(item), this->stream, this->byte_ordering, 32);
         }
     }
@@ -315,7 +315,7 @@ Writer::Visitor
     {
         for(auto item: value)
         {
-            dcmtkpp_write_binary(
+            odil_write_binary(
                 int16_t(item), this->stream, this->byte_ordering, 16);
         }
     }
@@ -323,7 +323,7 @@ Writer::Visitor
     {
         for(auto item: value)
         {
-            dcmtkpp_write_binary(
+            odil_write_binary(
                 uint32_t(item), this->stream, this->byte_ordering, 32);
         }
     }
@@ -331,7 +331,7 @@ Writer::Visitor
     {
         for(auto item: value)
         {
-            dcmtkpp_write_binary(
+            odil_write_binary(
                 uint16_t(item), this->stream, this->byte_ordering, 16);
         }
     }
@@ -353,7 +353,7 @@ Writer::Visitor
     {
         for(auto const & item: value)
         {
-            dcmtkpp_write_binary(
+            odil_write_binary(
                 double(item), this->stream, this->byte_ordering, 64);
         }
     }
@@ -361,7 +361,7 @@ Writer::Visitor
     {
         for(auto const & item: value)
         {
-            dcmtkpp_write_binary(
+            odil_write_binary(
                 float(item), this->stream, this->byte_ordering, 32);
         }
     }
@@ -424,7 +424,7 @@ Writer::Visitor
         {
             item_length = 0xffffffff;
         }
-        dcmtkpp_write_binary(item_length, sequence_stream, this->byte_ordering, 32);
+        odil_write_binary(item_length, sequence_stream, this->byte_ordering, 32);
 
         // Data set
         sequence_stream.write(item_stream.str().c_str(), item_stream.tellp());
@@ -437,7 +437,7 @@ Writer::Visitor
         if(this->item_encoding == ItemEncoding::UndefinedLength)
         {
             sequence_writer.write_tag(registry::ItemDelimitationItem);
-            dcmtkpp_write_binary(uint32_t(0), sequence_stream, this->byte_ordering, 32);
+            odil_write_binary(uint32_t(0), sequence_stream, this->byte_ordering, 32);
         }
     }
 
@@ -445,7 +445,7 @@ Writer::Visitor
     if(this->item_encoding == ItemEncoding::UndefinedLength)
     {
         sequence_writer.write_tag(registry::SequenceDelimitationItem);
-        dcmtkpp_write_binary(uint32_t(0), sequence_stream, this->byte_ordering, 32);
+        odil_write_binary(uint32_t(0), sequence_stream, this->byte_ordering, 32);
     }
 
     this->stream.write(sequence_stream.str().c_str(), sequence_stream.tellp());
@@ -472,7 +472,7 @@ Writer::Visitor
         for(int i=0; i<value.size(); i+=2)
         {
             uint16_t item = *reinterpret_cast<uint16_t const *>(&value[i]);
-            dcmtkpp_write_binary(item, this->stream, this->byte_ordering, 16);
+            odil_write_binary(item, this->stream, this->byte_ordering, 16);
         }
     }
     else if(this->vr == VR::OF)
@@ -484,7 +484,7 @@ Writer::Visitor
         for(int i=0; i<value.size(); i+=4)
         {
             uint32_t item = *reinterpret_cast<uint32_t const *>(&value[i]);
-            dcmtkpp_write_binary(item, this->stream, this->byte_ordering, 32);
+            odil_write_binary(item, this->stream, this->byte_ordering, 32);
         }
     }
     else
@@ -543,4 +543,4 @@ Writer::Visitor
 
 }
 
-#undef dcmtkpp_write_binary
+#undef odil_write_binary

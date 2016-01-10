@@ -1,5 +1,5 @@
 /*************************************************************************
- * dcmtkpp - Copyright (C) Universite de Strasbourg
+ * odil - Copyright (C) Universite de Strasbourg
  * Distributed under the terms of the CeCILL-B license, as published by
  * the CEA-CNRS-INRIA. Refer to the LICENSE file or to
  * http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
@@ -10,9 +10,9 @@
 #define _da2270e3_d393_415a_9c5c_6253152ed9da
 
 #include <ostream>
-#include "dcmtkpp/pdu/Item.h"
+#include "odil/pdu/Item.h"
 
-namespace dcmtkpp
+namespace odil
 {
 
 namespace pdu

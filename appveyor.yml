@@ -2,7 +2,7 @@ version: "{build}"
 
 os: Windows Server 2012 R2
 
-clone_folder: c:\projects\dcmtkpp
+clone_folder: c:\projects\odil
 
 environment:
   BOOST_ROOT: C:/Libraries/boost_1_59_0
@@ -29,7 +29,7 @@ install:
 - 7z x -bd -oC:\Libraries dcmtk-3.6.1_20150924_Win64_msvc14.zip
 
 before_build:
-  - cd c:\projects\dcmtkpp
+  - cd c:\projects\odil
   - md build
   - cd build
   - cmake
@@ -40,4 +40,4 @@ before_build:
     ..
 
 build:
-  project: C:\projects\dcmtkpp\build\dcmtkpp.sln
+  project: C:\projects\odil\build\odil.sln

@@ -1,12 +1,12 @@
 /*************************************************************************
- * dcmtkpp - Copyright (C) Universite de Strasbourg
+ * odil - Copyright (C) Universite de Strasbourg
  * Distributed under the terms of the CeCILL-B license, as published by
  * the CEA-CNRS-INRIA. Refer to the LICENSE file or to
  * http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
  * for details.
  ************************************************************************/
 
-#include "dcmtkpp/pdu/Item.h"
+#include "odil/pdu/Item.h"
 
 #include <algorithm>
 #include <cstdint>
@@ -16,10 +16,10 @@
 #include <utility>
 #include <vector>
 
-#include "dcmtkpp/endian.h"
-#include "dcmtkpp/Exception.h"
+#include "odil/endian.h"
+#include "odil/Exception.h"
 
-namespace dcmtkpp
+namespace odil
 {
 
 namespace pdu
@@ -73,7 +73,7 @@ Item::Field
 {
     if(this->_type != Type::unsigned_int_8)
     {
-        throw dcmtkpp::Exception("Incorrect type");
+        throw odil::Exception("Incorrect type");
     }
     return this->_uint8;
 }
@@ -84,7 +84,7 @@ Item::Field
 {
     if(this->_type != Type::unsigned_int_8)
     {
-        throw dcmtkpp::Exception("Incorrect type");
+        throw odil::Exception("Incorrect type");
     }
     return this->_uint8;
 }
@@ -95,7 +95,7 @@ Item::Field
 {
     if(this->_type != Type::unsigned_int_16)
     {
-        throw dcmtkpp::Exception("Incorrect type");
+        throw odil::Exception("Incorrect type");
     }
     return this->_uint16;
 }
@@ -106,7 +106,7 @@ Item::Field
 {
     if(this->_type != Type::unsigned_int_16)
     {
-        throw dcmtkpp::Exception("Incorrect type");
+        throw odil::Exception("Incorrect type");
     }
     return this->_uint16;
 }
@@ -117,7 +117,7 @@ Item::Field
 {
     if(this->_type != Type::unsigned_int_32)
     {
-        throw dcmtkpp::Exception("Incorrect type");
+        throw odil::Exception("Incorrect type");
     }
     return this->_uint32;
 }
@@ -128,7 +128,7 @@ Item::Field
 {
     if(this->_type != Type::unsigned_int_32)
     {
-        throw dcmtkpp::Exception("Incorrect type");
+        throw odil::Exception("Incorrect type");
     }
     return this->_uint32;
 }
@@ -139,7 +139,7 @@ Item::Field
 {
     if(this->_type != Type::string)
     {
-        throw dcmtkpp::Exception("Incorrect type");
+        throw odil::Exception("Incorrect type");
     }
     return this->_string;
 }
@@ -150,7 +150,7 @@ Item::Field
 {
     if(this->_type != Type::string)
     {
-        throw dcmtkpp::Exception("Incorrect type");
+        throw odil::Exception("Incorrect type");
     }
     return this->_string;
 }
@@ -161,7 +161,7 @@ Item::Field
 {
     if(this->_type != Type::items)
     {
-        throw dcmtkpp::Exception("Incorrect type");
+        throw odil::Exception("Incorrect type");
     }
     return this->_items;
 }
@@ -172,7 +172,7 @@ Item::Field
 {
     if(this->_type != Type::items)
     {
-        throw dcmtkpp::Exception("Incorrect type");
+        throw odil::Exception("Incorrect type");
     }
     return this->_items;
 }

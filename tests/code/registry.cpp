@@ -1,14 +1,14 @@
 #define BOOST_TEST_MODULE registry
 #include <boost/test/unit_test.hpp>
 
-#include "dcmtkpp/registry.h"
-#include "dcmtkpp/Tag.h"
+#include "odil/registry.h"
+#include "odil/Tag.h"
 
 BOOST_AUTO_TEST_CASE(PublicDictionary)
 {
-    auto const iterator = dcmtkpp::registry::public_dictionary.find(
-        dcmtkpp::registry::PatientName);
-    BOOST_REQUIRE(iterator != dcmtkpp::registry::public_dictionary.end());
+    auto const iterator = odil::registry::public_dictionary.find(
+        odil::registry::PatientName);
+    BOOST_REQUIRE(iterator != odil::registry::public_dictionary.end());
     auto const & entry = iterator->second;
     BOOST_REQUIRE_EQUAL(entry.name, "Patient's Name");
     BOOST_REQUIRE_EQUAL(entry.keyword, "PatientName");
@@ -18,9 +18,9 @@ BOOST_AUTO_TEST_CASE(PublicDictionary)
 
 BOOST_AUTO_TEST_CASE(UIDsDictionary)
 {
-    auto const iterator = dcmtkpp::registry::uids_dictionary.find(
-        dcmtkpp::registry::MRImageStorage);
-    BOOST_REQUIRE(iterator != dcmtkpp::registry::uids_dictionary.end());
+    auto const iterator = odil::registry::uids_dictionary.find(
+        odil::registry::MRImageStorage);
+    BOOST_REQUIRE(iterator != odil::registry::uids_dictionary.end());
     auto const & entry = iterator->second;
     BOOST_REQUIRE_EQUAL(entry.name, "MR Image Storage");
     BOOST_REQUIRE_EQUAL(entry.keyword, "MRImageStorage");

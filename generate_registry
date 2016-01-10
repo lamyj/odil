@@ -23,8 +23,8 @@ def main():
         trim_blocks=True)
     
     templates = {
-        "src/dcmtkpp/registry.h": jinja_environment.get_template("registry.h.tmpl"),
-        "src/dcmtkpp/registry.cpp": jinja_environment.get_template("registry.cpp.tmpl"),
+        "src/odil/registry.h": jinja_environment.get_template("registry.h.tmpl"),
+        "src/odil/registry.cpp": jinja_environment.get_template("registry.cpp.tmpl"),
     }
 
     sources = [

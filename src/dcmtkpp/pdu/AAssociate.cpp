@@ -1,12 +1,12 @@
 /*************************************************************************
- * dcmtkpp - Copyright (C) Universite de Strasbourg
+ * odil - Copyright (C) Universite de Strasbourg
  * Distributed under the terms of the CeCILL-B license, as published by
  * the CEA-CNRS-INRIA. Refer to the LICENSE file or to
  * http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
  * for details.
  ************************************************************************/
 
-#include "dcmtkpp/pdu/AAssociate.h"
+#include "odil/pdu/AAssociate.h"
 
 #include <algorithm>
 #include <cstdint>
@@ -15,15 +15,15 @@
 #include <string>
 #include <vector>
 
-#include "dcmtkpp/Exception.h"
-#include "dcmtkpp/pdu/ApplicationContext.h"
-#include "dcmtkpp/pdu/Item.h"
-#include "dcmtkpp/pdu/Object.h"
-#include "dcmtkpp/pdu/PresentationContextAC.h"
-#include "dcmtkpp/pdu/PresentationContextRQ.h"
-#include "dcmtkpp/pdu/UserInformation.h"
+#include "odil/Exception.h"
+#include "odil/pdu/ApplicationContext.h"
+#include "odil/pdu/Item.h"
+#include "odil/pdu/Object.h"
+#include "odil/pdu/PresentationContextAC.h"
+#include "odil/pdu/PresentationContextRQ.h"
+#include "odil/pdu/UserInformation.h"
 
-namespace dcmtkpp
+namespace odil
 {
 
 namespace pdu

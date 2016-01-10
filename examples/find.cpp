@@ -1,11 +1,11 @@
 #include <iostream>
 
-#include "dcmtkpp/Association.h"
-#include "dcmtkpp/DataSet.h"
-#include "dcmtkpp/FindSCU.h"
-#include "dcmtkpp/registry.h"
+#include "odil/Association.h"
+#include "odil/DataSet.h"
+#include "odil/FindSCU.h"
+#include "odil/registry.h"
 
-void print_informations(dcmtkpp::DataSet const & response)
+void print_informations(odil::DataSet const & response)
 {
     auto const name = response.has("PatientName")?
         response.as_string("PatientName", 0):"(no name)";
@@ -19,7 +19,7 @@ void print_informations(dcmtkpp::DataSet const & response)
 
 int main()
 {
-    dcmtkpp::Association association;
+    odil::Association association;
     association.set_peer_host("184.73.255.26");
     association.set_peer_port(11112);
     association.update_parameters()
@@ -27,28 +27,28 @@ int main()
         .set_called_ae_title("AWSPIXELMEDPUB")
         .set_presentation_contexts({
             {
-                1, dcmtkpp::registry::StudyRootQueryRetrieveInformationModelFIND,
-                { dcmtkpp::registry::ExplicitVRLittleEndian }, true, false
+                1, odil::registry::StudyRootQueryRetrieveInformationModelFIND,
+                { odil::registry::ExplicitVRLittleEndian }, true, false
             },
             {
-                3, dcmtkpp::registry::VerificationSOPClass,
-                { dcmtkpp::registry::ExplicitVRLittleEndian }, true, false
+                3, odil::registry::VerificationSOPClass,
+                { odil::registry::ExplicitVRLittleEndian }, true, false
             }
         });
     
     association.associate();
     
-    dcmtkpp::FindSCU scu(association);
+    odil::FindSCU scu(association);
 
     scu.echo();
 
-    dcmtkpp::DataSet query;
+    odil::DataSet query;
     query.add("PatientName", { "*" });
     query.add("QueryRetrieveLevel", { "STUDY" });
     query.add("StudyDescription");
     query.add("StudyDate");
     
-    scu.set_affected_sop_class(dcmtkpp::registry::StudyRootQueryRetrieveInformationModelFIND);
+    scu.set_affected_sop_class(odil::registry::StudyRootQueryRetrieveInformationModelFIND);
     
     std::cout << "--------\n";
     std::cout << "Callback\n";

@@ -1,25 +1,25 @@
 /*************************************************************************
- * dcmtkpp - Copyright (C) Universite de Strasbourg
+ * odil - Copyright (C) Universite de Strasbourg
  * Distributed under the terms of the CeCILL-B license, as published by
  * the CEA-CNRS-INRIA. Refer to the LICENSE file or to
  * http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
  * for details.
  ************************************************************************/
 
-#include "dcmtkpp/StoreSCP.h"
+#include "odil/StoreSCP.h"
 
 #include <functional>
 
-#include "dcmtkpp/Association.h"
-#include "dcmtkpp/Exception.h"
-#include "dcmtkpp/SCP.h"
-#include "dcmtkpp/Value.h"
-#include "dcmtkpp/message/CStoreRequest.h"
-#include "dcmtkpp/message/CStoreResponse.h"
-#include "dcmtkpp/message/CStoreRequest.h"
-#include "dcmtkpp/message/CStoreResponse.h"
+#include "odil/Association.h"
+#include "odil/Exception.h"
+#include "odil/SCP.h"
+#include "odil/Value.h"
+#include "odil/message/CStoreRequest.h"
+#include "odil/message/CStoreResponse.h"
+#include "odil/message/CStoreRequest.h"
+#include "odil/message/CStoreResponse.h"
 
-namespace dcmtkpp
+namespace odil
 {
 
 StoreSCP

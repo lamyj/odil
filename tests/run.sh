@@ -40,15 +40,15 @@ clean() {
     rm -rf ${directory}
 }
 
-directory=$(mktemp -d dcmtkpp.XXX)
+directory=$(mktemp -d odil.XXX)
 configure
 start_scp
 add_data
 
-export DCMTKPP_OWN_AET=LOCAL
-export DCMTKPP_PEER_HOST_NAME=127.0.0.1
-export DCMTKPP_PEER_PORT=11112
-export DCMTKPP_PEER_AET=REMOTE
+export ODIL_OWN_AET=LOCAL
+export ODIL_PEER_HOST_NAME=127.0.0.1
+export ODIL_PEER_PORT=11112
+export ODIL_PEER_AET=REMOTE
 
 ctest --no-compress-output -T Test $@ || true
 

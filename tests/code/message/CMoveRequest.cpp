@@ -1,27 +1,27 @@
 #define BOOST_TEST_MODULE CMoveRequest
 #include <boost/test/unit_test.hpp>
 
-#include "dcmtkpp/message/CMoveRequest.h"
-#include "dcmtkpp/DataSet.h"
-#include "dcmtkpp/message/Message.h"
-#include "dcmtkpp/registry.h"
+#include "odil/message/CMoveRequest.h"
+#include "odil/DataSet.h"
+#include "odil/message/Message.h"
+#include "odil/registry.h"
 
 #include "../../MessageFixtureBase.h"
 
-struct Fixture: public MessageFixtureBase<dcmtkpp::message::CMoveRequest>
+struct Fixture: public MessageFixtureBase<odil::message::CMoveRequest>
 {
-    dcmtkpp::DataSet command_set;
-    dcmtkpp::DataSet query;
+    odil::DataSet command_set;
+    odil::DataSet query;
 
     Fixture()
     {
         this->command_set.add(
-            "CommandField", {dcmtkpp::message::Message::Command::C_MOVE_RQ});
+            "CommandField", {odil::message::Message::Command::C_MOVE_RQ});
         this->command_set.add("MessageID", {1234});
         this->command_set.add("AffectedSOPClassUID",
-            {dcmtkpp::registry::PatientRootQueryRetrieveInformationModelMOVE});
+            {odil::registry::PatientRootQueryRetrieveInformationModelMOVE});
         this->command_set.add(
-            "Priority", {dcmtkpp::message::Message::Priority::MEDIUM});
+            "Priority", {odil::message::Message::Priority::MEDIUM});
         this->command_set.add("MoveDestination", {"destination"});
 
         this->query.add("PatientName", {"Doe^John"});
@@ -29,15 +29,15 @@ struct Fixture: public MessageFixtureBase<dcmtkpp::message::CMoveRequest>
         this->query.add("QueryRetrieveLevel", {"STUDY"});
     }
 
-    virtual void check(dcmtkpp::message::CMoveRequest const & message)
+    virtual void check(odil::message::CMoveRequest const & message)
     {
         BOOST_CHECK_EQUAL(
             message.get_command_field(),
-            dcmtkpp::message::Message::Command::C_MOVE_RQ);
+            odil::message::Message::Command::C_MOVE_RQ);
         BOOST_CHECK_EQUAL(message.get_message_id(), 1234);
         BOOST_CHECK_EQUAL(
             message.get_affected_sop_class_uid(),
-            dcmtkpp::registry::PatientRootQueryRetrieveInformationModelMOVE);
+            odil::registry::PatientRootQueryRetrieveInformationModelMOVE);
         BOOST_CHECK_EQUAL(message.get_move_destination(), "destination");
         BOOST_CHECK(message.has_data_set());
         BOOST_CHECK(message.get_data_set() == this->query);
@@ -46,9 +46,9 @@ struct Fixture: public MessageFixtureBase<dcmtkpp::message::CMoveRequest>
 
 BOOST_FIXTURE_TEST_CASE(Constructor, Fixture)
 {
-    dcmtkpp::message::CMoveRequest const message(
-        1234, dcmtkpp::registry::PatientRootQueryRetrieveInformationModelMOVE,
-        dcmtkpp::message::Message::Priority::MEDIUM, "destination",
+    odil::message::CMoveRequest const message(
+        1234, odil::registry::PatientRootQueryRetrieveInformationModelMOVE,
+        odil::message::Message::Priority::MEDIUM, "destination",
         this->query);
     this->check(message);
 }
@@ -61,7 +61,7 @@ BOOST_FIXTURE_TEST_CASE(MessageConstructor, Fixture)
 BOOST_FIXTURE_TEST_CASE(MessageConstructorWrongCommandField, Fixture)
 {
     this->command_set.as_int("CommandField") = {
-        dcmtkpp::message::Message::Command::C_ECHO_RQ};
+        odil::message::Message::Command::C_ECHO_RQ};
     this->check_message_constructor_throw(this->command_set, this->query);
 }
 
@@ -79,6 +79,6 @@ BOOST_FIXTURE_TEST_CASE(MessageConstructorMissingPriority, Fixture)
 
 BOOST_FIXTURE_TEST_CASE(MessageConstructorEmptyQuery, Fixture)
 {
-    dcmtkpp::DataSet empty;
+    odil::DataSet empty;
     this->check_message_constructor_throw(this->command_set, empty);
 }

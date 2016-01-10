@@ -4,7 +4,7 @@
 #include <sstream>
 #include <string>
 
-#include "dcmtkpp/pdu/ImplementationClassUID.h"
+#include "odil/pdu/ImplementationClassUID.h"
 
 std::string const data(
     "\x52\x00\x00\x03"
@@ -14,28 +14,28 @@ std::string const data(
 
 BOOST_AUTO_TEST_CASE(Constructor)
 {
-    dcmtkpp::pdu::ImplementationClassUID const item("foo");
+    odil::pdu::ImplementationClassUID const item("foo");
     BOOST_REQUIRE_EQUAL(item.get_implementation_class_uid(), "foo");
 }
 
 BOOST_AUTO_TEST_CASE(FromStream)
 {
     std::istringstream stream(data);
-    dcmtkpp::pdu::ImplementationClassUID const item(stream);
+    odil::pdu::ImplementationClassUID const item(stream);
 
     BOOST_REQUIRE_EQUAL(item.get_implementation_class_uid(), "foo");
 }
 
 BOOST_AUTO_TEST_CASE(ImplementationClassUID)
 {
-    dcmtkpp::pdu::ImplementationClassUID item("foo");
+    odil::pdu::ImplementationClassUID item("foo");
     item.set_implementation_class_uid("bar");
     BOOST_REQUIRE_EQUAL(item.get_implementation_class_uid(), "bar");
 }
 
 BOOST_AUTO_TEST_CASE(Write)
 {
-    dcmtkpp::pdu::ImplementationClassUID const item("foo");
+    odil::pdu::ImplementationClassUID const item("foo");
     std::ostringstream stream;
     stream << item;
 

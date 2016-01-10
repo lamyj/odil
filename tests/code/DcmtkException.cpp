@@ -4,22 +4,22 @@
 #include <dcmtk/config/osconfig.h>
 #include <dcmtk/ofstd/ofcond.h>
 
-#include "dcmtkpp/dcmtk/Exception.h"
+#include "odil/dcmtk/Exception.h"
 
 BOOST_AUTO_TEST_CASE(StringConstructor)
 {
-    dcmtkpp::dcmtk::Exception const exception("foo");
+    odil::dcmtk::Exception const exception("foo");
     BOOST_REQUIRE(
-        exception.get_source() == dcmtkpp::dcmtk::Exception::Source::Message);
+        exception.get_source() == odil::dcmtk::Exception::Source::Message);
     BOOST_REQUIRE_EQUAL(exception.what(), "foo");
-    BOOST_REQUIRE_THROW(exception.get_condition(), dcmtkpp::dcmtk::Exception);
+    BOOST_REQUIRE_THROW(exception.get_condition(), odil::dcmtk::Exception);
 }
 
 BOOST_AUTO_TEST_CASE(ConditionConstructor)
 {
-    dcmtkpp::dcmtk::Exception const exception(EC_IllegalParameter);
+    odil::dcmtk::Exception const exception(EC_IllegalParameter);
     BOOST_REQUIRE(
-        exception.get_source() == dcmtkpp::dcmtk::Exception::Source::Condition);
+        exception.get_source() == odil::dcmtk::Exception::Source::Condition);
     BOOST_REQUIRE_EQUAL(
         exception.what(), OFCondition(EC_IllegalParameter).text());
     BOOST_REQUIRE(exception.get_condition() == EC_IllegalParameter);

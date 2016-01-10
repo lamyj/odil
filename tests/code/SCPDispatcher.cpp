@@ -5,12 +5,12 @@
 #include <memory>
 #include <thread>
 
-#include "dcmtkpp/Association.h"
-#include "dcmtkpp/EchoSCP.h"
-#include "dcmtkpp/Exception.h"
-#include "dcmtkpp/SCPDispatcher.h"
-#include "dcmtkpp/message/Message.h"
-#include "dcmtkpp/message/Response.h"
+#include "odil/Association.h"
+#include "odil/EchoSCP.h"
+#include "odil/Exception.h"
+#include "odil/SCPDispatcher.h"
+#include "odil/message/Message.h"
+#include "odil/message/Response.h"
 
 struct Status
 {
@@ -21,26 +21,26 @@ struct Status
 
 void run_server(Status * status, bool with_echo)
 {
-    dcmtkpp::Association association;
+    odil::Association association;
     association.set_tcp_timeout(boost::posix_time::seconds(1));
 
     try
     {
         association.receive_association(boost::asio::ip::tcp::v4(), 11113);
 
-        auto echo_scp = std::make_shared<dcmtkpp::EchoSCP>(association,
-            [&status](dcmtkpp::message::CEchoRequest const &)
+        auto echo_scp = std::make_shared<odil::EchoSCP>(association,
+            [&status](odil::message::CEchoRequest const &)
             {
                 status->called = true;
-                return dcmtkpp::message::Response::Success;
+                return odil::message::Response::Success;
             });
 
-        dcmtkpp::SCPDispatcher dispatcher(association);
+        odil::SCPDispatcher dispatcher(association);
 
         if(with_echo)
         {
             dispatcher.set_scp(
-                dcmtkpp::message::Message::Command::C_ECHO_RQ, echo_scp);
+                odil::message::Message::Command::C_ECHO_RQ, echo_scp);
         }
 
         dispatcher.dispatch();
@@ -48,15 +48,15 @@ void run_server(Status * status, bool with_echo)
         // Should throw with peer closing connection
         association.receive_message();
     }
-    catch(dcmtkpp::AssociationAborted const &)
+    catch(odil::AssociationAborted const &)
     {
         status->server = "abort";
     }
-    catch(dcmtkpp::AssociationReleased const &)
+    catch(odil::AssociationReleased const &)
     {
         status->server = "release";
     }
-    catch(dcmtkpp::Exception const & e)
+    catch(odil::Exception const & e)
     {
         status->server = e.what();
     }
@@ -75,28 +75,28 @@ void run_echo_client(Status * status)
 
 BOOST_AUTO_TEST_CASE(Empty)
 {
-    dcmtkpp::Association association;
-    dcmtkpp::SCPDispatcher dispatcher(association);
+    odil::Association association;
+    odil::SCPDispatcher dispatcher(association);
     BOOST_REQUIRE_EQUAL(
-        dispatcher.has_scp(dcmtkpp::message::Message::Command::C_ECHO_RQ),
+        dispatcher.has_scp(odil::message::Message::Command::C_ECHO_RQ),
         false);
     BOOST_REQUIRE_THROW(
-        dispatcher.get_scp(dcmtkpp::message::Message::Command::C_ECHO_RQ),
-        dcmtkpp::Exception);
+        dispatcher.get_scp(odil::message::Message::Command::C_ECHO_RQ),
+        odil::Exception);
 }
 
 BOOST_AUTO_TEST_CASE(SCP)
 {
-    dcmtkpp::Association association;
-    dcmtkpp::SCPDispatcher dispatcher(association);
+    odil::Association association;
+    odil::SCPDispatcher dispatcher(association);
 
-    auto scp = std::make_shared<dcmtkpp::EchoSCP>(association);
+    auto scp = std::make_shared<odil::EchoSCP>(association);
     dispatcher.set_scp(
-        dcmtkpp::message::Message::Command::C_ECHO_RQ,
+        odil::message::Message::Command::C_ECHO_RQ,
         scp);
 
     BOOST_REQUIRE_NO_THROW(
-        dispatcher.get_scp(dcmtkpp::message::Message::Command::C_ECHO_RQ));
+        dispatcher.get_scp(odil::message::Message::Command::C_ECHO_RQ));
 }
 
 BOOST_AUTO_TEST_CASE(DispatchWithEcho)

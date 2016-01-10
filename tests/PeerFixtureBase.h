@@ -8,28 +8,28 @@
 
 #include <boost/lexical_cast.hpp>
 
-#include "dcmtkpp/Association.h"
-#include "dcmtkpp/AssociationParameters.h"
+#include "odil/Association.h"
+#include "odil/AssociationParameters.h"
 
 /// @brief Base class for fixtures of requiring a working association.
 class PeerFixtureBase
 {
 public:
     typedef
-        dcmtkpp::AssociationParameters::PresentationContext PresentationContext;
-    dcmtkpp::Association association;
+        odil::AssociationParameters::PresentationContext PresentationContext;
+    odil::Association association;
 
     PeerFixtureBase(std::vector<PresentationContext> const & contexts)
     {
         this->association.set_peer_host(
-            this->get_environment_variable("DCMTKPP_PEER_HOST_NAME"));
+            this->get_environment_variable("ODIL_PEER_HOST_NAME"));
         this->association.set_peer_port(
-            this->get_environment_variable<uint16_t>("DCMTKPP_PEER_PORT"));
+            this->get_environment_variable<uint16_t>("ODIL_PEER_PORT"));
         this->association.update_parameters()
             .set_calling_ae_title(
-                this->get_environment_variable("DCMTKPP_OWN_AET"))
+                this->get_environment_variable("ODIL_OWN_AET"))
             .set_called_ae_title(
-                this->get_environment_variable("DCMTKPP_PEER_AET"))
+                this->get_environment_variable("ODIL_PEER_AET"))
             .set_presentation_contexts(contexts);
 
         this->association.associate();

@@ -1,23 +1,23 @@
-#include <dcmtkpp/VR.h>
+#include <odil/VR.h>
 
 #include <map>
 #include <stdexcept>
 #include <string>
 
-#include "dcmtkpp/Exception.h"
-#include "dcmtkpp/registry.h"
-#include "dcmtkpp/Tag.h"
+#include "odil/Exception.h"
+#include "odil/registry.h"
+#include "odil/Tag.h"
 
 // Anonymous namespace, should not be publicly accessed
 namespace
 {
 
-#define ADD_TO_MAP(map, vr) map[dcmtkpp::VR::vr] = #vr
+#define ADD_TO_MAP(map, vr) map[odil::VR::vr] = #vr
 
-std::map<dcmtkpp::VR, std::string>
+std::map<odil::VR, std::string>
 _build_enum_to_name()
 {
-    std::map<dcmtkpp::VR, std::string> result;
+    std::map<odil::VR, std::string> result;
     ADD_TO_MAP(result, AE);
     ADD_TO_MAP(result, AS);
     ADD_TO_MAP(result, AT);
@@ -53,13 +53,13 @@ _build_enum_to_name()
 
 #undef ADD_TO_MAP
 
-std::map<std::string, dcmtkpp::VR>
+std::map<std::string, odil::VR>
 _build_name_to_enum()
 {
-    std::map<dcmtkpp::VR, std::string> const enum_to_name = _build_enum_to_name();
+    std::map<odil::VR, std::string> const enum_to_name = _build_enum_to_name();
 
-    std::map<std::string, dcmtkpp::VR> result;
-    for(std::map<dcmtkpp::VR, std::string>::const_iterator it = enum_to_name.begin();
+    std::map<std::string, odil::VR> result;
+    for(std::map<odil::VR, std::string>::const_iterator it = enum_to_name.begin();
         it != enum_to_name.end(); ++it)
     {
         result[it->second] = it->first;
@@ -68,15 +68,15 @@ _build_name_to_enum()
     return result;
 }
 
-std::map<dcmtkpp::VR, std::string> const
+std::map<odil::VR, std::string> const
 _enum_to_name = _build_enum_to_name();
 
-std::map<std::string, dcmtkpp::VR> const
+std::map<std::string, odil::VR> const
 _name_to_enum = _build_name_to_enum();
 
 }
 
-namespace dcmtkpp
+namespace odil
 {
 
 std::string as_string(VR vr)

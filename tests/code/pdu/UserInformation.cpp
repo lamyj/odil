@@ -3,20 +3,20 @@
 
 #include <sstream>
 
-#include "dcmtkpp/Exception.h"
-#include "dcmtkpp/pdu/ImplementationClassUID.h"
-#include "dcmtkpp/pdu/ImplementationVersionName.h"
-#include "dcmtkpp/pdu/MaximumLength.h"
-#include "dcmtkpp/pdu/RoleSelection.h"
-#include "dcmtkpp/pdu/UserInformation.h"
-#include "dcmtkpp/pdu/UserIdentityAC.h"
-#include "dcmtkpp/pdu/UserIdentityRQ.h"
+#include "odil/Exception.h"
+#include "odil/pdu/ImplementationClassUID.h"
+#include "odil/pdu/ImplementationVersionName.h"
+#include "odil/pdu/MaximumLength.h"
+#include "odil/pdu/RoleSelection.h"
+#include "odil/pdu/UserInformation.h"
+#include "odil/pdu/UserIdentityAC.h"
+#include "odil/pdu/UserIdentityRQ.h"
 
 BOOST_AUTO_TEST_CASE(ConstructorDefault)
 {
-    dcmtkpp::pdu::UserInformation const item;
-    BOOST_REQUIRE(item.get_sub_items<dcmtkpp::pdu::MaximumLength>().empty());
-    BOOST_REQUIRE(item.get_sub_items<dcmtkpp::pdu::UserIdentityRQ>().empty());
+    odil::pdu::UserInformation const item;
+    BOOST_REQUIRE(item.get_sub_items<odil::pdu::MaximumLength>().empty());
+    BOOST_REQUIRE(item.get_sub_items<odil::pdu::UserIdentityRQ>().empty());
 }
 
 BOOST_AUTO_TEST_CASE(ConstructorStreamMaximumLength)
@@ -29,9 +29,9 @@ BOOST_AUTO_TEST_CASE(ConstructorStreamMaximumLength)
     );
     std::istringstream stream(data);
 
-    dcmtkpp::pdu::UserInformation const item(stream);
+    odil::pdu::UserInformation const item(stream);
     BOOST_REQUIRE_EQUAL(
-        item.get_sub_items<dcmtkpp::pdu::MaximumLength>().size(), 1);
+        item.get_sub_items<odil::pdu::MaximumLength>().size(), 1);
 }
 
 BOOST_AUTO_TEST_CASE(ConstructorStreamImplementationClassUID)
@@ -43,9 +43,9 @@ BOOST_AUTO_TEST_CASE(ConstructorStreamImplementationClassUID)
     );
     std::istringstream stream(data);
 
-    dcmtkpp::pdu::UserInformation const item(stream);
+    odil::pdu::UserInformation const item(stream);
     BOOST_REQUIRE_EQUAL(
-        item.get_sub_items<dcmtkpp::pdu::ImplementationClassUID>().size(), 1);
+        item.get_sub_items<odil::pdu::ImplementationClassUID>().size(), 1);
 }
 
 BOOST_AUTO_TEST_CASE(ConstructorStreamRoleSelection)
@@ -59,9 +59,9 @@ BOOST_AUTO_TEST_CASE(ConstructorStreamRoleSelection)
     );
     std::istringstream stream(data);
 
-    dcmtkpp::pdu::UserInformation const item(stream);
+    odil::pdu::UserInformation const item(stream);
     BOOST_REQUIRE_EQUAL(
-        item.get_sub_items<dcmtkpp::pdu::RoleSelection>().size(), 1);
+        item.get_sub_items<odil::pdu::RoleSelection>().size(), 1);
 }
 
 BOOST_AUTO_TEST_CASE(ConstructorStreamImplementationVersionName)
@@ -73,9 +73,9 @@ BOOST_AUTO_TEST_CASE(ConstructorStreamImplementationVersionName)
     );
     std::istringstream stream(data);
 
-    dcmtkpp::pdu::UserInformation const item(stream);
+    odil::pdu::UserInformation const item(stream);
     BOOST_REQUIRE_EQUAL(
-        item.get_sub_items<dcmtkpp::pdu::ImplementationVersionName>().size(), 1);
+        item.get_sub_items<odil::pdu::ImplementationVersionName>().size(), 1);
 }
 
 BOOST_AUTO_TEST_CASE(ConstructorStreamUserIdentityRQ)
@@ -91,9 +91,9 @@ BOOST_AUTO_TEST_CASE(ConstructorStreamUserIdentityRQ)
     );
     std::istringstream stream(data);
 
-    dcmtkpp::pdu::UserInformation const item(stream);
+    odil::pdu::UserInformation const item(stream);
     BOOST_REQUIRE_EQUAL(
-        item.get_sub_items<dcmtkpp::pdu::UserIdentityRQ>().size(), 1);
+        item.get_sub_items<odil::pdu::UserIdentityRQ>().size(), 1);
 
 }
 
@@ -108,41 +108,41 @@ BOOST_AUTO_TEST_CASE(ConstructorStreamUserIdentityAC)
     );
     std::istringstream stream(data);
 
-    dcmtkpp::pdu::UserInformation const item(stream);
+    odil::pdu::UserInformation const item(stream);
     BOOST_REQUIRE_EQUAL(
-        item.get_sub_items<dcmtkpp::pdu::UserIdentityAC>().size(), 1);
+        item.get_sub_items<odil::pdu::UserIdentityAC>().size(), 1);
 }
 
 BOOST_AUTO_TEST_CASE(SetSubItems)
 {
-    dcmtkpp::pdu::UserInformation item;
-    BOOST_REQUIRE(item.get_sub_items<dcmtkpp::pdu::MaximumLength>().empty());
+    odil::pdu::UserInformation item;
+    BOOST_REQUIRE(item.get_sub_items<odil::pdu::MaximumLength>().empty());
 
-    item.set_sub_items<dcmtkpp::pdu::MaximumLength>({{0x12345678}});
+    item.set_sub_items<odil::pdu::MaximumLength>({{0x12345678}});
 
     BOOST_REQUIRE_EQUAL(
-        item.get_sub_items<dcmtkpp::pdu::MaximumLength>().size(), 1);
+        item.get_sub_items<odil::pdu::MaximumLength>().size(), 1);
 }
 
 BOOST_AUTO_TEST_CASE(DeleteSubItems)
 {
-    dcmtkpp::pdu::UserInformation item;
-    BOOST_REQUIRE(item.get_sub_items<dcmtkpp::pdu::MaximumLength>().empty());
+    odil::pdu::UserInformation item;
+    BOOST_REQUIRE(item.get_sub_items<odil::pdu::MaximumLength>().empty());
 
-    item.set_sub_items<dcmtkpp::pdu::MaximumLength>({{0x12345678}});
+    item.set_sub_items<odil::pdu::MaximumLength>({{0x12345678}});
 
     BOOST_REQUIRE_EQUAL(
-        item.get_sub_items<dcmtkpp::pdu::MaximumLength>().size(), 1);
+        item.get_sub_items<odil::pdu::MaximumLength>().size(), 1);
 
-    item.delete_sub_items<dcmtkpp::pdu::MaximumLength>();
+    item.delete_sub_items<odil::pdu::MaximumLength>();
 
-    BOOST_REQUIRE(item.get_sub_items<dcmtkpp::pdu::MaximumLength>().empty());
+    BOOST_REQUIRE(item.get_sub_items<odil::pdu::MaximumLength>().empty());
 }
 
 BOOST_AUTO_TEST_CASE(Write)
 {
-    dcmtkpp::pdu::UserInformation item;
-    item.set_sub_items<dcmtkpp::pdu::MaximumLength>({{0x12345678}});
+    odil::pdu::UserInformation item;
+    item.set_sub_items<odil::pdu::MaximumLength>({{0x12345678}});
 
     std::ostringstream data;
     data << item;

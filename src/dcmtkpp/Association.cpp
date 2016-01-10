@@ -1,5 +1,5 @@
 /*************************************************************************
- * dcmtkpp - Copyright (C) Universite de Strasbourg
+ * odil - Copyright (C) Universite de Strasbourg
  * Distributed under the terms of the CeCILL-B license, as published by
  * the CEA-CNRS-INRIA. Refer to the LICENSE file or to
  * http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
@@ -14,29 +14,29 @@
 #include <string>
 #include <vector>
 
-#include "dcmtkpp/AssociationParameters.h"
-#include "dcmtkpp/DataSet.h"
-#include "dcmtkpp/Exception.h"
-#include "dcmtkpp/uid.h"
-#include "dcmtkpp/dul/StateMachine.h"
-#include "dcmtkpp/message/Message.h"
-#include "dcmtkpp/pdu/AAbort.h"
-#include "dcmtkpp/pdu/AAssociate.h"
-#include "dcmtkpp/pdu/AAssociateRJ.h"
-#include "dcmtkpp/pdu/AReleaseRP.h"
-#include "dcmtkpp/pdu/AReleaseRQ.h"
-#include "dcmtkpp/pdu/ImplementationClassUID.h"
-#include "dcmtkpp/pdu/ImplementationVersionName.h"
-#include "dcmtkpp/pdu/PDataTF.h"
-#include "dcmtkpp/pdu/PresentationContextAC.h"
-#include "dcmtkpp/pdu/PresentationContextRQ.h"
-#include "dcmtkpp/pdu/RoleSelection.h"
-#include "dcmtkpp/pdu/UserIdentityRQ.h"
-#include "dcmtkpp/pdu/UserInformation.h"
-#include "dcmtkpp/Reader.h"
-#include "dcmtkpp/Writer.h"
+#include "odil/AssociationParameters.h"
+#include "odil/DataSet.h"
+#include "odil/Exception.h"
+#include "odil/uid.h"
+#include "odil/dul/StateMachine.h"
+#include "odil/message/Message.h"
+#include "odil/pdu/AAbort.h"
+#include "odil/pdu/AAssociate.h"
+#include "odil/pdu/AAssociateRJ.h"
+#include "odil/pdu/AReleaseRP.h"
+#include "odil/pdu/AReleaseRQ.h"
+#include "odil/pdu/ImplementationClassUID.h"
+#include "odil/pdu/ImplementationVersionName.h"
+#include "odil/pdu/PDataTF.h"
+#include "odil/pdu/PresentationContextAC.h"
+#include "odil/pdu/PresentationContextRQ.h"
+#include "odil/pdu/RoleSelection.h"
+#include "odil/pdu/UserIdentityRQ.h"
+#include "odil/pdu/UserInformation.h"
+#include "odil/Reader.h"
+#include "odil/Writer.h"
 
-namespace dcmtkpp
+namespace odil
 {
 
 Association

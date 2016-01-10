@@ -4,18 +4,18 @@
 #include <sstream>
 #include <string>
 
-#include "dcmtkpp/Exception.h"
-#include "dcmtkpp/pdu/MaximumLength.h"
+#include "odil/Exception.h"
+#include "odil/pdu/MaximumLength.h"
 
 BOOST_AUTO_TEST_CASE(ConstructorDefault)
 {
-    dcmtkpp::pdu::MaximumLength const maximum_length;
+    odil::pdu::MaximumLength const maximum_length;
     BOOST_REQUIRE_EQUAL(maximum_length.get_maximum_length(), 0);
 }
 
 BOOST_AUTO_TEST_CASE(ConstructorInt)
 {
-    dcmtkpp::pdu::MaximumLength const maximum_length(123);
+    odil::pdu::MaximumLength const maximum_length(123);
     BOOST_REQUIRE_EQUAL(maximum_length.get_maximum_length(), 123);
 }
 
@@ -28,21 +28,21 @@ BOOST_AUTO_TEST_CASE(FromStream)
     );
     std::istringstream stream(data);
 
-    dcmtkpp::pdu::MaximumLength const maximum_length(stream);
+    odil::pdu::MaximumLength const maximum_length(stream);
 
     BOOST_REQUIRE_EQUAL(maximum_length.get_maximum_length(), 0x12345678);
 }
 
 BOOST_AUTO_TEST_CASE(MaximumLength)
 {
-    dcmtkpp::pdu::MaximumLength maximum_length;
+    odil::pdu::MaximumLength maximum_length;
     maximum_length.set_maximum_length(123);
     BOOST_REQUIRE_EQUAL(maximum_length.get_maximum_length(), 123);
 }
 
 BOOST_AUTO_TEST_CASE(Write)
 {
-    dcmtkpp::pdu::MaximumLength const maximum_length(0x12345678);
+    odil::pdu::MaximumLength const maximum_length(0x12345678);
     std::ostringstream data;
     data << maximum_length;
 

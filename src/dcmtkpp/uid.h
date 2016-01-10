@@ -1,5 +1,5 @@
 /*************************************************************************
- * dcmtkpp - Copyright (C) Universite de Strasbourg
+ * odil - Copyright (C) Universite de Strasbourg
  * Distributed under the terms of the CeCILL-B license, as published by
  * the CEA-CNRS-INRIA. Refer to the LICENSE file or to
  * http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
@@ -11,16 +11,16 @@
 
 #include <string>
 
-namespace dcmtkpp
+namespace odil
 {
 
-/// @brief UID prefix of DCMTK++.
+/// @brief UID prefix of Odil.
 std::string const uid_prefix="1.2.826.0.1.3680043.9.5560";
 
-/// @brief Implementation class UID of DCMTK++.
+/// @brief Implementation class UID of Odil.
 extern std::string const implementation_class_uid;
 
-/// @brief Implementation version name of DCMTK++.
+/// @brief Implementation version name of Odil.
 extern std::string const implementation_version_name;
 
 /// @brief Generate a UID under the UID prefix.

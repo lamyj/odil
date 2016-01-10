@@ -1,26 +1,26 @@
 /*************************************************************************
- * dcmtkpp - Copyright (C) Universite de Strasbourg
+ * odil - Copyright (C) Universite de Strasbourg
  * Distributed under the terms of the CeCILL-B license, as published by
  * the CEA-CNRS-INRIA. Refer to the LICENSE file or to
  * http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
  * for details.
  ************************************************************************/
 
-#include "dcmtkpp/GetSCU.h"
+#include "odil/GetSCU.h"
 
 #include <functional>
 #include <sstream>
 #include <vector>
 
-#include "dcmtkpp/Association.h"
-#include "dcmtkpp/DataSet.h"
-#include "dcmtkpp/Exception.h"
-#include "dcmtkpp/StoreSCP.h"
-#include "dcmtkpp/message/CGetRequest.h"
-#include "dcmtkpp/message/CGetResponse.h"
-#include "dcmtkpp/message/CStoreRequest.h"
+#include "odil/Association.h"
+#include "odil/DataSet.h"
+#include "odil/Exception.h"
+#include "odil/StoreSCP.h"
+#include "odil/message/CGetRequest.h"
+#include "odil/message/CGetResponse.h"
+#include "odil/message/CStoreRequest.h"
 
-namespace dcmtkpp
+namespace odil
 {
 
 GetSCU

@@ -1,5 +1,5 @@
 /*************************************************************************
- * dcmtkpp - Copyright (C) Universite de Strasbourg
+ * odil - Copyright (C) Universite de Strasbourg
  * Distributed under the terms of the CeCILL-B license, as published by
  * the CEA-CNRS-INRIA. Refer to the LICENSE file or to
  * http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
@@ -15,12 +15,12 @@
 #include <string>
 #include <vector>
 
-#include "dcmtkpp/AssociationAcceptor.h"
-#include "dcmtkpp/AssociationParameters.h"
-#include "dcmtkpp/dul/StateMachine.h"
-#include "dcmtkpp/message/Message.h"
+#include "odil/AssociationAcceptor.h"
+#include "odil/AssociationParameters.h"
+#include "odil/dul/StateMachine.h"
+#include "odil/message/Message.h"
 
-namespace dcmtkpp
+namespace odil
 {
 
 /**

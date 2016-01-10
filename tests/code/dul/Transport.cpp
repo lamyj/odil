@@ -4,22 +4,22 @@
 #include <chrono>
 #include <boost/asio.hpp>
 
-#include "dcmtkpp/Exception.h"
-#include "dcmtkpp/dul/Transport.h"
+#include "odil/Exception.h"
+#include "odil/dul/Transport.h"
 
 BOOST_AUTO_TEST_CASE(Constructor)
 {
-    dcmtkpp::dul::Transport transport;
+    odil::dul::Transport transport;
     BOOST_REQUIRE(!transport.is_open());
 }
 
 BOOST_AUTO_TEST_CASE(Connect)
 {
-    dcmtkpp::dul::Transport transport;
+    odil::dul::Transport transport;
 
     boost::asio::ip::tcp::resolver resolver(transport.get_service());
     boost::asio::ip::tcp::resolver::query const query(
-        dcmtkpp::dul::Transport::Socket::protocol_type::v4(),
+        odil::dul::Transport::Socket::protocol_type::v4(),
         "www.example.com", "80");
     auto const endpoint_it = resolver.resolve(query);
 
@@ -37,9 +37,9 @@ BOOST_AUTO_TEST_CASE(Connect)
 
 BOOST_AUTO_TEST_CASE(NotConnected)
 {
-    dcmtkpp::dul::Transport transport;
+    odil::dul::Transport transport;
 
-    BOOST_REQUIRE_THROW(transport.write("..."), dcmtkpp::Exception);
-    BOOST_REQUIRE_THROW(transport.read(1), dcmtkpp::Exception);
-    BOOST_REQUIRE_THROW(transport.close(), dcmtkpp::Exception);
+    BOOST_REQUIRE_THROW(transport.write("..."), odil::Exception);
+    BOOST_REQUIRE_THROW(transport.read(1), odil::Exception);
+    BOOST_REQUIRE_THROW(transport.close(), odil::Exception);
 }

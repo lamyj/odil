@@ -1,9 +1,9 @@
 #ifndef _779c46d6_b6ea_443a_9642_f1ec5b87d4b3
 #define _779c46d6_b6ea_443a_9642_f1ec5b87d4b3
 
-#include "dcmtkpp/DataSet.h"
-#include "dcmtkpp/Exception.h"
-#include "dcmtkpp/message/Message.h"
+#include "odil/DataSet.h"
+#include "odil/Exception.h"
+#include "odil/message/Message.h"
 
 /// @brief Base class for fixtures of Message-derived classes.
 template<typename TMessage>
@@ -11,40 +11,40 @@ struct MessageFixtureBase
 {
     /// @brief Check that a specific message can be constructed from a generic Message.
     void check_message_constructor(
-        dcmtkpp::DataSet const & command_set)
+        odil::DataSet const & command_set)
     {
-        dcmtkpp::message::Message const generic_message(command_set);
+        odil::message::Message const generic_message(command_set);
         TMessage const message(generic_message);
         this->check(message);
     }
 
     /// @brief Check that a specific message can be constructed from a generic Message.
     void check_message_constructor(
-        dcmtkpp::DataSet const & command_set, dcmtkpp::DataSet const & data_set)
+        odil::DataSet const & command_set, odil::DataSet const & data_set)
     {
-        dcmtkpp::message::Message const generic_message(command_set, data_set);
+        odil::message::Message const generic_message(command_set, data_set);
         TMessage const message(generic_message);
         this->check(message);
     }
 
     /// @brief Check that a specific message cannot be constructed from a generic Message.
     void check_message_constructor_throw(
-        dcmtkpp::DataSet const & command_set)
+        odil::DataSet const & command_set)
     {
-        dcmtkpp::message::Message const generic_message(command_set);
+        odil::message::Message const generic_message(command_set);
         BOOST_CHECK_THROW(
             TMessage const message(generic_message),
-            dcmtkpp::Exception);
+            odil::Exception);
     }
 
     /// @brief Check that a specific message cannot be constructed from a generic Message.
     void check_message_constructor_throw(
-        dcmtkpp::DataSet const & command_set, dcmtkpp::DataSet const & data_set)
+        odil::DataSet const & command_set, odil::DataSet const & data_set)
     {
-        dcmtkpp::message::Message const generic_message(command_set, data_set);
+        odil::message::Message const generic_message(command_set, data_set);
         BOOST_CHECK_THROW(
             TMessage const message(generic_message),
-            dcmtkpp::Exception);
+            odil::Exception);
     }
 
     /// @brief Check that the specific message attributes are set correctly

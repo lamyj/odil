@@ -1,5 +1,5 @@
 /*************************************************************************
- * dcmtkpp - Copyright (C) Universite de Strasbourg
+ * odil - Copyright (C) Universite de Strasbourg
  * Distributed under the terms of the CeCILL-B license, as published by
  * the CEA-CNRS-INRIA. Refer to the LICENSE file or to
  * http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
@@ -11,7 +11,7 @@
 
 #include <string>
 
-namespace dcmtkpp
+namespace odil
 {
 
 class Tag;
@@ -31,14 +31,14 @@ std::string as_string(VR vr);
 /**
  * @brief Convert a string to its VR.
  *
- * If the string does not represent a VR, a dcmtkpp::Exception is raised.
+ * If the string does not represent a VR, a odil::Exception is raised.
  */
 VR as_vr(std::string const & vr);
 
 /**
  * @brief Guess a VR from a tag.
  *
- * If the VR cannot be guessed, a dcmtkpp::Exception is raised.
+ * If the VR cannot be guessed, a odil::Exception is raised.
  */
 VR as_vr(Tag const & tag);
 

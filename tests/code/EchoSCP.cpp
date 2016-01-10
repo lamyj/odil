@@ -7,11 +7,11 @@
 
 #include <boost/asio.hpp>
 
-#include "dcmtkpp/Association.h"
-#include "dcmtkpp/EchoSCP.h"
-#include "dcmtkpp/Exception.h"
-#include "dcmtkpp/message/CEchoRequest.h"
-#include "dcmtkpp/message/Response.h"
+#include "odil/Association.h"
+#include "odil/EchoSCP.h"
+#include "odil/Exception.h"
+#include "odil/message/CEchoRequest.h"
+#include "odil/message/Response.h"
 
 struct Status
 {
@@ -22,18 +22,18 @@ struct Status
 
 void run_server(Status * status)
 {
-    dcmtkpp::Association association;
+    odil::Association association;
     association.set_tcp_timeout(boost::posix_time::seconds(1));
 
     try
     {
         association.receive_association(boost::asio::ip::tcp::v4(), 11113);
 
-        dcmtkpp::EchoSCP echo_scp(association,
-            [status](dcmtkpp::message::CEchoRequest const &)
+        odil::EchoSCP echo_scp(association,
+            [status](odil::message::CEchoRequest const &)
             {
                 status->called = true;
-                return dcmtkpp::message::Response::Success;
+                return odil::message::Response::Success;
             });
 
         // Get echo message
@@ -42,17 +42,17 @@ void run_server(Status * status)
         // Should throw with peer closing connection
         association.receive_message();
     }
-    catch(dcmtkpp::AssociationAborted const &)
+    catch(odil::AssociationAborted const &)
     {
         status->server = "abort";
     }
-    catch(dcmtkpp::AssociationReleased const &)
+    catch(odil::AssociationReleased const &)
     {
         status->server = "release";
     }
-    catch(dcmtkpp::Exception const &)
+    catch(odil::Exception const &)
     {
-        status->server = "Other DCMTK++ exception";
+        status->server = "Other Odil exception";
     }
     catch(...)
     {
@@ -73,19 +73,19 @@ void run_client(Status * status, bool use_abort)
 
 BOOST_AUTO_TEST_CASE(Callback)
 {
-    dcmtkpp::Association association;
-    dcmtkpp::EchoSCP scp(association);
+    odil::Association association;
+    odil::EchoSCP scp(association);
 
     bool called = false;
     auto const callback =
-        [&called](dcmtkpp::message::CEchoRequest const &)
+        [&called](odil::message::CEchoRequest const &)
         {
             called = true;
-            return dcmtkpp::message::Response::Success;
+            return odil::message::Response::Success;
         };
 
     scp.set_callback(callback);
-    scp.get_callback()(dcmtkpp::message::CEchoRequest(1, ""));
+    scp.get_callback()(odil::message::CEchoRequest(1, ""));
     BOOST_REQUIRE_EQUAL(called, true);
 }
 

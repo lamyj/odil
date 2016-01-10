@@ -10,22 +10,22 @@
 #include <boost/asio.hpp>
 #include <boost/filesystem.hpp>
 
-#include "dcmtkpp/Association.h"
-#include "dcmtkpp/DataSet.h"
-#include "dcmtkpp/FindSCP.h"
-#include "dcmtkpp/Exception.h"
-#include "dcmtkpp/SCP.h"
-#include "dcmtkpp/Reader.h"
-#include "dcmtkpp/message/Response.h"
+#include "odil/Association.h"
+#include "odil/DataSet.h"
+#include "odil/FindSCP.h"
+#include "odil/Exception.h"
+#include "odil/SCP.h"
+#include "odil/Reader.h"
+#include "odil/message/Response.h"
 
 struct Status
 {
     int client;
     std::string server;
-    std::vector<dcmtkpp::DataSet> responses;
+    std::vector<odil::DataSet> responses;
 };
 
-class Generator: public dcmtkpp::SCP::DataSetGenerator
+class Generator: public odil::SCP::DataSetGenerator
 {
 public:
     Generator()
@@ -38,16 +38,16 @@ public:
         // Nothing to do.
     }
 
-    virtual void initialize(dcmtkpp::message::Request const & )
+    virtual void initialize(odil::message::Request const & )
     {
-        dcmtkpp::DataSet data_set_1;
-        data_set_1.add(dcmtkpp::registry::PatientName, {"Hello^World"});
-        data_set_1.add(dcmtkpp::registry::PatientID, {"1234"});
+        odil::DataSet data_set_1;
+        data_set_1.add(odil::registry::PatientName, {"Hello^World"});
+        data_set_1.add(odil::registry::PatientID, {"1234"});
         this->_responses.push_back(data_set_1);
 
-        dcmtkpp::DataSet data_set_2;
-        data_set_2.add(dcmtkpp::registry::PatientName, {"Doe^John"});
-        data_set_2.add(dcmtkpp::registry::PatientID, {"5678"});
+        odil::DataSet data_set_2;
+        data_set_2.add(odil::registry::PatientName, {"Doe^John"});
+        data_set_2.add(odil::registry::PatientID, {"5678"});
         this->_responses.push_back(data_set_2);
 
         this->_response_iterator = this->_responses.begin();
@@ -58,7 +58,7 @@ public:
         return (this->_response_iterator == this->_responses.end());
     }
 
-    virtual dcmtkpp::DataSet get() const
+    virtual odil::DataSet get() const
     {
         return *this->_response_iterator;
     }
@@ -70,20 +70,20 @@ public:
 
 
 private:
-    std::vector<dcmtkpp::DataSet> _responses;
-    std::vector<dcmtkpp::DataSet>::const_iterator _response_iterator;
+    std::vector<odil::DataSet> _responses;
+    std::vector<odil::DataSet>::const_iterator _response_iterator;
 };
 
 void run_server(Status * status)
 {
-    dcmtkpp::Association association;
+    odil::Association association;
     association.set_tcp_timeout(boost::posix_time::seconds(1));
 
     try
     {
         association.receive_association(boost::asio::ip::tcp::v4(), 11113);
 
-        dcmtkpp::FindSCP find_scp(association);
+        odil::FindSCP find_scp(association);
         auto const generator = std::make_shared<Generator>();
         find_scp.set_generator(generator);
 
@@ -93,17 +93,17 @@ void run_server(Status * status)
         // Should throw with peer closing connection
         association.receive_message();
     }
-    catch(dcmtkpp::AssociationAborted const &)
+    catch(odil::AssociationAborted const &)
     {
         status->server = "abort";
     }
-    catch(dcmtkpp::AssociationReleased const &)
+    catch(odil::AssociationReleased const &)
     {
         status->server = "release";
     }
-    catch(dcmtkpp::Exception const &)
+    catch(odil::Exception const &)
     {
-        status->server = "Other DCMTK++ exception";
+        status->server = "Other Odil exception";
     }
     catch(...)
     {
@@ -134,7 +134,7 @@ void run_client(Status * status)
         }
 
         std::ifstream stream(it->path().string());
-        auto const data_set = dcmtkpp::Reader::read_file(stream).second;
+        auto const data_set = odil::Reader::read_file(stream).second;
         status->responses.push_back(data_set);
 
         boost::filesystem::remove(it->path());

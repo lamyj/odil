@@ -4,7 +4,7 @@
 #include <sstream>
 #include <string>
 
-#include "dcmtkpp/pdu/AReleaseRQ.h"
+#include "odil/pdu/AReleaseRQ.h"
 
 std::string const data = {
     0x05, 0x00,
@@ -15,19 +15,19 @@ std::string const data = {
 
 BOOST_AUTO_TEST_CASE(ConstructorFields)
 {
-    dcmtkpp::pdu::AReleaseRQ const pdu;
+    odil::pdu::AReleaseRQ const pdu;
 }
 
 BOOST_AUTO_TEST_CASE(ConstructorStream)
 {
     std::istringstream stream(data);
-    dcmtkpp::pdu::AReleaseRQ const pdu(stream);
+    odil::pdu::AReleaseRQ const pdu(stream);
 }
 
 
 BOOST_AUTO_TEST_CASE(Write)
 {
-    dcmtkpp::pdu::AReleaseRQ const pdu;
+    odil::pdu::AReleaseRQ const pdu;
     std::ostringstream stream;
     stream << pdu;
     BOOST_REQUIRE(stream.str() == data);

@@ -1,7 +1,7 @@
 #define BOOST_TEST_MODULE xml_converter
 #include <boost/test/unit_test.hpp>
 
-#include "dcmtkpp/xml_converter.h"
+#include "odil/xml_converter.h"
 
 void check_attributes(boost::property_tree::ptree const & xml,
                       std::string const & tag,
@@ -97,8 +97,8 @@ void check_response(boost::property_tree::ptree const & xml,
 /******************************* TEST Nominal **********************************/
 BOOST_AUTO_TEST_CASE(AsXMLEmpty)
 {
-    dcmtkpp::DataSet data_set;
-    auto const xml = dcmtkpp::as_xml(data_set);
+    odil::DataSet data_set;
+    auto const xml = odil::as_xml(data_set);
 
     // Expected result:
     // <NativeDicomModel />
@@ -111,10 +111,10 @@ BOOST_AUTO_TEST_CASE(AsXMLEmpty)
 /******************************* TEST Nominal **********************************/
 BOOST_AUTO_TEST_CASE(AsXMLIntegers)
 {
-    dcmtkpp::DataSet data_set;
+    odil::DataSet data_set;
     data_set.add(0x00280010,
-        dcmtkpp::Element(dcmtkpp::Value::Integers({1, 2}), dcmtkpp::VR::US));
-    auto const xml = dcmtkpp::as_xml(data_set);
+        odil::Element(odil::Value::Integers({1, 2}), odil::VR::US));
+    auto const xml = odil::as_xml(data_set);
 
     // Expected result:
     // <NativeDicomModel>
@@ -125,16 +125,16 @@ BOOST_AUTO_TEST_CASE(AsXMLIntegers)
     // </NativeDicomModel>
 
     check_response(xml, "00280010", "US", "Rows",
-                   dcmtkpp::Value::Integers({1, 2}));
+                   odil::Value::Integers({1, 2}));
 }
 
 /******************************* TEST Nominal **********************************/
 BOOST_AUTO_TEST_CASE(AsXMLReals)
 {
-    dcmtkpp::DataSet data_set;
+    odil::DataSet data_set;
     data_set.add(0x00089459,
-        dcmtkpp::Element(dcmtkpp::Value::Reals({1.2, 3.4}), dcmtkpp::VR::FL));
-    auto const xml = dcmtkpp::as_xml(data_set);
+        odil::Element(odil::Value::Reals({1.2, 3.4}), odil::VR::FL));
+    auto const xml = odil::as_xml(data_set);
 
     // Expected result:
     // <NativeDicomModel>
@@ -146,18 +146,18 @@ BOOST_AUTO_TEST_CASE(AsXMLReals)
     // </NativeDicomModel>
 
     check_response(xml, "00089459", "FL", "RecommendedDisplayFrameRateInFloat",
-                   dcmtkpp::Value::Reals({1.2, 3.4}));
+                   odil::Value::Reals({1.2, 3.4}));
 }
 
 /******************************* TEST Nominal **********************************/
 BOOST_AUTO_TEST_CASE(AsXMLStrings)
 {
-    dcmtkpp::DataSet data_set;
+    odil::DataSet data_set;
     data_set.add(0x00080060,
-        dcmtkpp::Element(
-            dcmtkpp::Value::Strings({"FOO", "BAR"}),
-            dcmtkpp::VR::CS));
-    auto const xml = dcmtkpp::as_xml(data_set);
+        odil::Element(
+            odil::Value::Strings({"FOO", "BAR"}),
+            odil::VR::CS));
+    auto const xml = odil::as_xml(data_set);
 
     // Expected result:
     // <NativeDicomModel>
@@ -168,19 +168,19 @@ BOOST_AUTO_TEST_CASE(AsXMLStrings)
     // </NativeDicomModel>
 
     check_response(xml, "00080060", "CS", "Modality",
-                   dcmtkpp::Value::Strings({"FOO", "BAR"}));
+                   odil::Value::Strings({"FOO", "BAR"}));
 }
 
 /******************************* TEST Nominal **********************************/
 BOOST_AUTO_TEST_CASE(AsXMLPersonName)
 {
-    dcmtkpp::DataSet data_set;
+    odil::DataSet data_set;
     data_set.add(0x00100010,
-        dcmtkpp::Element(
-            dcmtkpp::Value::Strings({"Alpha^Betic=Ideo^Graphic=Pho^Netic",
+        odil::Element(
+            odil::Value::Strings({"Alpha^Betic=Ideo^Graphic=Pho^Netic",
                                      "family^given^middle^prefix^suffix"}),
-            dcmtkpp::VR::PN));
-    auto const xml = dcmtkpp::as_xml(data_set);
+            odil::VR::PN));
+    auto const xml = odil::as_xml(data_set);
 
     // Expected result:
     // <NativeDicomModel>
@@ -365,24 +365,24 @@ BOOST_AUTO_TEST_CASE(AsXMLPersonName)
 /******************************* TEST Nominal **********************************/
 BOOST_AUTO_TEST_CASE(AsXMLDataSets)
 {
-    dcmtkpp::DataSet item1;
+    odil::DataSet item1;
     item1.add(0x00100020,
-        dcmtkpp::Element(dcmtkpp::Value::Strings({"valueLO1"}),
-                         dcmtkpp::VR::LO));
+        odil::Element(odil::Value::Strings({"valueLO1"}),
+                         odil::VR::LO));
     item1.add(0x00100022,
-        dcmtkpp::Element(dcmtkpp::Value::Strings({"valueCS1"}),
-                         dcmtkpp::VR::CS));
-    dcmtkpp::DataSet item2;
+        odil::Element(odil::Value::Strings({"valueCS1"}),
+                         odil::VR::CS));
+    odil::DataSet item2;
     item2.add(0x00100022,
-        dcmtkpp::Element(dcmtkpp::Value::Strings({"valueCS2"}),
-                         dcmtkpp::VR::CS));
-    dcmtkpp::DataSet data_set;
+        odil::Element(odil::Value::Strings({"valueCS2"}),
+                         odil::VR::CS));
+    odil::DataSet data_set;
     data_set.add(0x00101002,
-        dcmtkpp::Element(
-            dcmtkpp::Value::DataSets({item1, item2}),
-            dcmtkpp::VR::SQ));
+        odil::Element(
+            odil::Value::DataSets({item1, item2}),
+            odil::VR::SQ));
 
-    auto const xml = dcmtkpp::as_xml(data_set);
+    auto const xml = odil::as_xml(data_set);
 
     // Expected result:
     // <NativeDicomModel>
@@ -415,7 +415,7 @@ BOOST_AUTO_TEST_CASE(AsXMLDataSets)
     BOOST_CHECK_EQUAL(native_dicom_model.front().first, "DicomAttribute");
     BOOST_REQUIRE_EQUAL(native_dicom_model.front().second.size(), 3);
 
-    dcmtkpp::Value::DataSets expected_values({item1, item2});
+    odil::Value::DataSets expected_values({item1, item2});
 
     int count = 0;
     for (auto it = native_dicom_model.front().second.begin();
@@ -469,7 +469,7 @@ BOOST_AUTO_TEST_CASE(AsXMLDataSets)
                         {
                             check_attributes((*it_dicomattr).second,
                                              std::string(current_value->first),
-                                             dcmtkpp::as_string(
+                                             odil::as_string(
                                                  current_value->second.vr),
                                              current_value->first.get_name());
                         }
@@ -512,13 +512,13 @@ BOOST_AUTO_TEST_CASE(AsXMLDataSets)
 /******************************* TEST Nominal **********************************/
 BOOST_AUTO_TEST_CASE(AsXMLBinary)
 {
-    dcmtkpp::DataSet data_set;
+    odil::DataSet data_set;
     data_set.add(0x00660023,
-        dcmtkpp::Element(
-            dcmtkpp::Value::Binary({0x1, 0x2, 0x3, 0x4, 0x5}),
-            dcmtkpp::VR::OW));
+        odil::Element(
+            odil::Value::Binary({0x1, 0x2, 0x3, 0x4, 0x5}),
+            odil::VR::OW));
 
-    auto const xml = dcmtkpp::as_xml(data_set);
+    auto const xml = odil::as_xml(data_set);
 
     // Expected result:
     // <NativeDicomModel>
@@ -571,12 +571,12 @@ BOOST_AUTO_TEST_CASE(AsXMLBinary)
 /******************************* TEST Nominal **********************************/
 BOOST_AUTO_TEST_CASE(AsXMLEmptyElement)
 {
-    dcmtkpp::DataSet data_set;
+    odil::DataSet data_set;
     data_set.add(0x00080060,
-        dcmtkpp::Element(
-            dcmtkpp::Value::Strings({}),
-            dcmtkpp::VR::CS));
-    auto const xml = dcmtkpp::as_xml(data_set);
+        odil::Element(
+            odil::Value::Strings({}),
+            odil::VR::CS));
+    auto const xml = odil::as_xml(data_set);
 
     // Expected result:
     // <NativeDicomModel>
@@ -584,7 +584,7 @@ BOOST_AUTO_TEST_CASE(AsXMLEmptyElement)
     // </NativeDicomModel>
 
     check_response(xml, "00080060", "CS", "Modality",
-                   dcmtkpp::Value::Strings({}));
+                   odil::Value::Strings({}));
 }
 
 /******************************* TEST Error ************************************/
@@ -592,50 +592,50 @@ BOOST_AUTO_TEST_CASE(AsXMLInvalidPersonName)
 {
     // Too many values separate by '^'
     {
-    dcmtkpp::DataSet data_set;
+    odil::DataSet data_set;
     data_set.add(0x00100010,
-        dcmtkpp::Element(
-            dcmtkpp::Value::Strings({"Alpha^Betic^Ideo^Graphic^Pho^Netic"}),
-            dcmtkpp::VR::PN));
-    BOOST_REQUIRE_THROW(dcmtkpp::as_xml(data_set), dcmtkpp::Exception);
+        odil::Element(
+            odil::Value::Strings({"Alpha^Betic^Ideo^Graphic^Pho^Netic"}),
+            odil::VR::PN));
+    BOOST_REQUIRE_THROW(odil::as_xml(data_set), odil::Exception);
     }
 
     // Too many values separate by '='
     {
-    dcmtkpp::DataSet data_set;
+    odil::DataSet data_set;
     data_set.add(0x00100010,
-        dcmtkpp::Element(
-            dcmtkpp::Value::Strings(
+        odil::Element(
+            odil::Value::Strings(
                 {"Alpha^Betic=Ideo^Graphic=Pho^Netic=Bad^Value"}),
-            dcmtkpp::VR::PN));
-    BOOST_REQUIRE_THROW(dcmtkpp::as_xml(data_set), dcmtkpp::Exception);
+            odil::VR::PN));
+    BOOST_REQUIRE_THROW(odil::as_xml(data_set), odil::Exception);
     }
 }
 
 /******************************* TEST Error ************************************/
 BOOST_AUTO_TEST_CASE(AsXMLInvalidDICOMTag)
 {
-    dcmtkpp::DataSet data_set;
+    odil::DataSet data_set;
     data_set.add(0xbad00bad,
-        dcmtkpp::Element(
-            dcmtkpp::Value::Strings({"value"}),
-            dcmtkpp::VR::CS));
-    BOOST_REQUIRE_THROW(dcmtkpp::as_xml(data_set), dcmtkpp::Exception);
+        odil::Element(
+            odil::Value::Strings({"value"}),
+            odil::VR::CS));
+    BOOST_REQUIRE_THROW(odil::as_xml(data_set), odil::Exception);
 }
 
 /******************************* TEST Error ************************************/
 BOOST_AUTO_TEST_CASE(AsXMLBadVR)
 {
-    dcmtkpp::DataSet data_set;
+    odil::DataSet data_set;
     data_set.add(0x00080060,
-        dcmtkpp::Element(
-            dcmtkpp::Value::Strings({"value"}),
-            dcmtkpp::VR::UNKNOWN));
-    BOOST_REQUIRE_THROW(dcmtkpp::as_xml(data_set), dcmtkpp::Exception);
+        odil::Element(
+            odil::Value::Strings({"value"}),
+            odil::VR::UNKNOWN));
+    BOOST_REQUIRE_THROW(odil::as_xml(data_set), odil::Exception);
 }
 
 template<typename TValueType>
-dcmtkpp::DataSet create_dataset(std::string const & tag, std::string const & vr,
+odil::DataSet create_dataset(std::string const & tag, std::string const & vr,
                                 std::string const & keyword,
                                 TValueType const & values,
                                 std::vector<int> const & order)
@@ -659,7 +659,7 @@ dcmtkpp::DataSet create_dataset(std::string const & tag, std::string const & vr,
     boost::property_tree::ptree dataset_xml;
     dataset_xml.add_child("NativeDicomModel", nativedicommodel);
 
-    return dcmtkpp::as_dataset(dataset_xml);
+    return odil::as_dataset(dataset_xml);
 }
 
 template<typename T>
@@ -684,7 +684,7 @@ void create_dataset_error(std::string const & tag, std::string const & vr,
     dataset_xml.add_child("NativeDicomModel", nativedicommodel);
 
     // throw Exception
-    dcmtkpp::as_dataset(dataset_xml);
+    odil::as_dataset(dataset_xml);
 }
 
 /******************************* TEST Nominal **********************************/
@@ -693,14 +693,14 @@ BOOST_AUTO_TEST_CASE(AsDataSetEmpty)
     boost::property_tree::ptree dataset_xml;
     dataset_xml.add_child("NativeDicomModel", boost::property_tree::ptree());
 
-    dcmtkpp::DataSet const data_set = dcmtkpp::as_dataset(dataset_xml);
+    odil::DataSet const data_set = odil::as_dataset(dataset_xml);
     BOOST_REQUIRE(data_set.empty());
 }
 
 /******************************* TEST Nominal **********************************/
 BOOST_AUTO_TEST_CASE(AsDataSetIntegers)
 {
-    dcmtkpp::Value::Integers values({128, 256});
+    odil::Value::Integers values({128, 256});
 
     // Tag Value sorted by number and not sorted
     std::vector<std::vector<int> > orders = {{0, 1}, {1, 0}};
@@ -710,7 +710,7 @@ BOOST_AUTO_TEST_CASE(AsDataSetIntegers)
                                              values, order);
         BOOST_REQUIRE_EQUAL(data_set.size(), 1);
         BOOST_REQUIRE(data_set.has("00280010"));
-        BOOST_REQUIRE(data_set.get_vr("00280010") == dcmtkpp::VR::US);
+        BOOST_REQUIRE(data_set.get_vr("00280010") == odil::VR::US);
         BOOST_REQUIRE(data_set.is_int("00280010"));
         BOOST_REQUIRE(data_set.as_int("00280010") == values);
     }
@@ -719,7 +719,7 @@ BOOST_AUTO_TEST_CASE(AsDataSetIntegers)
 /******************************* TEST Nominal **********************************/
 BOOST_AUTO_TEST_CASE(AsDataSetReals)
 {
-    dcmtkpp::Value::Reals values({1.2, 3.4});
+    odil::Value::Reals values({1.2, 3.4});
 
     // Tag Value sorted by number and not sorted
     std::vector<std::vector<int> > orders = {{0, 1}, {1, 0}};
@@ -730,7 +730,7 @@ BOOST_AUTO_TEST_CASE(AsDataSetReals)
                     values, order);
         BOOST_REQUIRE_EQUAL(data_set.size(), 1);
         BOOST_REQUIRE(data_set.has("00089459"));
-        BOOST_REQUIRE(data_set.get_vr("00089459") == dcmtkpp::VR::FL);
+        BOOST_REQUIRE(data_set.get_vr("00089459") == odil::VR::FL);
         BOOST_REQUIRE(data_set.is_real("00089459"));
         BOOST_REQUIRE(data_set.as_real("00089459") == values);
     }
@@ -739,7 +739,7 @@ BOOST_AUTO_TEST_CASE(AsDataSetReals)
 /******************************* TEST Nominal **********************************/
 BOOST_AUTO_TEST_CASE(AsDataSetStrings)
 {
-    dcmtkpp::Value::Strings values({"FOO", "BAR"});
+    odil::Value::Strings values({"FOO", "BAR"});
 
     // Tag Value sorted by number and not sorted
     std::vector<std::vector<int> > orders = {{0, 1}, {1, 0}};
@@ -749,7 +749,7 @@ BOOST_AUTO_TEST_CASE(AsDataSetStrings)
                                              values, order);
         BOOST_REQUIRE_EQUAL(data_set.size(), 1);
         BOOST_REQUIRE(data_set.has("00080060"));
-        BOOST_REQUIRE(data_set.get_vr("00080060") == dcmtkpp::VR::CS);
+        BOOST_REQUIRE(data_set.get_vr("00080060") == odil::VR::CS);
         BOOST_REQUIRE(data_set.is_string("00080060"));
         BOOST_REQUIRE(data_set.as_string("00080060") == values);
     }
@@ -827,12 +827,12 @@ BOOST_AUTO_TEST_CASE(AsDataSetPersonName)
         boost::property_tree::ptree dataset_xml;
         dataset_xml.add_child("NativeDicomModel", nativedicommodel);
 
-        dcmtkpp::DataSet const data_set = dcmtkpp::as_dataset(dataset_xml);
+        odil::DataSet const data_set = odil::as_dataset(dataset_xml);
         BOOST_REQUIRE_EQUAL(data_set.size(), 1);
         BOOST_REQUIRE(data_set.has("00100010"));
-        BOOST_REQUIRE(data_set.get_vr("00100010") == dcmtkpp::VR::PN);
+        BOOST_REQUIRE(data_set.get_vr("00100010") == odil::VR::PN);
         BOOST_REQUIRE(data_set.is_string("00100010"));
-        BOOST_REQUIRE(data_set.as_string("00100010") == dcmtkpp::Value::Strings(
+        BOOST_REQUIRE(data_set.as_string("00100010") == odil::Value::Strings(
             {"family^given^middle^prefix^suffix", "family=family=family"}));
     }
 }
@@ -840,16 +840,16 @@ BOOST_AUTO_TEST_CASE(AsDataSetPersonName)
 /******************************* TEST Nominal **********************************/
 BOOST_AUTO_TEST_CASE(AsDataSetDataSets)
 {
-    dcmtkpp::DataSet item1;
+    odil::DataSet item1;
     item1.add(0x00100020,
-        dcmtkpp::Element(dcmtkpp::Value::Strings({"FOO"}), dcmtkpp::VR::LO));
+        odil::Element(odil::Value::Strings({"FOO"}), odil::VR::LO));
     item1.add(0x00100022,
-        dcmtkpp::Element(dcmtkpp::Value::Strings({"BAR"}), dcmtkpp::VR::CS));
-    dcmtkpp::DataSet item2;
+        odil::Element(odil::Value::Strings({"BAR"}), odil::VR::CS));
+    odil::DataSet item2;
     item2.add(0x00100020,
-        dcmtkpp::Element(dcmtkpp::Value::Strings({"OTHER"}), dcmtkpp::VR::LO));
+        odil::Element(odil::Value::Strings({"OTHER"}), odil::VR::LO));
 
-    dcmtkpp::Value::DataSets expected_result({item1, item2});
+    odil::Value::DataSets expected_result({item1, item2});
 
     std::vector<std::vector<int> > orders = {{0, 1}, {1, 0}};
     for (auto order : orders)
@@ -869,7 +869,7 @@ BOOST_AUTO_TEST_CASE(AsDataSetDataSets)
             {
                 boost::property_tree::ptree subdicomattribute;
                 subdicomattribute.put("<xmlattr>.vr",
-                                      dcmtkpp::as_string(it->second.vr));
+                                      odil::as_string(it->second.vr));
                 subdicomattribute.put("<xmlattr>.tag", std::string(it->first));
                 subdicomattribute.put("<xmlattr>.keyword", it->first.get_name());
 
@@ -894,10 +894,10 @@ BOOST_AUTO_TEST_CASE(AsDataSetDataSets)
         boost::property_tree::ptree dataset_xml;
         dataset_xml.add_child("NativeDicomModel", nativedicommodel);
 
-        dcmtkpp::DataSet const data_set = dcmtkpp::as_dataset(dataset_xml);
+        odil::DataSet const data_set = odil::as_dataset(dataset_xml);
         BOOST_REQUIRE_EQUAL(data_set.size(), 1);
         BOOST_REQUIRE(data_set.has("00101002"));
-        BOOST_REQUIRE(data_set.get_vr("00101002") == dcmtkpp::VR::SQ);
+        BOOST_REQUIRE(data_set.get_vr("00101002") == odil::VR::SQ);
         BOOST_REQUIRE(data_set.is_data_set("00101002"));
 
         BOOST_REQUIRE(data_set.as_data_set("00101002") == expected_result);
@@ -923,20 +923,20 @@ BOOST_AUTO_TEST_CASE(AsDataSetBinary)
     boost::property_tree::ptree dataset_xml;
     dataset_xml.add_child("NativeDicomModel", nativedicommodel);
 
-    dcmtkpp::DataSet const data_set = dcmtkpp::as_dataset(dataset_xml);
+    odil::DataSet const data_set = odil::as_dataset(dataset_xml);
     BOOST_REQUIRE_EQUAL(data_set.size(), 1);
     BOOST_REQUIRE(data_set.has("00660023"));
-    BOOST_REQUIRE(data_set.get_vr("00660023") == dcmtkpp::VR::OW);
+    BOOST_REQUIRE(data_set.get_vr("00660023") == odil::VR::OW);
     BOOST_REQUIRE(data_set.is_binary("00660023"));
-    BOOST_REQUIRE(data_set.as_binary("00660023") == dcmtkpp::Value::Binary(
+    BOOST_REQUIRE(data_set.as_binary("00660023") == odil::Value::Binary(
         {0x1, 0x2, 0x3, 0x4, 0x5}));
 }
 
 /******************************* TEST Error ************************************/
 BOOST_AUTO_TEST_CASE(AsDataSetMissingRootNode)
 {
-    BOOST_REQUIRE_THROW(dcmtkpp::as_dataset(boost::property_tree::ptree()),
-                        dcmtkpp::Exception);
+    BOOST_REQUIRE_THROW(odil::as_dataset(boost::property_tree::ptree()),
+                        odil::Exception);
 }
 
 /******************************* TEST Error ************************************/
@@ -948,7 +948,7 @@ BOOST_AUTO_TEST_CASE(AsDataSetBadDICOMNode)
     boost::property_tree::ptree dataset_xml;
     dataset_xml.add_child("NativeDicomModel", nativedicommodel);
 
-    BOOST_REQUIRE_THROW(dcmtkpp::as_dataset(dataset_xml), dcmtkpp::Exception);
+    BOOST_REQUIRE_THROW(odil::as_dataset(dataset_xml), odil::Exception);
 }
 
 /******************************* TEST Error ************************************/
@@ -957,7 +957,7 @@ BOOST_AUTO_TEST_CASE(AsDataSetBadDicomAttributeSubNode)
     // String value
     BOOST_REQUIRE_THROW(create_dataset_error("00080060", "CS",
                                              "Modality", "FOO"),
-                        dcmtkpp::Exception);
+                        odil::Exception);
 
     { // Person Name
     boost::property_tree::ptree dicomattribute;
@@ -980,18 +980,18 @@ BOOST_AUTO_TEST_CASE(AsDataSetBadDicomAttributeSubNode)
     boost::property_tree::ptree dataset_xml;
     dataset_xml.add_child("NativeDicomModel", nativedicommodel);
 
-    BOOST_REQUIRE_THROW(dcmtkpp::as_dataset(dataset_xml), dcmtkpp::Exception);
+    BOOST_REQUIRE_THROW(odil::as_dataset(dataset_xml), odil::Exception);
     }
 
     // Real value
     BOOST_REQUIRE_THROW(create_dataset_error(
                             "00089459", "FL",
                             "RecommendedDisplayFrameRateInFloat", 1.2),
-                        dcmtkpp::Exception);
+                        odil::Exception);
 
     // Integer value
     BOOST_REQUIRE_THROW(create_dataset_error("00280010", "US", "Rows", 1),
-                        dcmtkpp::Exception);
+                        odil::Exception);
 
     { // Sequence
     boost::property_tree::ptree dicomattribute;
@@ -1009,14 +1009,14 @@ BOOST_AUTO_TEST_CASE(AsDataSetBadDicomAttributeSubNode)
     boost::property_tree::ptree dataset_xml;
     dataset_xml.add_child("NativeDicomModel", nativedicommodel);
 
-    BOOST_REQUIRE_THROW(dcmtkpp::as_dataset(dataset_xml), dcmtkpp::Exception);
+    BOOST_REQUIRE_THROW(odil::as_dataset(dataset_xml), odil::Exception);
     }
 
     // Binary
     BOOST_REQUIRE_THROW(create_dataset_error(
                             "00660023", "OW",
                             "TrianglePointIndexList", "AQIDBAU="),
-                        dcmtkpp::Exception);
+                        odil::Exception);
 }
 
 /******************************* TEST Error ************************************/
@@ -1024,7 +1024,7 @@ BOOST_AUTO_TEST_CASE(AsDataSetUnknownVR)
 {
     BOOST_REQUIRE_THROW(create_dataset_error("00080060", "UR",
                                              "Modality", "FOO"),
-                        dcmtkpp::Exception);
+                        odil::Exception);
 }
 
 /******************************* TEST Error ************************************/
@@ -1050,7 +1050,7 @@ BOOST_AUTO_TEST_CASE(AsDataSetBadPersonNameSubNode)
     boost::property_tree::ptree dataset_xml;
     dataset_xml.add_child("NativeDicomModel", nativedicommodel);
 
-    BOOST_REQUIRE_THROW(dcmtkpp::as_dataset(dataset_xml), dcmtkpp::Exception);
+    BOOST_REQUIRE_THROW(odil::as_dataset(dataset_xml), odil::Exception);
 }
 
 /******************************* TEST Error ************************************/
@@ -1076,7 +1076,7 @@ BOOST_AUTO_TEST_CASE(AsDataSetBadAlphabeticSubNode)
     boost::property_tree::ptree dataset_xml;
     dataset_xml.add_child("NativeDicomModel", nativedicommodel);
 
-    BOOST_REQUIRE_THROW(dcmtkpp::as_dataset(dataset_xml), dcmtkpp::Exception);
+    BOOST_REQUIRE_THROW(odil::as_dataset(dataset_xml), odil::Exception);
 }
 
 /******************************* TEST Error ************************************/
@@ -1103,5 +1103,5 @@ BOOST_AUTO_TEST_CASE(AsDataSetTooManyInlineBinaryNode)
     boost::property_tree::ptree dataset_xml;
     dataset_xml.add_child("NativeDicomModel", nativedicommodel);
 
-    BOOST_REQUIRE_THROW(dcmtkpp::as_dataset(dataset_xml), dcmtkpp::Exception);
+    BOOST_REQUIRE_THROW(odil::as_dataset(dataset_xml), odil::Exception);
 }

@@ -1,5 +1,5 @@
 /*************************************************************************
- * dcmtkpp - Copyright (C) Universite de Strasbourg
+ * odil - Copyright (C) Universite de Strasbourg
  * Distributed under the terms of the CeCILL-B license, as published by
  * the CEA-CNRS-INRIA. Refer to the LICENSE file or to
  * http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
@@ -9,11 +9,11 @@
 #ifndef _de64b8e1_4116_41f8_a085_dabfdc6c63c3
 #define _de64b8e1_4116_41f8_a085_dabfdc6c63c3
 
-#include "dcmtkpp/Value.h"
+#include "odil/Value.h"
 
-#include "dcmtkpp/Exception.h"
+#include "odil/Exception.h"
 
-namespace dcmtkpp
+namespace odil
 {
 template<typename TVisitor>
 typename TVisitor::result_type

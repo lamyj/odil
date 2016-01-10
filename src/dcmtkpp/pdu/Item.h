@@ -1,5 +1,5 @@
 /*************************************************************************
- * dcmtkpp - Copyright (C) Universite de Strasbourg
+ * odil - Copyright (C) Universite de Strasbourg
  * Distributed under the terms of the CeCILL-B license, as published by
  * the CEA-CNRS-INRIA. Refer to the LICENSE file or to
  * http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
@@ -16,7 +16,7 @@
 #include <utility>
 #include <vector>
 
-namespace dcmtkpp
+namespace odil
 {
 
 namespace pdu
@@ -61,70 +61,70 @@ public:
         /**
          * @brief Return the uint8_t stored in the field.
          *
-         * If the field does not contain an uint8_t, a dcmtkpp::Exception is raised.
+         * If the field does not contain an uint8_t, a odil::Exception is raised.
          */
         uint8_t as_unsigned_int_8() const;
 
         /**
          * @brief Return the uint8_t stored in the field.
          *
-         * If the field does not contain an uint8_t, a dcmtkpp::Exception is raised.
+         * If the field does not contain an uint8_t, a odil::Exception is raised.
          */
         uint8_t & as_unsigned_int_8();
 
         /**
          * @brief Return the uint16_t stored in the field.
          *
-         * If the field does not contain an uint16_t, a dcmtkpp::Exception is raised.
+         * If the field does not contain an uint16_t, a odil::Exception is raised.
          */
         uint16_t as_unsigned_int_16() const;
 
         /**
          * @brief Return the uint16_t stored in the field.
          *
-         * If the field does not contain an uint16_t, a dcmtkpp::Exception is raised.
+         * If the field does not contain an uint16_t, a odil::Exception is raised.
          */
         uint16_t & as_unsigned_int_16();
 
         /**
          * @brief Return the uint32_t stored in the field.
          *
-         * If the field does not contain an uint32_t, a dcmtkpp::Exception is raised.
+         * If the field does not contain an uint32_t, a odil::Exception is raised.
          */
         uint32_t as_unsigned_int_32() const;
 
         /**
          * @brief Return the uint32_t stored in the field.
          *
-         * If the field does not contain an uint32_t, a dcmtkpp::Exception is raised.
+         * If the field does not contain an uint32_t, a odil::Exception is raised.
          */
         uint32_t & as_unsigned_int_32();
 
         /**
          * @brief Return the string stored in the field.
          *
-         * If the field does not contain an string, a dcmtkpp::Exception is raised.
+         * If the field does not contain an string, a odil::Exception is raised.
          */
         std::string const & as_string() const;
 
         /**
          * @brief Return the string stored in the field.
          *
-         * If the field does not contain an string, a dcmtkpp::Exception is raised.
+         * If the field does not contain an string, a odil::Exception is raised.
          */
         std::string & as_string();
 
         /**
          * @brief Return the items stored in the field.
          *
-         * If the field does not contain items, a dcmtkpp::Exception is raised.
+         * If the field does not contain items, a odil::Exception is raised.
          */
         std::vector<Item> const & as_items() const;
 
         /**
          * @brief Return the items stored in the field.
          *
-         * If the field does not contain items, a dcmtkpp::Exception is raised.
+         * If the field does not contain items, a odil::Exception is raised.
          */
         std::vector<Item> & as_items();
 

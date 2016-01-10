@@ -1,12 +1,12 @@
 /*************************************************************************
- * dcmtkpp - Copyright (C) Universite de Strasbourg
+ * odil - Copyright (C) Universite de Strasbourg
  * Distributed under the terms of the CeCILL-B license, as published by
  * the CEA-CNRS-INRIA. Refer to the LICENSE file or to
  * http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
  * for details.
  ************************************************************************/
 
-#include "dcmtkpp/DataSet.h"
+#include "odil/DataSet.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -14,11 +14,11 @@
 #include <string>
 #include <vector>
 
-#include "dcmtkpp/Exception.h"
-#include "dcmtkpp/Tag.h"
-#include "dcmtkpp/VR.h"
+#include "odil/Exception.h"
+#include "odil/Tag.h"
+#include "odil/VR.h"
 
-namespace dcmtkpp
+namespace odil
 {
 
 DataSet
@@ -46,19 +46,19 @@ DataSet
         vr = as_vr(tag);
     }
 
-    if(::dcmtkpp::is_int(vr))
+    if(::odil::is_int(vr))
     {
         value = Value::Integers();
     }
-    else if(::dcmtkpp::is_real(vr))
+    else if(::odil::is_real(vr))
     {
         value = Value::Reals();
     }
-    else if(::dcmtkpp::is_string(vr))
+    else if(::odil::is_string(vr))
     {
         value = Value::Strings();
     }
-    else if(::dcmtkpp::is_binary(vr))
+    else if(::odil::is_binary(vr))
     {
         value = Value::Binary();
     }
@@ -68,7 +68,7 @@ DataSet
     }
     else
     {
-        throw Exception("Unknown VR: "+::dcmtkpp::as_string(vr));
+        throw Exception("Unknown VR: "+::odil::as_string(vr));
     }
 
     this->add(tag, Element(value, vr));

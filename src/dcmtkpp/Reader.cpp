@@ -1,12 +1,12 @@
 /*************************************************************************
- * dcmtkpp - Copyright (C) Universite de Strasbourg
+ * odil - Copyright (C) Universite de Strasbourg
  * Distributed under the terms of the CeCILL-B license, as published by
  * the CEA-CNRS-INRIA. Refer to the LICENSE file or to
  * http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
  * for details.
  ************************************************************************/
 
-#include "dcmtkpp/Reader.h"
+#include "odil/Reader.h"
 
 #include <algorithm>
 #include <cstdint>
@@ -16,17 +16,17 @@
 #include <string>
 #include <utility>
 
-#include "dcmtkpp/DataSet.h"
-#include "dcmtkpp/Element.h"
-#include "dcmtkpp/endian.h"
-#include "dcmtkpp/Exception.h"
-#include "dcmtkpp/registry.h"
-#include "dcmtkpp/Tag.h"
-#include "dcmtkpp/Value.h"
-#include "dcmtkpp/VR.h"
-#include "dcmtkpp/VRFinder.h"
+#include "odil/DataSet.h"
+#include "odil/Element.h"
+#include "odil/endian.h"
+#include "odil/Exception.h"
+#include "odil/registry.h"
+#include "odil/Tag.h"
+#include "odil/Value.h"
+#include "odil/VR.h"
+#include "odil/VRFinder.h"
 
-#define dcmtkpp_read_binary(type, value, stream, byte_ordering, size) \
+#define odil_read_binary(type, value, stream, byte_ordering, size) \
 type value; \
 { \
     uint##size##_t raw; \
@@ -50,7 +50,7 @@ type value; \
     value = *reinterpret_cast<type*>(&raw);\
 }
 
-#define dcmtkpp_ignore(stream, size) \
+#define odil_ignore(stream, size) \
     stream.ignore(size); \
     if(!stream) \
     { \
@@ -63,12 +63,12 @@ std::string read_string(std::istream & stream, unsigned int size)
     stream.read(&value[0], value.size());
     if(!stream)
     {
-        throw dcmtkpp::Exception("Cannot read string");
+        throw odil::Exception("Cannot read string");
     }
     return value;
 }
 
-namespace dcmtkpp
+namespace odil
 {
 
 Reader
@@ -122,8 +122,8 @@ Tag
 Reader
 ::read_tag() const
 {
-    dcmtkpp_read_binary(uint16_t, group, this->stream, this->byte_ordering, 16);
-    dcmtkpp_read_binary(uint16_t, element, this->stream, this->byte_ordering, 16);
+    odil_read_binary(uint16_t, group, this->stream, this->byte_ordering, 16);
+    odil_read_binary(uint16_t, element, this->stream, this->byte_ordering, 16);
     return Tag(group, element);
 }
 
@@ -278,25 +278,25 @@ Reader::Visitor
         {
             if(this->vr == VR::SL)
             {
-                dcmtkpp_read_binary(
+                odil_read_binary(
                     int32_t, item, this->stream, this->byte_ordering, 32);
                 value[i] = item;
             }
             else if(this->vr == VR::SS)
             {
-                dcmtkpp_read_binary(
+                odil_read_binary(
                     int16_t, item, this->stream, this->byte_ordering, 16);
                 value[i] = item;
             }
             else if(this->vr == VR::UL)
             {
-                dcmtkpp_read_binary(
+                odil_read_binary(
                     uint32_t, item, this->stream, this->byte_ordering, 32);
                 value[i] = item;
             }
             else if(this->vr == VR::AT || this->vr == VR::US)
             {
-                dcmtkpp_read_binary(
+                odil_read_binary(
                     uint16_t, item, this->stream, this->byte_ordering, 16);
                 value[i] = item;
             }
@@ -343,13 +343,13 @@ Reader::Visitor
         {
             if(this->vr == VR::FD)
             {
-                dcmtkpp_read_binary(
+                odil_read_binary(
                     double, item, this->stream, this->byte_ordering, 64);
                 value[i] = item;
             }
             else if(this->vr == VR::FL)
             {
-                dcmtkpp_read_binary(
+                odil_read_binary(
                     float, item, this->stream, this->byte_ordering, 32);
                 value[i] = item;
             }
@@ -450,7 +450,7 @@ Reader::Visitor
             else if(tag == registry::SequenceDelimitationItem)
             {
                 done = true;
-                dcmtkpp_ignore(this->stream, 4);
+                odil_ignore(this->stream, 4);
             }
             else
             {
@@ -481,7 +481,7 @@ Reader::Visitor
         value.resize(vl);
         for(unsigned int i=0; i<value.size(); i+=4)
         {
-            dcmtkpp_read_binary(
+            odil_read_binary(
                 float, item, this->stream, this->byte_ordering, 32);
             *reinterpret_cast<float*>(&value[i]) = item;
         }
@@ -496,7 +496,7 @@ Reader::Visitor
         value.resize(vl);
         for(unsigned int i=0; i<value.size(); i+=2)
         {
-            dcmtkpp_read_binary(
+            odil_read_binary(
                 uint16_t, item, this->stream, this->byte_ordering, 16);
             *reinterpret_cast<uint16_t*>(&value[i]) = item;
         }
@@ -522,21 +522,21 @@ Reader::Visitor
         if(vr == VR::OB || vr == VR::OW || vr == VR::OF || vr == VR::SQ ||
            vr == VR::UC || vr == VR::UR || vr == VR::UT || vr == VR::UN)
         {
-            dcmtkpp_ignore(this->stream, 2);
-            dcmtkpp_read_binary(
+            odil_ignore(this->stream, 2);
+            odil_read_binary(
                 uint32_t, vl, this->stream, this->byte_ordering, 32);
             length = vl;
         }
         else
         {
-            dcmtkpp_read_binary(
+            odil_read_binary(
                 uint16_t, vl, this->stream, this->byte_ordering, 16);
             length = vl;
         }
     }
     else
     {
-        dcmtkpp_read_binary(
+        odil_read_binary(
             uint32_t, vl, this->stream, this->byte_ordering, 32);
         length = vl;
     }
@@ -573,7 +573,7 @@ DataSet
 Reader::Visitor
 ::read_item(std::istream & specific_stream) const
 {
-    dcmtkpp_read_binary(
+    odil_read_binary(
         uint32_t, item_length, specific_stream, this->byte_ordering, 32);
 
     DataSet item;
@@ -599,7 +599,7 @@ Reader::Visitor
         {
             throw Exception("Unexpected tag: "+std::string(tag));
         }
-        dcmtkpp_ignore(specific_stream, 4);
+        odil_ignore(specific_stream, 4);
     }
 
     return item;
@@ -607,5 +607,5 @@ Reader::Visitor
 
 }
 
-#undef dcmtkpp_ignore
-#undef dcmtkpp_read_binary
+#undef odil_ignore
+#undef odil_read_binary

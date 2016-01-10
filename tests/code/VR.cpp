@@ -1,31 +1,31 @@
 #define BOOST_TEST_MODULE VR
 #include <boost/test/unit_test.hpp>
 
-#include "dcmtkpp/Exception.h"
-#include "dcmtkpp/VR.h"
+#include "odil/Exception.h"
+#include "odil/VR.h"
 
 BOOST_AUTO_TEST_CASE(as_string)
 {
-    dcmtkpp::VR const vr(dcmtkpp::VR::AT);
-    std::string const string = dcmtkpp::as_string(vr);
+    odil::VR const vr(odil::VR::AT);
+    std::string const string = odil::as_string(vr);
     BOOST_CHECK_EQUAL(string, "AT");
 }
 
 BOOST_AUTO_TEST_CASE(as_string_invalid)
 {
-    dcmtkpp::VR const vr(dcmtkpp::VR::INVALID);
-    BOOST_CHECK_THROW(dcmtkpp::as_string(vr), dcmtkpp::Exception);
+    odil::VR const vr(odil::VR::INVALID);
+    BOOST_CHECK_THROW(odil::as_string(vr), odil::Exception);
 }
 
 BOOST_AUTO_TEST_CASE(as_vr)
 {
     std::string const string("AT");
-    dcmtkpp::VR const vr = dcmtkpp::as_vr(string);
-    BOOST_CHECK(vr == dcmtkpp::VR::AT);
+    odil::VR const vr = odil::as_vr(string);
+    BOOST_CHECK(vr == odil::VR::AT);
 }
 
 BOOST_AUTO_TEST_CASE(as_vr_wrong)
 {
     std::string const string("XX");
-    BOOST_CHECK_THROW(dcmtkpp::as_vr(string), dcmtkpp::Exception);
+    BOOST_CHECK_THROW(odil::as_vr(string), odil::Exception);
 }

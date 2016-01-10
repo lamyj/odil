@@ -1,22 +1,22 @@
 /*************************************************************************
- * dcmtkpp - Copyright (C) Universite de Strasbourg
+ * odil - Copyright (C) Universite de Strasbourg
  * Distributed under the terms of the CeCILL-B license, as published by
  * the CEA-CNRS-INRIA. Refer to the LICENSE file or to
  * http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
  * for details.
  ************************************************************************/
 
-#include "dcmtkpp/pdu/AAssociateAC.h"
+#include "odil/pdu/AAssociateAC.h"
 
 #include <algorithm>
 #include <sstream>
 #include <vector>
 
-#include "dcmtkpp/Exception.h"
-#include "dcmtkpp/pdu/AAssociate.h"
-#include "dcmtkpp/pdu/PresentationContextAC.h"
+#include "odil/Exception.h"
+#include "odil/pdu/AAssociate.h"
+#include "odil/pdu/PresentationContextAC.h"
 
-namespace dcmtkpp
+namespace odil
 {
 
 namespace pdu

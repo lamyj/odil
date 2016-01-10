@@ -1,20 +1,20 @@
 /*************************************************************************
- * dcmtkpp - Copyright (C) Universite de Strasbourg
+ * odil - Copyright (C) Universite de Strasbourg
  * Distributed under the terms of the CeCILL-B license, as published by
  * the CEA-CNRS-INRIA. Refer to the LICENSE file or to
  * http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
  * for details.
  ************************************************************************/
 
-#include "dcmtkpp/pdu/MaximumLength.h"
+#include "odil/pdu/MaximumLength.h"
 
 #include <cstdint>
 #include <istream>
 
-#include "dcmtkpp/Exception.h"
-#include "dcmtkpp/pdu/Object.h"
+#include "odil/Exception.h"
+#include "odil/pdu/Object.h"
 
-namespace dcmtkpp
+namespace odil
 {
 
 namespace pdu

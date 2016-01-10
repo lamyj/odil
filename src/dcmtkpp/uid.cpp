@@ -1,29 +1,29 @@
 /*************************************************************************
- * dcmtkpp - Copyright (C) Universite de Strasbourg
+ * odil - Copyright (C) Universite de Strasbourg
  * Distributed under the terms of the CeCILL-B license, as published by
  * the CEA-CNRS-INRIA. Refer to the LICENSE file or to
  * http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
  * for details.
  ************************************************************************/
 
-#include "dcmtkpp/uid.h"
+#include "odil/uid.h"
 
 #include <random>
 #include <string>
 
-#include "dcmtkpp/Exception.h"
+#include "odil/Exception.h"
 
-#define DCMTKPP_STRINGIFY_HELPER(s) #s
-#define DCMTKPP_STRINGIFY(s) DCMTKPP_STRINGIFY_HELPER(s)
+#define ODIL_STRINGIFY_HELPER(s) #s
+#define ODIL_STRINGIFY(s) ODIL_STRINGIFY_HELPER(s)
 
-namespace dcmtkpp
+namespace odil
 {
 
-#ifdef DCMTKPP_MAJOR_VERSION
-std::string const implementation_class_uid=uid_prefix+"0." DCMTKPP_STRINGIFY(DCMTKPP_MAJOR_VERSION);
-std::string const implementation_version_name="DCMTK++ " DCMTKPP_STRINGIFY(DCMTKPP_MAJOR_VERSION);
+#ifdef ODIL_MAJOR_VERSION
+std::string const implementation_class_uid=uid_prefix+"0." ODIL_STRINGIFY(ODIL_MAJOR_VERSION);
+std::string const implementation_version_name="Odil " ODIL_STRINGIFY(ODIL_MAJOR_VERSION);
 #else
-#error DCMTKPP_MAJOR_VERSION must be defined
+#error ODIL_MAJOR_VERSION must be defined
 #endif
 
 std::string generate_uid()

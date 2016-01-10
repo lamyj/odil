@@ -1,9 +1,9 @@
 #define BOOST_TEST_MODULE FindSCU
 #include <boost/test/unit_test.hpp>
 
-#include "dcmtkpp/DataSet.h"
-#include "dcmtkpp/FindSCU.h"
-#include "dcmtkpp/registry.h"
+#include "odil/DataSet.h"
+#include "odil/FindSCU.h"
+#include "odil/registry.h"
 
 #include "../PeerFixtureBase.h"
 
@@ -11,13 +11,13 @@ struct Fixture: public PeerFixtureBase
 {
     static bool called;
 
-    dcmtkpp::DataSet query;
+    odil::DataSet query;
 
     Fixture()
     : PeerFixtureBase({
             {
-                1, dcmtkpp::registry::PatientRootQueryRetrieveInformationModelFIND,
-                { dcmtkpp::registry::ImplicitVRLittleEndian }, true, false
+                1, odil::registry::PatientRootQueryRetrieveInformationModelFIND,
+                { odil::registry::ImplicitVRLittleEndian }, true, false
             }
         })
     {
@@ -29,7 +29,7 @@ struct Fixture: public PeerFixtureBase
     }
 
 
-    static void callback(dcmtkpp::DataSet const &)
+    static void callback(odil::DataSet const &)
     {
         Fixture::called = true;
     }
@@ -39,22 +39,22 @@ bool Fixture::called = false;
 
 BOOST_FIXTURE_TEST_CASE(Find, Fixture)
 {
-    dcmtkpp::FindSCU scu(this->association);
+    odil::FindSCU scu(this->association);
 
-    scu.set_affected_sop_class(dcmtkpp::registry::PatientRootQueryRetrieveInformationModelFIND);
+    scu.set_affected_sop_class(odil::registry::PatientRootQueryRetrieveInformationModelFIND);
     auto const results = scu.find(this->query);
 
     BOOST_REQUIRE_EQUAL(results.size(), 1);
     BOOST_CHECK(
         results[0].as_string("PatientID") ==
-            dcmtkpp::Value::Strings({"DJ001"}));
+            odil::Value::Strings({"DJ001"}));
 }
 
 BOOST_FIXTURE_TEST_CASE(FindCallback, Fixture)
 {
-    dcmtkpp::FindSCU scu(this->association);
+    odil::FindSCU scu(this->association);
 
-    scu.set_affected_sop_class(dcmtkpp::registry::PatientRootQueryRetrieveInformationModelFIND);
+    scu.set_affected_sop_class(odil::registry::PatientRootQueryRetrieveInformationModelFIND);
     scu.find(this->query, Fixture::callback);
 
     BOOST_CHECK(Fixture::called);
