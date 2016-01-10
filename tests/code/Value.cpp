@@ -283,7 +283,7 @@ BOOST_AUTO_TEST_CASE(VisitorDataSets)
 
 BOOST_AUTO_TEST_CASE(VisitorBinary)
 {
-    dcmtkpp::Value const value({dcmtkpp::Value::Binary()});
+    dcmtkpp::Value const value((dcmtkpp::Value::Binary()));
     BOOST_REQUIRE_EQUAL(
         dcmtkpp::apply_visitor(Visitor(), value),
         typeid(dcmtkpp::Value::Binary).name());
