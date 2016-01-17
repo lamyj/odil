@@ -1,8 +1,12 @@
-sudo: required
-dist: trusty
 language: cpp
 compiler:
   - gcc
+matrix:
+  include:
+    - os: linux
+      sudo: required
+      dist: trusty
+    - os: osx
 addons:
   apt:
     packages:
@@ -16,6 +20,8 @@ addons:
     - libboost-test-dev
     - dcmtk
 before_install:
+  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew update; fi
+  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew install boost dcmtk icu4c jsoncpp; fi
   - pip install --user cpp-coveralls
 before_script:
   - export SRC_DIR=$PWD
