@@ -1,12 +1,12 @@
 language: cpp
-compiler:
-  - gcc
 matrix:
   include:
     - os: linux
       sudo: required
       dist: trusty
+      compiler: gcc
     - os: osx
+      compiler: clang
 addons:
   apt:
     packages:
@@ -21,7 +21,8 @@ addons:
     - dcmtk
 before_install:
   - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew update; fi
-  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew install boost dcmtk icu4c jsoncpp; fi
+  # Boost is already installed with another version
+  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew install dcmtk icu4c jsoncpp; fi
   - pip install --user cpp-coveralls
 before_script:
   - export SRC_DIR=$PWD
