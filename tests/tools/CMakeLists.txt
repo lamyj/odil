@@ -7,5 +7,6 @@ link_directories(${DCMTK_LIBRARY_DIRS})
 file(GLOB headers *.h)
 file(GLOB files "*.cc")
 
-add_executable(getscu ${files} ${headers})
-target_link_libraries(getscu ${DCMTK_LIBRARIES})
+add_executable(dcmtk_getscu ${files} ${headers})
+target_link_libraries(dcmtk_getscu ${DCMTK_LIBRARIES})
+set_target_properties(dcmtk_getscu PROPERTIES OUTPUT_NAME getscu)
