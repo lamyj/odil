@@ -26,7 +26,7 @@ install:
 - 7z x -bd -oC:\Libraries jsoncpp_0_10_5_Win64_msvc14.zip
   # DCMTK
 - ps: Start-FileDownload https://github.com/lamyj/dcmtk/releases/download/DCMTK-3.6.1_20150924/dcmtk-3.6.1_20150924_Win64_msvc14_dynamic.zip
-- 7z x -bd -oC:\Libraries dcmtk-3.6.1_20150924_Win64_msvc14.zip
+- 7z x -bd -oC:\Libraries dcmtk-3.6.1_20150924_Win64_msvc14_dynamic.zip
 
 before_build:
   - cd c:\projects\odil
