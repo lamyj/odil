@@ -25,7 +25,7 @@ install:
 - ps: Start-FileDownload https://github.com/lamyj/jsoncpp/releases/download/0.10.5/jsoncpp_0_10_5_Win64_msvc14.zip
 - 7z x -bd -oC:\Libraries jsoncpp_0_10_5_Win64_msvc14.zip
   # DCMTK
-- ps: Start-FileDownload https://github.com/lamyj/dcmtk/releases/download/DCMTK-3.6.1_20150924/dcmtk-3.6.1_20150924_Win64_msvc14.zip
+- ps: Start-FileDownload https://github.com/lamyj/dcmtk/releases/download/DCMTK-3.6.1_20150924/dcmtk-3.6.1_20150924_Win64_msvc14_dynamic.zip
 - 7z x -bd -oC:\Libraries dcmtk-3.6.1_20150924_Win64_msvc14.zip
 
 before_build:
