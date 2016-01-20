@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Welcome to Odil’s documentation! &mdash; Odil 0.4.0 documentation</title>
+    <title>Search &mdash; Odil 0.4.0 documentation</title>
     
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -23,10 +23,18 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="Odil 0.4.0 documentation" href="#" />
+    <script type="text/javascript" src="_static/searchtools.js"></script>
+    <link rel="top" title="Odil 0.4.0 documentation" href="index.html" />
+  <script type="text/javascript">
+    jQuery(function() { Search.loadIndex("searchindex.js"); });
+  </script>
+  
+  <script type="text/javascript" id="searchindexloader"></script>
+  
    
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
 
   </head>
   <body role="document">
@@ -36,7 +44,7 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
-        <li class="nav-item nav-item-0"><a href="#">Odil 0.4.0 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">Odil 0.4.0 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -45,47 +53,35 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="welcome-to-odil-s-documentation">
-<h1>Welcome to Odil&#8217;s documentation!<a class="headerlink" href="#welcome-to-odil-s-documentation" title="Permalink to this headline">¶</a></h1>
-<p>Odil is a C++11 library for the <a class="reference external" href="http://dicom.nema.org/">DICOM</a> standard.</p>
-<p>Odil leverages C++ constructs to provide a user-friendly API of the different
-parts of the <a class="reference external" href="http://dicom.nema.org/">DICOM</a> standard. Included in Odil are
-exception-based error handling, generic access to datasets elements, standard
-JSON and XML representation of datasets, and generic implementation of
-messages, clients and servers for the various DICOM protocols.</p>
-<p>Odil also provides conversion to and from
-<a class="reference external" href="http://dicom.offis.de/dcmtk.php.en">DCMTK</a> data structures.</p>
-<p>Odil builds and run on:</p>
-<ul class="simple">
-<li>Linux (Debian 7, Debian 8, Ubuntu 12.04, Ubuntu 14.04, both 32 and 64 bits)</li>
-<li>OS X</li>
-</ul>
-<p>Contents:</p>
-<div class="toctree-wrapper compound">
-<ul class="simple">
-</ul>
-</div>
-</div>
-
+  <h1 id="search-documentation">Search</h1>
+  <div id="fallback" class="admonition warning">
+  <script type="text/javascript">$('#fallback').hide();</script>
+  <p>
+    Please activate JavaScript to enable the search
+    functionality.
+  </p>
+  </div>
+  <p>
+    From here you can search these documents. Enter your search
+    words into the box below and click "search". Note that the search
+    function will automatically search for all of the words. Pages
+    containing fewer words won't appear in the result list.
+  </p>
+  <form action="" method="get">
+    <input type="text" name="q" value="" />
+    <input type="submit" value="search" />
+    <span id="search-progress" style="padding-left: 10px"></span>
+  </form>
+  
+  <div id="search-results">
+  
+  </div>
 
           </div>
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-<div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
-    <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
