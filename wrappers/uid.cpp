@@ -8,11 +8,15 @@
 
 #include <boost/python.hpp>
 
-void wrap_Tag();
-void wrap_uid();
+#include "odil/uid.h"
 
-BOOST_PYTHON_MODULE(_odil)
+void wrap_uid()
 {
-    wrap_Tag();
-    wrap_uid();
+    using namespace boost::python;
+    using namespace odil;
+
+    scope().attr("uid_prefix") = uid_prefix;
+    scope().attr("implementation_class_uid") = implementation_class_uid;
+    scope().attr("implementation_version_name") = implementation_version_name;
+    def("generate_uid", generate_uid);
 }
