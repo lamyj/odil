@@ -6,18 +6,27 @@
  * for details.
  ************************************************************************/
 
+#include <memory>
+
 #include <boost/python.hpp>
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 
 #include "odil/DataSet.h"
 #include "odil/Value.h"
 
-boost::python::object create_integers(
-    boost::python::tuple args, boost::python::dict kwargs)
+template<typename T>
+std::shared_ptr<T> create_value(boost::python::object const & sequence)
 {
-    auto self = args[0];
-    args = boost::python::tuple(args.slice(1, boost::python::_));
-    return self.attr("__init__")();
+    typedef typename T::value_type value_type;
+
+    std::vector<value_type> values(boost::python::len(sequence));
+    for(long i=0; i<boost::python::len(sequence); ++i)
+    {
+        boost::python::object item = sequence[i];
+        values[i] = boost::python::extract<value_type>(item);
+    }
+
+    return std::make_shared<T>(values);
 }
 
 void wrap_Value()
@@ -60,9 +69,33 @@ void wrap_Value()
     ;
 
     class_<Value::Integers>("Integers")
-        // TODO: constructor from Python Sequence
         .def(init<>())
+        .def("__init__", make_constructor(create_value<Value::Integers>))
         .def(vector_indexing_suite<Value::Integers>())
+    ;
+
+    class_<Value::Reals>("Reals")
+        .def(init<>())
+        .def("__init__", make_constructor(create_value<Value::Reals>))
+        .def(vector_indexing_suite<Value::Reals>())
+    ;
+
+    class_<Value::Strings>("Strings")
+        .def(init<>())
+        .def("__init__", make_constructor(create_value<Value::Strings>))
+        .def(vector_indexing_suite<Value::Strings>())
+    ;
+
+    class_<Value::DataSets>("DataSets")
+        .def(init<>())
+        .def("__init__", make_constructor(create_value<Value::DataSets>))
+        .def(vector_indexing_suite<Value::DataSets>())
+    ;
+
+    class_<Value::Binary>("Binary")
+        .def(init<>())
+        .def("__init__", make_constructor(create_value<Value::Binary>))
+        .def(vector_indexing_suite<Value::Binary>())
     ;
 }
 
