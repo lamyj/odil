@@ -6,16 +6,15 @@
  * for details.
  ************************************************************************/
 
-#include <memory>
-
 #include <boost/python.hpp>
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
+#include <boost/shared_ptr.hpp>
 
 #include "odil/DataSet.h"
 #include "odil/Value.h"
 
 template<typename T, typename python_type=typename T::value_type>
-std::shared_ptr<T> create_value(boost::python::object const & sequence)
+boost::shared_ptr<T> create_value(boost::python::object const & sequence)
 {
     typedef typename T::value_type value_type;
 
@@ -26,7 +25,9 @@ std::shared_ptr<T> create_value(boost::python::object const & sequence)
         values[i] = boost::python::extract<python_type>(item);
     }
 
-    return std::make_shared<T>(values);
+    // Old versions of Boost.Python (Debian 7, Ubuntu 12.04) do not like 
+    // std::shared_ptr
+    return boost::shared_ptr<T>(new T(values));
 }
 
 void wrap_Value()
