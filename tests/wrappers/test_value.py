@@ -23,7 +23,7 @@ class TestValue(unittest.TestCase):
         self.assertEqual([x for x in value.as_strings()], items)
 
     def test_data_sets_constructor(self):
-        items = ["foo", "bar"]
+        items = [_odil.DataSet(), _odil.DataSet()]
         value = _odil.Value(_odil.Value.DataSets(items))
         self.assertEqual([x for x in value.as_data_sets()], items)
 
@@ -69,7 +69,7 @@ class TestValueDataSets(unittest.TestCase):
         self.assertEqual([x for x in data], [])
 
     def test_sequence_constructor(self):
-        items = ["foo", "bar"]
+        items = [_odil.DataSet(), _odil.DataSet()]
         data = _odil.Value.DataSets(items)
         self.assertEqual([x for x in data], items)
 

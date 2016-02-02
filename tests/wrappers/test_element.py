@@ -27,7 +27,7 @@ class TestElement(unittest.TestCase):
         self.assertEqual(element.vr, _odil.VR.CS)
 
     def test_data_sets_constructor(self):
-        items = ["foo", "bar"]
+        items = [_odil.DataSet(), _odil.DataSet()]
         element = _odil.Element(_odil.Value.DataSets(items), _odil.VR.SQ)
         self.assertEqual([x for x in element.as_data_set()], items)
         self.assertEqual(element.vr, _odil.VR.SQ)
