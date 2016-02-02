@@ -17,6 +17,7 @@ addons:
     - zlib1g-dev
     - libboost-dev
     - libboost-filesystem-dev
+    - libboost-python-dev
     - libboost-test-dev
     - dcmtk
 before_install:
