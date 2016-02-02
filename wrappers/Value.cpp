@@ -14,7 +14,7 @@
 #include "odil/DataSet.h"
 #include "odil/Value.h"
 
-template<typename T>
+template<typename T, typename python_type=typename T::value_type>
 std::shared_ptr<T> create_value(boost::python::object const & sequence)
 {
     typedef typename T::value_type value_type;
@@ -23,7 +23,7 @@ std::shared_ptr<T> create_value(boost::python::object const & sequence)
     for(long i=0; i<boost::python::len(sequence); ++i)
     {
         boost::python::object item = sequence[i];
-        values[i] = boost::python::extract<value_type>(item);
+        values[i] = boost::python::extract<python_type>(item);
     }
 
     return std::make_shared<T>(values);
@@ -94,7 +94,7 @@ void wrap_Value()
 
     class_<Value::Binary>("Binary")
         .def(init<>())
-        .def("__init__", make_constructor(create_value<Value::Binary>))
+        .def("__init__", make_constructor(create_value<Value::Binary, char>))
         .def(vector_indexing_suite<Value::Binary>())
     ;
 }
