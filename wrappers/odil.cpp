@@ -8,13 +8,17 @@
 
 #include <boost/python.hpp>
 
+void wrap_Element();
 void wrap_Tag();
 void wrap_uid();
 void wrap_Value();
+void wrap_VR();
 
 BOOST_PYTHON_MODULE(_odil)
 {
+    wrap_Element();
     wrap_Tag();
     wrap_uid();
     wrap_Value();
+    wrap_VR();
 }
