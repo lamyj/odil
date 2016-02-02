@@ -10,9 +10,11 @@
 
 void wrap_Tag();
 void wrap_uid();
+void wrap_Value();
 
 BOOST_PYTHON_MODULE(_odil)
 {
     wrap_Tag();
     wrap_uid();
+    wrap_Value();
 }
