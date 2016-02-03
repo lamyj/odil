@@ -58,5 +58,6 @@ void wrap_Element()
             return_value_policy<reference_existing_object>())
         .def(self == self)
         .def(self != self)
+        .def("__len__", &Element::size)
     ;
 }
