@@ -12,8 +12,8 @@
 #include "odil/DataSet.h"
 
 
-BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(add_overloads_2, DataSet::add, 1, 2);
-BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(add_overloads_3, DataSet::add, 2, 3);
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(add_overloads_2, odil::DataSet::add, 1, 2);
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(add_overloads_3, odil::DataSet::add, 2, 3);
 
 void wrap_DataSet()
 {
