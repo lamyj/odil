@@ -22,8 +22,10 @@ void wrap_DataSet()
         .def("remove", &DataSet::remove)
         .def("has", &DataSet::has)
         .def("get_vr", &DataSet::get_vr)
-        //.def("empty", &DataSet::empty)
-        //.def("size", &DataSet::size)
+        .def("empty", static_cast<bool (DataSet::*)() const>(&DataSet::empty))
+        .def(
+            "size", 
+            static_cast<std::size_t (DataSet::*)() const>(&DataSet::size))
         // operator[], cf. map
         // is_XXX, as_XXX
         // iteration
