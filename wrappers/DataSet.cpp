@@ -70,10 +70,42 @@ void wrap_DataSet()
             static_cast<std::size_t (DataSet::*)(Tag const &) const>(
                 &DataSet::size))
         // operator[], cf. map
-        // is_XXX, as_XXX
+        .def("is_int", &DataSet::is_int)
+        .def(
+            "as_int", 
+            static_cast<Value::Integers & (DataSet::*)(Tag const &)>(
+                &DataSet::as_int), 
+            return_value_policy<reference_existing_object>())
+        .def("is_real", &DataSet::is_real)
+        .def(
+            "as_real", 
+            static_cast<Value::Reals & (DataSet::*)(Tag const &)>(
+                &DataSet::as_real), 
+            return_value_policy<reference_existing_object>())
+        .def("is_string", &DataSet::is_string)
+        .def(
+            "as_string", 
+            static_cast<Value::Strings & (DataSet::*)(Tag const &)>(
+                &DataSet::as_string), 
+            return_value_policy<reference_existing_object>())
+        .def("is_data_set", &DataSet::is_data_set)
+        .def(
+            "as_data_set", 
+            static_cast<Value::DataSets & (DataSet::*)(Tag const &)>(
+                &DataSet::as_data_set), 
+            return_value_policy<reference_existing_object>())
+        .def("is_binary", &DataSet::is_binary)
+        .def(
+            "as_binary", 
+            static_cast<Value::Binary & (DataSet::*)(Tag const &)>(
+                &DataSet::as_binary), 
+            return_value_policy<reference_existing_object>())
         // iteration
         .def(self == self)
         .def(self != self)
         //.def(map_indexing_suite<DataSet>())
+        .def(
+            "__len__", 
+            static_cast<std::size_t (DataSet::*)() const>(&DataSet::size)) 
     ;
 }
