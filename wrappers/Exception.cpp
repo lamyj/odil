@@ -8,21 +8,18 @@
 
 #include <boost/python.hpp>
 
-void wrap_DataSet();
-void wrap_Element();
-void wrap_Exception();
-void wrap_Tag();
-void wrap_uid();
-void wrap_Value();
-void wrap_VR();
+#include "odil/Exception.h"
 
-BOOST_PYTHON_MODULE(_odil)
+void translator(odil::Exception const & e)
 {
-    wrap_DataSet();
-    wrap_Element();
-    wrap_Exception();
-    wrap_Tag();
-    wrap_uid();
-    wrap_Value();
-    wrap_VR();
+    PyErr_SetString(PyExc_UserWarning, e.what());
 }
+
+void wrap_Exception()
+{
+    using namespace boost::python;
+    using namespace odil;
+
+    register_exception_translator<Exception>(translator);
+}
+
