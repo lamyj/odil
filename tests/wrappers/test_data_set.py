@@ -117,6 +117,50 @@ class TestDataSet(unittest.TestCase):
         self.assertEqual(
             [x for x in data_set.as_binary(tag)], [ord(x) for x in value])
 
+    def test_getitem(self):
+        data_set = _odil.DataSet()
+        data_set.add(_odil.Tag("PatientName"), _odil.Value.Strings(["Doe^John"]))
+        self.assertEqual(
+            [x for x in data_set[_odil.Tag("PatientName")].as_string()],
+            ["Doe^John"])
+        self.assertRaises(Exception, lambda x: data_set[_odil.Tag("PatientID")])
+
+    def test_iter(self):
+        data_set = _odil.DataSet()
+        data_set.add(_odil.Tag("PatientName"), _odil.Value.Strings(["Doe^John"]))
+        data_set.add(_odil.Tag("PatientID"), _odil.Value.Strings(["DJ123"]))
+        self.assertEqual(
+            [x.get_name() for x in data_set],
+            ["PatientName", "PatientID"])
+
+    def test_keys(self):
+        data_set = _odil.DataSet()
+        data_set.add(_odil.Tag("PatientName"), _odil.Value.Strings(["Doe^John"]))
+        data_set.add(_odil.Tag("PatientID"), _odil.Value.Strings(["DJ123"]))
+        self.assertEqual(
+            [x.get_name() for x in data_set.keys()],
+            ["PatientName", "PatientID"])
+
+    def test_values(self):
+        data_set = _odil.DataSet()
+        data_set.add(_odil.Tag("PatientName"), _odil.Value.Strings(["Doe^John"]))
+        data_set.add(_odil.Tag("PatientID"), _odil.Value.Strings(["DJ123"]))
+        self.assertEqual(
+            [
+                [item for item in element.as_string()] 
+                for element in data_set.values()],
+            [["Doe^John"], ["DJ123"]])
+
+    def test_items(self):
+        data_set = _odil.DataSet()
+        data_set.add(_odil.Tag("PatientName"), _odil.Value.Strings(["Doe^John"]))
+        data_set.add(_odil.Tag("PatientID"), _odil.Value.Strings(["DJ123"]))
+        self.assertEqual(
+            [
+                [tag.get_name(), [item for item in element.as_string()]] 
+                for tag, element in data_set.items()],
+            [["PatientName", ["Doe^John"]], ["PatientID", ["DJ123"]]])
+
 if __name__ == "__main__":
     unittest.main()
 

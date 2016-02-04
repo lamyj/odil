@@ -6,6 +6,8 @@
  * for details.
  ************************************************************************/
 
+#include <iterator>
+
 #include <boost/python.hpp>
 #include <boost/python/suite/indexing/map_indexing_suite.hpp>
 
@@ -14,6 +16,114 @@
 
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(add_overloads_2, odil::DataSet::add, 1, 2);
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(add_overloads_3, odil::DataSet::add, 2, 3);
+
+namespace
+{
+
+class ConstIteratorAdapter
+{
+public:
+    typedef odil::DataSet::const_iterator::difference_type difference_type;
+    typedef odil::DataSet::const_iterator::value_type::first_type value_type;
+    typedef odil::DataSet::const_iterator::value_type::first_type const * pointer;
+    typedef odil::DataSet::const_iterator::value_type::first_type const & reference;
+    typedef std::bidirectional_iterator_tag iterator_category;
+
+    ConstIteratorAdapter(odil::DataSet::const_iterator const & iterator)
+    : _iterator(iterator)
+    {
+        // Nothing else.
+    }
+
+    reference operator*() const
+    {
+        return this->_iterator->first;
+    }
+
+    ConstIteratorAdapter & operator++()
+    {
+        ++this->_iterator;
+        return *this;
+    }
+
+    ConstIteratorAdapter operator++(int)
+    {
+        ConstIteratorAdapter tmp(*this);
+        ++(*this);
+        return tmp;
+    }
+
+    ConstIteratorAdapter & operator--()
+    {
+        --this->_iterator;
+        return *this;
+    }
+
+    ConstIteratorAdapter operator--(int)
+    {
+        ConstIteratorAdapter tmp(*this);
+        --(*this);
+        return tmp;
+    }
+
+    bool operator==(ConstIteratorAdapter const & other)
+    {
+        return this->_iterator == other._iterator;
+    }
+
+    bool operator!=(ConstIteratorAdapter const & other)
+    {
+        return this->_iterator != other._iterator;
+    }
+
+private:
+    odil::DataSet::const_iterator _iterator;
+};
+
+ConstIteratorAdapter begin(odil::DataSet const & data_set)
+{
+    return ConstIteratorAdapter(data_set.begin());
+}
+
+ConstIteratorAdapter end(odil::DataSet const & data_set)
+{
+    return ConstIteratorAdapter(data_set.end());
+}
+
+boost::python::list keys(odil::DataSet const & data_set)
+{
+    boost::python::list result;
+    for(auto const & item: data_set)
+    {
+        result.append(item.first);
+    }
+
+    return result;
+}
+
+boost::python::list values(odil::DataSet const & data_set)
+{
+    boost::python::list result;
+    for(auto const & item: data_set)
+    {
+        result.append(item.second);
+    }
+
+    return result;
+}
+
+boost::python::list items(odil::DataSet const & data_set)
+{
+    boost::python::list result;
+    for(auto const & item: data_set)
+    {
+        result.append(boost::python::make_tuple(item.first, item.second));
+    }
+
+    return result;
+}
+
+}
 
 void wrap_DataSet()
 {
@@ -69,7 +179,10 @@ void wrap_DataSet()
             "size", 
             static_cast<std::size_t (DataSet::*)(Tag const &) const>(
                 &DataSet::size))
-        // operator[], cf. map
+        .def(
+            "__getitem__", 
+            static_cast<Element & (DataSet::*)(Tag const&)>(&DataSet::operator[]),
+            return_value_policy<reference_existing_object>())
         .def("is_int", &DataSet::is_int)
         .def(
             "as_int", 
@@ -100,10 +213,12 @@ void wrap_DataSet()
             static_cast<Value::Binary & (DataSet::*)(Tag const &)>(
                 &DataSet::as_binary), 
             return_value_policy<reference_existing_object>())
-        // iteration
+        .def("keys", &keys)
+        .def("__iter__", range(&begin, &end))
+        .def("values", &values)
+        .def("items", &items)
         .def(self == self)
         .def(self != self)
-        //.def(map_indexing_suite<DataSet>())
         .def(
             "__len__", 
             static_cast<std::size_t (DataSet::*)() const>(&DataSet::size)) 
