@@ -11,6 +11,7 @@
 void wrap_DataSet();
 void wrap_Element();
 void wrap_Exception();
+void wrap_read();
 void wrap_Tag();
 void wrap_uid();
 void wrap_Value();
@@ -21,6 +22,7 @@ BOOST_PYTHON_MODULE(_odil)
     wrap_DataSet();
     wrap_Element();
     wrap_Exception();
+    wrap_read();
     wrap_Tag();
     wrap_uid();
     wrap_Value();
