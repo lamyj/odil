@@ -7,14 +7,16 @@ add_subdirectory(tools)
 file(GLOB headers *.h)
 file(GLOB_RECURSE tests code/*.cpp)
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../src ${JsonCpp_INCLUDE_DIRS})
+include_directories(
+    ${CMAKE_SOURCE_DIR}/src ${Boost_INCLUDE_DIRS} ${DCMTK_INCLUDE_DIRS}
+    ${JsonCpp_INCLUDE_DIRS})
 add_definitions(
     ${DCMTK_DEFINITIONS}
     -D BOOST_ASIO_DYN_LINK
     -D ODIL_MAJOR_VERSION=${odil_MAJOR_VERSION}
     -DBOOST_TEST_DYN_LINK
 )
-link_directories(${Boost_LIBRARY_DIRS})
+link_directories(${Boost_LIBRARY_DIRS} ${DCMTK_LIBRARY_DIRS})
 
 
 foreach(test_file ${tests})
