@@ -10,7 +10,7 @@ class TestDataSet(unittest.TestCase):
         self.assertEqual(len(data_set), 0)
 
     def test_empty_element(self):
-        tag = _odil.Tag("PatientName")
+        tag = _odil.registry.PatientName
         data_set = _odil.DataSet()
         data_set.add(tag, _odil.Element())
 
@@ -23,7 +23,7 @@ class TestDataSet(unittest.TestCase):
         self.assertEqual(data_set.size(tag), 0)
 
     def test_empty_element_tag(self):
-        tag = _odil.Tag("PatientName")
+        tag = _odil.registry.PatientName
         data_set = _odil.DataSet()
         data_set.add(tag)
 
@@ -36,7 +36,7 @@ class TestDataSet(unittest.TestCase):
         self.assertEqual(data_set.size(tag), 0)
 
     def test_int_element(self):
-        tag = _odil.Tag("SelectorUSValue")
+        tag = _odil.registry.SelectorUSValue
         value = [1, 2, 3]
         data_set = _odil.DataSet()
         data_set.add(tag, _odil.Value.Integers(value))
@@ -52,7 +52,7 @@ class TestDataSet(unittest.TestCase):
         self.assertEqual([x for x in data_set.as_int(tag)], value)
 
     def test_real_element(self):
-        tag = _odil.Tag("SelectorFLValue")
+        tag = _odil.registry.SelectorFLValue
         value = [1.1, 2, 3.3]
         data_set = _odil.DataSet()
         data_set.add(tag, _odil.Value.Reals(value))
@@ -68,7 +68,7 @@ class TestDataSet(unittest.TestCase):
         self.assertEqual([x for x in data_set.as_real(tag)], value)
 
     def test_string_element(self):
-        tag = _odil.Tag("SelectorCSValue")
+        tag = _odil.registry.SelectorCSValue
         value = ["foo", "bar"]
         data_set = _odil.DataSet()
         data_set.add(tag, _odil.Value.Strings(value))
@@ -84,7 +84,7 @@ class TestDataSet(unittest.TestCase):
         self.assertEqual([x for x in data_set.as_string(tag)], value)
 
     def test_data_set_element(self):
-        tag = _odil.Tag("SelectorCodeSequenceValue")
+        tag = _odil.registry.SelectorCodeSequenceValue
         value = [_odil.DataSet(), _odil.DataSet()]
         data_set = _odil.DataSet()
         data_set.add(
@@ -101,7 +101,7 @@ class TestDataSet(unittest.TestCase):
         self.assertEqual([x for x in data_set.as_data_set(tag)], value)
 
     def test_string_binary(self):
-        tag = _odil.Tag("RedPaletteColorLookupTableData")
+        tag = _odil.registry.RedPaletteColorLookupTableData
         value = "\x01\x02"
         data_set = _odil.DataSet()
         data_set.add(tag, _odil.Value.Binary(value))
@@ -119,32 +119,32 @@ class TestDataSet(unittest.TestCase):
 
     def test_getitem(self):
         data_set = _odil.DataSet()
-        data_set.add(_odil.Tag("PatientName"), _odil.Value.Strings(["Doe^John"]))
+        data_set.add(_odil.registry.PatientName, _odil.Value.Strings(["Doe^John"]))
         self.assertEqual(
-            [x for x in data_set[_odil.Tag("PatientName")].as_string()],
+            [x for x in data_set[_odil.registry.PatientName].as_string()],
             ["Doe^John"])
-        self.assertRaises(Exception, lambda x: data_set[_odil.Tag("PatientID")])
+        self.assertRaises(Exception, lambda x: data_set[_odil.registry.PatientID])
 
     def test_iter(self):
         data_set = _odil.DataSet()
-        data_set.add(_odil.Tag("PatientName"), _odil.Value.Strings(["Doe^John"]))
-        data_set.add(_odil.Tag("PatientID"), _odil.Value.Strings(["DJ123"]))
+        data_set.add(_odil.registry.PatientName, _odil.Value.Strings(["Doe^John"]))
+        data_set.add(_odil.registry.PatientID, _odil.Value.Strings(["DJ123"]))
         self.assertEqual(
             [x.get_name() for x in data_set],
             ["PatientName", "PatientID"])
 
     def test_keys(self):
         data_set = _odil.DataSet()
-        data_set.add(_odil.Tag("PatientName"), _odil.Value.Strings(["Doe^John"]))
-        data_set.add(_odil.Tag("PatientID"), _odil.Value.Strings(["DJ123"]))
+        data_set.add(_odil.registry.PatientName, _odil.Value.Strings(["Doe^John"]))
+        data_set.add(_odil.registry.PatientID, _odil.Value.Strings(["DJ123"]))
         self.assertEqual(
             [x.get_name() for x in data_set.keys()],
             ["PatientName", "PatientID"])
 
     def test_values(self):
         data_set = _odil.DataSet()
-        data_set.add(_odil.Tag("PatientName"), _odil.Value.Strings(["Doe^John"]))
-        data_set.add(_odil.Tag("PatientID"), _odil.Value.Strings(["DJ123"]))
+        data_set.add(_odil.registry.PatientName, _odil.Value.Strings(["Doe^John"]))
+        data_set.add(_odil.registry.PatientID, _odil.Value.Strings(["DJ123"]))
         self.assertEqual(
             [
                 [item for item in element.as_string()] 
@@ -153,8 +153,8 @@ class TestDataSet(unittest.TestCase):
 
     def test_items(self):
         data_set = _odil.DataSet()
-        data_set.add(_odil.Tag("PatientName"), _odil.Value.Strings(["Doe^John"]))
-        data_set.add(_odil.Tag("PatientID"), _odil.Value.Strings(["DJ123"]))
+        data_set.add(_odil.registry.PatientName, _odil.Value.Strings(["Doe^John"]))
+        data_set.add(_odil.registry.PatientID, _odil.Value.Strings(["DJ123"]))
         self.assertEqual(
             [
                 [tag.get_name(), [item for item in element.as_string()]] 

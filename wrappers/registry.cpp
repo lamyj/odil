@@ -30,4 +30,6 @@ void wrap_registry()
     {
         registry_scope.attr(entry.second.keyword.c_str()) = entry.first;
     }
+
+    registry_scope.attr("public_dictionary") = registry::public_dictionary;
 }
