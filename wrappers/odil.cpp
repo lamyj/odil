@@ -10,6 +10,7 @@
 
 void wrap_DataSet();
 void wrap_Element();
+void wrap_ElementsDictionary();
 void wrap_Exception();
 void wrap_read();
 void wrap_Tag();
@@ -23,6 +24,7 @@ BOOST_PYTHON_MODULE(_odil)
 {
     wrap_DataSet();
     wrap_Element();
+    wrap_ElementsDictionary();
     wrap_Exception();
     wrap_read();
     wrap_Tag();

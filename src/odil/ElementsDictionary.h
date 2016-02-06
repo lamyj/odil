@@ -28,8 +28,8 @@ struct ElementsDictionaryEntry
     std::string vm;
 
     ElementsDictionaryEntry(
-        std::string const & name, std::string const & keyword,
-        std::string const & vr, std::string const & vm);
+        std::string const & name="", std::string const & keyword="",
+        std::string const & vr="", std::string const & vm="");
 };
 
 typedef std::map<Tag, ElementsDictionaryEntry> ElementsDictionary;
