@@ -31,5 +31,11 @@ void wrap_registry()
         registry_scope.attr(entry.second.keyword.c_str()) = entry.first;
     }
 
+    for(auto const & entry: registry::uids_dictionary)
+    {
+        registry_scope.attr(entry.second.keyword.c_str()) = entry.first;
+    }
+
     registry_scope.attr("public_dictionary") = registry::public_dictionary;
+    registry_scope.attr("uids_dictionary") = registry::uids_dictionary;
 }

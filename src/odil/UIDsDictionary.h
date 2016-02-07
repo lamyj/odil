@@ -25,8 +25,8 @@ struct UIDsDictionaryEntry
     std::string type;
 
     UIDsDictionaryEntry(
-        std::string const & name, std::string const & keyword,
-        std::string const & type);
+        std::string const & name="", std::string const & keyword="",
+        std::string const & type="");
 };
 
 typedef std::map<std::string, UIDsDictionaryEntry> UIDsDictionary;

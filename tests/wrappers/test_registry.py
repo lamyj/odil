@@ -17,5 +17,13 @@ class TestRegistry(unittest.TestCase):
         self.assertEqual(entry.vr, "LO")
         self.assertEqual(entry.vm, "1")
 
+    def test_uids_dictionary(self):
+        uid = "1.2.840.10008.1.2.1"
+        self.assertTrue(uid in _odil.registry.uids_dictionary)
+        entry = _odil.registry.uids_dictionary[uid]
+        self.assertEqual(entry.name, "Explicit VR Little Endian")
+        self.assertEqual(entry.keyword, "ExplicitVRLittleEndian")
+        self.assertEqual(entry.type, "Transfer Syntax")
+
 if __name__ == "__main__":
     unittest.main()
