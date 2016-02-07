@@ -2,6 +2,7 @@
 
 #include "odil/Association.h"
 #include "odil/DataSet.h"
+#include "odil/EchoSCU.h"
 #include "odil/FindSCU.h"
 #include "odil/registry.h"
 
@@ -37,10 +38,11 @@ int main()
         });
     
     association.associate();
+
+    odil::EchoSCU echo_scu(association);
+    echo_scu.echo();
     
     odil::FindSCU scu(association);
-
-    scu.echo();
 
     odil::DataSet query;
     query.add("PatientName", { "*" });

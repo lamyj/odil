@@ -31,9 +31,6 @@ public:
     /// @brief Set the affected SOP class
     void set_affected_sop_class(std::string const & sop_class);
     
-    /// @brief Perform DICOM ping
-    void echo() const;
-
 protected:
     Association & _association;
     /// @brief Affected SOP class.

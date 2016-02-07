@@ -33,8 +33,3 @@ BOOST_FIXTURE_TEST_CASE(AffectedSOPClassUID, Fixture)
     BOOST_CHECK_EQUAL(scu.get_affected_sop_class(), "1.2.3");
 }
 
-BOOST_FIXTURE_TEST_CASE(Echo, Fixture)
-{
-    odil::SCU scu(this->association);
-    scu.echo();
-}

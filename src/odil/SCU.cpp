@@ -47,26 +47,4 @@ SCU
     this->_affected_sop_class = sop_class;
 }
 
-void
-SCU
-::echo() const
-{
-    auto const message_id = this->_association.next_message_id();
-    
-    message::CEchoRequest const request(
-        message_id, registry::VerificationSOPClass);
-    this->_association.send_message(
-        request, request.get_affected_sop_class_uid());
-    
-    message::CEchoResponse const response = this->_association.receive_message();
-    if(response.get_message_id_being_responded_to() != message_id)
-    {
-        std::ostringstream message;
-        message << "DIMSE: Unexpected Response MsgId: "
-                << response.get_message_id_being_responded_to() 
-                << "(expected: " << message_id << ")";
-        throw Exception(message.str());
-    }
-}
-
 }

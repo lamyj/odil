@@ -1,5 +1,6 @@
 #include "odil/Association.h"
 #include "odil/DataSet.h"
+#include "odil/EchoSCU.h"
 #include "odil/Reader.h"
 #include "odil/StoreSCU.h"
 
@@ -23,10 +24,11 @@ int main(int argc, char** argv)
         });
     
     association.associate();
+
+    odil::EchoSCU echo_scu(association);
+    echo_scu.echo();
     
     odil::StoreSCU scu(association);
-    
-    scu.echo();
     
     for(int i=1; i<argc; ++i)
     {
