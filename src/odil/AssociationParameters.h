@@ -44,6 +44,9 @@ public:
         bool scu_role_support;
         bool scp_role_support;
         Result result;
+
+        /// @brief Member-wise equality.
+        bool operator==(PresentationContext const & other) const;
     };
 
     /// @brief User Identity, cf. PS3.8 D.3.3.7
@@ -61,6 +64,9 @@ public:
         Type type;
         std::string primary_field;
         std::string secondary_field;
+
+        /// @brief Member-wise equality.
+        bool operator==(UserIdentity const & other) const;
     };
 
     /// @brief Constructor.
@@ -139,6 +145,9 @@ public:
 
     /// @brief Create an A-ASSOCIATE-AC PDU.
     pdu::AAssociateAC as_a_associate_ac() const;
+
+    /// @brief Member-wise equality.
+    bool operator==(AssociationParameters const & other) const;
 
 private:
     std::string _called_ae_title;

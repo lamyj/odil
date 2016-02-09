@@ -9,44 +9,6 @@
 
 #include "../PeerFixtureBase.h"
 
-namespace odil
-{
-
-bool
-operator==(
-    AssociationParameters::PresentationContext const & left,
-    AssociationParameters::PresentationContext const & right)
-{
-    return (
-        left.abstract_syntax == right.abstract_syntax &&
-        left.transfer_syntaxes == right.transfer_syntaxes &&
-        left.scu_role_support == right.scu_role_support &&
-        left.scp_role_support == right.scp_role_support
-    );
-}
-
-bool
-operator==(
-    AssociationParameters const & left, AssociationParameters const & right)
-{
-    return (
-        left.get_calling_ae_title() == right.get_calling_ae_title() &&
-        left.get_called_ae_title() == right.get_called_ae_title() &&
-
-        left.get_presentation_contexts() == right.get_presentation_contexts() &&
-
-
-        left.get_user_identity().type == right.get_user_identity().type &&
-        left.get_user_identity().primary_field == right.get_user_identity().primary_field &&
-        left.get_user_identity().secondary_field == right.get_user_identity().secondary_field &&
-
-        left.get_maximum_length() == right.get_maximum_length()
-    );
-}
-
-}
-
-
 BOOST_AUTO_TEST_CASE(DefaultConstructor)
 {
     odil::Association association;

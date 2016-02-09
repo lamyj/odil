@@ -27,6 +27,49 @@
 namespace odil
 {
 
+bool 
+AssociationParameters::PresentationContext
+::operator==(PresentationContext const & other) const
+{
+    return (
+        this->id == other.id && 
+        this->abstract_syntax == other.abstract_syntax &&
+        this->transfer_syntaxes == other.transfer_syntaxes &&
+        this->scu_role_support == other.scu_role_support &&
+        this->scp_role_support == other.scp_role_support &&
+        this->result == other.result
+    );
+}
+
+bool 
+AssociationParameters::UserIdentity
+::operator==(UserIdentity const & other) const
+{
+    return (
+        this->type == other.type &&
+        (
+            this->type == Type::None ||
+            (
+                this->type == Type::Username &&
+                this->primary_field == other.primary_field
+            ) ||
+            (
+                this->type == Type::UsernameAndPassword &&
+                this->primary_field == other.primary_field &&
+                this->secondary_field == other.secondary_field
+            ) ||
+            (
+                this->type == Type::Kerberos &&
+                this->primary_field == other.primary_field
+            ) ||
+            (
+                this->type == Type::SAML &&
+                this->primary_field == other.primary_field
+            ) 
+        )
+    );
+}
+
 AssociationParameters
 ::AssociationParameters()
 : _called_ae_title(""), _calling_ae_title(""), _presentation_contexts(),
@@ -444,6 +487,19 @@ AssociationParameters
     pdu.set_user_information(user_information);
 
     return pdu;
+}
+
+bool 
+AssociationParameters
+::operator==(AssociationParameters const & other) const
+{
+    return (
+        this->get_called_ae_title() == other.get_called_ae_title() &&
+        this->get_calling_ae_title() == other.get_calling_ae_title() &&
+        this->get_presentation_contexts() == other.get_presentation_contexts() &&
+        this->get_user_identity() == other.get_user_identity() &&
+        this->get_maximum_length() == other.get_maximum_length()
+    );
 }
 
 AssociationParameters &

@@ -1,0 +1,188 @@
+/*************************************************************************
+ * odil - Copyright (C) Universite de Strasbourg
+ * Distributed under the terms of the CeCILL-B license, as published by
+ * the CEA-CNRS-INRIA. Refer to the LICENSE file or to
+ * http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
+ * for details.
+ ************************************************************************/
+
+#include <boost/python.hpp>
+#include <boost/python/suite/indexing/vector_indexing_suite.hpp>
+
+#include "odil/AssociationParameters.h"
+
+void wrap_AssociationParameters()
+{
+    using namespace boost::python;
+    using namespace odil;
+
+    scope association_parameters_scope = 
+        class_<AssociationParameters>("AssociationParameters", init<>())
+        // Construct from PDU
+        .def(
+            "get_called_ae_title", 
+            &AssociationParameters::get_called_ae_title,
+            return_value_policy<copy_const_reference>()
+        )
+        .def(
+            "set_called_ae_title", 
+            &AssociationParameters::set_called_ae_title,
+            return_value_policy<reference_existing_object>()
+        )
+        .def(
+            "get_calling_ae_title", 
+            &AssociationParameters::get_calling_ae_title,
+            return_value_policy<copy_const_reference>()
+        )
+        .def(
+            "set_calling_ae_title", 
+            &AssociationParameters::set_calling_ae_title,
+            return_value_policy<reference_existing_object>()
+        )
+        .def(
+            "get_presentation_contexts", 
+            &AssociationParameters::get_presentation_contexts,
+            return_value_policy<reference_existing_object>()
+        )
+        .def(
+            "set_presentation_contexts", 
+            &AssociationParameters::set_presentation_contexts,
+            return_value_policy<reference_existing_object>()
+        )
+        .def(
+            "get_user_identity", &AssociationParameters::get_user_identity,
+            return_value_policy<reference_existing_object>()
+        )
+        .def(
+            "set_user_identity_to_none", 
+            &AssociationParameters::set_user_identity_to_none,
+            return_value_policy<reference_existing_object>()
+        )
+        .def(
+            "set_user_identity_to_username", 
+            &AssociationParameters::set_user_identity_to_username,
+            return_value_policy<reference_existing_object>()
+        )
+        .def(
+            "set_user_identity_to_username_and_password", 
+            &AssociationParameters::set_user_identity_to_username_and_password,
+            return_value_policy<reference_existing_object>()
+        )
+        .def(
+            "set_user_identity_to_kerberos", 
+            &AssociationParameters::set_user_identity_to_kerberos,
+            return_value_policy<reference_existing_object>()
+        )
+        .def(
+            "set_user_identity_to_saml", 
+            &AssociationParameters::set_user_identity_to_saml,
+            return_value_policy<reference_existing_object>()
+        )
+        .def(
+            "get_maximum_length", 
+            &AssociationParameters::get_maximum_length
+        )
+        .def(
+            "set_maximum_length",
+            &AssociationParameters::set_maximum_length,
+            return_value_policy<reference_existing_object>()
+        )
+        // Convert to PDU
+    ;
+
+    {
+        scope presentation_context_scope = 
+            class_<AssociationParameters::PresentationContext>("PresentationContext")
+            .def_readwrite(
+                "id",
+                &AssociationParameters::PresentationContext::id
+            )
+            .def_readwrite(
+                "abstract_syntax",
+                &AssociationParameters::PresentationContext::abstract_syntax
+            )
+            .def_readwrite(
+                "transfer_syntaxes",
+                &AssociationParameters::PresentationContext::transfer_syntaxes
+            )
+            .def_readwrite(
+                "scu_role_support",
+                &AssociationParameters::PresentationContext::scu_role_support
+            )
+            .def_readwrite(
+                "scp_role_support",
+                &AssociationParameters::PresentationContext::scp_role_support
+            )
+            .def_readwrite(
+                "result",
+                &AssociationParameters::PresentationContext::result
+            )
+            .def(self == self)
+        ;
+
+        enum_<AssociationParameters::PresentationContext::Result>("Result")
+            .value(
+                "Acceptance", 
+                AssociationParameters::PresentationContext::Result::Acceptance
+            )
+            .value(
+                "UserRejection", 
+                AssociationParameters::PresentationContext::Result::UserRejection
+            )
+            .value(
+                "NoReason", 
+                AssociationParameters::PresentationContext::Result::NoReason
+            )
+            .value(
+                "AbstractSyntaxNotSupported", 
+                AssociationParameters::PresentationContext::Result::AbstractSyntaxNotSupported
+            )
+            .value(
+                "TransferSyntaxesNotSupported", 
+                AssociationParameters::PresentationContext::Result::TransferSyntaxesNotSupported
+            )
+        ;
+    }
+
+    class_<
+        std::vector<AssociationParameters::PresentationContext>
+    >("VPresentationContext")
+        .def(vector_indexing_suite<
+            std::vector<AssociationParameters::PresentationContext>
+        >())
+    ;
+
+    {
+        scope user_identity_scope = 
+            class_<AssociationParameters::UserIdentity>("UserIdentity")
+            .def_readwrite(
+                "type", 
+                &AssociationParameters::UserIdentity::type
+            )
+            .def_readwrite(
+                "primary_field", 
+                &AssociationParameters::UserIdentity::primary_field
+            )
+            .def_readwrite(
+                "secondary_field", 
+                &AssociationParameters::UserIdentity::secondary_field
+            )
+            .def(self == self)
+        ;
+
+        enum_<AssociationParameters::UserIdentity::Type>("Type")
+            .value("None", AssociationParameters::UserIdentity::Type::None)
+            .value(
+                "Username", AssociationParameters::UserIdentity::Type::Username
+            )
+            .value(
+                "UsernameAndPassword", 
+                AssociationParameters::UserIdentity::Type::UsernameAndPassword
+            )
+            .value(
+                "Kerberos", AssociationParameters::UserIdentity::Type::Kerberos)
+            .value("SAML", AssociationParameters::UserIdentity::Type::SAML)
+        ;
+    }
+}
+
