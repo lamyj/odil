@@ -73,3 +73,28 @@ BOOST_AUTO_TEST_CASE(Decode3)
     test_decode(
         "TG9yZW0gaXBzdW0gZG9sb3Igc2l0IGFtZQ==", "Lorem ipsum dolor sit ame");
 }
+
+BOOST_AUTO_TEST_CASE(AllStates)
+{
+    uint8_t data[3];
+    uint8_t encoded[4];
+    uint8_t decoded[3];
+
+    for(int z=0; z<256; ++z)
+    {
+        for(int y=0; y<256; ++y)
+        {
+            for(int x=0; x<256; ++x)
+            {
+                data[0] = x;
+                data[1] = y;
+                data[2] = z;
+
+                odil::base64::encode(data, data+3, encoded);
+                odil::base64::decode(encoded, encoded+4, decoded);
+
+                BOOST_REQUIRE(std::equal(data, data+3, decoded));
+            }
+        }
+    }
+}
