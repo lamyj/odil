@@ -25,7 +25,9 @@ set_target_properties(odil PROPERTIES
     VERSION ${odil_VERSION}
     SOVERSION ${odil_MAJOR_VERSION})
 
-install(FILES ${headers} ${templates} DESTINATION include/odil)
+install(
+    DIRECTORY odil/ DESTINATION include/odil 
+    FILES_MATCHING PATTERN "*.h" PATTERN "*.txx")
 install(
     TARGETS odil
     ARCHIVE DESTINATION lib
