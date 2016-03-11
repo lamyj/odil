@@ -17,6 +17,51 @@
 namespace odil
 {
 
+    /// @brief Key of a dictionary of DICOM elements.
+    class ElementsDictionaryKey
+    {
+    public:
+        /// @brief Type of the key.
+        enum class Type
+        {
+            Tag,
+            String,
+            None
+        };
+
+        /// @brief Create a key with type equal to None.
+        ElementsDictionaryKey();
+
+        /// @brief Create a key with type equal to Tag.
+        ElementsDictionaryKey(Tag const & value);
+
+        /// @brief Create a key with type equal to String.
+        ElementsDictionaryKey(std::string const & value);
+
+        /// @brief Return the type.
+        Type const & get_type() const;
+
+        /// @brief Return the tag value or raise an exception if type is not Tag.
+        Tag const & get_tag() const;
+
+        /// @brief Return the string value or raise an exception if type is not String.
+        std::string const & get_string() const;
+
+        /// @brief Set the type to Tag.
+        void set(Tag const value);
+
+        /// @brief Set the type to String.
+        void set(std::string const & value);
+
+        /// @brief Comparator.
+        bool operator<(ElementsDictionaryKey const & other) const;
+
+    private:
+        Type _type;
+        Tag _tag;
+        std::string _string;
+    };
+
 /**
  * @brief Entry in a dictionary of DICOM elements.
  */
@@ -32,7 +77,8 @@ struct ElementsDictionaryEntry
         std::string const & vr="", std::string const & vm="");
 };
 
-typedef std::map<Tag, ElementsDictionaryEntry> ElementsDictionary;
+typedef
+    std::map<ElementsDictionaryKey, ElementsDictionaryEntry> ElementsDictionary;
 
 }
 

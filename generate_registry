@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#!/usr/bin/env python
 
 import argparse
 import os
@@ -12,16 +12,16 @@ import jinja2
 def main():
     parser = argparse.ArgumentParser("Generate registry files")
     parser.add_argument(
-        "root", nargs="?", 
+        "root", nargs="?",
         default="http://medical.nema.org/medical/dicom/current/source/docbook",
         help="Root URL or path to the Docbook version of the DICOM standard")
-    
+
     arguments = parser.parse_args()
-    
+
     jinja_environment = jinja2.Environment(
         loader=jinja2.FileSystemLoader(os.path.dirname(__file__)),
         trim_blocks=True)
-    
+
     templates = {
         "src/odil/registry.h": jinja_environment.get_template("registry.h.tmpl"),
         "src/odil/registry.cpp": jinja_environment.get_template("registry.cpp.tmpl"),
@@ -39,21 +39,21 @@ def main():
         url = os.path.join(arguments.root, url)
         entries = parse_elements_dictionaries(url, id_)
         elements_dictionary.extend(entries)
-    
+
     sources = [
         ("part06/part06.xml", "table_A-1"),
     ]
-    
+
     uids = []
     for url, id_ in sources:
         uids.extend(parse_uids(os.path.join(arguments.root, url), id_))
-    
+
     for path, template in templates.items():
         with open(path, "w") as fd:
             fd.write(template.render(
                 elements_dictionary=elements_dictionary,
                 uids=uids))
-    
+
     return 0
 
 def parse_elements_dictionaries(url, id_):
@@ -79,20 +79,30 @@ def parse_elements_dictionaries(url, id_):
             tag = tag.find("./docbook:emphasis", namespaces)
         tag = tag.text
 
-        match = re.match(r"\(([0-9a-fA-F]{4}),([0-9a-fA-F]{4})\)", tag)
-        if not match:
-            continue
-
-        tag = [int(x, 16) for x in match.groups()]
+        converters = [
+            (
+                r"\(([0-9a-fA-F]{4}),([0-9a-fA-F]{4})\)",
+                lambda x,y: (int(x, 16), int(y, 16))
+            ),
+            (
+                r"\(([0-9a-fA-Fx]{4}),([0-9a-fA-Fx]{4})\)",
+                lambda x,y: str(x+y)
+            )
+        ]
+        for expression, converter in converters:
+            match = re.match(expression, tag)
+            if match:
+                tag = converter(*match.groups())
+                break
 
         keyword = get_value(keyword, "ascii", namespaces)
         if not keyword:
             continue
-        
+
         name = get_value(name, "utf-8", namespaces)
         vr = get_value(vr, "ascii", namespaces)
         vm = get_value(vm, "ascii", namespaces)
-        
+
         entries.append((tag, name, keyword, vr, vm))
 
     return entries
@@ -118,34 +128,36 @@ def parse_uids(url, id_):
     for row in table.iterfind("./docbook:tbody/docbook:tr", namespaces):
         entry = row.findall("./docbook:td/docbook:para", namespaces)
         uid, name, type_ = entry[:3]
-        
+
         uid = get_value(uid, "ascii", namespaces)
         name = get_value(name, "ascii", namespaces)
         type_ = get_value(type_, "ascii", namespaces)
-        
+
+        if name == "(Retired)":
+            continue
+
         retired = name.endswith(" (Retired)")
         keyword = name.replace(" (Retired)", "")
         keyword = re.sub(":.*", "", keyword)
         keyword = re.sub("\W", " ", keyword).strip().replace(" ", "")
         if retired:
             keyword += "_Retired"
-        
+
         keyword = keywords_map.get(keyword, keyword)
-        
+
         entries.append((uid, name, keyword, type_))
-    
+
     return entries
-    
+
 
 def get_value(element, encoding, namespaces):
     emphasis = element.find("./docbook:emphasis", namespaces)
     if emphasis is not None:
         element = emphasis
-    
+
     element = element.text or ""
     element = element.replace(u"\u200b", "").replace(u"\u00b5", "u").encode(encoding)
     return element
 
 if __name__ == "__main__":
     sys.exit(main())
-

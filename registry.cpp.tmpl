@@ -23,8 +23,7 @@ namespace registry
 
 struct RawElementsDictionaryEntry
 {
-    uint16_t group;
-    uint16_t element;
+    ElementsDictionaryKey key;
     char const * name;
     char const * keyword;
     char const * vr;
@@ -36,21 +35,26 @@ ElementsDictionary create_public_dictionary()
 
     RawElementsDictionaryEntry raw_entries[] = {
 {% for entry in elements_dictionary %}
-        { {{ "0x%04x"|format(entry[0][0]) }}, {{ "0x%04x"|format(entry[0][1]) }},
+        { {% if entry[0] is string -%}
+            std::string("{{ entry[0] }}")
+          {% elif entry[0] is sequence -%}
+            Tag({{ "0x%04x, 0x%04x"|format(*entry[0]) }})
+          {%- endif %},
           "{{ entry[1] }}", "{{ entry[2] }}",  "{{ entry[3] }}", "{{ entry[4] }}" },
 {% endfor %}
     };
 
     ElementsDictionary public_dictionary;
-    
+
     unsigned long const count = sizeof(raw_entries)/sizeof(RawElementsDictionaryEntry);
     for(unsigned long i=0; i<count; ++i)
     {
         RawElementsDictionaryEntry const & raw_entry = raw_entries[i];
-        Tag const tag(raw_entry.group, raw_entry.element);
         ElementsDictionaryEntry const entry(
             raw_entry.name, raw_entry.keyword, raw_entry.vr, raw_entry.vm);
-        public_dictionary.insert(std::pair<Tag, ElementsDictionaryEntry>(tag, entry));
+        public_dictionary.insert(
+            std::pair<ElementsDictionaryKey, ElementsDictionaryEntry>(
+                raw_entry.key, entry));
     }
 
     return public_dictionary;
@@ -74,7 +78,7 @@ UIDsDictionary create_uids_dictionary()
     };
 
     UIDsDictionary uids_dictionary;
-    
+
     unsigned long const count = sizeof(raw_entries)/sizeof(RawUIDsDictionaryEntry);
     for(unsigned long i=0; i<count; ++i)
     {

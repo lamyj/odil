@@ -19,7 +19,11 @@ namespace odil
 namespace registry
 {
 {% for entry in elements_dictionary %}
+{% if entry[0] is string %}
+std::string const {{ entry[2] }}("{{ entry[0] }}");
+{% elif entry[0] is sequence %}
 Tag const {{ entry[2] }}({{ "0x%04x, 0x%04x"|format(*entry[0]) }});
+{% endif %}
 {% endfor %}
 
 {% for entry in uids %}
@@ -33,4 +37,3 @@ extern UIDsDictionary uids_dictionary;
 }
 
 #endif // _afc7b2d7_0869_4fea_9a9b_7fe6228baca9
-
