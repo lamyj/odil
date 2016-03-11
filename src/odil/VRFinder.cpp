@@ -8,11 +8,15 @@
 
 #include "odil/VRFinder.h"
 
+#include <algorithm>
 #include <functional>
 #include <string>
 #include <vector>
 
+#include <boost/regex.hpp>
+
 #include "odil/DataSet.h"
+#include "odil/ElementsDictionary.h"
 #include "odil/Exception.h"
 #include "odil/registry.h"
 #include "odil/Tag.h"
@@ -81,12 +85,41 @@ VRFinder
 ::public_dictionary(
     Tag const & tag, DataSet const &, std::string const &)
 {
-    auto const it = registry::public_dictionary.find(tag);
-    if(it == registry::public_dictionary.end())
+    VR vr = VR::INVALID;
+    std::string const tag_string(tag);
+
+    for(auto const item: registry::public_dictionary)
     {
-        throw Exception("Element " + std::string(tag) + " is not in the public dictionary");
+        auto const & key = item.first;
+        auto const & entry = item.second;
+
+        if(key.get_type() == ElementsDictionaryKey::Type::Tag &&
+            key.get_tag() == tag)
+        {
+            vr = as_vr(entry.vr);
+            break;
+        }
+        else if(key.get_type() == ElementsDictionaryKey::Type::String)
+        {
+            auto regex = key.get_string();
+            std::replace_if(
+                regex.begin(), regex.end(),
+                [](char c) { return c == 'x'; }, '.');
+            if(boost::regex_match(tag_string, boost::regex(regex)))
+            {
+                vr = as_vr(entry.vr);
+                break;
+            }
+        }
     }
-    return as_vr(it->second.vr);
+
+    if(vr == VR::INVALID)
+    {
+        throw Exception(
+            "Element " + std::string(tag) + " is not in the public dictionary");
+    }
+
+    return vr;
 }
 
 VR
@@ -132,7 +165,7 @@ VRFinder
         {
             return VR::OW;
         }
-        else if((tag.group<<8) == 0x60 && tag.element == 0x3000)
+        else if((tag.group>>8) == 0x60 && tag.element == 0x3000)
         {
             return VR::OW;
         }
