@@ -8,10 +8,13 @@
 
 #include "odil/Tag.h"
 
+#include <algorithm>
 #include <iomanip>
 #include <ostream>
 #include <sstream>
 #include <string>
+
+#include <boost/regex.hpp>
 
 #include "odil/ElementsDictionary.h"
 #include "odil/Exception.h"
@@ -57,13 +60,40 @@ std::string
 Tag
 ::get_name() const
 {
-    auto const dictionary_it = registry::public_dictionary.find(*this);
-    if(dictionary_it == registry::public_dictionary.end())
+    std::string name;
+    std::string const tag_string(*this);
+
+    for(auto const item: registry::public_dictionary)
     {
-        throw Exception("No such element: "+std::string(*this));
+        auto const & key = item.first;
+        auto const & entry = item.second;
+
+        if(key.get_type() == ElementsDictionaryKey::Type::Tag &&
+            key.get_tag() == *this)
+        {
+            name = entry.keyword;
+            break;
+        }
+        else if(key.get_type() == ElementsDictionaryKey::Type::String)
+        {
+            auto regex = key.get_string();
+            std::replace_if(
+                regex.begin(), regex.end(),
+                [](char c) { return c == 'x'; }, '.');
+            if(boost::regex_match(tag_string, boost::regex(regex)))
+            {
+                name = entry.keyword;
+                break;
+            }
+        }
     }
 
-    return dictionary_it->second.keyword;
+    if(name.empty())
+    {
+        throw Exception("No such element: "+tag_string);
+    }
+
+    return name;
 }
 
 bool
