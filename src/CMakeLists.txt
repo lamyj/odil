@@ -1,4 +1,4 @@
-find_package(Boost REQUIRED COMPONENTS filesystem system)
+find_package(Boost REQUIRED COMPONENTS filesystem regex system)
 find_package(DCMTK REQUIRED)
 find_package(ICU REQUIRED)
 find_package(JsonCpp REQUIRED)
@@ -26,12 +26,10 @@ set_target_properties(odil PROPERTIES
     SOVERSION ${odil_MAJOR_VERSION})
 
 install(
-    DIRECTORY odil/ DESTINATION include/odil 
+    DIRECTORY odil/ DESTINATION include/odil
     FILES_MATCHING PATTERN "*.h" PATTERN "*.txx")
 install(
     TARGETS odil
     ARCHIVE DESTINATION lib
     LIBRARY DESTINATION lib
     RUNTIME DESTINATION bin)
-
-
