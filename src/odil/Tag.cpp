@@ -13,6 +13,7 @@
 #include <sstream>
 #include <string>
 
+#include "odil/ElementsDictionary.h"
 #include "odil/Exception.h"
 #include "odil/registry.h"
 
@@ -168,7 +169,11 @@ Tag
     }
     else
     {
-        auto const & tag = it->first;
+        if(it->first.get_type() != ElementsDictionaryKey::Type::Tag)
+        {
+            throw Exception("InvalidType");
+        }
+        auto const & tag = it->first.get_tag();
         this->group = tag.group;
         this->element = tag.element;
     }
