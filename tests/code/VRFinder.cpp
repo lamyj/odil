@@ -40,6 +40,14 @@ BOOST_AUTO_TEST_CASE(PublicDictionary)
     BOOST_REQUIRE(vr == odil::VR::PN);
 }
 
+BOOST_AUTO_TEST_CASE(PublicDictionaryRepeatingGroup)
+{
+    auto const vr = odil::VRFinder::public_dictionary(
+        odil::Tag(0x6012, 0x0010), odil::DataSet(),
+        odil::registry::ImplicitVRLittleEndian);
+    BOOST_REQUIRE(vr == odil::VR::US);
+}
+
 BOOST_AUTO_TEST_CASE(PublicDictionaryNotApplicable)
 {
     BOOST_REQUIRE_THROW(

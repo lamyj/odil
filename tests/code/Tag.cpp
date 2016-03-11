@@ -90,6 +90,13 @@ BOOST_AUTO_TEST_CASE(Name)
     BOOST_CHECK_EQUAL(name, "PixelData");
 }
 
+BOOST_AUTO_TEST_CASE(NameRepeatingGroup)
+{
+    odil::Tag const tag(0x6012, 0x0010);
+    std::string const name = tag.get_name();
+    BOOST_CHECK_EQUAL(name, "OverlayRows");
+}
+
 BOOST_AUTO_TEST_CASE(NameWrong)
 {
     odil::Tag const tag(0xEEEE, 0xEEEE);
