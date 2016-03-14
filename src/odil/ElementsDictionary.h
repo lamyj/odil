@@ -56,6 +56,9 @@ namespace odil
         /// @brief Comparator.
         bool operator<(ElementsDictionaryKey const & other) const;
 
+        /// @brief Comparator.
+        bool operator==(ElementsDictionaryKey const & other) const;
+
     private:
         Type _type;
         Tag _tag;

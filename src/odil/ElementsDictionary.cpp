@@ -103,6 +103,30 @@ ElementsDictionaryKey
         return static_cast<int>(this->_type) < static_cast<int>(other._type);
     }
 }
+bool
+ElementsDictionaryKey
+::operator==(ElementsDictionaryKey const & other) const
+{
+    if(this->_type == other._type)
+    {
+        if(this->_type == Type::Tag)
+        {
+            return (this->_tag == other._tag);
+        }
+        else if(this->_type == Type::String)
+        {
+            return (this->_string == other._string);
+        }
+        else
+        {
+            throw Exception("Invalid type");
+        }
+    }
+    else
+    {
+        return false;
+    }
+}
 
 ElementsDictionaryEntry
 ::ElementsDictionaryEntry(
