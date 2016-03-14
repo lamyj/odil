@@ -26,7 +26,7 @@ public:
     Tag(uint16_t group, uint16_t element);
 
     /// @brief Create a tag based on its group and element as one 32-bits word.
-    Tag(uint32_t tag);
+    Tag(uint32_t tag=0);
 
     /**
      * @brief Create a tag based on its name or string representation of its
