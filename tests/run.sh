@@ -50,6 +50,8 @@ export ODIL_PEER_HOST_NAME=127.0.0.1
 export ODIL_PEER_PORT=11112
 export ODIL_PEER_AET=REMOTE
 
+export PATH=${PWD}/../build/tests/tools:$PATH
+
 ctest --no-compress-output -T Test $@ || true
 
 stop_scp
