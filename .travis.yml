@@ -18,6 +18,7 @@ addons:
     - libboost-dev
     - libboost-filesystem-dev
     - libboost-python-dev
+    - libboost-regex-dev
     - libboost-test-dev
     - dcmtk
 before_install:
