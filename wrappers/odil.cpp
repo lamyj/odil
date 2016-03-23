@@ -8,10 +8,13 @@
 
 #include <boost/python.hpp>
 
+void wrap_Association();
+void wrap_AssociationParameters();
 void wrap_DataSet();
 void wrap_Element();
 void wrap_ElementsDictionary();
 void wrap_Exception();
+void wrap_FindSCU();
 void wrap_read();
 void wrap_Tag();
 void wrap_uid();
@@ -24,10 +27,13 @@ void wrap_registry();
 
 BOOST_PYTHON_MODULE(_odil)
 {
+    wrap_Association();
+    wrap_AssociationParameters();
     wrap_DataSet();
     wrap_Element();
     wrap_ElementsDictionary();
     wrap_Exception();
+    wrap_FindSCU();
     wrap_read();
     wrap_Tag();
     wrap_uid();
