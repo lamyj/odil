@@ -6,46 +6,72 @@
  * for details.
  ************************************************************************/
 
+#include <memory>
+
 #include <boost/python.hpp>
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 
 #include "odil/AssociationParameters.h"
+
+namespace
+{
+
+std::shared_ptr<odil::AssociationParameters::PresentationContext>
+constructor(
+    uint8_t id, std::string const & abstract_syntax,
+    boost::python::list const & transfer_syntaxes,
+    bool scu_role_support, bool scp_role_support)
+{
+    std::vector<std::string> transfer_syntaxes_cpp(boost::python::len(transfer_syntaxes));
+    for(int i = 0; i<boost::python::len(transfer_syntaxes); ++i)
+    {
+        transfer_syntaxes_cpp[i] = boost::python::extract<std::string>(transfer_syntaxes[i]);
+    }
+    odil::AssociationParameters::PresentationContext presentation_context = {
+        id, abstract_syntax, transfer_syntaxes_cpp,
+        scu_role_support, scp_role_support
+    };
+    return std::make_shared<odil::AssociationParameters::PresentationContext>(presentation_context);
+}
+
+
+}
 
 void wrap_AssociationParameters()
 {
     using namespace boost::python;
     using namespace odil;
 
-    scope association_parameters_scope = 
+    scope association_parameters_scope =
         class_<AssociationParameters>("AssociationParameters", init<>())
         // Construct from PDU
         .def(
-            "get_called_ae_title", 
+            "get_called_ae_title",
             &AssociationParameters::get_called_ae_title,
             return_value_policy<copy_const_reference>()
         )
         .def(
-            "set_called_ae_title", 
+            "set_called_ae_title",
             &AssociationParameters::set_called_ae_title,
             return_value_policy<reference_existing_object>()
         )
         .def(
-            "get_calling_ae_title", 
+            "get_calling_ae_title",
             &AssociationParameters::get_calling_ae_title,
             return_value_policy<copy_const_reference>()
         )
         .def(
-            "set_calling_ae_title", 
+            "set_calling_ae_title",
             &AssociationParameters::set_calling_ae_title,
             return_value_policy<reference_existing_object>()
         )
         .def(
-            "get_presentation_contexts", 
+            "get_presentation_contexts",
             &AssociationParameters::get_presentation_contexts,
             return_value_policy<reference_existing_object>()
         )
         .def(
-            "set_presentation_contexts", 
+            "set_presentation_contexts",
             &AssociationParameters::set_presentation_contexts,
             return_value_policy<reference_existing_object>()
         )
@@ -54,32 +80,32 @@ void wrap_AssociationParameters()
             return_value_policy<reference_existing_object>()
         )
         .def(
-            "set_user_identity_to_none", 
+            "set_user_identity_to_none",
             &AssociationParameters::set_user_identity_to_none,
             return_value_policy<reference_existing_object>()
         )
         .def(
-            "set_user_identity_to_username", 
+            "set_user_identity_to_username",
             &AssociationParameters::set_user_identity_to_username,
             return_value_policy<reference_existing_object>()
         )
         .def(
-            "set_user_identity_to_username_and_password", 
+            "set_user_identity_to_username_and_password",
             &AssociationParameters::set_user_identity_to_username_and_password,
             return_value_policy<reference_existing_object>()
         )
         .def(
-            "set_user_identity_to_kerberos", 
+            "set_user_identity_to_kerberos",
             &AssociationParameters::set_user_identity_to_kerberos,
             return_value_policy<reference_existing_object>()
         )
         .def(
-            "set_user_identity_to_saml", 
+            "set_user_identity_to_saml",
             &AssociationParameters::set_user_identity_to_saml,
             return_value_policy<reference_existing_object>()
         )
         .def(
-            "get_maximum_length", 
+            "get_maximum_length",
             &AssociationParameters::get_maximum_length
         )
         .def(
@@ -91,8 +117,11 @@ void wrap_AssociationParameters()
     ;
 
     {
-        scope presentation_context_scope = 
+        scope presentation_context_scope =
             class_<AssociationParameters::PresentationContext>("PresentationContext")
+            .def(
+                "__init__", 
+                make_constructor(&constructor))
             .def_readwrite(
                 "id",
                 &AssociationParameters::PresentationContext::id
@@ -185,4 +214,3 @@ void wrap_AssociationParameters()
         ;
     }
 }
-
