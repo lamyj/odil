@@ -28,7 +28,10 @@ void wrap_registry()
 
     for(auto const & entry: registry::public_dictionary)
     {
-        registry_scope.attr(entry.second.keyword.c_str()) = entry.first;
+        if(entry.first.get_type() == ElementsDictionaryKey::Type::Tag)
+        {
+            registry_scope.attr(entry.second.keyword.c_str()) = entry.first.get_tag();
+        }
     }
 
     for(auto const & entry: registry::uids_dictionary)
