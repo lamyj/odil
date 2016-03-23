@@ -36,6 +36,11 @@ void wrap_Association()
             &Association::update_parameters, 
             return_value_policy<reference_existing_object>()
         )
+        .def(
+            "get_negotiated_parameters", 
+            &Association::get_negotiated_parameters, 
+            return_value_policy<reference_existing_object>()
+        )
         // TCP timeout
         // Message timeout
         .def("is_associated", &Association::is_associated)
@@ -55,4 +60,3 @@ void wrap_Association()
         .value("RejectedTransient", Association::RejectedTransient)
     ;
 }
-
