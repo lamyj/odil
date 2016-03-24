@@ -10,13 +10,35 @@
 
 #include "odil/FindSCU.h"
 
+namespace
+{
+
+void 
+find_with_python_callback(
+    odil::FindSCU const & scu, 
+    odil::DataSet const & query, boost::python::object const & f)
+{
+    scu.find(
+        query, 
+        [f](odil::DataSet const & data_set) 
+        { 
+            boost::python::call<void>(f.ptr(), data_set); 
+        }
+    );
+}
+
+}
+
 void wrap_FindSCU()
 {
     using namespace boost::python;
     using namespace odil;
 
     class_<FindSCU>("FindSCU", init<Association &>())
-        // Find with callback
+        .def(
+            "find",
+            &find_with_python_callback
+        )
         .def(
             "find", 
             static_cast<

@@ -32,6 +32,11 @@ query.add(_odil.registry.StudyDate)
 
 find = _odil.FindSCU(association)
 find.set_affected_sop_class(_odil.registry.StudyRootQueryRetrieveInformationModelFIND)
+
+def callback(data_set):
+    print data_set.as_string(_odil.registry.PatientName)[0]
+find.find(query, callback)
+
 data_sets = find.find(query)
 print len(data_sets), "found"
 for data_set in data_sets:
