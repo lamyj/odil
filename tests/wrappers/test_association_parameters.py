@@ -103,8 +103,17 @@ class TestAssociationParameters(unittest.TestCase):
         parameters.set_called_ae_title("foo").set_calling_ae_title("bar")
         self.assertEqual(parameters.get_called_ae_title(), "foo")
         self.assertEqual(parameters.get_calling_ae_title(), "bar")
+    
+class TestPresentationContext(unittest.TestCase):
+    def test_constructor(self):
+        presentation_context = _odil.AssociationParameters.PresentationContext(
+            1, "foo", ["bar", "baz"], False, True)
+        self.assertEqual(presentation_context.id, 1)
+        self.assertEqual(presentation_context.abstract_syntax, "foo")
+        self.assertEqual(
+            [x for x in presentation_context.transfer_syntaxes], ["bar", "baz"])
+        self.assertEqual(presentation_context.scu_role_support, False)
+        self.assertEqual(presentation_context.scp_role_support, True)
 
 if __name__ == "__main__":
     unittest.main()
-
-

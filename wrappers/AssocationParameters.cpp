@@ -113,7 +113,6 @@ void wrap_AssociationParameters()
             &AssociationParameters::set_maximum_length,
             return_value_policy<reference_existing_object>()
         )
-        // Convert to PDU
     ;
 
     {
