@@ -19,3 +19,9 @@ foreach(example_file ${examples})
     add_executable(${example} ${example_file})
     target_link_libraries(${example} odil)
 endforeach()
+
+file(GLOB_RECURSE python_examples *.py)
+add_custom_target(
+    PythonExamples
+    ${CMAKE_COMMAND} -E echo "Python examples"
+    SOURCES ${python_examples})

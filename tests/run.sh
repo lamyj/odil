@@ -51,8 +51,10 @@ export ODIL_PEER_PORT=11112
 export ODIL_PEER_AET=REMOTE
 
 export PATH=${PWD}/../build/tests/tools:$PATH
+export PYTHONPATH=${PWD}/../build/wrappers
 
 ctest --no-compress-output -T Test $@ || true
+nosetests-2.7 ${PWD}/../tests/wrappers || true
 
 stop_scp
 clean
