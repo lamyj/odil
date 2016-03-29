@@ -32,7 +32,7 @@ before_install:
   # Boost is already installed with another version
   - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew unlink boost; brew install boost boost-python; fi
   - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew install dcmtk icu4c jsoncpp ninja python; fi
-  - pip install cpp-coveralls nose
+  - pip install --user cpp-coveralls nose
 before_script:
   - export SRC_DIR=$PWD
   - mkdir build
