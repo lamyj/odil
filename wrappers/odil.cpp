@@ -11,6 +11,7 @@
 void wrap_Association();
 void wrap_AssociationParameters();
 void wrap_DataSet();
+void wrap_EchoSCU();
 void wrap_Element();
 void wrap_ElementsDictionary();
 void wrap_Exception();
@@ -33,6 +34,7 @@ BOOST_PYTHON_MODULE(_odil)
     wrap_Association();
     wrap_AssociationParameters();
     wrap_DataSet();
+    wrap_EchoSCU();
     wrap_Element();
     wrap_ElementsDictionary();
     wrap_Exception();
