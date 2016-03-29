@@ -44,7 +44,7 @@ before_script:
   - cmake -G Ninja -D CMAKE_CXX_FLAGS:STRING="${CMAKE_CXX_FLAGS}" -D CMAKE_BUILD_TYPE:STRING=Debug ${CMAKE_ARGUMENTS} ../
 script:
   - ninja
-  - export PATH=${HOME}/.local/bin/;$PWD/tests/tools:$PATH
+  - export PATH=${HOME}/.local/bin/:${PWD}/tests/tools:${PATH}
   - ../tests/run.sh
 after_success:
   - if [ "${CC}" = "gcc" ]; then ${HOME}/.local/bin/coveralls --exclude examples --exclude tests --exclude-pattern '.*CMake[^/]+\.c(?:pp)?' --exclude-pattern "/usr/.*" --root=${SRC_DIR} --build-root ${BIN_DIR} | grep -vP "^File '.*'$" | grep -vP ":creating '.*'$" | grep -vP "^Lines executed:.*" | sed '/^$/d'; fi
