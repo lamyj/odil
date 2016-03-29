@@ -18,6 +18,7 @@ void wrap_FindSCU();
 void wrap_GetSCU();
 void wrap_MoveSCU();
 void wrap_read();
+void wrap_StoreSCU();
 void wrap_Tag();
 void wrap_uid();
 void wrap_UIDsDictionary();
@@ -39,6 +40,7 @@ BOOST_PYTHON_MODULE(_odil)
     wrap_GetSCU();
     wrap_MoveSCU();
     wrap_read();
+    wrap_StoreSCU();
     wrap_Tag();
     wrap_uid();
     wrap_UIDsDictionary();
