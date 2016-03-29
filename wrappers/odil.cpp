@@ -15,6 +15,7 @@ void wrap_Element();
 void wrap_ElementsDictionary();
 void wrap_Exception();
 void wrap_FindSCU();
+void wrap_GetSCU();
 void wrap_read();
 void wrap_Tag();
 void wrap_uid();
@@ -34,6 +35,7 @@ BOOST_PYTHON_MODULE(_odil)
     wrap_ElementsDictionary();
     wrap_Exception();
     wrap_FindSCU();
+    wrap_GetSCU();
     wrap_read();
     wrap_Tag();
     wrap_uid();
