@@ -1,5 +1,5 @@
 find_package(Boost REQUIRED COMPONENTS python)
-find_package(PythonLibs REQUIRED)
+find_package(PythonLibs 2.7 EXACT REQUIRED)
 
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/../src ${Boost_INCLUDE_DIRS}
