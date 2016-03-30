@@ -1,0 +1,39 @@
+#!/usr/bin/env python
+
+import argparse
+import logging
+import sys
+
+import echo
+import print_
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--verbosity", "-v",
+        choices=["warning", "info", "debug"], default="warning")
+
+    subparsers = parser.add_subparsers(help="Sub-commands help")
+
+    modules = [
+        print_, echo
+    ]
+    for module in modules:
+        module.add_subparser(subparsers)
+
+    arguments = parser.parse_args()
+
+    verbosity = arguments.__dict__.pop("verbosity")
+    logging.getLogger().setLevel(verbosity.upper())
+
+    function = arguments.__dict__.pop("function")
+    try:
+        function(**arguments.__dict__)
+    except Exception as e:
+        if verbosity == "debug":
+            raise
+        else:
+            parser.error(e)
+
+if __name__ == "__main__":
+    sys.exit(main())

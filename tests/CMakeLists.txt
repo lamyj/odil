@@ -55,7 +55,7 @@ foreach(test_file ${tests})
 
 endforeach()
 
-file(GLOB_RECURSE python_tests wrappers/*.py)
+file(GLOB_RECURSE python_tests *.py)
 
 add_custom_target(Runner ${CMAKE_COMMAND} -E echo "Test runner" SOURCES run.sh)
 add_custom_target(

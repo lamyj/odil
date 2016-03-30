@@ -14,6 +14,7 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}" ${CMAKE_MODULE_PATH})
 include(CTest)
 
 add_subdirectory("src")
+add_subdirectory("applications")
 
 if(BUILD_EXAMPLES)
     add_subdirectory("examples")
