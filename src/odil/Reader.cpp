@@ -319,7 +319,11 @@ Reader::Visitor
             value.resize(strings.size());
             std::transform(
                 strings.begin(), strings.end(), value.begin(),
-                [](std::string const & s) { return std::stod(s); });
+                [](std::string const & s)
+                {
+                    return static_cast<Value::Real>(std::stold(s));
+                }
+            );
         }
     }
     else
