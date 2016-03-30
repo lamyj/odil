@@ -50,4 +50,4 @@ script:
   - ninja
   - ../tests/run.sh
 after_success:
-  - if [ "${CC}" = "gcc" ]; then ( coveralls --exclude examples --exclude tests --exclude-pattern '.*CMake[^/]+\.c(?:pp)?' --exclude-pattern "/usr/.*" --root=${SRC_DIR} --build-root ${BIN_DIR} > /dev/null; fi
+  - if [ "${CC}" = "gcc" ]; then coveralls --exclude examples --exclude tests --exclude-pattern '.*CMake[^/]+\.c(?:pp)?' --exclude-pattern "/usr/.*" --root=${SRC_DIR} --build-root ${BIN_DIR} > /dev/null; fi
