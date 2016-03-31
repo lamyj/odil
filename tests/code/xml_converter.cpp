@@ -613,17 +613,6 @@ BOOST_AUTO_TEST_CASE(AsXMLInvalidPersonName)
 }
 
 /******************************* TEST Error ************************************/
-BOOST_AUTO_TEST_CASE(AsXMLInvalidDICOMTag)
-{
-    odil::DataSet data_set;
-    data_set.add(0xbad00bad,
-        odil::Element(
-            odil::Value::Strings({"value"}),
-            odil::VR::CS));
-    BOOST_REQUIRE_THROW(odil::as_xml(data_set), odil::Exception);
-}
-
-/******************************* TEST Error ************************************/
 BOOST_AUTO_TEST_CASE(AsXMLBadVR)
 {
     odil::DataSet data_set;
