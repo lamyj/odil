@@ -17,6 +17,7 @@ void wrap_ElementsDictionary();
 void wrap_Exception();
 void wrap_FindSCU();
 void wrap_GetSCU();
+void wrap_json_converter();
 void wrap_MoveSCU();
 void wrap_read();
 void wrap_StoreSCU();
@@ -40,6 +41,7 @@ BOOST_PYTHON_MODULE(_odil)
     wrap_Exception();
     wrap_FindSCU();
     wrap_GetSCU();
+    wrap_json_converter();
     wrap_MoveSCU();
     wrap_read();
     wrap_StoreSCU();
