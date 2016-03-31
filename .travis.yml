@@ -7,8 +7,6 @@ matrix:
       compiler: gcc
     - os: osx
       compiler: clang
-python:
-  - "2.7"
 addons:
   apt:
     packages:
