@@ -7,6 +7,7 @@ import sys
 import echo
 import find
 import print_
+import transcode
 
 def main():
     parser = argparse.ArgumentParser()
@@ -17,7 +18,7 @@ def main():
     subparsers = parser.add_subparsers(help="Sub-commands help")
 
     modules = [
-        print_, echo, find
+        print_, transcode, echo, find
     ]
     for module in modules:
         module.add_subparser(subparsers)
