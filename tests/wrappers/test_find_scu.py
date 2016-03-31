@@ -9,14 +9,14 @@ from peer_fixture_base import PeerFixtureBase
 
 class TestFindSCU(PeerFixtureBase):
     def setUp(self):
-        find_pc = _odil.AssociationParameters.PresentationContext(
-            1, _odil.registry.PatientRootQueryRetrieveInformationModelFIND,
-            [ _odil.registry.ImplicitVRLittleEndian ], True, False
+        PeerFixtureBase.setUp(
+            self, 
+            [
+                _odil.AssociationParameters.PresentationContext(
+                1, _odil.registry.PatientRootQueryRetrieveInformationModelFIND,
+                [ _odil.registry.ImplicitVRLittleEndian ], True, False)
+            ]
         )
-        presentation_contexts = _odil.AssociationParameters.VPresentationContext()
-        presentation_contexts.append(find_pc)
-
-        PeerFixtureBase.setUp(self, presentation_contexts)
 
         self.query = _odil.DataSet()
         self.query.add(_odil.registry.PatientName, _odil.Value.Strings(["Doe^John"]))

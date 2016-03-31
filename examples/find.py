@@ -4,19 +4,16 @@ association = _odil.Association()
 association.set_peer_host("184.73.255.26")
 association.set_peer_port(11112)
 
-find_pc = _odil.AssociationParameters.PresentationContext(
-    1, _odil.registry.StudyRootQueryRetrieveInformationModelFIND,
-    [ _odil.registry.ExplicitVRLittleEndian ], True, False
-)
-
-verification_pc =  _odil.AssociationParameters.PresentationContext(
-    3, _odil.registry.VerificationSOPClass,
-    [ _odil.registry.ExplicitVRLittleEndian ], True, False
-)
-
-presentation_contexts = _odil.AssociationParameters.VPresentationContext()
-presentation_contexts.append(find_pc)
-presentation_contexts.append(verification_pc)
+presentation_contexts = [
+    _odil.AssociationParameters.PresentationContext(
+        1, _odil.registry.StudyRootQueryRetrieveInformationModelFIND,
+        [ _odil.registry.ExplicitVRLittleEndian ], True, False
+    ),
+    _odil.AssociationParameters.PresentationContext(
+        3, _odil.registry.VerificationSOPClass,
+        [ _odil.registry.ExplicitVRLittleEndian ], True, False
+    )
+]
 
 association.update_parameters()\
     .set_calling_ae_title("myself")\

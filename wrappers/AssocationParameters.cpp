@@ -17,7 +17,7 @@ namespace
 {
 
 std::shared_ptr<odil::AssociationParameters::PresentationContext>
-constructor(
+presentation_context_constructor(
     uint8_t id, std::string const & abstract_syntax,
     boost::python::list const & transfer_syntaxes,
     bool scu_role_support, bool scp_role_support)
@@ -34,6 +34,24 @@ constructor(
     return std::make_shared<odil::AssociationParameters::PresentationContext>(presentation_context);
 }
 
+odil::AssociationParameters &
+set_presentation_contexts(
+    odil::AssociationParameters & parameters,
+    boost::python::list const & presentation_contexts)
+{
+    std::vector<odil::AssociationParameters::PresentationContext> 
+        presentation_contexts_cpp(boost::python::len(presentation_contexts));
+    for(int i = 0; i<boost::python::len(presentation_contexts); ++i)
+    {
+        presentation_contexts_cpp[i] = 
+            boost::python::extract<
+                odil::AssociationParameters::PresentationContext
+            >(presentation_contexts[i]);
+    }
+    parameters.set_presentation_contexts(presentation_contexts_cpp);
+    
+    return parameters;
+}
 
 }
 
@@ -72,7 +90,7 @@ void wrap_AssociationParameters()
         )
         .def(
             "set_presentation_contexts",
-            &AssociationParameters::set_presentation_contexts,
+            &/*AssociationParameters::*/set_presentation_contexts,
             return_value_policy<reference_existing_object>()
         )
         .def(
@@ -120,7 +138,7 @@ void wrap_AssociationParameters()
             class_<AssociationParameters::PresentationContext>("PresentationContext")
             .def(
                 "__init__", 
-                make_constructor(&constructor))
+                make_constructor(&presentation_context_constructor))
             .def_readwrite(
                 "id",
                 &AssociationParameters::PresentationContext::id
@@ -171,14 +189,6 @@ void wrap_AssociationParameters()
             )
         ;
     }
-
-    class_<
-        std::vector<AssociationParameters::PresentationContext>
-    >("VPresentationContext")
-        .def(vector_indexing_suite<
-            std::vector<AssociationParameters::PresentationContext>
-        >())
-    ;
 
     {
         scope user_identity_scope = 

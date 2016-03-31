@@ -9,14 +9,14 @@ from peer_fixture_base import PeerFixtureBase
 
 class TestEchoSCU(PeerFixtureBase):
     def setUp(self):
-        verification = _odil.AssociationParameters.PresentationContext(
-            3, _odil.registry.VerificationSOPClass,
-            [ _odil.registry.ImplicitVRLittleEndian ], True, False
+        PeerFixtureBase.setUp(
+            self, 
+            [
+                _odil.AssociationParameters.PresentationContext(
+                    3, _odil.registry.VerificationSOPClass,
+                    [ _odil.registry.ImplicitVRLittleEndian ], True, False)
+            ]
         )
-        presentation_contexts = _odil.AssociationParameters.VPresentationContext()
-        presentation_contexts.append(verification)
-
-        PeerFixtureBase.setUp(self, presentation_contexts)
     
     def test_echo(self):
         echo = _odil.EchoSCU(self.association)

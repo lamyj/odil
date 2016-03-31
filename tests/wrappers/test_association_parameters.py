@@ -32,11 +32,8 @@ class TestAssociationParameters(unittest.TestCase):
         presentation_context.abstract_syntax = "foo"
         presentation_context.transfer_syntaxes.append("bar")
 
-        presentation_contexts = _odil.AssociationParameters.VPresentationContext()
-        presentation_contexts.append(presentation_context)
-
         parameters = _odil.AssociationParameters()
-        parameters.set_presentation_contexts(presentation_contexts)
+        parameters.set_presentation_contexts([presentation_context])
 
         self.assertEqual(len(parameters.get_presentation_contexts()), 1)
         self.assertEqual(

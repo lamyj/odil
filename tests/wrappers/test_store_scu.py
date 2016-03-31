@@ -9,14 +9,14 @@ from peer_fixture_base import PeerFixtureBase
 
 class TestStoreSCU(PeerFixtureBase):
     def setUp(self):
-        raw_storage = _odil.AssociationParameters.PresentationContext(
-            3, _odil.registry.RawDataStorage,
-            [ _odil.registry.ImplicitVRLittleEndian ], True, False
-        )
-        presentation_contexts = _odil.AssociationParameters.VPresentationContext()
-        presentation_contexts.append(raw_storage)
-
-        PeerFixtureBase.setUp(self, presentation_contexts)
+        PeerFixtureBase.setUp(
+            self, 
+            [
+                _odil.AssociationParameters.PresentationContext(
+                    1, _odil.registry.RawDataStorage,
+                    [ _odil.registry.ImplicitVRLittleEndian ], True, False
+                )
+            ])
 
         self.data_set = _odil.DataSet()
         self.data_set.add(
