@@ -10,13 +10,14 @@
 
 #include <boost/python.hpp>
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
+#include <boost/shared_ptr.hpp>
 
 #include "odil/AssociationParameters.h"
 
 namespace
 {
 
-std::shared_ptr<odil::AssociationParameters::PresentationContext>
+boost::shared_ptr<odil::AssociationParameters::PresentationContext>
 presentation_context_constructor(
     uint8_t id, std::string const & abstract_syntax,
     boost::python::list const & transfer_syntaxes,
@@ -27,11 +28,14 @@ presentation_context_constructor(
     {
         transfer_syntaxes_cpp[i] = boost::python::extract<std::string>(transfer_syntaxes[i]);
     }
-    odil::AssociationParameters::PresentationContext presentation_context = {
+    auto presentation_context = new odil::AssociationParameters::PresentationContext({
         id, abstract_syntax, transfer_syntaxes_cpp,
         scu_role_support, scp_role_support
-    };
-    return std::make_shared<odil::AssociationParameters::PresentationContext>(presentation_context);
+    });
+    // Old versions of Boost.Python (Debian 7, Ubuntu 12.04) do not like 
+    // std::shared_ptr
+    return boost::shared_ptr<odil::AssociationParameters::PresentationContext>(
+        presentation_context);
 }
 
 boost::python::list
