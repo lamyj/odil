@@ -34,6 +34,18 @@ presentation_context_constructor(
     return std::make_shared<odil::AssociationParameters::PresentationContext>(presentation_context);
 }
 
+boost::python::list
+get_presentation_contexts(odil::AssociationParameters const & parameters)
+{
+    boost::python::list presentation_contexts_python;
+    for(auto const & presentation_context: parameters.get_presentation_contexts())
+    {
+        presentation_contexts_python.append(presentation_context);
+    }
+
+    return presentation_contexts_python;
+}
+
 odil::AssociationParameters &
 set_presentation_contexts(
     odil::AssociationParameters & parameters,
@@ -85,12 +97,11 @@ void wrap_AssociationParameters()
         )
         .def(
             "get_presentation_contexts",
-            &AssociationParameters::get_presentation_contexts,
-            return_value_policy<reference_existing_object>()
+            &get_presentation_contexts
         )
         .def(
             "set_presentation_contexts",
-            &/*AssociationParameters::*/set_presentation_contexts,
+            &set_presentation_contexts,
             return_value_policy<reference_existing_object>()
         )
         .def(
