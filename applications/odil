@@ -5,6 +5,7 @@ import logging
 import sys
 
 import echo
+import find
 import print_
 
 def main():
@@ -16,7 +17,7 @@ def main():
     subparsers = parser.add_subparsers(help="Sub-commands help")
 
     modules = [
-        print_, echo
+        print_, echo, find
     ]
     for module in modules:
         module.add_subparser(subparsers)
