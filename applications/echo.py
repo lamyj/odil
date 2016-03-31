@@ -5,11 +5,14 @@ import _odil
 def add_subparser(subparsers):
     parser = subparsers.add_parser(
         "echo", help="Ping a remote DICOM server (C-ECHO)")
-    parser.add_argument("host")
-    parser.add_argument("port", type=int)
-    parser.add_argument("calling_ae_title")
-    parser.add_argument("called_ae_title")
+    parser.add_argument("host", help="Remote host address")
+    parser.add_argument("port", type=int, help="Remote host port")
+    parser.add_argument(
+        "calling_ae_title", help="AE title of the calling application")
+    parser.add_argument(
+        "called_ae_title", help="AE title of the called application")
     parser.set_defaults(function=echo)
+    return parser
 
 def echo(host, port, calling_ae_title, called_ae_title):
     association = _odil.Association()

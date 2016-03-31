@@ -7,13 +7,17 @@ from print_ import print_data_set
 def add_subparser(subparsers):
     parser = subparsers.add_parser(
         "find", help="DICOM query (C-FIND)")
-    parser.add_argument("host")
-    parser.add_argument("port", type=int)
-    parser.add_argument("calling_ae_title")
-    parser.add_argument("called_ae_title")
-    parser.add_argument("level", choices=["patient", "study"])
-    parser.add_argument("keys", nargs="+")
+    parser.add_argument("host", help="Remote host address")
+    parser.add_argument("port", type=int, help="Remote host port")
+    parser.add_argument(
+        "calling_ae_title", help="AE title of the calling application")
+    parser.add_argument(
+        "called_ae_title", help="AE title of the called application")
+    parser.add_argument(
+        "level", choices=["patient", "study"], help="Root object of the query")
+    parser.add_argument("keys", nargs="+", help="Query keys")
     parser.set_defaults(function=find)
+    return parser
 
 def find(host, port, calling_ae_title, called_ae_title, level, keys):
     query = _odil.DataSet()

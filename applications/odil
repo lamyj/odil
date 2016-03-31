@@ -11,9 +11,6 @@ import transcode
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--verbosity", "-v",
-        choices=["warning", "info", "debug"], default="warning")
 
     subparsers = parser.add_subparsers(help="Sub-commands help")
 
@@ -21,7 +18,10 @@ def main():
         print_, transcode, echo, find
     ]
     for module in modules:
-        module.add_subparser(subparsers)
+        sub_parser = module.add_subparser(subparsers)
+        sub_parser.add_argument(
+            "--verbosity", "-v",
+            choices=["warning", "info", "debug"], default="warning")
 
     arguments = parser.parse_args()
 

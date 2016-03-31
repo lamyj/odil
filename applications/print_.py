@@ -5,10 +5,15 @@ import _odil
 def add_subparser(subparsers):
     parser = subparsers.add_parser(
         "print", help="Print the contents of data sets")
-    parser.add_argument("inputs", nargs="+", metavar="FILE")
-    parser.add_argument("--print-header", "-H", action="store_true")
-    parser.add_argument("--decode-uids", "-u", action="store_true")
+    parser.add_argument("inputs", nargs="+", metavar="FILE", help="Input files")
+    parser.add_argument(
+        "--print-header", "-H", action="store_true",
+        help="Print the header as well as the data set")
+    parser.add_argument(
+        "--decode-uids", "-u", action="store_true",
+        help="Print human-friendly name of known UIDs")
     parser.set_defaults(function=print_)
+    return parser
 
 def print_(inputs, print_header, decode_uids):
     for input in inputs:

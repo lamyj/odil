@@ -19,6 +19,7 @@ def add_subparser(subparsers):
         "--pretty-print", "-p", action="store_true",
         help="Pretty-print in output file (JSON and XML only)")
     parser.set_defaults(function=transcode)
+    return parser
 
 def transcode(input, output, format, transfer_syntax, pretty_print):
 
