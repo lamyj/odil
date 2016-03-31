@@ -328,16 +328,15 @@ boost::property_tree::ptree as_xml(DataSet const & data_set)
         boost::property_tree::ptree dicomattribute =
                 apply_visitor(ToXMLVisitor(), element);
 
-        auto const dictionary_it = registry::public_dictionary.find(tag);
-        if(dictionary_it == registry::public_dictionary.end())
-        {
-            throw Exception("No such element: " + std::string(tag));
-        }
-
         // Add Mandatory attribute Tag
         dicomattribute.put("<xmlattr>.tag",  std::string(tag));
         // Add Optional attribute Keyword
-        dicomattribute.put("<xmlattr>.keyword", dictionary_it->second.keyword);
+        auto const dictionary_it = registry::public_dictionary.find(tag);
+        if(dictionary_it != registry::public_dictionary.end())
+        {
+            dicomattribute.put(
+                "<xmlattr>.keyword", dictionary_it->second.keyword);
+        }
         // Add Optional attribute PrivateCreator
         //dicomattribute.put("<xmlattr>.privateCreator", todo);
 
