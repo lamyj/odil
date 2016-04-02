@@ -40,7 +40,7 @@ before_script:
   - export BIN_DIR=$PWD
   - CMAKE_CXX_FLAGS="-std=c++11"
   - if [ "${CC}" = "gcc" ]; then CMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS} --coverage"; fi
-  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then export PKG_CONFIG_PATH=/usr/local/Cellar/icu4c/56.1/lib/pkgconfig; fi
+  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then export PKG_CONFIG_PATH=/usr/local/opt/icu4c/lib/pkgconfig; fi
   - cmake -G Ninja -D CMAKE_CXX_FLAGS:STRING="${CMAKE_CXX_FLAGS}" -D CMAKE_BUILD_TYPE:STRING=Debug ../
 script:
   - ninja
