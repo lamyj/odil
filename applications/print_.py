@@ -23,12 +23,9 @@ def print_(inputs, print_header, decode_uids):
             print_data_set(header, decode_uids)
         print_data_set(data_set, decode_uids)
 
-def print_data_set(data_set, decode_uids=False, padding=""):
-    max_length = 0
-    for tag in data_set.keys():
-        if tag in _odil.registry.public_dictionary:
-            entry = _odil.registry.public_dictionary[tag]
-            max_length = max(max_length, len(entry.name))
+def print_data_set(data_set, decode_uids=False, padding="", max_length=None):
+    if max_length is None:
+        max_length = find_max_name_length(data_set)
 
     for tag, element in data_set.items():
         name = "{:04x},{:04x}".format(tag.group, tag.element)
@@ -60,7 +57,7 @@ def print_data_set(data_set, decode_uids=False, padding=""):
 
         print "{}{}{} {:04x},{:04x} {} {}".format(
             padding,
-            name, (max_length-len(name))*" ",
+            name, (max_length-len(name)-len(padding))*" ",
             tag.group, tag.element, element.vr,
             value)
 
@@ -68,6 +65,22 @@ def print_data_set(data_set, decode_uids=False, padding=""):
             sequence = element.as_data_set()
             if sequence:
                 for item in sequence[:-1]:
-                    print_data_set(item, decode_uids, padding+"  ")
+                    print_data_set(item, decode_uids, padding+"  ", max_length)
                     print
-                print_data_set(sequence[-1], padding+"  ")
+                print_data_set(sequence[-1], decode_uids, padding+"  ", max_length)
+
+def find_max_name_length(data_set, max_length=0, padding_length=0):
+    for tag, element in data_set.items():
+        if tag in _odil.registry.public_dictionary:
+            entry = _odil.registry.public_dictionary[tag]
+            length = len(entry.name)
+        else:
+            length = 9 # xxxx,yyyy
+        max_length = max(max_length, padding_length+length)
+        if element.is_data_set():
+            sequence = element.as_data_set()
+            for item in sequence:
+                max_length = max(
+                    max_length,
+                    find_max_name_length(item, max_length, 2+padding_length))
+    return max_length
