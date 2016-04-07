@@ -357,7 +357,7 @@ BasicDirectoryCreator
 {
     DataSet meta_information;
     meta_information.add(
-        registry::FileMetaInformationVersion, Value::Binary({0x00, 0x01}));
+        registry::FileMetaInformationVersion, Value::Binary({{0x00, 0x01}}));
     meta_information.add(
         registry::MediaStorageSOPClassUID,
         { registry::MediaStorageDirectoryStorage });

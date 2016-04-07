@@ -107,6 +107,8 @@ private:
 
         template<typename T>
         void write_strings(T const & sequence, char padding) const;
+
+        void write_encapsulated_pixel_data(Value::Binary const & value) const;
     };
 };
 

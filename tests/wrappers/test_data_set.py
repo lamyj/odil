@@ -102,7 +102,7 @@ class TestDataSet(unittest.TestCase):
 
     def test_string_binary(self):
         tag = _odil.registry.RedPaletteColorLookupTableData
-        value = "\x01\x02"
+        value = [_odil.Value.BinaryItem("\x01\x02")]
         data_set = _odil.DataSet()
         data_set.add(tag, _odil.Value.Binary(value))
 
@@ -112,10 +112,10 @@ class TestDataSet(unittest.TestCase):
 
         self.assertEqual(data_set.get_vr(tag), _odil.VR.OW)
         self.assertFalse(data_set.empty(tag))
-        self.assertEqual(data_set.size(tag), 2)
+        self.assertEqual(data_set.size(tag), 1)
         self.assertTrue(data_set.is_binary(tag))
         self.assertEqual(
-            [x for x in data_set.as_binary(tag)], [ord(x) for x in value])
+            [x for x in data_set.as_binary(tag)[0]], [x for x in value[0]])
 
     def test_getitem(self):
         data_set = _odil.DataSet()

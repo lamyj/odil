@@ -2,7 +2,7 @@ import logging
 
 import _odil
 
-from print_ import print_data_set
+from print_ import find_max_name_length, print_data_set
 
 def add_subparser(subparsers):
     parser = subparsers.add_parser(
@@ -16,10 +16,13 @@ def add_subparser(subparsers):
     parser.add_argument(
         "level", choices=["patient", "study"], help="Root object of the query")
     parser.add_argument("keys", nargs="+", help="Query keys")
+    parser.add_argument(
+        "--decode-uids", "-u", action="store_true",
+        help="Print human-friendly name of known UIDs")
     parser.set_defaults(function=find)
     return parser
 
-def find(host, port, calling_ae_title, called_ae_title, level, keys):
+def find(host, port, calling_ae_title, called_ae_title, level, keys, decode_uids):
     query = _odil.DataSet()
     for key in keys:
         if "=" in key:
@@ -49,7 +52,10 @@ def find(host, port, calling_ae_title, called_ae_title, level, keys):
     
     find_pc = _odil.AssociationParameters.PresentationContext(
         1, sop_class,
-        [ _odil.registry.ExplicitVRLittleEndian ], True, False
+        [
+            _odil.registry.ImplicitVRLittleEndian,
+            _odil.registry.ExplicitVRLittleEndian
+        ], True, False
     )
     
     association = _odil.Association()
@@ -66,8 +72,13 @@ def find(host, port, calling_ae_title, called_ae_title, level, keys):
     find.set_affected_sop_class(sop_class)
     data_sets = find.find(query)
     print "{} answer{}".format(len(data_sets), "s" if len(data_sets)>1 else "")
+
+    max_length = 0
     for data_set in data_sets:
-        print_data_set(data_set)
+        max_length = max(max_length, find_max_name_length(data_set))
+
+    for data_set in data_sets:
+        print_data_set(data_set, decode_uids, "", max_length)
         print
 
     association.release()

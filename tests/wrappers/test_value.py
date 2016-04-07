@@ -28,10 +28,10 @@ class TestValue(unittest.TestCase):
         self.assertEqual([x for x in value.as_data_sets()], items)
 
     def test_binary_constructor(self):
-        items = "\x01\x02\x03"
+        items = [_odil.Value.BinaryItem("\x01\x02\x03")]
         value = _odil.Value(_odil.Value.Binary(items))
         self.assertEqual(
-            [x for x in value.as_binary()], [ord(x) for x in items])
+            [x for x in value.as_binary()[0]], [x for x in items[0]])
 
 class TestValueIntegers(unittest.TestCase):
     def test_empty_constructor(self):
@@ -79,9 +79,9 @@ class TestValueBinary(unittest.TestCase):
         self.assertEqual([x for x in data], [])
 
     def test_sequence_constructor(self):
-        items = "\x01\x02\x03"
+        items = [_odil.Value.BinaryItem("\x01\x02\x03")]
         data = _odil.Value.Binary(items)
-        self.assertEqual([x for x in data], [ord(x) for x in items])
+        self.assertEqual([x for x in data[0]], [x for x in items[0]])
 
 if __name__ == "__main__":
     unittest.main()

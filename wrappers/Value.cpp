@@ -93,9 +93,17 @@ void wrap_Value()
         .def(vector_indexing_suite<Value::DataSets>())
     ;
 
+    class_<Value::Binary::value_type>("BinaryItem")
+        .def(init<>())
+        .def(
+            "__init__",
+            make_constructor(create_value<Value::Binary::value_type, char>))
+        .def(vector_indexing_suite<Value::Binary::value_type>())
+    ;
+
     class_<Value::Binary>("Binary")
         .def(init<>())
-        .def("__init__", make_constructor(create_value<Value::Binary, char>))
+        .def("__init__", make_constructor(create_value<Value::Binary>))
         .def(vector_indexing_suite<Value::Binary>())
     ;
 }

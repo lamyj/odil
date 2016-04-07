@@ -153,7 +153,7 @@ BOOST_AUTO_TEST_CASE(AsJSONBinary)
     odil::DataSet data_set;
     data_set.add(0xdeadbeef,
         odil::Element(
-            odil::Value::Binary({0x1, 0x2, 0x3, 0x4, 0x5}),
+            odil::Value::Binary({{0x1, 0x2, 0x3, 0x4, 0x5}}),
             odil::VR::OB));
 
     auto const json = odil::as_json(data_set);
@@ -275,5 +275,5 @@ BOOST_AUTO_TEST_CASE(AsDataSetBinary)
     BOOST_REQUIRE(data_set.get_vr("deadbeef") == odil::VR::OB);
     BOOST_REQUIRE(data_set.is_binary("deadbeef"));
     BOOST_REQUIRE(data_set.as_binary("deadbeef") == odil::Value::Binary(
-        {0x1, 0x2, 0x3, 0x4, 0x5}));
+        {{0x1, 0x2, 0x3, 0x4, 0x5}}));
 }

@@ -173,6 +173,10 @@ Writer
             {
                 vl = 0xffffffff;
             }
+            else if((vr == VR::OB || vr == VR::OW) && element.size() > 1)
+            {
+                vl = 0xffffffff;
+            }
             else
             {
                vl = value_stream.tellp();
@@ -206,7 +210,7 @@ Writer
     // Build File Meta Information, PS3.10, 7.1
     DataSet meta_info = meta_information;
     meta_info.add(
-        registry::FileMetaInformationVersion, Value::Binary({0x00, 0x01}));
+        registry::FileMetaInformationVersion, Value::Binary({{0x00, 0x01}}));
 
     if(!data_set.has(registry::SOPClassUID))
     {
@@ -459,47 +463,55 @@ Writer::Visitor::result_type
 Writer::Visitor
 ::operator()(Value::Binary const & value) const
 {
-    if(this->vr == VR::OB || this->vr == VR::UN)
+    if(value.size() > 1)
     {
-        this->stream.write(reinterpret_cast<char const*>(&value[0]), value.size());
-    }
-    else if(this->vr == VR::OW)
-    {
-        if(value.size()%2 != 0)
-        {
-            throw Exception("Value cannot be written as OW");
-        }
-        for(int i=0; i<value.size(); i+=2)
-        {
-            uint16_t item = *reinterpret_cast<uint16_t const *>(&value[i]);
-            odil_write_binary(item, this->stream, this->byte_ordering, 16);
-        }
-    }
-    else if(this->vr == VR::OF)
-    {
-        if(value.size()%4 != 0)
-        {
-            throw Exception("Value cannot be written as OF");
-        }
-        for(int i=0; i<value.size(); i+=4)
-        {
-            uint32_t item = *reinterpret_cast<uint32_t const *>(&value[i]);
-            odil_write_binary(item, this->stream, this->byte_ordering, 32);
-        }
+        this->write_encapsulated_pixel_data(value);
     }
     else
     {
-        throw Exception("Cannot write "+as_string(this->vr)+" as binary");
-    }
+        if(this->vr == VR::OB || this->vr == VR::UN)
+        {
+            this->stream.write(
+                reinterpret_cast<char const*>(&value[0][0]), value[0].size());
+        }
+        else if(this->vr == VR::OW)
+        {
+            if(value[0].size()%2 != 0)
+            {
+                throw Exception("Value cannot be written as OW");
+            }
+            for(int i=0; i<value[0].size(); i+=2)
+            {
+                uint16_t item = *reinterpret_cast<uint16_t const *>(&value[0][i]);
+                odil_write_binary(item, this->stream, this->byte_ordering, 16);
+            }
+        }
+        else if(this->vr == VR::OF)
+        {
+            if(value[0].size()%4 != 0)
+            {
+                throw Exception("Value cannot be written as OF");
+            }
+            for(int i=0; i<value[0].size(); i+=4)
+            {
+                uint32_t item = *reinterpret_cast<uint32_t const *>(&value[0][i]);
+                odil_write_binary(item, this->stream, this->byte_ordering, 32);
+            }
+        }
+        else
+        {
+            throw Exception("Cannot write "+as_string(this->vr)+" as binary");
+        }
 
-    if(!this->stream)
-    {
-        throw Exception("Could not write to stream");
-    }
+        if(!this->stream)
+        {
+            throw Exception("Could not write to stream");
+        }
 
-    if(value.size()%2 == 1)
-    {
-        this->stream.put('\0');
+        if(value[0].size()%2 == 1)
+        {
+            this->stream.put('\0');
+        }
     }
 }
 
@@ -538,6 +550,35 @@ Writer::Visitor
         {
             throw Exception("Could not write to stream");
         }
+    }
+}
+
+void
+Writer::Visitor
+::write_encapsulated_pixel_data(Value::Binary const & value) const
+{
+    // FIXME: handle fragments
+    Writer writer(this->stream, this->byte_ordering, this->explicit_vr);
+    uint32_t length;
+    for(auto const & fragment: value)
+    {
+        writer.write_tag(registry::Item);
+        length = fragment.size();
+        odil_write_binary(
+            length, this->stream, this->byte_ordering, 8*sizeof(length));
+        this->stream.write(reinterpret_cast<char const*>(&fragment[0]), length);
+        if(!this->stream)
+        {
+            throw Exception("Could not write to stream");
+        }
+    }
+    writer.write_tag(registry::SequenceDelimitationItem);
+    length = 0;
+    odil_write_binary(
+        length, this->stream, this->byte_ordering, 8*sizeof(length));
+    if(!this->stream)
+    {
+        throw Exception("Could not write to stream");
     }
 }
 

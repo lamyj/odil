@@ -515,7 +515,7 @@ BOOST_AUTO_TEST_CASE(AsXMLBinary)
     odil::DataSet data_set;
     data_set.add(0x00660023,
         odil::Element(
-            odil::Value::Binary({0x1, 0x2, 0x3, 0x4, 0x5}),
+            odil::Value::Binary({{0x1, 0x2, 0x3, 0x4, 0x5}}),
             odil::VR::OW));
 
     auto const xml = odil::as_xml(data_set);
@@ -918,7 +918,7 @@ BOOST_AUTO_TEST_CASE(AsDataSetBinary)
     BOOST_REQUIRE(data_set.get_vr("00660023") == odil::VR::OW);
     BOOST_REQUIRE(data_set.is_binary("00660023"));
     BOOST_REQUIRE(data_set.as_binary("00660023") == odil::Value::Binary(
-        {0x1, 0x2, 0x3, 0x4, 0x5}));
+        {{0x1, 0x2, 0x3, 0x4, 0x5}}));
 }
 
 /******************************* TEST Error ************************************/

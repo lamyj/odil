@@ -332,8 +332,10 @@ void convert<std::vector<uint8_t>, Value::Binary>(
     DcmElement * source, Element & destination,
     Value::Binary & (Element::*getter)())
 {
+    // FIXME: does DCMTK only handle a single fragment?
     auto & destination_values = (destination.*getter)();
-    destination_values =
+    destination_values.resize(1);
+    destination_values[0] =
         ElementAccessor<std::vector<uint8_t>>::element_get(*source, 0);
 }
 
@@ -435,17 +437,21 @@ Element convert(DcmElement * source)
 void convert(Element const & source, DcmOtherByteOtherWord * destination)
 {
     auto const & value = source.as_binary();
+    if(value.size() > 1)
+    {
+        throw Exception("Cannot convert multiple valued binary element");
+    }
 
     Uint8 * output;
     OFCondition condition;
     if(destination->getTag().getVR().getValidEVR() == EVR_OB)
     {
-        condition = destination->createUint8Array(source.size(), output);
+        condition = destination->createUint8Array(value[0].size(), output);
     }
     else
     {
         Uint16* temp;
-        condition = destination->createUint16Array(source.size()/2, temp);
+        condition = destination->createUint16Array(value[0].size()/2, temp);
         output = reinterpret_cast<Uint8*>(temp);
     }
 
@@ -454,21 +460,25 @@ void convert(Element const & source, DcmOtherByteOtherWord * destination)
         throw Exception(condition);
     }
 
-    std::copy(value.begin(), value.end(), output);
+    std::copy(value[0].begin(), value[0].end(), output);
 }
 
 void convert(Element const & source, DcmOtherFloat * destination)
 {
     auto const & value = source.as_binary();
+    if(value.size() > 1)
+    {
+        throw Exception("Cannot convert multiple valued binary element");
+    }
 
-    if(value.size()%4 != 0)
+    if(value[0].size()%4 != 0)
     {
         throw Exception("Cannot convert OF from odd-sized array");
     }
 
-    for(unsigned int i=0; i<value.size()/4; ++i)
+    for(unsigned int i=0; i<value[0].size()/4; ++i)
     {
-        float const f = *reinterpret_cast<float const *>(&value[i*4]);
+        float const f = *reinterpret_cast<float const *>(&value[0][i*4]);
         destination->putFloat32(f, i);
     }
 }

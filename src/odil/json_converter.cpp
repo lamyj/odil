@@ -137,13 +137,22 @@ struct ToJSONVisitor
 
     result_type operator()(VR const vr, Value::Binary const & value) const
     {
+        if(value.size() > 1)
+        {
+            // PS3.18 2016b, F.2.7: There is a single InlineBinary value
+            // representing the entire Value Field.
+            // PS3.18 2016b, Figure 6.5-1: Pixel data is not encoded in
+            // JSON/XML, but transfered using a different content type
+            throw Exception("Binary element is multiple-valued");
+        }
+
         result_type result;
 
         result["vr"] = as_string(vr);
 
         std::string encoded;
-        encoded.reserve(value.size()*4/3);
-        base64::encode(value.begin(), value.end(), std::back_inserter(encoded));
+        encoded.reserve(value[0].size()*4/3);
+        base64::encode(value[0].begin(), value[0].end(), std::back_inserter(encoded));
         result["InlineBinary"] = encoded;
 
         return result;
@@ -254,11 +263,14 @@ DataSet as_dataset(Json::Value const & json)
         {
             element = Element(Value::Binary(), vr);
 
+            // cf. ToJSONVisitor::operator()(VR, Value::Binary): InlineBinary is
+            // single-valued
             auto const & encoded = json_element["InlineBinary"].asString();
             auto & decoded = element.as_binary();
+            decoded.resize(1);
             decoded.reserve(encoded.size()*3/4);
             base64::decode(
-                encoded.begin(), encoded.end(), std::back_inserter(decoded));
+                encoded.begin(), encoded.end(), std::back_inserter(decoded[0]));
         }
         else
         {

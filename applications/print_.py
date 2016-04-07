@@ -19,14 +19,17 @@ def print_(inputs, print_header, decode_uids):
     for input in inputs:
         logging.info("Printing {}".format(input))
         header, data_set = _odil.read(input)
-        if print_header:
-            print_data_set(header, decode_uids)
-        print_data_set(data_set, decode_uids)
 
-def print_data_set(data_set, decode_uids=False, padding="", max_length=None):
-    if max_length is None:
         max_length = find_max_name_length(data_set)
+        if print_header:
+            max_length = max(max_length, find_max_name_length(header))
 
+        if print_header:
+            print_data_set(header, decode_uids, "", max_length)
+            print
+        print_data_set(data_set, decode_uids, "", max_length)
+
+def print_data_set(data_set, decode_uids, padding, max_length):
     for tag, element in data_set.items():
         name = "{:04x},{:04x}".format(tag.group, tag.element)
         if tag in _odil.registry.public_dictionary:
@@ -36,8 +39,11 @@ def print_data_set(data_set, decode_uids=False, padding="", max_length=None):
         if element.is_data_set():
             value = ""
         elif element.is_binary():
-            length = len(element.as_binary())
-            value = "(binary, {} byte{})".format(length, "s" if length>1 else "")
+            lengths = [len(x) for x in element.as_binary()]
+            value = "(binary, {} item{}, {} byte{})".format(
+                len(element), "s" if len(element)>1 else "",
+                "+".join(str(x) for x in lengths),
+                "s" if sum(lengths)>1 else "")
         else:
             getter = None
             if element.is_int():

@@ -271,12 +271,11 @@ BOOST_AUTO_TEST_CASE(AddBinary)
     odil::Tag const tag("BadPixelImage");
 
     odil::DataSet dataset;
-    dataset.add(tag, odil::Value::Binary({0x01, 0x02}));
+    dataset.add(tag, odil::Value::Binary({{0x01, 0x02}}));
 
     BOOST_CHECK(dataset.is_binary(tag));
-    BOOST_REQUIRE_EQUAL(dataset.size(tag), 2);
     BOOST_REQUIRE(
-        dataset.as_binary(tag) == odil::Value::Binary({ 0x01, 0x02 }));
+        dataset.as_binary(tag) == odil::Value::Binary({{ 0x01, 0x02 }}));
 }
 
 BOOST_AUTO_TEST_CASE(ModifyInt)

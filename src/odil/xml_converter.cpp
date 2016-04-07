@@ -208,6 +208,15 @@ struct ToXMLVisitor
 
     result_type operator()(VR const vr, Value::Binary const & value) const
     {
+        if(value.size() > 1)
+        {
+            // PS3.18 2016b, F.2.7: There is a single InlineBinary value
+            // representing the entire Value Field.
+            // PS3.18 2016b, Figure 6.5-1: Pixel data is not encoded in
+            // JSON/XML, but transfered using a different content type
+            throw Exception("Binary element is multiple-valued");
+        }
+
         result_type result;
 
         result.put("<xmlattr>.vr", as_string(vr)); // Mandatory
@@ -215,8 +224,8 @@ struct ToXMLVisitor
         boost::property_tree::ptree tag_value;
 
         std::string encoded;
-        encoded.reserve(value.size()*4/3);
-        base64::encode(value.begin(), value.end(), std::back_inserter(encoded));
+        encoded.reserve(value[0].size()*4/3);
+        base64::encode(value[0].begin(), value[0].end(), std::back_inserter(encoded));
         tag_value.put_value(encoded);
 
         result.add_child("InlineBinary", tag_value);
@@ -565,11 +574,14 @@ DataSet as_dataset(boost::property_tree::ptree const & xml)
                 }
 
                 auto const & encoded = it_value->second.get_value<std::string>();
+                // cf. ToXMLVisitor::operator()(VR, Value::Binary): InlineBinary
+                // is single-valued
                 auto & decoded = element.as_binary();
-                decoded.reserve(encoded.size()*3/4);
+                decoded.resize(1);
+                decoded[0].reserve(encoded.size()*3/4);
                 base64::decode(
                     encoded.begin(), encoded.end(),
-                    std::back_inserter(decoded));
+                    std::back_inserter(decoded[0]));
 
                 find_inline_binary = true;
             }

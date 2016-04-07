@@ -98,6 +98,8 @@ private:
 
         Value::Strings split_strings(std::string const & string) const;
         DataSet read_item(std::istream & specific_stream) const;
+        Value::Binary read_encapsulated_pixel_data(
+            std::istream & specific_stream) const;
     };
 };
 

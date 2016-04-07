@@ -469,50 +469,53 @@ Reader::Visitor
 ::operator()(Value::Binary & value) const
 {
     auto const vl = this->read_length();
-
-    if(this->vr == VR::OB)
+    if(vl == 0xffffffff)
     {
-        value.resize(vl);
-        this->stream.read(reinterpret_cast<char*>(&value[0]), value.size());
-    }
-    else if(this->vr == VR::OF)
-    {
-        if(vl%4 != 0)
-        {
-            throw Exception("Cannot read OF for odd-sized array");
-        }
-
-        value.resize(vl);
-        for(unsigned int i=0; i<value.size(); i+=4)
-        {
-            odil_read_binary(
-                float, item, this->stream, this->byte_ordering, 32);
-            *reinterpret_cast<float*>(&value[i]) = item;
-        }
-    }
-    else if(this->vr == VR::OW)
-    {
-        if(vl%2 != 0)
-        {
-            throw Exception("Cannot read OW for odd-sized array");
-        }
-
-        value.resize(vl);
-        for(unsigned int i=0; i<value.size(); i+=2)
-        {
-            odil_read_binary(
-                uint16_t, item, this->stream, this->byte_ordering, 16);
-            *reinterpret_cast<uint16_t*>(&value[i]) = item;
-        }
-    }
-    else if(this->vr == VR::UN)
-    {
-        value.resize(vl);
-        this->stream.read(reinterpret_cast<char*>(&value[0]), value.size());
+        value = this->read_encapsulated_pixel_data(this->stream);
     }
     else
     {
-        throw Exception("Cannot read "+as_string(this->vr)+" as binary");
+        value.resize(1);
+        if(this->vr == VR::OB || this->vr == VR::UN)
+        {
+            value[0].resize(vl);
+            this->stream.read(
+                reinterpret_cast<char*>(&value[0][0]), value[0].size());
+        }
+        else if(this->vr == VR::OF)
+        {
+            if(vl%4 != 0)
+            {
+                throw Exception("Cannot read OF for odd-sized array");
+            }
+
+            value[0].resize(vl);
+            for(unsigned int i=0; i<value[0].size(); i+=4)
+            {
+                odil_read_binary(
+                    float, item, this->stream, this->byte_ordering, 32);
+                *reinterpret_cast<float*>(&value[0][i]) = item;
+            }
+        }
+        else if(this->vr == VR::OW)
+        {
+            if(vl%2 != 0)
+            {
+                throw Exception("Cannot read OW for odd-sized array");
+            }
+
+            value[0].resize(vl);
+            for(unsigned int i=0; i<value[0].size(); i+=2)
+            {
+                odil_read_binary(
+                    uint16_t, item, this->stream, this->byte_ordering, 16);
+                *reinterpret_cast<uint16_t*>(&value[0][i]) = item;
+            }
+        }
+        else
+        {
+            throw Exception("Cannot read "+as_string(this->vr)+" as binary");
+        }
     }
 }
 
@@ -607,6 +610,53 @@ Reader::Visitor
     }
 
     return item;
+}
+
+Value::Binary
+Reader::Visitor
+::read_encapsulated_pixel_data(std::istream & specific_stream) const
+{
+    Value::Binary value;
+
+    // PS 3.5, A.4
+    Reader const sequence_reader(
+        specific_stream, this->transfer_syntax, this->keep_group_length);
+    bool done = false;
+    while(!done)
+    {
+        auto const tag = sequence_reader.read_tag();
+        odil_read_binary(
+            uint32_t, item_length, specific_stream, this->byte_ordering, 32);
+
+        if(tag == registry::Item)
+        {
+            Value::Binary::value_type item_data(item_length);
+
+            if(item_length > 0)
+            {
+                specific_stream.read(
+                    reinterpret_cast<char*>(&item_data[0]), item_length);
+                if(!stream)
+                {
+                    throw Exception("Could not read from stream");
+                }
+            }
+
+            value.push_back(item_data);
+        }
+        else if(tag == registry::SequenceDelimitationItem)
+        {
+            // No value for Sequence Delimitation Item
+            done = true;
+        }
+        else
+        {
+            throw Exception(
+                "Expected SequenceDelimitationItem, got: "+std::string(tag));
+        }
+    }
+
+    return value;
 }
 
 }

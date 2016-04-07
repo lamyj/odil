@@ -43,13 +43,13 @@ class TestElement(unittest.TestCase):
         self.assertEqual(len(element), 2)
 
     def test_binary_constructor(self):
-        items = "\x01\x02\x03"
+        items = [_odil.Value.BinaryItem("\x01\x02\x03")]
         element = _odil.Element(_odil.Value.Binary(items), _odil.VR.OB)
         self.assertEqual(
-            [x for x in element.as_binary()], [ord(x) for x in items])
+            [x for x in element.as_binary()[0]], [x for x in items[0]])
         self.assertEqual(element.vr, _odil.VR.OB)
-        self.assertEqual(element.size(), 3)
-        self.assertEqual(len(element), 3)
+        self.assertEqual(element.size(), 1)
+        self.assertEqual(len(element), 1)
 
 if __name__ == "__main__":
     unittest.main()

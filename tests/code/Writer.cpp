@@ -144,7 +144,7 @@ BOOST_AUTO_TEST_CASE(IS)
 BOOST_AUTO_TEST_CASE(OB)
 {
     odil::Element odil_element(
-        std::vector<uint8_t>({0x01, 0x02, 0x03, 0x04}),
+        odil::Value::Binary({{0x01, 0x02, 0x03, 0x04}}),
         odil::VR::OB);
     odil::DataSet odil_data_set;
     odil_data_set.add(odil::registry::EncapsulatedDocument, odil_element);
@@ -155,7 +155,7 @@ BOOST_AUTO_TEST_CASE(OB)
 BOOST_AUTO_TEST_CASE(OF)
 {
     odil::Element odil_element(
-        std::vector<uint8_t>({0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08}),
+        odil::Value::Binary({{0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08}}),
         odil::VR::OF);
     odil::DataSet odil_data_set;
     odil_data_set.add(odil::registry::VectorGridData, odil_element);
@@ -166,7 +166,7 @@ BOOST_AUTO_TEST_CASE(OF)
 BOOST_AUTO_TEST_CASE(OW)
 {
     odil::Element odil_element(
-        std::vector<uint8_t>({0x01, 0x02, 0x03, 0x04}),
+        odil::Value::Binary({{0x01, 0x02, 0x03, 0x04}}),
         odil::VR::OW);
     odil::DataSet odil_data_set;
     odil_data_set.add(odil::registry::RedPaletteColorLookupTableData, odil_element);

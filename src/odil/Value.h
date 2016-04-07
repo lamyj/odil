@@ -55,7 +55,7 @@ public:
     typedef std::vector<DataSet> DataSets;
 
     /// @brief Binary data container.
-    typedef std::vector<uint8_t> Binary;
+    typedef std::vector<std::vector<uint8_t>> Binary;
 
     /// @brief Build an empty value.
     Value();
