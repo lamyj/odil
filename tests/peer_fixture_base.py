@@ -1,11 +1,11 @@
 import os
 import unittest
 
-import _odil
+import odil
 
 class PeerFixtureBase(unittest.TestCase):
     def setUp(self, contexts):
-        self.association = _odil.Association()
+        self.association = odil.Association()
         self.association.set_peer_host(os.environ["ODIL_PEER_HOST_NAME"])
         self.association.set_peer_port(int(os.environ["ODIL_PEER_PORT"]))
         self.association.update_parameters()\

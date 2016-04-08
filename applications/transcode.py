@@ -1,6 +1,6 @@
 import logging
 
-import _odil
+import odil
 
 def add_subparser(subparsers):
     parser = subparsers.add_parser(
@@ -27,8 +27,8 @@ def transcode(input, output, format, transfer_syntax, pretty_print):
 
     if format == "binary":
         if transfer_syntax:
-            transfer_syntax = getattr(_odil.registry, transfer_syntax)
-            ts_info = _odil.registry.uids_dictionary[transfer_syntax]
+            transfer_syntax = getattr(odil.registry, transfer_syntax)
+            ts_info = odil.registry.uids_dictionary[transfer_syntax]
             if ts_info.type != "Transfer Syntax":
                 raise Exception(
                     "{} is not a transfer syntax".format(ts_info.name))
@@ -43,17 +43,17 @@ def transcode(input, output, format, transfer_syntax, pretty_print):
     globals()["as_{}".format(format)](input, output, **kwargs)
 
 def as_binary(input, output, transfer_syntax):
-    _, data_set = _odil.read(input)
-    _odil.write(data_set, output, transfer_syntax=transfer_syntax)
+    _, data_set = odil.read(input)
+    odil.write(data_set, output, transfer_syntax=transfer_syntax)
 
 def as_json(input, output, pretty_print):
-    _, data_set = _odil.read(input)
+    _, data_set = odil.read(input)
     with open(output, "w") as fd:
-        json = _odil.as_json(data_set, pretty_print)
+        json = odil.as_json(data_set, pretty_print)
         fd.write(json)
 
 def as_xml(input, output, pretty_print):
-    _, data_set = _odil.read(input)
+    _, data_set = odil.read(input)
     with open(output, "w") as fd:
-        xml = _odil.as_xml(data_set, pretty_print)
+        xml = odil.as_xml(data_set, pretty_print)
         fd.write(xml)

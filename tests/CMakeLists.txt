@@ -23,7 +23,7 @@ foreach(test_file ${tests})
     get_filename_component(test ${test_file} NAME_WE)
 
     add_executable(test_${test} ${test_file} ${headers})
-    target_link_libraries(test_${test} odil ${Boost_LIBRARIES})
+    target_link_libraries(test_${test} libodil ${Boost_LIBRARIES})
     set_target_properties(test_${test} PROPERTIES OUTPUT_NAME ${test})
 
     file(READ ${test_file} content)

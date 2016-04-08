@@ -1,7 +1,7 @@
 import argparse
 import sys
 
-import _odil
+import odil
 
 def main():
     parser = argparse.ArgumentParser(description="Convert a DICOM file")
@@ -16,22 +16,22 @@ def main():
         help="Include group length tags")
     arguments = parser.parse_args()
 
-    if arguments.transfer_syntax not in dir(_odil.registry):
+    if arguments.transfer_syntax not in dir(odil.registry):
         parser.error("Unknown transfer syntax")
-    uid = getattr(_odil.registry, arguments.transfer_syntax)
-    if uid not in _odil.registry.uids_dictionary:
+    uid = getattr(odil.registry, arguments.transfer_syntax)
+    if uid not in odil.registry.uids_dictionary:
         parser.error("Unknown transfer syntax")
-    if _odil.registry.uids_dictionary[uid].type != "Transfer Syntax":
+    if odil.registry.uids_dictionary[uid].type != "Transfer Syntax":
         parser.error("Not a transfer syntax")
     arguments.transfer_syntax = uid
 
     arguments.item_length = getattr(
-        _odil.Writer.ItemEncoding, "{}Length".format(arguments.item_length))
+        odil.Writer.ItemEncoding, "{}Length".format(arguments.item_length))
 
     convert(**arguments.__dict__)
 
 def convert(input, output, transfer_syntax, item_length, use_group_length):
-    header, data_set = _odil.read(input)
+    header, data_set = odil.read(input)
 
     to_remove = [
         "FileMetaInformationVersion",
@@ -40,9 +40,9 @@ def convert(input, output, transfer_syntax, item_length, use_group_length):
         "ImplementationClassUID", "ImplementationVersionName"
     ]
     for name in to_remove:
-        header.remove(getattr(_odil.registry, name))
+        header.remove(getattr(odil.registry, name))
 
-    _odil.write(data_set, output, header, transfer_syntax, item_length, use_group_length)
+    odil.write(data_set, output, header, transfer_syntax, item_length, use_group_length)
 
 if __name__ == "__main__":
     sys.exit(main())

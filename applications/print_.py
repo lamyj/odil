@@ -1,6 +1,6 @@
 import logging
 
-import _odil
+import odil
 
 def add_subparser(subparsers):
     parser = subparsers.add_parser(
@@ -18,7 +18,7 @@ def add_subparser(subparsers):
 def print_(inputs, print_header, decode_uids):
     for input in inputs:
         logging.info("Printing {}".format(input))
-        header, data_set = _odil.read(input)
+        header, data_set = odil.read(input)
 
         max_length = find_max_name_length(data_set)
         if print_header:
@@ -32,8 +32,8 @@ def print_(inputs, print_header, decode_uids):
 def print_data_set(data_set, decode_uids, padding, max_length):
     for tag, element in data_set.items():
         name = "{:04x},{:04x}".format(tag.group, tag.element)
-        if tag in _odil.registry.public_dictionary:
-            entry = _odil.registry.public_dictionary[tag]
+        if tag in odil.registry.public_dictionary:
+            entry = odil.registry.public_dictionary[tag]
             name = entry.name
 
         if element.is_data_set():
@@ -54,10 +54,10 @@ def print_data_set(data_set, decode_uids, padding, max_length):
                 getter = element.as_string
             value = [x for x in getter()]
 
-            if decode_uids and element.vr == _odil.VR.UI:
+            if decode_uids and element.vr == odil.VR.UI:
                 value = [
-                    _odil.registry.uids_dictionary[uid].name
-                        if uid in _odil.registry.uids_dictionary else uid
+                    odil.registry.uids_dictionary[uid].name
+                        if uid in odil.registry.uids_dictionary else uid
                     for uid in value
                 ]
 
@@ -77,8 +77,8 @@ def print_data_set(data_set, decode_uids, padding, max_length):
 
 def find_max_name_length(data_set, max_length=0, padding_length=0):
     for tag, element in data_set.items():
-        if tag in _odil.registry.public_dictionary:
-            entry = _odil.registry.public_dictionary[tag]
+        if tag in odil.registry.public_dictionary:
+            entry = odil.registry.public_dictionary[tag]
             length = len(entry.name)
         else:
             length = 9 # xxxx,yyyy

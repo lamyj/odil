@@ -8,10 +8,12 @@ include_directories(
 link_directories(${Boost_LIBRARY_DIRS})
 
 file(GLOB_RECURSE files "*.cpp")
-python_add_module(_odil SHARED ${files})
+python_add_module(pyodil SHARED ${files})
+set_target_properties(
+    pyodil PROPERTIES OUTPUT_NAME odil)
 if(APPLE)
-    set_target_properties(_odil PROPERTIES SUFFIX ".so")
+    set_target_properties(pyodil PROPERTIES SUFFIX ".so")
 endif()
 
 target_link_libraries(
-    _odil ${Boost_LIBRARIES} ${JsonCpp_LIBRARIES} odil ${PYTHON_LIBRARIES})
+    pyodil ${Boost_LIBRARIES} ${JsonCpp_LIBRARIES} libodil ${PYTHON_LIBRARIES})

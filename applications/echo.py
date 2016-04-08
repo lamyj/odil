@@ -1,6 +1,6 @@
 import logging
 
-import _odil
+import odil
 
 def add_subparser(subparsers):
     parser = subparsers.add_parser(
@@ -15,22 +15,22 @@ def add_subparser(subparsers):
     return parser
 
 def echo(host, port, calling_ae_title, called_ae_title):
-    association = _odil.Association()
+    association = odil.Association()
     association.set_peer_host(host)
     association.set_peer_port(port)
     association.update_parameters()\
         .set_calling_ae_title(calling_ae_title)\
         .set_called_ae_title(called_ae_title) \
         .set_presentation_contexts([
-            _odil.AssociationParameters.PresentationContext(
-                3, _odil.registry.VerificationSOPClass,
-                [ _odil.registry.ImplicitVRLittleEndian ], True, False
+            odil.AssociationParameters.PresentationContext(
+                3, odil.registry.VerificationSOPClass,
+                [ odil.registry.ImplicitVRLittleEndian ], True, False
             )
         ])
     association.associate()
     logging.info("Association established")
 
-    echo = _odil.EchoSCU(association)
+    echo = odil.EchoSCU(association)
     echo.echo()
     logging.info("C-ECHO successful")
 

@@ -17,11 +17,12 @@ add_definitions(
 )
 link_directories(${Boost_LIBRARY_DIRS} ${DCMTK_LIBRARY_DIRS})
 
-add_library(odil SHARED ${files} ${headers} ${templates})
+add_library(libodil SHARED ${files} ${headers} ${templates})
+set_target_properties(libodil PROPERTIES OUTPUT_NAME odil)
 
-target_link_libraries(odil
+target_link_libraries(libodil
     ${Boost_LIBRARIES} ${DCMTK_LIBRARIES} ${ICU_LIBRARIES} ${JsonCpp_LIBRARIES})
-set_target_properties(odil PROPERTIES
+set_target_properties(libodil PROPERTIES
     VERSION ${odil_VERSION}
     SOVERSION ${odil_MAJOR_VERSION})
 
@@ -29,7 +30,7 @@ install(
     DIRECTORY odil/ DESTINATION include/odil
     FILES_MATCHING PATTERN "*.h" PATTERN "*.txx")
 install(
-    TARGETS odil
+    TARGETS libodil
     ARCHIVE DESTINATION lib
     LIBRARY DESTINATION lib
     RUNTIME DESTINATION bin)

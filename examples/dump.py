@@ -1,7 +1,7 @@
 import argparse
 import sys
 
-import _odil
+import odil
 
 def main():
     parser = argparse.ArgumentParser(description="Print content of DICOM file")
@@ -12,7 +12,7 @@ def main():
         "--decode-uids", "-D", action="store_true", help="Display UID names")
     arguments = parser.parse_args()
 
-    header, data_set = _odil.read(arguments.file)
+    header, data_set = odil.read(arguments.file)
     if arguments.header:
         print_data_set(header, arguments.decode_uids)
         print
@@ -21,14 +21,14 @@ def main():
 def print_data_set(data_set, decode_uids=False, padding=""):
     max_length = 0
     for tag in data_set.keys():
-        if tag in _odil.registry.public_dictionary:
-            entry = _odil.registry.public_dictionary[tag]
+        if tag in odil.registry.public_dictionary:
+            entry = odil.registry.public_dictionary[tag]
             max_length = max(max_length, len(entry.name))
         
     for tag, element in data_set.items():
         name = "{:04x},{:04x}".format(tag.group, tag.element)
-        if tag in _odil.registry.public_dictionary:
-            entry = _odil.registry.public_dictionary[tag]
+        if tag in odil.registry.public_dictionary:
+            entry = odil.registry.public_dictionary[tag]
             name = entry.name
 
         if element.is_data_set():
@@ -46,10 +46,10 @@ def print_data_set(data_set, decode_uids=False, padding=""):
                 getter = element.as_string
             value = [x for x in getter()]
 
-            if decode_uids and element.vr == _odil.VR.UI:
+            if decode_uids and element.vr == odil.VR.UI:
                 value = [
-                    _odil.registry.uids_dictionary[uid].name 
-                        if uid in _odil.registry.uids_dictionary else uid
+                    odil.registry.uids_dictionary[uid].name
+                        if uid in odil.registry.uids_dictionary else uid
                     for uid in value
                 ]
 

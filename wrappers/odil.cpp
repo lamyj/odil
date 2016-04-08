@@ -31,7 +31,7 @@ void wrap_xml_converter();
 
 void wrap_registry();
 
-BOOST_PYTHON_MODULE(_odil)
+BOOST_PYTHON_MODULE(odil)
 {
     wrap_Association();
     wrap_AssociationParameters();
