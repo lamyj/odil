@@ -1,0 +1,139 @@
+#!/usr/bin/env python
+
+import argparse
+import os
+import re
+import shutil
+import subprocess
+import sys
+import time
+import tempfile
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Run all tests (C++ and Python). "
+            "This program must be run from the build directory.")
+    parser.add_argument("tests", nargs="*", help="Python only")
+    parser.add_argument("--no-network", action="store_true")
+    parser.add_argument("--test-regex", "-R", help="C++ only")
+    parser.add_argument("--exclude-regex", "-E", help="C++ only")
+    parser.add_argument("--exclude", "-e", help="Python only")
+    arguments = parser.parse_args()
+
+    if arguments.no_network:
+        excluded_cpp = [
+            "Association", "Network", "ServiceRole", "SCP", "SCU", "Transport"]
+        excluded_python = ["scu"]
+
+        arguments.exclude_regex = "{}{}{}".format(
+            arguments.exclude_regex or "",
+            "|" if arguments.exclude_regex else "",
+            "|".join(excluded_cpp))
+
+        arguments.exclude = "{}{}{}".format(
+            arguments.exclude or "",
+            "|" if arguments.exclude else "",
+            "|".join(excluded_python))
+
+    cpp_args = []
+    if arguments.test_regex:
+        cpp_args += ["-R", arguments.test_regex]
+    if arguments.exclude_regex:
+        cpp_args += ["-E", arguments.exclude_regex]
+
+    python_args = []
+    if arguments.exclude:
+        python_args += ["-e", arguments.exclude]
+    python_args += arguments.tests
+
+    directory, process = setUp(arguments.no_network)
+
+    environment = os.environ.copy()
+    environment["ODIL_OWN_AET"] = "LOCAL"
+    environment["ODIL_PEER_HOST_NAME"] = "127.0.0.1"
+    environment["ODIL_PEER_PORT"] = "11112"
+    environment["ODIL_PEER_AET"] = "REMOTE"
+    environment["PATH"] = os.pathsep.join(["tests/tools", environment["PATH"]])
+    environment["PYTHONPATH"] = os.pathsep.join(
+        ["wrappers", environment.get("PYTHONPATH", "")])
+
+    source_directory = None
+    with open("CMakeCache.txt") as fd:
+        lines = fd.readlines()
+        for line in lines:
+            match = re.match(r".*_SOURCE_DIR:.*=(.*)", line)
+            if match:
+                source_directory = match.group(1)
+                break
+
+    cpp_code = subprocess.call(
+        ["ctest", "--no-compress-output", "-T", "Test"]+cpp_args,
+        env=environment)
+    python_code = subprocess.call(
+        ["nosetests-2.7", os.path.join(source_directory, "tests", "wrappers")]+python_args,
+        env=environment)
+
+    tearDown(directory, process)
+
+    return max(cpp_code, python_code)
+
+def setUp(no_network):
+    directory = tempfile.mkdtemp()
+
+    process = None
+
+    if not no_network:
+        data = """
+HostTable BEGIN
+remote = (REMOTE, localhost, 11112)
+local = (LOCAL, localhost, 11113)
+HostTable END
+
+AETable BEGIN
+REMOTE {} RW (10, 1024mb) local
+AETable END
+        """.format(directory)
+        with open(os.path.join(directory, "config"), "w") as fd:
+            fd.write(data)
+
+        process = subprocess.Popen([
+            "dcmqrscp",
+            "-ll", "error",
+            "-c", os.path.join(directory, "config"),
+            "11112"])
+        time.sleep(1)
+
+        data = """
+            (0008,0016) UI =RawDataStorage
+            (0008,0018) UI [2.25.95090344942250266709587559073467305647]
+            (0010,0010) PN [Doe^John]
+            (0010,0020) LO [DJ001]
+        """
+
+        read, write = os.pipe()
+        os.write(write, data)
+        os.close(write)
+
+        subprocess.check_call(
+            [
+                "dump2dcm", "--write-xfer-little", "/dev/stdin",
+                os.path.join(directory, "data.dcm")
+            ],
+            stdin=read)
+        subprocess.check_call([
+            "storescu",
+            "-aet", "LOCAL", "-aec", "REMOTE",
+            "localhost", "11112",
+            os.path.join(directory, "data.dcm")])
+
+    return directory, process
+
+def tearDown(directory, process):
+    if process is not None:
+        process.terminate()
+        process.wait()
+    if directory is not None:
+        shutil.rmtree(directory)
+
+if __name__ == "__main__":
+    sys.exit(main())
