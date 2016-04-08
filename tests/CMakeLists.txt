@@ -57,6 +57,6 @@ endforeach()
 
 file(GLOB_RECURSE python_tests *.py)
 
-add_custom_target(Runner ${CMAKE_COMMAND} -E echo "Test runner" SOURCES run.sh)
+add_custom_target(Runner ${CMAKE_COMMAND} -E echo "Test runner" SOURCES run)
 add_custom_target(
     PythonTests ${CMAKE_COMMAND} -E echo "Python tests" SOURCES ${python_tests})
