@@ -7,7 +7,7 @@ include_directories(
     ${JsonCpp_INCLUDE_DIRS} ${PYTHON_INCLUDE_DIRS})
 link_directories(${Boost_LIBRARY_DIRS})
 
-file(GLOB_RECURSE files "*.cpp")
+file(GLOB_RECURSE files "python/*.cpp")
 python_add_module(pyodil SHARED ${files})
 set_target_properties(
     pyodil PROPERTIES OUTPUT_NAME odil)
