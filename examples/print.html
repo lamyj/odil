@@ -1,0 +1,56 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8"> 
+        <script src="odil.js"></script>
+        <script src="print.js"></script>
+    </head>
+    
+    <style type="text/css">
+        
+    </style>
+    
+    <body>
+        <label for="file">Select a DICOM file: </label>
+        <input type="file" id="file" name="file"/><br>
+        
+        <canvas id="pixelData"></canvas>
+        <ul id="header"></ul>
+        <ul id="dataSet"></ul>
+        
+        <script>
+            function onFileRead(event) {
+                var buffer = event.target.result;
+                var headerAndDataSet = JSON.parse(Module.readBuffer(buffer));
+                var header = headerAndDataSet[0];
+                var dataSet = headerAndDataSet[1];
+                
+                renderDataSet(header, document.querySelector('#header'));
+                renderDataSet(dataSet, document.querySelector('#dataSet'));
+                
+                var pixelDataCanvas = document.querySelector('#pixelData');
+                if(dataSet['7fe00010'] !== undefined) {
+                    var rows = dataSet['00280010'].Value[0];
+                    var columns = dataSet['00280011'].Value[0];
+                    pixelDataCanvas.width = columns;
+                    pixelDataCanvas.height = rows;
+                    var context = pixelDataCanvas.getContext('2d');
+                    putDataSetImage(dataSet, context);
+                }
+                else {
+                    pixelDataCanvas.width = 0;
+                    pixelDataCanvas.height = 0;
+                }
+            }
+            
+            function onFileSelect(event) {
+                var file = event.target.files[0];
+                var reader = new FileReader();
+                reader.addEventListener('loadend', onFileRead);
+                reader.readAsArrayBuffer(file);
+            }
+            
+            document.querySelector('#file').addEventListener('change', onFileSelect);
+        </script>
+    </body>
+</html>

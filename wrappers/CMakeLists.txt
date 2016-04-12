@@ -34,7 +34,7 @@ add_custom_command(
     COMMAND 
         unzip -n jsoncpp-1.7.2.zip && 
         cd jsoncpp-1.7.2 && python amalgamate.py && cd .. && 
-        emcc --bind -o odil.js -O2
+        emcc --bind -o odil.js -O3 -s ALLOW_MEMORY_GROWTH=1
             -I ../../src/ -I jsoncpp-1.7.2/dist/ -I /usr/local/include/ 
             -D ODIL_MAJOR_VERSION=0
             ${files}
