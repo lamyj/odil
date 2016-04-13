@@ -24,6 +24,10 @@ function renderDataSet(dataSet, parent) {
         listItem.textContent += item.vr + ': ';
         var value = null;
         if(item.Value !== undefined) {
+            if(['SH', 'LO', 'ST', 'LT', 'PN', 'UT'].includes(item.vr)) {
+                item.Value = item.Value.map(
+                    function(x) { return decodeURIComponent(escape(x)); });
+            }
             if(item.vr === 'PN') {
                 listItem.textContent += item.Value.map(
                     function (x) { return x.Alphabetic; });
