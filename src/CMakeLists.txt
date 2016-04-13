@@ -1,4 +1,4 @@
-find_package(Boost REQUIRED COMPONENTS filesystem regex system)
+find_package(Boost REQUIRED COMPONENTS filesystem system)
 find_package(DCMTK REQUIRED)
 find_package(ICU REQUIRED)
 find_package(JsonCpp REQUIRED)

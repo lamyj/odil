@@ -14,8 +14,6 @@
 #include <sstream>
 #include <string>
 
-#include <boost/regex.hpp>
-
 #include "odil/ElementsDictionary.h"
 #include "odil/Exception.h"
 #include "odil/registry.h"
@@ -76,11 +74,10 @@ Tag
         }
         else if(key.get_type() == ElementsDictionaryKey::Type::String)
         {
-            auto regex = key.get_string();
-            std::replace_if(
-                regex.begin(), regex.end(),
-                [](char c) { return c == 'x'; }, '.');
-            if(boost::regex_match(tag_string, boost::regex(regex)))
+            auto const is_equal = std::equal(
+                tag_string.begin(), tag_string.end(), key.get_string().begin(), 
+                [](char t, char k) { return (k=='x' || t==k); });
+            if(is_equal)
             {
                 name = entry.keyword;
                 break;
