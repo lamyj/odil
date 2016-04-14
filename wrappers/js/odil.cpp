@@ -18,7 +18,6 @@ std::string readBuffer(std::string const & buffer)
     Json::Value root;
     root.append(json_header);
     root.append(json_data_set);
-    
     std::ostringstream ostream;
     ostream << root;
     
@@ -52,6 +51,7 @@ EMSCRIPTEN_BINDINGS(odil)
         .constructor<int, int>()
         .property("group", &Tag::group)
         .property("element", &Tag::element)
+        .function("getName", &Tag::get_name)
     ;
         
     function("getDictionaryEntry", getDictionaryEntry);
