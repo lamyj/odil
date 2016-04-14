@@ -8,6 +8,7 @@
 
 #include <boost/property_tree/xml_parser.hpp>
 #include <boost/python.hpp>
+#include <boost/version.hpp>
 
 #include "odil/DataSet.h"
 #include "odil/xml_converter.h"
