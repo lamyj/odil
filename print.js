@@ -9,10 +9,12 @@ function renderDataSet(dataSet, parent) {
         var element = parseInt(tagString.slice(4,8), 16);
         var tag = new Module.Tag(group, element);
         
-        var tagName = tagString;
-        var entry = JSON.parse(Module.getDictionaryEntry(tag));
-        if(entry !== null) {
-            tagName = entry.name;
+        var tagName = tagString
+        try {
+            var tagName = tag.getName();
+        }
+        catch(e) {
+            // Ingnore the error
         }
         
         listItem.textContent += 
@@ -24,6 +26,10 @@ function renderDataSet(dataSet, parent) {
         listItem.textContent += item.vr + ': ';
         var value = null;
         if(item.Value !== undefined) {
+            if(['SH', 'LO', 'ST', 'LT', 'PN', 'UT'].includes(item.vr)) {
+                item.Value = item.Value.map(
+                    function(x) { return decodeURIComponent(escape(x)); });
+            }
             if(item.vr === 'PN') {
                 listItem.textContent += item.Value.map(
                     function (x) { return x.Alphabetic; });
@@ -98,26 +104,35 @@ function putDataSetImage(dataSet, context) {
     
     var photometricInterpretation = dataSet['00280004'].Value[0];
     
+    var putPixel = null;
     if(photometricInterpretation === 'MONOCHROME2') {
-        for(var i=0; i<rows*columns; ++i) {
-            var value = (getter(bytesAllocated*i, true)-smallest)*factor;
-            imageData.data[4*i] = value;
-            imageData.data[4*i+1] = value;
-            imageData.data[4*i+2] = value;
-            imageData.data[4*i+3] = 255;
-        }
+        putPixel = putPixel_MONOCHROME2;
     }
     else if(photometricInterpretation === 'RGB') {
-        for(var i=0; i<rows*columns; ++i) {
-            var red = (getter(3*bytesAllocated*i, true)-smallest)*factor;
-            var green = (getter(3*bytesAllocated*(i)+1, true)-smallest)*factor;
-            var blue = (getter(3*bytesAllocated*(i)+2, true)-smallest)*factor;
-            imageData.data[4*i] = red;
-            imageData.data[4*i+1] = green;
-            imageData.data[4*i+2] = blue;
-            imageData.data[4*i+3] = 255;
-        }
+        putPixel = putPixel_RGB;
+    }
+    
+    for(var i=0; i<rows*columns; ++i) {
+        putPixel(getter, i, bytesAllocated, smallest, factor, imageData);
     }
     
     context.putImageData(imageData, 0, 0);
+}
+
+function putPixel_MONOCHROME2(getter, index, bytesAllocated, smallest, factor, imageData) {
+    var value = (getter(bytesAllocated*index, true)-smallest)*factor;
+    imageData.data[4*index] = value;
+    imageData.data[4*index+1] = value;
+    imageData.data[4*index+2] = value;
+    imageData.data[4*index+3] = 255;
+}
+
+function putPixel_RGB(getter, index, bytesAllocated, smallest, factor, imageData) {
+    var red = (getter(3*bytesAllocated*index, true)-smallest)*factor;
+    var green = (getter(3*bytesAllocated*index+1, true)-smallest)*factor;
+    var blue = (getter(3*bytesAllocated*index+2, true)-smallest)*factor;
+    imageData.data[4*index] = red;
+    imageData.data[4*index+1] = green;
+    imageData.data[4*index+2] = blue;
+    imageData.data[4*index+3] = 255;
 }
