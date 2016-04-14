@@ -8,7 +8,8 @@ set(odil_VERSION
     ${odil_MAJOR_VERSION}.${odil_MINOR_VERSION}.${odil_PATCH_VERSION})
 
 option(BUILD_EXAMPLES "Build the examples directory." ON)
-option(BUILD_WRAPPERS "Build the Python Wrappers." ON)
+option(BUILD_PYTHON_WRAPPERS "Build the Python Wrappers." ON)
+option(BUILD_EMSCRIPTEN_WRAPPERS "Build the Emscripten Wrappers." OFF)
 
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}" ${CMAKE_MODULE_PATH})
 include(CTest)
