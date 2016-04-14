@@ -7,7 +7,8 @@
     </head>
     
     <style type="text/css">
-        
+        ul { padding-left: 0px; margin-left: 0px; }
+        ul>li { list-style-type: none; }
     </style>
     
     <body>
@@ -25,6 +26,8 @@
                 var header = headerAndDataSet[0];
                 var dataSet = headerAndDataSet[1];
                 
+                document.querySelector('#header').innerHTML = '';
+                document.querySelector('#dataSet').innerHTML = '';
                 renderDataSet(header, document.querySelector('#header'));
                 renderDataSet(dataSet, document.querySelector('#dataSet'));
                 
