@@ -9,6 +9,9 @@
 #ifndef _afc7b2d7_0869_4fea_9a9b_7fe6228baca9
 #define _afc7b2d7_0869_4fea_9a9b_7fe6228baca9
 
+#include <map>
+#include <string>
+
 #include "odil/ElementsDictionary.h"
 #include "odil/Tag.h"
 #include "odil/UIDsDictionary.h"
@@ -4524,6 +4527,7 @@ std::string const dicomTransferCapability("1.2.840.10008.15.0.4.8");
 std::string const UniversalCoordinatedTime("1.2.840.10008.15.1.1");
 
 extern ElementsDictionary public_dictionary;
+extern std::map<std::string, Tag> public_tags;
 extern UIDsDictionary uids_dictionary;
 }
 

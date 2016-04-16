@@ -127,66 +127,44 @@ void
 Tag
 ::_from_string(std::string const & string)
 {
-    ElementsDictionary::const_iterator it = registry::public_dictionary.begin();
-    while(it != registry::public_dictionary.end())
+    bool found = false;
+    uint16_t group;
+    uint16_t element;
+    
+    // Try string form of numeric tag
+    if(string.size() == 8)
     {
-        if(it->second.keyword == string)
+        try
         {
-            break;
+            group = std::stol(string.substr(0, 4), 0, 16);
+            element = std::stol(string.substr(4, 8), 0, 16);
+            found = true;
         }
-        ++it;
+        catch(std::invalid_argument const &)
+        {
+            found = false;
+        }
     }
-
-    if(it == registry::public_dictionary.end())
+    
+    if(!found)
     {
-        // Try with string form of numeric tag
-        uint16_t group;
-        uint16_t element;
-        bool parsed = true;
-
-        if(string.size() != 8)
+        auto const it = registry::public_tags.find(string);
+        if(it != registry::public_tags.end())
         {
-            parsed = false;
+            found = true;
+            group = it->second.group;
+            element = it->second.element;
         }
-        else
-        {
-            std::string const first = string.substr(0, 4);
-            char * endptr;
-            group = strtol(first.c_str(), &endptr, 16);
-            if(*endptr != '\0')
-            {
-                parsed = false;
-            }
-            else
-            {
-                std::string const second = string.substr(4, 4);
-                element = strtol(second.c_str(), &endptr, 16);
-                if(*endptr != '\0')
-                {
-                    parsed = false;
-                }
-            }
-        }
-
-        if(!parsed)
-        {
-            throw Exception("No such element: "+string);
-        }
-        else
-        {
-            this->group = group;
-            this->element = element;
-        }
+    }
+    
+    if(!found)
+    {
+        throw Exception("No such element: "+string);
     }
     else
     {
-        if(it->first.get_type() != ElementsDictionaryKey::Type::Tag)
-        {
-            throw Exception("InvalidType");
-        }
-        auto const & tag = it->first.get_tag();
-        this->group = tag.group;
-        this->element = tag.element;
+        this->group = group;
+        this->element = element;
     }
 }
 
