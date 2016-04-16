@@ -10,6 +10,7 @@
 
 void wrap_Association();
 void wrap_AssociationParameters();
+void wrap_BasicDirectoryCreator();
 void wrap_DataSet();
 void wrap_EchoSCU();
 void wrap_Element();
@@ -35,6 +36,7 @@ BOOST_PYTHON_MODULE(odil)
 {
     wrap_Association();
     wrap_AssociationParameters();
+    wrap_BasicDirectoryCreator();
     wrap_DataSet();
     wrap_EchoSCU();
     wrap_Element();

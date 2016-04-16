@@ -6,7 +6,9 @@
  * for details.
  ************************************************************************/
 
-#include <stdint.h>
+#include <cstdint>
+#include <map>
+#include <string>
 
 #include "odil/registry.h"
 
@@ -60,6 +62,30 @@ ElementsDictionary create_public_dictionary()
     return public_dictionary;
 }
 
+std::map<std::string, odil::Tag> create_public_tags()
+{
+
+    RawElementsDictionaryEntry raw_entries[] = {
+{% for entry in elements_dictionary %}
+    {% if not entry[0] is string -%}
+        { Tag({{ "0x%04x, 0x%04x"|format(*entry[0]) }}),
+          "{{ entry[1] }}", "{{ entry[2] }}",  "{{ entry[3] }}", "{{ entry[4] }}" },
+    {%- endif %}
+{% endfor %}
+    };
+
+    std::map<std::string, odil::Tag> public_tags;
+
+    unsigned long const count = sizeof(raw_entries)/sizeof(RawElementsDictionaryEntry);
+    for(unsigned long i=0; i<count; ++i)
+    {
+        RawElementsDictionaryEntry const & raw_entry = raw_entries[i];
+        public_tags.insert(std::make_pair(raw_entry.keyword, raw_entry.key.get_tag()));
+    }
+
+    return public_tags;
+}
+
 struct RawUIDsDictionaryEntry
 {
     char const * uid;
@@ -96,4 +122,5 @@ UIDsDictionary create_uids_dictionary()
 }
 
 odil::ElementsDictionary odil::registry::public_dictionary=odil::registry::create_public_dictionary();
+std::map<std::string, odil::Tag> odil::registry::public_tags=odil::registry::create_public_tags();
 odil::UIDsDictionary odil::registry::uids_dictionary=odil::registry::create_uids_dictionary();

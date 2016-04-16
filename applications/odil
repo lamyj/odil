@@ -4,6 +4,7 @@ import argparse
 import logging
 import sys
 
+import dicomdir
 import echo
 import find
 import print_
@@ -15,7 +16,7 @@ def main():
     subparsers = parser.add_subparsers(help="Sub-commands help")
 
     modules = [
-        print_, transcode, echo, find
+        print_, transcode, dicomdir, echo, find
     ]
     for module in modules:
         sub_parser = module.add_subparser(subparsers)

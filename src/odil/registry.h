@@ -9,6 +9,9 @@
 #ifndef _afc7b2d7_0869_4fea_9a9b_7fe6228baca9
 #define _afc7b2d7_0869_4fea_9a9b_7fe6228baca9
 
+#include <map>
+#include <string>
+
 #include "odil/ElementsDictionary.h"
 #include "odil/Tag.h"
 #include "odil/UIDsDictionary.h"
@@ -277,6 +280,9 @@ Tag const GroupOfPatientsIdentificationSequence(0x0010, 0x0027);
 Tag const SubjectRelativePositionInImage(0x0010, 0x0028);
 Tag const PatientBirthDate(0x0010, 0x0030);
 Tag const PatientBirthTime(0x0010, 0x0032);
+Tag const PatientBirthDateInAlternativeCalendar(0x0010, 0x0033);
+Tag const PatientDeathDateInAlternativeCalendar(0x0010, 0x0034);
+Tag const PatientAlternativeCalendar(0x0010, 0x0035);
 Tag const PatientSex(0x0010, 0x0040);
 Tag const PatientInsurancePlanCodeSequence(0x0010, 0x0050);
 Tag const PatientPrimaryLanguageCodeSequence(0x0010, 0x0101);
@@ -723,6 +729,8 @@ Tag const ReceiveCoilName(0x0018, 0x1250);
 Tag const TransmitCoilName(0x0018, 0x1251);
 Tag const PlateType(0x0018, 0x1260);
 Tag const PhosphorType(0x0018, 0x1261);
+Tag const WaterEquivalentDiameter(0x0018, 0x1271);
+Tag const WaterEquivalentDiameterCalculationMethodCodeSequence(0x0018, 0x1272);
 Tag const ScanVelocity(0x0018, 0x1300);
 Tag const WholeBodyTechnique(0x0018, 0x1301);
 Tag const ScanLength(0x0018, 0x1302);
@@ -2908,17 +2916,30 @@ Tag const SelectorAttributeVR(0x0072, 0x0050);
 Tag const SelectorSequencePointer(0x0072, 0x0052);
 Tag const SelectorSequencePointerPrivateCreator(0x0072, 0x0054);
 Tag const SelectorAttributePrivateCreator(0x0072, 0x0056);
+Tag const SelectorAEValue(0x0072, 0x005e);
+Tag const SelectorASValue(0x0072, 0x005f);
 Tag const SelectorATValue(0x0072, 0x0060);
+Tag const SelectorDAValue(0x0072, 0x0061);
 Tag const SelectorCSValue(0x0072, 0x0062);
+Tag const SelectorDTValue(0x0072, 0x0063);
 Tag const SelectorISValue(0x0072, 0x0064);
+Tag const SelectorOBValue(0x0072, 0x0065);
 Tag const SelectorLOValue(0x0072, 0x0066);
+Tag const SelectorOFValue(0x0072, 0x0067);
 Tag const SelectorLTValue(0x0072, 0x0068);
+Tag const SelectorOWValue(0x0072, 0x0069);
 Tag const SelectorPNValue(0x0072, 0x006a);
+Tag const SelectorTMValue(0x0072, 0x006b);
 Tag const SelectorSHValue(0x0072, 0x006c);
+Tag const SelectorUNValue(0x0072, 0x006d);
 Tag const SelectorSTValue(0x0072, 0x006e);
+Tag const SelectorUCValue(0x0072, 0x006f);
 Tag const SelectorUTValue(0x0072, 0x0070);
+Tag const SelectorURValue(0x0072, 0x0071);
 Tag const SelectorDSValue(0x0072, 0x0072);
+Tag const SelectorODValue(0x0072, 0x0073);
 Tag const SelectorFDValue(0x0072, 0x0074);
+Tag const SelectorOLValue(0x0072, 0x0075);
 Tag const SelectorFLValue(0x0072, 0x0076);
 Tag const SelectorULValue(0x0072, 0x0078);
 Tag const SelectorUSValue(0x0072, 0x007a);
@@ -3116,6 +3137,29 @@ Tag const UValueData(0x0080, 0x0010);
 Tag const VValueData(0x0080, 0x0011);
 Tag const ReferencedTextureSequence(0x0080, 0x0012);
 Tag const ReferencedSurfaceDataSequence(0x0080, 0x0013);
+Tag const AssessmentSummary(0x0082, 0x0001);
+Tag const AssessmentSummaryDescription(0x0082, 0x0003);
+Tag const AssessedSOPInstanceSequence(0x0082, 0x0004);
+Tag const ReferencedComparisonSOPInstanceSequence(0x0082, 0x0005);
+Tag const NumberOfAssessmentObservations(0x0082, 0x0006);
+Tag const AssessmentObservationsSequence(0x0082, 0x0007);
+Tag const ObservationSignificance(0x0082, 0x0008);
+Tag const ObservationDescription(0x0082, 0x000a);
+Tag const StructuredContraintObservationSequence(0x0082, 0x000c);
+Tag const AssessedAttributeValueSequence(0x0082, 0x0010);
+Tag const AssessmentSetID(0x0082, 0x0016);
+Tag const AssessmentRequesterSequence(0x0082, 0x0017);
+Tag const SelectorAttributeName(0x0082, 0x0018);
+Tag const SelectorAttributeKeyword(0x0082, 0x0019);
+Tag const AssessmentTypeCodeSequence(0x0082, 0x0021);
+Tag const ObservationBasisCodeSequence(0x0082, 0x0022);
+Tag const AssessmentLabel(0x0082, 0x0023);
+Tag const ConstraintType(0x0082, 0x0032);
+Tag const SpecificationSelectionGuidance(0x0082, 0x0033);
+Tag const ConstraintValueSequence(0x0082, 0x0034);
+Tag const RecommendedDefaultValueSequence(0x0082, 0x0035);
+Tag const ConstraintViolationSignificance(0x0082, 0x0036);
+Tag const ConstraintViolationCondition(0x0082, 0x0037);
 Tag const StorageMediaFileSetID(0x0088, 0x0130);
 Tag const StorageMediaFileSetUID(0x0088, 0x0140);
 Tag const IconImageSequence(0x0088, 0x0200);
@@ -3651,6 +3695,12 @@ Tag const HeadFixationAngle(0x300a, 0x0148);
 Tag const GantryPitchAngle(0x300a, 0x014a);
 Tag const GantryPitchRotationDirection(0x300a, 0x014c);
 Tag const GantryPitchAngleTolerance(0x300a, 0x014e);
+Tag const FixationEye(0x300a, 0x0150);
+Tag const ChairHeadFramePosition(0x300a, 0x0151);
+Tag const HeadFixationAngleTolerance(0x300a, 0x0152);
+Tag const ChairHeadFramePositionTolerance(0x300a, 0x0153);
+Tag const FixationLightAzimuthalAngleTolerance(0x300a, 0x0154);
+Tag const FixationLightPolarAngleTolerance(0x300a, 0x0155);
 Tag const PatientSetupSequence(0x300a, 0x0180);
 Tag const PatientSetupNumber(0x300a, 0x0182);
 Tag const PatientSetupLabel(0x300a, 0x0183);
@@ -4344,6 +4394,7 @@ std::string const RadiopharmaceuticalRadiationDoseSRStorage("1.2.840.10008.5.1.4
 std::string const ColonCADSRStorage("1.2.840.10008.5.1.4.1.1.88.69");
 std::string const ImplantationPlanSRStorage("1.2.840.10008.5.1.4.1.1.88.70");
 std::string const AcquisitionContextSRStorage("1.2.840.10008.5.1.4.1.1.88.71");
+std::string const ContentAssessmentResultsStorage("1.2.840.10008.5.1.4.1.1.90.1");
 std::string const EncapsulatedPDFStorage("1.2.840.10008.5.1.4.1.1.104.1");
 std::string const EncapsulatedCDAStorage("1.2.840.10008.5.1.4.1.1.104.2");
 std::string const PositronEmissionTomographyImageStorage("1.2.840.10008.5.1.4.1.1.128");
@@ -4476,6 +4527,7 @@ std::string const dicomTransferCapability("1.2.840.10008.15.0.4.8");
 std::string const UniversalCoordinatedTime("1.2.840.10008.15.1.1");
 
 extern ElementsDictionary public_dictionary;
+extern std::map<std::string, Tag> public_tags;
 extern UIDsDictionary uids_dictionary;
 }
 

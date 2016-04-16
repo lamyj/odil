@@ -14,6 +14,8 @@
 #include <sstream>
 #include <string>
 
+#include <boost/regex.hpp>
+
 #include "odil/ElementsDictionary.h"
 #include "odil/Exception.h"
 #include "odil/registry.h"
@@ -59,34 +61,16 @@ Tag
 ::get_name() const
 {
     std::string name;
-    std::string const tag_string(*this);
-
-    for(auto const item: registry::public_dictionary)
+    
+    auto const iterator = find(registry::public_dictionary, *this);
+    if(iterator != registry::public_dictionary.end())
     {
-        auto const & key = item.first;
-        auto const & entry = item.second;
-
-        if(key.get_type() == ElementsDictionaryKey::Type::Tag &&
-            key.get_tag() == *this)
-        {
-            name = entry.keyword;
-            break;
-        }
-        else if(key.get_type() == ElementsDictionaryKey::Type::String)
-        {
-            auto const is_equal = std::equal(
-                tag_string.begin(), tag_string.end(), key.get_string().begin(), 
-                [](char t, char k) { return (k=='x' || t==k); });
-            if(is_equal)
-            {
-                name = entry.keyword;
-                break;
-            }
-        }
+        name = iterator->second.keyword;
     }
 
     if(name.empty())
     {
+        std::string const tag_string(*this);
         throw Exception("No such element: "+tag_string);
     }
 
@@ -143,66 +127,44 @@ void
 Tag
 ::_from_string(std::string const & string)
 {
-    ElementsDictionary::const_iterator it = registry::public_dictionary.begin();
-    while(it != registry::public_dictionary.end())
+    bool found = false;
+    uint16_t group;
+    uint16_t element;
+    
+    // Try string form of numeric tag
+    if(string.size() == 8)
     {
-        if(it->second.keyword == string)
+        try
         {
-            break;
+            group = std::stol(string.substr(0, 4), 0, 16);
+            element = std::stol(string.substr(4, 8), 0, 16);
+            found = true;
         }
-        ++it;
+        catch(std::invalid_argument const &)
+        {
+            found = false;
+        }
     }
-
-    if(it == registry::public_dictionary.end())
+    
+    if(!found)
     {
-        // Try with string form of numeric tag
-        uint16_t group;
-        uint16_t element;
-        bool parsed = true;
-
-        if(string.size() != 8)
+        auto const it = registry::public_tags.find(string);
+        if(it != registry::public_tags.end())
         {
-            parsed = false;
+            found = true;
+            group = it->second.group;
+            element = it->second.element;
         }
-        else
-        {
-            std::string const first = string.substr(0, 4);
-            char * endptr;
-            group = strtol(first.c_str(), &endptr, 16);
-            if(*endptr != '\0')
-            {
-                parsed = false;
-            }
-            else
-            {
-                std::string const second = string.substr(4, 4);
-                element = strtol(second.c_str(), &endptr, 16);
-                if(*endptr != '\0')
-                {
-                    parsed = false;
-                }
-            }
-        }
-
-        if(!parsed)
-        {
-            throw Exception("No such element: "+string);
-        }
-        else
-        {
-            this->group = group;
-            this->element = element;
-        }
+    }
+    
+    if(!found)
+    {
+        throw Exception("No such element: "+string);
     }
     else
     {
-        if(it->first.get_type() != ElementsDictionaryKey::Type::Tag)
-        {
-            throw Exception("InvalidType");
-        }
-        auto const & tag = it->first.get_tag();
-        this->group = tag.group;
-        this->element = tag.element;
+        this->group = group;
+        this->element = element;
     }
 }
 

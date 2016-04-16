@@ -13,6 +13,8 @@
 #include <string>
 #include <vector>
 
+#include <boost/regex.hpp>
+
 #include "odil/DataSet.h"
 #include "odil/ElementsDictionary.h"
 #include "odil/Exception.h"
@@ -84,30 +86,11 @@ VRFinder
     Tag const & tag, DataSet const &, std::string const &)
 {
     VR vr = VR::INVALID;
-    std::string const tag_string(tag);
-
-    for(auto const item: registry::public_dictionary)
+    
+    auto const iterator = find(registry::public_dictionary, tag);
+    if(iterator != registry::public_dictionary.end())
     {
-        auto const & key = item.first;
-        auto const & entry = item.second;
-
-        if(key.get_type() == ElementsDictionaryKey::Type::Tag &&
-            key.get_tag() == tag)
-        {
-            vr = as_vr(entry.vr);
-            break;
-        }
-        else if(key.get_type() == ElementsDictionaryKey::Type::String)
-        {
-            auto const is_equal = std::equal(
-                tag_string.begin(), tag_string.end(), key.get_string().begin(), 
-                [](char t, char k) { return (k=='x' || t==k); });
-            if(is_equal)
-            {
-                vr = as_vr(entry.vr);
-                break;
-            }
-        }
+        vr = as_vr(iterator->second.vr);
     }
 
     if(vr == VR::INVALID)

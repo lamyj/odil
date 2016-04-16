@@ -36,7 +36,7 @@ public:
      * string is not the representation of a numeric value, a odil::Exception
      * is raised.
      */
-    Tag(std::string const & name);
+    Tag(std::string const & string);
 
     /**
      * @brief Create a tag based on its name or string representation of its
@@ -46,7 +46,7 @@ public:
      * string is not the representation of a numeric value, a odil::Exception
      * is raised.
      */
-    Tag(char const * name);
+    Tag(char const * string);
 
     /// @brief Group of the tag.
     uint16_t group;

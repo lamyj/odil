@@ -20,8 +20,8 @@ class Tag;
 enum class VR
 {
     UNKNOWN,
-    AE, AS, AT, CS, DA, DS, DT, FL, FD, IS, LO, LT, PN, OB, OF, OW, SH, SL,
-    SQ, SS, ST, TM, UC, UI, UL, UN, UR, US, UT,
+    AE, AS, AT, CS, DA, DS, DT, FL, FD, IS, LO, LT, OB, OD, OF, OL, OW, PN, SH, 
+    SL, SQ, SS, ST, TM, UC, UI, UL, UN, UR, US, UT,
     INVALID
 };
 
