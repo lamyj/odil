@@ -30,10 +30,12 @@ _build_enum_to_name()
     ADD_TO_MAP(result, IS);
     ADD_TO_MAP(result, LO);
     ADD_TO_MAP(result, LT);
-    ADD_TO_MAP(result, PN);
     ADD_TO_MAP(result, OB);
+    ADD_TO_MAP(result, OD);
     ADD_TO_MAP(result, OF);
+    ADD_TO_MAP(result, OL);
     ADD_TO_MAP(result, OW);
+    ADD_TO_MAP(result, PN);
     ADD_TO_MAP(result, SH);
     ADD_TO_MAP(result, SL);
     ADD_TO_MAP(result, SQ);
