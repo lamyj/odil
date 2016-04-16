@@ -53,9 +53,10 @@ def main():
     environment["ODIL_PEER_HOST_NAME"] = "127.0.0.1"
     environment["ODIL_PEER_PORT"] = "11112"
     environment["ODIL_PEER_AET"] = "REMOTE"
-    environment["PATH"] = os.pathsep.join(["tests/tools", environment["PATH"]])
+    environment["PATH"] = os.pathsep.join(
+        [os.path.abspath("tests/tools"), environment["PATH"]])
     environment["PYTHONPATH"] = os.pathsep.join(
-        ["wrappers", environment.get("PYTHONPATH", "")])
+        [os.path.abspath("wrappers"), environment.get("PYTHONPATH", "")])
 
     source_directory = None
     with open("CMakeCache.txt") as fd:
