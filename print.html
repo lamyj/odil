@@ -22,7 +22,7 @@
         <script>
             function onFileRead(event) {
                 var buffer = event.target.result;
-                var headerAndDataSet = JSON.parse(Module.readBuffer(buffer));
+                var headerAndDataSet = JSON.parse(odil.readBuffer(buffer));
                 var header = headerAndDataSet[0];
                 var dataSet = headerAndDataSet[1];
                 
@@ -32,9 +32,9 @@
                 renderDataSet(dataSet, document.querySelector('#dataSet'));
                 
                 var pixelDataCanvas = document.querySelector('#pixelData');
-                if(dataSet['7fe00010'] !== undefined) {
-                    var rows = dataSet['00280010'].Value[0];
-                    var columns = dataSet['00280011'].Value[0];
+                if(dataSet[odil.getTag('PixelData')] !== undefined) {
+                    var rows = dataSet[odil.getTag('Rows')].Value[0];
+                    var columns = dataSet[odil.getTag('Columns')].Value[0];
                     pixelDataCanvas.width = columns;
                     pixelDataCanvas.height = rows;
                     var context = pixelDataCanvas.getContext('2d');
@@ -53,7 +53,13 @@
                 reader.readAsArrayBuffer(file);
             }
             
-            document.querySelector('#file').addEventListener('change', onFileSelect);
+            function main() {
+                window.odil = Module;
+                document.querySelector('#file').addEventListener(
+                    'change', onFileSelect);
+            }
+            
+            Module['onRuntimeInitialized'] = main;
         </script>
     </body>
 </html>
