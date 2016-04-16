@@ -83,6 +83,9 @@ struct ElementsDictionaryEntry
 typedef
     std::map<ElementsDictionaryKey, ElementsDictionaryEntry> ElementsDictionary;
 
+ElementsDictionary::const_iterator
+find(ElementsDictionary const & dictionary, Tag const & tag);
+
 }
 
 #endif // _f4b88e07_d515_41be_ad1b_37899ec6451e

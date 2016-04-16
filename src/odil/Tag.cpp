@@ -61,35 +61,16 @@ Tag
 ::get_name() const
 {
     std::string name;
-    std::string const tag_string(*this);
-
-    for(auto const item: registry::public_dictionary)
+    
+    auto const iterator = find(registry::public_dictionary, *this);
+    if(iterator != registry::public_dictionary.end())
     {
-        auto const & key = item.first;
-        auto const & entry = item.second;
-
-        if(key.get_type() == ElementsDictionaryKey::Type::Tag &&
-            key.get_tag() == *this)
-        {
-            name = entry.keyword;
-            break;
-        }
-        else if(key.get_type() == ElementsDictionaryKey::Type::String)
-        {
-            auto regex = key.get_string();
-            std::replace_if(
-                regex.begin(), regex.end(),
-                [](char c) { return c == 'x'; }, '.');
-            if(boost::regex_match(tag_string, boost::regex(regex)))
-            {
-                name = entry.keyword;
-                break;
-            }
-        }
+        name = iterator->second.keyword;
     }
 
     if(name.empty())
     {
+        std::string const tag_string(*this);
         throw Exception("No such element: "+tag_string);
     }
 

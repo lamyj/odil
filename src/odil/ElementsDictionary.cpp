@@ -137,4 +137,20 @@ ElementsDictionaryEntry
     // Nothing else
 }
 
+ElementsDictionary::const_iterator
+find(ElementsDictionary const & dictionary, Tag const & tag)
+{
+    auto iterator = dictionary.find(tag);
+    if(iterator == dictionary.end())
+    {
+        std::string tag_string(tag);
+        tag_string[2] = 'x';
+        tag_string[3] = 'x';
+        
+        iterator = dictionary.find(tag_string);
+    }
+    
+    return iterator;
+}
+
 }
