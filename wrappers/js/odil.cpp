@@ -24,36 +24,33 @@ std::string readBuffer(std::string const & buffer)
     return ostream.str();
 }
 
-std::string getDictionaryEntry(odil::Tag const & tag)
+emscripten::val getTag(std::string const & name)
 {
-    auto const it = odil::registry::public_dictionary.find(tag);
-    Json::Value result;
-    if(it != odil::registry::public_dictionary.end())
+    auto const iterator = odil::registry::public_tags.find(name);
+    
+    emscripten::val result = emscripten::val::undefined();
+    if(iterator != odil::registry::public_tags.end())
     {
-        result["name"] = it->second.name;
-        result["keyword"] = it->second.keyword;
-        result["vr"] = it->second.vr;
-        result["vm"] = it->second.vm;
+        result = emscripten::val(iterator->second);
+    }
+    else
+    {
+        result = emscripten::val::null();
     }
     
-    std::ostringstream ostream;
-    ostream << result;
-    
-    return ostream.str();
+    return result;
 }
 
 EMSCRIPTEN_BINDINGS(odil)
 {
-    using namespace emscripten;
-    using namespace odil;
-    
-    class_<Tag>("Tag")
+    emscripten::class_<odil::Tag>("Tag")
         .constructor<int, int>()
-        .property("group", &Tag::group)
-        .property("element", &Tag::element)
-        .function("getName", &Tag::get_name)
+        .property("group", &odil::Tag::group)
+        .property("element", &odil::Tag::element)
+        .function("getName", &odil::Tag::get_name)
+        .function("toString", &odil::Tag::operator std::string)
     ;
         
-    function("getDictionaryEntry", getDictionaryEntry);
-    function("readBuffer", readBuffer);
+    emscripten::function("readBuffer", readBuffer);
+    emscripten::function("getTag", getTag);
 }

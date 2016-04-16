@@ -7,14 +7,14 @@ function renderDataSet(dataSet, parent) {
         // Get tag name if known, default to string representation
         var group = parseInt(tagString.slice(0,4), 16);
         var element = parseInt(tagString.slice(4,8), 16);
-        var tag = new Module.Tag(group, element);
+        var tag = new odil.Tag(group, element);
         
         var tagName = tagString
         try {
             var tagName = tag.getName();
         }
         catch(e) {
-            // Ingnore the error
+            // Ignore the error
         }
         
         listItem.textContent += 
@@ -70,7 +70,7 @@ function renderDataSet(dataSet, parent) {
 }
 
 function putDataSetImage(dataSet, context) {
-    var characters = atob(dataSet['7fe00010'].InlineBinary);
+    var characters = atob(dataSet[odil.getTag('PixelData')].InlineBinary);
     var arrayBuffer = new ArrayBuffer(characters.length);
     var view = new DataView(arrayBuffer);
     
@@ -78,10 +78,11 @@ function putDataSetImage(dataSet, context) {
         view.setUint8(i, characters.charCodeAt(i));
     }
     
-    var bitsAllocated = dataSet['00280100'].Value[0];
+    var bitsAllocated = dataSet[odil.getTag('BitsAllocated')].Value[0];
     var isSigned = false;
-    if(dataSet['00280103'] !== undefined) {
-        isSigned = (dataSet['00280103'].Value[0] === 1);
+    var pixelRepresentation = dataSet[odil.getTag('PixelRepresentation')];
+    if(pixelRepresentation !== undefined) {
+        isSigned = (pixelRepresentation.Value[0] === 1);
     }
     
     var getter = 'get'+(isSigned?'Int':'Uint')+bitsAllocated;
@@ -89,8 +90,8 @@ function putDataSetImage(dataSet, context) {
     
     var bytesAllocated = bitsAllocated/8;
     
-    var rows = dataSet['00280010'].Value[0];
-    var columns = dataSet['00280011'].Value[0];
+    var rows = dataSet[odil.getTag('Rows')].Value[0];
+    var columns = dataSet[odil.getTag('Columns')].Value[0];
     var imageData = context.getImageData(0, 0, columns, rows);
     
     var smallest = getter(0, true);
@@ -102,7 +103,8 @@ function putDataSetImage(dataSet, context) {
     }
     var factor = 255./(largest-smallest);
     
-    var photometricInterpretation = dataSet['00280004'].Value[0];
+    var photometricInterpretation = 
+        dataSet[odil.getTag('PhotometricInterpretation')].Value[0];
     
     var putPixel = null;
     if(photometricInterpretation === 'MONOCHROME2') {
