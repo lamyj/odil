@@ -6,15 +6,55 @@
  * for details.
  ************************************************************************/
 
+#include <boost/asio.hpp>
 #include <boost/python.hpp>
 
 #include "odil/Association.h"
+
+#include "exception_factory.h"
+
+namespace
+{
+
+PyObject * wrapped_AssociationReleased;
+PyObject * wrapped_AssociationAborted;
+
+void receive_association(
+    odil::Association & association, std::string protocol, unsigned short port)
+{
+    if(protocol == "v4")
+    {
+        association.receive_association(boost::asio::ip::tcp::v4(), port);
+    }
+}
+
+void released_translator(odil::AssociationReleased const & e)
+{
+    PyErr_SetString(wrapped_AssociationReleased, e.what());
+}
+
+void aborted_translator(odil::AssociationAborted const & e)
+{
+    PyErr_SetString(wrapped_AssociationAborted, e.what());
+}
+
+}
 
 void wrap_Association()
 {
     using namespace boost::python;
     using namespace odil;
-
+    
+    object wrapped_exception = scope().attr("Exception");
+    
+    wrapped_AssociationReleased = exception_factory(
+        "AssociationReleased", wrapped_exception.ptr());
+    register_exception_translator<AssociationReleased>(released_translator);
+    
+    wrapped_AssociationAborted = exception_factory(
+        "AssociationAborted", wrapped_exception.ptr());
+    register_exception_translator<AssociationAborted>(aborted_translator);
+    
     scope association_scope = class_<Association>("Association", init<>())
         .def("get_peer_host", &Association::get_peer_host,
             return_value_policy<copy_const_reference>())
@@ -46,10 +86,12 @@ void wrap_Association()
         .def("is_associated", &Association::is_associated)
         .def("associate", &Association::associate)
         // Receive association
+        .def("receive_association", &receive_association)
         //.def("reject", &Association::reject)
         .def("release", &Association::release)
         .def("abort", &Association::abort)
         // Receive message
+        .def("receive_message", &Association::receive_message)
         // Send message
         .def("next_message_id", &Association::next_message_id)
     ;

@@ -12,6 +12,7 @@ void wrap_Association();
 void wrap_AssociationParameters();
 void wrap_BasicDirectoryCreator();
 void wrap_DataSet();
+void wrap_EchoSCP();
 void wrap_EchoSCU();
 void wrap_Element();
 void wrap_ElementsDictionary();
@@ -32,16 +33,22 @@ void wrap_xml_converter();
 
 void wrap_registry();
 
+void wrap_Message();
+void wrap_Request();
+void wrap_CEchoRequest();
+
 BOOST_PYTHON_MODULE(odil)
 {
+    wrap_Exception();
+    
     wrap_Association();
     wrap_AssociationParameters();
     wrap_BasicDirectoryCreator();
     wrap_DataSet();
+    wrap_EchoSCP();
     wrap_EchoSCU();
     wrap_Element();
     wrap_ElementsDictionary();
-    wrap_Exception();
     wrap_FindSCU();
     wrap_GetSCU();
     wrap_json_converter();
@@ -57,4 +64,8 @@ BOOST_PYTHON_MODULE(odil)
     wrap_xml_converter();
 
     wrap_registry();
+    
+    wrap_Message();
+    wrap_Request();
+    wrap_CEchoRequest();
 }
