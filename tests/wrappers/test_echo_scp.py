@@ -32,7 +32,7 @@ class TestEchoSCP(unittest.TestCase):
         command = ["echoscu", "-q"]
         if use_abort:
             command.append("--abort")
-        command.extend(["localhost", "11112"])
+        command.extend(["localhost", "11113"])
         
         return subprocess.call(command)
 
@@ -44,7 +44,7 @@ class TestEchoSCP(unittest.TestCase):
 
         association = odil.Association()
         association.set_tcp_timeout(1)
-        association.receive_association("v4", 11112)
+        association.receive_association("v4", 11113)
 
         echo_scp = odil.EchoSCP(association)
         echo_scp.set_callback(echo_callback)
