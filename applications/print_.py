@@ -37,7 +37,8 @@ def print_data_set(data_set, decode_uids, padding, max_length):
             name = entry.name
 
         if element.is_data_set():
-            value = ""
+            value = "(sequence, {} item{})".format(
+                len(element), "s" if len(element)>1 else "")
         elif element.is_binary():
             lengths = [len(x) for x in element.as_binary()]
             value = "(binary, {} item{}, {} byte{})".format(

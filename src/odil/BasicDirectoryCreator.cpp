@@ -236,16 +236,23 @@ BasicDirectoryCreator
 {
     LinearizedTree linearized_tree;
 
-    // Prime the stack with all top-level records.
+    // Create a depth-first list of records and a sibling map.
+    // Prime the stack and sibling map with all top-level records.
     std::stack<Record::Pointer> stack;
-    for(auto const & record: record_tree)
+    std::map<Record const *, long> location_map;
+    std::map<Record const *, Record const *> sibling_map;
+    for(auto it=record_tree.begin(); it!=record_tree.end(); ++it)
     {
-        stack.push(record.second);
+        stack.push(it->second);
+        auto const sibling_it = std::next(it);
+        if(sibling_it != record_tree.end())
+        {
+            auto const & sibling = sibling_it->second;
+            sibling_map[it->second.get()] = sibling.get();
+        }
     }
 
     // Create a depth-first list of records and a sibling map.
-    std::map<Record const *, long> location_map;
-    std::map<Record const *, Record const *> sibling_map;
     while(!stack.empty())
     {
         auto const & record = stack.top();
