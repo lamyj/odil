@@ -38,6 +38,17 @@ void aborted_translator(odil::AssociationAborted const & e)
     PyErr_SetString(wrapped_AssociationAborted, e.what());
 }
 
+float get_tcp_timeout(odil::Association const & association)
+{
+    return association.get_tcp_timeout().total_microseconds()/1000000.;
+}
+
+void set_tcp_timeout(odil::Association & association, float seconds)
+{
+    association.set_tcp_timeout(
+        boost::posix_time::microseconds(seconds*1000000.));
+}
+
 }
 
 void wrap_Association()
@@ -81,7 +92,8 @@ void wrap_Association()
             &Association::get_negotiated_parameters, 
             return_value_policy<reference_existing_object>()
         )
-        // TCP timeout
+        .def("get_tcp_timeout", &get_tcp_timeout)
+        .def("set_tcp_timeout", &set_tcp_timeout)
         // Message timeout
         .def("is_associated", &Association::is_associated)
         .def("associate", &Association::associate)
