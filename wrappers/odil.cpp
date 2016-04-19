@@ -17,6 +17,7 @@ void wrap_EchoSCU();
 void wrap_Element();
 void wrap_ElementsDictionary();
 void wrap_Exception();
+void wrap_FindSCP();
 void wrap_FindSCU();
 void wrap_GetSCU();
 void wrap_json_converter();
@@ -36,6 +37,7 @@ void wrap_registry();
 void wrap_Message();
 void wrap_Request();
 void wrap_CEchoRequest();
+void wrap_CFindRequest();
 
 BOOST_PYTHON_MODULE(odil)
 {
@@ -49,6 +51,7 @@ BOOST_PYTHON_MODULE(odil)
     wrap_EchoSCU();
     wrap_Element();
     wrap_ElementsDictionary();
+    wrap_FindSCP();
     wrap_FindSCU();
     wrap_GetSCU();
     wrap_json_converter();
@@ -68,4 +71,5 @@ BOOST_PYTHON_MODULE(odil)
     wrap_Message();
     wrap_Request();
     wrap_CEchoRequest();
+    wrap_CFindRequest();
 }
