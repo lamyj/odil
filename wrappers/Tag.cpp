@@ -30,4 +30,5 @@ void wrap_Tag()
         .def(self >= self)
         .def("__str__", &Tag::operator std::string)
     ;
+    implicitly_convertible<std::string, Tag>();
 }

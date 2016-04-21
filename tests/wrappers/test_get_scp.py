@@ -14,23 +14,21 @@ class Generator(object):
         
     def initialize(self, message):
         data_set_1 = odil.DataSet()
+        data_set_1.add("SOPClassUID", [odil.registry.RawDataStorage])
         data_set_1.add(
-            odil.registry.SOPClassUID, [odil.registry.RawDataStorage])
-        data_set_1.add(
-            odil.registry.SOPInstanceUID, 
+            "SOPInstanceUID", 
             ["1.2.826.0.1.3680043.9.5560.3127449359877365688774406533090568532"])
-        data_set_1.add(odil.registry.PatientName, ["Hello^World"])
-        data_set_1.add(odil.registry.PatientID, ["1234"])
+        data_set_1.add("PatientName", ["Hello^World"])
+        data_set_1.add("PatientID", ["1234"])
         self._responses.append(data_set_1)
         
         data_set_2 = odil.DataSet()
+        data_set_2.add("SOPClassUID", [odil.registry.RawDataStorage])
         data_set_2.add(
-            odil.registry.SOPClassUID, [odil.registry.RawDataStorage])
-        data_set_2.add(
-            odil.registry.SOPInstanceUID, 
+            "SOPInstanceUID", 
             ["1.2.826.0.1.3680043.9.5560.3221615743193123463515381981101110692"])
-        data_set_2.add(odil.registry.PatientName, ["Doe^John"])
-        data_set_2.add(odil.registry.PatientID, ["5678"])
+        data_set_2.add("PatientName", ["Doe^John"])
+        data_set_2.add("PatientID", ["5678"])
         self._responses.append(data_set_2)
         
         self._response_index = 0
@@ -63,26 +61,24 @@ class TestGetSCP(unittest.TestCase):
         self.assertEqual(len(data_sets[0]), 4)
         
         self.assertSequenceEqual(
-            data_sets[0].as_string(odil.registry.SOPClassUID), 
+            data_sets[0].as_string("SOPClassUID"), 
             [odil.registry.RawDataStorage])
         self.assertSequenceEqual(
-            data_sets[0].as_string(odil.registry.SOPInstanceUID), 
+            data_sets[0].as_string("SOPInstanceUID"), 
             ["1.2.826.0.1.3680043.9.5560.3127449359877365688774406533090568532"])
         self.assertSequenceEqual(
-            data_sets[0].as_string(odil.registry.PatientName), ["Hello^World"])
-        self.assertSequenceEqual(
-            data_sets[0].as_string(odil.registry.PatientID), ["1234"])
+            data_sets[0].as_string("PatientName"), ["Hello^World"])
+        self.assertSequenceEqual(data_sets[0].as_string("PatientID"), ["1234"])
         
         self.assertSequenceEqual(
-            data_sets[1].as_string(odil.registry.SOPClassUID), 
+            data_sets[1].as_string("SOPClassUID"), 
             [odil.registry.RawDataStorage])
         self.assertSequenceEqual(
-            data_sets[1].as_string(odil.registry.SOPInstanceUID), 
+            data_sets[1].as_string("SOPInstanceUID"), 
             ["1.2.826.0.1.3680043.9.5560.3221615743193123463515381981101110692"])
         self.assertSequenceEqual(
-            data_sets[1].as_string(odil.registry.PatientName), ["Doe^John"])
-        self.assertSequenceEqual(
-            data_sets[1].as_string(odil.registry.PatientID), ["5678"])
+            data_sets[1].as_string("PatientName"), ["Doe^John"])
+        self.assertSequenceEqual(data_sets[1].as_string("PatientID"), ["5678"])
     
     def run_client(self):
         command = [

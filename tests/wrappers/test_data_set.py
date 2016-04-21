@@ -106,32 +106,31 @@ class TestDataSet(unittest.TestCase):
 
     def test_getitem(self):
         data_set = odil.DataSet()
-        data_set.add(odil.registry.PatientName, ["Doe^John"])
-        self.assertEqual(
-            [x for x in data_set[odil.registry.PatientName].as_string()],
-            ["Doe^John"])
-        self.assertRaises(Exception, lambda x: data_set[odil.registry.PatientID])
+        data_set.add("PatientName", ["Doe^John"])
+        self.assertSequenceEqual(
+            data_set["PatientName"].as_string(), ["Doe^John"])
+        self.assertRaises(Exception, lambda x: data_set["PatientID"])
 
     def test_iter(self):
         data_set = odil.DataSet()
-        data_set.add(odil.registry.PatientName, ["Doe^John"])
-        data_set.add(odil.registry.PatientID, ["DJ123"])
+        data_set.add("PatientName", ["Doe^John"])
+        data_set.add("PatientID", ["DJ123"])
         self.assertEqual(
             [x.get_name() for x in data_set],
             ["PatientName", "PatientID"])
 
     def test_keys(self):
         data_set = odil.DataSet()
-        data_set.add(odil.registry.PatientName, ["Doe^John"])
-        data_set.add(odil.registry.PatientID, ["DJ123"])
+        data_set.add("PatientName", ["Doe^John"])
+        data_set.add("PatientID", ["DJ123"])
         self.assertEqual(
             [x.get_name() for x in data_set.keys()],
             ["PatientName", "PatientID"])
 
     def test_values(self):
         data_set = odil.DataSet()
-        data_set.add(odil.registry.PatientName, ["Doe^John"])
-        data_set.add(odil.registry.PatientID, ["DJ123"])
+        data_set.add("PatientName", ["Doe^John"])
+        data_set.add("PatientID", ["DJ123"])
         self.assertEqual(
             [
                 [item for item in element.as_string()] 
@@ -140,8 +139,8 @@ class TestDataSet(unittest.TestCase):
 
     def test_items(self):
         data_set = odil.DataSet()
-        data_set.add(odil.registry.PatientName, ["Doe^John"])
-        data_set.add(odil.registry.PatientID, ["DJ123"])
+        data_set.add("PatientName", ["Doe^John"])
+        data_set.add("PatientID", ["DJ123"])
         self.assertSequenceEqual(
             [
                 [tag.get_name(), [item for item in element.as_string()]] 

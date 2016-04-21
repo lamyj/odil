@@ -23,8 +23,8 @@ class TestMoveSCU(PeerFixtureBase):
             ])
 
         self.query = odil.DataSet()
-        self.query.add(odil.registry.PatientName, ["Doe^John"])
-        self.query.add(odil.registry.QueryRetrieveLevel, ["PATIENT"])
+        self.query.add("PatientName", ["Doe^John"])
+        self.query.add("QueryRetrieveLevel", ["PATIENT"])
     
     def test_default_constructor(self):
         move = odil.MoveSCU(self.association)
@@ -43,7 +43,7 @@ class TestMoveSCU(PeerFixtureBase):
 
         self.assertEqual(len(data_sets), 1)
         self.assertSequenceEqual(
-            data_sets[0].as_string(odil.registry.SOPInstanceUID),
+            data_sets[0].as_string("SOPInstanceUID"),
             ["2.25.95090344942250266709587559073467305647"])
 
     def test_with_callback(self):
@@ -58,7 +58,7 @@ class TestMoveSCU(PeerFixtureBase):
 
         self.assertEqual(len(data_sets), 1)
         self.assertSequenceEqual(
-            data_sets[0].as_string(odil.registry.SOPInstanceUID),
+            data_sets[0].as_string("SOPInstanceUID"),
             ["2.25.95090344942250266709587559073467305647"])
 
 if __name__ == "__main__":
