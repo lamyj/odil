@@ -9,6 +9,7 @@
 #include "value_constructor.h"
 
 #include <boost/python.hpp>
+#include <boost/python/stl_iterator.hpp>
 
 #include "odil/DataSet.h"
 #include "odil/Value.h"
