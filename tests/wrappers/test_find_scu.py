@@ -19,8 +19,8 @@ class TestFindSCU(PeerFixtureBase):
         )
 
         self.query = odil.DataSet()
-        self.query.add(odil.registry.PatientName, odil.Value.Strings(["Doe^John"]))
-        self.query.add(odil.registry.QueryRetrieveLevel, odil.Value.Strings(["PATIENT"]))
+        self.query.add(odil.registry.PatientName, ["Doe^John"])
+        self.query.add(odil.registry.QueryRetrieveLevel, ["PATIENT"])
         self.query.add(odil.registry.PatientID)
 
     def test_without_callback(self):
@@ -29,9 +29,8 @@ class TestFindSCU(PeerFixtureBase):
         data_sets = find.find(self.query)
 
         self.assertEqual(len(data_sets), 1)
-        self.assertEqual(
-            [x for x in data_sets[0].as_string(odil.registry.PatientID)],
-            ["DJ001"])
+        self.assertSequenceEqual(
+            data_sets[0].as_string(odil.registry.PatientID), ["DJ001"])
 
     def test_with_callback(self):
         data_sets = []
@@ -43,9 +42,8 @@ class TestFindSCU(PeerFixtureBase):
         find.find(self.query, callback)
 
         self.assertEqual(len(data_sets), 1)
-        self.assertEqual(
-            [x for x in data_sets[0].as_string(odil.registry.PatientID)],
-            ["DJ001"])
+        self.assertSequenceEqual(
+            data_sets[0].as_string(odil.registry.PatientID), ["DJ001"])
 
 if __name__ == "__main__":
     unittest.main()

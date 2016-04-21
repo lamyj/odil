@@ -13,11 +13,22 @@
 
 #include "odil/DataSet.h"
 
-BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(add_overloads_2, odil::DataSet::add, 1, 2);
-BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(add_overloads_3, odil::DataSet::add, 2, 3);
+#include "value_constructor.h"
 
 namespace
 {
+
+void add(
+    odil::DataSet & data_set, odil::Tag const & tag, 
+    boost::python::object value_python, odil::VR vr=odil::VR::UNKNOWN)
+{
+    auto const value_cpp = value_constructor(value_python);
+    if(vr == odil::VR::UNKNOWN)
+    {
+        vr = as_vr(tag);
+    }
+    data_set.add(tag, odil::Element(*value_cpp, vr));
+}
 
 class ConstIteratorAdapter
 {
@@ -124,6 +135,10 @@ boost::python::list items(odil::DataSet const & data_set)
 
 }
 
+BOOST_PYTHON_FUNCTION_OVERLOADS(add_overloads, add, 3, 4);
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(
+    add_overloads_member, odil::DataSet::add, 1, 2);
+
 void wrap_DataSet()
 {
     using namespace boost::python;
@@ -133,37 +148,9 @@ void wrap_DataSet()
     class_<DataSet>("DataSet", init<>())
         .def(
             "add", 
-            static_cast<void (DataSet::*)(Tag const &, Element const &)>(
-                &DataSet::add))
-        .def(
-            "add", 
             static_cast<void (DataSet::*)(Tag const &, VR)>(&DataSet::add),
-            add_overloads_2())
-        .def(
-            "add", 
-            static_cast<void (DataSet::*)(Tag const &, Value::Integers const &, VR)>(
-                &DataSet::add),
-            add_overloads_3())
-        .def(
-            "add", 
-            static_cast<void (DataSet::*)(Tag const &, Value::Reals const &, VR)>(
-                &DataSet::add),
-            add_overloads_3())
-        .def(
-            "add", 
-            static_cast<void (DataSet::*)(Tag const &, Value::Strings const &, VR)>(
-                &DataSet::add),
-            add_overloads_3())
-        .def(
-            "add", 
-            static_cast<void (DataSet::*)(Tag const &, Value::DataSets const &, VR)>(
-                &DataSet::add),
-            add_overloads_3())
-        .def(
-            "add", 
-            static_cast<void (DataSet::*)(Tag const &, Value::Binary const &, VR)>(
-                &DataSet::add),
-            add_overloads_3())
+            add_overloads_member())
+        .def("add", add, add_overloads())
         .def("remove", &DataSet::remove)
         .def("has", &DataSet::has)
         .def("empty", static_cast<bool (DataSet::*)() const>(&DataSet::empty))

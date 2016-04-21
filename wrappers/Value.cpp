@@ -13,6 +13,11 @@
 #include "odil/DataSet.h"
 #include "odil/Value.h"
 
+#include "value_constructor.h"
+
+namespace
+{
+
 template<typename T, typename python_type=typename T::value_type>
 boost::shared_ptr<T> create_value(boost::python::object const & sequence)
 {
@@ -30,6 +35,8 @@ boost::shared_ptr<T> create_value(boost::python::object const & sequence)
     return boost::shared_ptr<T>(new T(values));
 }
 
+}
+
 void wrap_Value()
 {
     using namespace boost::python;
@@ -43,12 +50,8 @@ void wrap_Value()
 
     // Define scope to enclose Integers, Reals, etc. in Value
     scope value_scope = class_<Value>("Value", init<>())
-        .def(init<Value::Integers>())
-        .def(init<Value::Reals>())
-        .def(init<Value::Strings>())
-        .def(init<Value::DataSets>())
-        .def(init<Value::Binary>())
-        .def("get_type", &Value::get_type)
+        .def("__init__", make_constructor(value_constructor))
+        .add_property("type", &Value::get_type)
         .def("empty", &Value::empty)
         .def(
             "as_integers", AsIntegers(&Value::as_integers), 
@@ -67,6 +70,15 @@ void wrap_Value()
             return_value_policy<reference_existing_object>())
         .def(self == self)
         .def(self != self)
+    ;
+    
+    enum_<Value::Type>("Type")
+        .value("Empty", Value::Type::Empty)
+        .value("Integers", Value::Type::Integers)
+        .value("Reals", Value::Type::Reals)
+        .value("Strings", Value::Type::Strings)
+        .value("DataSets", Value::Type::DataSets)
+        .value("Binary", Value::Type::Binary)
     ;
 
     class_<Value::Integers>("Integers")
@@ -107,4 +119,3 @@ void wrap_Value()
         .def(vector_indexing_suite<Value::Binary>())
     ;
 }
-

@@ -36,12 +36,10 @@ def find(host, port, calling_ae_title, called_ae_title, level, keys, decode_uids
         if value is not None:
             vr = odil.registry.public_dictionary[tag].vr
             if vr in ["DS", "FL", "FD"]:
-                value = odil.Value.Reals([float(x) for x in value])
+                value = [float(x) for x in value]
             elif vr in ["IS", "SL", "SS", "UL", "US"]:
-                value = odil.Value.Integers([int(x) for x in value])
-            else:
-                value = odil.Value.Strings(value)
-                
+                value = [int(x) for x in value]
+            
             query.add(tag, value)
         else:
             query.add(tag)

@@ -14,15 +14,13 @@ class Generator(object):
         
     def initialize(self, message):
         data_set_1 = odil.DataSet()
-        data_set_1.add(
-            odil.registry.PatientName, odil.Value.Strings(["Hello^World"]))
-        data_set_1.add(odil.registry.PatientID, odil.Value.Strings(["1234"]))
+        data_set_1.add(odil.registry.PatientName, ["Hello^World"])
+        data_set_1.add(odil.registry.PatientID, ["1234"])
         self._responses.append(data_set_1)
         
         data_set_2 = odil.DataSet()
-        data_set_2.add(
-            odil.registry.PatientName, odil.Value.Strings(["Doe^John"]))
-        data_set_2.add(odil.registry.PatientID, odil.Value.Strings(["5678"]))
+        data_set_2.add(odil.registry.PatientName, ["Doe^John"])
+        data_set_2.add(odil.registry.PatientID, ["5678"])
         self._responses.append(data_set_2)
         
         self._response_index = 0
@@ -51,19 +49,15 @@ class TestFindSCP(unittest.TestCase):
         
         self.assertEqual(len(data_sets[0]), 2)
         
-        self.assertEqual(
-            [x for x in data_sets[0].as_string(odil.registry.PatientName)], 
-            ["Hello^World"])
-        self.assertEqual(
-            [x for x in data_sets[0].as_string(odil.registry.PatientID)], 
-            ["1234"])
+        self.assertSequenceEqual(
+            data_sets[0].as_string(odil.registry.PatientName), ["Hello^World"])
+        self.assertSequenceEqual(
+            data_sets[0].as_string(odil.registry.PatientID), ["1234"])
         
-        self.assertEqual(
-            [x for x in data_sets[1].as_string(odil.registry.PatientName)], 
-            ["Doe^John"])
-        self.assertEqual(
-            [x for x in data_sets[1].as_string(odil.registry.PatientID)], 
-            ["5678"])
+        self.assertSequenceEqual(
+            data_sets[1].as_string(odil.registry.PatientName), ["Doe^John"])
+        self.assertSequenceEqual(
+            data_sets[1].as_string(odil.registry.PatientID), ["5678"])
     
     def run_client(self):
         command = [
