@@ -25,6 +25,7 @@ void wrap_json_converter();
 void wrap_MoveSCU();
 void wrap_read();
 void wrap_StoreSCU();
+void wrap_StoreSCP();
 void wrap_Tag();
 void wrap_uid();
 void wrap_UIDsDictionary();
@@ -40,6 +41,7 @@ void wrap_Request();
 void wrap_CEchoRequest();
 void wrap_CFindRequest();
 void wrap_CGetRequest();
+void wrap_CStoreRequest();
 
 BOOST_PYTHON_MODULE(odil)
 {
@@ -60,6 +62,7 @@ BOOST_PYTHON_MODULE(odil)
     wrap_json_converter();
     wrap_MoveSCU();
     wrap_read();
+    wrap_StoreSCP();
     wrap_StoreSCU();
     wrap_Tag();
     wrap_uid();
@@ -76,4 +79,5 @@ BOOST_PYTHON_MODULE(odil)
     wrap_CEchoRequest();
     wrap_CFindRequest();
     wrap_CGetRequest();
+    wrap_CStoreRequest();
 }
