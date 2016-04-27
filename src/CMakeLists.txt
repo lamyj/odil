@@ -22,6 +22,11 @@ set_target_properties(libodil PROPERTIES OUTPUT_NAME odil)
 
 target_link_libraries(libodil
     ${Boost_LIBRARIES} ${DCMTK_LIBRARIES} ${ICU_LIBRARIES} ${JsonCpp_LIBRARIES})
+
+if(WIN32)
+    target_link_libraries(libodil netapi32)
+endif()
+
 set_target_properties(libodil PROPERTIES
     VERSION ${odil_VERSION}
     SOVERSION ${odil_MAJOR_VERSION})
