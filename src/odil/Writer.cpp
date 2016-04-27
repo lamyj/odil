@@ -520,6 +520,9 @@ void
 Writer::Visitor
 ::write_strings(T const & sequence, char padding) const
 {
+    if(sequence.empty())
+        return;
+
     auto const stream_begin = this->stream.tellp();
 
     auto last_element_it = --sequence.end();
