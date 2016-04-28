@@ -463,7 +463,11 @@ Writer::Visitor::result_type
 Writer::Visitor
 ::operator()(Value::Binary const & value) const
 {
-    if(value.size() > 1)
+    if(value.empty())
+    {
+        return;
+    }
+    else if(value.size() > 1)
     {
         this->write_encapsulated_pixel_data(value);
     }
@@ -521,7 +525,9 @@ Writer::Visitor
 ::write_strings(T const & sequence, char padding) const
 {
     if(sequence.empty())
+    {
         return;
+    }
 
     auto const stream_begin = this->stream.tellp();
 
@@ -569,10 +575,13 @@ Writer::Visitor
         length = fragment.size();
         odil_write_binary(
             length, this->stream, this->byte_ordering, 8*sizeof(length));
-        this->stream.write(reinterpret_cast<char const*>(&fragment[0]), length);
-        if(!this->stream)
+        if(length > 0)
         {
-            throw Exception("Could not write to stream");
+            this->stream.write(reinterpret_cast<char const*>(&fragment[0]), length);
+            if(!this->stream)
+            {
+                throw Exception("Could not write to stream");
+            }
         }
     }
     writer.write_tag(registry::SequenceDelimitationItem);
