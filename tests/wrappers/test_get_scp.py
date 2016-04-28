@@ -84,6 +84,7 @@ class TestGetSCP(unittest.TestCase):
     def run_client(self):
         command = [
             "getscu", 
+            "-ll", "error",
             "-P", "-k", "QueryRetrieveLevel=PATIENT",
             "-k", "PatientID=*", "-k", "PatientName",
             "+B",
