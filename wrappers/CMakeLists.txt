@@ -10,7 +10,7 @@ link_directories(${Boost_LIBRARY_DIRS})
 file(GLOB_RECURSE files "*.cpp")
 python_add_module(pyodil SHARED ${files})
 set_target_properties(
-    pyodil PROPERTIES OUTPUT_NAME odil)
+    pyodil PROPERTIES OUTPUT_NAME odil FOLDER "Wrappers")
 if(APPLE)
     set_target_properties(pyodil PROPERTIES SUFFIX ".so")
 endif()

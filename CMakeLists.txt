@@ -12,6 +12,9 @@ option(BUILD_WRAPPERS "Build the Python Wrappers." ON)
 
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}" ${CMAKE_MODULE_PATH})
 include(CTest)
+include(cmake/functions.cmake)
+
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 if(WIN32)
     # We have to set _WIN32_WINNT for Asio
@@ -48,11 +51,14 @@ endif()
 add_custom_target(
     CIIntegration ${CMAKE_COMMAND} -E echo "CI Integration"
     SOURCES appveyor.yml .travis.yml)
+set_target_properties(CIIntegration PROPERTIES FOLDER "Utils")
 
 add_custom_target(
     Documentation ${CMAKE_COMMAND} -E echo "Documentation"
     SOURCES Doxyfile LICENSE.txt README.md)
+set_target_properties(Documentation PROPERTIES FOLDER "Utils")
 
 add_custom_target(
     Registry ${CMAKE_COMMAND} -E echo "Registry"
     SOURCES generate_registry registry.cpp.tmpl registry.h.tmpl)
+set_target_properties(Registry PROPERTIES FOLDER "Utils")
