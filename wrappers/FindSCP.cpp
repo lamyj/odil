@@ -13,17 +13,19 @@
 #include "odil/message/CFindRequest.h"
 #include "odil/FindSCP.h"
 
-#include "PythonDataSetGenerator.h"
+#include "DataSetGeneratorWrapper.h"
 
 namespace
 {
 
 void set_generator(
-    odil::FindSCP & find_scp, boost::python::object const & python_generator)
+    odil::FindSCP & find_scp, 
+    DataSetGeneratorWrapper<odil::FindSCP::DataSetGenerator> generator)
 {
     auto cpp_generator = 
-        std::make_shared<PythonDataSetGenerator<odil::message::CFindRequest>>(
-            python_generator);
+        std::make_shared<
+            DataSetGeneratorWrapper<odil::FindSCP::DataSetGenerator>
+        >(generator);
     find_scp.set_generator(cpp_generator);
 }
 
@@ -31,9 +33,16 @@ void set_generator(
 
 void wrap_FindSCP()
 {
-    boost::python::class_<odil::FindSCP>(
-            "FindSCP", boost::python::init<odil::Association &>())
+    using namespace boost::python;
+    using namespace odil;
+    
+    scope find_scp_scope = class_<FindSCP>("FindSCP", init<Association &>())
         .def("set_generator", &set_generator)
-        .def("__call__", &odil::FindSCP::operator())
+        .def("__call__", &FindSCP::operator())
     ;
+    
+    class_<
+        DataSetGeneratorWrapper<FindSCP::DataSetGenerator>, 
+        boost::noncopyable
+    >("DataSetGenerator", init<>());
 }

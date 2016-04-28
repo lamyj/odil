@@ -13,64 +13,36 @@
 #include "odil/message/CGetRequest.h"
 #include "odil/GetSCP.h"
 
+#include "DataSetGeneratorWrapper.h"
+
 namespace
 {
     
-class PythonDataSetGenerator_GET: public odil::GetSCP::DataSetGenerator
+class DataSetGeneratorWrapperGet: 
+    public DataSetGeneratorWrapper<odil::GetSCP::DataSetGenerator>
 {
 public:
-    PythonDataSetGenerator_GET(boost::python::object const & generator)
-    : _generator(generator)
+    DataSetGeneratorWrapperGet()
+    : DataSetGeneratorWrapper<odil::GetSCP::DataSetGenerator>()
     {
         // Nothing else
     }
     
-    virtual ~PythonDataSetGenerator_GET()
+    virtual ~DataSetGeneratorWrapperGet()
     {
         // Nothing to do.
-    }
-
-    virtual void initialize(odil::message::Request const & request)
-    {
-        odil::message::CGetRequest const concrete_request(request);
-        this->_generator.attr("initialize")(concrete_request);
-    }
-
-    virtual bool done() const
-    {
-        bool const done = 
-            boost::python::extract<bool>(this->_generator.attr("done")());
-        return done;
-    }
-    
-    virtual void next()
-    {
-        this->_generator.attr("next")();
-    }
-
-    virtual odil::DataSet get() const
-    {
-        odil::DataSet const data_set = 
-            boost::python::extract<odil::DataSet>(this->_generator.attr("get")());
-        return data_set;
     }
     
     virtual unsigned int count() const
     {
-        unsigned int const count = boost::python::extract<unsigned int>(
-            this->_generator.attr("count")());
-        return count;
+        return this->get_override("count")();
     }
-
-private:
-    boost::python::object _generator; 
 };
 
-void set_generator(
-    odil::GetSCP & get_scp, boost::python::object const & python_generator)
+void set_generator(odil::GetSCP & get_scp, DataSetGeneratorWrapperGet generator)
 {
     auto cpp_generator = 
-        std::make_shared<PythonDataSetGenerator_GET>(python_generator);
+        std::make_shared<DataSetGeneratorWrapperGet>(generator);
     get_scp.set_generator(cpp_generator);
 }
 
@@ -78,9 +50,14 @@ void set_generator(
 
 void wrap_GetSCP()
 {
-    boost::python::class_<odil::GetSCP>(
-            "GetSCP", boost::python::init<odil::Association &>())
+    using namespace boost::python;
+    using namespace odil;
+    
+    scope get_scp_scope = class_<GetSCP>("GetSCP", init<Association &>())
         .def("set_generator", &set_generator)
         .def("__call__", &odil::GetSCP::operator())
     ;
+    
+    class_<DataSetGeneratorWrapperGet, boost::noncopyable>(
+        "DataSetGenerator", init<>());
 }

@@ -7,8 +7,9 @@ import unittest
 
 import odil
 
-class Generator(object):
+class Generator(odil.FindSCP.DataSetGenerator):
     def __init__(self):
+        odil.FindSCP.DataSetGenerator.__init__(self)
         self._responses = []
         self._response_index = None
         
