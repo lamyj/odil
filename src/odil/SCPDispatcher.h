@@ -19,6 +19,7 @@
 namespace odil
 {
 
+/// @brief Dispatch an incoming message to one of the registered SCPs.
 class SCPDispatcher
 {
 public:
@@ -28,12 +29,16 @@ public:
     /// @brief Destructor.
     ~SCPDispatcher();
 
+    /// @brief Test whether command has an SCP registered.
     bool has_scp(Value::Integer command) const;
 
+    /// @brief Return the SCP registered with command.
     std::shared_ptr<SCP> const & get_scp(Value::Integer command) const;
 
+    /// @brief Registered an SCP with command.
     void set_scp(Value::Integer command, std::shared_ptr<SCP> const & scp);
 
+    /// @brief Receive and dispatch an incoming message.
     void dispatch();
 private:
     typedef std::shared_ptr<SCP> SCPPointer;

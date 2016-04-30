@@ -20,10 +20,16 @@ namespace odil
  */
 struct UIDsDictionaryEntry
 {
+    /// @brief Full name.
     std::string name;
+    
+    /// @brief Brief name.
     std::string keyword;
+    
+    /// @brief Category.
     std::string type;
 
+    /// @brief Constructor.
     UIDsDictionaryEntry(
         std::string const & name="", std::string const & keyword="",
         std::string const & type="");

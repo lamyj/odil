@@ -77,6 +77,7 @@ public:
     /// @brief Return the number of items in the value.
     std::size_t size() const;
 
+    /// @brief Return the raw value.
     Value const & get_value() const;
 
     /// @brief Test whether the value contains integers.

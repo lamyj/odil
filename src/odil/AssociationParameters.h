@@ -29,6 +29,7 @@ public:
      */
     struct PresentationContext
     {
+        /// @brief Result of the presentation context negotiation.
         enum class Result
         {
             Acceptance = 0,
@@ -38,11 +39,22 @@ public:
             TransferSyntaxesNotSupported = 4,
         };
 
+        /// @brief Identifier of the presentation context, must be odd.
         uint8_t id;
+        
+        /// @brief Proposed abstract syntax.
         std::string abstract_syntax;
+        
+        /// @brief Proposed transfer syntaxes or accepted transfer syntax.
         std::vector<std::string> transfer_syntaxes;
+        
+        /// @brief Support for SCU role.
         bool scu_role_support;
+        
+        /// @brief Support for SCP role.
         bool scp_role_support;
+        
+        /// @brief Result of the negotiation.
         Result result;
 
         /// @brief Member-wise equality.
@@ -52,6 +64,7 @@ public:
     /// @brief User Identity, cf. PS3.8 D.3.3.7
     struct UserIdentity
     {
+        /// @brief User identity type.
         enum class Type
         {
             None = 0,
@@ -61,8 +74,13 @@ public:
             SAML = 4
         };
 
+        /// @brief Identity type.
         Type type;
+        
+        /// @brief Primary identity field.
         std::string primary_field;
+        
+        /// @brief Secondary identity field.
         std::string secondary_field;
 
         /// @brief Member-wise equality.

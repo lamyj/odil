@@ -54,6 +54,7 @@ public:
     /// @brief Element of the tag.
     uint16_t element;
 
+    /// @brief Test whether the tag is private.
     bool is_private() const;
 
     /**

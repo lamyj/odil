@@ -17,6 +17,7 @@
 namespace odil
 {
 
+/// @brief Element visitor converting to XML.
 struct ToXMLVisitor
 {
     typedef boost::property_tree::ptree result_type;

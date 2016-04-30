@@ -70,11 +70,19 @@ namespace odil
  */
 struct ElementsDictionaryEntry
 {
+    /// @brief Full name.
     std::string name;
+    
+    /// @brief Brief name.
     std::string keyword;
+    
+    /// @brief Type.
     std::string vr;
+    
+    /// @brief Multiplicity.
     std::string vm;
 
+    /// @brief Constructor.
     ElementsDictionaryEntry(
         std::string const & name="", std::string const & keyword="",
         std::string const & vr="", std::string const & vm="");

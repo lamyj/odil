@@ -194,6 +194,7 @@ public:
     Value::Binary::value_type const & 
     as_binary(Tag const & tag, unsigned int position) const;
 
+    /// @brief Iterator to the elements.
     typedef std::map<Tag, Element>::const_iterator const_iterator;
     
     /// @brief Return an iterator to the start of the elements.
