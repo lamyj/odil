@@ -37,6 +37,12 @@ public:
     std::string const & get_move_destination() const;
     /// @brief Set the AE title of the destination.
     void set_move_destination(std::string const & move_destination);
+    
+    /// @brief Return the port for incoming associations, defaults to 0.
+    uint16_t get_incoming_port() const;
+    
+    /// @brief Set the port for incoming associations, use 0 to disable.
+    void set_incoming_port(uint16_t port);
 
     /// @brief Perform the C-MOVE using a callback.
     void move(DataSet const & query, Callback callback) const;
@@ -48,6 +54,7 @@ public:
 
 private:
     std::string _move_destination;
+    uint16_t _incoming_port;
     
     void _dispatch(Association & store_association, Callback callback) const;
     
@@ -58,4 +65,3 @@ private:
 }
 
 #endif // _5ff4d940_4db7_4d85_9d3a_230b944b31fe
-

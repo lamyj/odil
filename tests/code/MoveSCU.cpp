@@ -43,6 +43,7 @@ BOOST_FIXTURE_TEST_CASE(DefaultConstructor, Fixture)
 {
     odil::MoveSCU const scu(this->association);
     BOOST_CHECK_EQUAL(scu.get_move_destination(), "");
+    BOOST_CHECK_EQUAL(scu.get_incoming_port(), 0);
 }
 
 BOOST_FIXTURE_TEST_CASE(MoveDestination, Fixture)
@@ -52,10 +53,18 @@ BOOST_FIXTURE_TEST_CASE(MoveDestination, Fixture)
     BOOST_CHECK_EQUAL(scu.get_move_destination(), "remote");
 }
 
+BOOST_FIXTURE_TEST_CASE(IncomingPort, Fixture)
+{
+    odil::MoveSCU scu(this->association);
+    scu.set_incoming_port(11113);
+    BOOST_CHECK_EQUAL(scu.get_incoming_port(), 11113);
+}
+
 BOOST_FIXTURE_TEST_CASE(Move, Fixture)
 {
     odil::MoveSCU scu(this->association);
     scu.set_move_destination("LOCAL");
+    scu.set_incoming_port(11113);
 
     scu.set_affected_sop_class(
         odil::registry::PatientRootQueryRetrieveInformationModelMOVE);
@@ -71,6 +80,7 @@ BOOST_FIXTURE_TEST_CASE(MoveCallback, Fixture)
 {
     odil::MoveSCU scu(this->association);
     scu.set_move_destination("LOCAL");
+    scu.set_incoming_port(11113);
 
     scu.set_affected_sop_class(
         odil::registry::PatientRootQueryRetrieveInformationModelMOVE);

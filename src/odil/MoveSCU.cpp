@@ -26,7 +26,7 @@ namespace odil
 
 MoveSCU
 ::MoveSCU(Association & association)
-: SCU(association), _move_destination("")
+: SCU(association), _move_destination(""), _incoming_port(0)
 {
     // Nothing else.
 }
@@ -51,6 +51,20 @@ MoveSCU
     this->_move_destination = move_destination;
 }
 
+uint16_t
+MoveSCU
+::get_incoming_port() const
+{
+    return this->_incoming_port;
+}
+
+void
+MoveSCU
+::set_incoming_port(uint16_t port)
+{
+    this->_incoming_port = port;
+}
+
 void
 MoveSCU
 ::move(DataSet const & query, Callback callback) const
@@ -65,31 +79,35 @@ MoveSCU
     // Receive the responses
     Association store_association;
     bool done = false;
-    while(!done)
+    if(this->_incoming_port != 0)
     {
-        // Use a small timeout to avoid blocking for a long time.
-        boost::posix_time::milliseconds const timeout(1000);
-        store_association.set_tcp_timeout(timeout);
-        store_association.set_message_timeout(timeout);
-
-        if(!store_association.is_associated())
+        while(!done)
         {
-            try
-            {
-                store_association.receive_association(boost::asio::ip::tcp::v4(), 11113);
-                store_association.set_tcp_timeout(
-                    this->_association.get_tcp_timeout());
-                store_association.set_message_timeout(
-                    this->_association.get_message_timeout());
-            }
-            catch(Exception const & e)
-            {
-                // Ignore
-            }
+            // Use a small timeout to avoid blocking for a long time.
+            boost::posix_time::milliseconds const timeout(10);
+            store_association.set_tcp_timeout(timeout);
+            store_association.set_message_timeout(timeout);
 
-            if(store_association.is_associated())
+            if(!store_association.is_associated())
             {
-                done = true;
+                try
+                {
+                    store_association.receive_association(
+                        boost::asio::ip::tcp::v4(), this->_incoming_port);
+                    store_association.set_tcp_timeout(
+                        this->_association.get_tcp_timeout());
+                    store_association.set_message_timeout(
+                        this->_association.get_message_timeout());
+                }
+                catch(Exception const & e)
+                {
+                    // Ignore
+                }
+
+                if(store_association.is_associated())
+                {
+                    done = true;
+                }
             }
         }
     }
@@ -114,16 +132,17 @@ void
 MoveSCU
 ::_dispatch(Association & store_association, Callback callback) const
 {
-    bool store_done = false;
+    // If no store association has been established, store is considered done
+    bool store_done = !store_association.is_associated();
     bool main_done = false;
     while(!(store_done && main_done))
     {
-        if(store_association.get_transport().get_socket()->available() > 0)
+        if(!store_done && store_association.get_transport().get_socket()->available() > 0)
         {
             store_done =
                 this->_handle_store_association(store_association, callback);
         }
-        if(this->_association.get_transport().get_socket()->available() > 0)
+        if(!main_done && this->_association.get_transport().get_socket()->available() > 0)
         {
             main_done = this->_handle_main_association();
         }
