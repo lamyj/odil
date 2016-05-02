@@ -86,15 +86,3 @@ BOOST_FIXTURE_TEST_CASE(GetOnlyStoreCallback, Fixture)
     BOOST_CHECK(Fixture::store_callback_called);
     BOOST_CHECK(!Fixture::get_callback_called);
 }
-
-BOOST_FIXTURE_TEST_CASE(GetOnlyGetCallback, Fixture)
-{
-    odil::GetSCU scu(this->association);
-
-    scu.set_affected_sop_class(
-        odil::registry::PatientRootQueryRetrieveInformationModelGET);
-    scu.get(this->query, odil::GetSCU::StoreCallback(), Fixture::get_callback);
-
-    BOOST_CHECK(!Fixture::store_callback_called);
-    BOOST_CHECK(Fixture::get_callback_called);
-}

@@ -36,14 +36,50 @@ class TestGetSCU(PeerFixtureBase):
             data_sets[0].as_string("SOPInstanceUID"),
             ["2.25.95090344942250266709587559073467305647"])
 
-    def test_with_callback(self):
+    def test_both_callbacks(self):
         data_sets = []
-        def callback(data_set):
+        messages = []
+        def store_callback(data_set):
+            data_sets.append(data_set)
+        def get_callback(message):
+            messages.append(message)
+
+        get = odil.GetSCU(self.association)
+        get.set_affected_sop_class(
+            odil.registry.PatientRootQueryRetrieveInformationModelGET)
+        get.get(self.query, store_callback, get_callback)
+
+        self.assertEqual(len(data_sets), 1)
+        self.assertSequenceEqual(
+            data_sets[0].as_string("SOPInstanceUID"),
+            ["2.25.95090344942250266709587559073467305647"])
+
+        self.assertEqual(len(messages), 2)
+
+        self.assertEqual(
+            messages[0].get_number_of_remaining_sub_operations(), 0)
+        self.assertEqual(
+            messages[0].get_number_of_completed_sub_operations(), 1)
+        self.assertEqual(messages[0].get_number_of_failed_sub_operations(), 0)
+        self.assertEqual(messages[0].get_number_of_warning_sub_operations(), 0)
+
+        self.assertFalse(messages[1].has_number_of_remaining_sub_operations())
+        self.assertEqual(
+            messages[1].has_number_of_completed_sub_operations(), 1)
+        self.assertEqual(
+            messages[1].get_number_of_failed_sub_operations(), 0)
+        self.assertEqual(
+            messages[1].get_number_of_warning_sub_operations(), 0)
+
+    def test_only_store_callback(self):
+        data_sets = []
+        def store_callback(data_set):
             data_sets.append(data_set)
 
         get = odil.GetSCU(self.association)
-        get.set_affected_sop_class(odil.registry.PatientRootQueryRetrieveInformationModelGET)
-        get.get(self.query, callback)
+        get.set_affected_sop_class(
+            odil.registry.PatientRootQueryRetrieveInformationModelGET)
+        get.get(self.query, store_callback)
 
         self.assertEqual(len(data_sets), 1)
         self.assertSequenceEqual(

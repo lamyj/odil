@@ -39,9 +39,11 @@ void wrap_registry();
 
 void wrap_Message();
 void wrap_Request();
+void wrap_Response();
 void wrap_CEchoRequest();
 void wrap_CFindRequest();
 void wrap_CGetRequest();
+void wrap_CGetResponse();
 void wrap_CMoveRequest();
 void wrap_CStoreRequest();
 
@@ -79,9 +81,11 @@ BOOST_PYTHON_MODULE(odil)
     
     wrap_Message();
     wrap_Request();
+    wrap_Response();
     wrap_CEchoRequest();
     wrap_CFindRequest();
     wrap_CGetRequest();
+    wrap_CGetResponse();
     wrap_CMoveRequest();
     wrap_CStoreRequest();
 }
