@@ -13,14 +13,14 @@
 void wrap_Request()
 {
     using namespace boost::python;
+    using namespace odil;
     using namespace odil::message;
 
-    class_<Request, bases<Message>>("Request", no_init)
-        .add_property(
-            "message_id", 
-            make_function(
-                &Request::get_message_id, 
-                return_value_policy<copy_const_reference>()),
-            &Request::set_message_id)
+    class_<Request, bases<Message>>("Request", init<Value::Integer>())
+        .def(init<Message const &>())
+        .def(
+            "get_message_id", &Request::get_message_id,
+            return_value_policy<copy_const_reference>())
+        .def("set_message_id", &Request::set_message_id)
     ;
 }

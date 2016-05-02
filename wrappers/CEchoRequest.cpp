@@ -13,14 +13,18 @@
 void wrap_CEchoRequest()
 {
     using namespace boost::python;
+    using namespace odil;
     using namespace odil::message;
 
-    class_<CEchoRequest, bases<Request>>("CEchoRequest", no_init)
-        .add_property(
-            "affected_sop_class_uid", 
-            make_function(
-                &CEchoRequest::get_affected_sop_class_uid, 
-                return_value_policy<copy_const_reference>()),
+    class_<CEchoRequest, bases<Request>>(
+            "CEchoRequest", init<Value::Integer, Value::String const &>())
+        .def(init<Message const &>())
+        .def(
+            "get_affected_sop_class_uid",
+            &CEchoRequest::get_affected_sop_class_uid,
+            return_value_policy<copy_const_reference>())
+        .def(
+            "set_affected_sop_class_uid",
             &CEchoRequest::set_affected_sop_class_uid)
     ;
 }

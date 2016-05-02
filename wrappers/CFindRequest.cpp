@@ -13,20 +13,26 @@
 void wrap_CFindRequest()
 {
     using namespace boost::python;
+    using namespace odil;
     using namespace odil::message;
 
-    class_<CFindRequest, bases<Request>>("CFindRequest", no_init)
-        .add_property(
-            "affected_sop_class_uid", 
-            make_function(
-                &CFindRequest::get_affected_sop_class_uid, 
-                return_value_policy<copy_const_reference>()),
+    class_<CFindRequest, bases<Request>>(
+            "CFindRequest",
+            init<
+                Value::Integer, Value::String const &, Value::Integer,
+                DataSet const &
+            >())
+        .def(init<Message>())
+        .def(
+            "get_affected_sop_class_uid",
+            &CFindRequest::get_affected_sop_class_uid,
+            return_value_policy<copy_const_reference>())
+        .def(
+            "set_affected_sop_class_uid",
             &CFindRequest::set_affected_sop_class_uid)
-        .add_property(
-            "priority", 
-            make_function(
-                &CFindRequest::get_priority, 
-                return_value_policy<copy_const_reference>()),
-            &CFindRequest::set_priority)
+        .def(
+            "get_priority", &CFindRequest::get_priority,
+            return_value_policy<copy_const_reference>())
+        .def("set_priority", &CFindRequest::set_priority)
     ;
 }

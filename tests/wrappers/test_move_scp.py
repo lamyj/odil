@@ -65,7 +65,7 @@ class Generator(odil.MoveSCP.DataSetGenerator):
         move_association.update_parameters()\
             .set_calling_ae_title(
                 self._association.get_negotiated_parameters().get_called_ae_title())\
-            .set_called_ae_title(request.move_destination)\
+            .set_called_ae_title(request.get_move_destination())\
             .set_presentation_contexts(presentation_contexts)
 
         return move_association

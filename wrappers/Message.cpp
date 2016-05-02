@@ -8,19 +8,28 @@
 
 #include <boost/python.hpp>
 
+#include "odil/DataSet.h"
 #include "odil/message/Message.h"
 
 void wrap_Message()
 {
     using namespace boost::python;
+    using namespace odil;
     using namespace odil::message;
 
-    class_<Message>("Message", no_init)
-        .add_property(
-            "command_field", 
-            make_function(
-                &Message::get_command_field, 
-                return_value_policy<copy_const_reference>()),
-            &Message::set_command_field)
+    class_<Message>("Message", init<>())
+        .def(init<DataSet const &>())
+        .def(init<DataSet const &, DataSet const &>())
+        .def(
+            "get_command_set", &Message::get_command_set,
+            return_value_policy<copy_const_reference>())
+        .def("has_data_set", &Message::has_data_set)
+        .def(
+            "get_data_set", &Message::get_data_set,
+            return_value_policy<copy_const_reference>())
+        .def(
+            "get_command_field", &Message::get_command_field,
+            return_value_policy<copy_const_reference>())
+        .def("set_command_field", &Message::set_command_field)
     ;
 }
