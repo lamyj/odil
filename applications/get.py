@@ -1,4 +1,5 @@
 from __future__ import print_function
+import argparse
 import logging
 import os
 
@@ -8,7 +9,8 @@ from print_ import find_max_name_length, print_data_set
 
 def add_subparser(subparsers):
     parser = subparsers.add_parser(
-        "get", help="DICOM retrieve (C-GET)")
+        "get", help="DICOM retrieve (C-GET)",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("host", help="Remote host address")
     parser.add_argument("port", type=int, help="Remote host port")
     parser.add_argument(
