@@ -27,10 +27,14 @@ class MoveSCP: public SCP
 {
 public:
 
+    /// @brief Generator of C-MOVE responses.
     class DataSetGenerator: public SCP::DataSetGenerator
     {
     public:
+        /// @brief Return the number of responses.
         virtual unsigned int count() const =0;
+        
+        /// @brief Return the sub-association to send responses on.
         virtual Association get_association(message::CMoveRequest const &) const =0;
     };
 
@@ -62,4 +66,3 @@ private:
 
 
 #endif // _7e899e10_2a21_45b8_a2d6_af1d13cbfd29
-

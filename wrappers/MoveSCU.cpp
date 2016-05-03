@@ -8,23 +8,38 @@
 
 #include <boost/python.hpp>
 
+#include "odil/message/CMoveResponse.h"
 #include "odil/MoveSCU.h"
 
 namespace
 {
 
-void 
+void
 move_with_python_callback(
-    odil::MoveSCU const & scu, 
-    odil::DataSet const & query, boost::python::object const & f)
+    odil::MoveSCU const & scu,
+    odil::DataSet const & query,
+    boost::python::object const & store_callback,
+    boost::python::object const & move_callback)
 {
-    scu.move(
-        query, 
-        [f](odil::DataSet const & data_set) 
-        { 
-            boost::python::call<void>(f.ptr(), data_set); 
-        }
-    );
+    odil::MoveSCU::StoreCallback store_callback_cpp;
+    if(!store_callback.is_none())
+    {
+        store_callback_cpp = [store_callback](odil::DataSet const & data_set)
+        {
+            boost::python::call<void>(store_callback.ptr(), data_set);
+        };
+    }
+
+    odil::MoveSCU::MoveCallback move_callback_cpp;
+    if(!move_callback.is_none())
+    {
+        move_callback_cpp = [move_callback](odil::message::CMoveResponse const & message)
+        {
+            boost::python::call<void>(move_callback.ptr(), message);
+        };
+    }
+
+    scu.move(query, store_callback_cpp, move_callback_cpp);
 }
 
 }
@@ -45,11 +60,23 @@ void wrap_MoveSCU()
             &MoveSCU::set_move_destination
         )
         .def(
-            "move",
-            &move_with_python_callback
+            "get_incoming_port",
+            &MoveSCU::get_incoming_port
         )
         .def(
-            "move", 
+            "set_incoming_port",
+            &MoveSCU::set_incoming_port
+        )
+        .def(
+            "move",
+            &move_with_python_callback,
+            (
+                arg("scu"), arg("query"), arg("store_callback"),
+                arg("move_callback")
+            )
+        )
+        .def(
+            "move",
             static_cast<
                 std::vector<DataSet> (MoveSCU::*)(DataSet const &) const
             >(&MoveSCU::move)

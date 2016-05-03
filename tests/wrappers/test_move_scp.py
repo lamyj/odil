@@ -7,9 +7,10 @@ import unittest
 
 import odil
 
-class Generator(odil.GetSCP.DataSetGenerator):
-    def __init__(self):
-        odil.GetSCP.DataSetGenerator.__init__(self)
+class Generator(odil.MoveSCP.DataSetGenerator):
+    def __init__(self, association):
+        odil.MoveSCP.DataSetGenerator.__init__(self)
+        self._association = association
         self._responses = []
         self._response_index = None
         
@@ -45,9 +46,32 @@ class Generator(odil.GetSCP.DataSetGenerator):
     
     def count(self):
         return 2
+    
+    def get_association(self, request):
+        move_association = odil.Association()
+        move_association.set_peer_host(self._association.get_peer_host())
+        move_association.set_peer_port(11114)
+        
+        presentation_contexts = []
+        for entry in odil.registry.uids_dictionary:
+            if entry.data().name[-7:] == "Storage":
+                presentation_context = odil.AssociationParameters.PresentationContext(
+                    1+2*len(presentation_contexts),
+                    entry.key(),
+                    [odil.registry.ImplicitVRLittleEndian],
+                    True, False)
+                presentation_contexts.append(presentation_context)
+        
+        move_association.update_parameters()\
+            .set_calling_ae_title(
+                self._association.get_negotiated_parameters().get_called_ae_title())\
+            .set_called_ae_title(request.get_move_destination())\
+            .set_presentation_contexts(presentation_contexts)
 
-class TestGetSCP(unittest.TestCase):
-    def test_get_scp_release(self):
+        return move_association
+
+class TestMoveSCP(unittest.TestCase):
+    def test_move_scp_release(self):
         process = multiprocessing.Process(target=self.run_server)
         process.start()
         time.sleep(0.5)
@@ -83,18 +107,18 @@ class TestGetSCP(unittest.TestCase):
     
     def run_client(self):
         command = [
-            "getscu", 
+            "movescu", 
             "-ll", "error",
             "-P", "-k", "QueryRetrieveLevel=PATIENT",
             "-k", "PatientID=*", "-k", "PatientName",
-            "+B",
+            "+P", "11114",
             "localhost", "11113"]
         
         retcode = subprocess.call(command)
         if retcode != 0:
             return []
         
-        files = sorted(glob.glob("{}*".format(odil.uid_prefix)))
+        files = sorted(glob.glob("RAW*"))
         data_sets = [odil.read(x)[1] for x in files]
         for file_ in files:
             os.remove(file_)
@@ -108,12 +132,12 @@ class TestGetSCP(unittest.TestCase):
         association.set_tcp_timeout(1)
         association.receive_association("v4", 11113)
 
-        get_scp = odil.GetSCP(association)
-        generator = Generator()
-        get_scp.set_generator(generator)
+        move_scp = odil.MoveSCP(association)
+        generator = Generator(association)
+        move_scp.set_generator(generator)
 
         message = association.receive_message()
-        get_scp(message)
+        move_scp(message)
         
         termination_ok = False
 

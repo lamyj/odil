@@ -25,6 +25,7 @@ public:
     /// @brief Callback called when a response is received.
     typedef std::function<void(DataSet const &)> Callback;
 
+    /// @brief Constructor.
     FindSCU(Association & association);
     
     /// @brief Destructor.

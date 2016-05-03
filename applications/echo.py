@@ -1,10 +1,12 @@
+import argparse
 import logging
 
 import odil
 
 def add_subparser(subparsers):
     parser = subparsers.add_parser(
-        "echo", help="Ping a remote DICOM server (C-ECHO)")
+        "echo", help="Ping a remote DICOM server (C-ECHO)",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("host", help="Remote host address")
     parser.add_argument("port", type=int, help="Remote host port")
     parser.add_argument(

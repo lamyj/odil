@@ -22,44 +22,6 @@
 namespace odil
 {
 
-#define odilElementTypeMacro(name, Type) \
-bool is_##name(Tag const & tag) const \
-{ \
-    auto const it = this->_elements.find(tag); \
-    if(it == this->_elements.end()) \
-    { \
-        throw Exception("No such element"); \
-    } \
-    return it->second.is_##name(); \
-} \
-Value::Type const & as_##name(Tag const & tag) const \
-{ \
-    auto const it = this->_elements.find(tag); \
-    if(it == this->_elements.end()) \
-    { \
-        throw Exception("No such element"); \
-    } \
-    return it->second.as_##name(); \
-} \
-Value::Type::value_type const & as_##name(Tag const & tag, unsigned int position) const \
-{ \
-    auto const & data = this->as_##name(tag); \
-    if(data.size() <= position) \
-    { \
-        throw Exception("No such element"); \
-    } \
-    return data[position]; \
-} \
-Value::Type & as_##name(Tag const & tag) \
-{ \
-    auto const it = this->_elements.find(tag); \
-    if(it == this->_elements.end()) \
-    { \
-        throw Exception("No such element"); \
-    } \
-    return it->second.as_##name(); \
-}
-
 /**
  * @brief DICOM Data set.
  */
@@ -171,20 +133,80 @@ public:
      */
     Element & operator[](Tag const & tag);
 
-    odilElementTypeMacro(int, Integers);
-    odilElementTypeMacro(real, Reals);
-    odilElementTypeMacro(string, Strings);
-    odilElementTypeMacro(data_set, DataSets);
-    odilElementTypeMacro(binary, Binary);
+    /// @brief Test whether an existing element has integer type.
+    bool is_int(Tag const & tag) const;
+    
+    /// @brief Return the integers contained in an existing element (read-only).
+    Value::Integers const & as_int(Tag const & tag) const;
+    
+    /// @brief Return the integers contained in an existing element (read-write).
+    Value::Integers & as_int(Tag const & tag);
+    
+    /// @brief Return an integer contained in an existing element (read-only).
+    Value::Integer const & as_int(Tag const & tag, unsigned int position) const;
+    
+    /// @brief Test whether an existing element has real type.
+    bool is_real(Tag const & tag) const;
+    
+    /// @brief Return the reals contained in an existing element (read-only).
+    Value::Reals const & as_real(Tag const & tag) const;
+    
+    /// @brief Return the reals contained in an existing element (read-write).
+    Value::Reals & as_real(Tag const & tag);
+    
+    /// @brief Return an real contained in an existing element (read-only).
+    Value::Real const & as_real(Tag const & tag, unsigned int position) const;
+    
+    /// @brief Test whether an existing element has string type.
+    bool is_string(Tag const & tag) const;
+    
+    /// @brief Return the strings contained in an existing element (read-only).
+    Value::Strings const & as_string(Tag const & tag) const;
+    
+    /// @brief Return the strings contained in an existing element (read-write).
+    Value::Strings & as_string(Tag const & tag);
+    
+    /// @brief Return a string contained in an existing element (read-only).
+    Value::String const & as_string(Tag const & tag, unsigned int position) const;
+    
+    /// @brief Test whether an existing element has data set type.
+    bool is_data_set(Tag const & tag) const;
+    
+    /// @brief Return the data sets contained in an existing element (read-only).
+    Value::DataSets const & as_data_set(Tag const & tag) const;
+    
+    /// @brief Return the data sets contained in an existing element (read-write).
+    Value::DataSets & as_data_set(Tag const & tag);
+    
+    /// @brief Return a data set contained in an existing element (read-only).
+    DataSet const & as_data_set(Tag const & tag, unsigned int position) const;
+    
+    /// @brief Test whether an existing element has binary type.
+    bool is_binary(Tag const & tag) const;
+    
+    /// @brief Return the binary items contained in an existing element (read-only).
+    Value::Binary const & as_binary(Tag const & tag) const;
+    
+    /// @brief Return the binary items contained in an existing element (read-write).
+    Value::Binary & as_binary(Tag const & tag);
+    
+    /// @brief Return a binary item contained in an existing element (read-only).
+    Value::Binary::value_type const & 
+    as_binary(Tag const & tag, unsigned int position) const;
 
+    /// @brief Iterator to the elements.
     typedef std::map<Tag, Element>::const_iterator const_iterator;
+    
+    /// @brief Return an iterator to the start of the elements.
     const_iterator begin() const { return this->_elements.begin(); }
+    
+    /// @brief Return an iterator to the end of the elements.
     const_iterator end() const { return this->_elements.end(); }
 
-    /// @brief Equality test
+    /// @brief Equality test.
     bool operator==(DataSet const & other) const;
 
-    /// @brief Difference test
+    /// @brief Difference test.
     bool operator!=(DataSet const & other) const;
 
 private:

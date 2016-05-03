@@ -74,6 +74,7 @@ public:
         NoPresentationServiceAccessPointAvailable=7,
     };
 
+    /// @brief Duration of the timeout.
     typedef dul::StateMachine::duration_type duration_type;
 
     /// @brief Create a default, un-associated, association.
@@ -85,6 +86,7 @@ public:
     /// @brief Destroy the association, release it if necessary.
     ~Association();
 
+    /// @brief Return the TCP transport.
     dul::Transport & get_transport();
 
     /// @brief Assing an un-associated association; it remains un-associated.
@@ -194,6 +196,10 @@ private:
     uint16_t _next_message_id;
 };
 
+/** 
+ * @brief Exception reported when receiving a message after the association was
+ * released.
+ */
 class AssociationReleased: public Exception
 {
 public:
@@ -204,12 +210,20 @@ public:
     }
 };
 
+/** 
+ * @brief Exception reported when receiving a message after the association was
+ * aborted.
+ */
 class AssociationAborted: public Exception
 {
 public:
+    /// @brief Source of the error.
     uint8_t source;
+    
+    /// @brief Reason of the error.
     uint8_t reason;
-
+    
+    /// @brief Constructor.
     AssociationAborted(unsigned char source, unsigned char reason)
     : Exception("Association aborted"), source(source), reason(reason)
     {

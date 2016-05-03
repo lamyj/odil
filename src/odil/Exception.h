@@ -29,6 +29,7 @@ public:
     virtual const char* what() const throw();
 
 protected:
+    /// @brief Message of the exception.
     std::string _message;
 };
 

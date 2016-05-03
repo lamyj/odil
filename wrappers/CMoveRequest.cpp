@@ -8,31 +8,35 @@
 
 #include <boost/python.hpp>
 
-#include "odil/message/CFindRequest.h"
+#include "odil/message/CMoveRequest.h"
 
-void wrap_CFindRequest()
+void wrap_CMoveRequest()
 {
     using namespace boost::python;
     using namespace odil;
     using namespace odil::message;
 
-    class_<CFindRequest, bases<Request>>(
-            "CFindRequest",
+    class_<CMoveRequest, bases<Request>>(
+            "CMoveRequest",
             init<
                 Value::Integer, Value::String const &, Value::Integer,
-                DataSet const &
+                Value::String const &, DataSet const &
             >())
         .def(init<Message>())
         .def(
             "get_affected_sop_class_uid",
-            &CFindRequest::get_affected_sop_class_uid,
+            &CMoveRequest::get_affected_sop_class_uid,
             return_value_policy<copy_const_reference>())
         .def(
             "set_affected_sop_class_uid",
-            &CFindRequest::set_affected_sop_class_uid)
+            &CMoveRequest::set_affected_sop_class_uid)
         .def(
-            "get_priority", &CFindRequest::get_priority,
+            "get_priority", &CMoveRequest::get_priority,
             return_value_policy<copy_const_reference>())
-        .def("set_priority", &CFindRequest::set_priority)
+        .def("set_priority", &CMoveRequest::set_priority)
+        .def(
+            "get_move_destination", &CMoveRequest::get_move_destination,
+            return_value_policy<copy_const_reference>())
+        .def("set_move_destination", &CMoveRequest::set_move_destination)
     ;
 }

@@ -8,19 +8,31 @@
 
 #include <boost/python.hpp>
 
-#include "odil/message/Request.h"
+#include "odil/StoreSCP.h"
 
-void wrap_Request()
+namespace
+{
+
+void 
+set_callback(odil::StoreSCP & scp, boost::python::object const & f)
+{
+    scp.set_callback(
+        [f](odil::message::CStoreRequest const & message) 
+        { 
+            return boost::python::call<odil::Value::Integer>(f.ptr(), message);
+        }
+    );
+}
+
+}
+
+void wrap_StoreSCP()
 {
     using namespace boost::python;
     using namespace odil;
-    using namespace odil::message;
 
-    class_<Request, bases<Message>>("Request", init<Value::Integer>())
-        .def(init<Message const &>())
-        .def(
-            "get_message_id", &Request::get_message_id,
-            return_value_policy<copy_const_reference>())
-        .def("set_message_id", &Request::set_message_id)
+    class_<StoreSCP>("StoreSCP", init<Association &>())
+        .def("set_callback", &set_callback)
+        .def("__call__", &StoreSCP::operator())
     ;
 }

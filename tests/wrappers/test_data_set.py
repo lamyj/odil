@@ -38,6 +38,19 @@ class TestDataSet(unittest.TestCase):
         self.assertTrue(data_set.is_int(tag))
         self.assertSequenceEqual(data_set.as_int(tag), value)
 
+        value = [4, 5]
+        data_set.set(tag, value)
+
+        self.assertFalse(data_set.empty())
+        self.assertEqual(data_set.size(), 1)
+        self.assertEqual(len(data_set), 1)
+
+        self.assertEqual(data_set.get_vr(tag), odil.VR.US)
+        self.assertFalse(data_set.empty(tag))
+        self.assertEqual(data_set.size(tag), len(value))
+        self.assertTrue(data_set.is_int(tag))
+        self.assertSequenceEqual(data_set.as_int(tag), value)
+
     def test_real_element(self):
         tag = odil.registry.SelectorFLValue
         value = [1.1, 2, 3.3]
@@ -51,6 +64,19 @@ class TestDataSet(unittest.TestCase):
         self.assertEqual(data_set.get_vr(tag), odil.VR.FL)
         self.assertFalse(data_set.empty(tag))
         self.assertEqual(data_set.size(tag), 3)
+        self.assertTrue(data_set.is_real(tag))
+        self.assertSequenceEqual(data_set.as_real(tag), value)
+
+        value = [4.4, 5]
+        data_set.set(tag, value)
+
+        self.assertFalse(data_set.empty())
+        self.assertEqual(data_set.size(), 1)
+        self.assertEqual(len(data_set), 1)
+
+        self.assertEqual(data_set.get_vr(tag), odil.VR.FL)
+        self.assertFalse(data_set.empty(tag))
+        self.assertEqual(data_set.size(tag), len(value))
         self.assertTrue(data_set.is_real(tag))
         self.assertSequenceEqual(data_set.as_real(tag), value)
 
@@ -70,6 +96,19 @@ class TestDataSet(unittest.TestCase):
         self.assertTrue(data_set.is_string(tag))
         self.assertSequenceEqual(data_set.as_string(tag), value)
 
+        value = ["baz"]
+        data_set.set(tag, value)
+
+        self.assertFalse(data_set.empty())
+        self.assertEqual(data_set.size(), 1)
+        self.assertEqual(len(data_set), 1)
+
+        self.assertEqual(data_set.get_vr(tag), odil.VR.CS)
+        self.assertFalse(data_set.empty(tag))
+        self.assertEqual(data_set.size(tag), len(value))
+        self.assertTrue(data_set.is_string(tag))
+        self.assertSequenceEqual(data_set.as_string(tag), value)
+
     def test_data_set_element(self):
         tag = odil.registry.SelectorCodeSequenceValue
         value = [odil.DataSet(), odil.DataSet()]
@@ -83,6 +122,19 @@ class TestDataSet(unittest.TestCase):
         self.assertEqual(data_set.get_vr(tag), odil.VR.SQ)
         self.assertFalse(data_set.empty(tag))
         self.assertEqual(data_set.size(tag), 2)
+        self.assertTrue(data_set.is_data_set(tag))
+        self.assertSequenceEqual(data_set.as_data_set(tag), value)
+
+        value = [odil.DataSet()]
+        data_set.set(tag, value)
+
+        self.assertFalse(data_set.empty())
+        self.assertEqual(data_set.size(), 1)
+        self.assertEqual(len(data_set), 1)
+
+        self.assertEqual(data_set.get_vr(tag), odil.VR.SQ)
+        self.assertFalse(data_set.empty(tag))
+        self.assertEqual(data_set.size(tag), len(value))
         self.assertTrue(data_set.is_data_set(tag))
         self.assertSequenceEqual(data_set.as_data_set(tag), value)
 
@@ -101,7 +153,22 @@ class TestDataSet(unittest.TestCase):
         self.assertEqual(data_set.size(tag), 1)
         self.assertTrue(data_set.is_binary(tag))
         self.assertSequenceEqual(
-            [bytearray([x for x in item]) for item in data_set.as_binary(tag)], 
+            [bytearray([x for x in item]) for item in data_set.as_binary(tag)],
+            value)
+
+        value = [bytearray("\x04\x05")]
+        data_set.set(tag, value)
+
+        self.assertFalse(data_set.empty())
+        self.assertEqual(data_set.size(), 1)
+        self.assertEqual(len(data_set), 1)
+
+        self.assertEqual(data_set.get_vr(tag), odil.VR.OW)
+        self.assertFalse(data_set.empty(tag))
+        self.assertEqual(data_set.size(tag), len(value))
+        self.assertTrue(data_set.is_binary(tag))
+        self.assertSequenceEqual(
+            [bytearray([x for x in item]) for item in data_set.as_binary(tag)],
             value)
 
     def test_getitem(self):
@@ -133,7 +200,7 @@ class TestDataSet(unittest.TestCase):
         data_set.add("PatientID", ["DJ123"])
         self.assertEqual(
             [
-                [item for item in element.as_string()] 
+                [item for item in element.as_string()]
                 for element in data_set.values()],
             [["Doe^John"], ["DJ123"]])
 
@@ -143,7 +210,7 @@ class TestDataSet(unittest.TestCase):
         data_set.add("PatientID", ["DJ123"])
         self.assertSequenceEqual(
             [
-                [tag.get_name(), [item for item in element.as_string()]] 
+                [tag.get_name(), [item for item in element.as_string()]]
                 for tag, element in data_set.items()],
             [["PatientName", ["Doe^John"]], ["PatientID", ["DJ123"]]])
 

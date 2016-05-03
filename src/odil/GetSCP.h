@@ -23,9 +23,11 @@ class GetSCP: public SCP
 {
 public:
 
+    /// @brief Generator of C-GET responses.
     class DataSetGenerator: public SCP::DataSetGenerator
     {
     public:
+        /// @brief Return the number of responses.
         virtual unsigned int count() const =0;
     };
 
@@ -56,4 +58,3 @@ private:
 }
 
 #endif // _2f0ad1fd_8779_4ab3_b7e8_6d37fdc0c018
-

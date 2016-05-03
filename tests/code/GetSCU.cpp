@@ -9,7 +9,8 @@
 
 struct Fixture: public PeerFixtureBase
 {
-    static bool called;
+    static bool store_callback_called;
+    static bool get_callback_called;
 
     odil::DataSet query;
 
@@ -25,20 +26,27 @@ struct Fixture: public PeerFixtureBase
             }
         })
     {
-        Fixture::called = false;
+        Fixture::store_callback_called = false;
+        Fixture::get_callback_called = false;
 
         this->query.add("QueryRetrieveLevel", {"PATIENT"});
         this->query.add("PatientName", {"Doe^John"});
     }
 
 
-    static void callback(odil::DataSet const &)
+    static void store_callback(odil::DataSet const &)
     {
-        Fixture::called = true;
+        Fixture::store_callback_called = true;
+    }
+
+    static void get_callback(odil::message::CGetResponse const &)
+    {
+        Fixture::get_callback_called = true;
     }
 };
 
-bool Fixture::called = false;
+bool Fixture::store_callback_called = false;
+bool Fixture::get_callback_called = false;
 
 BOOST_FIXTURE_TEST_CASE(Get, Fixture)
 {
@@ -55,14 +63,26 @@ BOOST_FIXTURE_TEST_CASE(Get, Fixture)
                 {"2.25.95090344942250266709587559073467305647"}));
 }
 
-BOOST_FIXTURE_TEST_CASE(GetCallback, Fixture)
+BOOST_FIXTURE_TEST_CASE(GetBothCallbacks, Fixture)
 {
     odil::GetSCU scu(this->association);
 
     scu.set_affected_sop_class(
         odil::registry::PatientRootQueryRetrieveInformationModelGET);
-    scu.get(this->query, Fixture::callback);
+    scu.get(this->query, Fixture::store_callback, Fixture::get_callback);
 
-    BOOST_CHECK(Fixture::called);
+    BOOST_CHECK(Fixture::store_callback_called);
+    BOOST_CHECK(Fixture::get_callback_called);
 }
 
+BOOST_FIXTURE_TEST_CASE(GetOnlyStoreCallback, Fixture)
+{
+    odil::GetSCU scu(this->association);
+
+    scu.set_affected_sop_class(
+        odil::registry::PatientRootQueryRetrieveInformationModelGET);
+    scu.get(this->query, Fixture::store_callback);
+
+    BOOST_CHECK(Fixture::store_callback_called);
+    BOOST_CHECK(!Fixture::get_callback_called);
+}

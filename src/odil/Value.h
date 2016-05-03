@@ -36,10 +36,13 @@ public:
         Binary
     };
 
+    /// @brief Integer type.
     typedef int64_t Integer;
 
+    /// @brief Real type.
     typedef double Real;
 
+    /// @brief String type.
     typedef std::string String;
 
     /// @brief Integer container.

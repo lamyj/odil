@@ -13,20 +13,26 @@
 void wrap_CGetRequest()
 {
     using namespace boost::python;
+    using namespace odil;
     using namespace odil::message;
 
-    class_<CGetRequest, bases<Request>>("CGetRequest", no_init)
-        .add_property(
-            "affected_sop_class_uid", 
-            make_function(
-                &CGetRequest::get_affected_sop_class_uid, 
-                return_value_policy<copy_const_reference>()),
+    class_<CGetRequest, bases<Request>>(
+            "CGetRequest",
+            init<
+                Value::Integer, Value::String const &, Value::Integer,
+                DataSet const &
+            >())
+        .def(init<Message>())
+        .def(
+            "get_affected_sop_class_uid",
+            &CGetRequest::get_affected_sop_class_uid,
+            return_value_policy<copy_const_reference>())
+        .def(
+            "set_affected_sop_class_uid",
             &CGetRequest::set_affected_sop_class_uid)
-        .add_property(
-            "priority", 
-            make_function(
-                &CGetRequest::get_priority, 
-                return_value_policy<copy_const_reference>()),
-            &CGetRequest::set_priority)
+        .def(
+            "get_priority", &CGetRequest::get_priority,
+            return_value_policy<copy_const_reference>())
+        .def("set_priority", &CGetRequest::set_priority)
     ;
 }

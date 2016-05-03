@@ -25,13 +25,19 @@ public:
     class DataSetGenerator
     {
     public:
+        /// @brief Destructor.
         virtual ~DataSetGenerator() =0;
 
+        /// @brief Initialize the generator.
         virtual void initialize(message::Request const & request) =0;
 
+        /// @brief Test whether all elements have been generated.
         virtual bool done() const =0;
+        
+        /// @brief Prepare the next element.
         virtual void next() =0;
 
+        /// @brief Return the current element.
         virtual DataSet get() const =0;
     };
 
@@ -47,6 +53,7 @@ public:
     /// @brief Process a message.
     virtual void operator()(message::Message const & message) =0;
 protected:
+    /// @brief Association with peer.
     Association & _association;
 };
 

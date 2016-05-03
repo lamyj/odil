@@ -32,7 +32,9 @@ public:
     void set_affected_sop_class(std::string const & sop_class);
     
 protected:
+    /// @brief Association with peer.
     Association & _association;
+    
     /// @brief Affected SOP class.
     std::string _affected_sop_class;
 };

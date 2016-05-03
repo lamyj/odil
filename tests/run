@@ -123,6 +123,7 @@ AETable END
             stdin=read)
         subprocess.check_call([
             "storescu",
+            "-ll", "error",
             "-aet", "LOCAL", "-aec", "REMOTE",
             "localhost", "11112",
             os.path.join(directory, "data.dcm")])

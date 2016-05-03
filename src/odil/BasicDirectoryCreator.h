@@ -56,6 +56,7 @@ public:
     /// @brief Encoding of sequence items, defaults to Writer::ItemEncoding::ExplicitLength.
     Writer::ItemEncoding item_encoding;
 
+    /// @brief Constructor.
     BasicDirectoryCreator(
         std::string const & root="",
         std::vector<std::string> const & files=std::vector<std::string>(),
@@ -63,6 +64,7 @@ public:
         Writer::ItemEncoding item_encoding=Writer::ItemEncoding::ExplicitLength
         );
 
+    /// @brief Create and write the Basic Directory.
     void operator()() const;
 
 private:

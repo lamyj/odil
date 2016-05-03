@@ -21,6 +21,7 @@
 namespace odil
 {
 
+/// @brief Element visitor converting to JSON.
 struct ToJSONVisitor
 {
     typedef Json::Value result_type;

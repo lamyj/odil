@@ -9,7 +9,8 @@
 
 struct Fixture: public PeerFixtureBase
 {
-    static bool called;
+    static bool store_callback_called;
+    static bool move_callback_called;
 
     odil::DataSet query;
 
@@ -25,24 +26,32 @@ struct Fixture: public PeerFixtureBase
             }
         })
     {
-        Fixture::called = false;
+        Fixture::store_callback_called = false;
+        Fixture::move_callback_called = false;
 
         this->query.add("QueryRetrieveLevel", {"PATIENT"});
         this->query.add("PatientName", {"Doe^John"});
     }
 
-    static void callback(odil::DataSet const &)
+    static void store_callback(odil::DataSet const &)
     {
-        Fixture::called = true;
+        Fixture::store_callback_called = true;
+    }
+
+    static void move_callback(odil::message::CMoveResponse const &)
+    {
+        Fixture::move_callback_called = true;
     }
 };
 
-bool Fixture::called = false;
+bool Fixture::store_callback_called = false;
+bool Fixture::move_callback_called = false;
 
 BOOST_FIXTURE_TEST_CASE(DefaultConstructor, Fixture)
 {
     odil::MoveSCU const scu(this->association);
     BOOST_CHECK_EQUAL(scu.get_move_destination(), "");
+    BOOST_CHECK_EQUAL(scu.get_incoming_port(), 0);
 }
 
 BOOST_FIXTURE_TEST_CASE(MoveDestination, Fixture)
@@ -52,10 +61,18 @@ BOOST_FIXTURE_TEST_CASE(MoveDestination, Fixture)
     BOOST_CHECK_EQUAL(scu.get_move_destination(), "remote");
 }
 
+BOOST_FIXTURE_TEST_CASE(IncomingPort, Fixture)
+{
+    odil::MoveSCU scu(this->association);
+    scu.set_incoming_port(11113);
+    BOOST_CHECK_EQUAL(scu.get_incoming_port(), 11113);
+}
+
 BOOST_FIXTURE_TEST_CASE(Move, Fixture)
 {
     odil::MoveSCU scu(this->association);
     scu.set_move_destination("LOCAL");
+    scu.set_incoming_port(11113);
 
     scu.set_affected_sop_class(
         odil::registry::PatientRootQueryRetrieveInformationModelMOVE);
@@ -67,14 +84,31 @@ BOOST_FIXTURE_TEST_CASE(Move, Fixture)
             odil::Value::Strings{"2.25.95090344942250266709587559073467305647"});
 }
 
-BOOST_FIXTURE_TEST_CASE(MoveCallback, Fixture)
+BOOST_FIXTURE_TEST_CASE(MoveBothCallback, Fixture)
 {
     odil::MoveSCU scu(this->association);
     scu.set_move_destination("LOCAL");
+    scu.set_incoming_port(11113);
 
     scu.set_affected_sop_class(
         odil::registry::PatientRootQueryRetrieveInformationModelMOVE);
-    scu.move(this->query, Fixture::callback);
+    scu.move(this->query, Fixture::store_callback, Fixture::move_callback);
 
-    BOOST_CHECK(Fixture::called);
+    BOOST_CHECK(Fixture::store_callback_called);
+    BOOST_CHECK(Fixture::move_callback_called);
+}
+
+BOOST_FIXTURE_TEST_CASE(MoveOnlyStoreCallback, Fixture)
+{
+    odil::MoveSCU scu(this->association);
+    scu.set_move_destination("LOCAL");
+    scu.set_incoming_port(11113);
+
+    scu.set_affected_sop_class(
+        odil::registry::PatientRootQueryRetrieveInformationModelMOVE);
+    scu.move(
+        this->query, Fixture::store_callback, odil::MoveSCU::MoveCallback());
+
+    BOOST_CHECK(Fixture::store_callback_called);
+    BOOST_CHECK(!Fixture::move_callback_called);
 }

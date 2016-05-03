@@ -67,6 +67,7 @@ public:
         Tag const & tag=Tag(0xffff,0xffff),
         DataSet const & data_set=DataSet()) const;
 
+    /// @brief Return the meta-data header and data set stored in the stream.
     static std::pair<DataSet, DataSet> read_file(
         std::istream & stream,
         bool keep_group_length=false);

@@ -1,10 +1,13 @@
+from __future__ import print_function
+import argparse
 import logging
 
 import odil
 
 def add_subparser(subparsers):
     parser = subparsers.add_parser(
-        "print", help="Print the contents of data sets")
+        "print", help="Print the contents of data sets",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("inputs", nargs="+", metavar="FILE", help="Input files")
     parser.add_argument(
         "--print-header", "-H", action="store_true",
@@ -62,11 +65,11 @@ def print_data_set(data_set, decode_uids, padding, max_length):
                     for uid in value
                 ]
 
-        print "{}{}{} {:04x},{:04x} {} {}".format(
+        print("{}{}{} {:04x},{:04x} {} {}".format(
             padding,
             name, (max_length-len(name)-len(padding))*" ",
             tag.group, tag.element, element.vr,
-            value)
+            value))
 
         if element.is_data_set():
             sequence = element.as_data_set()

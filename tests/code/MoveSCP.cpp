@@ -165,6 +165,7 @@ void run_server(Status * status)
 void run_client(Status * status)
 {
     std::string command = "movescu "
+        "-ll error "
         "-P -k QueryRetrieveLevel=PATIENT "
         "-k PatientID=* -k PatientName "
         "+P 11114 127.0.0.1 11113";
