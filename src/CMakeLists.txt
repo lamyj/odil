@@ -21,13 +21,14 @@ add_definitions(
 )
 link_directories(${Boost_LIBRARY_DIRS} ${DCMTK_LIBRARY_DIRS})
 
-add_library(libodil SHARED ${Source_Files} ${Header_Files} ${templates})
+add_library(libodil ${Source_Files} ${Header_Files} ${templates})
 set_target_properties(libodil PROPERTIES OUTPUT_NAME odil)
 
 target_link_libraries(libodil
     ${Boost_LIBRARIES} ${DCMTK_LIBRARIES} ${ICU_LIBRARIES} ${JsonCpp_LIBRARIES})
 
 if(WIN32)
+    add_definitions(-DBUILDING_ODIL)
     target_link_libraries(libodil netapi32)
 endif()
 
