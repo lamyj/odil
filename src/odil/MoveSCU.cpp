@@ -140,7 +140,7 @@ MoveSCU
     auto callback = [&result](DataSet const & data_set) {
         result.push_back(data_set);
     };
-    this->move(query, callback);
+    this->move(query, callback, MoveCallback());
 
     return result;
 }
