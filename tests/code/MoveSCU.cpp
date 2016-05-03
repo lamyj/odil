@@ -106,7 +106,8 @@ BOOST_FIXTURE_TEST_CASE(MoveOnlyStoreCallback, Fixture)
 
     scu.set_affected_sop_class(
         odil::registry::PatientRootQueryRetrieveInformationModelMOVE);
-    scu.move(this->query, Fixture::store_callback);
+    scu.move(
+        this->query, Fixture::store_callback, odil::MoveSCU::MoveCallback());
 
     BOOST_CHECK(Fixture::store_callback_called);
     BOOST_CHECK(!Fixture::move_callback_called);
