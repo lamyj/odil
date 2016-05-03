@@ -29,16 +29,23 @@ class TestMoveSCU(PeerFixtureBase):
     def test_default_constructor(self):
         move = odil.MoveSCU(self.association)
         self.assertEqual(move.get_move_destination(), "")
+        self.assertEqual(move.get_incoming_port(), 0)
         
     def test_move_destination(self):
         move = odil.MoveSCU(self.association)
         move.set_move_destination("remote")
         self.assertEqual(move.get_move_destination(), "remote")
+    
+    def test_incoming_port(self):
+        move = odil.MoveSCU(self.association)
+        move.set_incoming_port(11113)
+        self.assertEqual(move.get_incoming_port(), 11113)
 
     def test_without_callback(self):
         move = odil.MoveSCU(self.association)
         move.set_affected_sop_class(odil.registry.PatientRootQueryRetrieveInformationModelMOVE)
         move.set_move_destination("LOCAL")
+        move.set_incoming_port(11113)
         data_sets = move.move(self.query)
 
         self.assertEqual(len(data_sets), 1)
@@ -54,6 +61,7 @@ class TestMoveSCU(PeerFixtureBase):
         move = odil.MoveSCU(self.association)
         move.set_affected_sop_class(odil.registry.PatientRootQueryRetrieveInformationModelMOVE)
         move.set_move_destination("LOCAL")
+        move.set_incoming_port(11113)
         move.move(self.query, callback)
 
         self.assertEqual(len(data_sets), 1)

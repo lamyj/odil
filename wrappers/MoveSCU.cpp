@@ -45,6 +45,14 @@ void wrap_MoveSCU()
             &MoveSCU::set_move_destination
         )
         .def(
+            "get_incoming_port",
+            &MoveSCU::get_incoming_port
+        )
+        .def(
+            "set_incoming_port",
+            &MoveSCU::set_incoming_port
+        )
+        .def(
             "move",
             &move_with_python_callback
         )
