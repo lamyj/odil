@@ -45,12 +45,13 @@ void wrap_CFindRequest();
 void wrap_CGetRequest();
 void wrap_CGetResponse();
 void wrap_CMoveRequest();
+void wrap_CMoveResponse();
 void wrap_CStoreRequest();
 
 BOOST_PYTHON_MODULE(odil)
 {
     wrap_Exception();
-    
+
     wrap_Association();
     wrap_AssociationParameters();
     wrap_BasicDirectoryCreator();
@@ -78,7 +79,7 @@ BOOST_PYTHON_MODULE(odil)
     wrap_xml_converter();
 
     wrap_registry();
-    
+
     wrap_Message();
     wrap_Request();
     wrap_Response();
@@ -87,5 +88,6 @@ BOOST_PYTHON_MODULE(odil)
     wrap_CGetRequest();
     wrap_CGetResponse();
     wrap_CMoveRequest();
+    wrap_CMoveResponse();
     wrap_CStoreRequest();
 }
