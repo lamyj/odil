@@ -67,7 +67,24 @@ MoveSCU
 
 void
 MoveSCU
-::move(DataSet const & query, Callback callback) const
+::move(DataSet const & query, StoreCallback store_callback) const
+{
+    this->move(query, store_callback, MoveCallback());
+}
+
+void
+MoveSCU
+::move(DataSet const & query, MoveCallback move_callback) const
+{
+    this->move(query, StoreCallback(), move_callback);
+}
+
+
+void
+MoveSCU
+::move(
+    DataSet const & query, StoreCallback store_callback,
+    MoveCallback move_callback) const
 {
     // Send the request
     message::CMoveRequest const request(
@@ -112,7 +129,7 @@ MoveSCU
         }
     }
 
-    this->_dispatch(store_association, callback);
+    this->_dispatch(store_association, store_callback, move_callback);
 }
 
 std::vector<DataSet>
@@ -130,7 +147,9 @@ MoveSCU
 
 void
 MoveSCU
-::_dispatch(Association & store_association, Callback callback) const
+::_dispatch(
+    Association & store_association, StoreCallback store_callback,
+    MoveCallback move_callback) const
 {
     // If no store association has been established, store is considered done
     bool store_done = !store_association.is_associated();
@@ -139,12 +158,12 @@ MoveSCU
     {
         if(!store_done && store_association.get_transport().get_socket()->available() > 0)
         {
-            store_done =
-                this->_handle_store_association(store_association, callback);
+            store_done = this->_handle_store_association(
+                store_association, store_callback);
         }
         if(!main_done && this->_association.get_transport().get_socket()->available() > 0)
         {
-            main_done = this->_handle_main_association();
+            main_done = this->_handle_main_association(move_callback);
         }
 
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
@@ -153,21 +172,29 @@ MoveSCU
 
 bool
 MoveSCU
-::_handle_main_association() const
+::_handle_main_association(MoveCallback callback) const
 {
     message::CMoveResponse const response = this->_association.receive_message();
+    if(callback)
+    {
+        callback(response);
+    }
     return !response.is_pending();
 }
 
 bool
 MoveSCU
-::_handle_store_association(Association & association, Callback callback) const
+::_handle_store_association(
+    Association & association, StoreCallback callback) const
 {
     bool result = false;
     try
     {
         auto const store_callback = [&callback](message::CStoreRequest const & request) {
-            callback(request.get_data_set());
+            if(callback)
+            {
+                callback(request.get_data_set());
+            }
             return message::Response::Success;
         };
         StoreSCP scp(association, store_callback);

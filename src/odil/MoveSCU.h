@@ -15,6 +15,7 @@
 
 #include "odil/Association.h"
 #include "odil/DataSet.h"
+#include "odil/message/CMoveResponse.h"
 #include "odil/SCU.h"
 
 namespace odil
@@ -24,8 +25,17 @@ namespace odil
 class MoveSCU: public SCU
 {
 public:
-    /// @brief Callback called when a response is received.
-    typedef std::function<void(DataSet const &)> Callback;
+    /// @brief Callback called when a C-STORE request is received.
+    typedef std::function<void(DataSet const &)> StoreCallback;
+
+    /**
+     * @brief Typedef to keep compatibility with previous versions.
+     * @deprecated The StoreCallback typedef should now be used.
+     */
+    typedef StoreCallback Callback;
+
+    /// @brief Callback called when a C-MOVE response is received.
+    typedef std::function<void(message::CMoveResponse const &)> MoveCallback;
     
     /// @brief Constructor.
     MoveSCU(Association & association);
@@ -43,9 +53,17 @@ public:
     
     /// @brief Set the port for incoming associations, use 0 to disable.
     void set_incoming_port(uint16_t port);
+    
+    /// @brief Perform the C-MOVE using callbacks.
+    void move(DataSet const & query, StoreCallback store_callback) const;
+        
+    /// @brief Perform the C-MOVE using callbacks.
+    void move(DataSet const & query, MoveCallback move_callback) const;
 
-    /// @brief Perform the C-MOVE using a callback.
-    void move(DataSet const & query, Callback callback) const;
+    /// @brief Perform the C-MOVE using callbacks.
+    void move(
+        DataSet const & query, StoreCallback store_callback,
+        MoveCallback move_callback) const;
     
     /**
      * @brief Return a list of datasets matching the query.
@@ -56,10 +74,13 @@ private:
     std::string _move_destination;
     uint16_t _incoming_port;
     
-    void _dispatch(Association & store_association, Callback callback) const;
+    void _dispatch(
+        Association & store_association, StoreCallback store_callback,
+        MoveCallback move_callback) const;
     
-    bool _handle_main_association() const;
-    bool _handle_store_association(Association & association, Callback callback) const;
+    bool _handle_main_association(MoveCallback callback) const;
+    bool _handle_store_association(
+        Association & association, StoreCallback callback) const;
 };
 
 }
