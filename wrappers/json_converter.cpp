@@ -34,11 +34,20 @@ std::string as_json(odil::DataSet const & data_set, bool pretty_print)
     return string;
 }
 
+odil::DataSet from_json(std::string const & json_string)
+{
+    std::istringstream stream(json_string);
+    Json::Value json_value;
+    stream >> json_value;
+    return odil::as_dataset(json_value);
+}
+
 }
 
 void wrap_json_converter()
 {
     using namespace boost::python;
 
-    def("as_json", &as_json);
+    def("as_json", &as_json, (arg("data_set"), arg("pretty_print")=false));
+    def("from_json", &from_json);
 }
