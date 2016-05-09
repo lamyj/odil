@@ -32,6 +32,7 @@ void wrap_uid();
 void wrap_UIDsDictionary();
 void wrap_Value();
 void wrap_VR();
+void wrap_VRFinder();
 void wrap_write();
 void wrap_xml_converter();
 
@@ -75,6 +76,7 @@ BOOST_PYTHON_MODULE(odil)
     wrap_UIDsDictionary();
     wrap_Value();
     wrap_VR();
+    wrap_VRFinder();
     wrap_write();
     wrap_xml_converter();
 
