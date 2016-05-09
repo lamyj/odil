@@ -186,7 +186,13 @@ VRFinder
             tag == registry::LargestPixelValueInSeries ||
             tag == registry::PixelPaddingValue)
         {
-            return VR::US;
+            if(!data_set.has(odil::registry::PixelRepresentation))
+            {
+                throw Exception("Cannot find VR without PixelRepresentation");
+            }
+            auto const & pixel_representation = 
+                data_set.as_int(odil::registry::PixelRepresentation)[0];
+            return (pixel_representation==0)?(VR::US):(VR::SS);
         }
         else
         {
@@ -259,7 +265,13 @@ VRFinder
             tag == registry::LargestPixelValueInSeries ||
             tag == registry::PixelPaddingValue)
         {
-            return VR::US;
+            if(!data_set.has(odil::registry::PixelRepresentation))
+            {
+                throw Exception("Cannot find VR without PixelRepresentation");
+            }
+            auto const & pixel_representation = 
+                data_set.as_int(odil::registry::PixelRepresentation)[0];
+            return (pixel_representation==0)?(VR::US):(VR::SS);
         }
         else
         {
