@@ -68,6 +68,11 @@ public:
     static VR implicit_vr_little_endian(
         Tag const & tag, DataSet const & data_set,
         std::string const & transfer_syntax);
+    
+    /// @brief Return the VR of elements defined in PS3.5, A.2 (c).
+    static VR explicit_vr_little_endian(
+        Tag const & tag, DataSet const & data_set,
+        std::string const & transfer_syntax);
 
 private:
     static std::vector<Finder> _get_default_finders();
