@@ -11,6 +11,7 @@
 #include <algorithm>
 #include <iomanip>
 #include <ostream>
+#include <stdexcept>
 #include <sstream>
 #include <string>
 
