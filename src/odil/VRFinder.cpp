@@ -13,8 +13,6 @@
 #include <string>
 #include <vector>
 
-#include <boost/regex.hpp>
-
 #include "odil/DataSet.h"
 #include "odil/ElementsDictionary.h"
 #include "odil/Exception.h"

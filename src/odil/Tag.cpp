@@ -14,8 +14,6 @@
 #include <sstream>
 #include <string>
 
-#include <boost/regex.hpp>
-
 #include "odil/ElementsDictionary.h"
 #include "odil/Exception.h"
 #include "odil/registry.h"
