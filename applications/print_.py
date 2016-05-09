@@ -76,7 +76,7 @@ def print_data_set(data_set, decode_uids, padding, max_length):
             if sequence:
                 for item in sequence[:-1]:
                     print_data_set(item, decode_uids, padding+"  ", max_length)
-                    print
+                    print()
                 print_data_set(sequence[-1], decode_uids, padding+"  ", max_length)
 
 def find_max_name_length(data_set, max_length=0, padding_length=0):
