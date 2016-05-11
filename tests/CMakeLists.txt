@@ -24,7 +24,7 @@ foreach(test_file ${tests})
 
     add_executable(test_${test} ${test_file} ${headers})
     target_link_libraries(test_${test} libodil ${Boost_LIBRARIES})
-    set_target_properties(test_${test} PROPERTIES OUTPUT_NAME ${test})
+    set_target_properties(test_${test} PROPERTIES OUTPUT_NAME ${test} FOLDER "Tests")
 
     file(READ ${test_file} content)
 
