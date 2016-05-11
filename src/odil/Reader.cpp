@@ -59,6 +59,10 @@ type value; \
 
 std::string read_string(std::istream & stream, unsigned int size)
 {
+    if(size == 0)
+    {
+        return std::string();
+    }
     std::string value(size, '\0');
     stream.read(&value[0], value.size());
     if(!stream)
@@ -469,7 +473,11 @@ Reader::Visitor
 ::operator()(Value::Binary & value) const
 {
     auto const vl = this->read_length();
-    if(vl == 0xffffffff)
+    if(vl == 0)
+    {
+        return;
+    }
+    else if(vl == 0xffffffff)
     {
         value = this->read_encapsulated_pixel_data(this->stream);
     }
