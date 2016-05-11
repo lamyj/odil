@@ -14,11 +14,15 @@ link_directories(${Boost_LIBRARY_DIRS} ${DCMTK_LIBRARY_DIRS})
 
 file(GLOB_RECURSE examples *.cpp)
 
+option(INSTALL_EXAMPLES "Install the examples" OFF)
+
 foreach(example_file ${examples})
     get_filename_component(example ${example_file} NAME_WE)
     add_executable(${example} ${example_file})
     target_link_libraries(${example} libodil)
-    install(TARGETS ${example} RUNTIME DESTINATION bin)
+    if(INSTALL_EXAMPLES)
+        install(TARGETS ${example} RUNTIME DESTINATION bin)
+    endif()
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
 endforeach()
 
