@@ -26,6 +26,17 @@ std::string const implementation_version_name="Odil " ODIL_STRINGIFY(ODIL_MAJOR_
 #error ODIL_MAJOR_VERSION must be defined
 #endif
 
+void set_implementation_class_uid(std::string const & implementation_class_uid)
+{
+    const_cast<std::string&>(odil::implementation_class_uid) = implementation_class_uid;
+}
+
+
+void set_implementation_version_name(std::string const & implementation_version_name)
+{
+    const_cast<std::string&>(odil::implementation_version_name) = implementation_version_name;
+}
+
 std::string generate_uid()
 {
     static std::random_device generator;

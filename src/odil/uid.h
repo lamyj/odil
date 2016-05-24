@@ -23,6 +23,12 @@ extern std::string const implementation_class_uid;
 /// @brief Implementation version name of Odil.
 extern std::string const implementation_version_name;
 
+/// @brief Set the implementation class UID
+void set_implementation_class_uid(std::string const & implementation_class_uid);
+
+/// @brief Set the implementation version name
+void set_implementation_version_name(std::string const & implementation_version_name);
+
 /// @brief Generate a UID under the UID prefix.
 std::string generate_uid();
 
