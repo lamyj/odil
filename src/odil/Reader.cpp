@@ -188,7 +188,9 @@ Reader
 
 std::pair<DataSet, DataSet>
 Reader
-::read_file(std::istream & stream, bool keep_group_length)
+::read_file(
+    std::istream & stream, bool keep_group_length,
+    std::function<bool(Tag const &)> halt_condition)
 {
     // File preamble
     stream.ignore(128);
@@ -226,7 +228,7 @@ Reader
     Reader data_set_reader(
         stream, meta_information.as_string(registry::TransferSyntaxUID)[0],
         keep_group_length);
-    auto const data_set = data_set_reader.read_data_set();
+    auto const data_set = data_set_reader.read_data_set(halt_condition);
 
     return std::pair<DataSet, DataSet>(meta_information, data_set);
 }
