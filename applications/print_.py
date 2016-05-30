@@ -29,7 +29,7 @@ def print_(inputs, print_header, decode_uids):
 
         if print_header:
             print_data_set(header, decode_uids, "", max_length)
-            print
+            print()
         print_data_set(data_set, decode_uids, "", max_length)
 
 def print_data_set(data_set, decode_uids, padding, max_length):
