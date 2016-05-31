@@ -2,6 +2,7 @@ find_package(Boost REQUIRED COMPONENTS filesystem system)
 find_package(DCMTK REQUIRED)
 find_package(ICU REQUIRED)
 find_package(JsonCpp REQUIRED)
+find_package(Log4Cpp REQUIRED)
 
 file(GLOB_RECURSE Header_Files "*.h")
 file(GLOB_RECURSE Source_Files "*.cpp")
@@ -13,7 +14,7 @@ GroupFiles(Source_Files)
 
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR} ${Boost_INCLUDE_DIRS} ${DCMTK_INCLUDE_DIRS}
-    ${ICU_INCLUDE_DIRS} ${JsonCpp_INCLUDE_DIRS})
+${ICU_INCLUDE_DIRS} ${Log4Cpp_INCLUDE_DIRS} ${JsonCpp_INCLUDE_DIRS})
 add_definitions(
     ${DCMTK_DEFINITIONS}
     -D BOOST_ASIO_SEPARATE_COMPILATION
@@ -25,7 +26,8 @@ add_library(libodil ${Source_Files} ${Header_Files} ${templates})
 set_target_properties(libodil PROPERTIES OUTPUT_NAME odil)
 
 target_link_libraries(libodil
-    ${Boost_LIBRARIES} ${DCMTK_LIBRARIES} ${ICU_LIBRARIES} ${JsonCpp_LIBRARIES})
+    ${Boost_LIBRARIES} ${DCMTK_LIBRARIES} ${ICU_LIBRARIES} ${JsonCpp_LIBRARIES}
+    ${Log4Cpp_LIBRARIES})
 
 if(WIN32)
     add_definitions(-DBUILDING_ODIL)
