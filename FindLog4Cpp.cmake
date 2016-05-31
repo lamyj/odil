@@ -9,7 +9,7 @@ find_package(PkgConfig)
 pkg_check_modules(PC_Log4Cpp QUIET log4cpp)
 set(Log4Cpp_DEFINITIONS ${PC_Log4Cpp_CFLAGS_OTHER})
 
-find_path(Log4Cpp_INCLUDE_DIR "unicode/ucnv.h" HINTS ${PC_Log4Cpp_INCLUDE_DIRS})
+find_path(Log4Cpp_INCLUDE_DIR "log4cpp/Category.hh" HINTS ${PC_Log4Cpp_INCLUDE_DIRS})
 find_library(Log4Cpp_LIBRARY NAMES log4cpp HINTS ${PC_Log4Cpp_LIBRARY_DIRS} )
 
 set(Log4Cpp_LIBRARIES ${Log4Cpp_LIBRARY} )
