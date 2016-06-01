@@ -103,32 +103,35 @@ UserInformation
             {
                 throw Exception("Could not skip sub-item header");
             }
-            
+
             uint16_t sub_item_length;
             stream.read(
-                reinterpret_cast<char*>(&sub_item_length), 
+                reinterpret_cast<char*>(&sub_item_length),
                 sizeof(sub_item_length));
             if(!stream.good())
             {
                 throw Exception("Could not read length");
             }
             sub_item_length = big_endian_to_host(sub_item_length);
-            
-            ODIL_LOG(WARN) 
+
+            ODIL_LOG(WARN)
                 << "Skipping unknown item with type "
                 << std::hex << (unsigned int)type << std::dec << " "
                 << "(" << sub_item_length << " byte"
                 << (sub_item_length>1?"s":"") << ")";
-            
-            // CAUTION: using ignore could cause eofbit to be positioned and
-            // change semantics of later calls. Read the sub-item instead; this
-            // is sub-optimal but does not crash.
-            std::string sub_item(sub_item_length, '\0');
-            stream.read(reinterpret_cast<char*>(&sub_item[0]), sub_item.size());
-            
-            if(!stream.good())
+
+            if(sub_item_length > 0)
             {
-                throw Exception("Could not skip sub-item");
+                // CAUTION: using ignore could cause eofbit to be positioned and
+                // change semantics of later calls. Read the sub-item instead; this
+                // is sub-optimal but does not crash.
+                std::string sub_item(sub_item_length, '\0');
+                stream.read(reinterpret_cast<char*>(&sub_item[0]), sub_item.size());
+
+                if(!stream.good())
+                {
+                    throw Exception("Could not skip sub-item");
+                }
             }
         }
     }
