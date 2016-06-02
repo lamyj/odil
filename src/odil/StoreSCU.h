@@ -28,6 +28,8 @@ public:
     
     /// @brief Set the affected SOP class based on the dataset.
     void set_affected_sop_class(DataSet const & dataset);
+
+	using SCU::set_affected_sop_class;
     
     /// @brief Perform the C-STORE.
     void store(DataSet const & dataset) const;

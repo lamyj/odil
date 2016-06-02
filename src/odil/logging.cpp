@@ -26,6 +26,8 @@ bool configure()
     auto & root = log4cpp::Category::getRoot();
     root.setPriority(log4cpp::Priority::WARN);
     root.addAppender(appender);
+
+    return true;
 }
 
 static bool const configured = configure();
