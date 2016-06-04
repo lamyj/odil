@@ -23,7 +23,7 @@ void wrap_StoreSCU()
         )
         .def(
             "set_affected_sop_class",
-            &StoreSCU::set_affected_sop_class
+            static_cast<void(StoreSCU::*)(DataSet const &)>(&StoreSCU::set_affected_sop_class)
         )
         .def(
             "store", 
