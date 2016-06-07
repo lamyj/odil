@@ -50,11 +50,10 @@ BOOST_AUTO_TEST_CASE(PublicDictionaryRepeatingGroup)
 
 BOOST_AUTO_TEST_CASE(PublicDictionaryNotApplicable)
 {
-    BOOST_REQUIRE_THROW(
-        odil::VRFinder::public_dictionary(
+    auto const vr = odil::VRFinder::public_dictionary(
             odil::Tag(0x0011, 0x0011), odil::DataSet(),
-            odil::registry::ImplicitVRLittleEndian),
-        odil::Exception);
+            odil::registry::ImplicitVRLittleEndian);
+    BOOST_REQUIRE(vr == odil::VR::UNKNOWN);
 }
 
 BOOST_AUTO_TEST_CASE(GroupLength)
@@ -67,11 +66,10 @@ BOOST_AUTO_TEST_CASE(GroupLength)
 
 BOOST_AUTO_TEST_CASE(GroupLengthNotApplicable)
 {
-    BOOST_REQUIRE_THROW(
-        odil::VRFinder::group_length(
+    auto const vr = odil::VRFinder::group_length(
             odil::Tag(0x0010, 0x0010), odil::DataSet(),
-            odil::registry::ImplicitVRLittleEndian),
-        odil::Exception);
+            odil::registry::ImplicitVRLittleEndian);
+    BOOST_REQUIRE(vr == odil::VR::UNKNOWN);
 }
 
 BOOST_AUTO_TEST_CASE(PrivateTag)
@@ -84,11 +82,10 @@ BOOST_AUTO_TEST_CASE(PrivateTag)
 
 BOOST_AUTO_TEST_CASE(PrivateTagNotApplicable)
 {
-    BOOST_REQUIRE_THROW(
-        odil::VRFinder::private_tag(
+    auto const vr = odil::VRFinder::private_tag(
             odil::Tag(0x0010, 0x0010), odil::DataSet(),
-            odil::registry::ImplicitVRLittleEndian),
-        odil::Exception);
+            odil::registry::ImplicitVRLittleEndian);
+    BOOST_REQUIRE(vr == odil::VR::UNKNOWN);
 }
 
 BOOST_AUTO_TEST_CASE(ImplictiVRLittleEndian)
@@ -101,20 +98,18 @@ BOOST_AUTO_TEST_CASE(ImplictiVRLittleEndian)
 
 BOOST_AUTO_TEST_CASE(ImplictiVRLittleEndianNotApplicableTag)
 {
-    BOOST_REQUIRE_THROW(
-        odil::VRFinder::implicit_vr_little_endian(
+    auto const vr = odil::VRFinder::implicit_vr_little_endian(
             odil::Tag(0x0010, 0x0010), odil::DataSet(),
-            odil::registry::ImplicitVRLittleEndian),
-        odil::Exception);
+            odil::registry::ImplicitVRLittleEndian);
+    BOOST_REQUIRE(vr == odil::VR::UNKNOWN);
 }
 
 BOOST_AUTO_TEST_CASE(ImplictiVRLittleEndianNotApplicableVR)
 {
-    BOOST_REQUIRE_THROW(
-        odil::VRFinder::implicit_vr_little_endian(
+    auto const vr = odil::VRFinder::implicit_vr_little_endian(
             odil::Tag(0x7fe0, 0x0010), odil::DataSet(),
-            odil::registry::ExplicitVRLittleEndian),
-        odil::Exception);
+            odil::registry::ExplicitVRLittleEndian);
+    BOOST_REQUIRE(vr == odil::VR::UNKNOWN);
 }
 
 BOOST_AUTO_TEST_CASE(PublicElement)
