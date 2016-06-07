@@ -8,7 +8,9 @@
 
 #include "odil/Writer.h"
 
+#include <cmath>
 #include <cstdint>
+#include <cstring>
 #include <map>
 #include <ostream>
 #include <sstream>
@@ -22,6 +24,7 @@
 #include "odil/Tag.h"
 #include "odil/uid.h"
 #include "odil/VR.h"
+#include "odil/write_ds.h"
 
 #define odil_write_binary(value, stream, byte_ordering, size) \
 { \
@@ -351,7 +354,43 @@ Writer::Visitor
 {
     if(this->vr == VR::DS)
     {
-        this->write_strings(value, ' ');
+        int written = 0;
+        for(int i=0; i<value.size(); ++i)
+        {
+            auto const & item = value[i];
+            
+            if(!std::isfinite(item))
+            {
+                throw Exception("DS items must be finite");
+            }
+            
+            // Each item in the DS is at most 16 bytes.
+            static char buffer[16];
+            write_ds(item, buffer, 16);
+            auto const length = strlen(buffer);
+            
+            this->stream.write(buffer, length);
+            written += length;
+            if(!this->stream.good())
+            {
+                throw Exception("Could not write DS");
+            }
+            
+            if(i<value.size()-1)
+            {
+                this->stream.put('\\');
+                written += 1;
+                if(!this->stream.good())
+                {
+                    throw Exception("Could not write DS");
+                }
+            }
+        };
+        if(written % 2 == 1)
+        {
+            this->stream.put(' ');
+        }
+        //this->write_strings(value, ' ');
     }
     else if(this->vr == VR::FD)
     {
