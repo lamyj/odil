@@ -475,7 +475,7 @@ Association
         data_writer.write_data_set(message.get_data_set());
         auto const data_buffer = data_stream.str();
 
-        auto const max_length = this->_association_parameters.get_maximum_length();
+        auto const max_length = this->_negotiated_parameters.get_maximum_length();
         auto current_length = command_buffer.size() + 12; // 12 is the size of all that is added on top of the fragment
         if (!max_length 
             || (current_length + data_buffer.size() + 6 < max_length))
