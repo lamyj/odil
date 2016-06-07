@@ -23,8 +23,8 @@ default_association_acceptor(AssociationParameters const & input)
 {
     AssociationParameters output;
 
-    output.set_called_ae_title(input.get_calling_ae_title());
-    output.set_calling_ae_title(input.get_called_ae_title());
+    output.set_called_ae_title(input.get_called_ae_title());
+    output.set_calling_ae_title(input.get_calling_ae_title());
 
     std::vector<AssociationParameters::PresentationContext>
         presentation_contexts = input.get_presentation_contexts();
