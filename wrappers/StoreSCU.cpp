@@ -10,7 +10,7 @@
 
 #include "odil/StoreSCU.h"
 
-BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(storeMethod, StoreSCU::store, 1, 3)
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(storeMethod, odil::StoreSCU::store, 1, 3)
 
 void wrap_StoreSCU()
 {
