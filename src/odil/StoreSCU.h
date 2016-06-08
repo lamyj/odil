@@ -32,7 +32,10 @@ public:
 	using SCU::set_affected_sop_class;
     
     /// @brief Perform the C-STORE.
-    void store(DataSet const & dataset) const;
+    void store(
+        DataSet const & dataset,
+        Value::String const & move_originator_ae_title = "",
+        Value::Integer move_originator_message_id = -1) const;
 };
 
 }

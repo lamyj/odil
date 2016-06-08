@@ -23,13 +23,20 @@ CStoreRequest
 ::CStoreRequest(
     Value::Integer message_id, Value::String const & affected_sop_class_uid,
     Value::String const & affected_sop_instance_uid,
-    Value::Integer priority, DataSet const & dataset)
+    Value::Integer priority, DataSet const & dataset,
+    Value::String const & move_originator_ae_title,
+    Value::Integer move_originator_message_id)
 : Request(message_id)
 {
     this->set_command_field(Command::C_STORE_RQ);
     this->set_affected_sop_class_uid(affected_sop_class_uid);
     this->set_affected_sop_instance_uid(affected_sop_instance_uid);
     this->set_priority(priority);
+
+    if(!move_originator_ae_title.empty())
+        this->set_move_originator_ae_title(move_originator_ae_title);
+    if(move_originator_message_id >= 0)
+        this->set_move_originator_message_id(move_originator_message_id);
 
     if(dataset.empty())
     {

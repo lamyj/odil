@@ -75,6 +75,9 @@ MoveSCP
     unsigned int failed_sub_operations=0;
     unsigned int warning_sub_operations=0;
 
+    auto const& move_originator_aet = this->_association.get_negotiated_parameters().get_calling_ae_title();
+    auto move_originator_message_id = request.get_message_id();
+
     try
     {
         this->_generator->initialize(request);
@@ -99,7 +102,7 @@ MoveSCP
             store_scu.set_affected_sop_class(data_set);
             try
             {
-                store_scu.store(data_set);
+                store_scu.store(data_set, move_originator_aet, move_originator_message_id);
 
                 --remaining_sub_operations;
                 ++completed_sub_operations;
