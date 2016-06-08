@@ -13,12 +13,15 @@
 
 #include "odil/Exception.h"
 #include "odil/Reader.h"
+#include "odil/Tag.h"
 
 namespace
 {
 
 boost::python::tuple 
-read(std::string const & path, bool keep_group_length=false)
+read(
+    std::string const & path, bool keep_group_length, 
+    boost::python::object const & halt_condition)
 {
     std::ifstream stream(path);
     if(!stream)
@@ -26,8 +29,19 @@ read(std::string const & path, bool keep_group_length=false)
         throw odil::Exception("Could not open "+path);
     }
 
-    auto const header_and_data_set = 
-        odil::Reader::read_file(stream, keep_group_length);
+    std::function<bool(odil::Tag const &)> halt_condition_cpp = 
+        [](odil::Tag const &) { return false;};
+    if(halt_condition)
+    {
+        halt_condition_cpp = 
+            [halt_condition](odil::Tag const & tag) 
+            { 
+                return boost::python::call<bool>(halt_condition.ptr(), tag); 
+            };
+    }
+
+    auto const header_and_data_set = odil::Reader::read_file(
+            stream, keep_group_length, halt_condition_cpp);
 
     return boost::python::make_tuple(
         header_and_data_set.first, header_and_data_set.second);
@@ -35,14 +49,15 @@ read(std::string const & path, bool keep_group_length=false)
 
 }
 
-BOOST_PYTHON_FUNCTION_OVERLOADS(read_overloads, read, 1, 2)
-
 void wrap_read()
 {
     using namespace boost::python;
 
     def(
         "read", 
-        static_cast<boost::python::tuple (*)(std::string const &, bool)>(read),
-        read_overloads());
+        static_cast<boost::python::tuple (*)(std::string const &, bool, object const &)>(read),
+        (
+            arg("path"), arg("keep_group_length")=false, 
+            arg("halt_condition")=object())
+        );
 }

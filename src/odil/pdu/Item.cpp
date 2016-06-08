@@ -391,10 +391,13 @@ Item
     else if(type == Field::Type::string)
     {
         std::string value(size, '\0');
-        stream.read(reinterpret_cast<char*>(&value[0]), value.size());
-        if(!stream.good())
+        if(value.size() > 0)
         {
-            throw Exception("Could not read string field");
+            stream.read(reinterpret_cast<char*>(&value[0]), value.size());
+            if(!stream.good())
+            {
+                throw Exception("Could not read string field");
+            }
         }
 
         this->add(name, Field(value));

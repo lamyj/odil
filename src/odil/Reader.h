@@ -70,7 +70,8 @@ public:
     /// @brief Return the meta-data header and data set stored in the stream.
     static std::pair<DataSet, DataSet> read_file(
         std::istream & stream,
-        bool keep_group_length=false);
+        bool keep_group_length=false,
+        std::function<bool(Tag const &)> halt_condition = [](Tag const &) { return false;});
 
 private:
     struct Visitor

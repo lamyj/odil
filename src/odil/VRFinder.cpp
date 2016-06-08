@@ -46,7 +46,10 @@ VRFinder::operator()(
         try
         {
             vr = finder(tag, data_set, transfer_syntax);
-            break;
+            if (vr != VR::UNKNOWN)
+            {
+                break;
+            }
         }
         catch(Exception &)
         {
@@ -61,7 +64,10 @@ VRFinder::operator()(
             try
             {
                 vr = finder(tag, data_set, transfer_syntax);
-                break;
+                if (vr != VR::UNKNOWN)
+                {
+                    break;
+                }
             }
             catch(Exception &)
             {
@@ -83,18 +89,12 @@ VRFinder
 ::public_dictionary(
     Tag const & tag, DataSet const &, std::string const &)
 {
-    VR vr = VR::INVALID;
+    VR vr = VR::UNKNOWN;
     
     auto const iterator = find(registry::public_dictionary, tag);
     if(iterator != registry::public_dictionary.end())
     {
         vr = as_vr(iterator->second.vr);
-    }
-
-    if(vr == VR::INVALID)
-    {
-        throw Exception(
-            "Element " + std::string(tag) + " is not in the public dictionary");
     }
 
     return vr;
@@ -109,10 +109,8 @@ VRFinder
     {
         return VR::UL;
     }
-    else
-    {
-        throw Exception("Not a group length tag");
-    }
+  
+    return VR::UNKNOWN; // Not a group length tag
 }
 
 VR
@@ -124,10 +122,8 @@ VRFinder
     {
         return VR::UN;
     }
-    else
-    {
-        throw Exception("Not a private tag");
-    }
+
+    return VR::UNKNOWN; // Not a private tag
 }
 
 VR
@@ -194,12 +190,14 @@ VRFinder
         }
         else
         {
-            throw Exception("Unknown tag");
+            // Unknown tag
+            return VR::UNKNOWN;
         }
     }
     else
     {
-        throw Exception("Unknown transfer syntax");
+        // Unknown transfer syntax
+        return VR::UNKNOWN;
     }
 }
 
@@ -273,12 +271,14 @@ VRFinder
         }
         else
         {
-            throw Exception("Unknown tag");
+            // Unknown tag
+            return VR::UNKNOWN;
         }
     }
     else
     {
-        throw Exception("Unknown transfer syntax");
+        // Unknown transfer syntax
+        return VR::UNKNOWN;
     }
 }
 

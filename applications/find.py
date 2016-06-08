@@ -80,7 +80,7 @@ def find(host, port, calling_ae_title, called_ae_title, level, keys, decode_uids
 
     for data_set in data_sets:
         print_data_set(data_set, decode_uids, "", max_length)
-        print
+        print()
 
     association.release()
     logging.info("Association released")
