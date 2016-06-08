@@ -64,14 +64,19 @@ StoreSCU
 
 void 
 StoreSCU
-::store(DataSet const & dataset) const
+::store(
+    DataSet const & dataset,
+    Value::String const & move_originator_ae_title,
+    Value::Integer move_originator_message_id) const
 {
     message::CStoreRequest const request(
         this->_association.next_message_id(),
         this->_affected_sop_class,
         dataset.as_string(registry::SOPInstanceUID, 0),
         message::Message::Priority::MEDIUM,
-        dataset);
+        dataset, move_originator_ae_title,
+        move_originator_message_id);
+
     this->_association.send_message(request, this->_affected_sop_class);
     
     message::CStoreResponse const response = this->_association.receive_message();

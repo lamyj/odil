@@ -33,7 +33,9 @@ public:
     CStoreRequest(
         Value::Integer message_id, Value::String const & affected_sop_class_uid,
         Value::String const & affected_sop_instance_uid,
-        Value::Integer priority, DataSet const & dataset);
+        Value::Integer priority, DataSet const & dataset,
+        Value::String const & move_originator_ae_title = "",
+        Value::Integer move_originator_message_id = -1);
 
     /**
      * @brief Create a C-STORE-RQ from a generic Message.
