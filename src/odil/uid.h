@@ -11,6 +11,8 @@
 
 #include <string>
 
+#include "odil/odil.h"
+
 namespace odil
 {
 
@@ -18,10 +20,10 @@ namespace odil
 std::string const uid_prefix="1.2.826.0.1.3680043.9.5560";
 
 /// @brief Implementation class UID of Odil.
-extern std::string const implementation_class_uid;
+extern ODIL_API std::string implementation_class_uid;
 
 /// @brief Implementation version name of Odil.
-extern std::string const implementation_version_name;
+extern ODIL_API std::string implementation_version_name;
 
 /// @brief Generate a UID under the UID prefix.
 std::string generate_uid();
