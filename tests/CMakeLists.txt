@@ -6,6 +6,19 @@ add_subdirectory(tools)
 
 file(GLOB headers *.h)
 file(GLOB_RECURSE tests code/*.cpp)
+if(NOT WITH_DCMTK)
+    list(
+        REMOVE_ITEM tests
+        ${CMAKE_CURRENT_SOURCE_DIR}/code/conversion.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/code/DcmtkException.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/code/ElementAccessor.cpp)
+    set(
+        extra_files
+        ${CMAKE_SOURCE_DIR}/src/odil/dcmtk/conversion.cpp
+        ${CMAKE_SOURCE_DIR}/src/odil/dcmtk/ElementAccessor.cpp
+        ${CMAKE_SOURCE_DIR}/src/odil/dcmtk/ElementTraits.cpp
+        ${CMAKE_SOURCE_DIR}/src/odil/dcmtk/Exception.cpp)
+endif()
 
 include_directories(
     ${CMAKE_SOURCE_DIR}/src ${Boost_INCLUDE_DIRS} ${DCMTK_INCLUDE_DIRS}
@@ -22,8 +35,9 @@ link_directories(${Boost_LIBRARY_DIRS} ${DCMTK_LIBRARY_DIRS})
 foreach(test_file ${tests})
     get_filename_component(test ${test_file} NAME_WE)
 
-    add_executable(test_${test} ${test_file} ${headers})
-    target_link_libraries(test_${test} libodil ${Boost_LIBRARIES})
+    add_executable(test_${test} ${test_file} ${headers} ${extra_files})
+    target_link_libraries(
+        test_${test} libodil ${Boost_LIBRARIES} ${DCMTK_LIBRARIES})
     set_target_properties(test_${test} PROPERTIES OUTPUT_NAME ${test} FOLDER "Tests")
 
     file(READ ${test_file} content)

@@ -7,10 +7,11 @@ set(odil_PATCH_VERSION 0)
 set(odil_VERSION
     ${odil_MAJOR_VERSION}.${odil_MINOR_VERSION}.${odil_PATCH_VERSION})
 
+option(BUILD_SHARED_LIBS "Build Odil with shared libraries." ON)
 option(BUILD_EXAMPLES "Build the examples directory." ON)
 option(BUILD_WRAPPERS "Build the Python Wrappers." ON)
 
-option(BUILD_SHARED_LIBS "Build Odil with shared libraries." ON)
+option(WITH_DCMTK "Build the DCMTK converter" ON)
 
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}" ${CMAKE_MODULE_PATH})
 include(CTest)

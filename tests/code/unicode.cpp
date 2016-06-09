@@ -3,7 +3,6 @@
 
 #include "odil/DataSet.h"
 #include "odil/unicode.h"
-#include "odil/dcmtk/conversion.h"
 
 BOOST_AUTO_TEST_CASE(SCSARAB)
 {
