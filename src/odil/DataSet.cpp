@@ -22,7 +22,8 @@ namespace odil
 {
 
 DataSet
-::DataSet()
+::DataSet(const std::string transfer_syntax)
+: _transfer_syntax(transfer_syntax)
 {
     // Nothing to do.
 }
@@ -449,6 +450,13 @@ DataSet
 ::operator!=(DataSet const & other) const
 {
     return !(*this == other);
+}
+
+std::string const & 
+DataSet
+::get_transfer_syntax() const
+{
+    return _transfer_syntax;
 }
 
 }

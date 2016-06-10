@@ -29,7 +29,7 @@ class DataSet
 {
 public:
     /// @brief Create an empty data set.
-    DataSet();
+    explicit DataSet(const std::string transfer_syntax = "");
 
     /// @brief Add an element to the dataset.
     void add(Tag const & tag, Element const & element);
@@ -209,10 +209,16 @@ public:
     /// @brief Difference test.
     bool operator!=(DataSet const & other) const;
 
+    /// @brief Return the transfer syntax in which this DataSet was originally read.
+    std::string const & get_transfer_syntax() const;
+
 private:
     typedef std::map<Tag, Element> ElementMap;
 
     ElementMap _elements;
+
+    /// @brief Transfer syntax initially used to create the DataSet.
+    std::string _transfer_syntax;
 };
 
 }

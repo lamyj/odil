@@ -93,7 +93,7 @@ DataSet
 Reader
 ::read_data_set(std::function<bool(Tag const &)> halt_condition) const
 {
-    DataSet data_set;
+    DataSet data_set(transfer_syntax);
 
     bool done = (this->stream.peek() == EOF);
     while(!done)
