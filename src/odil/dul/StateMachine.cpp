@@ -697,8 +697,15 @@ void
 StateMachine
 ::AA_1(EventData & data)
 {
-    data.pdu = std::make_shared<pdu::AAbort>(1, 2);
-    this->send_pdu(data);
+    if(std::dynamic_pointer_cast<pdu::AAbort>(data.pdu))
+    {
+        this->_send_pdu(data, 0x07);
+    }
+    else
+    {
+        data.pdu = std::make_shared<pdu::AAbort>(1, 2);
+        this->send_pdu(data);
+    }
 
     this->start_timer(data);
 }
