@@ -12,7 +12,6 @@
 #include <map>
 #include <string>
 
-#include "odil/odil.h"
 #include "odil/ElementsDictionary.h"
 #include "odil/Tag.h"
 #include "odil/UIDsDictionary.h"
@@ -152,6 +151,9 @@ Tag const MappingResourceUID(0x0008, 0x0118);
 Tag const LongCodeValue(0x0008, 0x0119);
 Tag const URNCodeValue(0x0008, 0x0120);
 Tag const EquivalentCodeSequence(0x0008, 0x0121);
+Tag const MappingResourceName(0x0008, 0x0122);
+Tag const ContextGroupIdentificationSequence(0x0008, 0x0123);
+Tag const MappingResourceIdentificationSequence(0x0008, 0x0124);
 Tag const TimezoneOffsetFromUTC(0x0008, 0x0201);
 Tag const PrivateDataElementCharacteristicsSequence(0x0008, 0x0300);
 Tag const PrivateGroupReference(0x0008, 0x0301);
@@ -3855,8 +3857,11 @@ Tag const RangeModulatorGatingStartWaterEquivalentThickness(0x300a, 0x0386);
 Tag const RangeModulatorGatingStopWaterEquivalentThickness(0x300a, 0x0388);
 Tag const IsocenterToRangeModulatorDistance(0x300a, 0x038a);
 Tag const ScanSpotTuneID(0x300a, 0x0390);
+Tag const ScanSpotPrescribedIndices(0x300a, 0x0391);
 Tag const NumberOfScanSpotPositions(0x300a, 0x0392);
+Tag const ScanSpotReordered(0x300a, 0x0393);
 Tag const ScanSpotPositionMap(0x300a, 0x0394);
+Tag const ScanSpotReorderingAllowed(0x300a, 0x0395);
 Tag const ScanSpotMetersetWeights(0x300a, 0x0396);
 Tag const ScanningSpotSize(0x300a, 0x0398);
 Tag const NumberOfPaintings(0x300a, 0x039a);
@@ -4527,9 +4532,9 @@ std::string const dicomUniqueAETitle("1.2.840.10008.15.0.4.7");
 std::string const dicomTransferCapability("1.2.840.10008.15.0.4.8");
 std::string const UniversalCoordinatedTime("1.2.840.10008.15.1.1");
 
-extern ODIL_API ElementsDictionary public_dictionary;
-extern ODIL_API std::map<std::string, Tag> public_tags;
-extern ODIL_API UIDsDictionary uids_dictionary;
+extern ElementsDictionary public_dictionary;
+extern std::map<std::string, Tag> public_tags;
+extern UIDsDictionary uids_dictionary;
 }
 
 }
