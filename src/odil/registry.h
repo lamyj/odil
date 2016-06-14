@@ -12,6 +12,7 @@
 #include <map>
 #include <string>
 
+#include "odil/odil.h"
 #include "odil/ElementsDictionary.h"
 #include "odil/Tag.h"
 #include "odil/UIDsDictionary.h"
@@ -4532,9 +4533,9 @@ std::string const dicomUniqueAETitle("1.2.840.10008.15.0.4.7");
 std::string const dicomTransferCapability("1.2.840.10008.15.0.4.8");
 std::string const UniversalCoordinatedTime("1.2.840.10008.15.1.1");
 
-extern ElementsDictionary public_dictionary;
-extern std::map<std::string, Tag> public_tags;
-extern UIDsDictionary uids_dictionary;
+extern ODIL_API ElementsDictionary public_dictionary;
+extern ODIL_API std::map<std::string, Tag> public_tags;
+extern ODIL_API UIDsDictionary uids_dictionary;
 }
 
 }
