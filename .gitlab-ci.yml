@@ -1,0 +1,10 @@
+before_script:
+  - lsb_release -a
+  - apt-get update -qq && apt-get install -y -qq libdcmtk2-dev libwrap0-dev libjsoncpp-dev libicu-dev zlib1g-dev libboost-dev libboost-filesystem-dev libboost-python-dev libboost-regex-dev libboost-test-dev liblog4cpp5-dev dcmtk cmake pkg-config
+
+odil:
+  script:
+    - mkdir build
+    - cd build
+    - cmake -D CMAKE_CXX_FLAGS=-std=c++11 ../
+    - make
