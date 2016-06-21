@@ -364,9 +364,10 @@ Writer::Visitor
                 throw Exception("DS items must be finite");
             }
             
-            // Each item in the DS is at most 16 bytes.
-            static char buffer[16];
-            write_ds(item, buffer, 16);
+            // Each item in the DS is at most 16 bytes, account for NUL at end
+            static unsigned int const buffer_size=16+1;
+            static char buffer[buffer_size];
+            write_ds(item, buffer, buffer_size);
             auto const length = strlen(buffer);
             
             this->stream.write(buffer, length);
