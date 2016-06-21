@@ -5,8 +5,8 @@ before_script:
 
 trusty:
   image: ubuntu:trusty
-  script: ninja && ../test/run --no-network
+  script: ninja && ../tests/run --no-network
 
 xenial:
   image: ubuntu:xenial
-  script: ninja && ../test/run --no-network
+  script: ninja && ../tests/run --no-network
