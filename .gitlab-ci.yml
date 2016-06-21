@@ -3,14 +3,10 @@ before_script:
   - mkdir build && cd build
   - cmake -G Ninja -D CMAKE_CXX_FLAGS=-std=c++11 ../
 
-odil:trusty:
+trusty:
   image: ubuntu:trusty
-  script: 
-    - ninja libodil.so
-    - ../test/run --no-network
+  script: ninja && ../test/run --no-network
 
-odil:xenial:
+xenial:
   image: ubuntu:xenial
-  script: 
-    - ninja libodil.so
-    - ../test/run --no-network
+  script: ninja && ../test/run --no-network
