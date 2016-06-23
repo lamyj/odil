@@ -15,6 +15,7 @@
 #include "odil/endian.h"
 #include "odil/Exception.h"
 #include "odil/logging.h"
+#include "odil/pdu/AsynchronousOperationsWindow.h"
 #include "odil/pdu/ImplementationClassUID.h"
 #include "odil/pdu/ImplementationVersionName.h"
 #include "odil/pdu/MaximumLength.h"
@@ -60,6 +61,7 @@ UserInformation
 
     std::vector<MaximumLength> maximum_length;
     std::vector<ImplementationClassUID> implementation_class_uid;
+    std::vector<AsynchronousOperationsWindow> asynchronous_operation_window;
     std::vector<RoleSelection> role_selection;
     std::vector<ImplementationVersionName> implementation_version_name;
     std::vector<UserIdentityRQ> user_identity_rq;
@@ -70,31 +72,33 @@ UserInformation
         uint8_t const type = stream.peek();
         if(type == 0x51)
         {
-            maximum_length.push_back(MaximumLength(stream));
+            maximum_length.emplace_back(stream);
         }
         else if(type == 0x52)
         {
-            implementation_class_uid.push_back(ImplementationClassUID(stream));
+            implementation_class_uid.emplace_back(stream);
         }
-        // 0x53: Asynchronous Operations Window, PS 3.7, D.3.3.3.1
+        else if(type == 0x53)
+        {
+            asynchronous_operation_window.emplace_back(stream);
+        }
         else if(type == 0x54)
         {
-            role_selection.push_back(RoleSelection(stream));
+            role_selection.emplace_back(stream);
         }
         else if(type == 0x55)
         {
-            implementation_version_name.push_back(
-                ImplementationVersionName(stream));
+            implementation_version_name.emplace_back(stream);
         }
         // 0x56: SOP Class Extended Negotiation, PS 3.7, D.3.3.5.1
         // 0x57: SOP Class Common Extended Negotiation, PS 3.7, D.3.3.6.1
         else if(type == 0x58)
         {
-            user_identity_rq.push_back(UserIdentityRQ(stream));
+            user_identity_rq.emplace_back(stream);
         }
         else if(type == 0x59)
         {
-            user_identity_ac.push_back(UserIdentityAC(stream));
+            user_identity_ac.emplace_back(stream);
         }
         else
         {
