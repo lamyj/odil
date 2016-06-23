@@ -157,6 +157,24 @@ public:
      * no maximum length.
      */
     AssociationParameters & set_maximum_length(uint32_t value);
+    
+    /// @brief Return the maximum number of outstanding operations invoked
+    uint16_t get_maximum_number_operations_invoked() const;
+
+    /**
+     * @brief Set the maximum number of outstanding operations invoked,
+     * default to 1.
+     */
+    AssociationParameters & set_maximum_number_operations_invoked(uint16_t value);
+
+    /// @brief Return the maximum number of outstanding operations performed
+    uint16_t get_maximum_number_operations_performed() const;
+
+    /**
+     * @brief Set the maximum number of outstanding operations performed,
+     * default to 1.
+     */
+    AssociationParameters & set_maximum_number_operations_performed(uint16_t value);
 
     /// @brief Create an A-ASSOCIATE-RQ PDU.
     pdu::AAssociateRQ as_a_associate_rq() const;
@@ -173,6 +191,8 @@ private:
     std::vector<PresentationContext> _presentation_contexts;
     UserIdentity _user_identity;
     uint32_t _maximum_length;
+    uint16_t _maximum_number_operations_invoked;
+    uint16_t _maximum_number_operations_performed;
 
     /// @brief Set the user identity.
     AssociationParameters & _set_user_identity(UserIdentity const & value);

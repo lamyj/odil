@@ -27,7 +27,7 @@ AsynchronousOperationsWindow
 {
     this->_item.add("Item-type", this->type);
     this->_item.add("Reserved", uint8_t(0));
-    this->_item.add("Item-length", uint16_t(0));
+    this->_item.add("Item-length", uint16_t(4));
     this->_item.add("Maximum-number-operations-invoked", uint16_t(0));
     this->_item.add("Maximum-number-operations-performed", uint16_t(0));
 

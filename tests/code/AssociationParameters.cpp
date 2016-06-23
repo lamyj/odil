@@ -18,6 +18,9 @@ BOOST_AUTO_TEST_CASE(Constructor)
     BOOST_REQUIRE(parameters.get_user_identity().secondary_field.empty());
 
     BOOST_REQUIRE_EQUAL(parameters.get_maximum_length(), 16384);
+
+    BOOST_REQUIRE_EQUAL(parameters.get_maximum_number_operations_invoked(), 1);
+    BOOST_REQUIRE_EQUAL(parameters.get_maximum_number_operations_performed(), 1);
 }
 
 BOOST_AUTO_TEST_CASE(CalledAETITLE)
@@ -154,6 +157,20 @@ BOOST_AUTO_TEST_CASE(MaximumLength)
     BOOST_REQUIRE_EQUAL(parameters.get_maximum_length(), 0x12345678);
 }
 
+BOOST_AUTO_TEST_CASE(MaximumNumberOperationsInvoked)
+{
+    odil::AssociationParameters parameters;
+    parameters.set_maximum_number_operations_invoked(12);
+    BOOST_REQUIRE_EQUAL(parameters.get_maximum_number_operations_invoked(), 12);
+}
+
+BOOST_AUTO_TEST_CASE(MaximumNumberOperationsPerformed)
+{
+    odil::AssociationParameters parameters;
+    parameters.set_maximum_number_operations_performed(12);
+    BOOST_REQUIRE_EQUAL(parameters.get_maximum_number_operations_performed(), 12);
+}
+
 BOOST_AUTO_TEST_CASE(ChainedSetters)
 {
     odil::AssociationParameters parameters;
@@ -162,7 +179,9 @@ BOOST_AUTO_TEST_CASE(ChainedSetters)
         .set_calling_ae_title("calling")
         .set_presentation_contexts({ { 1, "abstract", { "transfer" }, true, true } })
         .set_user_identity_to_username_and_password("foo", "bar")
-        .set_maximum_length(0x12345678);
+        .set_maximum_length(0x12345678)
+        .set_maximum_number_operations_invoked(12)
+        .set_maximum_number_operations_performed(34);
 
     BOOST_REQUIRE_EQUAL(parameters.get_called_ae_title(), "called");
     BOOST_REQUIRE_EQUAL(parameters.get_calling_ae_title(), "calling");
@@ -175,4 +194,7 @@ BOOST_AUTO_TEST_CASE(ChainedSetters)
     BOOST_REQUIRE_EQUAL(parameters.get_user_identity().secondary_field, "bar");
 
     BOOST_REQUIRE_EQUAL(parameters.get_maximum_length(), 0x12345678);
+
+    BOOST_REQUIRE_EQUAL(parameters.get_maximum_number_operations_invoked(), 12);
+    BOOST_REQUIRE_EQUAL(parameters.get_maximum_number_operations_performed(), 34);
 }

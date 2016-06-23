@@ -18,6 +18,7 @@
 #include "odil/pdu/AAssociateRQ.h"
 #include "odil/Exception.h"
 #include "odil/uid.h"
+#include "odil/pdu/AsynchronousOperationsWindow.h"
 #include "odil/pdu/ImplementationClassUID.h"
 #include "odil/pdu/ImplementationVersionName.h"
 #include "odil/pdu/PresentationContextAC.h"
@@ -73,7 +74,8 @@ AssociationParameters::UserIdentity
 AssociationParameters
 ::AssociationParameters()
 : _called_ae_title(""), _calling_ae_title(""), _presentation_contexts(),
-  _user_identity({UserIdentity::Type::None, "", ""}), _maximum_length(16384)
+  _user_identity({UserIdentity::Type::None, "", ""}), _maximum_length(16384),
+  _maximum_number_operations_invoked(1), _maximum_number_operations_performed(1)
 {
     // Nothing else.
 }
@@ -153,6 +155,17 @@ AssociationParameters
     if(!maximum_length.empty())
     {
         this->set_maximum_length(maximum_length[0].get_maximum_length());
+    }
+
+    // Maximum number of operations performed/invoked
+    auto const asynchronous_operations_window =
+        user_information.get_sub_items<pdu::AsynchronousOperationsWindow>();
+    if(!asynchronous_operations_window.empty())
+    {
+        this->_maximum_number_operations_invoked =
+            asynchronous_operations_window[0].get_maximum_number_operations_invoked();
+        this->_maximum_number_operations_performed =
+            asynchronous_operations_window[0].get_maximum_number_operations_performed();
     }
 }
 
@@ -234,6 +247,17 @@ AssociationParameters
     if(!maximum_length.empty())
     {
         this->set_maximum_length(maximum_length[0].get_maximum_length());
+    }
+
+    // Maximum number of operations performed/invoked
+    auto const asynchronous_operations_window =
+        user_information.get_sub_items<pdu::AsynchronousOperationsWindow>();
+    if(!asynchronous_operations_window.empty())
+    {
+        this->_maximum_number_operations_invoked =
+            asynchronous_operations_window[0].get_maximum_number_operations_invoked();
+        this->_maximum_number_operations_performed =
+            asynchronous_operations_window[0].get_maximum_number_operations_performed();
     }
 }
 
@@ -367,6 +391,36 @@ AssociationParameters
     return *this;
 }
 
+uint16_t
+AssociationParameters
+::get_maximum_number_operations_invoked() const
+{
+    return this->_maximum_number_operations_invoked;
+}
+
+AssociationParameters &
+AssociationParameters
+::set_maximum_number_operations_invoked(uint16_t value)
+{
+    this->_maximum_number_operations_invoked = value;
+    return *this;
+}
+
+uint16_t
+AssociationParameters
+::get_maximum_number_operations_performed() const
+{
+    return this->_maximum_number_operations_performed;
+}
+
+AssociationParameters &
+AssociationParameters
+::set_maximum_number_operations_performed(uint16_t value)
+{
+    this->_maximum_number_operations_performed = value;
+    return *this;
+}
+
 pdu::AAssociateRQ
 AssociationParameters
 ::as_a_associate_rq() const
@@ -402,6 +456,16 @@ AssociationParameters
 
     user_information.set_sub_items<pdu::ImplementationClassUID>(
         {implementation_class_uid});
+
+    if(this->_maximum_number_operations_invoked != 1 ||
+        this->_maximum_number_operations_performed != 1)
+    {
+        user_information.set_sub_items<pdu::AsynchronousOperationsWindow>({{
+            this->_maximum_number_operations_invoked,
+            this->_maximum_number_operations_performed
+        }});
+    }
+
     user_information.set_sub_items<pdu::ImplementationVersionName>(
         {implementation_version_name});
 
@@ -470,6 +534,16 @@ AssociationParameters
 
     user_information.set_sub_items<pdu::ImplementationClassUID>(
         {implementation_class_uid});
+
+    if(this->_maximum_number_operations_invoked != 1 ||
+        this->_maximum_number_operations_performed != 1)
+    {
+        user_information.set_sub_items<pdu::AsynchronousOperationsWindow>({{
+            this->_maximum_number_operations_invoked,
+            this->_maximum_number_operations_performed
+        }});
+    }
+
     user_information.set_sub_items<pdu::ImplementationVersionName>(
         {implementation_version_name});
 
@@ -498,7 +572,11 @@ AssociationParameters
         this->get_calling_ae_title() == other.get_calling_ae_title() &&
         this->get_presentation_contexts() == other.get_presentation_contexts() &&
         this->get_user_identity() == other.get_user_identity() &&
-        this->get_maximum_length() == other.get_maximum_length()
+        this->get_maximum_length() == other.get_maximum_length() &&
+        this->get_maximum_number_operations_invoked() ==
+            other.get_maximum_number_operations_invoked() &&
+        this->get_maximum_number_operations_performed() ==
+            other.get_maximum_number_operations_performed()
     );
 }
 
