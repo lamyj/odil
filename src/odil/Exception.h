@@ -23,10 +23,10 @@ public:
     Exception(std::string const & message="");
 
     /// @brief Destructor.
-    virtual ~Exception() throw();
+    virtual ~Exception() noexcept;
     
     /// @brief Return the reason for the exception.
-    virtual const char* what() const throw();
+    virtual const char* what() const noexcept;
 
 protected:
     /// @brief Message of the exception.

@@ -22,14 +22,14 @@ Exception
 }
 
 Exception
-::~Exception() throw()
+::~Exception() noexcept
 {
     // Nothing to do.
 }
 
 char const *
 Exception
-::what() const throw()
+::what() const noexcept
 {
     return this->_message.c_str();
 }

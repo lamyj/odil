@@ -62,7 +62,7 @@ public:
             Value::Integer status, DataSet const & status_fields=DataSet());
 
         /// @brief Destructor.
-        virtual ~Exception() throw();
+        virtual ~Exception() noexcept;
     };
 
     /// @brief Create a Service Class Provider.

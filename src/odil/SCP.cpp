@@ -32,7 +32,7 @@ SCP::Exception
 }
 
 SCP::Exception
-::~Exception()
+::~Exception() noexcept
 {
     // Nothing to do.
 }
