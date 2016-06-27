@@ -24,7 +24,10 @@ namespace odil
 class EchoSCP: public SCP
 {
 public:
-    /// @brief Callback called when a request is received.
+    /**
+     * @brief Callback called when a request is received, shall throw an
+     * SCP::Exception on error.
+     */
     typedef std::function<Value::Integer(message::CEchoRequest const &)> Callback;
 
     /// @brief Constructor.

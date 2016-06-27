@@ -11,8 +11,10 @@
 
 #include "odil/Association.h"
 #include "odil/DataSet.h"
+#include "odil/Exception.h"
 #include "odil/message/Message.h"
 #include "odil/message/Request.h"
+#include "odil/Value.h"
 
 namespace odil
 {
@@ -21,7 +23,11 @@ namespace odil
 class SCP
 {
 public:
-    /// @brief Abstract base class for SCP returning multiple data sets.
+    /**
+     * @brief Abstract base class for SCP returning multiple data sets.
+     *
+     * initialize, done, next and get shall throw an SCP::Exception on error.
+     */
     class DataSetGenerator
     {
     public:
@@ -39,6 +45,24 @@ public:
 
         /// @brief Return the current element.
         virtual DataSet get() const =0;
+    };
+
+    class Exception: public odil::Exception
+    {
+    public:
+        /// @brief Status to be sent back to user.
+        Value::Integer status;
+
+        /// @brief Status detail fields (e.g. offending element).
+        DataSet status_fields;
+
+        /// @brief Constructor.
+        Exception(
+            std::string const & message,
+            Value::Integer status, DataSet const & status_fields=DataSet());
+
+        /// @brief Destructor.
+        virtual ~Exception() throw();
     };
 
     /// @brief Create a Service Class Provider.

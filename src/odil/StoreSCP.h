@@ -24,7 +24,10 @@ namespace odil
 class StoreSCP: public SCP
 {
 public:
-    /// @brief Callback called when a request is received.
+    /**
+     * @brief Callback called when a request is received, shall throw an
+     * SCP::Exception on error.
+     */
     typedef std::function<Value::Integer(message::CStoreRequest const &)> Callback;
 
     /// @brief Constructor.

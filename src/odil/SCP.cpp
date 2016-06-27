@@ -22,6 +22,21 @@ SCP::DataSetGenerator
     // Nothing to do.
 }
 
+SCP::Exception
+::Exception(
+    std::string const & message,
+    Value::Integer status, DataSet const & status_fields)
+: ::odil::Exception(message), status(status), status_fields(status_fields)
+{
+    // Nothing else.
+}
+
+SCP::Exception
+::~Exception()
+{
+    // Nothing to do.
+}
+
 SCP
 ::SCP(Association & association)
 : _association(association)
