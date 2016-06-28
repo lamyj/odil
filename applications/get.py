@@ -24,10 +24,15 @@ def add_subparser(subparsers):
     parser.add_argument(
         "--directory", "-d", default=os.getcwd(),
         help="Directory where the output files will be stored")
+    parser.add_argument(
+        "--iso-9660", "-i", action="store_true",
+        help="Save file names using ISO-9660 compatible file names")
     parser.set_defaults(function=get)
     return parser
 
-def get(host, port, calling_ae_title, called_ae_title, level, keys, directory):
+def get(
+        host, port, calling_ae_title, called_ae_title, level, keys, directory,
+        iso_9660):
     query = odil.DataSet()
     for key in keys:
         key, value = key.split("=", 1)
@@ -88,10 +93,15 @@ def get(host, port, calling_ae_title, called_ae_title, level, keys, directory):
             self.remaining = 0
             self.failed = 0
             self.warning = 0
+            self.stored = 0
         
         def store(self, data_set):
-            uid = data_set.as_string("SOPInstanceUID")[0]
-            odil.write(data_set, os.path.join(self.directory, uid))
+            if iso_9660:
+                filename = "IM{:06d}".format(1+self.stored)
+                self.stored += 1
+            else:
+                filename = data_set.as_string("SOPInstanceUID")[0]
+            odil.write(data_set, os.path.join(self.directory, filename))
         
         def get(self, message):
             for type_ in ["completed", "remaining", "failed", "warning"]:
@@ -105,6 +115,8 @@ def get(host, port, calling_ae_title, called_ae_title, level, keys, directory):
         
     if not os.path.isdir(directory):
         os.makedirs(directory)
+    if len(os.listdir(directory)):
+        logging.warning("{} is not empty".format(directory))
         
     callback = Callback(directory)
     get.get(query, callback.store, callback.get)
