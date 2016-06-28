@@ -46,6 +46,14 @@ public:
     /// @brief Presence of group length elements.
     bool use_group_length;
 
+    /**
+     * @brief Write binary data to an stream encoded with the given endianness,
+     * ensure stream is still good.
+     */
+    template<typename T>
+    static void write_binary(
+        T const & value, std::ostream & stream, ByteOrdering byte_ordering);
+
     /// @brief Build a writer.
     Writer(
         std::ostream & stream,
@@ -113,5 +121,7 @@ private:
 };
 
 }
+
+#include "odil/Writer.txx"
 
 #endif // _ca5c06d2_04f9_4009_9e98_5607e1060379
