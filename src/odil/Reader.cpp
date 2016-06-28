@@ -26,37 +26,6 @@
 #include "odil/VR.h"
 #include "odil/VRFinder.h"
 
-#define odil_read_binary(type, value, stream, byte_ordering, size) \
-type value; \
-{ \
-    uint##size##_t raw; \
-    stream.read(reinterpret_cast<char*>(&raw), sizeof(raw)); \
-    if(!stream) \
-    { \
-        throw Exception("Could not read from stream"); \
-    } \
-    if(byte_ordering == ByteOrdering::LittleEndian) \
-    { \
-        raw = little_endian_to_host(raw); \
-    } \
-    else if(byte_ordering == ByteOrdering::BigEndian) \
-    { \
-        raw = big_endian_to_host(raw); \
-    } \
-    else \
-    { \
-        throw Exception("Unknown endianness"); \
-    } \
-    value = *reinterpret_cast<type*>(&raw);\
-}
-
-#define odil_ignore(stream, size) \
-    stream.ignore(size); \
-    if(!stream) \
-    { \
-        throw Exception("Could not read from stream"); \
-    }
-
 std::string read_string(std::istream & stream, unsigned int size)
 {
     if(size == 0)
@@ -74,6 +43,17 @@ std::string read_string(std::istream & stream, unsigned int size)
 
 namespace odil
 {
+
+void
+Reader
+::ignore(std::istream & stream, std::streamsize size)
+{
+    stream.ignore(size);
+    if(!stream)
+    {
+        throw Exception("Could not read from stream");
+    }
+}
 
 Reader
 ::Reader(
@@ -126,8 +106,10 @@ Tag
 Reader
 ::read_tag() const
 {
-    odil_read_binary(uint16_t, group, this->stream, this->byte_ordering, 16);
-    odil_read_binary(uint16_t, element, this->stream, this->byte_ordering, 16);
+    auto const group = this->read_binary<uint16_t>(
+        this->stream, this->byte_ordering);
+    auto const element = this->read_binary<uint16_t>(
+        this->stream, this->byte_ordering);
     return Tag(group, element);
 }
 
@@ -284,26 +266,26 @@ Reader::Visitor
         {
             if(this->vr == VR::SL)
             {
-                odil_read_binary(
-                    int32_t, item, this->stream, this->byte_ordering, 32);
+                auto const item = Reader::read_binary<int32_t>(
+                    this->stream, this->byte_ordering);
                 value[i] = item;
             }
             else if(this->vr == VR::SS)
             {
-                odil_read_binary(
-                    int16_t, item, this->stream, this->byte_ordering, 16);
+                auto const item = Reader::read_binary<int16_t>(
+                    this->stream, this->byte_ordering);
                 value[i] = item;
             }
             else if(this->vr == VR::UL)
             {
-                odil_read_binary(
-                    uint32_t, item, this->stream, this->byte_ordering, 32);
+                auto const item = Reader::read_binary<uint32_t>(
+                    this->stream, this->byte_ordering);
                 value[i] = item;
             }
             else if(this->vr == VR::AT || this->vr == VR::US)
             {
-                odil_read_binary(
-                    uint16_t, item, this->stream, this->byte_ordering, 16);
+                auto const item = Reader::read_binary<uint16_t>(
+                    this->stream, this->byte_ordering);
                 value[i] = item;
             }
         }
@@ -353,14 +335,14 @@ Reader::Visitor
         {
             if(this->vr == VR::FD)
             {
-                odil_read_binary(
-                    double, item, this->stream, this->byte_ordering, 64);
+                auto const item = Reader::read_binary<double>(
+                    this->stream, this->byte_ordering);
                 value[i] = item;
             }
             else if(this->vr == VR::FL)
             {
-                odil_read_binary(
-                    float, item, this->stream, this->byte_ordering, 32);
+                auto const item = Reader::read_binary<float>(
+                    this->stream, this->byte_ordering);
                 value[i] = item;
             }
         }
@@ -460,7 +442,7 @@ Reader::Visitor
             else if(tag == registry::SequenceDelimitationItem)
             {
                 done = true;
-                odil_ignore(this->stream, 4);
+                Reader::ignore(this->stream, 4);
             }
             else
             {
@@ -502,8 +484,8 @@ Reader::Visitor
             value[0].resize(vl);
             for(unsigned int i=0; i<value[0].size(); i+=4)
             {
-                odil_read_binary(
-                    float, item, this->stream, this->byte_ordering, 32);
+                auto const item = Reader::read_binary<float>(
+                    this->stream, this->byte_ordering);
                 *reinterpret_cast<float*>(&value[0][i]) = item;
             }
         }
@@ -517,8 +499,8 @@ Reader::Visitor
             value[0].resize(vl);
             for(unsigned int i=0; i<value[0].size(); i+=2)
             {
-                odil_read_binary(
-                    uint16_t, item, this->stream, this->byte_ordering, 16);
+                auto const item = Reader::read_binary<uint16_t>(
+                    this->stream, this->byte_ordering);
                 *reinterpret_cast<uint16_t*>(&value[0][i]) = item;
             }
         }
@@ -539,22 +521,22 @@ Reader::Visitor
         if(vr == VR::OB || vr == VR::OW || vr == VR::OF || vr == VR::SQ ||
            vr == VR::UC || vr == VR::UR || vr == VR::UT || vr == VR::UN)
         {
-            odil_ignore(this->stream, 2);
-            odil_read_binary(
-                uint32_t, vl, this->stream, this->byte_ordering, 32);
+            Reader::ignore(this->stream, 2);
+            auto const vl = Reader::read_binary<uint32_t>(
+                this->stream, this->byte_ordering);
             length = vl;
         }
         else
         {
-            odil_read_binary(
-                uint16_t, vl, this->stream, this->byte_ordering, 16);
+            auto const vl = Reader::read_binary<uint16_t>(
+                this->stream, this->byte_ordering);
             length = vl;
         }
     }
     else
     {
-        odil_read_binary(
-            uint32_t, vl, this->stream, this->byte_ordering, 32);
+        auto const vl = Reader::read_binary<uint32_t>(
+            this->stream, this->byte_ordering);
         length = vl;
     }
 
@@ -590,8 +572,8 @@ DataSet
 Reader::Visitor
 ::read_item(std::istream & specific_stream) const
 {
-    odil_read_binary(
-        uint32_t, item_length, specific_stream, this->byte_ordering, 32);
+    auto const item_length = Reader::read_binary<uint32_t>(
+        specific_stream, this->byte_ordering);
 
     DataSet item;
     if(item_length != 0xffffffff)
@@ -616,7 +598,7 @@ Reader::Visitor
         {
             throw Exception("Unexpected tag: "+std::string(tag));
         }
-        odil_ignore(specific_stream, 4);
+        Reader::ignore(specific_stream, 4);
     }
 
     return item;
@@ -635,8 +617,8 @@ Reader::Visitor
     while(!done)
     {
         auto const tag = sequence_reader.read_tag();
-        odil_read_binary(
-            uint32_t, item_length, specific_stream, this->byte_ordering, 32);
+        auto const item_length = Reader::read_binary<uint32_t>(
+            specific_stream, this->byte_ordering);
 
         if(tag == registry::Item)
         {
@@ -670,6 +652,3 @@ Reader::Visitor
 }
 
 }
-
-#undef odil_ignore
-#undef odil_read_binary
