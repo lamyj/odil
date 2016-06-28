@@ -2,6 +2,7 @@ from __future__ import print_function
 import argparse
 import logging
 import os
+import re
 
 import odil
 
@@ -27,12 +28,16 @@ def add_subparser(subparsers):
     parser.add_argument(
         "--iso-9660", "-i", action="store_true",
         help="Save file names using ISO-9660 compatible file names")
+    parser.add_argument(
+        "--layout", "-l", choices=["flat", "tree"], default="flat",
+        help="Save files in the same directory (flat) or in a "
+            "patient/study/series tree (hierarchical)")
     parser.set_defaults(function=get)
     return parser
 
 def get(
         host, port, calling_ae_title, called_ae_title, level, keys, directory,
-        iso_9660):
+        iso_9660, layout):
     query = odil.DataSet()
     for key in keys:
         key, value = key.split("=", 1)
@@ -93,15 +98,50 @@ def get(
             self.remaining = 0
             self.failed = 0
             self.warning = 0
-            self.stored = 0
+            self.stored = {}
         
         def store(self, data_set):
+            if layout == "flat":
+                directory = self.directory
+            elif layout == "tree":
+                study_directory = []
+                if "StudyID" in data_set and data_set.as_string("StudyID"):
+                    study_directory.append(data_set.as_string("StudyID")[0])
+                if ("StudyDescription" in data_set and
+                        data_set.as_string("StudyDescription")):
+                    study_directory.append(
+                        data_set.as_string("StudyDescription")[0])
+                study_directory = "_".join(study_directory)
+
+                series_directory = []
+                if "SeriesNumber" in data_set and data_set.as_int("SeriesNumber"):
+                    series_directory.append(str(data_set.as_int("SeriesNumber")[0]))
+                if ("SeriesDescription" in data_set and
+                        data_set.as_string("SeriesDescription")):
+                    series_directory.append(
+                        data_set.as_string("SeriesDescription")[0])
+                series_directory = "_".join(series_directory)
+
+                if iso_9660:
+                    study_directory = to_iso_9660(study_directory)
+                    series_directory = to_iso_9660(series_directory)
+                directory = os.path.join(
+                    self.directory, study_directory, series_directory)
+                if not os.path.isdir(directory):
+                    os.makedirs(directory)
+            else:
+                raise NotImplementedError()
+
+            self.stored.setdefault(directory, 0)
+
             if iso_9660:
-                filename = "IM{:06d}".format(1+self.stored)
-                self.stored += 1
+                filename = "IM{:06d}".format(1+self.stored[directory])
             else:
                 filename = data_set.as_string("SOPInstanceUID")[0]
-            odil.write(data_set, os.path.join(self.directory, filename))
+
+            odil.write(data_set, os.path.join(directory, filename))
+
+            self.stored[directory] += 1
         
         def get(self, message):
             for type_ in ["completed", "remaining", "failed", "warning"]:
@@ -127,3 +167,9 @@ def get(
     
     association.release()
     logging.info("Association released")
+
+def to_iso_9660(value):
+    value = value[:8].upper()
+    value = re.sub(r"[^A-Z0-9_]", "_", value)
+    return value
+
