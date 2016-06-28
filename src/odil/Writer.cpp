@@ -29,6 +29,37 @@
 namespace odil
 {
 
+void
+Writer
+::write_encapsulated_pixel_data(
+    Value::Binary const & value, std::ostream & stream,
+    ByteOrdering byte_ordering, bool explicit_vr)
+{
+    Writer writer(stream, byte_ordering, explicit_vr);
+    uint32_t length;
+    for(auto const & fragment: value)
+    {
+        writer.write_tag(registry::Item);
+        length = fragment.size();
+        Writer::write_binary(length, stream, byte_ordering);
+        if(length > 0)
+        {
+            stream.write(reinterpret_cast<char const*>(&fragment[0]), length);
+            if(!stream)
+            {
+                throw Exception("Could not write to stream");
+            }
+        }
+    }
+    writer.write_tag(registry::SequenceDelimitationItem);
+    length = 0;
+    Writer::write_binary(length, stream, byte_ordering);
+    if(!stream)
+    {
+        throw Exception("Could not write to stream");
+    }
+}
+
 Writer
 ::Writer(
     std::ostream & stream,
@@ -489,7 +520,8 @@ Writer::Visitor
     }
     else if(value.size() > 1)
     {
-        this->write_encapsulated_pixel_data(value);
+        Writer::write_encapsulated_pixel_data(
+            value, this->stream, this->byte_ordering, this->explicit_vr);
     }
     else
     {
@@ -579,36 +611,6 @@ Writer::Visitor
         {
             throw Exception("Could not write to stream");
         }
-    }
-}
-
-void
-Writer::Visitor
-::write_encapsulated_pixel_data(Value::Binary const & value) const
-{
-    // FIXME: handle fragments
-    Writer writer(this->stream, this->byte_ordering, this->explicit_vr);
-    uint32_t length;
-    for(auto const & fragment: value)
-    {
-        writer.write_tag(registry::Item);
-        length = fragment.size();
-        Writer::write_binary(length, this->stream, this->byte_ordering);
-        if(length > 0)
-        {
-            this->stream.write(reinterpret_cast<char const*>(&fragment[0]), length);
-            if(!this->stream)
-            {
-                throw Exception("Could not write to stream");
-            }
-        }
-    }
-    writer.write_tag(registry::SequenceDelimitationItem);
-    length = 0;
-    Writer::write_binary(length, this->stream, this->byte_ordering);
-    if(!this->stream)
-    {
-        throw Exception("Could not write to stream");
     }
 }
 

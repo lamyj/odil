@@ -44,6 +44,55 @@ std::string read_string(std::istream & stream, unsigned int size)
 namespace odil
 {
 
+Value::Binary
+Reader
+::read_encapsulated_pixel_data(
+    std::istream & stream, ByteOrdering byte_ordering,
+    std::string transfer_syntax, bool keep_group_length)
+{
+    Value::Binary value;
+
+    // PS 3.5, A.4
+    Reader const sequence_reader(stream, transfer_syntax, keep_group_length);
+
+    bool done = false;
+    while(!done)
+    {
+        auto const tag = sequence_reader.read_tag();
+        auto const item_length = Reader::read_binary<uint32_t>(
+            stream, byte_ordering);
+
+        if(tag == registry::Item)
+        {
+            Value::Binary::value_type item_data(item_length);
+
+            if(item_length > 0)
+            {
+                stream.read(
+                    reinterpret_cast<char*>(&item_data[0]), item_length);
+                if(!stream)
+                {
+                    throw Exception("Could not read from stream");
+                }
+            }
+
+            value.push_back(item_data);
+        }
+        else if(tag == registry::SequenceDelimitationItem)
+        {
+            // No value for Sequence Delimitation Item
+            done = true;
+        }
+        else
+        {
+            throw Exception(
+                "Expected SequenceDelimitationItem, got: "+std::string(tag));
+        }
+    }
+
+    return value;
+}
+
 void
 Reader
 ::ignore(std::istream & stream, std::streamsize size)
@@ -463,7 +512,9 @@ Reader::Visitor
     }
     else if(vl == 0xffffffff)
     {
-        value = this->read_encapsulated_pixel_data(this->stream);
+        value = Reader::read_encapsulated_pixel_data(
+            this->stream, this->byte_ordering, this->transfer_syntax,
+            this->keep_group_length);
     }
     else
     {
@@ -602,53 +653,6 @@ Reader::Visitor
     }
 
     return item;
-}
-
-Value::Binary
-Reader::Visitor
-::read_encapsulated_pixel_data(std::istream & specific_stream) const
-{
-    Value::Binary value;
-
-    // PS 3.5, A.4
-    Reader const sequence_reader(
-        specific_stream, this->transfer_syntax, this->keep_group_length);
-    bool done = false;
-    while(!done)
-    {
-        auto const tag = sequence_reader.read_tag();
-        auto const item_length = Reader::read_binary<uint32_t>(
-            specific_stream, this->byte_ordering);
-
-        if(tag == registry::Item)
-        {
-            Value::Binary::value_type item_data(item_length);
-
-            if(item_length > 0)
-            {
-                specific_stream.read(
-                    reinterpret_cast<char*>(&item_data[0]), item_length);
-                if(!stream)
-                {
-                    throw Exception("Could not read from stream");
-                }
-            }
-
-            value.push_back(item_data);
-        }
-        else if(tag == registry::SequenceDelimitationItem)
-        {
-            // No value for Sequence Delimitation Item
-            done = true;
-        }
-        else
-        {
-            throw Exception(
-                "Expected SequenceDelimitationItem, got: "+std::string(tag));
-        }
-    }
-
-    return value;
 }
 
 }

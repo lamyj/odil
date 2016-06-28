@@ -54,6 +54,11 @@ public:
     static void write_binary(
         T const & value, std::ostream & stream, ByteOrdering byte_ordering);
 
+    /// @brief Write pixel data in encapsulated form.
+    static void write_encapsulated_pixel_data(
+        Value::Binary const & value, std::ostream & stream,
+        ByteOrdering byte_ordering, bool explicit_vr);
+
     /// @brief Build a writer.
     Writer(
         std::ostream & stream,
@@ -115,8 +120,6 @@ private:
 
         template<typename T>
         void write_strings(T const & sequence, char padding) const;
-
-        void write_encapsulated_pixel_data(Value::Binary const & value) const;
     };
 };
 

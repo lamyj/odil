@@ -50,6 +50,11 @@ public:
     template<typename T>
     static T read_binary(std::istream & stream, ByteOrdering byte_ordering);
 
+    /// @brief Read pixel data in encapsulated form.
+    static Value::Binary read_encapsulated_pixel_data(
+        std::istream & stream, ByteOrdering byte_ordering,
+        std::string transfer_syntax, bool keep_group_length=false);
+
     /// @brief Ignore data from a stream, ensure stream is still good.
     static void ignore(std::istream & stream, std::streamsize size);
 
