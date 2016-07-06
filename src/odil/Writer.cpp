@@ -26,30 +26,39 @@
 #include "odil/VR.h"
 #include "odil/write_ds.h"
 
-#define odil_write_binary(value, stream, byte_ordering, size) \
-{ \
-    auto raw = value; \
-    if(byte_ordering == ByteOrdering::LittleEndian) \
-    { \
-        raw = host_to_little_endian(raw); \
-    } \
-    else if(byte_ordering == ByteOrdering::BigEndian) \
-    { \
-        raw = host_to_big_endian(raw); \
-    } \
-    else \
-    { \
-        throw Exception("Unknown endianness"); \
-    } \
-    stream.write(reinterpret_cast<char const*>(&raw), sizeof(raw)); \
-    if(!stream) \
-    { \
-        throw Exception("Could not write to stream"); \
-    } \
-}
-
 namespace odil
 {
+
+void
+Writer
+::write_encapsulated_pixel_data(
+    Value::Binary const & value, std::ostream & stream,
+    ByteOrdering byte_ordering, bool explicit_vr)
+{
+    Writer writer(stream, byte_ordering, explicit_vr);
+    uint32_t length;
+    for(auto const & fragment: value)
+    {
+        writer.write_tag(registry::Item);
+        length = fragment.size();
+        Writer::write_binary(length, stream, byte_ordering);
+        if(length > 0)
+        {
+            stream.write(reinterpret_cast<char const*>(&fragment[0]), length);
+            if(!stream)
+            {
+                throw Exception("Could not write to stream");
+            }
+        }
+    }
+    writer.write_tag(registry::SequenceDelimitationItem);
+    length = 0;
+    Writer::write_binary(length, stream, byte_ordering);
+    if(!stream)
+    {
+        throw Exception("Could not write to stream");
+    }
+}
 
 Writer
 ::Writer(
@@ -132,8 +141,8 @@ void
 Writer
 ::write_tag(Tag const & tag) const
 {
-    odil_write_binary(tag.group, this->stream, this->byte_ordering, 16);
-    odil_write_binary(tag.element, this->stream, this->byte_ordering, 16);
+    this->write_binary(tag.group, this->stream, this->byte_ordering);
+    this->write_binary(tag.element, this->stream, this->byte_ordering);
 }
 
 void
@@ -168,7 +177,7 @@ Writer
         if(vr == VR::OB || vr == VR::OW || vr == VR::OF || vr == VR::SQ ||
            vr == VR::UC || vr == VR::UR || vr == VR::UT || vr == VR::UN)
         {
-            odil_write_binary(uint16_t(0), this->stream, this->byte_ordering, 16);
+            this->write_binary(uint16_t(0), this->stream, this->byte_ordering);
 
             uint32_t vl;
             if(vr == VR::SQ &&
@@ -184,16 +193,18 @@ Writer
             {
                vl = value_stream.tellp();
             }
-            odil_write_binary(vl, this->stream, this->byte_ordering, 32);
+            this->write_binary(vl, this->stream, this->byte_ordering);
         }
         else
         {
-            odil_write_binary(uint16_t(value_stream.tellp()), this->stream, this->byte_ordering, 16);
+            this->write_binary(
+                uint16_t(value_stream.tellp()), this->stream, this->byte_ordering);
         }
     }
     else
     {
-        odil_write_binary(uint32_t(value_stream.tellp()), this->stream, this->byte_ordering, 32);
+        this->write_binary(
+            uint32_t(value_stream.tellp()), this->stream, this->byte_ordering);
     }
 
     this->stream.write(value_stream.str().c_str(), value_stream.tellp());
@@ -314,32 +325,32 @@ Writer::Visitor
     {
         for(auto item: value)
         {
-            odil_write_binary(
-                int32_t(item), this->stream, this->byte_ordering, 32);
+            Writer::write_binary(
+                int32_t(item), this->stream, this->byte_ordering);
         }
     }
     else if(this->vr == VR::SS)
     {
         for(auto item: value)
         {
-            odil_write_binary(
-                int16_t(item), this->stream, this->byte_ordering, 16);
+            Writer::write_binary(
+                int16_t(item), this->stream, this->byte_ordering);
         }
     }
     else if(this->vr == VR::UL)
     {
         for(auto item: value)
         {
-            odil_write_binary(
-                uint32_t(item), this->stream, this->byte_ordering, 32);
+            Writer::write_binary(
+                uint32_t(item), this->stream, this->byte_ordering);
         }
     }
     else if(this->vr == VR::AT || this->vr == VR::US)
     {
         for(auto item: value)
         {
-            odil_write_binary(
-                uint16_t(item), this->stream, this->byte_ordering, 16);
+            Writer::write_binary(
+                uint16_t(item), this->stream, this->byte_ordering);
         }
     }
     else
@@ -364,9 +375,10 @@ Writer::Visitor
                 throw Exception("DS items must be finite");
             }
             
-            // Each item in the DS is at most 16 bytes.
-            static char buffer[16];
-            write_ds(item, buffer, 16);
+            // Each item in the DS is at most 16 bytes, account for NUL at end
+            static unsigned int const buffer_size=16+1;
+            static char buffer[buffer_size];
+            write_ds(item, buffer, buffer_size);
             auto const length = strlen(buffer);
             
             this->stream.write(buffer, length);
@@ -396,16 +408,16 @@ Writer::Visitor
     {
         for(auto const & item: value)
         {
-            odil_write_binary(
-                double(item), this->stream, this->byte_ordering, 64);
+            Writer::write_binary(
+                double(item), this->stream, this->byte_ordering);
         }
     }
     else if(this->vr == VR::FL)
     {
         for(auto const & item: value)
         {
-            odil_write_binary(
-                float(item), this->stream, this->byte_ordering, 32);
+            Writer::write_binary(
+                float(item), this->stream, this->byte_ordering);
         }
     }
     else
@@ -467,7 +479,7 @@ Writer::Visitor
         {
             item_length = 0xffffffff;
         }
-        odil_write_binary(item_length, sequence_stream, this->byte_ordering, 32);
+        Writer::write_binary(item_length, sequence_stream, this->byte_ordering);
 
         // Data set
         sequence_stream.write(item_stream.str().c_str(), item_stream.tellp());
@@ -480,7 +492,7 @@ Writer::Visitor
         if(this->item_encoding == ItemEncoding::UndefinedLength)
         {
             sequence_writer.write_tag(registry::ItemDelimitationItem);
-            odil_write_binary(uint32_t(0), sequence_stream, this->byte_ordering, 32);
+            Writer::write_binary(uint32_t(0), sequence_stream, this->byte_ordering);
         }
     }
 
@@ -488,7 +500,7 @@ Writer::Visitor
     if(this->item_encoding == ItemEncoding::UndefinedLength)
     {
         sequence_writer.write_tag(registry::SequenceDelimitationItem);
-        odil_write_binary(uint32_t(0), sequence_stream, this->byte_ordering, 32);
+        Writer::write_binary(uint32_t(0), sequence_stream, this->byte_ordering);
     }
 
     this->stream.write(sequence_stream.str().c_str(), sequence_stream.tellp());
@@ -508,7 +520,8 @@ Writer::Visitor
     }
     else if(value.size() > 1)
     {
-        this->write_encapsulated_pixel_data(value);
+        Writer::write_encapsulated_pixel_data(
+            value, this->stream, this->byte_ordering, this->explicit_vr);
     }
     else
     {
@@ -526,7 +539,7 @@ Writer::Visitor
             for(int i=0; i<value[0].size(); i+=2)
             {
                 uint16_t item = *reinterpret_cast<uint16_t const *>(&value[0][i]);
-                odil_write_binary(item, this->stream, this->byte_ordering, 16);
+                Writer::write_binary(item, this->stream, this->byte_ordering);
             }
         }
         else if(this->vr == VR::OF)
@@ -538,7 +551,7 @@ Writer::Visitor
             for(int i=0; i<value[0].size(); i+=4)
             {
                 uint32_t item = *reinterpret_cast<uint32_t const *>(&value[0][i]);
-                odil_write_binary(item, this->stream, this->byte_ordering, 32);
+                Writer::write_binary(item, this->stream, this->byte_ordering);
             }
         }
         else
@@ -601,38 +614,4 @@ Writer::Visitor
     }
 }
 
-void
-Writer::Visitor
-::write_encapsulated_pixel_data(Value::Binary const & value) const
-{
-    // FIXME: handle fragments
-    Writer writer(this->stream, this->byte_ordering, this->explicit_vr);
-    uint32_t length;
-    for(auto const & fragment: value)
-    {
-        writer.write_tag(registry::Item);
-        length = fragment.size();
-        odil_write_binary(
-            length, this->stream, this->byte_ordering, 8*sizeof(length));
-        if(length > 0)
-        {
-            this->stream.write(reinterpret_cast<char const*>(&fragment[0]), length);
-            if(!this->stream)
-            {
-                throw Exception("Could not write to stream");
-            }
-        }
-    }
-    writer.write_tag(registry::SequenceDelimitationItem);
-    length = 0;
-    odil_write_binary(
-        length, this->stream, this->byte_ordering, 8*sizeof(length));
-    if(!this->stream)
-    {
-        throw Exception("Could not write to stream");
-    }
 }
-
-}
-
-#undef odil_write_binary

@@ -14,6 +14,22 @@ BOOST_AUTO_TEST_CASE(Empty)
     BOOST_CHECK(dataset.empty());
     BOOST_CHECK_EQUAL(dataset.size(), 0);
     BOOST_CHECK(!dataset.has(odil::Tag("PatientName")));
+    BOOST_CHECK(dataset.get_transfer_syntax().empty());
+}
+
+BOOST_AUTO_TEST_CASE(TransferSyntaxConstructor)
+{
+    odil::DataSet dataset(odil::registry::ExplicitVRLittleEndian);
+    BOOST_CHECK_EQUAL(
+        dataset.get_transfer_syntax(), odil::registry::ExplicitVRLittleEndian);
+}
+
+BOOST_AUTO_TEST_CASE(TransferSyntax)
+{
+    odil::DataSet dataset;
+    dataset.set_transfer_syntax(odil::registry::ExplicitVRLittleEndian);
+    BOOST_CHECK_EQUAL(
+        dataset.get_transfer_syntax(), odil::registry::ExplicitVRLittleEndian);
 }
 
 BOOST_AUTO_TEST_CASE(AddExplicitVR)

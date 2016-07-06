@@ -65,6 +65,8 @@ GetSCP
 
     StoreSCU store_scu(this->_association);
 
+    Value::Integer final_status = message::CGetResponse::Success;
+    DataSet status_fields;
     unsigned int remaining_sub_operations = 0;
     unsigned int completed_sub_operations=0;
     unsigned int failed_sub_operations=0;
@@ -107,33 +109,22 @@ GetSCP
             this->_generator->next();
         }
     }
-    catch(Exception const &)
+    catch(SCP::Exception const & e)
     {
-        message::CGetResponse response(
-            request.get_message_id(), message::CGetResponse::UnableToProcess);
-        response.set_number_of_remaining_sub_operations(
-            remaining_sub_operations);
-        response.set_number_of_completed_sub_operations(
-            completed_sub_operations);
-        response.set_number_of_failed_sub_operations(
-            failed_sub_operations);
-        response.set_number_of_warning_sub_operations(
-            warning_sub_operations);
-        this->_association.send_message(
-            response, request.get_affected_sop_class_uid());
-        return;
+        final_status = e.status;
+        status_fields = e.status_fields;
+    }
+    catch(odil::Exception const &)
+    {
+        final_status = message::CGetResponse::UnableToProcess;
     }
 
-    message::CGetResponse response(
-        request.get_message_id(), message::CGetResponse::Success);
-    response.set_number_of_remaining_sub_operations(
-        remaining_sub_operations);
-    response.set_number_of_completed_sub_operations(
-        completed_sub_operations);
-    response.set_number_of_failed_sub_operations(
-        failed_sub_operations);
-    response.set_number_of_warning_sub_operations(
-        warning_sub_operations);
+    message::CGetResponse response(request.get_message_id(), final_status);
+    response.set_status_fields(status_fields);
+    response.set_number_of_remaining_sub_operations(remaining_sub_operations);
+    response.set_number_of_completed_sub_operations(completed_sub_operations);
+    response.set_number_of_failed_sub_operations(failed_sub_operations);
+    response.set_number_of_warning_sub_operations(warning_sub_operations);
     this->_association.send_message(
         response, request.get_affected_sop_class_uid());
 }

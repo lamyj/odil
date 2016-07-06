@@ -110,3 +110,17 @@ BOOST_AUTO_TEST_CASE(StatusFailure)
         BOOST_REQUIRE(response.is_failure());
     }
 }
+
+BOOST_AUTO_TEST_CASE(StatusDetails)
+{
+    odil::message::Response response(
+        1234, odil::message::Response::SOPClassNotSupported);
+    odil::DataSet status_details;
+    status_details.add(
+        odil::registry::ErrorComment, {"This is the error comment"});
+    response.set_status_fields(status_details);
+
+    BOOST_REQUIRE(response.has_error_comment());
+    BOOST_REQUIRE_EQUAL(
+        response.get_error_comment(), "This is the error comment");
+}

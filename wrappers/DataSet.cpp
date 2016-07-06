@@ -177,7 +177,9 @@ void wrap_DataSet()
     using namespace odil;
 
 
-    class_<DataSet>("DataSet", init<>())
+    class_<DataSet>("DataSet")
+        .def(init<>())
+        .def(init<std::string>())
         .def(
             "add",
             static_cast<void (DataSet::*)(Tag const &, VR)>(&DataSet::add),
@@ -231,6 +233,10 @@ void wrap_DataSet()
             static_cast<Value::Binary & (DataSet::*)(Tag const &)>(
                 &DataSet::as_binary),
             return_value_policy<reference_existing_object>())
+        .def(
+            "get_transfer_syntax", &DataSet::get_transfer_syntax,
+            return_value_policy<copy_const_reference>())
+        .def("set_transfer_syntax", &DataSet::set_transfer_syntax)
         .def("set", &set)
         .def("keys", &keys)
         .def("__iter__", range(&begin, &end))

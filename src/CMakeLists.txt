@@ -1,12 +1,21 @@
 find_package(Boost REQUIRED COMPONENTS filesystem system)
-find_package(DCMTK REQUIRED)
 find_package(ICU REQUIRED)
 find_package(JsonCpp REQUIRED)
 find_package(Log4Cpp REQUIRED)
+if(WITH_DCMTK)
+    find_package(DCMTK REQUIRED)
+endif()
 
 file(GLOB_RECURSE Header_Files "*.h")
 file(GLOB_RECURSE Source_Files "*.cpp")
 file(GLOB_RECURSE templates "*.txx")
+
+if(NOT WITH_DCMTK)
+    set(pattern "${CMAKE_CURRENT_SOURCE_DIR}/odil/dcmtk/[^;]+[;$]")
+    string(REGEX REPLACE ${pattern} "" Header_Files "${Header_Files}")
+    string(REGEX REPLACE ${pattern} "" Source_Files "${Source_Files}")
+    string(REGEX REPLACE ${pattern} "" templates "${templates}")
+endif()
 
 # Regroup files by folder
 GroupFiles(Header_Files)

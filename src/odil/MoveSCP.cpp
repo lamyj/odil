@@ -70,10 +70,15 @@ MoveSCP
     move_association.associate();
     StoreSCU store_scu(move_association);
 
+    Value::Integer final_status = message::CMoveResponse::Success;
+    DataSet status_fields;
     unsigned int remaining_sub_operations = 0;
     unsigned int completed_sub_operations=0;
     unsigned int failed_sub_operations=0;
     unsigned int warning_sub_operations=0;
+
+    auto const& move_originator_aet = this->_association.get_negotiated_parameters().get_calling_ae_title();
+    auto move_originator_message_id = request.get_message_id();
 
     try
     {
@@ -99,7 +104,7 @@ MoveSCP
             store_scu.set_affected_sop_class(data_set);
             try
             {
-                store_scu.store(data_set);
+                store_scu.store(data_set, move_originator_aet, move_originator_message_id);
 
                 --remaining_sub_operations;
                 ++completed_sub_operations;
@@ -113,33 +118,22 @@ MoveSCP
             this->_generator->next();
         }
     }
-    catch(Exception const &)
+    catch(SCP::Exception const & e)
     {
-        message::CMoveResponse response(
-            request.get_message_id(), message::CMoveResponse::UnableToProcess);
-        response.set_number_of_remaining_sub_operations(
-            remaining_sub_operations);
-        response.set_number_of_completed_sub_operations(
-            completed_sub_operations);
-        response.set_number_of_failed_sub_operations(
-            failed_sub_operations);
-        response.set_number_of_warning_sub_operations(
-            warning_sub_operations);
-        this->_association.send_message(
-            response, request.get_affected_sop_class_uid());
-        return;
+        final_status = e.status;
+        status_fields = e.status_fields;
+    }
+    catch(odil::Exception const &)
+    {
+        final_status = message::CMoveResponse::UnableToProcess;
     }
 
-    message::CMoveResponse response(
-        request.get_message_id(), message::CMoveResponse::Success);
-    response.set_number_of_remaining_sub_operations(
-        remaining_sub_operations);
-    response.set_number_of_completed_sub_operations(
-        completed_sub_operations);
-    response.set_number_of_failed_sub_operations(
-        failed_sub_operations);
-    response.set_number_of_warning_sub_operations(
-        warning_sub_operations);
+    message::CMoveResponse response(request.get_message_id(), final_status);
+    response.set_status_fields(status_fields);
+    response.set_number_of_remaining_sub_operations(remaining_sub_operations);
+    response.set_number_of_completed_sub_operations(completed_sub_operations);
+    response.set_number_of_failed_sub_operations(failed_sub_operations);
+    response.set_number_of_warning_sub_operations(warning_sub_operations);
     this->_association.send_message(
         response, request.get_affected_sop_class_uid());
 }

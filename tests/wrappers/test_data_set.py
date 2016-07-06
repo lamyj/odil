@@ -8,6 +8,20 @@ class TestDataSet(unittest.TestCase):
         self.assertTrue(data_set.empty())
         self.assertEqual(data_set.size(), 0)
         self.assertEqual(len(data_set), 0)
+        self.assertEqual(len(data_set.get_transfer_syntax()), 0)
+
+    def test_transfer_syntax_constructor(self):
+        data_set = odil.DataSet(odil.registry.ExplicitVRLittleEndian)
+        self.assertEqual(
+            data_set.get_transfer_syntax(),
+            odil.registry.ExplicitVRLittleEndian)
+
+    def test_transfer_syntax(self):
+        data_set = odil.DataSet()
+        data_set.set_transfer_syntax(odil.registry.ExplicitVRLittleEndian)
+        self.assertEqual(
+            data_set.get_transfer_syntax(),
+            odil.registry.ExplicitVRLittleEndian)
 
     def test_empty_element_tag(self):
         tag = odil.registry.PatientName

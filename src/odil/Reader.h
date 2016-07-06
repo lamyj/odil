@@ -44,6 +44,21 @@ public:
     bool keep_group_length;
 
     /**
+     * @brief Read binary data from an stream encoded with the given endianness,
+     * ensure stream is still good.
+     */
+    template<typename T>
+    static T read_binary(std::istream & stream, ByteOrdering byte_ordering);
+
+    /// @brief Read pixel data in encapsulated form.
+    static Value::Binary read_encapsulated_pixel_data(
+        std::istream & stream, ByteOrdering byte_ordering,
+        std::string transfer_syntax, bool keep_group_length=false);
+
+    /// @brief Ignore data from a stream, ensure stream is still good.
+    static void ignore(std::istream & stream, std::streamsize size);
+
+    /**
      * @brief Build a reader, derive byte ordering and explicit-ness of VR
      * from transfer syntax.
      */
@@ -106,5 +121,7 @@ private:
 };
 
 }
+
+#include "odil/Reader.txx"
 
 #endif // _aa2965aa_e891_4713_9c90_e8eacd2944ea

@@ -29,7 +29,7 @@ class DataSet
 {
 public:
     /// @brief Create an empty data set.
-    DataSet();
+    explicit DataSet(std::string const & transfer_syntax="");
 
     /// @brief Add an element to the dataset.
     void add(Tag const & tag, Element const & element);
@@ -135,71 +135,71 @@ public:
 
     /// @brief Test whether an existing element has integer type.
     bool is_int(Tag const & tag) const;
-    
+
     /// @brief Return the integers contained in an existing element (read-only).
     Value::Integers const & as_int(Tag const & tag) const;
-    
+
     /// @brief Return the integers contained in an existing element (read-write).
     Value::Integers & as_int(Tag const & tag);
-    
+
     /// @brief Return an integer contained in an existing element (read-only).
     Value::Integer const & as_int(Tag const & tag, unsigned int position) const;
-    
+
     /// @brief Test whether an existing element has real type.
     bool is_real(Tag const & tag) const;
-    
+
     /// @brief Return the reals contained in an existing element (read-only).
     Value::Reals const & as_real(Tag const & tag) const;
-    
+
     /// @brief Return the reals contained in an existing element (read-write).
     Value::Reals & as_real(Tag const & tag);
-    
+
     /// @brief Return an real contained in an existing element (read-only).
     Value::Real const & as_real(Tag const & tag, unsigned int position) const;
-    
+
     /// @brief Test whether an existing element has string type.
     bool is_string(Tag const & tag) const;
-    
+
     /// @brief Return the strings contained in an existing element (read-only).
     Value::Strings const & as_string(Tag const & tag) const;
-    
+
     /// @brief Return the strings contained in an existing element (read-write).
     Value::Strings & as_string(Tag const & tag);
-    
+
     /// @brief Return a string contained in an existing element (read-only).
     Value::String const & as_string(Tag const & tag, unsigned int position) const;
-    
+
     /// @brief Test whether an existing element has data set type.
     bool is_data_set(Tag const & tag) const;
-    
+
     /// @brief Return the data sets contained in an existing element (read-only).
     Value::DataSets const & as_data_set(Tag const & tag) const;
-    
+
     /// @brief Return the data sets contained in an existing element (read-write).
     Value::DataSets & as_data_set(Tag const & tag);
-    
+
     /// @brief Return a data set contained in an existing element (read-only).
     DataSet const & as_data_set(Tag const & tag, unsigned int position) const;
-    
+
     /// @brief Test whether an existing element has binary type.
     bool is_binary(Tag const & tag) const;
-    
+
     /// @brief Return the binary items contained in an existing element (read-only).
     Value::Binary const & as_binary(Tag const & tag) const;
-    
+
     /// @brief Return the binary items contained in an existing element (read-write).
     Value::Binary & as_binary(Tag const & tag);
-    
+
     /// @brief Return a binary item contained in an existing element (read-only).
-    Value::Binary::value_type const & 
+    Value::Binary::value_type const &
     as_binary(Tag const & tag, unsigned int position) const;
 
     /// @brief Iterator to the elements.
     typedef std::map<Tag, Element>::const_iterator const_iterator;
-    
+
     /// @brief Return an iterator to the start of the elements.
     const_iterator begin() const { return this->_elements.begin(); }
-    
+
     /// @brief Return an iterator to the end of the elements.
     const_iterator end() const { return this->_elements.end(); }
 
@@ -209,10 +209,19 @@ public:
     /// @brief Difference test.
     bool operator!=(DataSet const & other) const;
 
+    /// @brief Return the current transfer syntax.
+    std::string const & get_transfer_syntax() const;
+
+    /// @brief Set the current transfer syntax.
+    void set_transfer_syntax(std::string const & transfer_syntax);
+
 private:
     typedef std::map<Tag, Element> ElementMap;
 
     ElementMap _elements;
+
+    /// @brief Current transfer syntax.
+    std::string _transfer_syntax;
 };
 
 }

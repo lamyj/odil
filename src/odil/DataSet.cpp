@@ -22,9 +22,10 @@ namespace odil
 {
 
 DataSet
-::DataSet()
+::DataSet(std::string const & transfer_syntax)
+: _transfer_syntax(transfer_syntax)
 {
-    // Nothing to do.
+    // Nothing else.
 }
 
 void
@@ -244,150 +245,150 @@ template<typename TContainer>
 typename TContainer::value_type const & at_pos(
     TContainer const & container, unsigned int position)
 {
-    if(container.size() <= position) 
-    { 
-        throw Exception("No such element"); 
-    } 
-    return container[position]; 
+    if(container.size() <= position)
+    {
+        throw Exception("No such element");
+    }
+    return container[position];
 }
 
 bool
 DataSet
-::is_int(Tag const & tag) const 
-{ 
+::is_int(Tag const & tag) const
+{
     return (*this)[tag].is_int();
 }
 
 Value::Integers const &
 DataSet
-::as_int(Tag const & tag) const 
-{ 
+::as_int(Tag const & tag) const
+{
     return (*this)[tag].as_int();
 }
 
 Value::Integers &
 DataSet
-::as_int(Tag const & tag) 
-{ 
+::as_int(Tag const & tag)
+{
     return (*this)[tag].as_int();
 }
 
 Value::Integer const &
 DataSet
-::as_int(Tag const & tag, unsigned int position) const 
-{ 
+::as_int(Tag const & tag, unsigned int position) const
+{
     return at_pos(as_int(tag), position);
 }
 
 bool
 DataSet
-::is_real(Tag const & tag) const 
-{ 
+::is_real(Tag const & tag) const
+{
     return (*this)[tag].is_real();
 }
 
 Value::Reals const &
 DataSet
-::as_real(Tag const & tag) const 
-{ 
+::as_real(Tag const & tag) const
+{
     return (*this)[tag].as_real();
 }
 
 Value::Reals &
 DataSet
-::as_real(Tag const & tag) 
-{ 
+::as_real(Tag const & tag)
+{
     return (*this)[tag].as_real();
 }
 
 Value::Real const &
 DataSet
-::as_real(Tag const & tag, unsigned int position) const 
-{ 
+::as_real(Tag const & tag, unsigned int position) const
+{
     return at_pos(as_real(tag), position);
 }
 
 bool
 DataSet
-::is_string(Tag const & tag) const 
-{ 
+::is_string(Tag const & tag) const
+{
     return (*this)[tag].is_string();
 }
 
 Value::Strings const &
 DataSet
-::as_string(Tag const & tag) const 
-{ 
+::as_string(Tag const & tag) const
+{
     return (*this)[tag].as_string();
 }
 
 Value::Strings &
 DataSet
-::as_string(Tag const & tag) 
-{ 
+::as_string(Tag const & tag)
+{
     return (*this)[tag].as_string();
 }
 
 Value::String const &
 DataSet
-::as_string(Tag const & tag, unsigned int position) const 
-{ 
+::as_string(Tag const & tag, unsigned int position) const
+{
     return at_pos(as_string(tag), position);
 }
 
 bool
 DataSet
-::is_data_set(Tag const & tag) const 
-{ 
+::is_data_set(Tag const & tag) const
+{
     return (*this)[tag].is_data_set();
 }
 
 Value::DataSets const &
 DataSet
-::as_data_set(Tag const & tag) const 
-{ 
+::as_data_set(Tag const & tag) const
+{
     return (*this)[tag].as_data_set();
 }
 
 Value::DataSets &
 DataSet
-::as_data_set(Tag const & tag) 
-{ 
+::as_data_set(Tag const & tag)
+{
     return (*this)[tag].as_data_set();
 }
 
 DataSet const &
 DataSet
-::as_data_set(Tag const & tag, unsigned int position) const 
-{ 
+::as_data_set(Tag const & tag, unsigned int position) const
+{
     return at_pos(as_data_set(tag), position);
 }
 
 bool
 DataSet
-::is_binary(Tag const & tag) const 
-{ 
+::is_binary(Tag const & tag) const
+{
     return (*this)[tag].is_binary();
 }
 
 Value::Binary const &
 DataSet
-::as_binary(Tag const & tag) const 
-{ 
+::as_binary(Tag const & tag) const
+{
     return (*this)[tag].as_binary();
 }
 
 Value::Binary &
 DataSet
-::as_binary(Tag const & tag) 
-{ 
+::as_binary(Tag const & tag)
+{
     return (*this)[tag].as_binary();
 }
 
 Value::Binary::value_type const &
 DataSet
-::as_binary(Tag const & tag, unsigned int position) const 
-{ 
+::as_binary(Tag const & tag, unsigned int position) const
+{
     return at_pos(as_binary(tag), position);
 }
 
@@ -449,6 +450,20 @@ DataSet
 ::operator!=(DataSet const & other) const
 {
     return !(*this == other);
+}
+
+std::string const &
+DataSet
+::get_transfer_syntax() const
+{
+    return _transfer_syntax;
+}
+
+void
+DataSet
+::set_transfer_syntax(std::string const & transfer_syntax)
+{
+    this->_transfer_syntax = transfer_syntax;
 }
 
 }
