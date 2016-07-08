@@ -545,7 +545,7 @@ DataSet as_dataset(boost::property_tree::ptree const & xml)
                 element.as_data_set().push_back(it->second);
             }
         }
-        else if(vr == VR::OB || vr == VR::OF || vr == VR::OW || vr == VR::UN)
+        else if(is_binary(vr))
         {
             element = Element(Value::Binary(), vr);
 

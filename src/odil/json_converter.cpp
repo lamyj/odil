@@ -260,7 +260,7 @@ DataSet as_dataset(Json::Value const & json)
                 element.as_data_set().push_back(dicom_item);
             }
         }
-        else if(vr == VR::OB || vr == VR::OF || vr == VR::OW || vr == VR::UN)
+        else if(is_binary(vr))
         {
             element = Element(Value::Binary(), vr);
 

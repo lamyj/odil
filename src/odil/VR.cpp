@@ -141,7 +141,9 @@ bool is_string(VR vr)
 
 bool is_binary(VR vr)
 {
-    return (vr == VR::OB || vr == VR::OF || vr == VR::OW || vr == VR::UN);
+    return (
+        vr == VR::OB || vr == VR::OD || vr == VR::OF || vr == VR::OL ||
+        vr == VR::OW || vr == VR::UN);
 }
 
 

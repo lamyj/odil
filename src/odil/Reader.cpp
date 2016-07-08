@@ -200,7 +200,7 @@ Reader
     {
         value = Value(Value::DataSets());
     }
-    else if(vr == VR::OB || vr == VR::OF || vr == VR::OW || vr == VR::UN)
+    else if(is_binary(vr))
     {
         value = Value(Value::Binary());
     }
@@ -525,6 +525,21 @@ Reader::Visitor
             this->stream.read(
                 reinterpret_cast<char*>(&value[0][0]), value[0].size());
         }
+        else if(this->vr == VR::OD)
+        {
+            if(vl%8 != 0)
+            {
+                throw Exception("Cannot read OD for odd-sized array");
+            }
+
+            value[0].resize(vl);
+            for(unsigned int i=0; i<value[0].size(); i+=8)
+            {
+                auto const item = Reader::read_binary<double>(
+                    this->stream, this->byte_ordering);
+                *reinterpret_cast<double*>(&value[0][i]) = item;
+            }
+        }
         else if(this->vr == VR::OF)
         {
             if(vl%4 != 0)
@@ -538,6 +553,21 @@ Reader::Visitor
                 auto const item = Reader::read_binary<float>(
                     this->stream, this->byte_ordering);
                 *reinterpret_cast<float*>(&value[0][i]) = item;
+            }
+        }
+        else if(this->vr == VR::OL)
+        {
+            if(vl%4 != 0)
+            {
+                throw Exception("Cannot read OL for odd-sized array");
+            }
+
+            value[0].resize(vl);
+            for(unsigned int i=0; i<value[0].size(); i+=4)
+            {
+                auto const item = Reader::read_binary<uint32_t>(
+                    this->stream, this->byte_ordering);
+                *reinterpret_cast<uint32_t*>(&value[0][i]) = item;
             }
         }
         else if(this->vr == VR::OW)
@@ -569,8 +599,9 @@ Reader::Visitor
     uint32_t length;
     if(this->explicit_vr)
     {
-        if(vr == VR::OB || vr == VR::OW || vr == VR::OF || vr == VR::SQ ||
-           vr == VR::UC || vr == VR::UR || vr == VR::UT || vr == VR::UN)
+        if(vr == VR::OB || vr == VR::OD || vr == VR::OF || vr == VR::OL ||
+           vr == VR::OW || vr == VR::OF || vr == VR::SQ || vr == VR::UC ||
+           vr == VR::UR || vr == VR::UT || vr == VR::UN)
         {
             Reader::ignore(this->stream, 2);
             auto const vl = Reader::read_binary<uint32_t>(

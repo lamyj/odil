@@ -174,8 +174,9 @@ Writer
     // Write VL
     if(this->explicit_vr)
     {
-        if(vr == VR::OB || vr == VR::OW || vr == VR::OF || vr == VR::SQ ||
-           vr == VR::UC || vr == VR::UR || vr == VR::UT || vr == VR::UN)
+        if(vr == VR::OB || vr == VR::OD || vr == VR::OF || vr == VR::OL ||
+           vr == VR::OW || vr == VR::OF || vr == VR::SQ || vr == VR::UC ||
+           vr == VR::UR || vr == VR::UT || vr == VR::UN)
         {
             this->write_binary(uint16_t(0), this->stream, this->byte_ordering);
 
@@ -185,7 +186,7 @@ Writer
             {
                 vl = 0xffffffff;
             }
-            else if((vr == VR::OB || vr == VR::OW) && element.size() > 1)
+            else if(is_binary(vr) && element.size() > 1)
             {
                 vl = 0xffffffff;
             }
