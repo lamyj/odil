@@ -58,7 +58,7 @@ endif()
 
 add_custom_target(
     CIIntegration ${CMAKE_COMMAND} -E echo "CI Integration"
-    SOURCES appveyor.yml .travis.yml)
+    SOURCES appveyor.yml .gitlab-ci.yml .travis.yml)
 set_target_properties(CIIntegration PROPERTIES FOLDER "Utils")
 
 add_custom_target(
