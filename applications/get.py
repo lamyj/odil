@@ -122,11 +122,24 @@ def get(
             self.warning = 0
             self.stored = {}
             self.files = []
+            self._study_ids = {}
+            self._series_ids = {}
         
         def store(self, data_set):
             if layout == "flat":
                 directory = ""
             elif layout == "tree":
+                # Patient directory: <PatientName> or <PatientID>. 
+                patient_directory = None
+                if "PatientName" in data_set and data_set.as_string("PatientName"):
+                    patient_directory = data_set.as_string("PatientName")[0]
+                else:
+                    
+                    patient_directory = data_set.as_string("PatientID")[0]
+                
+                # Study directory: <StudyID>_<StudyDescription>, both parts are
+                # optional. If both tags are missing or empty, default to a 
+                # numeric index based on StudyInstanceUID.
                 study_directory = []
                 if "StudyID" in data_set and data_set.as_string("StudyID"):
                     study_directory.append(data_set.as_string("StudyID")[0])
@@ -134,8 +147,18 @@ def get(
                         data_set.as_string("StudyDescription")):
                     study_directory.append(
                         data_set.as_string("StudyDescription")[0])
+                
+                if not study_directory:
+                    study_instance_uid = data_set.as_string("StudyInstanceUID")[0]
+                    study_directory.append(
+                        self._study_ids.setdefault(
+                            study_instance_uid, 1+len(self._study_ids)))
+                    
                 study_directory = "_".join(study_directory)
 
+                # Study directory: <SeriesNumber>_<SeriesDescription>, both 
+                # parts are optional. If both tags are missing or empty, default 
+                # to a numeric index based on SeriesInstanceUID.
                 series_directory = []
                 if "SeriesNumber" in data_set and data_set.as_int("SeriesNumber"):
                     series_directory.append(str(data_set.as_int("SeriesNumber")[0]))
@@ -143,12 +166,21 @@ def get(
                         data_set.as_string("SeriesDescription")):
                     series_directory.append(
                         data_set.as_string("SeriesDescription")[0])
+                
+                if not series_directory:
+                    series_instance_uid = data_set.as_string("series_instance_uid")[0]
+                    series_directory.append(
+                        self._series_ids.setdefault(
+                            series_instance_uid, 1+len(self._series_ids)))
+                
                 series_directory = "_".join(series_directory)
 
                 if iso_9660:
+                    patient_directory = to_iso_9660(patient_directory)
                     study_directory = to_iso_9660(study_directory)
                     series_directory = to_iso_9660(series_directory)
-                directory = os.path.join(study_directory, series_directory)
+                directory = os.path.join(
+                    patient_directory, study_directory, series_directory)
                 if not os.path.isdir(os.path.join(self.directory, directory)):
                     os.makedirs(os.path.join(self.directory, directory))
             else:
@@ -202,4 +234,3 @@ def to_iso_9660(value):
     value = value[:8].upper()
     value = re.sub(r"[^A-Z0-9_]", "_", value)
     return value
-
