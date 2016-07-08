@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 2.8)
 project("odil")
 set(odil_MAJOR_VERSION 0)
 set(odil_MINOR_VERSION 7)
-set(odil_PATCH_VERSION 0)
+set(odil_PATCH_VERSION 1)
 set(odil_VERSION
     ${odil_MAJOR_VERSION}.${odil_MINOR_VERSION}.${odil_PATCH_VERSION})
 
