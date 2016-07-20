@@ -600,8 +600,8 @@ Reader::Visitor
     if(this->explicit_vr)
     {
         if(vr == VR::OB || vr == VR::OD || vr == VR::OF || vr == VR::OL ||
-           vr == VR::OW || vr == VR::OF || vr == VR::SQ || vr == VR::UC ||
-           vr == VR::UR || vr == VR::UT || vr == VR::UN)
+           vr == VR::OW || vr == VR::SQ || vr == VR::UC || vr == VR::UR || 
+           vr == VR::UT || vr == VR::UN)
         {
             Reader::ignore(this->stream, 2);
             auto const vl = Reader::read_binary<uint32_t>(

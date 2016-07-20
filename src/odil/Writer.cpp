@@ -175,8 +175,8 @@ Writer
     if(this->explicit_vr)
     {
         if(vr == VR::OB || vr == VR::OD || vr == VR::OF || vr == VR::OL ||
-           vr == VR::OW || vr == VR::OF || vr == VR::SQ || vr == VR::UC ||
-           vr == VR::UR || vr == VR::UT || vr == VR::UN)
+           vr == VR::OW || vr == VR::SQ || vr == VR::UC || vr == VR::UR || 
+           vr == VR::UT || vr == VR::UN)
         {
             this->write_binary(uint16_t(0), this->stream, this->byte_ordering);
 
