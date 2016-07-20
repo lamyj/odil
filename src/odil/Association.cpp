@@ -446,6 +446,11 @@ Association
 ::send_message(
     message::Message const & message, std::string const & abstract_syntax)
 {
+    if(!this->is_associated())
+    {
+        throw Exception("Not associated");
+    }
+    
     auto const transfer_syntax_it =
         this->_transfer_syntaxes_by_abstract_syntax.find(abstract_syntax);
     if(transfer_syntax_it == this->_transfer_syntaxes_by_abstract_syntax.end())
