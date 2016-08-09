@@ -22,7 +22,6 @@ addons:
     - libboost-test-dev
     - liblog4cpp5-dev
     - dcmtk
-    - ninja-build
     - cmake
     - pkg-config
 before_install:
@@ -31,7 +30,7 @@ before_install:
   - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew uninstall json-c; fi
   # Boost is already installed with another version
   - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew unlink boost; brew install boost boost-python; fi
-  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew install dcmtk icu4c jsoncpp log4cpp ninja; fi
+  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew install dcmtk icu4c jsoncpp log4cpp; fi
   - pip install --user cpp-coveralls nose
   - export PATH=$(python -c 'import site; print(site.getuserbase())')/bin:${PATH}
 before_script:
@@ -42,9 +41,9 @@ before_script:
   - CMAKE_CXX_FLAGS="-std=c++11"
   - if [ "${CC}" = "gcc" ]; then CMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS} --coverage"; fi
   - if [ "$TRAVIS_OS_NAME" = "osx" ]; then export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/usr/local/opt/icu4c/lib/pkgconfig; fi
-  - cmake -G Ninja -D CMAKE_CXX_FLAGS:STRING="${CMAKE_CXX_FLAGS}" -D CMAKE_BUILD_TYPE:STRING=Debug ../
+  - cmake -D CMAKE_CXX_FLAGS:STRING="${CMAKE_CXX_FLAGS}" -D CMAKE_BUILD_TYPE:STRING=Debug ../
 script:
-  - ninja
+  - make
   - ../tests/run --no-network
 after_success:
   - if [ "${CC}" = "gcc" ]; then coveralls --exclude examples --exclude tests --exclude-pattern '.*CMake[^/]+\.c(?:pp)?' --exclude-pattern "/usr/.*" --root=${SRC_DIR} --build-root ${BIN_DIR} > /dev/null; fi
