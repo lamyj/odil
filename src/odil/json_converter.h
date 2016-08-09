@@ -10,13 +10,17 @@
 #define _6f5dc463_a89a_4f77_a0ed_36dca74b9e59
 
 #include <json/json.h>
+
 #include "odil/DataSet.h"
+#include "odil/Value.h"
 
 namespace odil
 {
 
 /// @brief Convert a data set to its JSON representation.
-Json::Value as_json(DataSet const & data_set);
+Json::Value as_json(
+    DataSet const & data_set,
+    odil::Value::Strings const & specific_character_set = {});
 
 /// @brief Create a data set from its JSON representation.
 DataSet as_dataset(Json::Value const & json);

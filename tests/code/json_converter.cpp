@@ -10,6 +10,7 @@
 #include "odil/DataSet.h"
 #include "odil/Element.h"
 #include "odil/json_converter.h"
+#include "odil/registry.h"
 #include "odil/Value.h"
 #include "odil/VR.h"
 
@@ -100,6 +101,25 @@ BOOST_AUTO_TEST_CASE(AsJSONStrings)
         &Json::Value::isString, &Json::Value::asString, data_set.as_string(0xdeadbeef));
 }
 
+BOOST_AUTO_TEST_CASE(AsJSONStringsUnicode)
+{
+    odil::DataSet data_set;
+    data_set.add(
+        odil::registry::SpecificCharacterSet,
+        odil::Value::Strings({"ISO_IR 100"}), odil::VR::LO);
+    data_set.add(
+        0xdeadbeef, odil::Value::Strings({"J\xe9r\xf4me"}), odil::VR::LO);
+    auto const json = odil::as_json(data_set);
+
+    check_json_object(
+        json, {std::string(odil::registry::SpecificCharacterSet), "deadbeef"});
+    check_json_object(json["deadbeef"], {"vr", "Value"});
+    check_json_string(json["deadbeef"]["vr"], "LO");
+    check_json_array(json["deadbeef"]["Value"],
+        &Json::Value::isString, &Json::Value::asString,
+        odil::Value::Strings{std::string("J\xc3\xa9r\xc3\xb4me")});
+}
+
 BOOST_AUTO_TEST_CASE(AsJSONPersonName)
 {
     odil::DataSet data_set;
@@ -119,6 +139,28 @@ BOOST_AUTO_TEST_CASE(AsJSONPersonName)
     check_json_string(json["deadbeef"]["Value"][0]["Alphabetic"], {"Alpha^Betic"});
     check_json_string(json["deadbeef"]["Value"][0]["Ideographic"], {"Ideo^Graphic"});
     check_json_string(json["deadbeef"]["Value"][0]["Phonetic"], {"Pho^Netic"});
+}
+
+BOOST_AUTO_TEST_CASE(AsJSONPersonNameUnicode)
+{
+    odil::DataSet data_set;
+    data_set.add(
+        odil::registry::SpecificCharacterSet,
+        odil::Value::Strings({"ISO_IR 100"}), odil::VR::LO);
+    data_set.add(
+        0xdeadbeef, odil::Value::Strings({"Buc^J\xe9r\xf4me"}), odil::VR::PN);
+    auto const json = odil::as_json(data_set);
+    check_json_object(
+        json, {std::string(odil::registry::SpecificCharacterSet), "deadbeef"});
+    check_json_object(json["deadbeef"], {"vr", "Value"});
+    check_json_string(json["deadbeef"]["vr"], "PN");
+
+    BOOST_REQUIRE(json["deadbeef"]["Value"].isArray());
+    BOOST_REQUIRE_EQUAL(json["deadbeef"]["Value"].size(), 1);
+    check_json_object(json["deadbeef"]["Value"][0], {"Alphabetic"});
+    check_json_string(
+        json["deadbeef"]["Value"][0]["Alphabetic"],
+        {"Buc^J\xc3\xa9r\xc3\xb4me"});
 }
 
 BOOST_AUTO_TEST_CASE(AsJSONDataSets)
