@@ -20,7 +20,7 @@ namespace odil
 /// @brief Convert a data set to its JSON representation.
 Json::Value as_json(
     DataSet const & data_set,
-    odil::Value::Strings const & specific_character_set = {});
+    odil::Value::Strings const & specific_character_set=odil::Value::Strings());
 
 /// @brief Create a data set from its JSON representation.
 DataSet as_dataset(Json::Value const & json);
