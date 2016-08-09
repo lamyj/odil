@@ -12,6 +12,7 @@
 #include <log4cpp/Category.hh>
 #include <log4cpp/Priority.hh>
 
-#define ODIL_LOG(level) log4cpp::Category::getRoot() << log4cpp::Priority::level
+#define ODIL_LOG(level) \
+    log4cpp::Category::getInstance("odil") << log4cpp::Priority::level
 
 #endif // _5382f5e0_e993_4966_9447_542844edb635

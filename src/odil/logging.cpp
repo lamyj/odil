@@ -23,7 +23,7 @@ bool configure()
     auto * appender = new log4cpp::OstreamAppender("console", &std::cout);
     appender->setLayout(new log4cpp::BasicLayout());
 
-    auto & root = log4cpp::Category::getRoot();
+    auto & root = log4cpp::Category::getInstance("odil");
     root.setPriority(log4cpp::Priority::WARN);
     root.addAppender(appender);
 
