@@ -162,6 +162,39 @@ Reader
     return Tag(group, element);
 }
 
+uint32_t
+Reader
+::read_length(VR vr) const
+{
+    uint32_t length;
+    if(this->explicit_vr)
+    {
+        // PS 3.5, 7.1.2
+        if(is_binary(vr)
+            || vr == VR::SQ || vr == VR::UC || vr == VR::UR || vr == VR::UT)
+        {
+            Reader::ignore(this->stream, 2);
+            auto const vl = Reader::read_binary<uint32_t>(
+                this->stream, this->byte_ordering);
+            length = vl;
+        }
+        else
+        {
+            auto const vl = Reader::read_binary<uint16_t>(
+                this->stream, this->byte_ordering);
+            length = vl;
+        }
+    }
+    else
+    {
+        auto const vl = Reader::read_binary<uint32_t>(
+            this->stream, this->byte_ordering);
+        length = vl;
+    }
+
+    return length;
+}
+
 Element
 Reader
 ::read_element(Tag const & tag, DataSet const & data_set) const
@@ -179,7 +212,12 @@ Reader
 
     Value value;
 
-    if(vr == VR::IS || vr == VR::SL || vr == VR::SS ||
+    auto const vl = this->read_length(vr);
+    if(vl == 0)
+    {
+        value = Value();
+    }
+    else if(vr == VR::IS || vr == VR::SL || vr == VR::SS ||
         vr == VR::UL || vr == VR::US)
     {
         value = Value(Value::Integers());
@@ -209,10 +247,17 @@ Reader
         throw Exception("Cannot create value for VR " + as_string(vr));
     }
 
-    Visitor visitor(
-        this->stream, vr, this->transfer_syntax, this->byte_ordering,
-        this->explicit_vr, this->keep_group_length);
-    apply_visitor(visitor, value);
+    if(!value.empty())
+    {
+        Visitor visitor(
+            this->stream, vr, vl, this->transfer_syntax, this->byte_ordering,
+            this->explicit_vr, this->keep_group_length);
+        apply_visitor(visitor, value);
+        if(vr == VR::SQ && value.as_data_sets().empty())
+        {
+            value = Value();
+        }
+    }
 
     return Element(value, vr);
 }
@@ -266,9 +311,10 @@ Reader
 
 Reader::Visitor
 ::Visitor(
-    std::istream & stream, VR vr, std::string const & transfer_syntax,
-    ByteOrdering byte_ordering, bool explicit_vr, bool keep_group_length)
-: stream(stream), vr(vr), transfer_syntax(transfer_syntax),
+    std::istream & stream, VR vr, uint32_t vl,
+    std::string const & transfer_syntax, ByteOrdering byte_ordering,
+    bool explicit_vr, bool keep_group_length)
+: stream(stream), vr(vr), vl(vl), transfer_syntax(transfer_syntax),
     byte_ordering(byte_ordering), explicit_vr(explicit_vr),
     keep_group_length(keep_group_length)
 {
@@ -279,11 +325,9 @@ Reader::Visitor::result_type
 Reader::Visitor
 ::operator()(Value::Integers & value) const
 {
-    auto const vl = this->read_length();
-
     if(this->vr == VR::IS)
     {
-        auto const string = read_string(this->stream, vl);
+        auto const string = read_string(this->stream, this->vl);
         if(!string.empty())
         {
             auto const strings = this->split_strings(string);
@@ -299,11 +343,11 @@ Reader::Visitor
         uint32_t items = 0;
         if(this->vr == VR::SL || this->vr == VR::UL)
         {
-            items = vl/4;
+            items = this->vl/4;
         }
         else if(this->vr == VR::AT || this->vr == VR::SS || this->vr == VR::US)
         {
-            items = vl/2;
+            items = this->vl/2;
         }
         else
         {
@@ -345,11 +389,9 @@ Reader::Visitor::result_type
 Reader::Visitor
 ::operator()(Value::Reals & value) const
 {
-    auto const vl = this->read_length();
-
     if(this->vr == VR::DS)
     {
-        auto const string = read_string(this->stream, vl);
+        auto const string = read_string(this->stream, this->vl);
         if(!string.empty())
         {
             auto const strings = this->split_strings(string);
@@ -368,11 +410,11 @@ Reader::Visitor
         uint32_t items = 0;
         if(this->vr == VR::FD)
         {
-            items = vl/8;
+            items = this->vl/8;
         }
         else if(this->vr == VR::FL)
         {
-            items = vl/4;
+            items = this->vl/4;
         }
         else
         {
@@ -419,8 +461,7 @@ Reader::Visitor
     }
     else
     {
-        auto const vl = this->read_length();
-        auto const string = read_string(this->stream, vl);
+        auto const string = read_string(this->stream, this->vl);
         if(this->vr == VR::LT || this->vr == VR::ST || this->vr == VR::UT)
         {
             value = { string };
@@ -448,12 +489,10 @@ Reader::Visitor::result_type
 Reader::Visitor
 ::operator()(Value::DataSets & value) const
 {
-    auto const vl = this->read_length();
-
-    if(vl != 0xffffffff)
+    if(this->vl != 0xffffffff)
     {
         // Explicit length sequence
-        std::string const data = read_string(this->stream, vl);
+        std::string const data = read_string(this->stream, this->vl);
         std::istringstream sequence_stream(data);
         Reader const sequence_reader(
             sequence_stream, this->transfer_syntax, this->keep_group_length);
@@ -505,12 +544,11 @@ Reader::Visitor::result_type
 Reader::Visitor
 ::operator()(Value::Binary & value) const
 {
-    auto const vl = this->read_length();
-    if(vl == 0)
+    if(this->vl == 0)
     {
         return;
     }
-    else if(vl == 0xffffffff)
+    else if(this->vl == 0xffffffff)
     {
         value = Reader::read_encapsulated_pixel_data(
             this->stream, this->byte_ordering, this->transfer_syntax,
@@ -521,18 +559,18 @@ Reader::Visitor
         value.resize(1);
         if(this->vr == VR::OB || this->vr == VR::UN)
         {
-            value[0].resize(vl);
+            value[0].resize(this->vl);
             this->stream.read(
                 reinterpret_cast<char*>(&value[0][0]), value[0].size());
         }
         else if(this->vr == VR::OD)
         {
-            if(vl%8 != 0)
+            if(this->vl%8 != 0)
             {
                 throw Exception("Cannot read OD for odd-sized array");
             }
 
-            value[0].resize(vl);
+            value[0].resize(this->vl);
             for(unsigned int i=0; i<value[0].size(); i+=8)
             {
                 auto const item = Reader::read_binary<double>(
@@ -542,12 +580,12 @@ Reader::Visitor
         }
         else if(this->vr == VR::OF)
         {
-            if(vl%4 != 0)
+            if(this->vl%4 != 0)
             {
                 throw Exception("Cannot read OF for odd-sized array");
             }
 
-            value[0].resize(vl);
+            value[0].resize(this->vl);
             for(unsigned int i=0; i<value[0].size(); i+=4)
             {
                 auto const item = Reader::read_binary<float>(
@@ -557,12 +595,12 @@ Reader::Visitor
         }
         else if(this->vr == VR::OL)
         {
-            if(vl%4 != 0)
+            if(this->vl%4 != 0)
             {
                 throw Exception("Cannot read OL for odd-sized array");
             }
 
-            value[0].resize(vl);
+            value[0].resize(this->vl);
             for(unsigned int i=0; i<value[0].size(); i+=4)
             {
                 auto const item = Reader::read_binary<uint32_t>(
@@ -572,12 +610,12 @@ Reader::Visitor
         }
         else if(this->vr == VR::OW)
         {
-            if(vl%2 != 0)
+            if(this->vl%2 != 0)
             {
                 throw Exception("Cannot read OW for odd-sized array");
             }
 
-            value[0].resize(vl);
+            value[0].resize(this->vl);
             for(unsigned int i=0; i<value[0].size(); i+=2)
             {
                 auto const item = Reader::read_binary<uint16_t>(
@@ -590,39 +628,6 @@ Reader::Visitor
             throw Exception("Cannot read "+as_string(this->vr)+" as binary");
         }
     }
-}
-
-uint32_t
-Reader::Visitor
-::read_length() const
-{
-    uint32_t length;
-    if(this->explicit_vr)
-    {
-        if(vr == VR::OB || vr == VR::OD || vr == VR::OF || vr == VR::OL ||
-           vr == VR::OW || vr == VR::SQ || vr == VR::UC || vr == VR::UR || 
-           vr == VR::UT || vr == VR::UN)
-        {
-            Reader::ignore(this->stream, 2);
-            auto const vl = Reader::read_binary<uint32_t>(
-                this->stream, this->byte_ordering);
-            length = vl;
-        }
-        else
-        {
-            auto const vl = Reader::read_binary<uint16_t>(
-                this->stream, this->byte_ordering);
-            length = vl;
-        }
-    }
-    else
-    {
-        auto const vl = Reader::read_binary<uint32_t>(
-            this->stream, this->byte_ordering);
-        length = vl;
-    }
-
-    return length;
 }
 
 Value::Strings

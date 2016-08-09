@@ -15,6 +15,8 @@
 #include "odil/VR.h"
 #include "odil/dcmtk/conversion.h"
 
+#include "odil/json_converter.h"
+
 BOOST_AUTO_TEST_CASE(Constructor)
 {
     std::istringstream stream;
@@ -77,100 +79,153 @@ void do_test(odil::DataSet const & odil_data_set)
     }
 }
 
+template<typename T>
+void do_test(odil::Tag const & tag, odil::VR vr, std::initializer_list<T> const & value)
+{
+    // Empty element
+    {
+        odil::Element element(odil::Value(), vr);
+        odil::DataSet data_set;
+        data_set.add(tag, element);
+        do_test(data_set);
+    }
+    // Single value
+    {
+        odil::Element element({ *value.begin() }, vr);
+        odil::DataSet data_set;
+        data_set.add(tag, element);
+        do_test(data_set);
+    }
+    // Multiple values
+    {
+        odil::Element element(value, vr);
+        odil::DataSet data_set;
+        data_set.add(tag, element);
+        do_test(data_set);
+    }
+}
+
+BOOST_AUTO_TEST_CASE(AE)
+{
+    do_test(
+        odil::registry::SelectorAEValue, odil::VR::AE,
+        {std::string("LOCAL"), std::string("REMOTE")});
+}
+
+BOOST_AUTO_TEST_CASE(AS)
+{
+    do_test(
+        odil::registry::SelectorASValue, odil::VR::AS,
+        {std::string("035Y"), std::string("022W")});
+}
+
 BOOST_AUTO_TEST_CASE(AT)
 {
-    odil::Element odil_element({"12345678", "9abcdef0"}, odil::VR::AT);
-    odil::DataSet odil_data_set;
-    odil_data_set.add(odil::registry::SelectorATValue, odil_element);
-
-    do_test(odil_data_set);
+    do_test(
+        odil::registry::SelectorATValue, odil::VR::AT,
+        {std::string("12345678"), std::string("9abcdef0")});
 }
 
 BOOST_AUTO_TEST_CASE(CS)
 {
-    odil::Element odil_element({"ABC", "DEF"}, odil::VR::CS);
-    odil::DataSet odil_data_set;
-    odil_data_set.add(odil::registry::SelectorCSValue, odil_element);
+    do_test(
+        odil::registry::SelectorCSValue, odil::VR::CS,
+        {std::string("ABC"), std::string("DEF")});
+}
 
-    do_test(odil_data_set);
+BOOST_AUTO_TEST_CASE(DA)
+{
+    do_test(
+        odil::registry::SelectorDAValue, odil::VR::DA,
+        {std::string("20160103"), std::string("19700131")});
 }
 
 BOOST_AUTO_TEST_CASE(DS)
 {
-    odil::Element odil_element({1.23, -4.56}, odil::VR::DS);
-    odil::DataSet odil_data_set;
-    odil_data_set.add(odil::registry::SelectorDSValue, odil_element);
+    do_test(odil::registry::SelectorDSValue, odil::VR::DS, {1.23, -4.56});
+}
 
-    do_test(odil_data_set);
+BOOST_AUTO_TEST_CASE(DT)
+{
+    do_test(
+        odil::registry::SelectorDTValue, odil::VR::DT,
+        {std::string("20160103112233"), std::string("19700131001122.123456")});
 }
 
 BOOST_AUTO_TEST_CASE(FD)
 {
-    odil::Element odil_element({1.23, -4.56}, odil::VR::FD);
-    odil::DataSet odil_data_set;
-    odil_data_set.add(odil::registry::SelectorFDValue, odil_element);
-
-    do_test(odil_data_set);
+    do_test(odil::registry::SelectorFDValue, odil::VR::FD, {1.23, -4.56});
 }
 
 BOOST_AUTO_TEST_CASE(FL)
 {
-    odil::Element odil_element({0.5, -0.125}, odil::VR::FL);
-    odil::DataSet odil_data_set;
-    odil_data_set.add(odil::registry::SelectorFLValue, odil_element);
-
-    do_test(odil_data_set);
+    do_test(odil::registry::SelectorFLValue, odil::VR::FL, {0.5, -0.125});
 }
 
 BOOST_AUTO_TEST_CASE(IS)
 {
-    odil::Element odil_element({123, -456}, odil::VR::IS);
-    odil::DataSet odil_data_set;
-    odil_data_set.add(odil::registry::SelectorISValue, odil_element);
+    do_test(odil::registry::SelectorISValue, odil::VR::IS, {123, -456});
+}
 
-    do_test(odil_data_set);
+BOOST_AUTO_TEST_CASE(LO)
+{
+    do_test(
+        odil::registry::SelectorLOValue, odil::VR::LO,
+        {std::string("Foo"), std::string("Bar")});
+}
+
+BOOST_AUTO_TEST_CASE(LT)
+{
+    do_test(
+        odil::registry::SelectorLTValue, odil::VR::LT,
+        {std::string("Foo\\Bar")});
 }
 
 BOOST_AUTO_TEST_CASE(OB)
 {
-    odil::Element odil_element(
-        odil::Value::Binary({{0x01, 0x02, 0x03, 0x04}}),
-        odil::VR::OB);
-    odil::DataSet odil_data_set;
-    odil_data_set.add(odil::registry::EncapsulatedDocument, odil_element);
-
-    do_test(odil_data_set);
+    do_test(
+        odil::registry::EncapsulatedDocument, odil::VR::OB, {
+            odil::Value::Binary::value_type{0x01, 0x02, 0x03, 0x04} });
 }
+
+// OD is not in current DCMTK
 
 BOOST_AUTO_TEST_CASE(OF)
 {
-    odil::Element odil_element(
-        odil::Value::Binary({{0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08}}),
-        odil::VR::OF);
-    odil::DataSet odil_data_set;
-    odil_data_set.add(odil::registry::VectorGridData, odil_element);
-
-    do_test(odil_data_set);
+    do_test(
+        odil::registry::VectorGridData, odil::VR::OF, {
+            odil::Value::Binary::value_type{
+                0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08} });
 }
+
+// OL is not in current DCMTK
 
 BOOST_AUTO_TEST_CASE(OW)
 {
-    odil::Element odil_element(
-        odil::Value::Binary({{0x01, 0x02, 0x03, 0x04}}),
-        odil::VR::OW);
-    odil::DataSet odil_data_set;
-    odil_data_set.add(odil::registry::RedPaletteColorLookupTableData, odil_element);
+    do_test(
+        odil::registry::RedPaletteColorLookupTableData, odil::VR::OW, {
+            odil::Value::Binary::value_type{0x01, 0x02, 0x03, 0x04} });
+}
 
-    do_test(odil_data_set);
+BOOST_AUTO_TEST_CASE(PN)
+{
+    do_test(
+        odil::registry::SelectorPNValue, odil::VR::PN, {
+            std::string("Adams^John Robert Quincy^^Rev.^B.A. M.Div."),
+            std::string("Morrison-Jones^Susan^^^Ph.D., Chief Executive Officer")
+        });
+}
+
+BOOST_AUTO_TEST_CASE(SH)
+{
+    do_test(
+        odil::registry::SelectorSHValue, odil::VR::SH,
+        {std::string("Foo"), std::string("Bar")});
 }
 
 BOOST_AUTO_TEST_CASE(SL)
 {
-    odil::Element odil_element({12345678, -8765432}, odil::VR::SL);
-    odil::DataSet odil_data_set;
-    odil_data_set.add(odil::registry::SelectorSLValue, odil_element);
-
-    do_test(odil_data_set);
+    do_test(odil::registry::SelectorSLValue, odil::VR::SL, {12345678, -8765432});
 }
 
 BOOST_AUTO_TEST_CASE(SQ)
@@ -184,48 +239,65 @@ BOOST_AUTO_TEST_CASE(SQ)
         odil::registry::SelectorFDValue,
         odil::Element({1.23, -4.56}, odil::VR::FD));
 
-    odil::DataSet odil_data_set;
-    odil_data_set.add(odil::registry::FrameExtractionSequence,
-        odil::Element({item1, item2}, odil::VR::SQ));
-
-    do_test(odil_data_set);
+    do_test(odil::registry::FrameExtractionSequence, odil::VR::SQ, {item1, item2});
 }
 
 BOOST_AUTO_TEST_CASE(SS)
 {
-    odil::Element odil_element({1234, -5678}, odil::VR::SS);
-    odil::DataSet odil_data_set;
-    odil_data_set.add(odil::registry::SelectorSSValue, odil_element);
-
-    do_test(odil_data_set);
+    do_test(odil::registry::SelectorSSValue, odil::VR::SS, {1234, -5678});
 }
+
+BOOST_AUTO_TEST_CASE(ST)
+{
+    do_test(
+        odil::registry::SelectorSTValue, odil::VR::ST,
+        {std::string("Foo\\Bar")});
+}
+
+BOOST_AUTO_TEST_CASE(TM)
+{
+    do_test(
+        odil::registry::SelectorTMValue, odil::VR::TM,
+        {std::string("112233"), std::string("001122.123456")});
+}
+
+// UC is not in current DCMTK
+//{
+//    do_test(
+//        odil::registry::SelectorUCValue, odil::VR::UC,
+//        {std::string("Foo"), std::string("Bar")});
+//}
 
 BOOST_AUTO_TEST_CASE(UI)
 {
-    odil::Element odil_element({"1.2", "3.4"}, odil::VR::UI);
-    odil::DataSet odil_data_set;
     // SelectorUIValue is not in current DCMTK
-    odil_data_set.add(odil::registry::SOPInstanceUID, odil_element);
-
-    do_test(odil_data_set);
+    do_test(
+        odil::registry::SOPInstanceUID, odil::VR::UI,
+        {std::string("1.2"), std::string("3.4")});
 }
 
 BOOST_AUTO_TEST_CASE(UL)
 {
-    odil::Element odil_element({12345678, 8765432}, odil::VR::UL);
-    odil::DataSet odil_data_set;
-    odil_data_set.add(odil::registry::SelectorULValue, odil_element);
-
-    do_test(odil_data_set);
+    do_test(odil::registry::SelectorULValue, odil::VR::UL, {12345678, 8765432});
 }
+
+// UR is not in current DCMTK
+//{
+//    do_test(
+//        odil::registry::SelectorURValue, odil::VR::UR,
+//        {std::string("https://example.com"), std::string("mailto:me@example.com")});
+//}
 
 BOOST_AUTO_TEST_CASE(US)
 {
-    odil::Element odil_element({1234, 5678}, odil::VR::US);
-    odil::DataSet odil_data_set;
-    odil_data_set.add(odil::registry::SelectorUSValue, odil_element);
+    do_test(odil::registry::SelectorUSValue, odil::VR::US, {1234, 5678});
+}
 
-    do_test(odil_data_set);
+BOOST_AUTO_TEST_CASE(UT)
+{
+    do_test(
+        odil::registry::SelectorUTValue, odil::VR::UT,
+        {std::string("Foo\\Bar")});
 }
 
 void do_file_test(

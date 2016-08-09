@@ -73,6 +73,9 @@ public:
     /// @brief Read a tag.
     Tag read_tag() const;
 
+    /// @brief Read the length of an element.
+    uint32_t read_length(VR vr) const;
+
     /**
      * @brief Read an element (VR and value), try to guess the VR from the tag,
      * partially read data set, and transfer syntax for implicit VR transfer
@@ -95,6 +98,7 @@ private:
 
         std::istream & stream;
         VR vr;
+        uint32_t vl;
 
         std::string transfer_syntax;
         ByteOrdering byte_ordering;
@@ -102,8 +106,9 @@ private:
         bool keep_group_length;
 
         Visitor(
-            std::istream & stream, VR vr, std::string const & transfer_syntax,
-            ByteOrdering byte_ordering, bool explicit_vr, bool keep_group_length);
+            std::istream & stream, VR vr, uint32_t vl,
+            std::string const & transfer_syntax, ByteOrdering byte_ordering,
+            bool explicit_vr, bool keep_group_length);
 
         result_type operator()(Value::Integers & value) const;
         result_type operator()(Value::Reals & value) const;
@@ -111,7 +116,7 @@ private:
         result_type operator()(Value::DataSets & value) const;
         result_type operator()(Value::Binary & value) const;
 
-        uint32_t read_length() const;
+        // uint32_t read_length() const;
 
         Value::Strings split_strings(std::string const & string) const;
         DataSet read_item(std::istream & specific_stream) const;
