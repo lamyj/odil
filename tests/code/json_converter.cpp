@@ -206,6 +206,15 @@ BOOST_AUTO_TEST_CASE(AsJSONBinary)
     check_json_string(json["deadbeef"]["InlineBinary"], "AQIDBAU=");
 }
 
+BOOST_AUTO_TEST_CASE(AsJSONGroupLength)
+{
+    odil::DataSet data_set;
+    data_set.add(0x00100000, {1234}, odil::VR::UL);
+    data_set.add(odil::registry::PatientID, {"DJ0001"});
+    auto const json = odil::as_json(data_set);
+    check_json_object(json, {"00100020"});
+}
+
 BOOST_AUTO_TEST_CASE(AsDataSetEmpty)
 {
     std::stringstream data;

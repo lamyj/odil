@@ -203,6 +203,12 @@ Json::Value as_json(
     for(auto const & it: data_set)
     {
         auto const & tag = it.first;
+        if(tag.element == 0)
+        {
+            // Skip group length tags
+            continue;
+        }
+
         auto const & element = it.second;
 
         // Specific character set
