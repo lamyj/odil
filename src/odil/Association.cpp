@@ -276,7 +276,18 @@ Association
     if(data.pdu == NULL)
     {
         // We have rejected the request
-        //return false;
+        if(!data.reject)
+        {
+            throw (*data.reject);
+        }
+        else
+        {
+            throw AssociationRejected(
+                Association::RejectedTransient,
+                Association::ULServiceProvderPresentationRelatedFunction,
+                Association::NoReasonGiven,
+                "No reject information");
+        }
     }
     else
     {
