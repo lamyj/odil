@@ -39,6 +39,13 @@ public:
             TransferSyntaxesNotSupported = 4,
         };
 
+        PresentationContext(
+            uint8_t id,
+            std::string const & abstract_syntax,
+            std::vector<std::string> const & transfer_syntaxes,
+            bool scu_role_support, bool scp_role_support,
+            Result result=Result::NoReason);
+
         /// @brief Identifier of the presentation context, must be odd.
         uint8_t id;
         
@@ -73,6 +80,12 @@ public:
             Kerberos = 3,
             SAML = 4
         };
+
+        UserIdentity();
+
+        UserIdentity(
+            Type type, std::string const & primary_field,
+            std::string const & secondary_field);
 
         /// @brief Identity type.
         Type type;

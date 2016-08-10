@@ -86,6 +86,16 @@ BOOST_AUTO_TEST_CASE(PresentationContexts)
     BOOST_REQUIRE(parameters.get_presentation_contexts()[1].scp_role_support);
 }
 
+BOOST_AUTO_TEST_CASE(UserIdentityDefault)
+{
+    odil::AssociationParameters parameters;
+    BOOST_REQUIRE(
+        parameters.get_user_identity().type ==
+            odil::AssociationParameters::UserIdentity::Type::None);
+    BOOST_REQUIRE(parameters.get_user_identity().primary_field.empty());
+    BOOST_REQUIRE(parameters.get_user_identity().secondary_field.empty());
+}
+
 BOOST_AUTO_TEST_CASE(UserIdentityNone)
 {
     odil::AssociationParameters parameters;

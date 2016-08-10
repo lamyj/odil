@@ -27,6 +27,19 @@
 namespace odil
 {
 
+AssociationParameters::PresentationContext
+::PresentationContext(
+    uint8_t id,
+    std::string const & abstract_syntax,
+    std::vector<std::string> const & transfer_syntaxes,
+    bool scu_role_support, bool scp_role_support, Result result)
+: id(id), abstract_syntax(abstract_syntax), transfer_syntaxes(transfer_syntaxes),
+  scu_role_support(scu_role_support), scp_role_support(scp_role_support),
+  result(result)
+{
+    // Nothing else.
+}
+
 bool 
 AssociationParameters::PresentationContext
 ::operator==(PresentationContext const & other) const
@@ -39,6 +52,22 @@ AssociationParameters::PresentationContext
         this->scp_role_support == other.scp_role_support &&
         this->result == other.result
     );
+}
+
+AssociationParameters::UserIdentity
+::UserIdentity()
+: type(UserIdentity::Type::None), primary_field(), secondary_field()
+{
+    // Nothing else.
+}
+
+AssociationParameters::UserIdentity
+::UserIdentity(
+    Type type, std::string const & primary_field,
+    std::string const & secondary_field)
+: type(type), primary_field(primary_field), secondary_field(secondary_field)
+{
+    // Nothing else.
 }
 
 bool 
@@ -73,13 +102,15 @@ AssociationParameters::UserIdentity
 AssociationParameters
 ::AssociationParameters()
 : _called_ae_title(""), _calling_ae_title(""), _presentation_contexts(),
-  _user_identity({UserIdentity::Type::None, "", ""}), _maximum_length(16384)
+  _user_identity(), _maximum_length(16384)
 {
     // Nothing else.
 }
 
 AssociationParameters
 ::AssociationParameters(pdu::AAssociateRQ const & pdu)
+: _called_ae_title(""), _calling_ae_title(""), _presentation_contexts(),
+  _user_identity(), _maximum_length(16384)
 {
     this->set_called_ae_title(pdu.get_called_ae_title());
     this->set_calling_ae_title(pdu.get_calling_ae_title());
@@ -103,19 +134,12 @@ AssociationParameters
     pcs_parameters.reserve(pcs_pdu.size());
     for(auto const & pc_pdu: pcs_pdu)
     {
-        AssociationParameters::PresentationContext pc_parameters;
-
-        pc_parameters.id = pc_pdu.get_id();
-        pc_parameters.abstract_syntax = pc_pdu.get_abstract_syntax();
-        pc_parameters.transfer_syntaxes = pc_pdu.get_transfer_syntaxes();
-
         auto const it = roles_map.find(pc_pdu.get_abstract_syntax());
-        pc_parameters.scu_role_support =
-            (it!=roles_map.end())?it->second.first:true;
-        pc_parameters.scp_role_support =
-            (it!=roles_map.end())?it->second.second:false;
-
-        pcs_parameters.push_back(pc_parameters);
+        pcs_parameters.emplace_back(
+            pc_pdu.get_id(),
+            pc_pdu.get_abstract_syntax(), pc_pdu.get_transfer_syntaxes(),
+            (it!=roles_map.end())?it->second.first:true,
+            (it!=roles_map.end())?it->second.second:false);
     }
     this->set_presentation_contexts(pcs_parameters);
 
@@ -171,7 +195,7 @@ AssociationParameters
     std::map<uint8_t, PresentationContext> pcs_request_map;
     for(auto const & pc: pcs_request)
     {
-        pcs_request_map[pc.id] = pc;
+        pcs_request_map.insert({pc.id, pc});
     }
 
     auto const & pcs_pdu = pdu.get_presentation_contexts();
@@ -190,23 +214,16 @@ AssociationParameters
     pcs_parameters.reserve(pcs_pdu.size());
     for(auto const & pc_pdu: pcs_pdu)
     {
-        AssociationParameters::PresentationContext pc_parameters;
         auto const & pc_request = pcs_request_map.at(pc_pdu.get_id());
-
-        pc_parameters.id = pc_pdu.get_id();
-        pc_parameters.abstract_syntax = pc_request.abstract_syntax;
-        pc_parameters.transfer_syntaxes = { pc_pdu.get_transfer_syntax() };
-
         auto const it = roles_map.find(pc_request.abstract_syntax);
-        pc_parameters.scu_role_support =
-            (it!=roles_map.end())?it->second.first:pc_request.scu_role_support;
-        pc_parameters.scp_role_support =
-            (it!=roles_map.end())?it->second.second:pc_request.scp_role_support;
 
-        pc_parameters.result =
-            static_cast<PresentationContext::Result>(pc_pdu.get_result_reason());
-
-        pcs_parameters.push_back(pc_parameters);
+        pcs_parameters.emplace_back(
+            pc_pdu.get_id(),
+            pc_request.abstract_syntax,
+            std::vector<std::string>{ pc_pdu.get_transfer_syntax() },
+            (it!=roles_map.end())?it->second.first:pc_request.scu_role_support,
+            (it!=roles_map.end())?it->second.second:pc_request.scp_role_support,
+            static_cast<PresentationContext::Result>(pc_pdu.get_result_reason()));
     }
     this->set_presentation_contexts(pcs_parameters);
 
