@@ -90,5 +90,11 @@ class TestValueBinary(unittest.TestCase):
         data = odil.Value.Binary(items)
         self.assertEqual([x for x in data[0]], [x for x in items[0]])
 
+    def test_buffer(self):
+        item = odil.Value.BinaryItem("\x01\x02\x03")
+        memory_view = item.get_memory_view()
+        self.assertTrue(isinstance(memory_view, memoryview))
+
+
 if __name__ == "__main__":
     unittest.main()

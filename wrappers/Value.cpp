@@ -35,6 +35,19 @@ boost::shared_ptr<T> create_value(boost::python::object const & sequence)
     return boost::shared_ptr<T>(new T(values));
 }
 
+boost::python::object
+as_memory_view(odil::Value::Binary::value_type const & binary_item)
+{
+    Py_buffer buffer;
+    PyBuffer_FillInfo(
+        &buffer, nullptr,
+        const_cast<odil::Value::Binary::value_type::value_type*>(&binary_item[0]),
+        binary_item.size(), 1, PyBUF_SIMPLE);
+    PyObject * memory_view = PyMemoryView_FromBuffer(&buffer);
+
+    return boost::python::object(boost::python::handle<>(memory_view));
+}
+
 }
 
 void wrap_Value()
@@ -111,6 +124,7 @@ void wrap_Value()
             "__init__",
             make_constructor(create_value<Value::Binary::value_type, char>))
         .def(vector_indexing_suite<Value::Binary::value_type>())
+        .def("get_memory_view", as_memory_view)
     ;
 
     class_<Value::Binary>("Binary")
