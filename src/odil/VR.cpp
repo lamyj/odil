@@ -89,7 +89,7 @@ std::string as_string(VR vr)
     }
     catch(std::out_of_range const &)
     {
-        throw Exception("Unknown VR");
+        throw Exception("Unknown VR: "+std::to_string(static_cast<int>(vr)));
     }
 }
 
