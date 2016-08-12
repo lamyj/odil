@@ -86,6 +86,7 @@ FindSCP
     }
     catch(odil::Exception const & e)
     {
+        status_fields.add(registry::ErrorComment, {e.what()});
         final_status = message::CFindResponse::UnableToProcess;
     }
 

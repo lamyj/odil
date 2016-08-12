@@ -137,8 +137,9 @@ MoveSCP
         final_status = e.status;
         status_fields = e.status_fields;
     }
-    catch(odil::Exception const &)
+    catch(odil::Exception const & e)
     {
+        status_fields.add(registry::ErrorComment, {e.what()});
         final_status = message::CMoveResponse::UnableToProcess;
     }
 
