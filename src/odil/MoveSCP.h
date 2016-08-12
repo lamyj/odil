@@ -34,7 +34,12 @@ public:
         /// @brief Return the number of responses.
         virtual unsigned int count() const =0;
         
-        /// @brief Return the sub-association to send responses on.
+        /**
+         * @brief Return the sub-association to send responses on.
+         *
+         * If the move destination is unknown, an odil::Exception must be
+         * thrown.
+         */
         virtual Association get_association(message::CMoveRequest const &) const =0;
     };
 
