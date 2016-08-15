@@ -87,6 +87,8 @@ private:
     duration_type _timeout;
     boost::asio::deadline_timer _deadline;
 
+    std::shared_ptr<boost::asio::ip::tcp::acceptor> _acceptor;
+
     enum class Source
     {
         NONE,
