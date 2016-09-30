@@ -50,7 +50,9 @@ def print_data_set(data_set, decode_uids, padding, max_length):
                 "s" if sum(lengths)>1 else "")
         else:
             getter = None
-            if element.is_int():
+            if element.empty():
+                getter = lambda: []
+            elif element.is_int():
                 getter = element.as_int
             elif element.is_real():
                 getter = element.as_real
