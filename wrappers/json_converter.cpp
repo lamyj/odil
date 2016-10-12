@@ -6,6 +6,8 @@
  * for details.
  ************************************************************************/
 
+#include <memory>
+
 #include <boost/python.hpp>
 
 #include <json/json.h>
@@ -20,14 +22,14 @@ std::string as_json(odil::DataSet const & data_set, bool pretty_print)
 {
     auto const json = odil::as_json(data_set);
 
-    Json::Writer * writer = NULL;
+    std::shared_ptr<Json::Writer> writer;
     if(pretty_print)
     {
-        writer = new Json::StyledWriter();
+        writer = std::make_shared<Json::StyledWriter>();
     }
     else
     {
-        writer = new Json::FastWriter();
+        writer = std::make_shared<Json::FastWriter>();
     }
 
     auto const string = writer->write(json);
