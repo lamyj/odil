@@ -15,6 +15,8 @@
 
 #include "odil/pdu/AAssociateAC.h"
 #include "odil/pdu/AAssociateRQ.h"
+#include "odil/pdu/SOPClassCommonExtendedNegotiation.h"
+#include "odil/pdu/SOPClassExtendedNegotiation.h"
 
 namespace odil
 {
@@ -170,6 +172,46 @@ public:
      * no maximum length.
      */
     AssociationParameters & set_maximum_length(uint32_t value);
+    
+    /// @brief Return the maximum number of outstanding operations invoked
+    uint16_t get_maximum_number_operations_invoked() const;
+
+    /**
+     * @brief Set the maximum number of outstanding operations invoked,
+     * default to 1.
+     */
+    AssociationParameters & set_maximum_number_operations_invoked(uint16_t value);
+
+    /// @brief Return the maximum number of outstanding operations performed
+    uint16_t get_maximum_number_operations_performed() const;
+
+    /**
+     * @brief Set the maximum number of outstanding operations performed,
+     * default to 1.
+     */
+    AssociationParameters & set_maximum_number_operations_performed(uint16_t value);
+    
+    /// @brief Return the list of SOP Class Extended Negotiation items.
+    std::vector<pdu::SOPClassExtendedNegotiation>
+    get_sop_class_extended_negotiation() const;
+
+    /**
+     * @brief Set the list of SOP Class Extended Negotiation items, default
+     * to an empty list.
+     */
+    void set_sop_class_extended_negotiation(
+        std::vector<pdu::SOPClassExtendedNegotiation> const & value);
+
+    /// @brief Return the list of SOP Class Extended Negotiation items.
+    std::vector<pdu::SOPClassCommonExtendedNegotiation>
+        get_sop_class_common_extended_negotiation() const;
+    
+    /**
+     * @brief Set the list of SOP Class Common Extend Negotiation items, default
+     * to an empty list.
+     */
+    void set_sop_class_common_extended_negotiation(
+        std::vector<pdu::SOPClassCommonExtendedNegotiation> const & value);
 
     /// @brief Create an A-ASSOCIATE-RQ PDU.
     pdu::AAssociateRQ as_a_associate_rq() const;
@@ -186,6 +228,12 @@ private:
     std::vector<PresentationContext> _presentation_contexts;
     UserIdentity _user_identity;
     uint32_t _maximum_length;
+    uint16_t _maximum_number_operations_invoked;
+    uint16_t _maximum_number_operations_performed;
+    std::vector<pdu::SOPClassExtendedNegotiation>
+        _sop_class_extended_negotiation;
+    std::vector<pdu::SOPClassCommonExtendedNegotiation> 
+        _sop_class_common_extended_negotiation;
 
     /// @brief Set the user identity.
     AssociationParameters & _set_user_identity(UserIdentity const & value);
