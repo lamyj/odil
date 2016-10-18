@@ -24,6 +24,7 @@
 #include "odil/pdu/PresentationContextAC.h"
 #include "odil/pdu/PresentationContextRQ.h"
 #include "odil/pdu/RoleSelection.h"
+#include "odil/pdu/SOPClassExtendedNegotiation.h"
 #include "odil/pdu/SOPClassCommonExtendedNegotiation.h"
 
 namespace odil
@@ -428,6 +429,21 @@ AssociationParameters
     return *this;
 }
 
+std::vector<pdu::SOPClassExtendedNegotiation>
+AssociationParameters
+::get_sop_class_extended_negotiation() const
+{
+    return this->_sop_class_extended_negotiation;
+}
+
+void
+AssociationParameters
+::set_sop_class_extended_negotiation(
+    std::vector<pdu::SOPClassExtendedNegotiation> const & value)
+{
+    this->_sop_class_extended_negotiation = value;
+}
+
 std::vector<pdu::SOPClassCommonExtendedNegotiation>
 AssociationParameters
 ::get_sop_class_common_extended_negotiation() const
@@ -487,6 +503,9 @@ AssociationParameters
             this->_maximum_number_operations_performed
         }});
     }
+
+    user_information.set_sub_items<pdu::SOPClassExtendedNegotiation>(
+        this->_sop_class_extended_negotiation);
     
     user_information.set_sub_items<pdu::SOPClassCommonExtendedNegotiation>(
         this->_sop_class_common_extended_negotiation);
@@ -569,6 +588,9 @@ AssociationParameters
         }});
     }
     
+    user_information.set_sub_items<pdu::SOPClassExtendedNegotiation>(
+        this->_sop_class_extended_negotiation);
+
     // No SOPClassCommonExtendedNegotiation in AC
 
     user_information.set_sub_items<pdu::ImplementationVersionName>(
@@ -604,6 +626,8 @@ AssociationParameters
             other.get_maximum_number_operations_invoked() &&
         this->get_maximum_number_operations_performed() ==
             other.get_maximum_number_operations_performed() && 
+        this->get_sop_class_extended_negotiation() ==
+            other.get_sop_class_extended_negotiation() &&
         this->get_sop_class_common_extended_negotiation() ==
             other.get_sop_class_common_extended_negotiation()
     );

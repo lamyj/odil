@@ -21,6 +21,8 @@
 #include "odil/pdu/MaximumLength.h"
 #include "odil/pdu/Object.h"
 #include "odil/pdu/RoleSelection.h"
+#include "odil/pdu/SOPClassCommonExtendedNegotiation.h"
+#include "odil/pdu/SOPClassExtendedNegotiation.h"
 #include "odil/pdu/UserIdentityAC.h"
 #include "odil/pdu/UserIdentityRQ.h"
 
@@ -64,6 +66,9 @@ UserInformation
     std::vector<AsynchronousOperationsWindow> asynchronous_operation_window;
     std::vector<RoleSelection> role_selection;
     std::vector<ImplementationVersionName> implementation_version_name;
+    std::vector<SOPClassExtendedNegotiation> sop_class_extended_negotiation;
+    std::vector<SOPClassCommonExtendedNegotiation>
+        sop_class_common_extended_negotiation;
     std::vector<UserIdentityRQ> user_identity_rq;
     std::vector<UserIdentityAC> user_identity_ac;
 
@@ -90,8 +95,14 @@ UserInformation
         {
             implementation_version_name.emplace_back(stream);
         }
-        // 0x56: SOP Class Extended Negotiation, PS 3.7, D.3.3.5.1
-        // 0x57: SOP Class Common Extended Negotiation, PS 3.7, D.3.3.6.1
+        else if(type == 0x56)
+        {
+            sop_class_extended_negotiation.emplace_back(stream);
+        }
+        else if(type == 0x57)
+        {
+            sop_class_common_extended_negotiation.emplace_back(stream);
+        }
         else if(type == 0x58)
         {
             user_identity_rq.emplace_back(stream);
