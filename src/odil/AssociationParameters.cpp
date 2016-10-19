@@ -104,18 +104,12 @@ AssociationParameters::UserIdentity
 
 AssociationParameters
 ::AssociationParameters()
-: _called_ae_title(""), _calling_ae_title(""), _presentation_contexts(),
-  _user_identity({UserIdentity::Type::None, "", ""}), _maximum_length(16384),
-  _maximum_number_operations_invoked(1), _maximum_number_operations_performed(1),
-  _sop_class_extended_negotiation(), _sop_class_common_extended_negotiation()
 {
     // Nothing else.
 }
 
 AssociationParameters
 ::AssociationParameters(pdu::AAssociateRQ const & pdu)
-: _called_ae_title(""), _calling_ae_title(""), _presentation_contexts(),
-  _user_identity(), _maximum_length(16384)
 {
     this->set_called_ae_title(pdu.get_called_ae_title());
     this->set_calling_ae_title(pdu.get_calling_ae_title());

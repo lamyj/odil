@@ -227,9 +227,9 @@ private:
     std::string _calling_ae_title;
     std::vector<PresentationContext> _presentation_contexts;
     UserIdentity _user_identity;
-    uint32_t _maximum_length;
-    uint16_t _maximum_number_operations_invoked;
-    uint16_t _maximum_number_operations_performed;
+    uint32_t _maximum_length = 16384;
+    uint16_t _maximum_number_operations_invoked = 1;
+    uint16_t _maximum_number_operations_performed = 1;
     std::vector<pdu::SOPClassExtendedNegotiation>
         _sop_class_extended_negotiation;
     std::vector<pdu::SOPClassCommonExtendedNegotiation> 
