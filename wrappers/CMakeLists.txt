@@ -8,6 +8,7 @@ include_directories(
 link_directories(${Boost_LIBRARY_DIRS})
 
 file(GLOB_RECURSE files "*.cpp")
+list(SORT files)
 python_add_module(pyodil SHARED ${files})
 set_target_properties(
     pyodil PROPERTIES OUTPUT_NAME odil FOLDER "Wrappers")
