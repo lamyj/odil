@@ -33,7 +33,14 @@ link_directories(${Boost_LIBRARY_DIRS} ${DCMTK_LIBRARY_DIRS})
 
 
 foreach(test_file ${tests})
-    get_filename_component(test ${test_file} NAME_WE)
+    get_filename_component(unit ${test_file} NAME_WE)
+    get_filename_component(module ${test_file} DIRECTORY)
+    get_filename_component(module ${module} NAME)
+    if(NOT "${module}" STREQUAL "code")
+        set(test "${module}_${unit}")
+    else()
+        set(test "${unit}")
+    endif()
 
     add_executable(test_${test} ${test_file} ${headers} ${extra_files})
     target_link_libraries(
