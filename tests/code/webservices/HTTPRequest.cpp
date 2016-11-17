@@ -1,16 +1,19 @@
-#define BOOST_TEST_MODULE Message
+#define BOOST_TEST_MODULE HTTPRequest
 #include <boost/test/unit_test.hpp>
 
 #include <sstream>
 
 #include <odil/Exception.h>
 #include <odil/webservices/HTTPRequest.h>
+#include <odil/webservices/URL.h>
+
+odil::webservices::URL const url{"http", "example.com", "/foo", "bar=baz", "quux"};
 
 BOOST_AUTO_TEST_CASE(DefaultConstructor)
 {
     odil::webservices::HTTPRequest const request;
     BOOST_REQUIRE(request.get_method().empty());
-    BOOST_REQUIRE(request.get_target().empty());
+    BOOST_REQUIRE(request.get_target() == odil::webservices::URL());
     BOOST_REQUIRE_EQUAL(request.get_http_version(), "HTTP/1.0");
     BOOST_REQUIRE(request.get_headers().empty());
     BOOST_REQUIRE(request.get_body().empty());
@@ -20,7 +23,7 @@ BOOST_AUTO_TEST_CASE(OneParameterConstructor)
 {
     odil::webservices::HTTPRequest const request("GET");
     BOOST_REQUIRE_EQUAL(request.get_method(), "GET");
-    BOOST_REQUIRE(request.get_target().empty());
+    BOOST_REQUIRE(request.get_target() == odil::webservices::URL());
     BOOST_REQUIRE_EQUAL(request.get_http_version(), "HTTP/1.0");
     BOOST_REQUIRE(request.get_headers().empty());
     BOOST_REQUIRE(request.get_body().empty());
@@ -28,9 +31,9 @@ BOOST_AUTO_TEST_CASE(OneParameterConstructor)
 
 BOOST_AUTO_TEST_CASE(TwoParameterConstructor)
 {
-    odil::webservices::HTTPRequest const request("GET", "/foo");
+    odil::webservices::HTTPRequest const request("GET", url);
     BOOST_REQUIRE_EQUAL(request.get_method(), "GET");
-    BOOST_REQUIRE_EQUAL(request.get_target(), "/foo");
+    BOOST_REQUIRE(request.get_target() == url);
     BOOST_REQUIRE_EQUAL(request.get_http_version(), "HTTP/1.0");
     BOOST_REQUIRE(request.get_headers().empty());
     BOOST_REQUIRE(request.get_body().empty());
@@ -38,9 +41,9 @@ BOOST_AUTO_TEST_CASE(TwoParameterConstructor)
 
 BOOST_AUTO_TEST_CASE(ThreeParameterConstructor)
 {
-    odil::webservices::HTTPRequest const request("GET", "/foo", "HTTP/1.1");
+    odil::webservices::HTTPRequest const request("GET",url, "HTTP/1.1");
     BOOST_REQUIRE_EQUAL(request.get_method(), "GET");
-    BOOST_REQUIRE_EQUAL(request.get_target(), "/foo");
+    BOOST_REQUIRE(request.get_target() == url);
     BOOST_REQUIRE_EQUAL(request.get_http_version(), "HTTP/1.1");
     BOOST_REQUIRE(request.get_headers().empty());
     BOOST_REQUIRE(request.get_body().empty());
@@ -49,9 +52,9 @@ BOOST_AUTO_TEST_CASE(ThreeParameterConstructor)
 BOOST_AUTO_TEST_CASE(FourParameterConstructor)
 {
     odil::webservices::HTTPRequest const request(
-        "GET", "/foo", "HTTP/1.1", {{"foo", "bar"}, {"plip", "plop"}});
+        "GET", url, "HTTP/1.1", {{"foo", "bar"}, {"plip", "plop"}});
     BOOST_REQUIRE_EQUAL(request.get_method(), "GET");
-    BOOST_REQUIRE_EQUAL(request.get_target(), "/foo");
+    BOOST_REQUIRE(request.get_target() == url);
     BOOST_REQUIRE_EQUAL(request.get_http_version(), "HTTP/1.1");
     BOOST_REQUIRE(
         request.get_headers()
@@ -63,9 +66,10 @@ BOOST_AUTO_TEST_CASE(FourParameterConstructor)
 BOOST_AUTO_TEST_CASE(FiveParametersConstructor)
 {
     odil::webservices::HTTPRequest const request(
-        "GET", "/foo", "HTTP/1.1", {{"foo", "bar"}, {"plip", "plop"}}, "body");
+        "GET", url, "HTTP/1.1",
+        {{"foo", "bar"}, {"plip", "plop"}}, "body");
     BOOST_REQUIRE_EQUAL(request.get_method(), "GET");
-    BOOST_REQUIRE_EQUAL(request.get_target(), "/foo");
+    BOOST_REQUIRE(request.get_target() == url);
     BOOST_REQUIRE_EQUAL(request.get_http_version(), "HTTP/1.1");
     BOOST_REQUIRE(
         request.get_headers()
@@ -84,8 +88,8 @@ BOOST_AUTO_TEST_CASE(Method)
 BOOST_AUTO_TEST_CASE(Target)
 {
     odil::webservices::HTTPRequest request;
-    request.set_target("/foo");
-    BOOST_REQUIRE_EQUAL(request.get_target(), "/foo");
+    request.set_target(url);
+    BOOST_REQUIRE(request.get_target() == url);
 }
 
 BOOST_AUTO_TEST_CASE(HTTPVersion)
@@ -137,7 +141,8 @@ BOOST_AUTO_TEST_CASE(Input)
     stream >> request;
 
     BOOST_REQUIRE_EQUAL(request.get_method(), "POST");
-    BOOST_REQUIRE_EQUAL(request.get_target(), "/foo");
+    BOOST_REQUIRE(
+        request.get_target() == odil::webservices::URL({"", "", "/foo", "", ""}));
     BOOST_REQUIRE_EQUAL(request.get_http_version(), "HTTP/1.1");
     BOOST_REQUIRE(
         request.get_headers()
@@ -151,7 +156,7 @@ BOOST_AUTO_TEST_CASE(Input)
 BOOST_AUTO_TEST_CASE(Output)
 {
     odil::webservices::HTTPRequest const request{
-        "POST", "/foo", "HTTP/1.1",
+        "POST", {"", "", "/foo", "", ""}, "HTTP/1.1",
         {
             {"Host", "www.example.com"},
             {"Content-Type", "application/json"}
@@ -166,7 +171,7 @@ BOOST_AUTO_TEST_CASE(Output)
     stream >> result;
 
     BOOST_REQUIRE_EQUAL(request.get_method(), result.get_method());
-    BOOST_REQUIRE_EQUAL(request.get_target(), result.get_target());
+    BOOST_REQUIRE(request.get_target() == result.get_target());
     BOOST_REQUIRE_EQUAL(request.get_http_version(), result.get_http_version());
     BOOST_REQUIRE(request.get_headers() == result.get_headers());
     BOOST_REQUIRE_EQUAL(request.get_body(), result.get_body());

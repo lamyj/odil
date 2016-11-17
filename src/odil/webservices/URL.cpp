@@ -21,6 +21,25 @@ namespace odil
 namespace webservices
 {
 
+bool
+URL
+::operator==(URL const & other) const
+{
+    return (
+        this->scheme == other.scheme
+        && this->authority == other.authority
+        && this->path == other.path
+        && this->query == other.query
+        && this->fragment == other.fragment);
+}
+
+bool
+URL
+::operator!=(URL const & other) const
+{
+    return !(*this == other);
+}
+
 URL
 ::operator std::string() const
 {

@@ -3,6 +3,24 @@
 
 #include "odil/webservices/URL.h"
 
+BOOST_AUTO_TEST_CASE(Equal)
+{
+    auto const url = odil::webservices::URL::parse(
+        "foo://example.com:8042/over/there?name=ferret#nose");
+    BOOST_REQUIRE(url == url);
+    BOOST_REQUIRE(!(url != url));
+}
+
+BOOST_AUTO_TEST_CASE(Different)
+{
+    auto const url1 = odil::webservices::URL::parse(
+        "foo://example.com:8042/over/there?name=ferret#nose");
+    auto const url2 = odil::webservices::URL::parse(
+        "foo://example.com:8042/over/there?name=goose#wing");
+    BOOST_REQUIRE(!(url1 == url2));
+    BOOST_REQUIRE(url1 != url2);
+}
+
 BOOST_AUTO_TEST_CASE(Parse)
 {
     auto const url = odil::webservices::URL::parse(

@@ -12,6 +12,7 @@
 #include <string>
 
 #include "odil/webservices/Message.h"
+#include "odil/webservices/URL.h"
 
 namespace odil
 {
@@ -30,7 +31,7 @@ public:
      * "HTTP/1.0".
      */
     HTTPRequest(
-        std::string const & method="", std::string const & target="",
+        std::string const & method="", URL const & target=URL(),
         std::string const & http_version="HTTP/1.0",
         Headers const & headers=Headers(), std::string const & body="");
 
@@ -44,10 +45,10 @@ public:
     void set_method(std::string const & method);
 
     /// @brief Return the target.
-    std::string const & get_target() const;
+    URL const & get_target() const;
 
     /// @brief Set the target.
-    void set_target(std::string const & target);
+    void set_target(URL const & target);
 
     /// @brief Return the HTTP version.
     std::string const & get_http_version() const;
@@ -57,7 +58,7 @@ public:
 
 private:
     std::string _method;
-    std::string _target;
+    URL _target;
     std::string _http_version;
 };
 

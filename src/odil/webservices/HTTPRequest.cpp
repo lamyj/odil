@@ -14,6 +14,7 @@
 
 #include "odil/Exception.h"
 #include "odil/webservices/Message.h"
+#include "odil/webservices/URL.h"
 
 namespace odil
 {
@@ -23,7 +24,7 @@ namespace webservices
 
 HTTPRequest
 ::HTTPRequest(
-    std::string const & method, std::string const & target,
+    std::string const & method, URL const & target,
     std::string const & http_version,
     Headers const & headers, std::string const & body)
 : Message(headers, body),
@@ -52,7 +53,7 @@ HTTPRequest
     this->_method = method;
 }
 
-std::string const &
+URL const &
 HTTPRequest
 ::get_target() const
 {
@@ -61,7 +62,7 @@ HTTPRequest
 
 void
 HTTPRequest
-::set_target(std::string const & target)
+::set_target(URL const & target)
 {
     this->_target = target;
 }
@@ -139,7 +140,7 @@ std::istream & operator>>(std::istream & stream, HTTPRequest & request)
     stream.putback(*begin);
 
     request.set_method(boost::fusion::at_c<0>(start_line_value));
-    request.set_target(boost::fusion::at_c<1>(start_line_value));
+    request.set_target(URL::parse(boost::fusion::at_c<1>(start_line_value)));
     request.set_http_version(boost::fusion::at_c<2>(start_line_value));
 
     stream >> static_cast<Message&>(request);
@@ -148,10 +149,14 @@ std::istream & operator>>(std::istream & stream, HTTPRequest & request)
 
 std::ostream & operator<<(std::ostream & stream, HTTPRequest const & request)
 {
-    stream
-        << request.get_method() << " "
-        << request.get_target() << " "
-        << request.get_http_version() << "\r\n";
+    stream << request.get_method() << " ";
+    stream << request.get_target().path;
+    if(!request.get_target().query.empty())
+    {
+        stream << "?" << request.get_target().query;
+    }
+    // RFC 7230, 5.1: the target URI excludes the reference's fragment component
+    stream << " " << request.get_http_version() << "\r\n";
     stream << static_cast<Message const &>(request);
 
     return stream;

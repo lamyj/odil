@@ -26,6 +26,9 @@ struct URL
     std::string query;
     std::string fragment;
 
+    bool operator==(URL const & other) const;
+    bool operator!=(URL const & other) const;
+
     /// @brief Recompose the components.
     operator std::string() const;
 
