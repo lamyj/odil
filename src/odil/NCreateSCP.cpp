@@ -6,59 +6,59 @@
  * for details.
  ************************************************************************/
 
-#include "odil/NSetSCP.h"
+#include "odil/NCreateSCP.h"
 
 #include <functional>
 
 #include "odil/Association.h"
 #include "odil/SCP.h"
 #include "odil/Value.h"
-#include "odil/message/NSetResponse.h"
+#include "odil/message/NCreateResponse.h"
 
 namespace odil
 {
 
-NSetSCP
-::NSetSCP(Association & association)
-    : SCP(association), _callback()
+NCreateSCP
+::NCreateSCP(Association & association)
+: SCP(association), _callback()
 {
     // Nothing else.
 }
 
-NSetSCP
-::NSetSCP(Association & association, Callback const & callback)
-    : SCP(association), _callback()
+NCreateSCP
+::NCreateSCP(Association & association, Callback const & callback)
+: SCP(association), _callback()
 {
     this->set_callback(callback);
 }
 
-NSetSCP
-::~NSetSCP()
+NCreateSCP
+::~NCreateSCP()
 {
     // Nothing to do.
 }
 
-NSetSCP::Callback const &
-NSetSCP::get_callback() const
+NCreateSCP::Callback const &
+NCreateSCP::get_callback() const
 {
     return this->_callback;
 }
 
 void
-NSetSCP
+NCreateSCP
 ::set_callback(Callback const & callback)
 {
     this->_callback = callback;
 }
 
 void
-NSetSCP
+NCreateSCP
 ::operator()(message::Message const & message)
 {
-    message::NSetRequest const request(message);
+    message::NCreateRequest const request(message);
 
-    Value::Integer status = message::NSetResponse::Success ;
-    DataSet status_fields ;
+    Value::Integer status=message::NCreateResponse::Success;
+    DataSet status_fields;
 
     try
     {
@@ -71,19 +71,15 @@ NSetSCP
     }
     catch(odil::Exception const &)
     {
-        status = message::NSetResponse::ProcessingFailure;
+        status = message::NCreateResponse::ProcessingFailure;
     }
 
-    message::NSetResponse response(
-                request.get_message_id(),
-                status,
-                request.get_requested_sop_class_uid() ,
-                request.get_requested_sop_instance_uid() );
-
+    message::NCreateResponse response(
+        request.get_message_id()
+                , status, request.get_affected_sop_class_uid());
     response.set_status_fields(status_fields);
-
     this->_association.send_message(
-                response, request.get_requested_sop_class_uid());
+        response, request.get_affected_sop_class_uid());
 }
 
 }

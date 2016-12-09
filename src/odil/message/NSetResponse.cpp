@@ -21,7 +21,7 @@ namespace message
 
 NSetResponse
 ::NSetResponse(const Value::Integer &message_id_being_responded_to
-               , Value::Integer status
+               , const Value::Integer & status
         , Value::String const & requested_sop_class_uid
         , Value::String const & requested_sop_instance_uid)
 : Response(message_id_being_responded_to, status)
@@ -48,7 +48,6 @@ NSetResponse
 
     this->set_requested_sop_instance_uid(
                 message.get_command_set().as_string(registry::RequestedSOPInstanceUID, 0));
-
 }
 
 NSetResponse

@@ -1,6 +1,8 @@
-#define BOOST_TEST_MODULE UID
-#include <boost/test/unit_test.hpp>
+//#define BOOST_TEST_MODULE UID
+//#include <boost/test/unit_test.hpp>
 
+#define BOOST_TEST_MODULE First_TestSuite
+#include <boost/test/included/unit_test.hpp>
 #include "odil/uid.h"
 
 BOOST_AUTO_TEST_CASE(generate)

@@ -34,6 +34,15 @@ public:
             Value::Integer const & command_data_set_type,
             DataSet const & dataset);
 
+    NSetRequest(Value::Integer message_id,
+                  Value::String const & requested_sop_class_uid,
+                  Value::String const & requested_sop_instance_uid,
+                  Value::Integer const & command_data_set_type,
+                  DataSet const & dataset,
+                  Value::Integer const & command_group_length );
+
+
+
     /**
      * @brief Create a N-Set-RQ from a generic Message.
      *
@@ -53,7 +62,7 @@ public:
         requested_sop_instance_uid, registry::RequestedSOPInstanceUID)
     ODIL_MESSAGE_OPTIONAL_FIELD_INTEGER_MACRO(command_data_set_type, registry::CommandDataSetType)
     ODIL_MESSAGE_OPTIONAL_FIELD_INTEGER_MACRO(command_field, registry::CommandDataSetType)
-
+    ODIL_MESSAGE_OPTIONAL_FIELD_INTEGER_MACRO(command_group_length, registry::CommandGroupLength)
 
 };
 

@@ -29,7 +29,7 @@ public:
      */
     NSetResponse(
         Value::Integer const & message_id_being_responded_to,
-        Value::Integer status,
+        Value::Integer const & status,
         Value::String const & requested_sop_class_uid ,
         Value::String const & requested_sop_instance_uid
             );
@@ -47,6 +47,8 @@ public:
     ODIL_MESSAGE_OPTIONAL_FIELD_INTEGER_MACRO( message_id_being_responded_to, registry::MessageIDBeingRespondedTo )
     ODIL_MESSAGE_MANDATORY_FIELD_STRING_MACRO( requested_sop_class_uid, registry::AffectedSOPClassUID )
     ODIL_MESSAGE_MANDATORY_FIELD_STRING_MACRO( requested_sop_instance_uid, registry::RequestedSOPInstanceUID )
+    ODIL_MESSAGE_MANDATORY_FIELD_INTEGER_MACRO( status, registry::Status )
+
 
 };
 
