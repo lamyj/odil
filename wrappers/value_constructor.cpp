@@ -14,6 +14,10 @@
 #include "odil/DataSet.h"
 #include "odil/Value.h"
 
+#if PY_MAJOR_VERSION >= 3
+#define IS_PY3K
+#endif
+
 boost::shared_ptr<odil::Value>
 value_constructor(boost::python::object const & source)
 {
@@ -27,7 +31,11 @@ value_constructor(boost::python::object const & source)
         boost::python::object first = source[0];
         PyObject * first_ptr = first.ptr();
         
+#ifdef IS_PY3K
+        if(PyLong_Check(first_ptr))
+#else
         if(PyInt_Check(first_ptr))
+#endif
         {
             boost::python::stl_input_iterator<odil::Value::Integer> 
                 begin(source), end;
@@ -39,7 +47,11 @@ value_constructor(boost::python::object const & source)
                 begin(source), end;
             result = new odil::Value(odil::Value::Reals(begin, end));
         }
+#ifdef IS_PY3K
+        else if(PyUnicode_Check(first_ptr))
+#else
         else if(PyString_Check(first_ptr))
+#endif
         {
             boost::python::stl_input_iterator<odil::Value::String> 
                 begin(source), end;
