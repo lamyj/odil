@@ -6,8 +6,8 @@
  * for details.
  ************************************************************************/
 
-#ifndef __NCREATEREQUEST_H__
-#define __NCREATEREQUEST_H__
+#ifndef _9a741b7f_0254_4eac_9bbd_04b719c1f86a
+#define _9a741b7f_0254_4eac_9bbd_04b719c1f86a
 
 #include "odil/message/Request.h"
 #include "odil/registry.h"
@@ -59,4 +59,4 @@ public:
 
 }
 
-#endif // __NCREATEREQUEST_H__
+#endif // _9a741b7f_0254_4eac_9bbd_04b719c1f86a

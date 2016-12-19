@@ -6,8 +6,8 @@
  * for details.
  ************************************************************************/
  
-#ifndef __NSETRESPONSE_H__
-#define __NSETRESPONSE_H__
+#ifndef _5d350855_531e_405a_a221_af3b0e720fd1
+#define _5d350855_531e_405a_a221_af3b0e720fd1
 
 #include "odil/registry.h"
 #include "odil/message/Response.h"
@@ -56,4 +56,4 @@ public:
 
 }
 
-#endif // __NSETRESPONSE_H__
+#endif // _5d350855_531e_405a_a221_af3b0e720fd1

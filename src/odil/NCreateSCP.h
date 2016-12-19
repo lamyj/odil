@@ -6,8 +6,8 @@
  * for details.
  ************************************************************************/
 
-#ifndef __NCREATESCP_H__
-#define __NCREATESCP_H__
+#ifndef _918ce553_d774_44c0_9cbf_56f32584a1ab
+#define _918ce553_d774_44c0_9cbf_56f32584a1ab
 
 #include <functional>
 
@@ -54,4 +54,4 @@ private:
 
 }
 
-#endif // __NCREATESCP_H__
+#endif // _918ce553_d774_44c0_9cbf_56f32584a1ab

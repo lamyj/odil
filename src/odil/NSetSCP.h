@@ -6,8 +6,8 @@
  * for details.
  ************************************************************************/
 
-#ifndef __NSETSCP_H__
-#define __NSETSCP_H__
+#ifndef _cca2fb7a_c3b6_47f4_a619_44701b074cda
+#define _cca2fb7a_c3b6_47f4_a619_44701b074cda
 
 #include <functional>
 
@@ -55,4 +55,4 @@ private:
 
 }
 
-#endif // __NSETSCP_H__
+#endif // _cca2fb7a_c3b6_47f4_a619_44701b074cda
