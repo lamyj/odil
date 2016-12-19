@@ -8,7 +8,46 @@
 
 #include <boost/python.hpp>
 
+#include "odil/Exception.h"
 #include "odil/VR.h"
+
+void * convertible(PyObject* object)
+{
+    bool result;
+    if(!PyString_Check(object))
+    {
+        result = false;
+    }
+    else
+    {
+        auto const data = PyString_AsString(object);
+        try
+        {
+            odil::as_vr(data);
+            result = true;
+        }
+        catch(odil::Exception const &)
+        {
+            result = false;
+        }
+    }
+
+    return result?object:nullptr;
+}
+
+void construct(
+    PyObject* object,
+    boost::python::converter::rvalue_from_python_stage1_data* data)
+{
+    auto const vr_data = PyString_AsString(object);
+    auto const vr = odil::as_vr(vr_data);
+
+    void * storage = reinterpret_cast<
+            boost::python::converter::rvalue_from_python_storage<odil::VR>*
+        >(data)->storage.bytes;
+    new (storage) odil::VR(vr);
+    data->convertible = storage;
+}
 
 void wrap_VR()
 {
@@ -48,5 +87,7 @@ void wrap_VR()
         .value("UT", VR::UT)
         .value("INVALID", VR::INVALID)
     ;
+    converter::registry::push_back(
+        &convertible, &construct, type_id<VR>());
 }
 
