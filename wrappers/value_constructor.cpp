@@ -84,6 +84,10 @@ value_constructor(boost::python::object const & source)
                     begin(source), end;
                 result = new odil::Value(odil::Value::DataSets(begin, end));
             }
+            else
+            {
+                throw odil::Exception("Unknown value type");
+            }
         }
     }
     

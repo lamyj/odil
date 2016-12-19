@@ -40,6 +40,12 @@ class TestValue(unittest.TestCase):
             [bytearray([x for x in item]) for item in value.as_binary()], 
             items)
 
+    def test_unknown_constructor(self):
+        class Foo(object): pass
+        items = [Foo()]
+        with self.assertRaises(odil.Exception):
+            print odil.Value(items)
+
 class TestValueIntegers(unittest.TestCase):
     def test_empty_constructor(self):
         data = odil.Value.Integers()
