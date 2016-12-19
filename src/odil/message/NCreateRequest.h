@@ -19,7 +19,7 @@ namespace odil
 namespace message
 {
 
-/// @brief C-NCreate-RQ message.
+/// @brief N-Create-RQ message.
 class NCreateRequest: public Request
 {
 public:
@@ -32,9 +32,9 @@ public:
         Value::String const & affected_sop_class_uid);
 
     /**
-     * @brief Create a C-NCreate-RQ from a generic Message.
+     * @brief Create a N-Create-RQ from a generic Message.
      *
-     * Raise an exception if the Message does not contain a C-NCreate-RQ.
+     * Raise an exception if the Message does not contain a N-Create-RQ.
      */
     NCreateRequest(Message const & message);
 

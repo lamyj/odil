@@ -45,7 +45,7 @@ public:
     /// @brief Set the callback.
     void set_callback(Callback const & callback);
 
-    /// @brief Process a C-NSet request.
+    /// @brief Process a N-Set request.
     virtual void operator()(message::Message const & message);
 
 

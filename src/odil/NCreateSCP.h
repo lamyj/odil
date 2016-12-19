@@ -20,7 +20,7 @@
 namespace odil
 {
 
-/// @brief SCP for C-NCreate services.
+/// @brief SCP for N-Create services.
 class NCreateSCP: public SCP
 {
 public:
@@ -45,7 +45,7 @@ public:
     /// @brief Set the callback.
     void set_callback(Callback const & callback);
 
-    /// @brief Process a C-NCreate request.
+    /// @brief Process a N-Create request.
     virtual void operator()(message::Message const & message);
 
 private:

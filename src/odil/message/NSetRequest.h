@@ -54,8 +54,7 @@ public:
     virtual ~NSetRequest();
 
     ODIL_MESSAGE_MANDATORY_FIELD_INTEGER_MACRO(
-            message_id, registry::MessageID )
-    
+            message_id, registry::MessageID )    
     ODIL_MESSAGE_MANDATORY_FIELD_STRING_MACRO(
         requested_sop_class_uid, registry::RequestedSOPClassUID)
     ODIL_MESSAGE_MANDATORY_FIELD_STRING_MACRO(

@@ -19,7 +19,7 @@ namespace odil
 namespace message
 {
 
-/// @brief C-NCreate-RSP message.
+/// @brief N-Create-RSP message.
 class NCreateResponse: public Response
 {
 public:
@@ -33,9 +33,9 @@ public:
             , Value::String const & affected_sop_class_uid);
 
     /**
-     * @brief Create a C-NCreate-RSP from a generic Message.
+     * @brief Create a N-Create-RSP from a generic Message.
      *
-     * Raise an exception if the Message does not contain a C-NCreate-RSP.
+     * Raise an exception if the Message does not contain a N-Create-RSP.
      */
     NCreateResponse(Message const & message);
 

@@ -37,7 +37,7 @@ public:
     /**
      * @brief Create a N-Set-RSP from a generic Message.
      *
-     * Raise an exception if the Message does not contain a C-NSet-RSP.
+     * Raise an exception if the Message does not contain a N-Set-RSP.
      */
     NSetResponse(Message const & message);
 
