@@ -12,7 +12,7 @@ class TestAssociationParameters(unittest.TestCase):
         user_identity = parameters.get_user_identity()
         self.assertEqual(
             user_identity.type, 
-            odil.AssociationParameters.UserIdentity.Type.None)
+            getattr(odil.AssociationParameters.UserIdentity.Type, "None"))
 
         self.assertEqual(parameters.get_maximum_length(), 16384)
 
@@ -85,7 +85,7 @@ class TestAssociationParameters(unittest.TestCase):
         user_identity = parameters.get_user_identity()
         self.assertEqual(
             user_identity.type, 
-            odil.AssociationParameters.UserIdentity.Type.None)
+            getattr(odil.AssociationParameters.UserIdentity.Type, "None"))
 
     def test_maximum_length(self):
         parameters = odil.AssociationParameters()

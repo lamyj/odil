@@ -11,25 +11,51 @@
 #include "odil/Exception.h"
 #include "odil/VR.h"
 
+#if PY_MAJOR_VERSION >= 3
+    #define AsString(x) PyBytes_AsString(x)
+#else
+    #define IS_PY2
+    #define AsString(x) PyString_AsString(x)
+#endif
+
+odil::VR as_vr(PyObject * object)
+{
+    PyObject * utf8 = nullptr;
+    if(PyUnicode_Check(object))
+    {
+        // New reference
+        utf8 = PyUnicode_AsUTF8String(object);
+    }
+#ifdef IS_PY2
+    else if(PyString_Check(object))
+    {
+        utf8 = object;
+        // Increase reference count to match PyUnicode_AsUTF8String
+        Py_INCREF(utf8);
+    }
+#endif
+
+    if(utf8 == nullptr)
+    {
+        throw odil::Exception("Object is not string-like");
+    }
+
+    std::string const vr_name(AsString(utf8));
+    Py_DECREF(utf8);
+
+    return odil::as_vr(vr_name);
+}
+
 void * convertible(PyObject* object)
 {
-    bool result;
-    if(!PyString_Check(object))
+    bool result=true;
+    try
+    {
+        as_vr(object);
+    }
+    catch(...)
     {
         result = false;
-    }
-    else
-    {
-        auto const data = PyString_AsString(object);
-        try
-        {
-            odil::as_vr(data);
-            result = true;
-        }
-        catch(odil::Exception const &)
-        {
-            result = false;
-        }
     }
 
     return result?object:nullptr;
@@ -39,8 +65,7 @@ void construct(
     PyObject* object,
     boost::python::converter::rvalue_from_python_stage1_data* data)
 {
-    auto const vr_data = PyString_AsString(object);
-    auto const vr = odil::as_vr(vr_data);
+    auto const vr = as_vr(object);
 
     void * storage = reinterpret_cast<
             boost::python::converter::rvalue_from_python_storage<odil::VR>*

@@ -43,7 +43,7 @@ class TestElement(unittest.TestCase):
         self.assertEqual(len(element), 2)
 
     def test_binary_constructor(self):
-        items = [bytearray("\x01\x02\x03")]
+        items = [bytearray([0x01, 0x02, 0x03])]
         element = odil.Element(items, odil.VR.OB)
         self.assertSequenceEqual(
             [bytearray([x for x in item]) for item in element.as_binary()], 

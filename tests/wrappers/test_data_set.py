@@ -154,7 +154,7 @@ class TestDataSet(unittest.TestCase):
 
     def test_binary_element(self):
         tag = odil.registry.RedPaletteColorLookupTableData
-        value = [bytearray("\x01\x02\x03")]
+        value = [bytearray([0x01, 0x02, 0x03])]
         data_set = odil.DataSet()
         data_set.add(tag, value)
 
@@ -170,7 +170,7 @@ class TestDataSet(unittest.TestCase):
             [bytearray([x for x in item]) for item in data_set.as_binary(tag)],
             value)
 
-        value = [bytearray("\x04\x05")]
+        value = [bytearray([0x04, 0x05])]
         data_set.set(tag, value)
 
         self.assertFalse(data_set.empty())

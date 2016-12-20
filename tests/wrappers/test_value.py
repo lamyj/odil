@@ -1,3 +1,4 @@
+#encoding: utf-8
 import unittest
 
 import odil
@@ -25,6 +26,10 @@ class TestValue(unittest.TestCase):
         value = odil.Value(items)
         self.assertEqual(value.type, odil.Value.Type.Strings)
         self.assertSequenceEqual(value.as_strings(), items)
+
+    # FIXME: strings in DICOM are byte-string, with some VR requiring 
+    # conversion based on Specific Character Set. In Boost.Python, some
+    # explicit conversion are used (unicode <-> std::string in Python 3).
     
     def test_data_sets_constructor(self):
         items = [odil.DataSet(), odil.DataSet()]
@@ -33,7 +38,7 @@ class TestValue(unittest.TestCase):
         self.assertSequenceEqual(value.as_data_sets(), items)
     
     def test_binary_constructor(self):
-        items = [bytearray("\x01\x02\x03")]
+        items = [bytearray([0x01, 0x02, 0x03])]
         value = odil.Value(items)
         self.assertEqual(value.type, odil.Value.Type.Binary)
         self.assertSequenceEqual(
@@ -44,7 +49,7 @@ class TestValue(unittest.TestCase):
         class Foo(object): pass
         items = [Foo()]
         with self.assertRaises(odil.Exception):
-            print odil.Value(items)
+            odil.Value(items)
 
 class TestValueIntegers(unittest.TestCase):
     def test_empty_constructor(self):

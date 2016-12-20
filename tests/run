@@ -17,6 +17,8 @@ def main():
     parser.add_argument("--no-network", action="store_true")
     parser.add_argument("--test-regex", "-R", help="C++ only")
     parser.add_argument("--exclude-regex", "-E", help="C++ only")
+    parser.add_argument(
+        "--nose", default="nosetests", help="nosetests executable")
     parser.add_argument("--exclude", "-e", help="Python only")
     arguments = parser.parse_args()
 
@@ -71,7 +73,10 @@ def main():
         ["ctest", "--no-compress-output", "-T", "Test"]+cpp_args,
         env=environment)
     python_code = subprocess.call(
-        ["nosetests-2.7", os.path.join(source_directory, "tests", "wrappers")]+python_args,
+        [
+            arguments.nose,
+            os.path.join(source_directory, "tests", "wrappers")
+        ]+python_args,
         env=environment)
 
     tearDown(directory, process)
