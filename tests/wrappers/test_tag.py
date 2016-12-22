@@ -83,5 +83,16 @@ class TestTag(unittest.TestCase):
         tag = odil.Tag(0x1234, 0x5678)
         self.assertEqual(str(tag), "12345678")
 
+    def test_hash(self):
+        tag = odil.Tag(
+            odil.registry.PatientName.group, odil.registry.PatientName.element)
+        d = {tag: True}
+
+        self.assertTrue(tag in d)
+        self.assertTrue(odil.registry.PatientName in d)
+
+        other = odil.Tag(
+            odil.registry.PatientID.group, odil.registry.PatientID.element)
+
 if __name__ == "__main__":
     unittest.main()
