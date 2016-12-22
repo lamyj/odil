@@ -441,3 +441,13 @@ BOOST_AUTO_TEST_CASE(Difference)
     BOOST_CHECK(! (dataset1 != dataset2));
     BOOST_CHECK(dataset1 != dataset3);
 }
+
+BOOST_AUTO_TEST_CASE(Clear)
+{
+    odil::DataSet data_set;
+    data_set.add("PatientID", {"DJ1234"});
+    data_set.clear("PatientID");
+    BOOST_CHECK(data_set.empty("PatientID"));
+    BOOST_CHECK_THROW(data_set.clear("PatietName"), odil::Exception);
+}
+

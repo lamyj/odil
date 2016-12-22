@@ -74,5 +74,6 @@ void wrap_Element()
         .def(self == self)
         .def(self != self)
         .def("__len__", &Element::size)
+        .def("clear", &Element::clear)
     ;
 }

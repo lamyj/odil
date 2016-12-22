@@ -233,4 +233,12 @@ Element
     return !(*this == other);
 }
 
+void
+Element
+::clear()
+{
+    this->_value.clear();
 }
+
+}
+

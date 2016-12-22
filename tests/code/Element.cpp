@@ -170,3 +170,10 @@ BOOST_AUTO_TEST_CASE(Difference)
     BOOST_CHECK(element1 != element3);
     BOOST_CHECK(element1 != element4);
 }
+
+BOOST_AUTO_TEST_CASE(Clear)
+{
+    odil::Element element({1234});
+    element.clear();
+    BOOST_CHECK(element.empty());
+}

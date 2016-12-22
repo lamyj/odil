@@ -198,6 +198,17 @@ Value
     return !(*this == other);
 }
 
-
+void
+Value
+::clear()
+{
+    this->_integers.clear();
+    this->_reals.clear();
+    this->_strings.clear();
+    this->_data_sets.clear();
+    this->_binary.clear();
+    this->_type = Value::Type::Empty;
+}
 
 }
+

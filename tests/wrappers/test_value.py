@@ -51,6 +51,12 @@ class TestValue(unittest.TestCase):
         with self.assertRaises(odil.Exception):
             odil.Value(items)
 
+    def test_clear(self):
+        items = [1, 2, 3]
+        value = odil.Value(items)
+        value.clear()
+        self.assertTrue(value.empty())
+
 class TestValueIntegers(unittest.TestCase):
     def test_empty_constructor(self):
         data = odil.Value.Integers()

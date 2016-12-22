@@ -452,6 +452,19 @@ DataSet
     return !(*this == other);
 }
 
+void
+DataSet
+::clear(Tag const & tag)
+{
+    ElementMap::iterator const it = this->_elements.find(tag);
+    if(it == this->_elements.end())
+    {
+        throw Exception("No such element: "+std::string(tag));
+    }
+
+    it->second.clear();
+}
+
 std::string const &
 DataSet
 ::get_transfer_syntax() const
@@ -467,3 +480,4 @@ DataSet
 }
 
 }
+

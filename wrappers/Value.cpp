@@ -83,6 +83,7 @@ void wrap_Value()
             return_value_policy<reference_existing_object>())
         .def(self == self)
         .def(self != self)
+        .def("clear", &Value::clear)
     ;
     
     enum_<Value::Type>("Type")

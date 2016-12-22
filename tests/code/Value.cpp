@@ -230,6 +230,13 @@ BOOST_AUTO_TEST_CASE(DifferenceDataSets)
     BOOST_CHECK(value1 != value4);
 }
 
+BOOST_AUTO_TEST_CASE(Clear)
+{
+    odil::Value value({1234});
+    value.clear();
+    BOOST_CHECK(value.empty());
+}
+
 struct Visitor
 {
     typedef std::string result_type;

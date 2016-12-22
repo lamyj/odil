@@ -175,6 +175,9 @@ public:
     /// @brief Difference test.
     bool operator!=(Value const & other) const;
 
+    /// @brief Clear the value (value.empty() will be true).
+    void clear();
+
 private:
     Integers _integers;
     Reals _reals;

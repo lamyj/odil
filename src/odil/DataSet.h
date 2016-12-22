@@ -209,6 +209,9 @@ public:
     /// @brief Difference test.
     bool operator!=(DataSet const & other) const;
 
+    /// @brief Clear the element (data_set.empty(tag) will be true).
+    void clear(Tag const & tag);
+
     /// @brief Return the current transfer syntax.
     std::string const & get_transfer_syntax() const;
 

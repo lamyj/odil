@@ -247,5 +247,7 @@ void wrap_DataSet()
         .def(
             "__len__",
             static_cast<std::size_t (DataSet::*)() const>(&DataSet::size))
+        .def("clear", &DataSet::clear)
     ;
 }
+

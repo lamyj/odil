@@ -52,5 +52,11 @@ class TestElement(unittest.TestCase):
         self.assertEqual(element.size(), 1)
         self.assertEqual(len(element), 1)
 
+    def test_clear(self):
+        items = [1, 2, 3]
+        element = odil.Element(items, odil.VR.US)
+        element.clear()
+        self.assertTrue(element.empty())
+
 if __name__ == "__main__":
     unittest.main()

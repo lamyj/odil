@@ -228,5 +228,18 @@ class TestDataSet(unittest.TestCase):
                 for tag, element in data_set.items()],
             [["PatientName", ["Doe^John"]], ["PatientID", ["DJ123"]]])
 
+    def test_int_element(self):
+        tag = odil.registry.SelectorUSValue
+        value = [1, 2, 3]
+        data_set = odil.DataSet()
+        data_set.add(tag, value)
+
+        data_set.clear(tag)
+        self.assertTrue(data_set.empty(tag))
+
+        with self.assertRaises(odil.Exception):
+            data_set.clear("PatientName")
+
 if __name__ == "__main__":
     unittest.main()
+

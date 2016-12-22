@@ -170,6 +170,9 @@ public:
 
     /// @brief Difference test
     bool operator!=(Element const & other) const;
+    
+    /// @brief Clear the element (element.empty() will be true).
+    void clear();
 
 private:
     struct Empty
@@ -211,3 +214,4 @@ apply_visitor(TVisitor const & visitor, Element const & element);
 #include "odil/Element.txx"
 
 #endif // _9c3d8f32_0310_4e3a_b5d2_6d69f229a2cf
+
