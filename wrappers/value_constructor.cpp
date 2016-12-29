@@ -24,7 +24,30 @@ value_constructor(boost::python::object const & source)
     odil::Value * result = nullptr;
     if(boost::python::len(source) == 0)
     {
-        result = new odil::Value();
+        if(boost::python::extract<odil::Value::Integers>(source).check())
+        {
+            result = new odil::Value(odil::Value::Integers());
+        }
+        else if(boost::python::extract<odil::Value::Reals>(source).check())
+        {
+            result = new odil::Value(odil::Value::Reals());
+        }
+        else if(boost::python::extract<odil::Value::Strings>(source).check())
+        {
+            result = new odil::Value(odil::Value::Strings());
+        }
+        else if(boost::python::extract<odil::Value::DataSets>(source).check())
+        {
+            result = new odil::Value(odil::Value::DataSets());
+        }
+        else if(boost::python::extract<odil::Value::Binary>(source).check())
+        {
+            result = new odil::Value(odil::Value::Binary());
+        }
+        else
+        {
+            throw odil::Exception("Unknown empty type");
+        }
     }
     else
     {

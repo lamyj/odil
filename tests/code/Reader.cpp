@@ -84,7 +84,7 @@ void do_test(odil::Tag const & tag, odil::VR vr, std::initializer_list<T> const 
 {
     // Empty element
     {
-        odil::Element element(odil::Value(), vr);
+        odil::Element element(std::initializer_list<T>(), vr);
         odil::DataSet data_set;
         data_set.add(tag, element);
         do_test(data_set);

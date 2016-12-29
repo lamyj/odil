@@ -239,12 +239,10 @@ DataSet as_dataset(Json::Value const & json)
         Json::Value const & json_element = *it;
         VR const vr = as_vr(json_element["vr"].asString());
 
-        Element element;
+        Element element(vr);
 
         if(odil::is_string(vr) && vr != odil::VR::PN)
         {
-            element = Element(Value::Strings(), vr);
-
             auto const & json_value = json_element["Value"];
             for(auto const & json_item: json_value)
             {
@@ -253,7 +251,6 @@ DataSet as_dataset(Json::Value const & json)
         }
         else if(vr == VR::PN)
         {
-            element = Element(Value::Strings(), vr);
             auto const & json_value = json_element["Value"];
             for(auto const & json_item: json_value)
             {   
@@ -278,8 +275,6 @@ DataSet as_dataset(Json::Value const & json)
         }
         else if(is_real(vr))
         {
-            element = Element(Value::Reals(), vr);
-
             auto const & json_value = json_element["Value"];
             for(auto const & json_item: json_value)
             {
@@ -288,8 +283,6 @@ DataSet as_dataset(Json::Value const & json)
         }
         else if(is_int(vr))
         {
-            element = Element(Value::Integers(), vr);
-
             auto const & json_value = json_element["Value"];
             for(auto const & json_item: json_value)
             {
@@ -298,7 +291,6 @@ DataSet as_dataset(Json::Value const & json)
         }
         else if(vr == VR::SQ)
         {
-            element = Element(Value::DataSets(), vr);
             auto const & json_value = json_element["Value"];
             for(auto const & json_item: json_value)
             {
@@ -308,8 +300,6 @@ DataSet as_dataset(Json::Value const & json)
         }
         else if(is_binary(vr))
         {
-            element = Element(Value::Binary(), vr);
-
             // cf. ToJSONVisitor::operator()(VR, Value::Binary): InlineBinary is
             // single-valued
             auto const & encoded = json_element["InlineBinary"].asString();

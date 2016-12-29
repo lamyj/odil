@@ -12,6 +12,7 @@
 #include <cstdint>
 #include <functional>
 #include <istream>
+#include <memory>
 #include <sstream>
 #include <string>
 #include <utility>
@@ -210,56 +211,43 @@ Reader
         vr = vr_finder(tag, data_set, this->transfer_syntax);
     }
 
-    Value value;
+    std::shared_ptr<Value> value;
 
     auto const vl = this->read_length(vr);
-    if(vl == 0)
+    if(is_int(vr))
     {
-        value = Value();
+        value = std::make_shared<Value>(Value::Integers());
     }
-    else if(vr == VR::IS || vr == VR::SL || vr == VR::SS ||
-        vr == VR::UL || vr == VR::US)
+    else if(is_real(vr))
     {
-        value = Value(Value::Integers());
+        value = std::make_shared<Value>(Value::Reals());
     }
-    else if(vr == VR::DS || vr == VR::FD || vr == VR::FL)
+    else if(is_string(vr))
     {
-        value = Value(Value::Reals());
-    }
-    else if(vr == VR::AE || vr == VR::AS || vr == VR::AT || vr == VR::CS ||
-        vr == VR::DA || vr == VR::DS || vr == VR::DT || vr == VR::LO ||
-        vr == VR::LT || vr == VR::PN || vr == VR::SH || vr == VR::ST ||
-        vr == VR::TM || vr == VR::UC || vr == VR::UI || vr == VR::UR ||
-        vr == VR::UT)
-    {
-        value = Value(Value::Strings());
+        value = std::make_shared<Value>(Value::Strings());
     }
     else if(vr == VR::SQ)
     {
-        value = Value(Value::DataSets());
+        value = std::make_shared<Value>(Value::DataSets());
     }
     else if(is_binary(vr))
     {
-        value = Value(Value::Binary());
+        value = std::make_shared<Value>(Value::Binary());
     }
     else
     {
         throw Exception("Cannot create value for VR " + as_string(vr));
     }
 
-    if(!value.empty())
+    if(vl > 0)
     {
         Visitor visitor(
             this->stream, vr, vl, this->transfer_syntax, this->byte_ordering,
             this->explicit_vr, this->keep_group_length);
-        apply_visitor(visitor, value);
-        if(vr == VR::SQ && value.as_data_sets().empty())
-        {
-            value = Value();
-        }
+        apply_visitor(visitor, *value);
     }
 
-    return Element(value, vr);
+    return Element(*value, vr);
 }
 
 std::pair<DataSet, DataSet>

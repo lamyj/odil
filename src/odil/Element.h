@@ -29,8 +29,11 @@ public:
     /// @brief VR of the element.
     VR vr;
 
+    /// @brief Constructor using the VR to create an according empty container.
+    Element(VR const & vr);
+
     /// @brief Constructor.
-    Element(Value const & value=Value(), VR const & vr=VR::INVALID);
+    Element(Value const & value, VR const & vr);
 
     /// @brief Constructor.
     Element(Value::Integers const & value, VR const & vr=VR::INVALID);
@@ -175,29 +178,6 @@ public:
     void clear();
 
 private:
-    struct Empty
-    {
-        typedef bool result_type;
-
-        template<typename T>
-        bool operator()(T const & container) const
-        {
-            return container.empty();
-        }
-    };
-
-    struct Size
-    {
-        typedef std::size_t result_type;
-
-        template<typename T>
-        std::size_t operator()(T const & container) const
-        {
-            return container.size();
-        }
-    };
-
-
     Value _value;
 };
 

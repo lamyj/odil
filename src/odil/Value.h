@@ -28,7 +28,6 @@ public:
     /// @brief Possible types stored in the value.
     enum class Type
     {
-        Empty,
         Integers,
         Reals,
         Strings,
@@ -59,9 +58,6 @@ public:
 
     /// @brief Binary data container.
     typedef std::vector<std::vector<uint8_t>> Binary;
-
-    /// @brief Build an empty value.
-    Value();
 
     /// @brief Build a value from integers.
     Value(Integers const & integers);
@@ -98,6 +94,9 @@ public:
 
     /// @brief Test whether the value is empty.
     bool empty() const;
+
+    /// @brief Return the number of items.
+    std::size_t size() const;
 
     /**
      * @brief Return the integers contained in the value.

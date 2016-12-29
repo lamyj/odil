@@ -16,15 +16,45 @@
 #include "odil/DataSet.h"
 #include "odil/Exception.h"
 
-namespace odil
+namespace
 {
 
-Value
-::Value()
-: _type(Type::Empty)
+struct IsEmptyValue
 {
-    // Nothing else.
+    typedef bool result_type;
+
+    template <typename T>
+    result_type operator()(T const & container) const
+    {
+        return container.empty();
+    }
+};
+
+struct ValueSizeGetter
+{
+    typedef std::size_t result_type;
+
+    template <typename T>
+    result_type operator()(T const & container) const
+    {
+        return container.size();
+    }
+};
+
+struct ClearValue
+{
+    typedef void result_type;
+
+    template <typename T>
+    result_type operator()(T & container) const
+    {
+        return container.clear();
+    }
+};
 }
+
+namespace odil
+{
 
 Value
 ::Value(Integers const & integers)
@@ -108,7 +138,14 @@ bool
 Value
 ::empty() const
 {
-    return (this->_type == Type::Empty);
+    return apply_visitor(IsEmptyValue(), *this);
+}
+
+std::size_t
+Value
+::size() const
+{
+    return apply_visitor(ValueSizeGetter(), *this);
 }
 
 #define DECLARE_CONST_ACCESSOR(type, name) \
@@ -161,10 +198,6 @@ Value
     {
         return false;
     }
-    else if(this->_type == Value::Type::Empty)
-    {
-        return true;
-    }
     else if(this->_type == Value::Type::Integers)
     {
         return this->_integers == other._integers;
@@ -202,12 +235,7 @@ void
 Value
 ::clear()
 {
-    this->_integers.clear();
-    this->_reals.clear();
-    this->_strings.clear();
-    this->_data_sets.clear();
-    this->_binary.clear();
-    this->_type = Value::Type::Empty;
+    apply_visitor(ClearValue(), *this);
 }
 
 }

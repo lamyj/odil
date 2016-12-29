@@ -2,239 +2,97 @@
 #include <boost/test/unit_test.hpp>
 
 #include "odil/DataSet.h"
-#include "odil/Element.h"
 #include "odil/Exception.h"
+#include "odil/Value.h"
 
-BOOST_AUTO_TEST_CASE(Empty)
+template<typename TContainer>
+void test_contents(
+    odil::Value const & value,
+    TContainer const & contents, odil::Value::Type type,
+    TContainer const & (odil::Value::*getter)() const)
 {
-    odil::Value const value;
+    BOOST_CHECK(value.get_type() == type);
+    BOOST_CHECK_EQUAL(value.empty(), contents.empty());
+    BOOST_CHECK_EQUAL(value.size(), contents.size());
+    BOOST_CHECK((value.*getter)() == contents);
 
-    BOOST_CHECK(value.get_type() == odil::Value::Type::Empty);
-    BOOST_CHECK_THROW(value.as_integers(), odil::Exception);
-    BOOST_CHECK_THROW(value.as_reals(), odil::Exception);
-    BOOST_CHECK_THROW(value.as_strings(), odil::Exception);
-    BOOST_CHECK_THROW(value.as_data_sets(), odil::Exception);
+    if(type != odil::Value::Type::Integers)
+    {
+        BOOST_CHECK_THROW(value.as_integers(), odil::Exception);
+    }
+    if(type != odil::Value::Type::Reals)
+    {
+        BOOST_CHECK_THROW(value.as_reals(), odil::Exception);
+    }
+    if(type != odil::Value::Type::Strings)
+    {
+        BOOST_CHECK_THROW(value.as_strings(), odil::Exception);
+    }
+    if(type != odil::Value::Type::DataSets)
+    {
+        BOOST_CHECK_THROW(value.as_data_sets(), odil::Exception);
+    }
+    if(type != odil::Value::Type::Binary)
+    {
+        BOOST_CHECK_THROW(value.as_binary(), odil::Exception);
+    }
 }
 
-BOOST_AUTO_TEST_CASE(Integers)
+template<typename TContainer>
+void test_container(
+    TContainer const & contents, odil::Value::Type type, 
+    TContainer const & (odil::Value::*getter)() const)
 {
-    odil::Value const value({1234});
-
-    BOOST_CHECK(value.get_type() == odil::Value::Type::Integers);
-    BOOST_CHECK(value.as_integers() == odil::Value::Integers({1234}));
-
-    BOOST_CHECK_THROW(value.as_reals(), odil::Exception);
-    BOOST_CHECK_THROW(value.as_strings(), odil::Exception);
-    BOOST_CHECK_THROW(value.as_data_sets(), odil::Exception);
+    odil::Value const value(contents);
+    test_contents(value, contents, type, getter);
 }
 
-BOOST_AUTO_TEST_CASE(ModifyIntegers)
+template<typename TContainer>
+void test_initializer_list(
+    std::initializer_list<typename TContainer::value_type> const & contents,
+    odil::Value::Type type, 
+    TContainer const & (odil::Value::*getter)() const)
 {
-    odil::Value value({1234});
-    value.as_integers().push_back(5678);
-    BOOST_CHECK(value.as_integers() == odil::Value::Integers({1234, 5678}));
+    odil::Value const value(contents);
+    test_contents(value, TContainer(contents), type, getter);
 }
 
-BOOST_AUTO_TEST_CASE(Reals)
+template<typename TContainer>
+void test_modify(
+    TContainer const & contents,
+    TContainer const & (odil::Value::*getter)() const,
+    TContainer & (odil::Value::*setter)())
 {
-    odil::Value const value({12.34});
-
-    BOOST_CHECK(value.get_type() == odil::Value::Type::Reals);
-    BOOST_CHECK(value.as_reals() == odil::Value::Reals({12.34}));
-
-    BOOST_CHECK_THROW(value.as_integers(), odil::Exception);
-    BOOST_CHECK_THROW(value.as_strings(), odil::Exception);
-    BOOST_CHECK_THROW(value.as_data_sets(), odil::Exception);
+    odil::Value value{{contents[0]}};
+    (value.*setter)().push_back(contents[1]);
+    BOOST_CHECK((value.*getter)() == contents);
 }
 
-BOOST_AUTO_TEST_CASE(ModifyReals)
+template<typename TContainer>
+void test_clear(TContainer const & contents, odil::Value::Type type) 
 {
-    odil::Value value({12.34});
-    value.as_reals().push_back(56.78);
-    BOOST_CHECK(value.as_reals() == odil::Value::Reals({12.34, 56.78}));
-}
-
-BOOST_AUTO_TEST_CASE(Strings)
-{
-    odil::Value const value({"foo"});
-
-    BOOST_CHECK(value.get_type() == odil::Value::Type::Strings);
-    BOOST_CHECK(value.as_strings() == odil::Value::Strings({"foo"}));
-
-    BOOST_CHECK_THROW(value.as_integers(), odil::Exception);
-    BOOST_CHECK_THROW(value.as_reals(), odil::Exception);
-    BOOST_CHECK_THROW(value.as_data_sets(), odil::Exception);
-}
-
-BOOST_AUTO_TEST_CASE(ModifyStrings)
-{
-    odil::Value value({"foo"});
-    value.as_strings().push_back("bar");
-    BOOST_CHECK(value.as_strings() == odil::Value::Strings({"foo", "bar"}));
-}
-
-BOOST_AUTO_TEST_CASE(DataSets)
-{
-    odil::DataSet data_set;
-    data_set.add("PatientID", {"DJ1234"});
-    odil::Value const value({data_set});
-
-    BOOST_CHECK(value.get_type() == odil::Value::Type::DataSets);
-    BOOST_CHECK_EQUAL(value.as_data_sets().size(), 1);
-    BOOST_CHECK(value.as_data_sets()[0].has("PatientID"));
-    BOOST_CHECK(
-        value.as_data_sets()[0].as_string("PatientID") ==
-            odil::Value::Strings({"DJ1234"}));
-
-    BOOST_CHECK_THROW(value.as_integers(), odil::Exception);
-    BOOST_CHECK_THROW(value.as_strings(), odil::Exception);
-    BOOST_CHECK_THROW(value.as_reals(), odil::Exception);
-}
-
-BOOST_AUTO_TEST_CASE(ModifyDataSets)
-{
-    odil::DataSet data_set;
-    data_set.add("PatientID");
-    data_set.as_string("PatientID").push_back("DJ1234");
-    odil::Value value({data_set});
-
-    value.as_data_sets()[0].as_string("PatientID")[0] = "XXX";
-
-    BOOST_CHECK(value.get_type() == odil::Value::Type::DataSets);
-    BOOST_CHECK_EQUAL(value.as_data_sets().size(), 1);
-    BOOST_CHECK(value.as_data_sets()[0].has("PatientID"));
-    BOOST_CHECK(
-        value.as_data_sets()[0].as_string("PatientID") ==
-            odil::Value::Strings({"XXX"}));
-}
-
-BOOST_AUTO_TEST_CASE(EqualityEmpty)
-{
-    odil::Value const value1;
-    odil::Value const value2;
-    odil::Value const value3((odil::Value::Integers()));
-    BOOST_CHECK(value1 == value2);
-    BOOST_CHECK( ! (value1 == value3));
-}
-
-BOOST_AUTO_TEST_CASE(EqualityIntegers)
-{
-    odil::Value const value1({1,2});
-    odil::Value const value2({1,2});
-    odil::Value const value3({3,4});
-    odil::Value const value4({3,4});
-    BOOST_CHECK(value1 == value2);
-    BOOST_CHECK( ! (value1 == value3));
-    BOOST_CHECK( ! (value1 == value4));
-}
-
-BOOST_AUTO_TEST_CASE(EqualityReals)
-{
-    odil::Value const value1({1,2});
-    odil::Value const value2({1,2});
-    odil::Value const value3({3,4});
-    odil::Value const value4({3,4});
-    BOOST_CHECK(value1 == value2);
-    BOOST_CHECK( ! (value1 == value3));
-    BOOST_CHECK( ! (value1 == value4));
-}
-
-BOOST_AUTO_TEST_CASE(EqualityStrings)
-{
-    odil::Value const value1({"1","2"});
-    odil::Value const value2({"1","2"});
-    odil::Value const value3({"3","4"});
-    odil::Value const value4({3,4});
-    BOOST_CHECK(value1 == value2);
-    BOOST_CHECK( ! (value1 == value3));
-    BOOST_CHECK( ! (value1 == value4));
-}
-
-BOOST_AUTO_TEST_CASE(EqualityDataSets)
-{
-    odil::DataSet dataset1;
-    dataset1.add("PatientID", {"DJ1234"});
-    dataset1.add("PixelSpacing", {1.5, 2.5});
-
-    odil::DataSet dataset2;
-    dataset1.add("PatientName", {"Doe^John"});
-    dataset1.add("PatientAge", {"042Y"});
-
-    odil::Value const value1({dataset1});
-    odil::Value const value2({dataset1});
-    odil::Value const value3({dataset2});
-    odil::Value const value4({3,4});
-    BOOST_CHECK(value1 == value2);
-    BOOST_CHECK( ! (value1 == value3));
-    BOOST_CHECK( ! (value1 == value4));
-}
-
-BOOST_AUTO_TEST_CASE(DifferenceEmpty)
-{
-    odil::Value const value1;
-    odil::Value const value2;
-    odil::Value const value3((odil::Value::Integers()));
-    BOOST_CHECK(! (value1 != value2));
-    BOOST_CHECK(value1 != value3);
-}
-
-BOOST_AUTO_TEST_CASE(DifferenceIntegers)
-{
-    odil::Value const value1({1,2});
-    odil::Value const value2({1,2});
-    odil::Value const value3({3,4});
-    odil::Value const value4({3,4});
-    BOOST_CHECK(! (value1 != value2));
-    BOOST_CHECK(value1 != value3);
-    BOOST_CHECK(value1 != value4);
-}
-
-BOOST_AUTO_TEST_CASE(DifferenceReals)
-{
-    odil::Value const value1({1.,2.});
-    odil::Value const value2({1.,2.});
-    odil::Value const value3({3.,4.});
-    odil::Value const value4({3,4});
-    BOOST_CHECK(! (value1 != value2));
-    BOOST_CHECK(value1 != value3);
-    BOOST_CHECK(value1 != value4);
-}
-
-BOOST_AUTO_TEST_CASE(DifferenceStrings)
-{
-    odil::Value const value1({"1","2"});
-    odil::Value const value2({"1","2"});
-    odil::Value const value3({"3","4"});
-    odil::Value const value4({3,4});
-    BOOST_CHECK(! (value1 != value2));
-    BOOST_CHECK(value1 != value3);
-    BOOST_CHECK(value1 != value4);
-}
-
-BOOST_AUTO_TEST_CASE(DifferenceDataSets)
-{
-    odil::DataSet dataset1;
-    dataset1.add("PatientID", {"DJ1234"});
-    dataset1.add("PixelSpacing", {1.5, 2.5});
-
-    odil::DataSet dataset2;
-    dataset1.add("PatientName", {"Doe^John"});
-    dataset1.add("PatientAge", {"042Y"});
-
-    odil::Value const value1({dataset1});
-    odil::Value const value2({dataset1});
-    odil::Value const value3({dataset2});
-    odil::Value const value4({3,4});
-    BOOST_CHECK(! (value1 != value2));
-    BOOST_CHECK(value1 != value3);
-    BOOST_CHECK(value1 != value4);
-}
-
-BOOST_AUTO_TEST_CASE(Clear)
-{
-    odil::Value value({1234});
+    odil::Value value(contents);
     value.clear();
+    BOOST_CHECK(value.get_type() == type);
     BOOST_CHECK(value.empty());
+}
+
+template<typename TContainer>
+void test_equality(
+    TContainer const & contents_1, TContainer const & contents_2)
+{
+    odil::Value const value_1(contents_1);
+    odil::Value const value_2(contents_1);
+    odil::Value const value_3(contents_2);
+    odil::Value const value_4(contents_2);
+
+    BOOST_CHECK(value_1 == value_2);
+    BOOST_CHECK( ! (value_1 == value_3));
+    BOOST_CHECK( ! (value_1 == value_4));
+
+    BOOST_CHECK(! (value_1 != value_2));
+    BOOST_CHECK(value_1 != value_3);
+    BOOST_CHECK(value_1 != value_4);
 }
 
 struct Visitor
@@ -248,50 +106,82 @@ struct Visitor
     }
 };
 
-BOOST_AUTO_TEST_CASE(VisitorEmpty)
+template<typename TContainer>
+void test_visitor(
+    TContainer const & contents)
 {
-    odil::Value const value;
-    BOOST_CHECK_THROW(
-        odil::apply_visitor(Visitor(), value),
-        odil::Exception);
-}
-
-BOOST_AUTO_TEST_CASE(VisitorIntegers)
-{
-    odil::Value const value({1234});
+    odil::Value const value(contents);
     BOOST_REQUIRE_EQUAL(
         odil::apply_visitor(Visitor(), value),
-        typeid(odil::Value::Integers).name());
+        typeid(TContainer).name());
 }
 
-BOOST_AUTO_TEST_CASE(VisitorReals)
+template<typename TContainer>
+void test(
+    std::initializer_list<typename TContainer::value_type> const & contents,
+    std::initializer_list<typename TContainer::value_type> const & other_contents,
+    odil::Value::Type type, 
+    TContainer const & (odil::Value::*getter)() const,
+    TContainer & (odil::Value::*setter)())
 {
-    odil::Value const value({12.34});
-    BOOST_REQUIRE_EQUAL(
-        odil::apply_visitor(Visitor(), value),
-        typeid(odil::Value::Reals).name());
+    TContainer const container(contents);
+    TContainer const other_container(other_contents);
+
+    test_container(TContainer(), type, getter);
+    test_container(container, type, getter);
+    test_initializer_list(contents, type, getter);
+
+    test_modify(container, getter, setter);
+
+    test_clear(container, type);
+
+    test_equality(container, other_container);
+
+    test_visitor(container);
+}
+ 
+BOOST_AUTO_TEST_CASE(Integers)
+{
+    test(
+        {1234, 5678}, {9012, 3456},
+        odil::Value::Type::Integers,
+        &odil::Value::as_integers, &odil::Value::as_integers);
 }
 
-BOOST_AUTO_TEST_CASE(VisitorStrings)
+BOOST_AUTO_TEST_CASE(Reals)
 {
-    odil::Value const value({"foo"});
-    BOOST_REQUIRE_EQUAL(
-        odil::apply_visitor(Visitor(), value),
-        typeid(odil::Value::Strings).name());
+    test(
+        {12.34, 56.78}, {1., 2.},
+        odil::Value::Type::Reals,
+        &odil::Value::as_reals, &odil::Value::as_reals);
 }
 
-BOOST_AUTO_TEST_CASE(VisitorDataSets)
+BOOST_AUTO_TEST_CASE(Strings)
 {
-    odil::Value const value({odil::DataSet()});
-    BOOST_REQUIRE_EQUAL(
-        odil::apply_visitor(Visitor(), value),
-        typeid(odil::Value::DataSets).name());
+    test(
+        {"foo", "bar"}, {"plip", "plop"},
+        odil::Value::Type::Strings,
+        &odil::Value::as_strings, &odil::Value::as_strings);
 }
 
-BOOST_AUTO_TEST_CASE(VisitorBinary)
+BOOST_AUTO_TEST_CASE(DataSets)
 {
-    odil::Value const value((odil::Value::Binary()));
-    BOOST_REQUIRE_EQUAL(
-        odil::apply_visitor(Visitor(), value),
-        typeid(odil::Value::Binary).name());
+    odil::DataSet data_set_1;
+    data_set_1.add("PatientID", {"DJ1234"});
+
+    odil::DataSet data_set_2;
+    data_set_2.add("EchoTime", {100});
+
+    test(
+        {data_set_1, data_set_2}, {data_set_2, data_set_1},
+        odil::Value::Type::DataSets,
+        &odil::Value::as_data_sets, &odil::Value::as_data_sets);
+}
+
+BOOST_AUTO_TEST_CASE(Binary)
+{
+    test(
+        {{0x1, 0x2}, {0x3}}, {{0x4}, {0x5, 0x6}},
+        odil::Value::Type::Binary,
+        &odil::Value::as_binary, &odil::Value::as_binary);
 }

@@ -114,5 +114,9 @@ void wrap_VR()
     ;
     converter::registry::push_back(
         &convertible, &construct, type_id<VR>());
+    def("is_int", odil::is_int);
+    def("is_real", odil::is_real);
+    def("is_string", odil::is_string);
+    def("is_binary", odil::is_binary);
 }
 
