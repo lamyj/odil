@@ -81,7 +81,7 @@ void test_modify(
     TContainer const & (odil::Element::*getter)() const,
     TContainer & (odil::Element::*setter)())
 {
-    odil::Element value{{contents[0]}};
+    odil::Element value(TContainer{{contents[0]}});
     (value.*setter)().push_back(contents[1]);
     BOOST_CHECK((value.*getter)() == contents);
 }
