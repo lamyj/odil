@@ -194,6 +194,11 @@ WADORSRequest
             this->_transfer_syntax = it->second;
         }
     }
+    else
+    {
+        this->_include_media_type_in_query = false;
+    }
+
     auto const transfer_syntax_it = accept.name_parameters.find("transfer-syntax");
     if(transfer_syntax_it != accept.name_parameters.end())
     {
@@ -210,6 +215,11 @@ WADORSRequest
         this->_include_character_set_in_query = true;
         this->_character_set = query_charset;
     }
+    else
+    {
+        this->_include_character_set_in_query = false;
+    }
+
     auto const charset_it = accept.name_parameters.find("charset");
     if(charset_it != accept.name_parameters.end())
     {
