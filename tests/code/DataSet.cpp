@@ -263,7 +263,7 @@ void test_element(
 
 BOOST_AUTO_TEST_CASE(Int)
 {
-    test_element(
+    test_element<odil::Value::Integers>(
         odil::registry::Rows, {1234, 5678}, odil::VR::US,
         &odil::DataSet::is_int, 
         &odil::DataSet::as_int, &odil::DataSet::as_int, &odil::DataSet::as_int);
@@ -271,7 +271,7 @@ BOOST_AUTO_TEST_CASE(Int)
 
 BOOST_AUTO_TEST_CASE(Real)
 {
-    test_element(
+    test_element<odil::Value::Reals>(
         odil::registry::SpacingBetweenSlices, {12.34, 56.78}, odil::VR::FL,
         &odil::DataSet::is_real, 
         &odil::DataSet::as_real, &odil::DataSet::as_real, &odil::DataSet::as_real);
@@ -279,7 +279,7 @@ BOOST_AUTO_TEST_CASE(Real)
 
 BOOST_AUTO_TEST_CASE(String)
 {
-    test_element(
+    test_element<odil::Value::Strings>(
         odil::registry::PatientID, {"foo", "bar"}, odil::VR::LT,
         &odil::DataSet::is_string, 
         &odil::DataSet::as_string, &odil::DataSet::as_string, &odil::DataSet::as_string);
@@ -293,7 +293,7 @@ BOOST_AUTO_TEST_CASE(DataSets)
     odil::DataSet data_set_2;
     data_set_2.add("EchoTime", {100});
 
-    test_element(
+    test_element<odil::Value::DataSets>(
         odil::registry::ReferencedStudySequence, {data_set_1, data_set_2}, odil::VR::SQ,
         &odil::DataSet::is_data_set, 
         &odil::DataSet::as_data_set, &odil::DataSet::as_data_set, &odil::DataSet::as_data_set);
@@ -301,7 +301,7 @@ BOOST_AUTO_TEST_CASE(DataSets)
 
 BOOST_AUTO_TEST_CASE(Binary)
 {
-    test_element(
+    test_element<odil::Value::Binary>(
         odil::registry::BadPixelImage, {{0x1, 0x2}, {0x3}}, odil::VR::OB,
         &odil::DataSet::is_binary,
         &odil::DataSet::as_binary, &odil::DataSet::as_binary, &odil::DataSet::as_binary);

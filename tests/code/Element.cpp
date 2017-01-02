@@ -173,73 +173,73 @@ void test(
 
 BOOST_AUTO_TEST_CASE(ImplicitType)
 {
-    test_implicit_container(
+    test_implicit_container<odil::Value::Strings>(
         odil::VR::AE, &odil::Element::is_string, &odil::Element::as_string);
-    test_implicit_container(
+    test_implicit_container<odil::Value::Strings>(
         odil::VR::AS, &odil::Element::is_string, &odil::Element::as_string);
-    test_implicit_container(
+    test_implicit_container<odil::Value::Strings>(
         odil::VR::AT, &odil::Element::is_string, &odil::Element::as_string);
-    test_implicit_container(
+    test_implicit_container<odil::Value::Strings>(
         odil::VR::CS, &odil::Element::is_string, &odil::Element::as_string);
-    test_implicit_container(
+    test_implicit_container<odil::Value::Strings>(
         odil::VR::DA, &odil::Element::is_string, &odil::Element::as_string);
-    test_implicit_container(
+    test_implicit_container<odil::Value::Reals>(
         odil::VR::DS, &odil::Element::is_real, &odil::Element::as_real);
-    test_implicit_container(
+    test_implicit_container<odil::Value::Strings>(
         odil::VR::DT, &odil::Element::is_string, &odil::Element::as_string);
-    test_implicit_container(
+    test_implicit_container<odil::Value::Reals>(
         odil::VR::FL, &odil::Element::is_real, &odil::Element::as_real);
-    test_implicit_container(
+    test_implicit_container<odil::Value::Reals>(
         odil::VR::FD, &odil::Element::is_real, &odil::Element::as_real);
-    test_implicit_container(
+    test_implicit_container<odil::Value::Integers>(
         odil::VR::IS, &odil::Element::is_int, &odil::Element::as_int);
-    test_implicit_container(
+    test_implicit_container<odil::Value::Strings>(
         odil::VR::LO, &odil::Element::is_string, &odil::Element::as_string);
-    test_implicit_container(
+    test_implicit_container<odil::Value::Strings>(
         odil::VR::LT, &odil::Element::is_string, &odil::Element::as_string);
-    test_implicit_container(
+    test_implicit_container<odil::Value::Binary>(
         odil::VR::OB, &odil::Element::is_binary, &odil::Element::as_binary);
-    test_implicit_container(
+    test_implicit_container<odil::Value::Binary>(
         odil::VR::OD, &odil::Element::is_binary, &odil::Element::as_binary);
-    test_implicit_container(
+    test_implicit_container<odil::Value::Binary>(
         odil::VR::OF, &odil::Element::is_binary, &odil::Element::as_binary);
-    test_implicit_container(
+    test_implicit_container<odil::Value::Binary>(
         odil::VR::OL, &odil::Element::is_binary, &odil::Element::as_binary);
-    test_implicit_container(
+    test_implicit_container<odil::Value::Binary>(
         odil::VR::OW, &odil::Element::is_binary, &odil::Element::as_binary);
-    test_implicit_container(
+    test_implicit_container<odil::Value::Strings>(
         odil::VR::PN, &odil::Element::is_string, &odil::Element::as_string);
-    test_implicit_container(
+    test_implicit_container<odil::Value::Strings>(
         odil::VR::SH, &odil::Element::is_string, &odil::Element::as_string);
-    test_implicit_container(
+    test_implicit_container<odil::Value::Integers>(
         odil::VR::SL, &odil::Element::is_int, &odil::Element::as_int);
-    test_implicit_container(
+    test_implicit_container<odil::Value::DataSets>(
         odil::VR::SQ, &odil::Element::is_data_set, &odil::Element::as_data_set);
-    test_implicit_container(
+    test_implicit_container<odil::Value::Integers>(
         odil::VR::SS, &odil::Element::is_int, &odil::Element::as_int);
-    test_implicit_container(
+    test_implicit_container<odil::Value::Strings>(
         odil::VR::ST, &odil::Element::is_string, &odil::Element::as_string);
-    test_implicit_container(
+    test_implicit_container<odil::Value::Strings>(
         odil::VR::TM, &odil::Element::is_string, &odil::Element::as_string);
-    test_implicit_container(
+    test_implicit_container<odil::Value::Strings>(
         odil::VR::UC, &odil::Element::is_string, &odil::Element::as_string);
-    test_implicit_container(
+    test_implicit_container<odil::Value::Strings>(
         odil::VR::UI, &odil::Element::is_string, &odil::Element::as_string);
-    test_implicit_container(
+    test_implicit_container<odil::Value::Integers>(
         odil::VR::UL, &odil::Element::is_int, &odil::Element::as_int);
-    test_implicit_container(
+    test_implicit_container<odil::Value::Binary>(
         odil::VR::UN, &odil::Element::is_binary, &odil::Element::as_binary);
-    test_implicit_container(
+    test_implicit_container<odil::Value::Strings>(
         odil::VR::UR, &odil::Element::is_string, &odil::Element::as_string);
-    test_implicit_container(
+    test_implicit_container<odil::Value::Integers>(
         odil::VR::US, &odil::Element::is_int, &odil::Element::as_int);
-    test_implicit_container(
+    test_implicit_container<odil::Value::Strings>(
         odil::VR::UT, &odil::Element::is_string, &odil::Element::as_string);
 }
 
 BOOST_AUTO_TEST_CASE(Int)
 {
-    test(
+    test<odil::Value::Integers>(
         {1234, 5678}, {9012, 3456}, odil::VR::US, odil::VR::UL, 
         &odil::Element::is_int,
         &odil::Element::as_int, &odil::Element::as_int);
@@ -247,7 +247,7 @@ BOOST_AUTO_TEST_CASE(Int)
 
 BOOST_AUTO_TEST_CASE(Real)
 {
-    test(
+    test<odil::Value::Reals>(
         {12.34, 56.78}, {1., 2.}, odil::VR::FD, odil::VR::DS, 
         &odil::Element::is_real,
         &odil::Element::as_real, &odil::Element::as_real);
@@ -255,7 +255,7 @@ BOOST_AUTO_TEST_CASE(Real)
 
 BOOST_AUTO_TEST_CASE(String)
 {
-    test(
+    test<odil::Value::Strings>(
         {"foo", "bar"}, {"plip", "plop"}, odil::VR::CS, odil::VR::UT, 
         &odil::Element::is_string,
         &odil::Element::as_string, &odil::Element::as_string);
@@ -269,7 +269,7 @@ BOOST_AUTO_TEST_CASE(DataSets)
     odil::DataSet data_set_2;
     data_set_2.add("EchoTime", {100});
 
-    test(
+    test<odil::Value::DataSets>(
         {data_set_1, data_set_2}, {data_set_2, data_set_1}, 
         odil::VR::SQ, odil::VR::UN,
         &odil::Element::is_data_set,
@@ -278,7 +278,7 @@ BOOST_AUTO_TEST_CASE(DataSets)
 
 BOOST_AUTO_TEST_CASE(Binary)
 {
-    test(
+    test<odil::Value::Binary>(
         {{0x1, 0x2}, {0x3}}, {{0x4}, {0x5, 0x6}},
         odil::VR::OB, odil::VR::OW,
         &odil::Element::is_binary,
