@@ -262,6 +262,11 @@ Transport
 
     if(source == Source::OPERATION)
     {
+        if(error == boost::asio::error::eof)
+        {
+            throw SocketClosed();
+        }
+
         if(error)
         {
             throw Exception("Operation error: "+error.message());

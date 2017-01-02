@@ -15,6 +15,8 @@
 #include <boost/asio.hpp>
 #include <boost/date_time.hpp>
 
+#include "odil/Exception.h"
+
 namespace odil
 {
 
@@ -100,6 +102,20 @@ private:
     void _stop_deadline();
 
     void _run(Source & source, boost::system::error_code & error);
+};
+
+
+/** 
+ * @brief Exception reported when the socket is closed without releasing the association.
+ */
+class SocketClosed: public Exception
+{
+public:
+    SocketClosed()
+    : Exception("Socket closed")
+    {
+        // Nothing else.
+    }
 };
 
 }
