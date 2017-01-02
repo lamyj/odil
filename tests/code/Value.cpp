@@ -142,7 +142,7 @@ void test(
  
 BOOST_AUTO_TEST_CASE(Integers)
 {
-    test(
+    test<odil::Value::Integers>(
         {1234, 5678}, {9012, 3456},
         odil::Value::Type::Integers,
         &odil::Value::as_integers, &odil::Value::as_integers);
@@ -150,7 +150,7 @@ BOOST_AUTO_TEST_CASE(Integers)
 
 BOOST_AUTO_TEST_CASE(Reals)
 {
-    test(
+    test<odil::Value::Reals>(
         {12.34, 56.78}, {1., 2.},
         odil::Value::Type::Reals,
         &odil::Value::as_reals, &odil::Value::as_reals);
@@ -158,7 +158,7 @@ BOOST_AUTO_TEST_CASE(Reals)
 
 BOOST_AUTO_TEST_CASE(Strings)
 {
-    test(
+    test<odil::Value::Strings>(
         {"foo", "bar"}, {"plip", "plop"},
         odil::Value::Type::Strings,
         &odil::Value::as_strings, &odil::Value::as_strings);
@@ -172,7 +172,7 @@ BOOST_AUTO_TEST_CASE(DataSets)
     odil::DataSet data_set_2;
     data_set_2.add("EchoTime", {100});
 
-    test(
+    test<odil::Value::DataSets>(
         {data_set_1, data_set_2}, {data_set_2, data_set_1},
         odil::Value::Type::DataSets,
         &odil::Value::as_data_sets, &odil::Value::as_data_sets);
@@ -180,7 +180,7 @@ BOOST_AUTO_TEST_CASE(DataSets)
 
 BOOST_AUTO_TEST_CASE(Binary)
 {
-    test(
+    test<odil::Value::Binary>(
         {{0x1, 0x2}, {0x3}}, {{0x4}, {0x5, 0x6}},
         odil::Value::Type::Binary,
         &odil::Value::as_binary, &odil::Value::as_binary);
