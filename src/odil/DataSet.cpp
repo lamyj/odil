@@ -175,7 +175,7 @@ DataSet
 {
     if(!this->has(tag))
     {
-        throw Exception("No such element");
+        throw Exception("No such element " + std::string( tag ));
     }
 
     this->_elements.erase(tag);
@@ -202,7 +202,7 @@ DataSet
     ElementMap::const_iterator const it = this->_elements.find(tag);
     if(it == this->_elements.end())
     {
-        throw Exception("No such element");
+        throw Exception("No such element " + std::string( tag ));
     }
 
     return it->second;
@@ -215,7 +215,7 @@ DataSet
     ElementMap::iterator it = this->_elements.find(tag);
     if(it == this->_elements.end())
     {
-        throw Exception("No such element");
+        throw Exception("No such element " + std::string( tag ));
     }
 
     return it->second;
@@ -386,7 +386,7 @@ DataSet
     ElementMap::const_iterator const it = this->_elements.find(tag);
     if(it == this->_elements.end())
     {
-        throw Exception("No such element");
+        throw Exception("No such element "+  std::string(tag) );
     }
 
     return it->second.vr;
@@ -399,7 +399,7 @@ DataSet
     ElementMap::const_iterator const it = this->_elements.find(tag);
     if(it == this->_elements.end())
     {
-        throw Exception("No such element");
+        throw Exception("No such element " + std::string( tag ) );
     }
 
     return it->second.empty();
@@ -412,7 +412,7 @@ DataSet
     ElementMap::const_iterator const it = this->_elements.find(tag);
     if(it == this->_elements.end())
     {
-        throw Exception("No such element");
+        throw Exception("No such element " + std::string( tag ));
     }
 
     return it->second.size();
