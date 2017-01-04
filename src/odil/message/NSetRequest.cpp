@@ -54,7 +54,9 @@ NSetRequest
     this->set_command_data_set_type(command_data_set_type);
     this->set_command_group_length(command_group_length );
 
-    if(dataset.empty() && command_data_set_type != NULL && command_data_set_type != 0x0101 )
+    if(
+        dataset.empty() && command_data_set_type != DataSetType::PRESENT 
+        && command_data_set_type != 0x0101)
     {
         throw Exception("Data set is required");
     }
