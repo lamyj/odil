@@ -5,6 +5,7 @@
 #include "odil/EchoSCP.h"
 #include "odil/FindSCP.h"
 #include "odil/StoreSCP.h"
+#include "odil/NSetSCP.h"
 #include "odil/registry.h"
 #include "odil/SCPDispatcher.h"
 #include "odil/SCP.h"
@@ -13,6 +14,7 @@
 #include "odil/message/CFindRequest.h"
 #include "odil/message/CFindResponse.h"
 #include "odil/message/CStoreRequest.h"
+#include "odil/message/NSetRequest.h"
 
 class FindGenerator: public odil::SCP::DataSetGenerator
 {
@@ -79,6 +81,14 @@ odil::Value::Integer store(odil::message::CStoreRequest const & request)
     return odil::message::Response::Success;
 }
 
+odil::Value::Integer nset(odil::message::NSetRequest const & request)
+{
+    std::cout << "NSetRequest message ID: " << request.get_message_id() <<"\n";
+    std::cout << "NSetRequest requested SOP Class UID: " << request.get_requested_sop_class_uid()<<"\n";
+
+    return odil::message::Response::Success;
+}
+
 int main()
 {
     odil::Association association;
@@ -110,12 +120,15 @@ int main()
     auto find_scp = std::make_shared<odil::FindSCP>(
         association, std::make_shared<FindGenerator>());
     auto store_scp = std::make_shared<odil::StoreSCP>(association, store);
+    auto nset_scp = std::make_shared<odil::NSetSCP>(association, nset);
 
     odil::SCPDispatcher dispatcher(association);
     dispatcher.set_scp(odil::message::Message::Command::C_ECHO_RQ, echo_scp);
     dispatcher.set_scp(odil::message::Message::Command::C_FIND_RQ, find_scp);
     dispatcher.set_scp(
         odil::message::Message::Command::C_STORE_RQ, store_scp);
+    dispatcher.set_scp(
+        odil::message::Message::Command::N_SET_RQ, nset_scp);
 
     bool done = false;
     while(!done)
