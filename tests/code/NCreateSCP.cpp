@@ -89,34 +89,3 @@ BOOST_AUTO_TEST_CASE(Callback)
     BOOST_REQUIRE_EQUAL(called, true);
 }
 
-BOOST_AUTO_TEST_CASE(Release)
-{
-    Status status = { -1, "", false };
-
-    std::thread server(run_server, &status);
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    std::thread client(run_client, &status, false);
-
-    server.join();
-    client.join();
-
-    BOOST_REQUIRE_EQUAL(status.client, 0);
-    BOOST_REQUIRE_EQUAL(status.server, "release");
-    BOOST_REQUIRE_EQUAL(status.called, true);
-}
-
-BOOST_AUTO_TEST_CASE(Abort)
-{
-    Status status = { -1, "", false };
-
-    std::thread server(run_server, &status);
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    std::thread client(run_client, &status, true);
-
-    server.join();
-    client.join();
-
-    BOOST_REQUIRE_EQUAL(status.client, 0);
-    BOOST_REQUIRE_EQUAL(status.server, "abort");
-    BOOST_REQUIRE_EQUAL(status.called, true);
-}
