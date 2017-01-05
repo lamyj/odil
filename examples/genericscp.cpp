@@ -137,6 +137,11 @@ int main()
         {
             dispatcher.dispatch();
         }
+        catch(odil::dul::SocketClosed const &)
+        {
+            std::cout << "Peer closed the socket" << std::endl;
+            done = true;
+        }
         catch(odil::AssociationReleased const &)
         {
             std::cout << "Peer released association" << std::endl;
