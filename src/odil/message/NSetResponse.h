@@ -11,6 +11,7 @@
 
 #include "odil/registry.h"
 #include "odil/message/Response.h"
+#include "odil/odil.h"
 #include "odil/Value.h"
 
 namespace odil
@@ -20,7 +21,7 @@ namespace message
 {
 
 /// @brief N-Set-RSP message.
-class NSetResponse: public Response
+class ODIL_API NSetResponse: public Response
 {
 public:
     /**

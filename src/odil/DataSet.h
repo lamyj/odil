@@ -17,6 +17,7 @@
 #include <vector>
 
 #include "odil/Element.h"
+#include "odil/odil.h"
 #include "odil/Value.h"
 
 namespace odil
@@ -25,7 +26,7 @@ namespace odil
 /**
  * @brief DICOM Data set.
  */
-class DataSet
+class ODIL_API DataSet
 {
 public:
     /// @brief Create an empty data set.

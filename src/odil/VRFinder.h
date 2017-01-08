@@ -14,6 +14,7 @@
 #include <vector>
 
 #include "odil/DataSet.h"
+#include "odil/odil.h"
 #include "odil/Tag.h"
 #include "odil/VR.h"
 
@@ -21,7 +22,7 @@ namespace odil
 {
 
 /// @brief Find the VR of elements in an implicit VR data set.
-class VRFinder
+class ODIL_API VRFinder
 {
 public:
     /**

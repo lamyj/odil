@@ -13,6 +13,7 @@
 #include <istream>
 #include <string>
 
+#include "odil/odil.h"
 #include "odil/pdu/Object.h"
 
 namespace odil
@@ -22,7 +23,7 @@ namespace pdu
 {
 
 /// @brief User Identity Sub-Item Structure (A-ASSOCIATE-RQ) (PS 3.7, D.3.3.7.1).
-class UserIdentityRQ: public Object
+class ODIL_API UserIdentityRQ: public Object
 {
 public:
     /// @brief Item type.

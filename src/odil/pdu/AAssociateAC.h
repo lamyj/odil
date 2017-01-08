@@ -11,6 +11,7 @@
 
 #include <vector>
 
+#include "odil/odil.h"
 #include "odil/pdu/AAssociate.h"
 #include "odil/pdu/PresentationContextAC.h"
 
@@ -21,7 +22,7 @@ namespace pdu
 {
 
 /// @brief A-ASSOCIATE-AC PDU, cf. PS 3.8, 9.3.3.
-class AAssociateAC: public AAssociate
+class ODIL_API AAssociateAC: public AAssociate
 {
 public:
     /// @brief Constructor.

@@ -12,6 +12,7 @@
 #include <functional>
 
 #include "odil/Association.h"
+#include "odil/odil.h"
 #include "odil/SCP.h"
 #include "odil/Value.h"
 #include "odil/message/Message.h"
@@ -21,7 +22,7 @@ namespace odil
 {
 
 /// @brief SCP for N-Set services.
-class NSetSCP: public SCP
+class ODIL_API NSetSCP: public SCP
 {
 public:
     /**

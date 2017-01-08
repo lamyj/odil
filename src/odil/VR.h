@@ -11,6 +11,8 @@
 
 #include <string>
 
+#include "odil/odil.h"
+
 namespace odil
 {
 
@@ -26,33 +28,33 @@ enum class VR
 };
 
 /// @brief Convert a VR to its string representation.
-std::string as_string(VR vr);
+ODIL_API std::string as_string(VR vr);
 
 /**
  * @brief Convert a string to its VR.
  *
  * If the string does not represent a VR, a odil::Exception is raised.
  */
-VR as_vr(std::string const & vr);
+ODIL_API VR as_vr(std::string const & vr);
 
 /**
  * @brief Guess a VR from a tag.
  *
  * If the VR cannot be guessed, a odil::Exception is raised.
  */
-VR as_vr(Tag const & tag);
+ODIL_API VR as_vr(Tag const & tag);
 
 /// @brief Test whether a VR contains integers.
-bool is_int(VR vr);
+ODIL_API bool is_int(VR vr);
 
 /// @brief Test whether a VR contains rel numbers.
-bool is_real(VR vr);
+ODIL_API bool is_real(VR vr);
 
 /// @brief Test whether a VR contains text.
-bool is_string(VR vr);
+ODIL_API bool is_string(VR vr);
 
 /// @brief Test whether a VR contains binary data.
-bool is_binary(VR vr);
+ODIL_API bool is_binary(VR vr);
 
 }
 

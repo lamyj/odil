@@ -10,13 +10,14 @@
 #define _94f3b347_1f95_49ab_83f6_8710f5a3ad67
 
 #include "odil/Association.h"
+#include "odil/odil.h"
 #include "odil/SCU.h"
 
 namespace odil
 {
 
 /// @brief SCU for the C-ECHO services.
-class EchoSCU: public SCU
+class ODIL_API EchoSCU: public SCU
 {
 public:
     /// @brief Constructor

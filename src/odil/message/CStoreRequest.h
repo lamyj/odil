@@ -12,6 +12,7 @@
 #include <string>
 
 #include "odil/DataSet.h"
+#include "odil/odil.h"
 #include "odil/registry.h"
 #include "odil/message/Request.h"
 #include "odil/Value.h"
@@ -23,7 +24,7 @@ namespace message
 {
 
 /// @brief C-STORE-RQ message.
-class CStoreRequest: public Request
+class ODIL_API CStoreRequest: public Request
 {
 public:
     /**

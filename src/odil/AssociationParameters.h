@@ -13,6 +13,7 @@
 #include <string>
 #include <vector>
 
+#include "odil/odil.h"
 #include "odil/pdu/AAssociateAC.h"
 #include "odil/pdu/AAssociateRQ.h"
 #include "odil/pdu/SOPClassCommonExtendedNegotiation.h"
@@ -22,14 +23,14 @@ namespace odil
 {
 
 /// @brief Encapsulate association parameters
-class AssociationParameters
+class ODIL_API AssociationParameters
 {
 public:
     /**
      * @brief Presentation Context, cf. PS 3.8, 9.3.2.2, PS 3.8, 9.3.3.2,
      * PS 3.7, D.3.3.4.1 and PS 3.7 D.3.3.4.2.
      */
-    struct PresentationContext
+    struct ODIL_API PresentationContext
     {
         /// @brief Result of the presentation context negotiation.
         enum class Result

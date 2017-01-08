@@ -19,6 +19,7 @@
 #include "odil/AssociationParameters.h"
 #include "odil/dul/StateMachine.h"
 #include "odil/message/Message.h"
+#include "odil/odil.h"
 
 namespace odil
 {
@@ -26,7 +27,7 @@ namespace odil
 /**
  * @brief Association.
  */
-class Association
+class ODIL_API Association
 {
 public:
     /// @brief Association result (ITU-T X.227, PS 3.8, 7.1.1.7 and PS 3.8, 9.3.4).
@@ -200,7 +201,7 @@ private:
  * @brief Exception reported when receiving a message after the association was
  * released.
  */
-class AssociationReleased: public Exception
+class ODIL_API AssociationReleased: public Exception
 {
 public:
     AssociationReleased()
@@ -214,7 +215,7 @@ public:
  * @brief Exception reported when receiving a message after the association was
  * aborted.
  */
-class AssociationAborted: public Exception
+class ODIL_API AssociationAborted: public Exception
 {
 public:
     /// @brief Source of the error.

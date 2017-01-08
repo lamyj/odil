@@ -11,6 +11,7 @@
 
 #include <istream>
 
+#include "odil/odil.h"
 #include "odil/pdu/Object.h"
 
 namespace odil
@@ -20,7 +21,7 @@ namespace pdu
 {
 
 /// @brief A-RELEASE-RQ PDU, cf. PS 3.8, 9.3.6.
-class AReleaseRQ: public Object
+class ODIL_API AReleaseRQ: public Object
 {
 public:
     /// @brief Constructor.

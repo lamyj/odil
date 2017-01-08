@@ -10,6 +10,7 @@
 #define _97fc1bfc_4cff_40f2_a1ed_4550c71a0bda
 
 #include "odil/message/Message.h"
+#include "odil/odil.h"
 #include "odil/registry.h"
 #include "odil/Value.h"
 
@@ -20,7 +21,7 @@ namespace message
 {
 
 /// @brief Base class for cancellation messages.
-class Cancellation: public Message
+class ODIL_API Cancellation: public Message
 {
 public:
     /// @brief Create a response with given message id being responded to.

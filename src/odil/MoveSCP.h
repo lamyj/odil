@@ -15,6 +15,7 @@
 #include <utility>
 
 #include "odil/Association.h"
+#include "odil/odil.h"
 #include "odil/SCP.h"
 #include "odil/message/CMoveRequest.h"
 #include "odil/message/Message.h"
@@ -23,7 +24,7 @@ namespace odil
 {
 
 /// @brief SCP for C-Move services.
-class MoveSCP: public SCP
+class ODIL_API MoveSCP: public SCP
 {
 public:
 

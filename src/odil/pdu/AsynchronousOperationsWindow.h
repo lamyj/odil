@@ -12,6 +12,7 @@
 #include <cstdint>
 #include <istream>
 
+#include "odil/odil.h"
 #include "odil/pdu/Object.h"
 
 namespace odil
@@ -21,7 +22,7 @@ namespace pdu
 {
 
 /// @brief Asynchronous Operations Window Sub-Item (PS 3.7, D.3.3.3.1 and D.3.3.3.2).
-class AsynchronousOperationsWindow: public Object
+class ODIL_API AsynchronousOperationsWindow: public Object
 {
 public:
     /// @brief Item type.

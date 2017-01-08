@@ -10,6 +10,7 @@
 #define _7b9819f1_d7a2_4898_a850_3ed6a61f08c6
 
 #include "odil/DataSet.h"
+#include "odil/odil.h"
 #include "odil/registry.h"
 #include "odil/message/Response.h"
 #include "odil/Value.h"
@@ -21,7 +22,7 @@ namespace message
 {
 
 /// @brief C-GET-RSP message.
-class CGetResponse: public Response
+class ODIL_API CGetResponse: public Response
 {
 public:
     /// @brief C-GET status codes, PS 3.4, C.4.3.1.4

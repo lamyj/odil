@@ -10,6 +10,7 @@
 #define _9a741b7f_0254_4eac_9bbd_04b719c1f86a
 
 #include "odil/message/Request.h"
+#include "odil/odil.h"
 #include "odil/registry.h"
 #include "odil/Value.h"
 
@@ -20,7 +21,7 @@ namespace message
 {
 
 /// @brief N-Create-RQ message.
-class NCreateRequest: public Request
+class ODIL_API NCreateRequest: public Request
 {
 public:
     /**

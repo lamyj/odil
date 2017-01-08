@@ -10,6 +10,7 @@
 #define _aec786b8_0074_4cb2_b9a1_4bf26bbd20fc
 
 #include "odil/message/Request.h"
+#include "odil/odil.h"
 #include "odil/registry.h"
 #include "odil/Value.h"
 
@@ -20,7 +21,7 @@ namespace message
 {
 
 /// @brief C-ECHO-RQ message.
-class CEchoRequest: public Request
+class ODIL_API CEchoRequest: public Request
 {
 public:
     /**

@@ -13,6 +13,7 @@
 #include <string>
 #include <vector>
 
+#include "odil/odil.h"
 #include "odil/pdu/Object.h"
 
 namespace odil
@@ -22,7 +23,7 @@ namespace pdu
 {
 
 /// @brief SOP Class Common Extended Negotiation sub-item (PS 3.7, D.3.3.6).
-class SOPClassCommonExtendedNegotiation: public Object
+class ODIL_API SOPClassCommonExtendedNegotiation: public Object
 {
 public:
     /// @brief Item type.

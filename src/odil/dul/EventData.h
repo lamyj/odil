@@ -14,6 +14,7 @@
 #include "odil/AssociationAcceptor.h"
 #include "odil/AssociationParameters.h"
 #include "odil/dul/Transport.h"
+#include "odil/odil.h"
 #include "odil/pdu/Object.h"
 
 namespace odil
@@ -23,7 +24,7 @@ namespace dul
 {
 
 /// @brief Data related to events of the DUL state machine.
-class EventData
+class ODIL_API EventData
 {
 public:
     Transport::Socket::endpoint_type peer_endpoint;

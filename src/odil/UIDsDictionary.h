@@ -12,13 +12,15 @@
 #include <map>
 #include <string>
 
+#include "odil/odil.h"
+
 namespace odil
 {
 
 /**
  * @brief Entry in a dictionary of DICOM UIDs.
  */
-struct UIDsDictionaryEntry
+struct ODIL_API UIDsDictionaryEntry
 {
     /// @brief Full name.
     std::string name;

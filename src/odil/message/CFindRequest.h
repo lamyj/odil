@@ -9,6 +9,7 @@
 #ifndef _74cfa9e7_da35_4130_a941_e17cb6932f60
 #define _74cfa9e7_da35_4130_a941_e17cb6932f60
 
+#include "odil/odil.h"
 #include "odil/registry.h"
 #include "odil/message/Request.h"
 #include "odil/Value.h"
@@ -20,7 +21,7 @@ namespace message
 {
 
 /// @brief C-FIND-RQ message.
-class CFindRequest: public Request
+class ODIL_API CFindRequest: public Request
 {
 public:
     /**

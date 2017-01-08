@@ -10,6 +10,7 @@
 #define _8125ab8d_bf37_4116_8ca8_93151ba022a8
 
 #include "odil/message/Request.h"
+#include "odil/odil.h"
 #include "odil/registry.h"
 #include "odil/Value.h"
 
@@ -20,7 +21,7 @@ namespace message
 {
 
 /// @brief N-Set-RQ message.
-class NSetRequest: public Request
+class ODIL_API NSetRequest: public Request
 {
 public:
     /**

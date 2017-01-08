@@ -9,6 +9,7 @@
 #ifndef _4f465ff9_8cd7_47cb_afc5_51461124bb01
 #define _4f465ff9_8cd7_47cb_afc5_51461124bb01
 
+#include "odil/odil.h"
 #include "odil/registry.h"
 #include "odil/message/Response.h"
 #include "odil/Value.h"
@@ -20,7 +21,7 @@ namespace message
 {
 
 /// @brief N-Create-RSP message.
-class NCreateResponse: public Response
+class ODIL_API NCreateResponse: public Response
 {
 public:
     /**

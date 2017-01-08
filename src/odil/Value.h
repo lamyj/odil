@@ -11,8 +11,11 @@
 
 #include <cstdint>
 #include <initializer_list>
+#include <memory>
 #include <string>
 #include <vector>
+
+#include "odil/odil.h"
 
 namespace odil
 {
@@ -22,7 +25,7 @@ class DataSet;
 /**
  * @brief A value held in a DICOM element.
  */
-class Value
+class ODIL_API Value
 {
 public:
     /// @brief Possible types stored in the value.

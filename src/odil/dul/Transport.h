@@ -15,6 +15,8 @@
 #include <boost/asio.hpp>
 #include <boost/date_time.hpp>
 
+#include "odil/odil.h"
+
 namespace odil
 {
 
@@ -28,7 +30,7 @@ namespace dul
  * value: if the timeout expires before the operation is completed, an exception
  * will be raised.
  */
-struct Transport
+struct ODIL_API Transport
 {
     /// @brief Socket type.
     typedef boost::asio::ip::tcp::socket Socket;

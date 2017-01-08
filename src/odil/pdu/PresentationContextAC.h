@@ -13,6 +13,7 @@
 #include <istream>
 #include <string>
 
+#include "odil/odil.h"
 #include "odil/pdu/PresentationContext.h"
 
 namespace odil
@@ -22,7 +23,7 @@ namespace pdu
 {
 
 /// @brief Presentation Context item for a A-ASSOCIATE-AC PDU (PS 3.8, 9.3.3.2).
-class PresentationContextAC: public PresentationContext
+class ODIL_API PresentationContextAC: public PresentationContext
 {
 public:
     /// @brief Constructor.

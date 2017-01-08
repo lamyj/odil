@@ -12,15 +12,16 @@
 #include <boost/property_tree/ptree.hpp>
 
 #include "odil/DataSet.h"
+#include "odil/odil.h"
 
 namespace odil
 {
 
 /// @brief Convert a data set to its XML representation.
-boost::property_tree::ptree as_xml(DataSet const & data_set);
+ODIL_API boost::property_tree::ptree as_xml(DataSet const & data_set);
 
 /// @brief Create a data set from its XML representation.
-DataSet as_dataset(boost::property_tree::ptree const & xml);
+ODIL_API DataSet as_dataset(boost::property_tree::ptree const & xml);
 
 } // namespace odil
 

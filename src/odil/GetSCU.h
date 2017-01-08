@@ -14,6 +14,7 @@
 
 #include "odil/Association.h"
 #include "odil/DataSet.h"
+#include "odil/odil.h"
 #include "odil/SCU.h"
 #include "odil/message/CGetResponse.h"
 #include "odil/message/CStoreRequest.h"
@@ -22,7 +23,7 @@ namespace odil
 {
 
 /// @brief SCU for C-GET services.
-class GetSCU: public SCU
+class ODIL_API GetSCU: public SCU
 {
 public:
     /// @brief Callback called when a C-STORE request is received.

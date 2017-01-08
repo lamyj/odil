@@ -14,11 +14,13 @@
 #include <cstdlib>
 #include <cstring>
 
+#include "odil/odil.h"
+
 namespace odil
 {
 
 /// @brief Write a double as a DS to the buffer.
-void write_ds(double f, char * buffer, int size=16);
+ODIL_API void write_ds(double f, char * buffer, int size=16);
 
 }
 

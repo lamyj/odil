@@ -11,13 +11,14 @@
 
 #include "odil/Association.h"
 #include "odil/DataSet.h"
+#include "odil/odil.h"
 #include "odil/SCU.h"
 
 namespace odil
 {
 
 /// @brief SCU for C-Store services.
-class StoreSCU: public SCU
+class ODIL_API StoreSCU: public SCU
 {
 public:
     /// @brief Constructor.

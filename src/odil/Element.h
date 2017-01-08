@@ -12,6 +12,7 @@
 #include <cstddef>
 #include <initializer_list>
 
+#include "odil/odil.h"
 #include "odil/Tag.h"
 #include "odil/Value.h"
 #include "odil/VR.h"
@@ -22,7 +23,7 @@ namespace odil
 /**
  * @brief Element of a DICOM data set.
  */
-class Element
+class ODIL_API Element
 {
 public:
 

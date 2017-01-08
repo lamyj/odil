@@ -14,6 +14,7 @@
 #include <string>
 #include <vector>
 
+#include "odil/odil.h"
 #include "odil/pdu/Object.h"
 
 namespace odil
@@ -26,7 +27,7 @@ namespace pdu
  * @brief Presentation Context item, either for a A-ASSOCIATE-RQ PDU (PS 3.8,
  * 9.3.2.2) or for a A-ASSOCIATE-AC PDU (PS 3.8, 9.3.3.2).
  */
-class PresentationContext: public Object
+class ODIL_API PresentationContext: public Object
 {
 public:
     /// @brief Constructor
