@@ -13,13 +13,14 @@
 
 #include "odil/Association.h"
 #include "odil/DataSet.h"
+#include "odil/odil.h"
 #include "odil/SCU.h"
 
 namespace odil
 {
 
 /// @brief SCU for C-FIND services.
-class FindSCU: public SCU
+class ODIL_API FindSCU: public SCU
 {
 public:
     /// @brief Callback called when a response is received.
