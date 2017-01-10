@@ -30,11 +30,6 @@ endif()
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 if(WIN32)
-    # Trying the automatic creation of .def files by CMake
-    if(${BUILD_SHARED_LIBS})
-        set(WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
-    endif()
-
     # We have to set _WIN32_WINNT for Asio
     if(${CMAKE_SYSTEM_VERSION} EQUAL 10) # Windows 10
         add_definitions(-D _WIN32_WINNT=0x0A00)
