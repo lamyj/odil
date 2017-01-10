@@ -12,6 +12,9 @@ option(BUILD_EXAMPLES "Build the examples directory." ON)
 option(BUILD_WRAPPERS "Build the Python Wrappers." ON)
 
 option(WITH_DCMTK "Build the DCMTK converter" ON)
+option(
+    USE_BUILTIN_DCMTK_GETSCU
+    "Compile a locally packaged version of getscu for old DCMTK versions" ON)
 
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}" ${CMAKE_MODULE_PATH})
 include(CTest)
