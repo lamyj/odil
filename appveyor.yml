@@ -1,43 +1,69 @@
 version: "{build}"
-
-os: Windows Server 2012 R2
-
-clone_folder: c:\projects\odil
-
-environment:
-  BOOST_ROOT: C:/Libraries/boost_1_59_0
-  BOOST_LIBRARYDIR: C:/Libraries/boost_1_59_0/lib64-msvc-14.0
-  ICU_INCLUDE_DIR: C:/Libraries/icu/include
-  ICU_LIBRARY: C:/Libraries/icu/lib64/icuuc.lib
-  JsonCpp_INCLUDE_DIR: c:/Libraries/jsoncpp_0_10_5/include
-  JsonCpp_LIBRARY: c:/Libraries/jsoncpp_0_10_5/lib/jsoncpp.lib
-  DCMTK_INCLUDE_DIR: C:/Libraries/dcmtk-3.6.1_20150924/include
-  DCMTK_LIBRARY: C:/Libraries/dcmtk-3.6.1_20150924/lib/dcmdata.lib
-
+image: Visual Studio 2015
+platform:
+  - x64
 configuration:
   - Release
 
+environment:
+  BOOST_ROOT: C:/Libraries/boost_1_62_0
+  DCMTK_ROOT: c:/Libraries/dcmtk
+  ICU_ROOT: C:/Libraries/icu
+  JsonCpp_ROOT: c:/Libraries/jsoncpp
+  Log4Cpp_ROOT: C:/Libraries/log4cpp
+  VERSION: 0.7.3-1
+
 install:
-  # ICU4C
-- ps: Start-FileDownload http://download.icu-project.org/files/icu4c/56.1/icu4c-56_1-Win64-msvc10.zip
-- 7z x -bd -oC:\Libraries icu4c-56_1-Win64-msvc10.zip
-  # JsonCpp
-- ps: Start-FileDownload https://github.com/lamyj/jsoncpp/releases/download/0.10.5/jsoncpp_0_10_5_Win64_msvc14.zip
-- 7z x -bd -oC:\Libraries jsoncpp_0_10_5_Win64_msvc14.zip
-  # DCMTK
-- ps: Start-FileDownload https://github.com/lamyj/dcmtk/releases/download/DCMTK-3.6.1_20150924/dcmtk-3.6.1_20150924_Win64_msvc14_dynamic.zip
-- 7z x -bd -oC:\Libraries dcmtk-3.6.1_20150924_Win64_msvc14_dynamic.zip
+  - ps: |
+      Start-FileDownload https://github.com/lamyj/appveyor-dcmtk/releases/download/v3.6.1-20161102-2/dcmtk_3.6.1-20161102-2_dynamic_x64.zip dcmtk.zip
+      7z x -bd -oC:\Libraries dcmtk.zip
+
+      Start-FileDownload http://download.icu-project.org/files/icu4c/58.2/icu4c-58_2-Win64-MSVC2015.zip
+      7z x -bd -oC:\Libraries icu4c-58_2-Win64-MSVC2015.zip
+
+      Start-FileDownload https://github.com/lamyj/appveyor-jsoncpp/releases/download/v1.8.0-2/jsoncpp_1.8.0-2_dynamic_x64.zip jsoncpp.zip
+      7z x -bd -oC:\Libraries jsoncpp.zip
+
+      Start-FileDownload https://github.com/lamyj/appveyor-log4cpp/releases/download/v1.1.1-1/log4cpp_1.1.1-dll_x64.zip log4cpp.zip
+      7z x -bd -oC:\Libraries log4cpp.zip
 
 before_build:
-  - cd c:\projects\odil
-  - md build
-  - cd build
-  - cmake
-    -DBOOST_ROOT="%BOOST_ROOT%" -DBOOST_LIBRARYDIR="%BOOST_LIBRARYDIR%"
-    -DICU_INCLUDE_DIR="%ICU_INCLUDE_DIR%" -DICU_LIBRARY="%ICU_LIBRARY%"
-    -DJsonCpp_INCLUDE_DIR="%JsonCpp_INCLUDE_DIR%" -DJsonCpp_LIBRARY="%JsonCpp_LIBRARY%"
-    -DDCMTK_INCLUDE_DIR="%DCMTK_INCLUDE_DIR%" -DDCMTK_LIBRARY="%DCMTK_LIBRARY%"
-    ..
+  - ps: |
+      ${env:BUILD_DIRECTORY}="${env:APPVEYOR_BUILD_FOLDER}\build"
+      ${env:INSTALL_DIRECTORY}="${env:APPVEYOR_BUILD_FOLDER}\install\${env:APPVEYOR_PROJECT_NAME}"
 
-build:
-  project: C:\projects\odil\build\odil.sln
+      New-Item -Path "${env:BUILD_DIRECTORY}" -ItemType "directory"
+      cd "${env:BUILD_DIRECTORY}"
+
+      ${generator} = "Visual Studio 14 2015"
+      if (${env:PLATFORM} -eq "x64") { ${generator} = "${generator} Win64" }
+      cmake `
+        -G "${generator}" -DCMAKE_INSTALL_PREFIX="${env:INSTALL_DIRECTORY}" `
+        -DBUILD_EXAMPLES=OFF -DBUILD_WRAPPERS=OFF -DUSE_BUILTIN_DCMTK_GETSCU=OFF `
+        -DBUILD_SHARED_LIBS=ON -DBUILD_TESTING=ON `
+        -DBOOST_LIBRARYDIR="${env:BOOST_ROOT}/lib64-msvc-14.0" `
+        -DDCMTK_INCLUDE_DIR="${env:DCMTK_ROOT}/include" -DDCMTK_LIBRARY="${env:DCMTK_ROOT}/lib/dcmdata.lib" `
+        -DDCMDATA_LIBRARY="${env:DCMTK_ROOT}/lib/dcmdata.lib" -DDCMNET_LIBRARY="${env:DCMTK_ROOT}/lib/dcmnet.lib" `
+        -DOFLOG_LIBRARY="${env:DCMTK_ROOT}/lib/oflog.lib" -DOFSTD_LIBRARY="${env:DCMTK_ROOT}/lib/ofstd.lib" `
+        -DICU_INCLUDE_DIR="${env:ICU_ROOT}/include" -DICU_LIBRARY="${env:ICU_ROOT}/lib64/icuuc.lib" `
+        -DJsonCpp_INCLUDE_DIR="${env:JsonCpp_ROOT}/include" -DJsonCpp_LIBRARY="${env:JsonCpp_ROOT}/lib/jsoncpp.lib" `
+        -DLog4Cpp_INCLUDE_DIR="${env:Log4Cpp_ROOT}/include" -DLog4Cpp_LIBRARY="${env:Log4Cpp_ROOT}/lib/log4cpp.lib" `
+        "${env:APPVEYOR_BUILD_FOLDER}"
+
+build_script:
+  - ps: |
+      msbuild "${env:BUILD_DIRECTORY}\${APPVEYOR_PROJECT_NAME}.sln" `
+        /m /clp:Verbosity=minimal /p:Configuration=Release
+      msbuild "${env:BUILD_DIRECTORY}\INSTALL.vcxproj" `
+        /m /clp:Verbosity=minimal /p:Configuration=Release
+
+after_build:
+  - ps: |
+      copy "${env:INSTALL_DIRECTORY}/bin/odil.dll" "${env:BUILD_DIRECTORY}\tests\Release"
+
+test_script:
+  - ps: |
+      ctest --no-compress-output -T Test `
+        -E "Association|Network|ServiceRole|SCP|SCU|Transport"
+      $wc = New-Object 'System.Net.WebClient'
+      $wc.UploadFile("https://ci.appveyor.com/api/testresults/xunit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path .\Testing\*\Test.xml))
