@@ -10,6 +10,7 @@
 
 #include <cstdint>
 #include <initializer_list>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -79,7 +80,7 @@ Value
 
 Value
 ::Value(DataSets const & datasets)
-: _type(Type::DataSets), _data_sets(datasets)
+: _type(Type::DataSets), _data_sets(std::make_shared<DataSets>(datasets))
 {
     // Nothing else.
 }
@@ -122,7 +123,7 @@ Value
 
 Value
 ::Value(std::initializer_list<DataSet> const & list)
-: _type(Type::DataSets), _data_sets(list)
+: _type(Type::DataSets), _data_sets(std::make_shared<DataSets>(list))
 {
     // Nothing else
 }
@@ -181,8 +182,27 @@ DECLARE_NON_CONST_ACCESSOR(Reals, reals)
 DECLARE_CONST_ACCESSOR(Strings, strings)
 DECLARE_NON_CONST_ACCESSOR(Strings, strings)
 
-DECLARE_CONST_ACCESSOR(DataSets, data_sets)
-DECLARE_NON_CONST_ACCESSOR(DataSets, data_sets)
+Value::DataSets const & 
+Value
+::as_data_sets() const
+{
+    if(this->get_type() != Type::DataSets)
+    {
+        throw Exception("Type mismatch");
+    }
+	return *this->_data_sets;
+}
+
+Value::DataSets &
+Value
+::as_data_sets()
+{
+    if(this->get_type() != Type::DataSets)
+    {
+        throw Exception("Type mismatch");
+    }
+	return *this->_data_sets;
+}
 
 DECLARE_CONST_ACCESSOR(Binary, binary)
 DECLARE_NON_CONST_ACCESSOR(Binary, binary)
@@ -212,7 +232,7 @@ Value
     }
     else if(this->_type == Value::Type::DataSets)
     {
-        return this->_data_sets == other._data_sets;
+        return *(this->_data_sets) == *(other._data_sets);
     }
     else if(this->_type == Value::Type::Binary)
     {

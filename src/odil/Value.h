@@ -184,7 +184,9 @@ private:
     Integers _integers;
     Reals _reals;
     Strings _strings;
-    DataSets _data_sets;
+    // NOTE: can't use std::vector<DataSet> with forward-declaration of DataSet
+    // cf. C++11, 17.6.4.8, last bullet of clause 2
+    std::shared_ptr<DataSets> _data_sets;
     Binary _binary;
 
     Type _type;
