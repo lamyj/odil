@@ -52,7 +52,7 @@ before_build:
 
 build_script:
   - ps: |
-      msbuild "${env:BUILD_DIRECTORY}\${APPVEYOR_PROJECT_NAME}.sln" `
+      msbuild "${env:BUILD_DIRECTORY}\${env:APPVEYOR_PROJECT_NAME}.sln" `
         /m /clp:Verbosity=minimal /p:Configuration=Release
       msbuild "${env:BUILD_DIRECTORY}\INSTALL.vcxproj" `
         /m /clp:Verbosity=minimal /p:Configuration=Release
