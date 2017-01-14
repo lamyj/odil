@@ -63,6 +63,11 @@ after_build:
 
 test_script:
   - ps: |
+      ${env:Path} += ";${env:BOOST_ROOT}\lib64-msvc-14.0"
+      ${env:Path} += ";${env:DCMTK_ROOT}\bin"
+      ${env:Path} += ";${env:ICU_ROOT}\bin64"
+      ${env:Path} += ";${env:JsonCpp_ROOT}\bin"
+      ${env:Path} += ";${env:Log4Cpp_ROOT}\bin"
       ctest --no-compress-output -T Test `
         -E "Association|Network|ServiceRole|SCP|SCU|Transport"
       $wc = New-Object 'System.Net.WebClient'
