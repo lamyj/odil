@@ -39,7 +39,7 @@ before_build:
       if (${env:PLATFORM} -eq "x64") { ${generator} = "${generator} Win64" }
       cmake `
         -G "${generator}" -DCMAKE_INSTALL_PREFIX="${env:INSTALL_DIRECTORY}" `
-        -DBUILD_EXAMPLES=OFF -DBUILD_WRAPPERS=OFF -DUSE_BUILTIN_DCMTK_GETSCU=OFF `
+        -DBUILD_EXAMPLES=ON -DBUILD_WRAPPERS=ON -DUSE_BUILTIN_DCMTK_GETSCU=OFF `
         -DBUILD_SHARED_LIBS=ON -DBUILD_TESTING=ON `
         -DBOOST_LIBRARYDIR="${env:BOOST_ROOT}/lib64-msvc-14.0" `
         -DDCMTK_INCLUDE_DIR="${env:DCMTK_ROOT}/include" -DDCMTK_LIBRARY="${env:DCMTK_ROOT}/lib/dcmdata.lib" `
@@ -57,7 +57,7 @@ build_script:
       msbuild "${env:BUILD_DIRECTORY}\INSTALL.vcxproj" `
         /m /clp:Verbosity=minimal /p:Configuration=${env:CONFIGURATION}
 
-after_build:
+before_test:
   - ps: |
       copy "${env:INSTALL_DIRECTORY}/bin/odil.dll" "${env:BUILD_DIRECTORY}\tests\Release"
 
@@ -70,5 +70,8 @@ test_script:
       ${env:Path} += ";${env:Log4Cpp_ROOT}\bin"
       ctest --no-compress-output -T Test `
         -E "Association|Network|ServiceRole|SCP|SCU|Transport"
+
+after_test:
+  - ps: |
       $wc = New-Object 'System.Net.WebClient'
       $wc.UploadFile("https://ci.appveyor.com/api/testresults/xunit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path .\Testing\*\Test.xml))

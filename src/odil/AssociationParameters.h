@@ -72,7 +72,7 @@ public:
     };
 
     /// @brief User Identity, cf. PS3.8 D.3.3.7
-    struct UserIdentity
+    struct ODIL_API UserIdentity
     {
         /// @brief User identity type.
         enum class Type

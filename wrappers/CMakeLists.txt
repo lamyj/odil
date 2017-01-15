@@ -2,6 +2,10 @@ find_package(Boost REQUIRED COMPONENTS python)
 find_package(JsonCpp REQUIRED)
 find_package(PythonLibs 2.7 REQUIRED)
 
+if(BUILD_SHARED_LIBS)
+    add_definitions(-D BOOST_ALL_DYN_LINK)
+endif()
+
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/../src ${Boost_INCLUDE_DIRS}
     ${JsonCpp_INCLUDE_DIRS} ${PYTHON_INCLUDE_DIRS})

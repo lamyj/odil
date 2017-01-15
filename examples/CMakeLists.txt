@@ -5,11 +5,15 @@ find_package(JsonCpp REQUIRED)
 include_directories(
     ${CMAKE_SOURCE_DIR}/src ${Boost_INCLUDE_DIRS} ${DCMTK_INCLUDE_DIRS}
     ${JsonCpp_INCLUDE_DIRS})
+
 add_definitions(
     ${DCMTK_DEFINITIONS}
-    -D BOOST_ASIO_DYN_LINK
     -D ODIL_MAJOR_VERSION=${odil_MAJOR_VERSION}
 )
+if(BUILD_SHARED_LIBS)
+    add_definitions(-D BOOST_ALL_DYN_LINK)
+endif()
+
 link_directories(${Boost_LIBRARY_DIRS} ${DCMTK_LIBRARY_DIRS})
 
 file(GLOB_RECURSE examples *.cpp)
