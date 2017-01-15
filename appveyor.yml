@@ -61,7 +61,7 @@ build_script:
 
 before_test:
   - ps: |
-      copy "${env:INSTALL_DIRECTORY}/bin/odil.dll" "${env:BUILD_DIRECTORY}\tests\Release"
+      pip install nose
 
 test_script:
   - ps: |
@@ -70,8 +70,10 @@ test_script:
       ${env:Path} += ";${env:ICU_ROOT}\bin64"
       ${env:Path} += ";${env:JsonCpp_ROOT}\bin"
       ${env:Path} += ";${env:Log4Cpp_ROOT}\bin"
-      ctest --no-compress-output -T Test `
-        -E "Association|Network|ServiceRole|SCP|SCU|Transport"
+      ${env:Path} += ";${env:INSTALL_DIRECTORY}\bin"
+      ${env:PYTHONPATH} = "${env:BUILD_DIRECTORY}\wrappers\${env:CONFIGURATION}"
+      cd "${env:BUILD_DIRECTORY}"
+      python ..\tests\run --no-network --nose="${env:Python_ROOT}\Scripts\nosetests.exe"
 
 after_test:
   - ps: |
