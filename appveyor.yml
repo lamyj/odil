@@ -61,7 +61,7 @@ build_script:
 
 before_test:
   - ps: |
-      pip install nose
+      & "${env:Python_ROOT}\Scripts\pip.exe" install nose
 
 test_script:
   - ps: |
@@ -73,7 +73,8 @@ test_script:
       ${env:Path} += ";${env:INSTALL_DIRECTORY}\bin"
       ${env:PYTHONPATH} = "${env:BUILD_DIRECTORY}\wrappers\${env:CONFIGURATION}"
       cd "${env:BUILD_DIRECTORY}"
-      python ..\tests\run --no-network --nose="${env:Python_ROOT}\Scripts\nosetests.exe"
+      & "${env:Python_ROOT}\python.exe" ..\tests\run `
+        --no-network --nose="${env:Python_ROOT}\Scripts\nosetests.exe"
 
 after_test:
   - ps: |
