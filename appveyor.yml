@@ -74,7 +74,8 @@ test_script:
       ${env:PYTHONPATH} = "${env:BUILD_DIRECTORY}\wrappers\${env:CONFIGURATION}"
       cd "${env:BUILD_DIRECTORY}"
       & "${env:Python_ROOT}\python.exe" ..\tests\run `
-        --no-network --nose="${env:Python_ROOT}\Scripts\nosetests.exe"
+        --no-network --nose="${env:Python_ROOT}\Scripts\nosetests.exe" `
+        2>&1 | % { $_.ToString() }
 
 after_test:
   - ps: |
