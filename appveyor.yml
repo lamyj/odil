@@ -73,9 +73,7 @@ test_script:
       ${env:Path} += ";${env:INSTALL_DIRECTORY}\bin"
       ${env:PYTHONPATH} = "${env:BUILD_DIRECTORY}\wrappers\${env:CONFIGURATION}"
       cd "${env:BUILD_DIRECTORY}"
-      & "${env:Python_ROOT}\python.exe" ..\tests\run `
-        --no-network --nose="${env:Python_ROOT}\Scripts\nosetests.exe" `
-        2>&1 | % { $_.ToString() }
+  - cmd: %Python_ROOT%\python.exe ..\tests\run --no-network --nose=%Python_ROOT%\Scripts\nosetests.exe"
 
 after_test:
   - ps: |
