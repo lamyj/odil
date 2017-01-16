@@ -63,17 +63,16 @@ before_test:
   - ps: |
       & "${env:Python_ROOT}\Scripts\pip.exe" install nose
 
+# nosetests writes on stderr, and powershell treats this as an exception:
+# use cmd instead
 test_script:
-  - ps: |
-      ${env:Path} += ";${env:BOOST_ROOT}\lib64-msvc-14.0"
-      ${env:Path} += ";${env:DCMTK_ROOT}\bin"
-      ${env:Path} += ";${env:ICU_ROOT}\bin64"
-      ${env:Path} += ";${env:JsonCpp_ROOT}\bin"
-      ${env:Path} += ";${env:Log4Cpp_ROOT}\bin"
-      ${env:Path} += ";${env:INSTALL_DIRECTORY}\bin"
-      ${env:PYTHONPATH} = "${env:BUILD_DIRECTORY}\wrappers\${env:CONFIGURATION}"
-      cd "${env:BUILD_DIRECTORY}"
-  - cmd: %Python_ROOT%\python.exe ..\tests\run --no-network --nose=%Python_ROOT%\Scripts\nosetests.exe"
+  - cmd: |
+      set PATH=%PATH%;%BOOST_ROOT%\lib64-msvc-14.0;%DCMTK_ROOT%\bin
+      set PATH=%PATH%;%ICU_ROOT%\bin64;%JsonCpp_ROOT%\bin;%Log4Cpp_ROOT%\bin
+      set PATH=%PATH%;%INSTALL_DIRECTORY%\bin
+      set PYTHONPATH=%BUILD_DIRECTORY%\wrappers\%CONFIGURATION%
+      cd %BUILD_DIRECTORY%
+      %Python_ROOT%\python.exe ..\tests\run --no-network --nose=%Python_ROOT%\Scripts\nosetests.exe
 
 after_test:
   - ps: |
@@ -84,5 +83,5 @@ after_test:
         -o junit.xml
       $wc = New-Object 'System.Net.WebClient'
       $wc.UploadFile(
-        "https://ci.appveyor.com/api/testresults/xunit/${env:APPVEYOR_JOB_ID}",
+        "https://ci.appveyor.com/api/testresults/junit/${env:APPVEYOR_JOB_ID}",
         (Resolve-Path .\junit.xml))
