@@ -38,10 +38,11 @@ before_script:
   - mkdir build
   - cd build
   - export BIN_DIR=$PWD
-  - CMAKE_CXX_FLAGS="-std=c++11"
-  - if [ "${CC}" = "gcc" ]; then CMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS} --coverage"; fi
+  - CMAKE_OPTIONS=""
+  - if [ "${CC}" = "gcc" ]; then CMAKE_OPTIONS='${CMAKE_OPTIONS} -DCMAKE_CXX_FLAGS="--coverage"'; fi
+  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then CMAKE_OPTIONS='${CMAKE_OPTIONS} -DPYTHON_LIBRARY=/usr/local/Frameworks/Python.framework/Versions/2.7/lib/libpython2.7.dylib' ; fi
   - if [ "$TRAVIS_OS_NAME" = "osx" ]; then export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/usr/local/opt/icu4c/lib/pkgconfig; fi
-  - cmake -D CMAKE_CXX_FLAGS:STRING="${CMAKE_CXX_FLAGS}" -D CMAKE_BUILD_TYPE:STRING=Debug ../
+  - cmake ${CMAKE_OPTIONS} ../
 script:
   - make
   - ../tests/run --no-network

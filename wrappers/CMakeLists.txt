@@ -1,12 +1,12 @@
 find_package(Boost REQUIRED COMPONENTS python)
 find_package(JsonCpp REQUIRED)
+find_package(PythonInterp 2.7 REQUIRED)
 find_package(PythonLibs 2.7 REQUIRED)
-find_package(PythonInterp)
 
 if(NOT "${PYTHONLIBS_VERSION_STRING}" STREQUAL "${PYTHON_VERSION_STRING}")
     message(
-        FATAL_ERROR 
-        "Python version mismatch: libs are ${PYTHONLIBS_VERSION_STRING} interp is ${PYTHON_VERSION_STRING}")
+        WARNING
+        "Python version mismatch:  libraries are \"${PYTHONLIBS_VERSION_STRING}\", interpreter is \"${PYTHON_VERSION_STRING}\"")
 endif()
 
 if(BUILD_SHARED_LIBS)
