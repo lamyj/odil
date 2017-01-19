@@ -53,6 +53,7 @@ public:
     ODIL_MESSAGE_MANDATORY_FIELD_STRING_MACRO(
         affected_sop_instance_uid, registry::AffectedSOPInstanceUID)
     ODIL_MESSAGE_MANDATORY_FIELD_INTEGER_MACRO(priority, registry::Priority)
+
     ODIL_MESSAGE_OPTIONAL_FIELD_STRING_MACRO(
         move_originator_ae_title, registry::MoveOriginatorApplicationEntityTitle)
     ODIL_MESSAGE_OPTIONAL_FIELD_INTEGER_MACRO(

@@ -7,16 +7,17 @@
  ************************************************************************/
 
 #include <boost/python.hpp>
-#include "odil/NSetSCP.h"
+
+#include "odil/NCreateSCP.h"
 
 namespace
 {
 
 void 
-set_callback( odil::NSetSCP & scp, boost::python::object const & f)
+set_callback(odil::NCreateSCP & scp, boost::python::object const & f)
 {
     scp.set_callback(
-        [f](odil::message::NSetRequest const & message) 
+        [f](odil::message::NCreateRequest const & message) 
         { 
             return boost::python::call<odil::Value::Integer>(f.ptr(), message);
         }
@@ -25,20 +26,13 @@ set_callback( odil::NSetSCP & scp, boost::python::object const & f)
 
 }
 
-void wrap_NSetSCP()
+void wrap_NCreateSCP()
 {
     using namespace boost::python;
     using namespace odil;
-/*
-    class_<NSetSCP, bases<SCP> >("NSetSCP", init<Association&>() )
-        .def (init<Association&, NSetSCP::Callback&>())
+
+    class_<NCreateSCP>("NCreateSCP", init<Association &>())
         .def("set_callback", &set_callback)
-        .def("__call__", &NSetSCP::operator())
-    ;
-    */
-    class_<NSetSCP >("NSetSCP", init<Association&>() )
-        .def (init<Association&, NSetSCP::Callback&>())
-        .def("set_callback", &set_callback)
-        .def("__call__", &NSetSCP::operator())
+        .def("__call__", &NCreateSCP::operator())
     ;
 }

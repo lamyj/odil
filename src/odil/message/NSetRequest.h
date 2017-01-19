@@ -54,12 +54,11 @@ public:
     /// @brief Destructor.
     virtual ~NSetRequest();
 
-    ODIL_MESSAGE_MANDATORY_FIELD_INTEGER_MACRO(
-            message_id, registry::MessageID )    
     ODIL_MESSAGE_MANDATORY_FIELD_STRING_MACRO(
         requested_sop_class_uid, registry::RequestedSOPClassUID)
     ODIL_MESSAGE_MANDATORY_FIELD_STRING_MACRO(
         requested_sop_instance_uid, registry::RequestedSOPInstanceUID)
+
     ODIL_MESSAGE_OPTIONAL_FIELD_INTEGER_MACRO(command_data_set_type, registry::CommandDataSetType)
     ODIL_MESSAGE_OPTIONAL_FIELD_INTEGER_MACRO(command_field, registry::CommandDataSetType)
     ODIL_MESSAGE_OPTIONAL_FIELD_INTEGER_MACRO(command_group_length, registry::CommandGroupLength)

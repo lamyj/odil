@@ -7,32 +7,50 @@
  ************************************************************************/
 
 #include <boost/python.hpp>
-
 #include "odil/StoreSCP.h"
 
 namespace
 {
 
-void 
-set_callback(odil::StoreSCP & scp, boost::python::object const & f)
-{
-    scp.set_callback(
-        [f](odil::message::CStoreRequest const & message) 
-        { 
-            return boost::python::call<odil::Value::Integer>(f.ptr(), message);
+    void
+    set_callback(odil::StoreSCP & scp, boost::python::object const & f)
+    {
+        scp.set_callback(
+            [f](odil::message::CStoreRequest const & message)
+            {
+                return boost::python::call<odil::Value::Integer>(f.ptr(), message);
+            }
+        );
+    }
+
+    std::shared_ptr<odil::StoreSCP> New_StoreSCP2( odil::Association & a , ::odil::StoreSCP::Callback & cb )
+    {
+           return std::shared_ptr<odil::StoreSCP>( new odil::StoreSCP(a, cb) );
         }
-    );
-}
+
+    std::shared_ptr<odil::StoreSCP> New_StoreSCP1( odil::Association & a )
+    {
+        return std::shared_ptr<odil::StoreSCP>( new odil::StoreSCP(a) );
+    }
+
 
 }
 
 void wrap_StoreSCP()
 {
     using namespace boost::python;
+    using namespace std;
     using namespace odil;
 
-    class_<StoreSCP>("StoreSCP", init<Association &>())
+//    class_<StoreSCP, bases<SCP>>("StoreSCP", init<Association &>())
+            class_<StoreSCP>("StoreSCP", init<Association &>())
+            .def(init<Association &, StoreSCP::Callback & >())
         .def("set_callback", &set_callback)
         .def("__call__", &StoreSCP::operator())
     ;
+
+    def("New_StoreSCP1", &New_StoreSCP1);
+    def("New_StoreSCP2", &New_StoreSCP2);
+
+//    register_ptr_to_python< shared_ptr<StoreSCP> >();
 }
