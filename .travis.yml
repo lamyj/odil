@@ -5,8 +5,8 @@ matrix:
       sudo: required
       dist: trusty
       compiler: gcc
-#    - os: osx
-#      compiler: clang
+    - os: osx
+      compiler: clang
 addons:
   apt:
     packages:
@@ -27,7 +27,7 @@ addons:
 before_install:
   - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew update; fi
   # JSONCpp conflicts with json-c
-  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew uninstall json-c; fi
+  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew uninstall --ignore-dependencies json-c; fi
   # Boost is already installed with another version
   - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew unlink boost; brew install boost boost-python; fi
   - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew install dcmtk icu4c jsoncpp log4cpp; fi
