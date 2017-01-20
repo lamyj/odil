@@ -1,4 +1,4 @@
-find_package(Boost REQUIRED COMPONENTS filesystem system)
+find_package(Boost REQUIRED COMPONENTS date_time filesystem system)
 find_package(ICU REQUIRED)
 find_package(JsonCpp REQUIRED)
 find_package(Log4Cpp REQUIRED)
