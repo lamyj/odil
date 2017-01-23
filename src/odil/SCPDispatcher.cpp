@@ -6,22 +6,21 @@
  * for details.
  ************************************************************************/
 
-#include "odil/SCPDispatcher.h"
-
-#include <map>
-#include <memory>
-
 #include "odil/Association.h"
 #include "odil/Exception.h"
 #include "odil/SCP.h"
+#include "odil/SCPDispatcher.h"
 #include "odil/Value.h"
+
+#include <map>
+#include <memory>
 
 namespace odil
 {
 
 SCPDispatcher
-::SCPDispatcher(Association & association)
-: _association(association)
+::SCPDispatcher(Association& association)
+    : _association(association)
 {
     // Nothing else.
 }
@@ -40,7 +39,7 @@ SCPDispatcher
     return (it != this->_providers.end());
 }
 
-std::shared_ptr<SCP> const &
+std::shared_ptr<SCP> const&
 SCPDispatcher
 ::get_scp(Value::Integer command) const
 {
@@ -54,7 +53,7 @@ SCPDispatcher
 
 void
 SCPDispatcher
-::set_scp(Value::Integer command, std::shared_ptr<SCP> const & scp)
+::set_scp(Value::Integer command, std::shared_ptr<SCP> const& scp)
 {
     this->_providers[command] = scp;
 }
@@ -68,10 +67,11 @@ SCPDispatcher
     auto const it = this->_providers.find(message.get_command_field());
     if(it == this->_providers.end())
     {
-        throw Exception("No such provider");
+        std::cout << std::endl<< std::endl<< message.get_command_field() << std::endl<< std::endl<< std::endl;
+        throw Exception("No provider for: " + message.get_command_field() );
     }
 
-    auto & scp = *(it->second);
+    auto& scp = *(it->second);
     scp(message);
 }
 

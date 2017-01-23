@@ -6,33 +6,38 @@
  * for details.
  ************************************************************************/
 
-#include <boost/python.hpp>
 #include "odil/StoreSCP.h"
+
+#include <boost/python.hpp>
+
+#include <functional>
 
 namespace
 {
-
-    void
-    set_callback(odil::StoreSCP & scp, boost::python::object const & f)
-    {
-        scp.set_callback(
-            [f](odil::message::CStoreRequest const & message)
-            {
-                return boost::python::call<odil::Value::Integer>(f.ptr(), message);
-            }
-        );
-    }
-
-    std::shared_ptr<odil::StoreSCP> New_StoreSCP2( odil::Association & a , ::odil::StoreSCP::Callback & cb )
-    {
-           return std::shared_ptr<odil::StoreSCP>( new odil::StoreSCP(a, cb) );
+using namespace std;
+void
+set_callback(odil::StoreSCP& scp, boost::python::object const& f)
+{
+    scp.set_callback(
+        [f](odil::message::CStoreRequest const& message)
+        {
+            return boost::python::call<odil::Value::Integer>(f.ptr(), message);
         }
+        );
+}
 
-    std::shared_ptr<odil::StoreSCP> New_StoreSCP1( odil::Association & a )
-    {
-        return std::shared_ptr<odil::StoreSCP>( new odil::StoreSCP(a) );
-    }
+std::shared_ptr<odil::StoreSCP> New_StoreSCP2( odil::Association& a, ::boost::python::object const& f )
+{
+    odil::StoreSCP scp( a );
+    set_callback( std::ref(scp), f );
+    auto scp_sptr = std::make_shared<odil::StoreSCP>(scp);
+    return scp_sptr;
+}
 
+std::shared_ptr<odil::StoreSCP> New_StoreSCP1( odil::Association& a )
+{
+    return std::shared_ptr<odil::StoreSCP>( new odil::StoreSCP(a) );
+}
 
 }
 
@@ -43,10 +48,10 @@ void wrap_StoreSCP()
     using namespace odil;
 
 //    class_<StoreSCP, bases<SCP>>("StoreSCP", init<Association &>())
-            class_<StoreSCP>("StoreSCP", init<Association &>())
-            .def(init<Association &, StoreSCP::Callback & >())
-        .def("set_callback", &set_callback)
-        .def("__call__", &StoreSCP::operator())
+    class_<StoreSCP>("StoreSCP", init<Association&>())
+    .def(init<Association&, StoreSCP::Callback& >())
+    .def("set_callback", &set_callback)
+    .def("__call__", &StoreSCP::operator())
     ;
 
     def("New_StoreSCP1", &New_StoreSCP1);
