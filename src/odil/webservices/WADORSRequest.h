@@ -12,8 +12,10 @@
 #include <string>
 #include <vector>
 
+#include "odil/odil.h"
 #include "odil/webservices/HTTPRequest.h"
 #include "odil/webservices/URL.h"
+#include "odil/webservices/WADORS.h"
 
 namespace odil
 {
@@ -22,35 +24,11 @@ namespace webservices
 {
 
 /// @brief WADO-RS request generator and parser.
-class WADORSRequest
+class ODIL_API WADORSRequest
 {
 public:
-    /**
-     * @brief Type of the request.
-     *
-     * DICOM means DICOM data, either in binary, XML or JSON format; bulk data
-     * is large (application-defined) data in binary format; pixel data is
-     * the pixel data stored in instances or frames, either in uncompressed or
-     * compressed format.
-     */
-    enum class Type
-    {
-        None,
-        DICOM,
-        BulkData,
-        PixelData,
-    };
-
-    /// @brief Data representation for DICOM requests.
-    enum class Representation
-    {
-        DICOM,
-        DICOM_XML,
-        DICOM_JSON,
-    };
-
     /// @brief Target (in the DICOM data model) of the request.
-    struct Selector
+    struct ODIL_API Selector
     {
         std::string study;
         std::string series;
@@ -122,7 +100,7 @@ public:
     void set_include_character_set_in_query(bool include_charcter_set_in_query);
 
     /// @brief Return the query type.
-    Type get_type() const;
+    WADORS::Type get_type() const;
 
     /// @brief Return the selector.
     Selector const & get_selector() const;
@@ -134,11 +112,11 @@ public:
     std::string const & get_media_type() const;
 
     /// @brief Return the representation.
-    Representation const & get_representation() const;
+    WADORS::Representation const & get_representation() const;
 
     /// @brief Prepare a DICOM request.
     void request_dicom(
-        Representation representation, Selector const & selector);
+        WADORS::Representation representation, Selector const & selector);
 
     /// @brief Prepare a bulk data request.
     void request_bulk_data(Selector const & selector);
@@ -164,8 +142,8 @@ private:
     Selector _selector;
     URL _url;
     std::string _media_type;
-    Representation _representation;
-    Type _type;
+    WADORS::Representation _representation;
+    WADORS::Type _type;
 
     /// @brief Split an URL in a pair of base_url and request selector.
     static std::pair<URL, Selector> _split_full_url(URL const & url);

@@ -23,6 +23,7 @@
 #include "odil/webservices/HTTPRequest.h"
 #include "odil/webservices/ItemWithParameters.h"
 #include "odil/webservices/URL.h"
+#include "odil/webservices/WADORS.h"
 
 namespace odil
 {
@@ -117,7 +118,7 @@ WADORSRequest
   _transfer_syntax(transfer_syntax), _character_set(character_set),
   _include_media_type_in_query(include_media_type_in_query),
   _include_character_set_in_query(include_character_set_in_query),
-  _url(), _media_type(), _type(Type::None)
+  _url(), _media_type(), _type(WADORS::Type::None)
 {
     // Nothing else
 }
@@ -233,35 +234,35 @@ WADORSRequest
     {
         if(this->_media_type == "application/dicom")
         {
-            this->_type = Type::DICOM;
-            this->_representation = Representation::DICOM;
+            this->_type = WADORS::Type::DICOM;
+            this->_representation = WADORS::Representation::DICOM;
         }
         else if(this->_media_type == "application/dicom+xml")
         {
-            this->_type = Type::DICOM;
-            this->_representation = Representation::DICOM_XML;
+            this->_type = WADORS::Type::DICOM;
+            this->_representation = WADORS::Representation::DICOM_XML;
         }
         else if(this->_media_type == "application/dicom+json")
         {
-            this->_type = Type::DICOM;
-            this->_representation = Representation::DICOM_JSON;
+            this->_type = WADORS::Type::DICOM;
+            this->_representation = WADORS::Representation::DICOM_JSON;
         }
         else if(this->_media_type == "application/octet-stream")
         {
             // This could be a non-compressed pixel data or a non-pixel
             // bulk data. Since we cannot distinguish, assume the most generic
             // one
-            this->_type = Type::BulkData;
+            this->_type = WADORS::Type::BulkData;
         }
         else
         {
             // Specific media type: compressed pixel data
-            this->_type = Type::PixelData;
+            this->_type = WADORS::Type::PixelData;
         }
     }
     else
     {
-        this->_type = Type::BulkData;
+        this->_type = WADORS::Type::BulkData;
     }
 }
 
@@ -358,7 +359,7 @@ WADORSRequest
     this->_include_character_set_in_query = include_charcter_set_in_query;
 }
 
-WADORSRequest::Type
+WADORS::Type
 WADORSRequest
 ::get_type() const
 {
@@ -386,7 +387,7 @@ WADORSRequest
     return this->_media_type;
 }
 
-WADORSRequest::Representation const &
+WADORS::Representation const &
 WADORSRequest
 ::get_representation() const
 {
@@ -395,32 +396,32 @@ WADORSRequest
 
 void
 WADORSRequest
-::request_dicom(Representation representation, Selector const & selector)
+::request_dicom(WADORS::Representation representation, Selector const & selector)
 {
-    this->_type = Type::DICOM;
+    this->_type = WADORS::Type::DICOM;
     this->_selector = selector;
     this->_representation = representation;
 
     // RetrieveFrames may not return DICOM objects, PS 3.18, 6.4.1
     // RetrieveMetaData may do so.
     auto path = this->_base_url.path + selector.get_path(
-        representation != Representation::DICOM);
-    if(representation != Representation::DICOM)
+        representation != WADORS::Representation::DICOM);
+    if(representation != WADORS::Representation::DICOM)
     {
         path += "/metadata";
     }
     this->_url = {
         this->_base_url.scheme, this->_base_url.authority, path, "", ""};
 
-    if(representation == Representation::DICOM)
+    if(representation == WADORS::Representation::DICOM)
     {
         this->_media_type = "application/dicom";
     }
-    else if(representation == Representation::DICOM_XML)
+    else if(representation == WADORS::Representation::DICOM_XML)
     {
         this->_media_type = "application/dicom+xml";
     }
-    else if(representation == Representation::DICOM_JSON)
+    else if(representation == WADORS::Representation::DICOM_JSON)
     {
         this->_media_type = "application/dicom+json";
     }
@@ -434,7 +435,7 @@ void
 WADORSRequest
 ::request_bulk_data(Selector const & selector)
 {
-    this->_type = Type::BulkData;
+    this->_type = WADORS::Type::BulkData;
     this->_selector = selector;
 
     auto path = this->_base_url.path + selector.get_path(true);
@@ -447,7 +448,7 @@ void
 WADORSRequest
 ::request_bulk_data(URL const & url)
 {
-    this->_type = Type::BulkData;
+    this->_type = WADORS::Type::BulkData;
 
     this->_url = url;
     this->_media_type = "application/octet-stream";
@@ -457,7 +458,7 @@ void
 WADORSRequest
 ::request_pixel_data(Selector const & selector, std::string const & media_type)
 {
-    this->_type = Type::PixelData;
+    this->_type = WADORS::Type::PixelData;
     this->_selector = selector;
 
     auto path = this->_base_url.path + selector.get_path(true);
