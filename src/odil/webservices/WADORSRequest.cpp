@@ -138,13 +138,25 @@ WADORSRequest
     {
         throw Exception("Cannot parse request: Accept header missing");
     }
-    auto const accept = boost::lexical_cast<ItemWithParameters>(request.get_header("Accept"));
-    auto const type_it = accept.name_parameters.find("type");
-    if(type_it == accept.name_parameters.end())
+    auto const header_accept = boost::lexical_cast<ItemWithParameters>(
+        request.get_header("Accept"));
+    if(header_accept.name == "multipart/related")
     {
-        throw Exception("Cannot parse request: no type in Accept");
+        auto const it = header_accept.name_parameters.find("type");
+        if(it == header_accept.name_parameters.end())
+        {
+            std::ostringstream message;
+            message
+                << "Missing type in Accept header: "
+                << request.get_header("Accept");
+            throw Exception(message.str());
+        }
+        this->_media_type = it->second;
     }
-    this->_media_type = type_it->second;
+    else
+    {
+        this->_media_type = header_accept.name;
+    }
 
     // Parse the query string, look for "accept" and "charset" fields
     std::string query_accept;
@@ -190,7 +202,7 @@ WADORSRequest
         this->_include_media_type_in_query = true;
         auto const item = boost::lexical_cast<ItemWithParameters>(query_accept);
         auto const it = item.name_parameters.find("transfer-syntax");
-        if(it != accept.name_parameters.end())
+        if(it != item.name_parameters.end())
         {
             this->_transfer_syntax = it->second;
         }
@@ -200,8 +212,9 @@ WADORSRequest
         this->_include_media_type_in_query = false;
     }
 
-    auto const transfer_syntax_it = accept.name_parameters.find("transfer-syntax");
-    if(transfer_syntax_it != accept.name_parameters.end())
+    auto const transfer_syntax_it = header_accept.name_parameters.find(
+        "transfer-syntax");
+    if(transfer_syntax_it != header_accept.name_parameters.end())
     {
         this->_transfer_syntax = transfer_syntax_it->second;
     }
@@ -221,8 +234,8 @@ WADORSRequest
         this->_include_character_set_in_query = false;
     }
 
-    auto const charset_it = accept.name_parameters.find("charset");
-    if(charset_it != accept.name_parameters.end())
+    auto const charset_it = header_accept.name_parameters.find("charset");
+    if(charset_it != header_accept.name_parameters.end())
     {
         this->_character_set = charset_it->second;
     }
@@ -471,8 +484,17 @@ HTTPRequest
 WADORSRequest
 ::get_http_request() const
 {
-    ItemWithParameters accept{
-        "multipart/related", {{"type", this->_media_type}}, {}};
+    ItemWithParameters accept;
+    if(this->_representation == WADORS::Representation::DICOM_JSON)
+    {
+        accept.name = this->_media_type;
+    }
+    else
+    {
+        accept.name = "multipart/related";
+        accept.name_parameters["type"] = this->_media_type;
+    }
+
     if(!this->_transfer_syntax.empty())
     {
         accept.name_parameters["transfer-syntax"] = this->_transfer_syntax;

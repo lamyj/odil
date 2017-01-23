@@ -143,7 +143,7 @@ BOOST_AUTO_TEST_CASE(RequestDicomJSON)
         std::string(base_url_http)+frames_selector.get_path(true)+"/metadata");
     BOOST_REQUIRE(
         http_request.get_headers() == odil::webservices::HTTPRequest::Headers({
-            { "Accept", "multipart/related;type=application/dicom+json" }
+            { "Accept", "application/dicom+json" }
     }));
     BOOST_REQUIRE(http_request.get_body().empty());
 }
@@ -421,7 +421,7 @@ BOOST_AUTO_TEST_CASE(ParseRequestDICOM_JSON)
         "GET", { "", "", "/dicom"+frames_selector.get_path(true), "", "" },
         "HTTP/1.1", {
             { "Host", "example.com" },
-            { "Accept", "multipart/related;type=application/dicom+json" }
+            { "Accept", "application/dicom+json" }
         },
         "");
     odil::webservices::WADORSRequest const wado_request(http_request);
