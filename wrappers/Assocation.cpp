@@ -110,6 +110,8 @@ void wrap_Association()
                               .def("receive_message", &Association::receive_message)
                               // Send message
                               .def("next_message_id", &Association::next_message_id)
+                              // Send message
+                              .def("send_message", &Association::send_message)
     ;
 
     enum_<Association::Result>("Result")
