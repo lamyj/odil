@@ -26,6 +26,7 @@ void wrap_MoveSCP();
 void wrap_MoveSCU();
 void wrap_NCreateSCP();
 void wrap_NSetSCP();
+void wrap_NSetSCU();
 void wrap_read();
 //__attribute__((__visibility__("default")))
 void wrap_SCPDispatcher();
@@ -77,6 +78,7 @@ BOOST_PYTHON_MODULE(odil)
     wrap_MoveSCU();
     wrap_NCreateSCP();
     wrap_NSetSCP();
+    wrap_NSetSCU();
     wrap_read();
     wrap_SCPDispatcher();
     wrap_StoreSCP();

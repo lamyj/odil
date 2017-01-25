@@ -5,26 +5,11 @@
  * http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
  * for details.
  ************************************************************************/
-/*
+
 #include <boost/python.hpp>
 
 #include "odil/NSetSCU.h"
 
-namespace
-{
-
-void 
-set_callback(odil::NSetSCU & SCU, boost::python::object const & f)
-{
-    SCU.set_callback(
-        [f](odil::message::NSetRequest const & message) 
-        { 
-            return boost::python::call<odil::Value::Integer>(f.ptr(), message);
-        }
-    );
-}
-
-}
 
 void wrap_NSetSCU()
 {
@@ -32,10 +17,18 @@ void wrap_NSetSCU()
     using namespace odil;
 
     class_<NSetSCU>("NSetSCU", init<Association &>())
-        .def("set_callback", &set_callback)
-        .def("__call__", &NSetSCU::operator())
+        .def(
+            "get_affected_sop_class",
+            &NSetSCU::get_affected_sop_class,
+            return_value_policy<copy_const_reference>()
+        )
+        .def(
+            "set_affected_sop_class",
+            static_cast<void(NSetSCU::*)(DataSet const &)>(&NSetSCU::set_affected_sop_class)
+        )
+        .def(
+            "store",
+            &NSetSCU::store
+        )
     ;
 }
-
-
-*/
