@@ -20,7 +20,7 @@ void wrap_NSetRequest()
             "NSetRequest",
             init<
                 Value::Integer, Value::String const &, Value::String const &,
-                Value::Integer, DataSet const &
+                DataSet const &
             >())
         .def(init<Message>())
         .def(
@@ -37,16 +37,6 @@ void wrap_NSetRequest()
         .def(
             "set_requested_sop_instance_uid",
             &NSetRequest::set_requested_sop_instance_uid)
-        .def(
-            "has_command_data_set_type",
-            &NSetRequest::has_command_data_set_type)
-        .def(
-            "get_command_data_set_type",
-            &NSetRequest::get_command_data_set_type,
-            return_value_policy<copy_const_reference>())
-        .def(
-            "set_command_data_set_type",
-            &NSetRequest::set_command_data_set_type)
         .def("has_command_field",
              &NSetRequest::set_command_field)
         .def(
@@ -56,15 +46,5 @@ void wrap_NSetRequest()
         .def(
             "set_command_field",
             &NSetRequest::set_command_field)
-        .def(
-            "has_command_group_length",
-            &NSetRequest::has_command_group_length)
-        .def(
-            "get_command_group_length",
-            &NSetRequest::get_command_group_length,
-            return_value_policy<copy_const_reference>())
-        .def(
-            "set_command_group_length",
-            &NSetRequest::set_command_group_length)
     ;
 }

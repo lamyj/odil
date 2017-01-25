@@ -59,8 +59,6 @@ NSetSCP
     Value::Integer status = message::NSetResponse::Success;
     DataSet status_fields;
 
-    std::cout << "Help, dunno what to do!!! " << std::endl;
-
     try
     {
         status = this->_callback(request);

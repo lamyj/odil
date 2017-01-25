@@ -26,19 +26,6 @@ set_callback(odil::StoreSCP& scp, boost::python::object const& f)
         );
 }
 
-std::shared_ptr<odil::StoreSCP> New_StoreSCP2( odil::Association& a, ::boost::python::object const& f )
-{
-    odil::StoreSCP scp( a );
-    set_callback( std::ref(scp), f );
-    auto scp_sptr = std::make_shared<odil::StoreSCP>(scp);
-    return scp_sptr;
-}
-
-std::shared_ptr<odil::StoreSCP> New_StoreSCP1( odil::Association& a )
-{
-    return std::shared_ptr<odil::StoreSCP>( new odil::StoreSCP(a) );
-}
-
 }
 
 void wrap_StoreSCP()
@@ -53,9 +40,6 @@ void wrap_StoreSCP()
     .def("set_callback", &set_callback)
     .def("__call__", &StoreSCP::operator())
     ;
-
-    def("New_StoreSCP1", &New_StoreSCP1);
-    def("New_StoreSCP2", &New_StoreSCP2);
 
 //    register_ptr_to_python< shared_ptr<StoreSCP> >();
 }

@@ -19,7 +19,6 @@ set_callback( odil::NSetSCP& scp, boost::python::object const& f)
     scp.set_callback(
         [f](odil::message::NSetRequest const& message)
         {
-            std::cout << "Callback" << std::endl;
             return boost::python::call<odil::Value::Integer>(f.ptr(), message);
         }
         );
