@@ -11,6 +11,7 @@
 #include <istream>
 #include <map>
 #include <ostream>
+#include <sstream>
 #include <string>
 
 #include <boost/fusion/adapted/struct/adapt_struct.hpp>
@@ -25,6 +26,25 @@ namespace odil
 
 namespace webservices
 {
+
+ItemWithParameters
+::ItemWithParameters(
+    std::string const & name,
+    std::map<std::string, std::string> const & name_parameters,
+    std::map<std::string, std::string> const & extension_parameters)
+: name(name),
+  name_parameters(name_parameters), extension_parameters(extension_parameters)
+{
+    // Nothing else
+}
+
+ItemWithParameters
+::operator std::string() const
+{
+    std::ostringstream stream;
+    stream << this;
+    return stream.str();
+}
 
 std::istream & operator>>(std::istream & stream, ItemWithParameters & item)
 {
