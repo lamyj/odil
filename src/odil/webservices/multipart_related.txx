@@ -11,11 +11,10 @@
 
 #include "odil/webservices/multipart_related.h"
 
-#include <random>
+#include <ostream>
 #include <sstream>
 #include <string>
 
-#include "odil/Exception.h"
 #include "odil/webservices/ItemWithParameters.h"
 #include "odil/webservices/Message.h"
 
@@ -25,8 +24,9 @@ namespace odil
 namespace webservices
 {
 
-template<typename Iterator>
-void split_parts(Message const & message, Iterator destination)
+template<typename Iterator, typename UnaryFunctor>
+void transform_parts(
+    Message const & message, Iterator destination, UnaryFunctor functor)
 {
     if(!is_multipart_related(message))
     {
@@ -39,28 +39,28 @@ void split_parts(Message const & message, Iterator destination)
 
     std::string const & boundary = content_type.name_parameters["boundary"];
 
+    auto const & body = message.get_body();
+
     std::size_t begin = 0;
-    while(begin < message.get_body().size() && begin != std::string::npos)
+    while(begin < body.size() && begin != std::string::npos)
     {
-        auto end = message.get_body().find("--"+boundary+"\r\n", begin+1);
+        auto end = body.find("--"+boundary+"\r\n", begin+1);
         if(end == std::string::npos)
         {
-            end = message.get_body().find("--"+boundary+"--\r\n", begin+1);
+            end = body.find("--"+boundary+"--\r\n", begin+1);
         }
 
         std::string part;
 
         if(end != std::string::npos)
         {
-            part = message.get_body().substr(begin, end-begin);
-        }
+            auto const part_content = body.substr(
+                begin+boundary.size()+4, end-(begin+boundary.size()+4));
 
-        if(end != std::string::npos)
-        {
-            std::istringstream stream(part.substr(boundary.size()+4));
+            std::istringstream stream(part_content);
             Message sub_message;
             stream >> sub_message;
-            *destination = sub_message;
+            *destination = functor(sub_message);
             ++destination;
         }
 
@@ -68,35 +68,20 @@ void split_parts(Message const & message, Iterator destination)
     }
 }
 
-template<typename Iterator>
-Message join_parts(Iterator begin, Iterator end, std::string const & boundary)
+template<typename Iterator, typename UnaryFunction>
+std::ostream & accumulate_parts(
+    Iterator begin, Iterator end, UnaryFunction serialize, std::ostream & stream,
+    std::string const & boundary)
 {
-    auto used_boundary = boundary;
-    if(used_boundary.empty())
+    for(/* no initialization */; begin != end; ++begin)
     {
-        static std::random_device generator;
-        static std::string const characters =
-            "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        std::uniform_int_distribution<> distribution(0, characters.size()-1);
-        while(used_boundary.size()<31)
-        {
-            used_boundary += characters[distribution(generator)];
-        }
+        auto const part = serialize(*begin);
+        stream << "--" << boundary << "\r\n" << part;
     }
 
-    Message result;
-    result.set_header(
-        "Content-Type", "multipart/related;boundary="+used_boundary);
+    stream << "--" << boundary << "--" << "\r\n";
 
-    std::ostringstream body;
-    for(Iterator it=begin; it!=end; ++it)
-    {
-        body << "--" << used_boundary << "\r\n" << *it;
-    }
-    body << "--" << used_boundary << "--" << "\r\n";
-    result.set_body(body.str());
-
-    return result;
+    return stream;
 }
 
 }

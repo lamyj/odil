@@ -9,6 +9,7 @@
 #ifndef _9d8fe506_1ea6_448c_8c6c_bcd7375e89de
 #define _9d8fe506_1ea6_448c_8c6c_bcd7375e89de
 
+#include <ostream>
 #include <string>
 
 #include "odil/webservices/Message.h"
@@ -28,23 +29,22 @@ bool is_multipart_related(Message const & message);
  */
 std::size_t count_parts(Message const & message);
 
-/**
- * @brief Split the a multipart/related message into its compound objects and
- * store them in the destination sequence.
- *
- * The sequence must be large enough to accomodate all parts.
- */
-template<typename Iterator>
-void split_parts(Message const & message, Iterator destination);
+/// @brief Return a random multipart/related boundary.
+std::string random_boundary();
+
+/// @brief Transform each part of a multipart/related message.
+template<typename Iterator, typename UnaryFunctor>
+void transform_parts(
+    Message const & message, Iterator destination, UnaryFunctor functor);
 
 /**
- * @brief Join multiple messages into a multipart/related message.
- *
- * If the boundary is empty, generate a random one.
+ * @brief Serialize the (begin, end) sequence as a multipart/related message
+ * body in stream.
  */
-template<typename Iterator>
-Message join_parts(
-    Iterator begin, Iterator end, std::string const & boundary="");
+template<typename Iterator, typename UnaryFunction>
+std::ostream & accumulate_parts(
+    Iterator begin, Iterator end, UnaryFunction serialize, std::ostream & stream,
+    std::string const & boundary);
 
 }
 

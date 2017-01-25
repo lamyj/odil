@@ -70,88 +70,29 @@ BOOST_AUTO_TEST_CASE(count_parts)
     BOOST_REQUIRE_EQUAL(odil::webservices::count_parts(message), 2);
 }
 
-BOOST_AUTO_TEST_CASE(split_parts)
+BOOST_AUTO_TEST_CASE(random_boundary)
 {
-    odil::webservices::Message const message(
-        odil::webservices::Message::Headers{{
-            "Content-Type", "Multipart/Related; "
-            "boundary=example-1;start=\"<950120.aaCC@XIson.com>\";"
-            "type=\"Application/X-FixedRecord\";start-info=\"-o ps\"\r\n"}},
-        "--example-1\r\n"
-        "Content-Type: Application/X-FixedRecord\r\n"
-        "Content-ID: <950120.aaCC@XIson.com>\r\n"
-        "\r\n"
-        "25\r\n"
-        "10\r\n"
-        "34\r\n"
-        "10\r\n"
-        "25\r\n"
-        "21\r\n"
-        "26\r\n"
-        "10\r\n"
-        "--example-1\r\n"
-        "Content-Type: Application/octet-stream\r\n"
-        "Content-Description: The fixed length records\r\n"
-        "Content-Transfer-Encoding: base64\r\n"
-        "Content-ID: <950120.aaCB@XIson.com>\r\n"
-        "\r\n"
-        "T2xkIE1hY0RvbmFsZCBoYWQgYSBmYXJtCkUgSS\r\n"
-        "BFIEkgTwpBbmQgb24gaGlzIGZhcm0gaGUgaGFk\r\n"
-        "IHNvbWUgZHVja3MKRSBJIEUgSSBPCldpdGggYS\r\n"
-        "BxdWFjayBxdWFjayBoZXJlLAphIHF1YWNrIHF1\r\n"
-        "YWNrIHRoZXJlLApldmVyeSB3aGVyZSBhIHF1YW\r\n"
-        "NrIHF1YWNrCkUgSSBFIEkgTwo=\r\n"
-        "\r\n"
-        "--example-1--\r\n"
-        "\r\n");
-
-    std::vector<odil::webservices::Message> parts;
-    odil::webservices::split_parts(message, std::back_inserter(parts));
-
-    BOOST_REQUIRE_EQUAL(parts.size(), 2);
-
     BOOST_REQUIRE(
-        parts[0].get_headers() == odil::webservices::Message::Headers({
-            { "Content-Type", "Application/X-FixedRecord" },
-            { "Content-ID", "<950120.aaCC@XIson.com>" }
-        }));
-    BOOST_REQUIRE_EQUAL(parts[0].get_body(),
-        "25\r\n"
-        "10\r\n"
-        "34\r\n"
-        "10\r\n"
-        "25\r\n"
-        "21\r\n"
-        "26\r\n"
-        "10\r\n"
-    );
-
-    BOOST_REQUIRE(
-        parts[1].get_headers() == odil::webservices::Message::Headers({
-            { "Content-Type", "Application/octet-stream" },
-            { "Content-Description", "The fixed length records" },
-            { "Content-Transfer-Encoding", "base64" },
-            { "Content-ID", "<950120.aaCB@XIson.com>" }
-        }));
-    BOOST_REQUIRE_EQUAL(parts[1].get_body(),
-        "T2xkIE1hY0RvbmFsZCBoYWQgYSBmYXJtCkUgSS\r\n"
-        "BFIEkgTwpBbmQgb24gaGlzIGZhcm0gaGUgaGFk\r\n"
-        "IHNvbWUgZHVja3MKRSBJIEUgSSBPCldpdGggYS\r\n"
-        "BxdWFjayBxdWFjayBoZXJlLAphIHF1YWNrIHF1\r\n"
-        "YWNrIHRoZXJlLApldmVyeSB3aGVyZSBhIHF1YW\r\n"
-        "NrIHF1YWNrCkUgSSBFIEkgTwo=\r\n"
-        "\r\n"
-    );
+        odil::webservices::random_boundary()
+            != odil::webservices::random_boundary());
 }
 
-BOOST_AUTO_TEST_CASE(join_parts)
+struct Fixture
 {
-    std::vector<odil::webservices::Message> parts{
-        {
-            {
-                { "Content-Type", "Application/X-FixedRecord" },
-                { "Content-ID", "<950120.aaCC@XIson.com>" }
-            },
+    odil::webservices::Message message;
+    std::vector<odil::webservices::Message> parts;
+
+    Fixture()
+    {
+        this->message = odil::webservices::Message(
+            odil::webservices::Message::Headers{{
+                "Content-Type", "Multipart/Related; "
+                "boundary=example-1;start=\"<950120.aaCC@XIson.com>\";"
+                "type=\"Application/X-FixedRecord\";start-info=\"-o ps\"\r\n"}},
+            "--example-1\r\n"
+            "Content-Type: Application/X-FixedRecord\r\n"
+            "Content-ID: <950120.aaCC@XIson.com>\r\n"
+            "\r\n"
             "25\r\n"
             "10\r\n"
             "34\r\n"
@@ -160,14 +101,12 @@ BOOST_AUTO_TEST_CASE(join_parts)
             "21\r\n"
             "26\r\n"
             "10\r\n"
-        },
-        {
-            {
-                { "Content-Type", "Application/octet-stream" },
-                { "Content-Description", "The fixed length records" },
-                { "Content-Transfer-Encoding", "base64" },
-                { "Content-ID", "<950120.aaCB@XIson.com>" }
-            },
+            "--example-1\r\n"
+            "Content-Type: Application/octet-stream\r\n"
+            "Content-Description: The fixed length records\r\n"
+            "Content-Transfer-Encoding: base64\r\n"
+            "Content-ID: <950120.aaCB@XIson.com>\r\n"
+            "\r\n"
             "T2xkIE1hY0RvbmFsZCBoYWQgYSBmYXJtCkUgSS\r\n"
             "BFIEkgTwpBbmQgb24gaGlzIGZhcm0gaGUgaGFk\r\n"
             "IHNvbWUgZHVja3MKRSBJIEUgSSBPCldpdGggYS\r\n"
@@ -175,52 +114,111 @@ BOOST_AUTO_TEST_CASE(join_parts)
             "YWNrIHRoZXJlLApldmVyeSB3aGVyZSBhIHF1YW\r\n"
             "NrIHF1YWNrCkUgSSBFIEkgTwo=\r\n"
             "\r\n"
-        }
-    };
+            "--example-1--\r\n"
+            "\r\n");
 
-    auto const multipart_related = odil::webservices::join_parts(
-        parts.begin(), parts.end()/*, "example-1"*/);
+        this->parts = std::vector<odil::webservices::Message>{
+            {
+                {
+                    { "Content-Type", "Application/X-FixedRecord" },
+                    { "Content-ID", "<950120.aaCC@XIson.com>" }
+                },
+                "25\r\n"
+                "10\r\n"
+                "34\r\n"
+                "10\r\n"
+                "25\r\n"
+                "21\r\n"
+                "26\r\n"
+                "10\r\n"
+            },
+            {
+                {
+                    { "Content-Type", "Application/octet-stream" },
+                    { "Content-Description", "The fixed length records" },
+                    { "Content-Transfer-Encoding", "base64" },
+                    { "Content-ID", "<950120.aaCB@XIson.com>" }
+                },
+                "T2xkIE1hY0RvbmFsZCBoYWQgYSBmYXJtCkUgSS\r\n"
+                "BFIEkgTwpBbmQgb24gaGlzIGZhcm0gaGUgaGFk\r\n"
+                "IHNvbWUgZHVja3MKRSBJIEUgSSBPCldpdGggYS\r\n"
+                "BxdWFjayBxdWFjayBoZXJlLAphIHF1YWNrIHF1\r\n"
+                "YWNrIHRoZXJlLApldmVyeSB3aGVyZSBhIHF1YW\r\n"
+                "NrIHF1YWNrCkUgSSBFIEkgTwo=\r\n"
+                "\r\n"
+            }
+        };
+    }
+};
 
-    BOOST_REQUIRE(odil::webservices::is_multipart_related(multipart_related));
-    BOOST_REQUIRE_EQUAL(odil::webservices::count_parts(multipart_related), 2);
+BOOST_FIXTURE_TEST_CASE(transform_parts, Fixture)
+{
+    std::vector<odil::webservices::Message> transformed_parts;
+    int called = 0;
+    auto const functor =
+        [&called](odil::webservices::Message const & part)
+        {
+            ++called;
+            return part;
+        };
 
-
-    std::vector<odil::webservices::Message> result;
-    odil::webservices::split_parts(multipart_related, std::back_inserter(result));
-
-    BOOST_REQUIRE_EQUAL(result.size(), 2);
-
+    odil::webservices::transform_parts(
+        this->message, std::back_inserter(transformed_parts), functor);
+    BOOST_REQUIRE_EQUAL(called, this->parts.size());
     BOOST_REQUIRE(
-        result[0].get_headers() == odil::webservices::Message::Headers({
-            { "Content-Type", "Application/X-FixedRecord" },
-            { "Content-ID", "<950120.aaCC@XIson.com>" }
-        }));
-    BOOST_REQUIRE_EQUAL(result[0].get_body(),
-        "25\r\n"
-        "10\r\n"
-        "34\r\n"
-        "10\r\n"
-        "25\r\n"
-        "21\r\n"
-        "26\r\n"
-        "10\r\n"
-    );
-
-    BOOST_REQUIRE(
-        result[1].get_headers() == odil::webservices::Message::Headers({
-            { "Content-Type", "Application/octet-stream" },
-            { "Content-Description", "The fixed length records" },
-            { "Content-Transfer-Encoding", "base64" },
-            { "Content-ID", "<950120.aaCB@XIson.com>" }
-        }));
-    BOOST_REQUIRE_EQUAL(result[1].get_body(),
-        "T2xkIE1hY0RvbmFsZCBoYWQgYSBmYXJtCkUgSS\r\n"
-        "BFIEkgTwpBbmQgb24gaGlzIGZhcm0gaGUgaGFk\r\n"
-        "IHNvbWUgZHVja3MKRSBJIEUgSSBPCldpdGggYS\r\n"
-        "BxdWFjayBxdWFjayBoZXJlLAphIHF1YWNrIHF1\r\n"
-        "YWNrIHRoZXJlLApldmVyeSB3aGVyZSBhIHF1YW\r\n"
-        "NrIHF1YWNrCkUgSSBFIEkgTwo=\r\n"
-        "\r\n"
-    );
+        std::equal(
+            this->parts.begin(), this->parts.end(),
+            transformed_parts.begin(),
+            [](
+                odil::webservices::Message const & m1,
+                odil::webservices::Message const & m2)
+            {
+                return (
+                    m1.get_headers() == m2.get_headers()
+                    && m1.get_body() == m2.get_body());
+            }
+    ));
 }
 
+BOOST_FIXTURE_TEST_CASE(accumulate_parts, Fixture)
+{
+    std::ostringstream stream;
+    int called = 0;
+    auto const serialize =
+        [&called](odil::webservices::Message const & part)
+        {
+            ++called;
+            return part;
+        };
+
+    odil::webservices::accumulate_parts(
+        this->parts.begin(), this->parts.end(), serialize, stream, "example-1");
+    BOOST_REQUIRE_EQUAL(called, this->parts.size());
+
+    odil::webservices::Message const new_message(
+        { {"Content-Type", "multipart/related;boundary=example-1"} },
+        stream.str());
+    std::vector<odil::webservices::Message> transformed_parts;
+    auto const functor =
+        [](odil::webservices::Message const & part)
+        {
+            return part;
+        };
+
+    odil::webservices::transform_parts(
+        new_message, std::back_inserter(transformed_parts), functor);
+    BOOST_REQUIRE_EQUAL(called, this->parts.size());
+    BOOST_REQUIRE(
+        std::equal(
+            this->parts.begin(), this->parts.end(),
+            transformed_parts.begin(),
+            [](
+                odil::webservices::Message const & m1,
+                odil::webservices::Message const & m2)
+            {
+                return (
+                    m1.get_headers() == m2.get_headers()
+                    && m1.get_body() == m2.get_body());
+            }
+    ));
+}

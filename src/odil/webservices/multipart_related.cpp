@@ -10,7 +10,9 @@
 
 #include <algorithm>
 #include <ctype.h>
+#include <ostream>
 #include <sstream>
+#include <random>
 #include <string>
 
 #include "odil/webservices/ItemWithParameters.h"
@@ -72,6 +74,21 @@ std::size_t count_parts(Message const & message)
     }
 
     return count;
+}
+
+std::string random_boundary()
+{
+    static std::random_device generator;
+    static std::string const characters =
+        "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    std::uniform_int_distribution<> distribution(0, characters.size()-1);
+
+    std::string boundary;
+    while(boundary.size()<31)
+    {
+        boundary += characters[distribution(generator)];
+    }
+    return boundary;
 }
 
 }
