@@ -10,6 +10,7 @@
 #define _b245f6f2_50c3_4c7c_80e1_f03d9c831301
 
 #include "odil/DataSet.h"
+#include "odil/odil.h"
 #include "odil/registry.h"
 #include "odil/message/Response.h"
 #include "odil/Value.h"
@@ -21,7 +22,7 @@ namespace message
 {
 
 /// @brief C-MOVE-RSP message.
-class CMoveResponse: public Response
+class ODIL_API CMoveResponse: public Response
 {
 public:
     /// @brief C-MOVE status codes, PS 3.4, C.4.2.1.5

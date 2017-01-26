@@ -62,10 +62,11 @@ void wrap_Value()
     typedef Value::Binary & (Value::*AsBinary)();
 
     // Define scope to enclose Integers, Reals, etc. in Value
-    scope value_scope = class_<Value>("Value", init<>())
+    scope value_scope = class_<Value>("Value", no_init)
         .def("__init__", make_constructor(value_constructor))
         .add_property("type", &Value::get_type)
         .def("empty", &Value::empty)
+        .def("size", &Value::size)
         .def(
             "as_integers", AsIntegers(&Value::as_integers), 
             return_value_policy<reference_existing_object>())
@@ -83,10 +84,11 @@ void wrap_Value()
             return_value_policy<reference_existing_object>())
         .def(self == self)
         .def(self != self)
+        .def("clear", &Value::clear)
+        .def("__len__", &Value::size)
     ;
     
     enum_<Value::Type>("Type")
-        .value("Empty", Value::Type::Empty)
         .value("Integers", Value::Type::Integers)
         .value("Reals", Value::Type::Reals)
         .value("Strings", Value::Type::Strings)

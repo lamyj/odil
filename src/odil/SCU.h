@@ -12,12 +12,13 @@
 #include <string>
 
 #include "odil/Association.h"
+#include "odil/odil.h"
 
 namespace odil
 {
 
 /// @brief Base class for all Service Class Users.
-class SCU
+class ODIL_API SCU
 {
 public:
     /// @brief Create a default Service Class User.

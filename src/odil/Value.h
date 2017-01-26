@@ -11,8 +11,11 @@
 
 #include <cstdint>
 #include <initializer_list>
+#include <memory>
 #include <string>
 #include <vector>
+
+#include "odil/odil.h"
 
 namespace odil
 {
@@ -22,13 +25,12 @@ class DataSet;
 /**
  * @brief A value held in a DICOM element.
  */
-class Value
+class ODIL_API Value
 {
 public:
     /// @brief Possible types stored in the value.
     enum class Type
     {
-        Empty,
         Integers,
         Reals,
         Strings,
@@ -59,9 +61,6 @@ public:
 
     /// @brief Binary data container.
     typedef std::vector<std::vector<uint8_t>> Binary;
-
-    /// @brief Build an empty value.
-    Value();
 
     /// @brief Build a value from integers.
     Value(Integers const & integers);
@@ -98,6 +97,9 @@ public:
 
     /// @brief Test whether the value is empty.
     bool empty() const;
+
+    /// @brief Return the number of items.
+    std::size_t size() const;
 
     /**
      * @brief Return the integers contained in the value.
@@ -175,11 +177,16 @@ public:
     /// @brief Difference test.
     bool operator!=(Value const & other) const;
 
+    /// @brief Clear the value (value.empty() will be true).
+    void clear();
+
 private:
     Integers _integers;
     Reals _reals;
     Strings _strings;
-    DataSets _data_sets;
+    // NOTE: can't use std::vector<DataSet> with forward-declaration of DataSet
+    // cf. C++11, 17.6.4.8, last bullet of clause 2
+    std::shared_ptr<DataSets> _data_sets;
     Binary _binary;
 
     Type _type;

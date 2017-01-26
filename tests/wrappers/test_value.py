@@ -1,44 +1,126 @@
+#encoding: utf-8
 import unittest
 
 import odil
 
 class TestValue(unittest.TestCase):
-    def test_empty_constructor(self):
-        value = odil.Value()
-        self.assertEqual(value.type, odil.Value.Type.Empty)
-        self.assertTrue(value.empty)
+    def _test_sequences(self, odil_contents, python_contents):
+        if python_contents and isinstance(python_contents[0], bytearray):
+            self.assertSequenceEqual(
+                [bytearray([x for x in item]) for item in odil_contents], 
+                python_contents)
+        else:
+            self.assertSequenceEqual(list(odil_contents), list(python_contents))
         
-    def test_integers_constructor(self):
-        items = [1, 2, 3]
-        value = odil.Value(items)
-        self.assertEqual(value.type, odil.Value.Type.Integers)
-        self.assertSequenceEqual(value.as_integers(), items)
+    def _test_contents(self, value, contents, type_, accessor):
+        self.assertEqual(value.type, type_)
+        self.assertEqual(value.empty(), len(contents) == 0)
+        self.assertEqual(value.size(), len(contents))
+        self.assertEqual(len(value), len(contents))
+        self._test_sequences(accessor(value), contents)
+
+        if type_ != odil.Value.Type.Integers:
+            with self.assertRaises(odil.Exception):
+                value.as_integers()
+        if type_ != odil.Value.Type.Reals:
+            with self.assertRaises(odil.Exception):
+                value.as_reals()
+        if type_ != odil.Value.Type.Strings:
+            with self.assertRaises(odil.Exception):
+                value.as_strings()
+        if type_ != odil.Value.Type.DataSets:
+            with self.assertRaises(odil.Exception):
+                value.as_data_sets()
+        if type_ != odil.Value.Type.Binary:
+            with self.assertRaises(odil.Exception):
+                value.as_binary()
+
+    def _test_container(self, contents, type_, accessor):
+        value = odil.Value(contents)
+        self._test_contents(value, contents, type_, accessor)
+
+    def _test_modify(self, contents, accessor):
+        value = odil.Value([contents[0]])
+        if isinstance(contents[0], bytearray):
+            accessor(value).append(odil.Value.BinaryItem("".join(chr(x) for x in contents[1])))
+        else:
+            accessor(value).append(contents[1])
+        
+        self._test_sequences(accessor(value), contents)
+
+    def _test_clear(self, contents, type_):
+        value = odil.Value(contents)
+        value.clear()
+        self.assertEqual(value.type, type_)
+        self.assertTrue(value.empty())
+
+    def _test_equality(self, contents_1, contents_2):
+        value_1 = odil.Value(contents_1)
+        value_2 = odil.Value(contents_1)
+        value_3 = odil.Value(contents_2)
+        value_4 = odil.Value(contents_2)
+
+        self.assertTrue(value_1 == value_2)
+        self.assertFalse(value_1 == value_3)
+        self.assertFalse(value_1 == value_4)
+
+        self.assertFalse(value_1 != value_2)
+        self.assertTrue(value_1 != value_3)
+        self.assertTrue(value_1 != value_4)
+
+    def _test(self, empty_content, contents, other_contents, type_, accessor):
+        self._test_container(empty_content, type_, accessor)
+        self._test_container(contents, type_, accessor)
+
+        self._test_modify(contents, accessor)
+
+        self._test_clear(contents, type_)
+
+        self._test_equality(contents, other_contents)
+
+    def test_integers(self):
+        self._test(
+            odil.Value.Integers(), [1234, 5678], [9012, 3456], 
+            odil.Value.Type.Integers, odil.Value.as_integers)
+        
+    def test_reals(self):
+        self._test(
+            odil.Value.Reals(), [12.34, 56.78], [1., 2.],
+            odil.Value.Type.Reals, odil.Value.as_reals)
+
+    def test_strings(self):
+        self._test(
+            odil.Value.Strings(), ["foo", "bar"], ["plip", "plop"],
+            odil.Value.Type.Strings, odil.Value.as_strings)
+
+    # FIXME: strings in DICOM are byte-string, with some VR requiring 
+    # conversion based on Specific Character Set. In Boost.Python, some
+    # explicit conversion are used (unicode <-> std::string in Python 3).
+
+    def test_data_sets(self):
+        data_set_1 = odil.DataSet()
+        data_set_1.add("PatientID", ["DJ1234"])
     
-    def test_reals_constructor(self):
-        items = [1.1, 2., 3.3]
-        value = odil.Value(items)
-        self.assertEqual(value.type, odil.Value.Type.Reals)
-        self.assertSequenceEqual(value.as_reals(), items)
-    
-    def test_strings_constructor(self):
-        items = ["foo", "bar"]
-        value = odil.Value(items)
-        self.assertEqual(value.type, odil.Value.Type.Strings)
-        self.assertSequenceEqual(value.as_strings(), items)
-    
-    def test_data_sets_constructor(self):
-        items = [odil.DataSet(), odil.DataSet()]
-        value = odil.Value(items)
-        self.assertEqual(value.type, odil.Value.Type.DataSets)
-        self.assertSequenceEqual(value.as_data_sets(), items)
-    
-    def test_binary_constructor(self):
-        items = [bytearray("\x01\x02\x03")]
-        value = odil.Value(items)
-        self.assertEqual(value.type, odil.Value.Type.Binary)
-        self.assertSequenceEqual(
-            [bytearray([x for x in item]) for item in value.as_binary()], 
-            items)
+        data_set_2 = odil.DataSet()
+        data_set_2.add("EchoTime", [100])
+
+        self._test(
+            odil.Value.DataSets(), 
+            [data_set_1, data_set_2], [data_set_2, data_set_1],
+            odil.Value.Type.DataSets, odil.Value.as_data_sets)
+
+    def test_binary(self):
+        self._test(
+            odil.Value.Binary(), 
+            [bytearray([0x01, 0x02]), bytearray([0x03])],
+            [bytearray([0x04]), bytearray([0x05, 0x06])],
+            odil.Value.Type.Binary, odil.Value.as_binary)
+        
+    def test_unknown_constructor(self):
+        class Foo(object): pass
+        items = [Foo()]
+        with self.assertRaises(odil.Exception):
+            odil.Value(items)
 
 class TestValueIntegers(unittest.TestCase):
     def test_empty_constructor(self):

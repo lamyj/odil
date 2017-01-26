@@ -12,6 +12,7 @@
 #include <memory>
 
 #include "odil/Association.h"
+#include "odil/odil.h"
 #include "odil/SCP.h"
 #include "odil/message/Message.h"
 
@@ -19,7 +20,7 @@ namespace odil
 {
 
 /// @brief SCP for C-Find services.
-class FindSCP: public SCP
+class ODIL_API FindSCP: public SCP
 {
 public:
 

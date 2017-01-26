@@ -12,6 +12,7 @@
 #include <cstddef>
 #include <initializer_list>
 
+#include "odil/odil.h"
 #include "odil/Tag.h"
 #include "odil/Value.h"
 #include "odil/VR.h"
@@ -22,15 +23,18 @@ namespace odil
 /**
  * @brief Element of a DICOM data set.
  */
-class Element
+class ODIL_API Element
 {
 public:
 
     /// @brief VR of the element.
     VR vr;
 
+    /// @brief Constructor using the VR to create an according empty container.
+    Element(VR const & vr);
+
     /// @brief Constructor.
-    Element(Value const & value=Value(), VR const & vr=VR::INVALID);
+    Element(Value const & value, VR const & vr);
 
     /// @brief Constructor.
     Element(Value::Integers const & value, VR const & vr=VR::INVALID);
@@ -170,31 +174,11 @@ public:
 
     /// @brief Difference test
     bool operator!=(Element const & other) const;
+    
+    /// @brief Clear the element (element.empty() will be true).
+    void clear();
 
 private:
-    struct Empty
-    {
-        typedef bool result_type;
-
-        template<typename T>
-        bool operator()(T const & container) const
-        {
-            return container.empty();
-        }
-    };
-
-    struct Size
-    {
-        typedef std::size_t result_type;
-
-        template<typename T>
-        std::size_t operator()(T const & container) const
-        {
-            return container.size();
-        }
-    };
-
-
     Value _value;
 };
 
@@ -211,3 +195,4 @@ apply_visitor(TVisitor const & visitor, Element const & element);
 #include "odil/Element.txx"
 
 #endif // _9c3d8f32_0310_4e3a_b5d2_6d69f229a2cf
+

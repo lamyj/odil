@@ -10,21 +10,52 @@
 
 #include <cstdint>
 #include <initializer_list>
+#include <memory>
 #include <string>
 #include <vector>
 
 #include "odil/DataSet.h"
 #include "odil/Exception.h"
 
-namespace odil
+namespace
 {
 
-Value
-::Value()
-: _type(Type::Empty)
+struct IsEmptyValue
 {
-    // Nothing else.
+    typedef bool result_type;
+
+    template <typename T>
+    result_type operator()(T const & container) const
+    {
+        return container.empty();
+    }
+};
+
+struct ValueSizeGetter
+{
+    typedef std::size_t result_type;
+
+    template <typename T>
+    result_type operator()(T const & container) const
+    {
+        return container.size();
+    }
+};
+
+struct ClearValue
+{
+    typedef void result_type;
+
+    template <typename T>
+    result_type operator()(T & container) const
+    {
+        return container.clear();
+    }
+};
 }
+
+namespace odil
+{
 
 Value
 ::Value(Integers const & integers)
@@ -49,7 +80,7 @@ Value
 
 Value
 ::Value(DataSets const & datasets)
-: _type(Type::DataSets), _data_sets(datasets)
+: _type(Type::DataSets), _data_sets(std::make_shared<DataSets>(datasets))
 {
     // Nothing else.
 }
@@ -92,7 +123,7 @@ Value
 
 Value
 ::Value(std::initializer_list<DataSet> const & list)
-: _type(Type::DataSets), _data_sets(list)
+: _type(Type::DataSets), _data_sets(std::make_shared<DataSets>(list))
 {
     // Nothing else
 }
@@ -108,7 +139,14 @@ bool
 Value
 ::empty() const
 {
-    return (this->_type == Type::Empty);
+    return apply_visitor(IsEmptyValue(), *this);
+}
+
+std::size_t
+Value
+::size() const
+{
+    return apply_visitor(ValueSizeGetter(), *this);
 }
 
 #define DECLARE_CONST_ACCESSOR(type, name) \
@@ -144,8 +182,27 @@ DECLARE_NON_CONST_ACCESSOR(Reals, reals)
 DECLARE_CONST_ACCESSOR(Strings, strings)
 DECLARE_NON_CONST_ACCESSOR(Strings, strings)
 
-DECLARE_CONST_ACCESSOR(DataSets, data_sets)
-DECLARE_NON_CONST_ACCESSOR(DataSets, data_sets)
+Value::DataSets const & 
+Value
+::as_data_sets() const
+{
+    if(this->get_type() != Type::DataSets)
+    {
+        throw Exception("Type mismatch");
+    }
+	return *this->_data_sets;
+}
+
+Value::DataSets &
+Value
+::as_data_sets()
+{
+    if(this->get_type() != Type::DataSets)
+    {
+        throw Exception("Type mismatch");
+    }
+	return *this->_data_sets;
+}
 
 DECLARE_CONST_ACCESSOR(Binary, binary)
 DECLARE_NON_CONST_ACCESSOR(Binary, binary)
@@ -161,10 +218,6 @@ Value
     {
         return false;
     }
-    else if(this->_type == Value::Type::Empty)
-    {
-        return true;
-    }
     else if(this->_type == Value::Type::Integers)
     {
         return this->_integers == other._integers;
@@ -179,7 +232,7 @@ Value
     }
     else if(this->_type == Value::Type::DataSets)
     {
-        return this->_data_sets == other._data_sets;
+        return *(this->_data_sets) == *(other._data_sets);
     }
     else if(this->_type == Value::Type::Binary)
     {
@@ -198,6 +251,12 @@ Value
     return !(*this == other);
 }
 
-
+void
+Value
+::clear()
+{
+    apply_visitor(ClearValue(), *this);
+}
 
 }
+

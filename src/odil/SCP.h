@@ -14,13 +14,14 @@
 #include "odil/Exception.h"
 #include "odil/message/Message.h"
 #include "odil/message/Request.h"
+#include "odil/odil.h"
 #include "odil/Value.h"
 
 namespace odil
 {
 
 /// @brief Base class for all Service Class Providers.
-class SCP
+class ODIL_API SCP
 {
 public:
     /**
@@ -28,7 +29,7 @@ public:
      *
      * initialize, done, next and get shall throw an SCP::Exception on error.
      */
-    class DataSetGenerator
+    class ODIL_API DataSetGenerator
     {
     public:
         /// @brief Destructor.

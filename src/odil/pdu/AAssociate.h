@@ -13,6 +13,7 @@
 #include <istream>
 #include <string>
 
+#include "odil/odil.h"
 #include "odil/pdu/ApplicationContext.h"
 #include "odil/pdu/Object.h"
 #include "odil/pdu/UserInformation.h"
@@ -24,7 +25,7 @@ namespace pdu
 {
 
 /// @brief A-ASSOCIATE-RQ and A-ASSOCIATE-AC PDU, cf. PS 3.8, 9.3.2 and 9.3.3.
-class AAssociate: public Object
+class ODIL_API AAssociate: public Object
 {
 public:
     /// @brief Constructor.

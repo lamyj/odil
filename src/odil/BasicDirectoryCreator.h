@@ -16,6 +16,7 @@
 #include <vector>
 
 #include "odil/DataSet.h"
+#include "odil/odil.h"
 #include "odil/Tag.h"
 #include "odil/Writer.h"
 
@@ -23,7 +24,7 @@ namespace odil
 {
 
 /// @brief Write a Basic Directory (i.e. DICOMDIR) object to the disk.
-class BasicDirectoryCreator
+class ODIL_API BasicDirectoryCreator
 {
 public:
     /// @brief The tag and its associated type in the record.

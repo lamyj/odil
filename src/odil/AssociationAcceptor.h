@@ -14,6 +14,7 @@
 
 #include "odil/AssociationParameters.h"
 #include "odil/Exception.h"
+#include "odil/odil.h"
 
 namespace odil
 {
@@ -35,11 +36,12 @@ typedef
  * and the roles of each presentation context, do not check identity,
  * keep maximum length.
  */
+ODIL_API
 AssociationParameters
 default_association_acceptor(AssociationParameters const & input);
 
 /// @brief Exception reported when an incoming association is rejected.
-struct AssociationRejected: public Exception
+struct ODIL_API AssociationRejected: public Exception
 {
 public:
     /// @brief Constructor.

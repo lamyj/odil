@@ -17,6 +17,7 @@
 #include "odil/DataSet.h"
 #include "odil/Element.h"
 #include "odil/endian.h"
+#include "odil/odil.h"
 #include "odil/Tag.h"
 #include "odil/Value.h"
 #include "odil/VR.h"
@@ -25,7 +26,7 @@ namespace odil
 {
 
 /// @brief Read DICOM objects from a stream.
-class Reader
+class ODIL_API Reader
 {
 public:
     /// @brief Input stream.

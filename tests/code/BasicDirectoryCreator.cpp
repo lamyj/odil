@@ -49,9 +49,6 @@ BOOST_AUTO_TEST_CASE(Constructor)
 
 BOOST_AUTO_TEST_CASE(BasicDirectory)
 {
-    std::stringstream stream1;
-    stream1 <<  "{";
-
     {
         odil::DataSet data_set;
         data_set.add("PatientID", {"DJ123"});
@@ -68,7 +65,8 @@ BOOST_AUTO_TEST_CASE(BasicDirectory)
         data_set.add("SOPInstanceUID", {"1.2.3.4.1.1"});
         data_set.add("SOPClassUID", {odil::registry::RawDataStorage});
 
-        std::ofstream stream("a.dcm");
+        std::ofstream stream(
+            "a.dcm", std::ofstream::out | std::ofstream::binary);
         odil::Writer::write_file(data_set, stream);
     }
 
@@ -88,7 +86,8 @@ BOOST_AUTO_TEST_CASE(BasicDirectory)
         data_set.add("SOPInstanceUID", {"1.2.3.4.1.2"});
         data_set.add("SOPClassUID", {odil::registry::RawDataStorage});
 
-        std::ofstream stream("b.dcm");
+        std::ofstream stream(
+            "b.dcm", std::ofstream::out | std::ofstream::binary);
         odil::Writer::write_file(data_set, stream);
     }
 
@@ -99,8 +98,11 @@ BOOST_AUTO_TEST_CASE(BasicDirectory)
         ".", {"a.dcm", "b.dcm"}, extra_records);
     creator();
 
-    boost::filesystem::ifstream stream(boost::filesystem::path(".")/"DICOMDIR");
+    boost::filesystem::ifstream stream(
+        boost::filesystem::path(".")/"DICOMDIR",
+        boost::filesystem::ifstream::in | boost::filesystem::ifstream::binary);
     auto const dicomdir_and_header = odil::Reader::read_file(stream);
+    stream.close();
 
     BOOST_REQUIRE(
         dicomdir_and_header.first.as_string("MediaStorageSOPClassUID") ==
@@ -156,4 +158,5 @@ BOOST_AUTO_TEST_CASE(BasicDirectory)
 
     boost::filesystem::remove("a.dcm");
     boost::filesystem::remove("b.dcm");
+    boost::filesystem::remove("DICOMDIR");
 }

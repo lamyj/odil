@@ -388,15 +388,10 @@ DataSet as_dataset(boost::property_tree::ptree const & xml)
         Tag const tag(it->second.get<std::string>("<xmlattr>.tag"));
         VR const vr = as_vr(it->second.get<std::string>("<xmlattr>.vr"));
 
-        Element element;
+        Element element(vr);
 
-        if(vr == VR::AE || vr == VR::AS || vr == VR::AT || vr == VR::CS ||
-           vr == VR::DA || vr == VR::DT || vr == VR::LO || vr == VR::LT ||
-           vr == VR::SH || vr == VR::ST || vr == VR::TM || vr == VR::UI ||
-           vr == VR::UT)
+        if(odil::is_string(vr) && vr != odil::VR::PN)
         {
-            element = Element(Value::Strings(), vr);
-
             auto values = parse_value<Value::Strings::value_type>(it->second,
                                                                   vr);
 
@@ -407,8 +402,6 @@ DataSet as_dataset(boost::property_tree::ptree const & xml)
         }
         else if(vr == VR::PN)
         {
-            element = Element(Value::Strings(), vr);
-
             std::map<int, Value::Strings::value_type> values;
             for(auto it_value = it->second.begin();
                 it_value != it->second.end(); ++it_value)
@@ -479,10 +472,8 @@ DataSet as_dataset(boost::property_tree::ptree const & xml)
                 element.as_string().push_back(it->second);
             }
         }
-        else if(vr == VR::DS || vr == VR::FD || vr == VR::FL)
+        else if(is_real(vr))
         {
-            element = Element(Value::Reals(), vr);
-
             auto values = parse_value<Value::Reals::value_type>(it->second, vr);
 
             for (auto it = values.begin(); it != values.end(); ++it)
@@ -490,11 +481,8 @@ DataSet as_dataset(boost::property_tree::ptree const & xml)
                 element.as_real().push_back(it->second);
             }
         }
-        else if(vr == VR::IS || vr == VR::SL || vr == VR::SS ||
-                vr == VR::UL || vr == VR::US)
+        else if(is_int(vr))
         {
-            element = Element(Value::Integers(), vr);
-
             auto values = parse_value<Value::Integers::value_type>(it->second,
                                                                    vr);
 
@@ -505,8 +493,6 @@ DataSet as_dataset(boost::property_tree::ptree const & xml)
         }
         else if(vr == VR::SQ)
         {
-            element = Element(Value::DataSets(), vr);
-
             std::map<int, Value::DataSets::value_type> values;
             for(auto it_value = it->second.begin();
                 it_value != it->second.end(); ++it_value)
@@ -547,8 +533,6 @@ DataSet as_dataset(boost::property_tree::ptree const & xml)
         }
         else if(is_binary(vr))
         {
-            element = Element(Value::Binary(), vr);
-
             bool find_inline_binary = false; // only one Tag InlineBinary
             for(auto it_value = it->second.begin();
                 it_value != it->second.end(); ++it_value)

@@ -16,13 +16,14 @@
 #include "odil/Association.h"
 #include "odil/DataSet.h"
 #include "odil/message/CMoveResponse.h"
+#include "odil/odil.h"
 #include "odil/SCU.h"
 
 namespace odil
 {
 
 /// @brief SCU for C-MOVE services.
-class MoveSCU: public SCU
+class ODIL_API MoveSCU: public SCU
 {
 public:
     /// @brief Callback called when a C-STORE request is received.

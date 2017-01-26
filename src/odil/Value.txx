@@ -19,11 +19,7 @@ template<typename TVisitor>
 typename TVisitor::result_type
 apply_visitor(TVisitor const & visitor, Value const & value)
 {
-    if(value.get_type() == Value::Type::Empty)
-    {
-        throw Exception("Empty value");
-    }
-    else if(value.get_type() == Value::Type::Integers)
+    if(value.get_type() == Value::Type::Integers)
     {
         return visitor(value.as_integers());
     }
@@ -53,11 +49,7 @@ template<typename TVisitor>
 typename TVisitor::result_type
 apply_visitor(TVisitor const & visitor, Value & value)
 {
-    if(value.get_type() == Value::Type::Empty)
-    {
-        throw Exception("Empty value");
-    }
-    else if(value.get_type() == Value::Type::Integers)
+    if(value.get_type() == Value::Type::Integers)
     {
         return visitor(value.as_integers());
     }

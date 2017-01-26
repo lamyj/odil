@@ -17,6 +17,7 @@
 
 #include "odil/dcmtk/ElementTraits.h"
 #include "odil/dcmtk/Exception.h"
+#include "odil/odil.h"
 
 namespace odil
 {
@@ -36,14 +37,14 @@ struct ElementAccessor
         ValueType(DcmElement const &, unsigned long const)> GetterType;
 
     /// @brief Return the value in the element.
-    static GetterType const element_get;
+    static ODIL_API GetterType const element_get;
 
     /// @brief Setter type.
     typedef std::function<
         void(DcmElement &, ValueType const &, unsigned long const)> SetterType;
 
     /// @brief Set the value in the element.
-    static SetterType const element_set;
+    static ODIL_API SetterType const element_set;
 
     /// @brief Test whether the data set contains a given tag.
     static bool has(DcmDataset const & dataset, DcmTagKey const & tag);

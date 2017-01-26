@@ -14,20 +14,51 @@
 #include "odil/DataSet.h"
 #include "odil/Value.h"
 
+#if PY_MAJOR_VERSION >= 3
+#define IS_PY3K
+#endif
+
 boost::shared_ptr<odil::Value>
 value_constructor(boost::python::object const & source)
 {
     odil::Value * result = nullptr;
     if(boost::python::len(source) == 0)
     {
-        result = new odil::Value();
+        if(boost::python::extract<odil::Value::Integers>(source).check())
+        {
+            result = new odil::Value(odil::Value::Integers());
+        }
+        else if(boost::python::extract<odil::Value::Reals>(source).check())
+        {
+            result = new odil::Value(odil::Value::Reals());
+        }
+        else if(boost::python::extract<odil::Value::Strings>(source).check())
+        {
+            result = new odil::Value(odil::Value::Strings());
+        }
+        else if(boost::python::extract<odil::Value::DataSets>(source).check())
+        {
+            result = new odil::Value(odil::Value::DataSets());
+        }
+        else if(boost::python::extract<odil::Value::Binary>(source).check())
+        {
+            result = new odil::Value(odil::Value::Binary());
+        }
+        else
+        {
+            throw odil::Exception("Unknown empty type");
+        }
     }
     else
     {
         boost::python::object first = source[0];
         PyObject * first_ptr = first.ptr();
         
+#ifdef IS_PY3K
+        if(PyLong_Check(first_ptr))
+#else
         if(PyInt_Check(first_ptr))
+#endif
         {
             boost::python::stl_input_iterator<odil::Value::Integer> 
                 begin(source), end;
@@ -39,7 +70,11 @@ value_constructor(boost::python::object const & source)
                 begin(source), end;
             result = new odil::Value(odil::Value::Reals(begin, end));
         }
+#ifdef IS_PY3K
+        else if(PyUnicode_Check(first_ptr))
+#else
         else if(PyString_Check(first_ptr))
+#endif
         {
             boost::python::stl_input_iterator<odil::Value::String> 
                 begin(source), end;
@@ -71,6 +106,10 @@ value_constructor(boost::python::object const & source)
                 boost::python::stl_input_iterator<odil::DataSet> 
                     begin(source), end;
                 result = new odil::Value(odil::Value::DataSets(begin, end));
+            }
+            else
+            {
+                throw odil::Exception("Unknown value type");
             }
         }
     }

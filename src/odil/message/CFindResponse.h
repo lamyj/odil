@@ -10,6 +10,7 @@
 #define _5fd36547_9498_4cf3_87cc_737af51e93a9
 
 #include "odil/DataSet.h"
+#include "odil/odil.h"
 #include "odil/registry.h"
 #include "odil/message/Response.h"
 #include "odil/Value.h"
@@ -21,7 +22,7 @@ namespace message
 {
 
 /// @brief C-FIND-RSP message.
-class CFindResponse: public Response
+class ODIL_API CFindResponse: public Response
 {
 public:
     /// @brief C-FIND status codes, PS 3.4, C.4.1.1.4

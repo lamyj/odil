@@ -14,6 +14,7 @@
 #include <string>
 #include <vector>
 
+#include "odil/odil.h"
 #include "odil/pdu/PresentationContext.h"
 
 namespace odil
@@ -23,7 +24,7 @@ namespace pdu
 {
 
 /// @brief Presentation Context item for a A-ASSOCIATE-RQ PDU (PS 3.8, 9.3.2.2).
-class PresentationContextRQ: public PresentationContext
+class ODIL_API PresentationContextRQ: public PresentationContext
 {
 public:
     /// @brief Constructor.

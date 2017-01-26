@@ -26,7 +26,7 @@ extern ODIL_API std::string implementation_class_uid;
 extern ODIL_API std::string implementation_version_name;
 
 /// @brief Generate a UID under the UID prefix.
-std::string generate_uid();
+std::string ODIL_API generate_uid();
 
 }
 

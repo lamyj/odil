@@ -12,11 +12,13 @@
 #include <exception>
 #include <string>
 
+#include "odil/odil.h"
+
 namespace odil
 {
 
 /// @brief Base class for odil exceptions.
-class Exception: public std::exception
+class ODIL_API Exception: public std::exception
 {
 public: 
     /// @brief Message string constructor.

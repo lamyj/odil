@@ -10,6 +10,8 @@
 #define _da2270e3_d393_415a_9c5c_6253152ed9da
 
 #include <ostream>
+
+#include "odil/odil.h"
 #include "odil/pdu/Item.h"
 
 namespace odil
@@ -22,7 +24,7 @@ namespace pdu
  * @brief Base class for all PDU-related high-level objects (PDU, items and
  * sub-items).
  */
-class Object
+class ODIL_API Object
 {
 public:
     /// @brief Destructor, makes the type polymorphic.
@@ -45,6 +47,7 @@ protected:
 };
 
 /// @brief Dump the PDU-object in its binary form.
+ODIL_API
 std::ostream &
 operator<<(std::ostream & stream, Object const & object);
 

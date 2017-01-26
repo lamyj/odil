@@ -13,6 +13,7 @@
 #include <memory>
 
 #include "odil/Association.h"
+#include "odil/odil.h"
 #include "odil/SCP.h"
 #include "odil/Value.h"
 
@@ -20,7 +21,7 @@ namespace odil
 {
 
 /// @brief Dispatch an incoming message to one of the registered SCPs.
-class SCPDispatcher
+class ODIL_API SCPDispatcher
 {
 public:
     /// @brief Create a dispatcher with network and association.

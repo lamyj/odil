@@ -13,13 +13,15 @@
 #include <ostream>
 #include <string>
 
+#include "odil/odil.h"
+
 namespace odil
 {
 
 /**
  * @brief A DICOM element tag.
  */
-class Tag
+class ODIL_API Tag
 {
 public:
     /// @brief Create a tag based on its group and element as two 16-bits words.
@@ -91,7 +93,7 @@ private:
 };
 
 /// @brief Stream inserter
-std::ostream & operator<<(std::ostream & stream, Tag const & tag);
+ODIL_API std::ostream & operator<<(std::ostream & stream, Tag const & tag);
 
 }
 

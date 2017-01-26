@@ -12,6 +12,7 @@
 #include <functional>
 
 #include "odil/Association.h"
+#include "odil/odil.h"
 #include "odil/SCP.h"
 #include "odil/Value.h"
 #include "odil/message/CEchoRequest.h"
@@ -21,7 +22,7 @@ namespace odil
 {
 
 /// @brief SCP for C-Echo services.
-class EchoSCP: public SCP
+class ODIL_API EchoSCP: public SCP
 {
 public:
     /**

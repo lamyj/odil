@@ -10,6 +10,7 @@
 #define _8d06a300_6aee_4d1f_bf10_ecdf4916ae9f
 
 #include "odil/message/Message.h"
+#include "odil/odil.h"
 #include "odil/registry.h"
 #include "odil/Value.h"
 
@@ -20,7 +21,7 @@ namespace message
 {
 
 /// @brief Base class for all DIMSE request messages.
-class Request: public Message
+class ODIL_API Request: public Message
 {
 public:
     /// @brief Create a request with given Message ID.

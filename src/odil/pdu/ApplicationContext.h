@@ -12,6 +12,7 @@
 #include <istream>
 #include <string>
 
+#include "odil/odil.h"
 #include "odil/pdu/Object.h"
 
 namespace odil
@@ -23,7 +24,7 @@ namespace pdu
 /**
  * @brief Application Context item, (PS 3.8, 9.3.2.1).
  */
-class ApplicationContext: public Object
+class ODIL_API ApplicationContext: public Object
 {
 public:
     /// @brief Create an Application Context.

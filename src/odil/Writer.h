@@ -15,6 +15,7 @@
 #include "odil/DataSet.h"
 #include "odil/Element.h"
 #include "odil/endian.h"
+#include "odil/odil.h"
 #include "odil/registry.h"
 #include "odil/Tag.h"
 #include "odil/Value.h"
@@ -24,7 +25,7 @@ namespace odil
 {
 
 /// @brief Write DICOM objects to a stream.
-class Writer
+class ODIL_API Writer
 {
 public:
     /// @brief Encodings of sequence items.

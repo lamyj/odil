@@ -17,6 +17,7 @@
 #include <vector>
 
 #include "odil/Element.h"
+#include "odil/odil.h"
 #include "odil/Value.h"
 
 namespace odil
@@ -25,7 +26,7 @@ namespace odil
 /**
  * @brief DICOM Data set.
  */
-class DataSet
+class ODIL_API DataSet
 {
 public:
     /// @brief Create an empty data set.
@@ -208,6 +209,9 @@ public:
 
     /// @brief Difference test.
     bool operator!=(DataSet const & other) const;
+
+    /// @brief Clear the element (data_set.empty(tag) will be true).
+    void clear(Tag const & tag);
 
     /// @brief Return the current transfer syntax.
     std::string const & get_transfer_syntax() const;

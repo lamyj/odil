@@ -10,6 +10,11 @@
 
 #include "odil/Tag.h"
 
+uint32_t hash(odil::Tag const & tag)
+{
+    return ((tag.group<<16)+tag.element);
+}
+
 void wrap_Tag()
 {
     using namespace boost::python;
@@ -29,6 +34,7 @@ void wrap_Tag()
         .def(self <= self)
         .def(self >= self)
         .def("__str__", &Tag::operator std::string)
+        .def("__hash__", &hash)
     ;
     implicitly_convertible<std::string, Tag>();
 }

@@ -13,6 +13,7 @@
 #include <dcmtk/ofstd/ofcond.h>
 
 #include "odil/Exception.h"
+#include "odil/odil.h"
 
 namespace odil
 {
@@ -20,7 +21,7 @@ namespace odil
 namespace dcmtk
 {
 
-class Exception: public ::odil::Exception
+class ODIL_API Exception: public ::odil::Exception
 {
 public:
     /**

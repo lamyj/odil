@@ -209,7 +209,8 @@ void wrap_AssociationParameters()
 
     {
         scope user_identity_scope = 
-            class_<AssociationParameters::UserIdentity>("UserIdentity")
+            class_<AssociationParameters::UserIdentity>(
+                "UserIdentity", init<>())
             .def_readwrite(
                 "type", 
                 &AssociationParameters::UserIdentity::type

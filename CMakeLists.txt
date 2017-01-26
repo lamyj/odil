@@ -12,19 +12,27 @@ option(BUILD_EXAMPLES "Build the examples directory." ON)
 option(BUILD_WRAPPERS "Build the Python Wrappers." ON)
 
 option(WITH_DCMTK "Build the DCMTK converter" ON)
+option(
+    USE_BUILTIN_DCMTK_GETSCU
+    "Compile a locally packaged version of getscu for old DCMTK versions" ON)
 
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}" ${CMAKE_MODULE_PATH})
 include(CTest)
 include(cmake/functions.cmake)
 
+# Add the C++0x or C++11 flag
+include(CheckCXXCompilerFlag)
+CHECK_CXX_COMPILER_FLAG(-std=c++11 COMPILER_SUPPORTS_CXX11)
+CHECK_CXX_COMPILER_FLAG(-std=c++0x COMPILER_SUPPORTS_CXX0X)
+if(COMPILER_SUPPORTS_CXX11)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+elseif(COMPILER_SUPPORTS_CXX0X)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
+endif()
+
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 if(WIN32)
-    # Trying the automatic creation of .def files by CMake
-    if(${BUILD_SHARED_LIBS})
-        set(WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
-    endif()
-
     # We have to set _WIN32_WINNT for Asio
     if(${CMAKE_SYSTEM_VERSION} EQUAL 10) # Windows 10
         add_definitions(-D _WIN32_WINNT=0x0A00)

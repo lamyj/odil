@@ -18,11 +18,9 @@ namespace
 {
 
 boost::shared_ptr<odil::Element>
-constructor(
-    boost::python::object const & value_python, odil::VR vr=odil::VR::INVALID)
+constructor(boost::python::object const & value, odil::VR vr)
 {
-    auto value_cpp = value_constructor(value_python);
-    
+    auto value_cpp = value_constructor(value);
     odil::Element * element = new odil::Element(*value_cpp, vr);
     
     // Old versions of Boost.Python (Debian 7, Ubuntu 12.04) do not like 
@@ -43,9 +41,10 @@ void wrap_Element()
     typedef Value::DataSets & (Element::*AsDataSets)();
     typedef Value::Binary & (Element::*AsBinary)();
 
-    class_<Element>("Element", init<>())
+    class_<Element>("Element", no_init)
         .def_readwrite("vr", &Element::vr)
-        .def("__init__", make_constructor(constructor))
+        .def(init<VR>())
+        .def("__init__", make_constructor(&constructor))
         .def("empty", &Element::empty)
         .def("size", &Element::size)
         .def(
@@ -74,5 +73,6 @@ void wrap_Element()
         .def(self == self)
         .def(self != self)
         .def("__len__", &Element::size)
+        .def("clear", &Element::clear)
     ;
 }
