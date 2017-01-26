@@ -42,7 +42,7 @@ ItemWithParameters
 ::operator std::string() const
 {
     std::ostringstream stream;
-    stream << this;
+    stream << *this;
     return stream.str();
 }
 

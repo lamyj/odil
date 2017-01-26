@@ -218,8 +218,8 @@ BOOST_AUTO_TEST_CASE(DifferenceDataSets)
     dataset1.add("PixelSpacing", {1.5, 2.5});
 
     odil::DataSet dataset2;
-    dataset1.add("PatientName", {"Doe^John"});
-    dataset1.add("PatientAge", {"042Y"});
+    dataset2.add("PatientName", {"Doe^John"});
+    dataset2.add("PatientAge", {"042Y"});
 
     odil::Value const value1({dataset1});
     odil::Value const value2({dataset1});
