@@ -96,7 +96,7 @@ std::istream & operator>>(std::istream & stream, HTTPResponse & response)
 
     using boost::spirit::ascii::space;
 
-    qi::rule<Iterator, std::string()> crlf = lit("\r\n");
+    qi::rule<Iterator, std::string()> crlf = -lit("\r") >> lit("\n");
 
     qi::rule<Iterator, std::string()> http_version =
         as_string[string("HTTP/") >> digit >> string(".") >> digit];

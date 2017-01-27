@@ -132,12 +132,12 @@ std::istream & operator>>(std::istream & stream, Message & message)
     using boost::spirit::ascii::space;
 
     qi::rule<Iterator, std::string()> token = +char_("!#$%&'*+-.^_`|~0-9a-zA-Z");
-    qi::rule<Iterator, std::string()> crlf = lit("\r\n");
+    qi::rule<Iterator, std::string()> crlf = -lit("\r") >> lit("\n");
 
     qi::rule<Iterator, std::string()> field_name = token;
     qi::rule<Iterator, std::string()> field_value = +~char_("\r\n");
     qi::rule<Iterator, Message::Headers()> headers =
-        *(field_name >> omit[-space >> ":" >> -space] >> field_value >> crlf);
+        *(field_name >> omit[-space >> ":" >> -space] >> field_value >> omit[crlf]);
 
     qi::rule<Iterator, std::string()> body = +char_;
 

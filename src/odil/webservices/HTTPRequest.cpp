@@ -96,7 +96,7 @@ std::istream & operator>>(std::istream & stream, HTTPRequest & request)
 
     using boost::spirit::ascii::space;
 
-    qi::rule<Iterator, std::string()> crlf = lit("\r\n");
+    qi::rule<Iterator, std::string()> crlf = -lit("\r") >> lit("\n");
 
     qi::rule<Iterator, std::string()> method = +~char_(" ");
     qi::rule<Iterator, std::string()> target = +~char_(" ");
