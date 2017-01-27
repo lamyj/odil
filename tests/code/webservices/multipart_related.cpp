@@ -89,6 +89,7 @@ struct Fixture
                 "Content-Type", "Multipart/Related; "
                 "boundary=example-1;start=\"<950120.aaCC@XIson.com>\";"
                 "type=\"Application/X-FixedRecord\";start-info=\"-o ps\"\r\n"}},
+            "Preamble, must be ignored\r\n"
             "--example-1\r\n"
             "Content-Type: Application/X-FixedRecord\r\n"
             "Content-ID: <950120.aaCC@XIson.com>\r\n"
@@ -115,7 +116,8 @@ struct Fixture
             "NrIHF1YWNrCkUgSSBFIEkgTwo=\r\n"
             "\r\n"
             "--example-1--\r\n"
-            "\r\n");
+            "\r\n"
+            "Epilogue, must also be ignored");
 
         this->parts = std::vector<odil::webservices::Message>{
             {

@@ -41,7 +41,7 @@ void transform_parts(
 
     auto const & body = message.get_body();
 
-    std::size_t begin = 0;
+    auto begin = body.find("--"+boundary+"\r\n");
     while(begin < body.size() && begin != std::string::npos)
     {
         auto end = body.find("--"+boundary+"\r\n", begin+1);
