@@ -403,9 +403,48 @@ void parse_attributes(
             boost::property_tree::ptree::const_assoc_iterator> range(
                 children.not_found(), children.not_found());
         std::function<void(boost::property_tree::ptree const &, Element &)> parser;
+        boost::property_tree::ptree normalized;
         if(children.find("Value") != children.not_found())
         {
             range = children.equal_range("Value");
+            if(vr != VR::LT && vr != VR::ST && vr != VR::UT)
+            {
+                // Some providers use a wrong representation where multi-valued
+                // elements are joined using \\ instead of using multiple
+                // <Value> elements. Be nice to them.
+                bool must_normalize = false;
+                for(auto it=range.first; it != range.second; ++it)
+                {
+                    auto const value = it->second.get_value<std::string>();
+                    if(value.find("\\") != std::string::npos)
+                    {
+                        must_normalize = true;
+                        break;
+                    }
+                }
+                if(must_normalize)
+                {
+                    int count=0;
+                    for(auto it=range.first; it != range.second; ++it)
+                    {
+                        auto const original_value =
+                            it->second.get_value<std::string>();
+                        std::vector<std::string> values;
+                        split(original_value, "\\", std::back_inserter(values));
+                        for(auto const & value: values)
+                        {
+                            boost::property_tree::ptree value_node;
+                            value_node.put("<xmlattr>.number", 1+count);
+                            value_node.put_value(value);
+                            normalized.add_child("Value", value_node);
+                            ++count;
+                        }
+                    }
+                    range = normalized.equal_range("Value");
+                }
+                // Otherwise, nothing to do: range is OK
+            }
+            // Otherwise, nothing to do: range is OK
             element = Element(vr);
             parser = parse_value;
         }
