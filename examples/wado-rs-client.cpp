@@ -20,7 +20,8 @@ int main()
             "1.3.46.670589.11.0.0.11.4.2.0.8743.5.5396.2006120114333648576"});
 
     auto http_request = wado_request.get_http_request();
-    http_request.set_http_version("HTTP/1.1");
+    // Mark as 1.0 to avoid chunked encoding
+    http_request.set_http_version("HTTP/1.0");
     http_request.set_header("Host", wado_request.get_base_url().authority);
     http_request.set_header("Connection", "close");
 
