@@ -64,7 +64,7 @@ NSetSCU
 
 void 
 NSetSCU
-::store( DataSet const & dataset) const
+::set( DataSet const & dataset) const
 {
 
     message::NSetRequest const request(

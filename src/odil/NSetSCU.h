@@ -33,7 +33,7 @@ public:
 	using SCU::set_affected_sop_class;
     
     /// @brief Perform the N-SET.
-    void store( DataSet const & dataset) const;
+    void set( DataSet const & dataset) const;
 };
 
 }

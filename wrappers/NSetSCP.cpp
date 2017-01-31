@@ -23,31 +23,16 @@ set_callback( odil::NSetSCP& scp, boost::python::object const& f)
         }
         );
 }
-
-std::shared_ptr< odil::NSetSCP >
-New( odil::Association&  a )
-{
-    return std::shared_ptr< odil::NSetSCP>( new odil::NSetSCP(a) );
-}
-
 }
 
 void wrap_NSetSCP()
 {
     using namespace boost::python;
     using namespace odil;
-/*
-    class_<NSetSCP, bases<SCP> >("NSetSCP", init<Association&>() )
-        .def (init<Association&, NSetSCP::Callback&>())
-        .def("set_callback", &set_callback)
-        .def("__call__", &NSetSCP::operator())
-    ;
- */
+
     class_<NSetSCP >("NSetSCP", init<Association&>() )
     .def (init<Association&, NSetSCP::Callback&>())
     .def("set_callback", &set_callback)
     .def("__call__", &NSetSCP::operator())
     ;
-
-    def("New_NSetSCP", &New);
 }

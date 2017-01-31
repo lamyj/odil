@@ -28,7 +28,7 @@ void wrap_NSetSCU()
         )
         .def(
             "store",
-            &NSetSCU::store
+            &NSetSCU::set
         )
     ;
 }

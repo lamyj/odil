@@ -41,5 +41,4 @@ void wrap_StoreSCP()
     .def("__call__", &StoreSCP::operator())
     ;
 
-//    register_ptr_to_python< shared_ptr<StoreSCP> >();
 }
