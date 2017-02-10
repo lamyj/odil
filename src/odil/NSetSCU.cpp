@@ -41,25 +41,8 @@ NSetSCU
 ::set_affected_sop_class(DataSet const & dataset)
 {
     auto const & sop_class_uid = dataset.as_string(registry::RequestedSOPClassUID, 0);
-    
-    std::vector<std::string> storage;
-    for(auto const & uids_it: registry::uids_dictionary)
-    {
-        auto const & name = uids_it.second.name;
-        if(name.find("Storage") != std::string::npos)
-        {
-            storage.push_back(uids_it.first);
-        }
-    }
 
-    if(std::find(storage.begin(), storage.end(), sop_class_uid) != storage.end())
-    {
-        this->SCU::set_affected_sop_class(sop_class_uid);
-    }
-    else
-    {
-        throw Exception("Could not guess affected SOP class from dataset");
-    }
+    this->SCU::set_affected_sop_class(sop_class_uid);
 }
 
 void 

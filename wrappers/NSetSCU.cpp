@@ -27,7 +27,7 @@ void wrap_NSetSCU()
             static_cast<void(NSetSCU::*)(DataSet const &)>(&NSetSCU::set_affected_sop_class)
         )
         .def(
-            "store",
+            "set",
             &NSetSCU::set
         )
     ;
