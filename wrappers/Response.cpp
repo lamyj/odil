@@ -41,3 +41,37 @@ void wrap_Response()
             static_cast<bool (Response::*)() const>(&Response::is_failure))
     ;
 }
+
+void wrap_ResponseStatus()
+{
+    using namespace boost::python;
+    using namespace odil;
+    using namespace odil::message;
+
+    enum_< Response::Status >("response_status")
+            .value("Success", Response::Status::Success )
+            .value("Cancel", Response::Status::Cancel )
+            .value("Pending", Response::Status::Pending )
+            .value("AttributeListError", Response::Status::AttributeListError )
+            .value("AttributeValueOutOfRange", Response::Status::AttributeValueOutOfRange )
+            .value("SOPClassNotSupported", Response::Status::SOPClassNotSupported )
+            .value("ClassInstanceConflict", Response::Status::ClassInstanceConflict )
+            .value("DuplicateSOPInstance", Response::Status::DuplicateSOPInstance )
+            .value("DuplicateInvocation", Response::Status::DuplicateInvocation )
+            .value("InvalidArgumentValue", Response::Status::InvalidArgumentValue )
+            .value("InvalidAttributeValue", Response::Status::InvalidAttributeValue )
+            .value("InvalidObjectInstance", Response::Status::InvalidObjectInstance )
+            .value("MissingAttribute", Response::Status::MissingAttribute )
+            .value("MissingAttributeValue", Response::Status::MissingAttributeValue )
+            .value("MistypedArgument", Response::Status::MistypedArgument )
+            .value("NoSuchArgument", Response::Status::NoSuchArgument )
+            .value("NoSuchAttribute", Response::Status::NoSuchAttribute )
+            .value("NoSuchEventType", Response::Status::NoSuchEventType )
+            .value("NoSuchSOPInstance", Response::Status::NoSuchSOPInstance )
+            .value("NoSuchSOPClass", Response::Status::NoSuchSOPClass )
+            .value("ProcessingFailure", Response::Status::ProcessingFailure )
+            .value("ResourceLimitation", Response::Status::ResourceLimitation )
+            .value("UnrecognizedOperation", Response::Status::UnrecognizedOperation )
+            .value("NoSuchActionType", Response::Status::NoSuchActionType)
+    ;
+}
