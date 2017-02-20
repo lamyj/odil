@@ -66,8 +66,8 @@ void
 StoreSCU
 ::store(
     DataSet const & dataset,
-    Value::String const & move_originator_ae_title,
-    Value::Integer move_originator_message_id) const
+    Value::String const & move_originator_ae_title ,
+    Value::Integer move_originator_message_id ) const
 {
     message::CStoreRequest const request(
         this->_association.next_message_id(),

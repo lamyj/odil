@@ -6,42 +6,33 @@
  * for details.
  ************************************************************************/
 
-#include "odil/EchoSCP.h"
-
 #include <boost/python.hpp>
+
+#include "odil/NCreateSCP.h"
 
 namespace
 {
 
-void
-set_callback(odil::EchoSCP& scp, boost::python::object const& f)
+void 
+set_callback(odil::NCreateSCP & scp, boost::python::object const & f)
 {
     scp.set_callback(
-        [f](odil::message::CEchoRequest const& message)
-        {
+        [f](odil::message::NCreateRequest const & message) 
+        { 
             return boost::python::call<odil::Value::Integer>(f.ptr(), message);
         }
-        );
-}
-
-std::shared_ptr<odil::EchoSCP>
-New_EchoSCP( odil::Association& a )
-{
-    return std::shared_ptr<odil::EchoSCP>( new odil::EchoSCP(a) );
+    );
 }
 
 }
 
-void wrap_EchoSCP()
+void wrap_NCreateSCP()
 {
     using namespace boost::python;
     using namespace odil;
 
-    class_<EchoSCP>("EchoSCP", init<Association&>())
-    .def("set_callback", &set_callback)
-    .def("__call__", &EchoSCP::operator())
+    class_<NCreateSCP>("NCreateSCP", init<Association &>())
+        .def("set_callback", &set_callback)
+        .def("__call__", &NCreateSCP::operator())
     ;
-
-
-    def("New_EchoSCP", &New_EchoSCP);
 }
