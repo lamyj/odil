@@ -199,10 +199,10 @@ public:
     typedef std::map<Tag, Element>::const_iterator const_iterator;
 
     /// @brief Return an iterator to the start of the elements.
-    const_iterator begin() const { return this->_elements.begin(); }
+    const_iterator begin() const;
 
     /// @brief Return an iterator to the end of the elements.
-    const_iterator end() const { return this->_elements.end(); }
+    const_iterator end() const;
 
     /// @brief Equality test.
     bool operator==(DataSet const & other) const;

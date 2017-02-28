@@ -418,6 +418,20 @@ DataSet
     return it->second.size();
 }
 
+DataSet::const_iterator
+DataSet
+::begin() const
+{
+    return this->_elements.begin();
+}
+
+DataSet::const_iterator
+DataSet
+::end() const
+{
+    return this->_elements.end();
+}
+
 bool
 DataSet
 ::operator==(DataSet const & other) const
@@ -460,4 +474,3 @@ DataSet
 }
 
 }
-
