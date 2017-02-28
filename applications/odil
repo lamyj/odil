@@ -9,6 +9,7 @@ import echo
 import find
 import get
 import print_
+import store
 import transcode
 
 def main():
@@ -18,7 +19,7 @@ def main():
 
     modules = [
         print_, transcode, dicomdir, 
-        echo, find, get
+        echo, find, get, store
     ]
     for module in modules:
         sub_parser = module.add_subparser(subparsers)
