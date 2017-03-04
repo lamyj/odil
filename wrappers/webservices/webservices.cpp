@@ -8,6 +8,7 @@
 
 #include <boost/python.hpp>
 
+void wrap_webservices_HTTPRequest();
 void wrap_webservices_Message();
 
 namespace
@@ -20,5 +21,7 @@ void wrap_webservices()
     using namespace boost::python;
 
     scope webservices = class_<webservices_namespace>("webservices");
+
     wrap_webservices_Message();
+    wrap_webservices_HTTPRequest();
 }
