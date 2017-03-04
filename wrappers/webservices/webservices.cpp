@@ -10,6 +10,8 @@
 
 void wrap_webservices_HTTPRequest();
 void wrap_webservices_Message();
+void wrap_webservices_WADORS();
+void wrap_webservices_WADORSRequest();
 
 namespace
 {
@@ -24,4 +26,7 @@ void wrap_webservices()
 
     wrap_webservices_Message();
     wrap_webservices_HTTPRequest();
+
+    wrap_webservices_WADORS();
+    wrap_webservices_WADORSRequest();
 }
