@@ -49,6 +49,8 @@ void wrap_CMoveRequest();
 void wrap_CMoveResponse();
 void wrap_CStoreRequest();
 
+void wrap_webservices();
+
 BOOST_PYTHON_MODULE(odil)
 {
     wrap_Exception();
@@ -92,4 +94,6 @@ BOOST_PYTHON_MODULE(odil)
     wrap_CMoveRequest();
     wrap_CMoveResponse();
     wrap_CStoreRequest();
+
+    wrap_webservices();
 }
