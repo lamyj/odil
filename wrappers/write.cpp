@@ -36,9 +36,9 @@ write(
         transfer_syntax, item_encoding, use_group_length);
 }
 
-}
+class WriterDummy { };
 
-class Dummy { };
+}
 
 void wrap_write()
 {
@@ -46,7 +46,7 @@ void wrap_write()
     using namespace odil;
 
     {
-        scope writer_scope = class_<Dummy>("Writer");
+        scope writer_scope = class_<WriterDummy>("Writer");
         enum_<Writer::ItemEncoding>("ItemEncoding")
             .value("ExplicitLength", Writer::ItemEncoding::ExplicitLength)
             .value("UndefinedLength", Writer::ItemEncoding::UndefinedLength)

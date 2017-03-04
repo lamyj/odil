@@ -12,7 +12,7 @@
 
 namespace
 {
-class Dummy {};
+class wadors_namespace {};
 }
 
 void wrap_webservices_WADORS()
@@ -20,7 +20,7 @@ void wrap_webservices_WADORS()
     using namespace boost::python;
     using namespace odil::webservices::WADORS;
 
-    scope wadors_scope = class_<Dummy>("WADORS");
+    scope wadors_scope = class_<wadors_namespace>("WADORS");
 
     enum_<Type>("Type")
         .value("None", Type::None)
