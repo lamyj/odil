@@ -6,23 +6,11 @@ class TestMessage(unittest.TestCase):
     def test_default_constructor(self):
         message = odil.webservices.Message()
         self.assertEqual(message.get_headers(), {})
-        self.assertEqual(len(message.get_body()), 0)
+        self.assertEqual(message.get_body(), "")
 
-    def test_constructor_headers_only(self):
-        message = odil.webservices.Message({"foo": "bar", "plip": "plop"})
-        self.assertEqual(message.get_headers(), {"foo": "bar", "plip": "plop"})
-        self.assertEqual(len(message.get_body()), 0)
-
-    def test_constructor_body_only(self):
-        message = odil.webservices.Message(body="body")
-        self.assertEqual(message.get_headers(), {})
-        self.assertEqual(message.get_body(), "body")
-
-    def test_constructor_two_arguments(self):
-        message = odil.webservices.Message(
-            {"foo": "bar", "plip": "plop"}, "body")
-
-        self.assertEqual(message.get_headers(), {"foo": "bar", "plip": "plop"})
+    def test_full_constructor(self):
+        message = odil.webservices.Message(headers={"foo": "bar"}, body="body")
+        self.assertEqual(message.get_headers(), {"foo": "bar"})
         self.assertEqual(message.get_body(), "body")
 
     def test_existing_header(self):
