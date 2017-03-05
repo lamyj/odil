@@ -14,6 +14,7 @@ void wrap_webservices_Message();
 void wrap_webservices_URL();
 void wrap_webservices_WADORS();
 void wrap_webservices_WADORSRequest();
+void wrap_webservices_WADORSResponse();
 
 namespace
 {
@@ -34,4 +35,5 @@ void wrap_webservices()
 
     wrap_webservices_WADORS();
     wrap_webservices_WADORSRequest();
+    wrap_webservices_WADORSResponse();
 }
