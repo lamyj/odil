@@ -17,8 +17,13 @@ void wrap_webservices_WADORSRequest()
     using namespace odil::webservices;
 
     scope wado_rs_request_scope = class_<WADORSRequest>(
-            "WADORSRequest", init<HTTPRequest>())
-        // TODO: full constructor
+        "WADORSRequest",
+        init<URL, std::string, std::string, bool, bool>((
+            arg("base_url")=URL(), arg("transfer_syntax")="",
+            arg("character_set")="", arg("include_media_type_in_query")=false,
+            arg("include_character_set_in_query")=false
+        )))
+        .def(init<HTTPRequest>())
         .def(
             "get_base_url", &WADORSRequest::get_base_url,
             return_value_policy<copy_const_reference>())
@@ -56,9 +61,16 @@ void wrap_webservices_WADORSRequest()
         .def(
             "get_representation", &WADORSRequest::get_representation,
             return_value_policy<copy_const_reference>())
-        // request_dicom
-        // request_bulk_data
-        // request_pixel_data
+        .def("request_dicom", &WADORSRequest::request_dicom)
+        .def(
+            "request_bulk_data",
+            static_cast<void(WADORSRequest::*)(WADORSRequest::Selector const &)>(
+                &WADORSRequest::request_bulk_data))
+        .def(
+            "request_bulk_data",
+            static_cast<void(WADORSRequest::*)(URL const &)>(
+                &WADORSRequest::request_bulk_data))
+        .def("request_pixel_data", &WADORSRequest::request_pixel_data)
         .def("get_http_request", &WADORSRequest::get_http_request)
         .def(self == self)
         .def(self != self)
