@@ -11,27 +11,6 @@
 #include "odil/webservices/HTTPRequest.h"
 #include "odil/webservices/WADORSRequest.h"
 
-namespace
-{
-
-std::string get_base_url(odil::webservices::WADORSRequest const & request)
-{
-    return std::string(request.get_base_url());
-}
-
-void set_base_url(
-    odil::webservices::WADORSRequest & request, std::string const & base_url)
-{
-    request.set_base_url(odil::webservices::URL::parse(base_url));
-}
-
-std::string get_url(odil::webservices::WADORSRequest const & request)
-{
-    return std::string(request.get_url());
-}
-
-}
-
 void wrap_webservices_WADORSRequest()
 {
     using namespace boost::python;
@@ -40,8 +19,10 @@ void wrap_webservices_WADORSRequest()
     scope wado_rs_request_scope = class_<WADORSRequest>(
             "WADORSRequest", init<HTTPRequest>())
         // TODO: full constructor
-        .def("get_base_url", &get_base_url)
-        .def("set_base_url", &set_base_url)
+        .def(
+            "get_base_url", &WADORSRequest::get_base_url,
+            return_value_policy<copy_const_reference>())
+        .def("set_base_url", &WADORSRequest::set_base_url)
         .def(
             "get_transfer_syntax", &WADORSRequest::get_transfer_syntax,
             return_value_policy<copy_const_reference>())
@@ -66,7 +47,9 @@ void wrap_webservices_WADORSRequest()
         .def(
             "get_selector", &WADORSRequest::get_selector,
             return_value_policy<copy_const_reference>())
-        .def("get_url", &get_url)
+        .def(
+            "get_url", &WADORSRequest::get_url,
+            return_value_policy<copy_const_reference>())
         .def(
             "get_media_type", &WADORSRequest::get_media_type,
             return_value_policy<copy_const_reference>())

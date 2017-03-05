@@ -11,6 +11,7 @@
 void wrap_webservices_HTTPRequest();
 void wrap_webservices_HTTPResponse();
 void wrap_webservices_Message();
+void wrap_webservices_URL();
 void wrap_webservices_WADORS();
 void wrap_webservices_WADORSRequest();
 
@@ -26,6 +27,8 @@ void wrap_webservices()
     scope webservices = class_<webservices_namespace>("webservices");
 
     wrap_webservices_Message();
+    wrap_webservices_URL();
+
     wrap_webservices_HTTPRequest();
     wrap_webservices_HTTPResponse();
 

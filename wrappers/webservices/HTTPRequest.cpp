@@ -17,7 +17,8 @@ namespace
 
 boost::shared_ptr<odil::webservices::HTTPRequest>
 constructor(
-    std::string const & method="", std::string const & target="",
+    std::string const & method="",
+    odil::webservices::URL const & target=odil::webservices::URL(),
     std::string const & http_version="HTTP/1.0",
     boost::python::dict const & headers=boost::python::dict(),
     std::string const & body=std::string())
@@ -27,20 +28,8 @@ constructor(
     // Old versions of Boost.Python (Debian 7, Ubuntu 12.04) do not like
     // std::shared_ptr
     auto request = new HTTPRequest(
-        method, URL::parse(target), http_version,
-        convert_headers(headers), body);
+        method, target, http_version, convert_headers(headers), body);
     return boost::shared_ptr<HTTPRequest>(request);
-}
-
-std::string get_target(odil::webservices::HTTPRequest const & request)
-{
-    return std::string(request.get_target());
-}
-
-void set_target(
-    odil::webservices::HTTPRequest & request, std::string const & target)
-{
-    request.set_target(odil::webservices::URL::parse(target));
 }
 
 }
@@ -56,15 +45,17 @@ void wrap_webservices_HTTPRequest()
             make_constructor(
                 constructor, default_call_policies(),
                 (
-                    arg("method")=std::string(), arg("target")=std::string(),
+                    arg("method")=std::string(), arg("target")=URL(),
                     arg("http_version")="HTTP/1.0",
                     arg("headers")=dict(), arg("body")=std::string())))
         .def(
             "get_method", &HTTPRequest::get_method,
             return_value_policy<copy_const_reference>())
         .def("set_method", &HTTPRequest::set_method)
-        .def("get_target", &get_target)
-        .def("set_target", &set_target)
+        .def(
+            "get_target", &HTTPRequest::get_target,
+            return_value_policy<copy_const_reference>())
+        .def("set_target", &HTTPRequest::set_target)
         .def(
             "get_http_version", &HTTPRequest::get_http_version,
             return_value_policy<copy_const_reference>())
