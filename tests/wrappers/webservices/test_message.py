@@ -5,12 +5,12 @@ import odil
 class TestMessage(unittest.TestCase):
     def test_default_constructor(self):
         message = odil.webservices.Message()
-        self.assertEqual(message.get_headers(), {})
+        self.assertEqual(dict(message.get_headers()), {})
         self.assertEqual(message.get_body(), "")
 
     def test_full_constructor(self):
         message = odil.webservices.Message(headers={"foo": "bar"}, body="body")
-        self.assertEqual(message.get_headers(), {"foo": "bar"})
+        self.assertEqual(dict(message.get_headers()), {"foo": "bar"})
         self.assertEqual(message.get_body(), "body")
 
     def test_existing_header(self):
@@ -27,7 +27,8 @@ class TestMessage(unittest.TestCase):
     def test_set_headers(self):
         message = odil.webservices.Message()
         message.set_headers({"foo": "bar", "plip": "plop"})
-        self.assertEqual(message.get_headers(), {"foo": "bar", "plip": "plop"})
+        self.assertEqual(
+            dict(message.get_headers()), {"foo": "bar", "plip": "plop"})
 
     def test_modify_header(self):
         message = odil.webservices.Message({"foo": "bar", "plip": "plop"})

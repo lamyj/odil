@@ -10,44 +10,18 @@
 
 #include "odil/webservices/HTTPRequest.h"
 
-#include "headers.h"
-
-namespace
-{
-
-boost::shared_ptr<odil::webservices::HTTPRequest>
-constructor(
-    std::string const & method="",
-    odil::webservices::URL const & target=odil::webservices::URL(),
-    std::string const & http_version="HTTP/1.0",
-    boost::python::dict const & headers=boost::python::dict(),
-    std::string const & body=std::string())
-{
-    using namespace odil::webservices;
-
-    // Old versions of Boost.Python (Debian 7, Ubuntu 12.04) do not like
-    // std::shared_ptr
-    auto request = new HTTPRequest(
-        method, target, http_version, convert_headers(headers), body);
-    return boost::shared_ptr<HTTPRequest>(request);
-}
-
-}
-
 void wrap_webservices_HTTPRequest()
 {
     using namespace boost::python;
     using namespace odil::webservices;
 
-    class_<HTTPRequest, bases<Message>>("HTTPRequest", no_init)
-        .def(
-            "__init__",
-            make_constructor(
-                constructor, default_call_policies(),
-                (
-                    arg("method")=std::string(), arg("target")=URL(),
-                    arg("http_version")="HTTP/1.0",
-                    arg("headers")=dict(), arg("body")=std::string())))
+    class_<HTTPRequest, bases<Message>>(
+        "HTTPRequest",
+        init<std::string, URL, std::string, Message::Headers, std::string>((
+            arg("method")="", arg("target")=URL(),
+            arg("http_version")="HTTP/1.0", arg("headers")=Message::Headers(),
+            arg("body")=""
+        )))
         .def(
             "get_method", &HTTPRequest::get_method,
             return_value_policy<copy_const_reference>())

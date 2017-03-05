@@ -10,50 +10,20 @@
 
 #include "odil/webservices/Message.h"
 
-#include "headers.h"
-
-namespace
-{
-
-boost::shared_ptr<odil::webservices::Message>
-constructor(
-    boost::python::dict const & headers=boost::python::dict(),
-    std::string const & body=std::string())
-{
-    using namespace odil::webservices;
-
-    // Old versions of Boost.Python (Debian 7, Ubuntu 12.04) do not like
-    // std::shared_ptr
-    auto message = new Message(convert_headers(headers), body);
-    return boost::shared_ptr<Message>(message);
-}
-
-boost::python::dict get_headers(odil::webservices::Message const & message)
-{
-    return convert_headers(message.get_headers());
-}
-
-void set_headers(
-    odil::webservices::Message & message, boost::python::dict const & headers)
-{
-    message.set_headers(convert_headers(headers));
-}
-
-}
-
 void wrap_webservices_Message()
 {
     using namespace boost::python;
     using namespace odil::webservices;
 
-    class_<Message>("Message", no_init)
+    class_<Message>(
+        "Message",
+        init<Message::Headers, std::string>((
+            arg("headers")=Message::Headers(), arg("body")=""
+        )))
         .def(
-            "__init__",
-            make_constructor(
-                constructor, default_call_policies(),
-                (arg("headers")=dict(), arg("body")=std::string())))
-        .def("get_headers", &get_headers)
-        .def("set_headers", &set_headers)
+            "get_headers", &Message::get_headers,
+            return_value_policy<copy_const_reference>())
+        .def("set_headers", &Message::set_headers)
         .def("has_header", &Message::has_header)
         .def(
             "get_header", &Message::get_header,

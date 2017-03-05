@@ -8,6 +8,7 @@
 
 #include <boost/python.hpp>
 
+void wrap_std_map();
 void wrap_std_vector();
 
 void wrap_Association();
@@ -55,6 +56,7 @@ void wrap_webservices();
 
 BOOST_PYTHON_MODULE(odil)
 {
+    wrap_std_map();
     wrap_std_vector();
 
     wrap_Exception();

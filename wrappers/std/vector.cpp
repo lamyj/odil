@@ -22,11 +22,11 @@ struct vector_converter
     {
         using namespace boost::python;
         converter::registry::push_back(
-            &Self::convertible, &Self::construct_python, type_id<cpp_type>());
+            &Self::convertible, &Self::converter, type_id<cpp_type>());
 
         class_<cpp_type>(("vector_"+suffix).c_str())
             .def(init<>())
-            .def("__init__", make_constructor(&Self::construct_cpp))
+            .def("__init__", make_constructor(&Self::constructor))
             .def(vector_indexing_suite<cpp_type>())
         ;
     }
@@ -43,7 +43,7 @@ struct vector_converter
         }
     }
 
-    static void construct_python(
+    static void converter(
         PyObject * obj_ptr,
         boost::python::converter::rvalue_from_python_stage1_data * data)
     {
@@ -60,7 +60,7 @@ struct vector_converter
 
         for(auto i=0; i<len(obj); ++i)
         {
-            T value = extract<T>(obj[i]);
+            T const value = extract<T>(obj[i]);
             output->push_back(value);
         }
 
@@ -68,7 +68,7 @@ struct vector_converter
     }
 
     boost::shared_ptr<cpp_type>
-    construct_cpp(boost::python::object const & sequence)
+    constructor(boost::python::object const & sequence)
     {
         // Old versions of Boost.Python (Debian 7, Ubuntu 12.04) do not like
         // std::shared_ptr
