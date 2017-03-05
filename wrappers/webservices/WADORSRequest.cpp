@@ -81,12 +81,16 @@ void wrap_webservices_WADORSRequest()
         .def(self != self)
     ;
 
-    // FIXME: frames
-    class_<WADORSRequest::Selector>(
-            "Selector", init<std::string, std::string, std::string>())
+    scope wado_rs_request_selector_scope = class_<WADORSRequest::Selector>(
+            "Selector", init<
+                std::string, std::string, std::string, std::vector<int>
+            >((
+                arg("stduy")="", arg("series")="", arg("instance")="",
+                arg("frames")=std::vector<int>())))
         .def_readwrite("study", &WADORSRequest::Selector::study)
         .def_readwrite("series", &WADORSRequest::Selector::series)
         .def_readwrite("instance", &WADORSRequest::Selector::instance)
+        .def_readwrite("frames", &WADORSRequest::Selector::frames)
         .def("get_path", &WADORSRequest::Selector::get_path)
         .def(self == self)
         .def(self != self)

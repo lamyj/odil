@@ -8,6 +8,8 @@
 
 #include <boost/python.hpp>
 
+void wrap_std_vector();
+
 void wrap_Association();
 void wrap_AssociationParameters();
 void wrap_BasicDirectoryCreator();
@@ -53,6 +55,8 @@ void wrap_webservices();
 
 BOOST_PYTHON_MODULE(odil)
 {
+    wrap_std_vector();
+
     wrap_Exception();
 
     wrap_Association();
