@@ -16,6 +16,7 @@
 #include "odil/Association.h"
 #include "odil/DataSet.h"
 #include "odil/Exception.h"
+#include "odil/logging.h"
 #include "odil/StoreSCP.h"
 #include "odil/message/CMoveRequest.h"
 #include "odil/message/CMoveResponse.h"
@@ -175,6 +176,15 @@ MoveSCU
 ::_handle_main_association(MoveCallback callback) const
 {
     message::CMoveResponse const response = this->_association.receive_message();
+    if(message::Response::is_warning(response.get_status()))
+    {
+        ODIL_LOG(WARN) << "C-MOVE response status: " << response.get_status();
+    }
+    else if(message::Response::is_failure(response.get_status()))
+    {
+        ODIL_LOG(ERROR) << "C-MOVE response status: " << response.get_status();
+    }
+
     if(callback)
     {
         callback(response);

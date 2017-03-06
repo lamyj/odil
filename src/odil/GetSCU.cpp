@@ -15,6 +15,7 @@
 #include "odil/Association.h"
 #include "odil/DataSet.h"
 #include "odil/Exception.h"
+#include "odil/logging.h"
 #include "odil/StoreSCP.h"
 #include "odil/message/CGetRequest.h"
 #include "odil/message/CGetResponse.h"
@@ -100,6 +101,15 @@ GetSCU
 ::_handle_get_response(
     message::CGetResponse const & response, GetCallback callback) const
 {
+    if(message::Response::is_warning(response.get_status()))
+    {
+        ODIL_LOG(WARN) << "C-GET response status: " << response.get_status();
+    }
+    else if(message::Response::is_failure(response.get_status()))
+    {
+        ODIL_LOG(ERROR) << "C-GET response status: " << response.get_status();
+    }
+
     if(callback)
     {
         callback(response);

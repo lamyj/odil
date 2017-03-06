@@ -17,6 +17,7 @@
 #include "odil/message/CStoreResponse.h"
 #include "odil/DataSet.h"
 #include "odil/Exception.h"
+#include "odil/logging.h"
 #include "odil/registry.h"
 #include "odil/SCU.h"
 
@@ -107,6 +108,15 @@ StoreSCU
                 << response.get_affected_sop_instance_uid()
                 << " (expected: " << request.get_affected_sop_instance_uid() << ")";
         throw Exception(message.str());
+    }
+
+    if(message::Response::is_warning(response.get_status()))
+    {
+        ODIL_LOG(WARN) << "C-STORE response status: " << response.get_status();
+    }
+    else if(message::Response::is_failure(response.get_status()))
+    {
+        ODIL_LOG(ERROR) << "C-STORE response status: " << response.get_status();
     }
 }
 
