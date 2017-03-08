@@ -61,7 +61,7 @@ if(BUILD_TESTING)
     add_subdirectory("tests")
 endif()
 
-if(BUILD_WRAPPERS)
+if(BUILD_PYTHON_WRAPPERS OR BUILD_EMSCRIPTEN_WRAPPERS)
     add_subdirectory("wrappers")
 endif()
 
