@@ -15,6 +15,7 @@
 #include "odil/DataSet.h"
 #include "odil/Element.h"
 #include "odil/endian.h"
+#include "odil/odil.h"
 #include "odil/registry.h"
 #include "odil/Tag.h"
 #include "odil/Value.h"
@@ -24,7 +25,7 @@ namespace odil
 {
 
 /// @brief Write DICOM objects to a stream.
-class Writer
+class ODIL_API Writer
 {
 public:
     /// @brief Encodings of sequence items.
@@ -45,6 +46,19 @@ public:
     ItemEncoding item_encoding;
     /// @brief Presence of group length elements.
     bool use_group_length;
+
+    /**
+     * @brief Write binary data to an stream encoded with the given endianness,
+     * ensure stream is still good.
+     */
+    template<typename T>
+    static void write_binary(
+        T const & value, std::ostream & stream, ByteOrdering byte_ordering);
+
+    /// @brief Write pixel data in encapsulated form.
+    static void write_encapsulated_pixel_data(
+        Value::Binary const & value, std::ostream & stream,
+        ByteOrdering byte_ordering, bool explicit_vr);
 
     /// @brief Build a writer.
     Writer(
@@ -107,11 +121,11 @@ private:
 
         template<typename T>
         void write_strings(T const & sequence, char padding) const;
-
-        void write_encapsulated_pixel_data(Value::Binary const & value) const;
     };
 };
 
 }
+
+#include "odil/Writer.txx"
 
 #endif // _ca5c06d2_04f9_4009_9e98_5607e1060379

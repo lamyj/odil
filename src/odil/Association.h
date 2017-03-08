@@ -19,6 +19,7 @@
 #include "odil/AssociationParameters.h"
 #include "odil/dul/StateMachine.h"
 #include "odil/message/Message.h"
+#include "odil/odil.h"
 
 namespace odil
 {
@@ -26,7 +27,7 @@ namespace odil
 /**
  * @brief Association.
  */
-class Association
+class ODIL_API Association
 {
 public:
     /// @brief Association result (ITU-T X.227, PS 3.8, 7.1.1.7 and PS 3.8, 9.3.4).
@@ -74,6 +75,7 @@ public:
         NoPresentationServiceAccessPointAvailable=7,
     };
 
+    /// @brief Duration of the timeout.
     typedef dul::StateMachine::duration_type duration_type;
 
     /// @brief Create a default, un-associated, association.
@@ -85,6 +87,7 @@ public:
     /// @brief Destroy the association, release it if necessary.
     ~Association();
 
+    /// @brief Return the TCP transport.
     dul::Transport & get_transport();
 
     /// @brief Assing an un-associated association; it remains un-associated.
@@ -140,7 +143,7 @@ public:
     /// @brief Test whether the object is currently associated to its peer.
     bool is_associated() const;
 
-    /// @brief Request an association with the peer.
+    /// @brief Request an association with the peer. Throws an exception if the endpoint can not be reached.
     void associate();
 
     /// @brief Receive an association from a peer.
@@ -194,7 +197,11 @@ private:
     uint16_t _next_message_id;
 };
 
-class AssociationReleased: public Exception
+/** 
+ * @brief Exception reported when receiving a message after the association was
+ * released.
+ */
+class ODIL_API AssociationReleased: public Exception
 {
 public:
     AssociationReleased()
@@ -204,12 +211,20 @@ public:
     }
 };
 
-class AssociationAborted: public Exception
+/** 
+ * @brief Exception reported when receiving a message after the association was
+ * aborted.
+ */
+class ODIL_API AssociationAborted: public Exception
 {
 public:
+    /// @brief Source of the error.
     uint8_t source;
+    
+    /// @brief Reason of the error.
     uint8_t reason;
-
+    
+    /// @brief Constructor.
     AssociationAborted(unsigned char source, unsigned char reason)
     : Exception("Association aborted"), source(source), reason(reason)
     {

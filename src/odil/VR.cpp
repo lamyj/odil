@@ -89,7 +89,7 @@ std::string as_string(VR vr)
     }
     catch(std::out_of_range const &)
     {
-        throw Exception("Unknown VR");
+        throw Exception("Unknown VR: "+std::to_string(static_cast<int>(vr)));
     }
 }
 
@@ -141,7 +141,9 @@ bool is_string(VR vr)
 
 bool is_binary(VR vr)
 {
-    return (vr == VR::OB || vr == VR::OF || vr == VR::OW || vr == VR::UN);
+    return (
+        vr == VR::OB || vr == VR::OD || vr == VR::OF || vr == VR::OL ||
+        vr == VR::OW || vr == VR::UN);
 }
 
 

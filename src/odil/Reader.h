@@ -17,6 +17,7 @@
 #include "odil/DataSet.h"
 #include "odil/Element.h"
 #include "odil/endian.h"
+#include "odil/odil.h"
 #include "odil/Tag.h"
 #include "odil/Value.h"
 #include "odil/VR.h"
@@ -25,7 +26,7 @@ namespace odil
 {
 
 /// @brief Read DICOM objects from a stream.
-class Reader
+class ODIL_API Reader
 {
 public:
     /// @brief Input stream.
@@ -44,6 +45,21 @@ public:
     bool keep_group_length;
 
     /**
+     * @brief Read binary data from an stream encoded with the given endianness,
+     * ensure stream is still good.
+     */
+    template<typename T>
+    static T read_binary(std::istream & stream, ByteOrdering byte_ordering);
+
+    /// @brief Read pixel data in encapsulated form.
+    static Value::Binary read_encapsulated_pixel_data(
+        std::istream & stream, ByteOrdering byte_ordering,
+        std::string transfer_syntax, bool keep_group_length=false);
+
+    /// @brief Ignore data from a stream, ensure stream is still good.
+    static void ignore(std::istream & stream, std::streamsize size);
+
+    /**
      * @brief Build a reader, derive byte ordering and explicit-ness of VR
      * from transfer syntax.
      */
@@ -58,6 +74,9 @@ public:
     /// @brief Read a tag.
     Tag read_tag() const;
 
+    /// @brief Read the length of an element.
+    uint32_t read_length(VR vr) const;
+
     /**
      * @brief Read an element (VR and value), try to guess the VR from the tag,
      * partially read data set, and transfer syntax for implicit VR transfer
@@ -67,9 +86,11 @@ public:
         Tag const & tag=Tag(0xffff,0xffff),
         DataSet const & data_set=DataSet()) const;
 
+    /// @brief Return the meta-data header and data set stored in the stream.
     static std::pair<DataSet, DataSet> read_file(
         std::istream & stream,
-        bool keep_group_length=false);
+        bool keep_group_length=false,
+        std::function<bool(Tag const &)> halt_condition = [](Tag const &) { return false;});
 
 private:
     struct Visitor
@@ -78,6 +99,7 @@ private:
 
         std::istream & stream;
         VR vr;
+        uint32_t vl;
 
         std::string transfer_syntax;
         ByteOrdering byte_ordering;
@@ -85,8 +107,9 @@ private:
         bool keep_group_length;
 
         Visitor(
-            std::istream & stream, VR vr, std::string const & transfer_syntax,
-            ByteOrdering byte_ordering, bool explicit_vr, bool keep_group_length);
+            std::istream & stream, VR vr, uint32_t vl,
+            std::string const & transfer_syntax, ByteOrdering byte_ordering,
+            bool explicit_vr, bool keep_group_length);
 
         result_type operator()(Value::Integers & value) const;
         result_type operator()(Value::Reals & value) const;
@@ -94,7 +117,7 @@ private:
         result_type operator()(Value::DataSets & value) const;
         result_type operator()(Value::Binary & value) const;
 
-        uint32_t read_length() const;
+        // uint32_t read_length() const;
 
         Value::Strings split_strings(std::string const & string) const;
         DataSet read_item(std::istream & specific_stream) const;
@@ -104,5 +127,7 @@ private:
 };
 
 }
+
+#include "odil/Reader.txx"
 
 #endif // _aa2965aa_e891_4713_9c90_e8eacd2944ea

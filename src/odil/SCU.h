@@ -12,12 +12,13 @@
 #include <string>
 
 #include "odil/Association.h"
+#include "odil/odil.h"
 
 namespace odil
 {
 
 /// @brief Base class for all Service Class Users.
-class SCU
+class ODIL_API SCU
 {
 public:
     /// @brief Create a default Service Class User.
@@ -32,7 +33,9 @@ public:
     void set_affected_sop_class(std::string const & sop_class);
     
 protected:
+    /// @brief Association with peer.
     Association & _association;
+    
     /// @brief Affected SOP class.
     std::string _affected_sop_class;
 };

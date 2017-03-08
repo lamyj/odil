@@ -13,6 +13,7 @@
 #include <istream>
 #include <vector>
 
+#include "odil/odil.h"
 #include "odil/pdu/Object.h"
 
 namespace odil
@@ -22,10 +23,10 @@ namespace pdu
 {
 
 /// @brief P-DATA-TF PDU, cf. PS 3.8, 9.3.5.
-class PDataTF: public Object
+class ODIL_API PDataTF: public Object
 {
 public:
-    class PresentationDataValueItem: public Object
+    class ODIL_API PresentationDataValueItem: public Object
     {
     public:
         PresentationDataValueItem(

@@ -63,20 +63,24 @@ StoreSCP
     message::CStoreRequest const request(message);
 
     Value::Integer status=message::CStoreResponse::Success;
+    DataSet status_fields;
 
     try
     {
         status = this->_callback(request);
     }
-    catch(Exception const & exception)
+    catch(SCP::Exception const & e)
+    {
+        status = e.status;
+        status_fields = e.status_fields;
+    }
+    catch(odil::Exception const &)
     {
         status = message::CStoreResponse::ProcessingFailure;
-        // Error Comment
-        // Error ID
-        // Affected SOP Class UID
     }
 
-    message::CStoreResponse const response(request.get_message_id(), status);
+    message::CStoreResponse response(request.get_message_id(), status);
+    response.set_status_fields(status_fields);
     this->_association.send_message(
         response, request.get_affected_sop_class_uid());
 }

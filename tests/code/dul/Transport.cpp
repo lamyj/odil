@@ -41,5 +41,4 @@ BOOST_AUTO_TEST_CASE(NotConnected)
 
     BOOST_REQUIRE_THROW(transport.write("..."), odil::Exception);
     BOOST_REQUIRE_THROW(transport.read(1), odil::Exception);
-    BOOST_REQUIRE_THROW(transport.close(), odil::Exception);
 }

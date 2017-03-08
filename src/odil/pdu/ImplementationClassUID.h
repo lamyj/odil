@@ -13,6 +13,7 @@
 #include <istream>
 #include <string>
 
+#include "odil/odil.h"
 #include "odil/pdu/Object.h"
 
 namespace odil
@@ -22,7 +23,7 @@ namespace pdu
 {
 
 /// @brief Implementation Class UID Sub-Item (PS 3.7, D.3.3.2.1 and D.3.3.2.2).
-class ImplementationClassUID: public Object
+class ODIL_API ImplementationClassUID: public Object
 {
 public:
     /// @brief Item type.

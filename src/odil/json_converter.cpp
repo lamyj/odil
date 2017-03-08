@@ -15,15 +15,25 @@
 #include "odil/base64.h"
 #include "odil/DataSet.h"
 #include "odil/Exception.h"
+#include "odil/registry.h"
+#include "odil/unicode.h"
 #include "odil/Value.h"
 #include "odil/VR.h"
 
 namespace odil
 {
 
-struct ToJSONVisitor
+/// @brief Element visitor converting to JSON.
+class ToJSONVisitor
 {
+public:
     typedef Json::Value result_type;
+
+    ToJSONVisitor(odil::Value::Strings const & specific_char_set)
+    : _specific_character_set(specific_char_set)
+    {
+        // Nothing else.
+    }
 
     result_type operator()(VR const vr) const
     {
@@ -70,53 +80,16 @@ struct ToJSONVisitor
 
         if(vr == VR::PN)
         {
-            auto const fields = { "Alphabetic", "Ideographic", "Phonetic" };
-
             for(auto const item: value)
             {
-                auto fields_it = fields.begin();
-
-                Json::Value json_item;
-
-                std::string::size_type begin=0;
-                while(begin != std::string::npos)
-                {
-                    std::string::size_type const end = item.find("=", begin);
-
-                    std::string::size_type size = 0;
-                    if(end != std::string::npos)
-                    {
-                        size = end-begin;
-                    }
-                    else
-                    {
-                        size = std::string::npos;
-                    }
-
-                    json_item[*fields_it] = item.substr(begin, size);
-
-                    if(end != std::string::npos)
-                    {
-                        begin = end+1;
-                        ++fields_it;
-                        if(fields_it == fields.end())
-                        {
-                            throw Exception("Invalid Person Name");
-                        }
-                    }
-                    else
-                    {
-                        begin = end;
-                    }
-                }
-                result["Value"].append(json_item);
+                result["Value"].append(this->_convert_pn(item));
             }
         }
         else
         {
             for(auto const & item: value)
             {
-                result["Value"].append(item);
+                result["Value"].append(this->_convert_string(vr, item));
             }
         }
         return result;
@@ -157,20 +130,98 @@ struct ToJSONVisitor
 
         return result;
     }
+private:
+    odil::Value::Strings _specific_character_set;
 
+    std::string _convert_string(VR const vr, Value::String const & value) const
+    {
+        if(
+            vr != VR::LO && vr != VR::LT &&
+            vr != VR::PN && vr != odil::VR::SH &&
+            vr != VR::ST && vr != VR::UT)
+        {
+            // Nothing to do
+            return value;
+        }
+
+        return as_utf8(value, this->_specific_character_set, vr==VR::PN);
+    }
+
+    Json::Value _convert_pn(odil::Value::String const & value) const
+    {
+        static auto const fields = { "Alphabetic", "Ideographic", "Phonetic" };
+
+        Json::Value json;
+
+        auto fields_it = fields.begin();
+
+        std::string::size_type begin=0;
+        while(begin != std::string::npos)
+        {
+            std::string::size_type const end = value.find("=", begin);
+
+            std::string::size_type size = 0;
+            if(end != std::string::npos)
+            {
+                size = end-begin;
+            }
+            else
+            {
+                size = std::string::npos;
+            }
+
+            auto const component = value.substr(begin, size);
+            json[*fields_it] = this->_convert_string(odil::VR::PN, component);
+
+            if(end != std::string::npos)
+            {
+                begin = end+1;
+                ++fields_it;
+                if(fields_it == fields.end())
+                {
+                    throw Exception("Invalid Person Name");
+                }
+            }
+            else
+            {
+                begin = end;
+            }
+        }
+
+        return json;
+    }
 };
 
-Json::Value as_json(DataSet const & data_set)
+Json::Value as_json(
+    DataSet const & data_set,
+    odil::Value::Strings const & specific_character_set)
 {
+    auto current_specific_char_set = specific_character_set;
+
     Json::Value json;
 
     for(auto const & it: data_set)
     {
         auto const & tag = it.first;
+        if(tag.element == 0)
+        {
+            // Skip group length tags
+            continue;
+        }
+
         auto const & element = it.second;
 
+        // Specific character set
+        if(tag == registry::SpecificCharacterSet)
+        {
+            current_specific_char_set = element.as_string();
+        }
+
         std::string const key(tag);
-        auto const value = apply_visitor(ToJSONVisitor(), element);
+
+        ToJSONVisitor const visitor(current_specific_char_set);
+        auto const value = apply_visitor(visitor, element);
+
         json[key] = value;
     }
 
@@ -188,15 +239,10 @@ DataSet as_dataset(Json::Value const & json)
         Json::Value const & json_element = *it;
         VR const vr = as_vr(json_element["vr"].asString());
 
-        Element element;
+        Element element(vr);
 
-        if(vr == VR::AE || vr == VR::AS || vr == VR::AT || vr == VR::CS ||
-           vr == VR::DA || vr == VR::DT || vr == VR::LO || vr == VR::LT ||
-           vr == VR::SH || vr == VR::ST || vr == VR::TM || vr == VR::UI ||
-           vr == VR::UT)
+        if(odil::is_string(vr) && vr != odil::VR::PN)
         {
-            element = Element(Value::Strings(), vr);
-
             auto const & json_value = json_element["Value"];
             for(auto const & json_item: json_value)
             {
@@ -205,7 +251,6 @@ DataSet as_dataset(Json::Value const & json)
         }
         else if(vr == VR::PN)
         {
-            element = Element(Value::Strings(), vr);
             auto const & json_value = json_element["Value"];
             for(auto const & json_item: json_value)
             {   
@@ -228,21 +273,16 @@ DataSet as_dataset(Json::Value const & json)
                 element.as_string().push_back(dicom_item);
             }
         }
-        else if(vr == VR::DS || vr == VR::FD || vr == VR::FL)
+        else if(is_real(vr))
         {
-            element = Element(Value::Reals(), vr);
-
             auto const & json_value = json_element["Value"];
             for(auto const & json_item: json_value)
             {
                 element.as_real().push_back(json_item.asDouble());
             }
         }
-        else if(vr == VR::IS || vr == VR::SL || vr == VR::SS ||
-                vr == VR::UL || vr == VR::US)
+        else if(is_int(vr))
         {
-            element = Element(Value::Integers(), vr);
-
             auto const & json_value = json_element["Value"];
             for(auto const & json_item: json_value)
             {
@@ -251,7 +291,6 @@ DataSet as_dataset(Json::Value const & json)
         }
         else if(vr == VR::SQ)
         {
-            element = Element(Value::DataSets(), vr);
             auto const & json_value = json_element["Value"];
             for(auto const & json_item: json_value)
             {
@@ -259,10 +298,8 @@ DataSet as_dataset(Json::Value const & json)
                 element.as_data_set().push_back(dicom_item);
             }
         }
-        else if(vr == VR::OB || vr == VR::OF || vr == VR::OW || vr == VR::UN)
+        else if(is_binary(vr))
         {
-            element = Element(Value::Binary(), vr);
-
             // cf. ToJSONVisitor::operator()(VR, Value::Binary): InlineBinary is
             // single-valued
             auto const & encoded = json_element["InlineBinary"].asString();

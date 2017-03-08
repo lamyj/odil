@@ -12,6 +12,7 @@
 #include <functional>
 
 #include "odil/Association.h"
+#include "odil/odil.h"
 #include "odil/SCP.h"
 #include "odil/Value.h"
 #include "odil/message/CStoreRequest.h"
@@ -21,10 +22,13 @@ namespace odil
 {
 
 /// @brief SCP for C-Store services.
-class StoreSCP: public SCP
+class ODIL_API StoreSCP: public SCP
 {
 public:
-    /// @brief Callback called when a request is received.
+    /**
+     * @brief Callback called when a request is received, shall throw an
+     * SCP::Exception on error.
+     */
     typedef std::function<Value::Integer(message::CStoreRequest const &)> Callback;
 
     /// @brief Constructor.

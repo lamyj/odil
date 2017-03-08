@@ -128,8 +128,11 @@ Transport
     this->_start_deadline(source, error);
 
     this->_socket = std::make_shared<Socket>(this->_service);
-    boost::asio::ip::tcp::acceptor acceptor(this->_service, endpoint);
-    acceptor.async_accept(
+    this->_acceptor = std::make_shared<boost::asio::ip::tcp::acceptor>(
+        this->_service, endpoint);
+    boost::asio::socket_base::reuse_address option(true);
+    this->_acceptor->set_option(option);
+    this->_acceptor->async_accept(
         *this->_socket,
         [&source,&error](boost::system::error_code const & e)
         {
@@ -139,19 +142,25 @@ Transport
     );
 
     this->_run(source, error);
+
+    this->_acceptor = nullptr;
 }
 
 void
 Transport
 ::close()
 {
-    if(!this->is_open())
+    if(this->_acceptor && this->_acceptor->is_open())
     {
-        throw Exception("Not connected");
+        this->_acceptor->close();
+        this->_acceptor = nullptr;
     }
-
-    this->_socket->close();
-    this->_socket = nullptr;
+    if(this->is_open())
+    {
+        this->_socket->shutdown(boost::asio::ip::tcp::socket::shutdown_both);
+        this->_socket->close();
+        this->_socket = nullptr;
+    }
 }
 
 std::string

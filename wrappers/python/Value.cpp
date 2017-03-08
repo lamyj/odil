@@ -13,6 +13,11 @@
 #include "odil/DataSet.h"
 #include "odil/Value.h"
 
+#include "value_constructor.h"
+
+namespace
+{
+
 template<typename T, typename python_type=typename T::value_type>
 boost::shared_ptr<T> create_value(boost::python::object const & sequence)
 {
@@ -30,6 +35,21 @@ boost::shared_ptr<T> create_value(boost::python::object const & sequence)
     return boost::shared_ptr<T>(new T(values));
 }
 
+boost::python::object
+as_memory_view(odil::Value::Binary::value_type const & binary_item)
+{
+    Py_buffer buffer;
+    PyBuffer_FillInfo(
+        &buffer, nullptr,
+        const_cast<odil::Value::Binary::value_type::value_type*>(&binary_item[0]),
+        binary_item.size(), 1, PyBUF_SIMPLE);
+    PyObject * memory_view = PyMemoryView_FromBuffer(&buffer);
+
+    return boost::python::object(boost::python::handle<>(memory_view));
+}
+
+}
+
 void wrap_Value()
 {
     using namespace boost::python;
@@ -42,14 +62,11 @@ void wrap_Value()
     typedef Value::Binary & (Value::*AsBinary)();
 
     // Define scope to enclose Integers, Reals, etc. in Value
-    scope value_scope = class_<Value>("Value", init<>())
-        .def(init<Value::Integers>())
-        .def(init<Value::Reals>())
-        .def(init<Value::Strings>())
-        .def(init<Value::DataSets>())
-        .def(init<Value::Binary>())
-        .def("get_type", &Value::get_type)
+    scope value_scope = class_<Value>("Value", no_init)
+        .def("__init__", make_constructor(value_constructor))
+        .add_property("type", &Value::get_type)
         .def("empty", &Value::empty)
+        .def("size", &Value::size)
         .def(
             "as_integers", AsIntegers(&Value::as_integers), 
             return_value_policy<reference_existing_object>())
@@ -67,6 +84,16 @@ void wrap_Value()
             return_value_policy<reference_existing_object>())
         .def(self == self)
         .def(self != self)
+        .def("clear", &Value::clear)
+        .def("__len__", &Value::size)
+    ;
+    
+    enum_<Value::Type>("Type")
+        .value("Integers", Value::Type::Integers)
+        .value("Reals", Value::Type::Reals)
+        .value("Strings", Value::Type::Strings)
+        .value("DataSets", Value::Type::DataSets)
+        .value("Binary", Value::Type::Binary)
     ;
 
     class_<Value::Integers>("Integers")
@@ -99,6 +126,7 @@ void wrap_Value()
             "__init__",
             make_constructor(create_value<Value::Binary::value_type, char>))
         .def(vector_indexing_suite<Value::Binary::value_type>())
+        .def("get_memory_view", as_memory_view)
     ;
 
     class_<Value::Binary>("Binary")
@@ -107,4 +135,3 @@ void wrap_Value()
         .def(vector_indexing_suite<Value::Binary>())
     ;
 }
-

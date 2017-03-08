@@ -68,7 +68,7 @@ void run_server(Status * status, bool with_echo)
 
 void run_echo_client(Status * status)
 {
-    std::string command = "echoscu";
+    std::string command = "echoscu -ll error";
     command += " 127.0.0.1 11113";
     status->client = system(command.c_str());
 }

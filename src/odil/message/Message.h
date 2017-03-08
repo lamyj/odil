@@ -10,6 +10,7 @@
 #define _dcfa5213_ad7e_4194_8b4b_e630aa0df2e8
 
 #include "odil/DataSet.h"
+#include "odil/odil.h"
 #include "odil/registry.h"
 #include "odil/Value.h"
 
@@ -72,7 +73,7 @@ namespace message
 /**
  * @brief Base class for all DIMSE messages.
  */
-class Message
+class ODIL_API Message
 {
 public:
     struct Command

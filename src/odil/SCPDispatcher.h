@@ -13,13 +13,15 @@
 #include <memory>
 
 #include "odil/Association.h"
+#include "odil/odil.h"
 #include "odil/SCP.h"
 #include "odil/Value.h"
 
 namespace odil
 {
 
-class SCPDispatcher
+/// @brief Dispatch an incoming message to one of the registered SCPs.
+class ODIL_API SCPDispatcher
 {
 public:
     /// @brief Create a dispatcher with network and association.
@@ -28,18 +30,24 @@ public:
     /// @brief Destructor.
     ~SCPDispatcher();
 
+    /// @brief Test whether command has an SCP registered.
     bool has_scp(Value::Integer command) const;
 
+    /// @brief Return the SCP registered with command.
     std::shared_ptr<SCP> const & get_scp(Value::Integer command) const;
 
+    /// @brief Registered an SCP with command.
     void set_scp(Value::Integer command, std::shared_ptr<SCP> const & scp);
 
+    /// @brief Receive and dispatch an incoming message.
     void dispatch();
+
 private:
     typedef std::shared_ptr<SCP> SCPPointer;
 
     Association & _association;
-    std::map<Value::Integer, std::shared_ptr<SCP>> _providers;
+    std::map<Value::Integer, std::shared_ptr<SCP> > _providers;
+
 };
 
 }

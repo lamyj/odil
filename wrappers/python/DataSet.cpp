@@ -13,11 +13,54 @@
 
 #include "odil/DataSet.h"
 
-BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(add_overloads_2, odil::DataSet::add, 1, 2);
-BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(add_overloads_3, odil::DataSet::add, 2, 3);
+#include "value_constructor.h"
 
 namespace
 {
+
+void add(
+    odil::DataSet & data_set, odil::Tag const & tag,
+    boost::python::object value_python, odil::VR vr=odil::VR::UNKNOWN)
+{
+    auto const value_cpp = value_constructor(value_python);
+    if(vr == odil::VR::UNKNOWN)
+    {
+        vr = as_vr(tag);
+    }
+    data_set.add(tag, odil::Element(*value_cpp, vr));
+}
+
+void set(
+    odil::DataSet & data_set, odil::Tag const & tag,
+    boost::python::object value_python)
+{
+    auto const value_cpp = value_constructor(value_python);
+    if(value_cpp->get_type() == odil::Value::Type::Integers)
+    {
+        data_set.as_int(tag) = value_cpp->as_integers();
+    }
+    else if(value_cpp->get_type() == odil::Value::Type::Reals)
+    {
+        data_set.as_real(tag) = value_cpp->as_reals();
+    }
+    else if(value_cpp->get_type() == odil::Value::Type::Strings)
+    {
+        data_set.as_string(tag) = value_cpp->as_strings();
+    }
+    else if(value_cpp->get_type() == odil::Value::Type::DataSets)
+    {
+        data_set.as_data_set(tag) = value_cpp->as_data_sets();
+    }
+    else if(value_cpp->get_type() == odil::Value::Type::Binary)
+    {
+        data_set.as_binary(tag) = value_cpp->as_binary();
+    }
+    else
+    {
+        throw odil::Exception("Unknown value type");
+    }
+}
+
 
 class ConstIteratorAdapter
 {
@@ -124,94 +167,77 @@ boost::python::list items(odil::DataSet const & data_set)
 
 }
 
+BOOST_PYTHON_FUNCTION_OVERLOADS(add_overloads, add, 3, 4);
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(
+    add_overloads_member, odil::DataSet::add, 1, 2);
+
 void wrap_DataSet()
 {
     using namespace boost::python;
     using namespace odil;
 
 
-    class_<DataSet>("DataSet", init<>())
+    class_<DataSet>("DataSet")
+        .def(init<>())
+        .def(init<std::string>())
         .def(
-            "add", 
-            static_cast<void (DataSet::*)(Tag const &, Element const &)>(
-                &DataSet::add))
-        .def(
-            "add", 
+            "add",
             static_cast<void (DataSet::*)(Tag const &, VR)>(&DataSet::add),
-            add_overloads_2())
-        .def(
-            "add", 
-            static_cast<void (DataSet::*)(Tag const &, Value::Integers const &, VR)>(
-                &DataSet::add),
-            add_overloads_3())
-        .def(
-            "add", 
-            static_cast<void (DataSet::*)(Tag const &, Value::Reals const &, VR)>(
-                &DataSet::add),
-            add_overloads_3())
-        .def(
-            "add", 
-            static_cast<void (DataSet::*)(Tag const &, Value::Strings const &, VR)>(
-                &DataSet::add),
-            add_overloads_3())
-        .def(
-            "add", 
-            static_cast<void (DataSet::*)(Tag const &, Value::DataSets const &, VR)>(
-                &DataSet::add),
-            add_overloads_3())
-        .def(
-            "add", 
-            static_cast<void (DataSet::*)(Tag const &, Value::Binary const &, VR)>(
-                &DataSet::add),
-            add_overloads_3())
+            add_overloads_member())
+        .def("add", add, add_overloads())
         .def("remove", &DataSet::remove)
         .def("has", &DataSet::has)
         .def("empty", static_cast<bool (DataSet::*)() const>(&DataSet::empty))
         .def(
-            "size", 
+            "size",
             static_cast<std::size_t (DataSet::*)() const>(&DataSet::size))
         .def("get_vr", &DataSet::get_vr)
         .def(
-            "empty", 
+            "empty",
             static_cast<bool (DataSet::*)(Tag const &) const>(&DataSet::empty))
         .def(
-            "size", 
+            "size",
             static_cast<std::size_t (DataSet::*)(Tag const &) const>(
                 &DataSet::size))
         .def(
-            "__getitem__", 
+            "__getitem__",
             static_cast<Element & (DataSet::*)(Tag const&)>(&DataSet::operator[]),
             return_value_policy<reference_existing_object>())
         .def("is_int", &DataSet::is_int)
         .def(
-            "as_int", 
+            "as_int",
             static_cast<Value::Integers & (DataSet::*)(Tag const &)>(
-                &DataSet::as_int), 
+                &DataSet::as_int),
             return_value_policy<reference_existing_object>())
         .def("is_real", &DataSet::is_real)
         .def(
-            "as_real", 
+            "as_real",
             static_cast<Value::Reals & (DataSet::*)(Tag const &)>(
-                &DataSet::as_real), 
+                &DataSet::as_real),
             return_value_policy<reference_existing_object>())
         .def("is_string", &DataSet::is_string)
         .def(
-            "as_string", 
+            "as_string",
             static_cast<Value::Strings & (DataSet::*)(Tag const &)>(
-                &DataSet::as_string), 
+                &DataSet::as_string),
             return_value_policy<reference_existing_object>())
         .def("is_data_set", &DataSet::is_data_set)
         .def(
-            "as_data_set", 
+            "as_data_set",
             static_cast<Value::DataSets & (DataSet::*)(Tag const &)>(
-                &DataSet::as_data_set), 
+                &DataSet::as_data_set),
             return_value_policy<reference_existing_object>())
         .def("is_binary", &DataSet::is_binary)
         .def(
-            "as_binary", 
+            "as_binary",
             static_cast<Value::Binary & (DataSet::*)(Tag const &)>(
-                &DataSet::as_binary), 
+                &DataSet::as_binary),
             return_value_policy<reference_existing_object>())
+        .def(
+            "get_transfer_syntax", &DataSet::get_transfer_syntax,
+            return_value_policy<copy_const_reference>())
+        .def("set_transfer_syntax", &DataSet::set_transfer_syntax)
+        .def("set", &set)
         .def("keys", &keys)
         .def("__iter__", range(&begin, &end))
         .def("values", &values)
@@ -219,7 +245,9 @@ void wrap_DataSet()
         .def(self == self)
         .def(self != self)
         .def(
-            "__len__", 
-            static_cast<std::size_t (DataSet::*)() const>(&DataSet::size)) 
+            "__len__",
+            static_cast<std::size_t (DataSet::*)() const>(&DataSet::size))
+        .def("clear", &DataSet::clear)
     ;
 }
+

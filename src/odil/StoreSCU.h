@@ -11,13 +11,14 @@
 
 #include "odil/Association.h"
 #include "odil/DataSet.h"
+#include "odil/odil.h"
 #include "odil/SCU.h"
 
 namespace odil
 {
 
 /// @brief SCU for C-Store services.
-class StoreSCU: public SCU
+class ODIL_API StoreSCU: public SCU
 {
 public:
     /// @brief Constructor.
@@ -28,9 +29,14 @@ public:
     
     /// @brief Set the affected SOP class based on the dataset.
     void set_affected_sop_class(DataSet const & dataset);
+
+	using SCU::set_affected_sop_class;
     
     /// @brief Perform the C-STORE.
-    void store(DataSet const & dataset) const;
+    void store(
+        DataSet const & dataset,
+        Value::String const & move_originator_ae_title = "",
+        Value::Integer move_originator_message_id = -1) const;
 };
 
 }

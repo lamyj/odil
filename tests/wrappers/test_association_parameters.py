@@ -12,7 +12,7 @@ class TestAssociationParameters(unittest.TestCase):
         user_identity = parameters.get_user_identity()
         self.assertEqual(
             user_identity.type, 
-            odil.AssociationParameters.UserIdentity.Type.None)
+            getattr(odil.AssociationParameters.UserIdentity.Type, "None"))
 
         self.assertEqual(parameters.get_maximum_length(), 16384)
 
@@ -27,11 +27,8 @@ class TestAssociationParameters(unittest.TestCase):
         self.assertEqual(parameters.get_calling_ae_title(), "foo")
 
     def test_presentation_contexts(self):
-        presentation_context = odil.AssociationParameters.PresentationContext()
-        presentation_context.id = 1
-        presentation_context.abstract_syntax = "foo"
-        presentation_context.transfer_syntaxes.append("bar")
-
+        presentation_context = odil.AssociationParameters.PresentationContext(
+            1, "foo", ["bar"], True, False)
         parameters = odil.AssociationParameters()
         parameters.set_presentation_contexts([presentation_context])
 
@@ -88,7 +85,7 @@ class TestAssociationParameters(unittest.TestCase):
         user_identity = parameters.get_user_identity()
         self.assertEqual(
             user_identity.type, 
-            odil.AssociationParameters.UserIdentity.Type.None)
+            getattr(odil.AssociationParameters.UserIdentity.Type, "None"))
 
     def test_maximum_length(self):
         parameters = odil.AssociationParameters()

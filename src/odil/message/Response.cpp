@@ -92,6 +92,23 @@ Response
     return Response::is_failure(this->get_status());
 }
 
+void
+Response
+::set_status_fields(DataSet const & status_fields)
+{
+    for(auto const & tag_and_element: status_fields)
+    {
+        if(this->_command_set.has(tag_and_element.first))
+        {
+            this->_command_set[tag_and_element.first] = tag_and_element.second;
+        }
+        else
+        {
+            this->_command_set.add(tag_and_element.first, tag_and_element.second);
+        }
+    }
+}
+
 }
 
 }

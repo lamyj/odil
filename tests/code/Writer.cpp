@@ -107,7 +107,7 @@ BOOST_AUTO_TEST_CASE(CS)
 
 BOOST_AUTO_TEST_CASE(DS)
 {
-    odil::Element odil_element({1.23, -4.56}, odil::VR::DS);
+    odil::Element odil_element({24.5282145946261, -4.56}, odil::VR::DS);
     odil::DataSet odil_data_set;
     odil_data_set.add(odil::registry::SelectorDSValue, odil_element);
 

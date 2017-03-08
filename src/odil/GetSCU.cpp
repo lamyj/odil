@@ -15,6 +15,7 @@
 #include "odil/Association.h"
 #include "odil/DataSet.h"
 #include "odil/Exception.h"
+#include "odil/logging.h"
 #include "odil/StoreSCP.h"
 #include "odil/message/CGetRequest.h"
 #include "odil/message/CGetResponse.h"
@@ -38,7 +39,9 @@ GetSCU
 
 void
 GetSCU
-::get(DataSet const & query, Callback callback) const
+::get(
+    DataSet const & query, StoreCallback store_callback,
+    GetCallback get_callback) const
 {
     // Send the request
     message::CGetRequest request(
@@ -54,14 +57,15 @@ GetSCU
 
         if(message.get_command_field() == message::Message::Command::C_GET_RSP)
         {
-            done = this->_handle_get_response(message::CGetResponse(message));
+            done = this->_handle_get_response(
+                message::CGetResponse(message), get_callback);
         }
         else if(message.get_command_field() == message::Message::Command::C_STORE_RQ)
         {
             try
             {
                 this->_handle_store_request(
-                    message::CStoreRequest(message), callback);
+                    message::CStoreRequest(message), store_callback);
             }
             catch(...)
             {
@@ -94,18 +98,35 @@ GetSCU
 
 bool
 GetSCU
-::_handle_get_response(message::CGetResponse const & response) const
+::_handle_get_response(
+    message::CGetResponse const & response, GetCallback callback) const
 {
+    if(message::Response::is_warning(response.get_status()))
+    {
+        ODIL_LOG(WARN) << "C-GET response status: " << response.get_status();
+    }
+    else if(message::Response::is_failure(response.get_status()))
+    {
+        ODIL_LOG(ERROR) << "C-GET response status: " << response.get_status();
+    }
+
+    if(callback)
+    {
+        callback(response);
+    }
     return !response.is_pending();
 }
 
 void
 GetSCU
 ::_handle_store_request(
-    message::CStoreRequest const & request, Callback callback) const
+    message::CStoreRequest const & request, StoreCallback callback) const
 {
     auto const store_callback = [&callback](message::CStoreRequest const & request) {
-        callback(request.get_data_set());
+        if(callback)
+        {
+            callback(request.get_data_set());
+        }
         return message::Response::Success;
     };
     StoreSCP scp(this->_association, store_callback);

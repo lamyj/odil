@@ -9,6 +9,7 @@
 #ifndef _7e193624_081c_47dd_a011_986e96916ea9
 #define _7e193624_081c_47dd_a011_986e96916ea9
 
+#include "odil/odil.h"
 #include "odil/registry.h"
 #include "odil/message/Response.h"
 #include "odil/Value.h"
@@ -20,7 +21,7 @@ namespace message
 {
 
 /// @brief C-STORE-RSP message.
-class CStoreResponse: public Response
+class ODIL_API CStoreResponse: public Response
 {
 public:
     /// @brief C-STORE status codes, PS 3.4, B.2.3

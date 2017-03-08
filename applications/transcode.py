@@ -1,3 +1,4 @@
+import argparse
 import logging
 
 import odil
@@ -5,7 +6,8 @@ import odil
 def add_subparser(subparsers):
     parser = subparsers.add_parser(
         "transcode",
-        help="Change the transfer syntax or the format")
+        help="Change the transfer syntax or the format",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("input", help="Input file name")
     parser.add_argument("output", help="Output file name")
     parser.add_argument(

@@ -43,7 +43,7 @@ Exception
 
 char const *
 Exception
-::what() const throw()
+::what() const noexcept
 {
     if(this->_source == Source::Message)
     {

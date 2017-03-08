@@ -14,6 +14,7 @@
 #include <vector>
 
 #include "odil/DataSet.h"
+#include "odil/odil.h"
 #include "odil/Tag.h"
 #include "odil/VR.h"
 
@@ -21,7 +22,7 @@ namespace odil
 {
 
 /// @brief Find the VR of elements in an implicit VR data set.
-class VRFinder
+class ODIL_API VRFinder
 {
 public:
     /**
@@ -66,6 +67,11 @@ public:
 
     /// @brief Return the VR of elements defined in PS3.5, A.1 (c).
     static VR implicit_vr_little_endian(
+        Tag const & tag, DataSet const & data_set,
+        std::string const & transfer_syntax);
+    
+    /// @brief Return the VR of elements defined in PS3.5, A.2 (c).
+    static VR explicit_vr_little_endian(
         Tag const & tag, DataSet const & data_set,
         std::string const & transfer_syntax);
 

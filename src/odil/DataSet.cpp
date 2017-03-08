@@ -22,56 +22,37 @@ namespace odil
 {
 
 DataSet
-::DataSet()
+::DataSet(std::string const & transfer_syntax)
+: _transfer_syntax(transfer_syntax)
 {
-    // Nothing to do.
+    // Nothing else.
 }
 
 void
 DataSet
 ::add(Tag const & tag, Element const & element)
 {
-    this->_elements[tag] = element;
+    auto const iterator = this->_elements.find(tag);
+    if(iterator == this->_elements.end())
+    {
+        this->_elements.insert({tag, element});
+    }
+    else
+    {
+        iterator->second = element;
+    }
 }
-
 
 void
 DataSet
 ::add(Tag const & tag, VR vr)
 {
-    Value value;
-
     if(vr == VR::UNKNOWN)
     {
         vr = as_vr(tag);
     }
 
-    if(::odil::is_int(vr))
-    {
-        value = Value::Integers();
-    }
-    else if(::odil::is_real(vr))
-    {
-        value = Value::Reals();
-    }
-    else if(::odil::is_string(vr))
-    {
-        value = Value::Strings();
-    }
-    else if(::odil::is_binary(vr))
-    {
-        value = Value::Binary();
-    }
-    else if(vr == VR::SQ)
-    {
-        value = Value::DataSets();
-    }
-    else
-    {
-        throw Exception("Unknown VR: "+::odil::as_string(vr));
-    }
-
-    this->add(tag, Element(value, vr));
+    this->add(tag, Element(vr));
 }
 
 void
@@ -194,7 +175,7 @@ DataSet
 {
     if(!this->has(tag))
     {
-        throw Exception("No such element");
+        throw Exception("No such element " + std::string( tag ));
     }
 
     this->_elements.erase(tag);
@@ -221,7 +202,7 @@ DataSet
     ElementMap::const_iterator const it = this->_elements.find(tag);
     if(it == this->_elements.end())
     {
-        throw Exception("No such element");
+        throw Exception("No such element " + std::string( tag ));
     }
 
     return it->second;
@@ -234,10 +215,161 @@ DataSet
     ElementMap::iterator it = this->_elements.find(tag);
     if(it == this->_elements.end())
     {
-        throw Exception("No such element");
+        throw Exception("No such element " + std::string( tag ));
     }
 
     return it->second;
+}
+
+template<typename TContainer>
+typename TContainer::value_type const & at_pos(
+    TContainer const & container, unsigned int position)
+{
+    if(container.size() <= position)
+    {
+        throw Exception("No such element");
+    }
+    return container[position];
+}
+
+bool
+DataSet
+::is_int(Tag const & tag) const
+{
+    return (*this)[tag].is_int();
+}
+
+Value::Integers const &
+DataSet
+::as_int(Tag const & tag) const
+{
+    return (*this)[tag].as_int();
+}
+
+Value::Integers &
+DataSet
+::as_int(Tag const & tag)
+{
+    return (*this)[tag].as_int();
+}
+
+Value::Integer const &
+DataSet
+::as_int(Tag const & tag, unsigned int position) const
+{
+    return at_pos(as_int(tag), position);
+}
+
+bool
+DataSet
+::is_real(Tag const & tag) const
+{
+    return (*this)[tag].is_real();
+}
+
+Value::Reals const &
+DataSet
+::as_real(Tag const & tag) const
+{
+    return (*this)[tag].as_real();
+}
+
+Value::Reals &
+DataSet
+::as_real(Tag const & tag)
+{
+    return (*this)[tag].as_real();
+}
+
+Value::Real const &
+DataSet
+::as_real(Tag const & tag, unsigned int position) const
+{
+    return at_pos(as_real(tag), position);
+}
+
+bool
+DataSet
+::is_string(Tag const & tag) const
+{
+    return (*this)[tag].is_string();
+}
+
+Value::Strings const &
+DataSet
+::as_string(Tag const & tag) const
+{
+    return (*this)[tag].as_string();
+}
+
+Value::Strings &
+DataSet
+::as_string(Tag const & tag)
+{
+    return (*this)[tag].as_string();
+}
+
+Value::String const &
+DataSet
+::as_string(Tag const & tag, unsigned int position) const
+{
+    return at_pos(as_string(tag), position);
+}
+
+bool
+DataSet
+::is_data_set(Tag const & tag) const
+{
+    return (*this)[tag].is_data_set();
+}
+
+Value::DataSets const &
+DataSet
+::as_data_set(Tag const & tag) const
+{
+    return (*this)[tag].as_data_set();
+}
+
+Value::DataSets &
+DataSet
+::as_data_set(Tag const & tag)
+{
+    return (*this)[tag].as_data_set();
+}
+
+DataSet const &
+DataSet
+::as_data_set(Tag const & tag, unsigned int position) const
+{
+    return at_pos(as_data_set(tag), position);
+}
+
+bool
+DataSet
+::is_binary(Tag const & tag) const
+{
+    return (*this)[tag].is_binary();
+}
+
+Value::Binary const &
+DataSet
+::as_binary(Tag const & tag) const
+{
+    return (*this)[tag].as_binary();
+}
+
+Value::Binary &
+DataSet
+::as_binary(Tag const & tag)
+{
+    return (*this)[tag].as_binary();
+}
+
+Value::Binary::value_type const &
+DataSet
+::as_binary(Tag const & tag, unsigned int position) const
+{
+    return at_pos(as_binary(tag), position);
 }
 
 bool
@@ -254,7 +386,7 @@ DataSet
     ElementMap::const_iterator const it = this->_elements.find(tag);
     if(it == this->_elements.end())
     {
-        throw Exception("No such element");
+        throw Exception("No such element "+  std::string(tag) );
     }
 
     return it->second.vr;
@@ -267,7 +399,7 @@ DataSet
     ElementMap::const_iterator const it = this->_elements.find(tag);
     if(it == this->_elements.end())
     {
-        throw Exception("No such element");
+        throw Exception("No such element " + std::string( tag ) );
     }
 
     return it->second.empty();
@@ -280,10 +412,24 @@ DataSet
     ElementMap::const_iterator const it = this->_elements.find(tag);
     if(it == this->_elements.end())
     {
-        throw Exception("No such element");
+        throw Exception("No such element " + std::string( tag ));
     }
 
     return it->second.size();
+}
+
+DataSet::const_iterator
+DataSet
+::begin() const
+{
+    return this->_elements.begin();
+}
+
+DataSet::const_iterator
+DataSet
+::end() const
+{
+    return this->_elements.end();
 }
 
 bool
@@ -298,6 +444,33 @@ DataSet
 ::operator!=(DataSet const & other) const
 {
     return !(*this == other);
+}
+
+void
+DataSet
+::clear(Tag const & tag)
+{
+    ElementMap::iterator const it = this->_elements.find(tag);
+    if(it == this->_elements.end())
+    {
+        throw Exception("No such element: "+std::string(tag));
+    }
+
+    it->second.clear();
+}
+
+std::string const &
+DataSet
+::get_transfer_syntax() const
+{
+    return _transfer_syntax;
+}
+
+void
+DataSet
+::set_transfer_syntax(std::string const & transfer_syntax)
+{
+    this->_transfer_syntax = transfer_syntax;
 }
 
 }

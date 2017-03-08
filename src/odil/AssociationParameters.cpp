@@ -18,14 +18,30 @@
 #include "odil/pdu/AAssociateRQ.h"
 #include "odil/Exception.h"
 #include "odil/uid.h"
+#include "odil/pdu/AsynchronousOperationsWindow.h"
 #include "odil/pdu/ImplementationClassUID.h"
 #include "odil/pdu/ImplementationVersionName.h"
 #include "odil/pdu/PresentationContextAC.h"
 #include "odil/pdu/PresentationContextRQ.h"
 #include "odil/pdu/RoleSelection.h"
+#include "odil/pdu/SOPClassExtendedNegotiation.h"
+#include "odil/pdu/SOPClassCommonExtendedNegotiation.h"
 
 namespace odil
 {
+
+AssociationParameters::PresentationContext
+::PresentationContext(
+    uint8_t id,
+    std::string const & abstract_syntax,
+    std::vector<std::string> const & transfer_syntaxes,
+    bool scu_role_support, bool scp_role_support, Result result)
+: id(id), abstract_syntax(abstract_syntax), transfer_syntaxes(transfer_syntaxes),
+  scu_role_support(scu_role_support), scp_role_support(scp_role_support),
+  result(result)
+{
+    // Nothing else.
+}
 
 bool 
 AssociationParameters::PresentationContext
@@ -39,6 +55,22 @@ AssociationParameters::PresentationContext
         this->scp_role_support == other.scp_role_support &&
         this->result == other.result
     );
+}
+
+AssociationParameters::UserIdentity
+::UserIdentity()
+: type(UserIdentity::Type::None), primary_field(), secondary_field()
+{
+    // Nothing else.
+}
+
+AssociationParameters::UserIdentity
+::UserIdentity(
+    Type type, std::string const & primary_field,
+    std::string const & secondary_field)
+: type(type), primary_field(primary_field), secondary_field(secondary_field)
+{
+    // Nothing else.
 }
 
 bool 
@@ -73,13 +105,19 @@ AssociationParameters::UserIdentity
 AssociationParameters
 ::AssociationParameters()
 : _called_ae_title(""), _calling_ae_title(""), _presentation_contexts(),
-  _user_identity({UserIdentity::Type::None, "", ""}), _maximum_length(16384)
+  _user_identity({UserIdentity::Type::None, "", ""}), _maximum_length(16384),
+  _maximum_number_operations_invoked(1), _maximum_number_operations_performed(1),
+  _sop_class_extended_negotiation(), _sop_class_common_extended_negotiation()
 {
     // Nothing else.
 }
 
 AssociationParameters
 ::AssociationParameters(pdu::AAssociateRQ const & pdu)
+: _called_ae_title(""), _calling_ae_title(""), _presentation_contexts(),
+  _user_identity({UserIdentity::Type::None, "", ""}), _maximum_length(16384),
+  _maximum_number_operations_invoked(1), _maximum_number_operations_performed(1),
+  _sop_class_extended_negotiation(), _sop_class_common_extended_negotiation()
 {
     this->set_called_ae_title(pdu.get_called_ae_title());
     this->set_calling_ae_title(pdu.get_calling_ae_title());
@@ -103,19 +141,12 @@ AssociationParameters
     pcs_parameters.reserve(pcs_pdu.size());
     for(auto const & pc_pdu: pcs_pdu)
     {
-        AssociationParameters::PresentationContext pc_parameters;
-
-        pc_parameters.id = pc_pdu.get_id();
-        pc_parameters.abstract_syntax = pc_pdu.get_abstract_syntax();
-        pc_parameters.transfer_syntaxes = pc_pdu.get_transfer_syntaxes();
-
         auto const it = roles_map.find(pc_pdu.get_abstract_syntax());
-        pc_parameters.scu_role_support =
-            (it!=roles_map.end())?it->second.first:true;
-        pc_parameters.scp_role_support =
-            (it!=roles_map.end())?it->second.second:false;
-
-        pcs_parameters.push_back(pc_parameters);
+        pcs_parameters.emplace_back(
+            pc_pdu.get_id(),
+            pc_pdu.get_abstract_syntax(), pc_pdu.get_transfer_syntaxes(),
+            (it!=roles_map.end())?it->second.first:true,
+            (it!=roles_map.end())?it->second.second:false);
     }
     this->set_presentation_contexts(pcs_parameters);
 
@@ -154,11 +185,29 @@ AssociationParameters
     {
         this->set_maximum_length(maximum_length[0].get_maximum_length());
     }
+
+    // Maximum number of operations performed/invoked
+    auto const asynchronous_operations_window =
+        user_information.get_sub_items<pdu::AsynchronousOperationsWindow>();
+    if(!asynchronous_operations_window.empty())
+    {
+        this->_maximum_number_operations_invoked =
+            asynchronous_operations_window[0].get_maximum_number_operations_invoked();
+        this->_maximum_number_operations_performed =
+            asynchronous_operations_window[0].get_maximum_number_operations_performed();
+    }
+    
+    this->_sop_class_common_extended_negotiation =
+        user_information.get_sub_items<pdu::SOPClassCommonExtendedNegotiation>();
 }
 
 AssociationParameters
 ::AssociationParameters(
     pdu::AAssociateAC const & pdu, AssociationParameters const & request)
+: _called_ae_title(""), _calling_ae_title(""), _presentation_contexts(),
+  _user_identity({UserIdentity::Type::None, "", ""}), _maximum_length(16384),
+  _maximum_number_operations_invoked(1), _maximum_number_operations_performed(1),
+  _sop_class_extended_negotiation(), _sop_class_common_extended_negotiation()
 {
     // Calling and Called AE titles are not meaningful in A-ASSOCIATE-AC
     this->set_called_ae_title(request.get_called_ae_title());
@@ -171,7 +220,7 @@ AssociationParameters
     std::map<uint8_t, PresentationContext> pcs_request_map;
     for(auto const & pc: pcs_request)
     {
-        pcs_request_map[pc.id] = pc;
+        pcs_request_map.insert({pc.id, pc});
     }
 
     auto const & pcs_pdu = pdu.get_presentation_contexts();
@@ -190,23 +239,16 @@ AssociationParameters
     pcs_parameters.reserve(pcs_pdu.size());
     for(auto const & pc_pdu: pcs_pdu)
     {
-        AssociationParameters::PresentationContext pc_parameters;
         auto const & pc_request = pcs_request_map.at(pc_pdu.get_id());
-
-        pc_parameters.id = pc_pdu.get_id();
-        pc_parameters.abstract_syntax = pc_request.abstract_syntax;
-        pc_parameters.transfer_syntaxes = { pc_pdu.get_transfer_syntax() };
-
         auto const it = roles_map.find(pc_request.abstract_syntax);
-        pc_parameters.scu_role_support =
-            (it!=roles_map.end())?it->second.first:pc_request.scu_role_support;
-        pc_parameters.scp_role_support =
-            (it!=roles_map.end())?it->second.second:pc_request.scp_role_support;
 
-        pc_parameters.result =
-            static_cast<PresentationContext::Result>(pc_pdu.get_result_reason());
-
-        pcs_parameters.push_back(pc_parameters);
+        pcs_parameters.emplace_back(
+            pc_pdu.get_id(),
+            pc_request.abstract_syntax,
+            std::vector<std::string>{ pc_pdu.get_transfer_syntax() },
+            (it!=roles_map.end())?it->second.first:pc_request.scu_role_support,
+            (it!=roles_map.end())?it->second.second:pc_request.scp_role_support,
+            static_cast<PresentationContext::Result>(pc_pdu.get_result_reason()));
     }
     this->set_presentation_contexts(pcs_parameters);
 
@@ -235,6 +277,19 @@ AssociationParameters
     {
         this->set_maximum_length(maximum_length[0].get_maximum_length());
     }
+
+    // Maximum number of operations performed/invoked
+    auto const asynchronous_operations_window =
+        user_information.get_sub_items<pdu::AsynchronousOperationsWindow>();
+    if(!asynchronous_operations_window.empty())
+    {
+        this->_maximum_number_operations_invoked =
+            asynchronous_operations_window[0].get_maximum_number_operations_invoked();
+        this->_maximum_number_operations_performed =
+            asynchronous_operations_window[0].get_maximum_number_operations_performed();
+    }
+    
+    // No SOPClassCommonExtendedNegotiation in AC
 }
 
 std::string const &
@@ -367,6 +422,66 @@ AssociationParameters
     return *this;
 }
 
+uint16_t
+AssociationParameters
+::get_maximum_number_operations_invoked() const
+{
+    return this->_maximum_number_operations_invoked;
+}
+
+AssociationParameters &
+AssociationParameters
+::set_maximum_number_operations_invoked(uint16_t value)
+{
+    this->_maximum_number_operations_invoked = value;
+    return *this;
+}
+
+uint16_t
+AssociationParameters
+::get_maximum_number_operations_performed() const
+{
+    return this->_maximum_number_operations_performed;
+}
+
+AssociationParameters &
+AssociationParameters
+::set_maximum_number_operations_performed(uint16_t value)
+{
+    this->_maximum_number_operations_performed = value;
+    return *this;
+}
+
+std::vector<pdu::SOPClassExtendedNegotiation>
+AssociationParameters
+::get_sop_class_extended_negotiation() const
+{
+    return this->_sop_class_extended_negotiation;
+}
+
+void
+AssociationParameters
+::set_sop_class_extended_negotiation(
+    std::vector<pdu::SOPClassExtendedNegotiation> const & value)
+{
+    this->_sop_class_extended_negotiation = value;
+}
+
+std::vector<pdu::SOPClassCommonExtendedNegotiation>
+AssociationParameters
+::get_sop_class_common_extended_negotiation() const
+{
+    return this->_sop_class_common_extended_negotiation;
+}
+
+void 
+AssociationParameters
+::set_sop_class_common_extended_negotiation(
+    std::vector<pdu::SOPClassCommonExtendedNegotiation> const & value)
+{
+    this->_sop_class_common_extended_negotiation = value;
+}
+
 pdu::AAssociateRQ
 AssociationParameters
 ::as_a_associate_rq() const
@@ -402,6 +517,22 @@ AssociationParameters
 
     user_information.set_sub_items<pdu::ImplementationClassUID>(
         {implementation_class_uid});
+
+    if(this->_maximum_number_operations_invoked != 1 ||
+        this->_maximum_number_operations_performed != 1)
+    {
+        user_information.set_sub_items<pdu::AsynchronousOperationsWindow>({{
+            this->_maximum_number_operations_invoked,
+            this->_maximum_number_operations_performed
+        }});
+    }
+
+    user_information.set_sub_items<pdu::SOPClassExtendedNegotiation>(
+        this->_sop_class_extended_negotiation);
+    
+    user_information.set_sub_items<pdu::SOPClassCommonExtendedNegotiation>(
+        this->_sop_class_common_extended_negotiation);
+
     user_information.set_sub_items<pdu::ImplementationVersionName>(
         {implementation_version_name});
 
@@ -470,6 +601,21 @@ AssociationParameters
 
     user_information.set_sub_items<pdu::ImplementationClassUID>(
         {implementation_class_uid});
+
+    if(this->_maximum_number_operations_invoked != 1 ||
+        this->_maximum_number_operations_performed != 1)
+    {
+        user_information.set_sub_items<pdu::AsynchronousOperationsWindow>({{
+            this->_maximum_number_operations_invoked,
+            this->_maximum_number_operations_performed
+        }});
+    }
+    
+    user_information.set_sub_items<pdu::SOPClassExtendedNegotiation>(
+        this->_sop_class_extended_negotiation);
+
+    // No SOPClassCommonExtendedNegotiation in AC
+
     user_information.set_sub_items<pdu::ImplementationVersionName>(
         {implementation_version_name});
 
@@ -498,7 +644,15 @@ AssociationParameters
         this->get_calling_ae_title() == other.get_calling_ae_title() &&
         this->get_presentation_contexts() == other.get_presentation_contexts() &&
         this->get_user_identity() == other.get_user_identity() &&
-        this->get_maximum_length() == other.get_maximum_length()
+        this->get_maximum_length() == other.get_maximum_length() &&
+        this->get_maximum_number_operations_invoked() ==
+            other.get_maximum_number_operations_invoked() &&
+        this->get_maximum_number_operations_performed() ==
+            other.get_maximum_number_operations_performed() && 
+        this->get_sop_class_extended_negotiation() ==
+            other.get_sop_class_extended_negotiation() &&
+        this->get_sop_class_common_extended_negotiation() ==
+            other.get_sop_class_common_extended_negotiation()
     );
 }
 

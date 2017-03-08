@@ -8,11 +8,42 @@
 
 #include "odil/Element.h"
 
+#include "odil/Exception.h"
 #include "odil/Value.h"
 #include "odil/DataSet.h"
 
 namespace odil
 {
+
+Element
+::Element(VR const & vr)
+: _value(Value::Integers()), vr(vr)
+{
+    if(odil::is_int(vr))
+    {
+        this->_value = Value::Integers();
+    }
+    else if(odil::is_real(vr))
+    {
+        this->_value = Value::Reals();
+    }
+    else if(odil::is_string(vr))
+    {
+        this->_value = Value::Strings();
+    }
+    else if(vr == VR::SQ)
+    {
+        this->_value = Value::DataSets();
+    }
+    else if(odil::is_binary(vr))
+    {
+        this->_value = Value::Binary();
+    }
+    else
+    {
+        throw Exception("Unknown VR type");
+    }
+}
 
 Element
 ::Element(Value const & value, VR const & vr)
@@ -95,18 +126,14 @@ bool
 Element
 ::empty() const
 {
-    return (
-        (this->_value.get_type() == Value::Type::Empty) ||
-        apply_visitor(Empty(), this->_value));
+    return this->_value.empty();
 }
 
 std::size_t
 Element
 ::size() const
 {
-    return (
-        (this->_value.get_type() == Value::Type::Empty)?0:
-        apply_visitor(Size(), this->_value));
+    return this->_value.size();
 }
 
 Value const &
@@ -233,4 +260,12 @@ Element
     return !(*this == other);
 }
 
+void
+Element
+::clear()
+{
+    this->_value.clear();
 }
+
+}
+

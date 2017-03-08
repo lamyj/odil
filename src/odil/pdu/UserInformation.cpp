@@ -12,12 +12,17 @@
 #include <istream>
 #include <vector>
 
+#include "odil/endian.h"
 #include "odil/Exception.h"
+#include "odil/logging.h"
+#include "odil/pdu/AsynchronousOperationsWindow.h"
 #include "odil/pdu/ImplementationClassUID.h"
 #include "odil/pdu/ImplementationVersionName.h"
 #include "odil/pdu/MaximumLength.h"
 #include "odil/pdu/Object.h"
 #include "odil/pdu/RoleSelection.h"
+#include "odil/pdu/SOPClassCommonExtendedNegotiation.h"
+#include "odil/pdu/SOPClassExtendedNegotiation.h"
 #include "odil/pdu/UserIdentityAC.h"
 #include "odil/pdu/UserIdentityRQ.h"
 
@@ -58,8 +63,12 @@ UserInformation
 
     std::vector<MaximumLength> maximum_length;
     std::vector<ImplementationClassUID> implementation_class_uid;
+    std::vector<AsynchronousOperationsWindow> asynchronous_operation_window;
     std::vector<RoleSelection> role_selection;
     std::vector<ImplementationVersionName> implementation_version_name;
+    std::vector<SOPClassExtendedNegotiation> sop_class_extended_negotiation;
+    std::vector<SOPClassCommonExtendedNegotiation>
+        sop_class_common_extended_negotiation;
     std::vector<UserIdentityRQ> user_identity_rq;
     std::vector<UserIdentityAC> user_identity_ac;
 
@@ -68,35 +77,77 @@ UserInformation
         uint8_t const type = stream.peek();
         if(type == 0x51)
         {
-            maximum_length.push_back(MaximumLength(stream));
+            maximum_length.emplace_back(stream);
         }
         else if(type == 0x52)
         {
-            implementation_class_uid.push_back(ImplementationClassUID(stream));
+            implementation_class_uid.emplace_back(stream);
         }
-        // 0x53: Asynchronous Operations Window, PS 3.7, D.3.3.3.1
+        else if(type == 0x53)
+        {
+            asynchronous_operation_window.emplace_back(stream);
+        }
         else if(type == 0x54)
         {
-            role_selection.push_back(RoleSelection(stream));
+            role_selection.emplace_back(stream);
         }
         else if(type == 0x55)
         {
-            implementation_version_name.push_back(
-                ImplementationVersionName(stream));
+            implementation_version_name.emplace_back(stream);
         }
-        // 0x56: SOP Class Extended Negotiation, PS 3.7, D.3.3.5.1
-        // 0x57: SOP Class Common Extended Negotiation, PS 3.7, D.3.3.6.1
+        else if(type == 0x56)
+        {
+            sop_class_extended_negotiation.emplace_back(stream);
+        }
+        else if(type == 0x57)
+        {
+            sop_class_common_extended_negotiation.emplace_back(stream);
+        }
         else if(type == 0x58)
         {
-            user_identity_rq.push_back(UserIdentityRQ(stream));
+            user_identity_rq.emplace_back(stream);
         }
         else if(type == 0x59)
         {
-            user_identity_ac.push_back(UserIdentityAC(stream));
+            user_identity_ac.emplace_back(stream);
         }
         else
         {
-            throw Exception("Invalid sub-item type");
+            stream.ignore(2*sizeof(uint8_t)); // item type, reserved
+            if(!stream.good())
+            {
+                throw Exception("Could not skip sub-item header");
+            }
+
+            uint16_t sub_item_length;
+            stream.read(
+                reinterpret_cast<char*>(&sub_item_length),
+                sizeof(sub_item_length));
+            if(!stream.good())
+            {
+                throw Exception("Could not read length");
+            }
+            sub_item_length = big_endian_to_host(sub_item_length);
+
+            ODIL_LOG(WARN)
+                << "Skipping unknown item with type "
+                << std::hex << (unsigned int)type << std::dec << " "
+                << "(" << sub_item_length << " byte"
+                << (sub_item_length>1?"s":"") << ")";
+
+            if(sub_item_length > 0)
+            {
+                // CAUTION: using ignore could cause eofbit to be positioned and
+                // change semantics of later calls. Read the sub-item instead; this
+                // is sub-optimal but does not crash.
+                std::string sub_item(sub_item_length, '\0');
+                stream.read(reinterpret_cast<char*>(&sub_item[0]), sub_item.size());
+
+                if(!stream.good())
+                {
+                    throw Exception("Could not skip sub-item");
+                }
+            }
         }
     }
 

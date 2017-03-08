@@ -13,6 +13,7 @@
 #include <istream>
 #include <vector>
 
+#include "odil/odil.h"
 #include "odil/pdu/MaximumLength.h"
 #include "odil/pdu/Object.h"
 #include "odil/pdu/UserIdentityAC.h"
@@ -25,7 +26,7 @@ namespace pdu
 {
 
 /// @brief User Information Item Structure (PS 3.8, 9.3.2.3 and 9.3.3.3).
-class UserInformation: public Object
+class ODIL_API UserInformation: public Object
 {
 public:
     /// @brief Create a User Information item with no sub-items.

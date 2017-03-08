@@ -19,23 +19,18 @@ class TestStoreSCU(PeerFixtureBase):
             ])
 
         self.data_set = odil.DataSet()
+        self.data_set.add("ImageType", ["ORIGINAL", "PRIMARY", "OTHER"])
+        self.data_set.add("PatientID", ["1234"])
         self.data_set.add(
-            odil.registry.ImageType,
-            odil.Value.Strings(["ORIGINAL", "PRIMARY", "OTHER"]))
+            "StudyInstanceUID",
+            ["2.25.386726390606491051215227596277040710"])
         self.data_set.add(
-            odil.registry.PatientID, odil.Value.Strings(["1234"]))
+            "SeriesInstanceUID",
+            ["2.25.235367796740370588607388995952651763168"])
+        self.data_set.add("SOPClassUID", [odil.registry.RawDataStorage])
         self.data_set.add(
-            odil.registry.StudyInstanceUID,
-            odil.Value.Strings(["2.25.386726390606491051215227596277040710"]))
-        self.data_set.add(
-            odil.registry.SeriesInstanceUID,
-            odil.Value.Strings(["2.25.235367796740370588607388995952651763168"]))
-        self.data_set.add(
-            odil.registry.SOPClassUID,
-            odil.Value.Strings([odil.registry.RawDataStorage]))
-        self.data_set.add(
-            odil.registry.SOPInstanceUID,
-            odil.Value.Strings(["2.25.294312554735929033890522327215919068328"]))
+            "SOPInstanceUID",
+            ["2.25.294312554735929033890522327215919068328"])
     
     def test_affected_sop_class_uid(self):
         store = odil.StoreSCU(self.association)

@@ -11,10 +11,9 @@
 #include <algorithm>
 #include <iomanip>
 #include <ostream>
+#include <stdexcept>
 #include <sstream>
 #include <string>
-
-#include <boost/regex.hpp>
 
 #include "odil/ElementsDictionary.h"
 #include "odil/Exception.h"

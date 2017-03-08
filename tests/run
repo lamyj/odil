@@ -17,13 +17,15 @@ def main():
     parser.add_argument("--no-network", action="store_true")
     parser.add_argument("--test-regex", "-R", help="C++ only")
     parser.add_argument("--exclude-regex", "-E", help="C++ only")
+    parser.add_argument(
+        "--nose", default="nosetests", help="nosetests executable")
     parser.add_argument("--exclude", "-e", help="Python only")
     arguments = parser.parse_args()
 
     if arguments.no_network:
         excluded_cpp = [
             "Association", "Network", "ServiceRole", "SCP", "SCU", "Transport"]
-        excluded_python = ["scu"]
+        excluded_python = ["scu", "scp"]
 
         arguments.exclude_regex = "{}{}{}".format(
             arguments.exclude_regex or "",
@@ -53,9 +55,10 @@ def main():
     environment["ODIL_PEER_HOST_NAME"] = "127.0.0.1"
     environment["ODIL_PEER_PORT"] = "11112"
     environment["ODIL_PEER_AET"] = "REMOTE"
-    environment["PATH"] = os.pathsep.join(["tests/tools", environment["PATH"]])
+    environment["PATH"] = os.pathsep.join(
+        [os.path.abspath("tests/tools"), environment["PATH"]])
     environment["PYTHONPATH"] = os.pathsep.join(
-        ["wrappers", environment.get("PYTHONPATH", "")])
+        [os.path.abspath("wrappers"), environment.get("PYTHONPATH", "")])
 
     source_directory = None
     with open("CMakeCache.txt") as fd:
@@ -70,7 +73,10 @@ def main():
         ["ctest", "--no-compress-output", "-T", "Test"]+cpp_args,
         env=environment)
     python_code = subprocess.call(
-        ["nosetests-2.7", os.path.join(source_directory, "tests", "wrappers")]+python_args,
+        [
+            arguments.nose,
+            os.path.join(source_directory, "tests", "wrappers")
+        ]+python_args,
         env=environment)
 
     tearDown(directory, process)
@@ -122,6 +128,7 @@ AETable END
             stdin=read)
         subprocess.check_call([
             "storescu",
+            "-ll", "error",
             "-aet", "LOCAL", "-aec", "REMOTE",
             "localhost", "11112",
             os.path.join(directory, "data.dcm")])

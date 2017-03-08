@@ -16,6 +16,7 @@
 #include <string>
 
 #include <unicode/errorcode.h>
+#include <unicode/ucnv.h>
 #include <unicode/unistr.h>
 
 #include "odil/Exception.h"
@@ -189,6 +190,47 @@ std::string as_utf8(
     return encoded;
 }
 
+std::string as_specific_character_set(
+    std::string::const_iterator const begin, std::string::const_iterator const end,
+    std::string const & encoding)
+{
+    UErrorCode error_code=U_ZERO_ERROR;
+
+    UConverter * converter = ucnv_open(
+        encoding.empty()?"ascii":encoding.c_str(), &error_code);
+    if(U_FAILURE(error_code))
+    {
+        throw Exception(
+            "Could not open converter '"+encoding+"': "+u_errorName(error_code));
+    }
+
+    auto const source_size = end-begin;
+
+    auto const target_capacity = 4*source_size;
+    char * target = new char[target_capacity];
+
+    auto const target_size = ucnv_fromAlgorithmic(
+        converter, UCNV_UTF8,
+        target, target_capacity,
+        &(*begin), source_size,
+        &error_code
+    );
+    if(U_FAILURE(error_code))
+    {
+        delete[] target;
+        throw Exception(
+            "Could not convert '"+encoding+"': "+u_errorName(error_code));
+    }
+
+    ucnv_close(converter);
+
+    std::string const result(target, target_size);
+
+    delete[] target;
+
+    return result;
+}
+
 enum class Group
 {
     Alphabetic,
@@ -296,6 +338,103 @@ std::string as_utf8(
         {
             auto const encoder = find_encoder(specific_character_set[0]);
             encoded = as_utf8(begin, end, encoder);
+        }
+
+        result.append(encoded);
+
+        // If present, add the splitter to the UTF-8 string.
+        if(end != input.end())
+        {
+            result.push_back(*end);
+            begin = end+1;
+            if(is_pn && *end == '=')
+            {
+                if(group == Group::Alphabetic)
+                {
+                    group = Group::Ideographic;
+                }
+                else if(group == Group::Ideographic)
+                {
+                    group = Group::Phonetic;
+                }
+                else
+                {
+                    throw Exception("Too many groups");
+                }
+            }
+        }
+        else
+        {
+            begin = end;
+        }
+    }
+
+    return result;
+}
+
+std::string as_specific_character_set(
+    std::string const & input, Value::Strings const & specific_character_set,
+    bool is_pn)
+{
+    // Control characters: line feed, carriage return, form feed and tabulation
+    // For Person Name, add the group splitters
+    std::string splitters = "\n\r\f\t";
+    if(is_pn)
+    {
+        splitters.append("^=");
+    }
+
+    std::string result;
+
+    Group group=Group::Alphabetic;
+
+    auto begin = input.begin();
+    while(begin != input.end())
+    {
+        // Active character set resets to default before any of the splitters
+        // cf. PS 3.5, 6.1.2.5.3
+        auto const end = std::find_first_of(
+            begin, input.end(), splitters.begin(), splitters.end());
+
+        std::string encoded;
+
+        if(specific_character_set.empty())
+        {
+            encoded = std::string(begin, end);
+        }
+        else if(is_pn && group != Group::Alphabetic && specific_character_set.size() > 1)
+        {
+            // Encode using specific_character_set[1], using escape sequences
+            auto const encoder = find_encoder(specific_character_set[1]);
+            auto const it = escape_sequences.find(specific_character_set[1]);
+            auto const specific_escape_sequences =
+                (it!=escape_sequences.end())?it->second:std::vector<std::string>();
+
+            // The ISO-2022-JP encoder of ICU already includes the escape sequences
+            if(encoder != "ISO-2022-JP" && specific_escape_sequences.size() > 0)
+            {
+                encoded += specific_escape_sequences[0];
+            }
+            encoded += as_specific_character_set(begin, end, encoder);
+            if(encoder != "ISO-2022-JP" && specific_escape_sequences.size() > 1)
+            {
+                encoded += specific_escape_sequences[1];
+            }
+
+            if(
+                specific_character_set[0] == "ISO 2022 IR 13"
+                && encoder == "ISO-2022-JP")
+            {
+                // ICU switches back to ASCII (1B 28 42), while the examples
+                // from D. Clunie switch back to JIS X 0201-1976 (Romaji)
+                // (1B 28 4A)
+                encoded[encoded.size()-1] = 0x4a;
+            }
+        }
+        else
+        {
+            auto const encoder = find_encoder(specific_character_set[0]);
+            encoded = as_specific_character_set(begin, end, encoder);
         }
 
         result.append(encoded);

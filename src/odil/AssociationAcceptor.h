@@ -14,6 +14,7 @@
 
 #include "odil/AssociationParameters.h"
 #include "odil/Exception.h"
+#include "odil/odil.h"
 
 namespace odil
 {
@@ -35,23 +36,35 @@ typedef
  * and the roles of each presentation context, do not check identity,
  * keep maximum length.
  */
+ODIL_API
 AssociationParameters
 default_association_acceptor(AssociationParameters const & input);
 
-struct AssociationRejected: public Exception
+/// @brief Exception reported when an incoming association is rejected.
+struct ODIL_API AssociationRejected: public Exception
 {
 public:
+    /// @brief Constructor.
     AssociationRejected(
         unsigned char result, unsigned char source, unsigned char reason,
         std::string const & message="Association rejected");
 
+    /// @brief Return the rejection result.
     unsigned char get_result() const;
+    
+    /// @brief Set the rejection result.
     void set_result(unsigned char value);
 
+    /// @brief Return the rejection source.
     unsigned char get_source() const;
+    
+    /// @brief Set the rejection source.
     void set_source(unsigned char value);
 
+    /// @brief Return the rejection reason.
     unsigned char get_reason() const;
+    
+    /// @brief Set the rejection reason.
     void set_reason(unsigned char value);
 private:
     unsigned char _result;

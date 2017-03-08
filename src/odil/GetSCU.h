@@ -14,6 +14,7 @@
 
 #include "odil/Association.h"
 #include "odil/DataSet.h"
+#include "odil/odil.h"
 #include "odil/SCU.h"
 #include "odil/message/CGetResponse.h"
 #include "odil/message/CStoreRequest.h"
@@ -22,11 +23,20 @@ namespace odil
 {
 
 /// @brief SCU for C-GET services.
-class GetSCU: public SCU
+class ODIL_API GetSCU: public SCU
 {
 public:
-    /// @brief Callback called when a response is received.
-    typedef std::function<void(DataSet const &)> Callback;
+    /// @brief Callback called when a C-STORE request is received.
+    typedef std::function<void(DataSet const &)> StoreCallback;
+
+    /**
+     * @brief Typedef to keep compatibility with previous versions.
+     * @deprecated The StoreCallback typedef should now be used.
+     */
+    typedef StoreCallback Callback;
+
+    /// @brief Callback called when a C-GET response is received.
+    typedef std::function<void(message::CGetResponse const &)> GetCallback;
 
     /// @brief Constructor.
     GetSCU(Association & association);
@@ -34,8 +44,10 @@ public:
     /// @brief Destructor.
     virtual ~GetSCU();
     
-    /// @brief Perform the C-GET using an optional callback.
-    void get(DataSet const & query, Callback callback) const;
+    /// @brief Perform the C-GET using callbacks.
+    void get(
+        DataSet const & query, StoreCallback store_callback,
+        GetCallback get_callback=GetCallback()) const;
     
     /**
      * @brief Return a list of datasets matching the query.
@@ -43,9 +55,10 @@ public:
     std::vector<DataSet> get(DataSet const & query) const;
 
 private:
-    bool _handle_get_response(message::CGetResponse const & response) const;
+    bool _handle_get_response(
+        message::CGetResponse const & response, GetCallback callback) const;
     void _handle_store_request(
-        message::CStoreRequest const & request, Callback callback) const;
+        message::CStoreRequest const & request, StoreCallback callback) const;
 };
 
 }

@@ -1,10 +1,13 @@
+from __future__ import print_function
+import argparse
 import logging
 
 import odil
 
 def add_subparser(subparsers):
     parser = subparsers.add_parser(
-        "print", help="Print the contents of data sets")
+        "print", help="Print the contents of data sets",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("inputs", nargs="+", metavar="FILE", help="Input files")
     parser.add_argument(
         "--print-header", "-H", action="store_true",
@@ -26,7 +29,7 @@ def print_(inputs, print_header, decode_uids):
 
         if print_header:
             print_data_set(header, decode_uids, "", max_length)
-            print
+            print()
         print_data_set(data_set, decode_uids, "", max_length)
 
 def print_data_set(data_set, decode_uids, padding, max_length):
@@ -37,7 +40,8 @@ def print_data_set(data_set, decode_uids, padding, max_length):
             name = entry.name
 
         if element.is_data_set():
-            value = ""
+            value = "(sequence, {} item{})".format(
+                len(element), "s" if len(element)>1 else "")
         elif element.is_binary():
             lengths = [len(x) for x in element.as_binary()]
             value = "(binary, {} item{}, {} byte{})".format(
@@ -46,7 +50,9 @@ def print_data_set(data_set, decode_uids, padding, max_length):
                 "s" if sum(lengths)>1 else "")
         else:
             getter = None
-            if element.is_int():
+            if element.empty():
+                getter = lambda: []
+            elif element.is_int():
                 getter = element.as_int
             elif element.is_real():
                 getter = element.as_real
@@ -61,18 +67,18 @@ def print_data_set(data_set, decode_uids, padding, max_length):
                     for uid in value
                 ]
 
-        print "{}{}{} {:04x},{:04x} {} {}".format(
+        print("{}{}{} {:04x},{:04x} {} {}".format(
             padding,
             name, (max_length-len(name)-len(padding))*" ",
             tag.group, tag.element, element.vr,
-            value)
+            value))
 
         if element.is_data_set():
             sequence = element.as_data_set()
             if sequence:
                 for item in sequence[:-1]:
                     print_data_set(item, decode_uids, padding+"  ", max_length)
-                    print
+                    print()
                 print_data_set(sequence[-1], decode_uids, padding+"  ", max_length)
 
 def find_max_name_length(data_set, max_length=0, padding_length=0):

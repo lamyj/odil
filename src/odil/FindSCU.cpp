@@ -15,6 +15,7 @@
 #include "odil/Association.h"
 #include "odil/DataSet.h"
 #include "odil/Exception.h"
+#include "odil/logging.h"
 #include "odil/message/CFindRequest.h"
 #include "odil/message/CFindResponse.h"
 
@@ -67,6 +68,15 @@ FindSCU
                     << response.get_affected_sop_class_uid()
                     << " (expected: " << request.get_affected_sop_class_uid() << ")";
             throw Exception(message.str());
+        }
+
+        if(message::Response::is_warning(response.get_status()))
+        {
+            ODIL_LOG(WARN) << "C-FIND response status: " << response.get_status();
+        }
+        else if(message::Response::is_failure(response.get_status()))
+        {
+            ODIL_LOG(ERROR) << "C-FIND response status: " << response.get_status();
         }
 
         done = !response.is_pending();

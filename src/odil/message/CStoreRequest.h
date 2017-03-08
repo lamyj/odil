@@ -12,6 +12,7 @@
 #include <string>
 
 #include "odil/DataSet.h"
+#include "odil/odil.h"
 #include "odil/registry.h"
 #include "odil/message/Request.h"
 #include "odil/Value.h"
@@ -23,7 +24,7 @@ namespace message
 {
 
 /// @brief C-STORE-RQ message.
-class CStoreRequest: public Request
+class ODIL_API CStoreRequest: public Request
 {
 public:
     /**
@@ -33,7 +34,9 @@ public:
     CStoreRequest(
         Value::Integer message_id, Value::String const & affected_sop_class_uid,
         Value::String const & affected_sop_instance_uid,
-        Value::Integer priority, DataSet const & dataset);
+        Value::Integer priority, DataSet const & dataset,
+        Value::String const & move_originator_ae_title = "",
+        Value::Integer move_originator_message_id = -1);
 
     /**
      * @brief Create a C-STORE-RQ from a generic Message.
@@ -50,6 +53,7 @@ public:
     ODIL_MESSAGE_MANDATORY_FIELD_STRING_MACRO(
         affected_sop_instance_uid, registry::AffectedSOPInstanceUID)
     ODIL_MESSAGE_MANDATORY_FIELD_INTEGER_MACRO(priority, registry::Priority)
+
     ODIL_MESSAGE_OPTIONAL_FIELD_STRING_MACRO(
         move_originator_ae_title, registry::MoveOriginatorApplicationEntityTitle)
     ODIL_MESSAGE_OPTIONAL_FIELD_INTEGER_MACRO(

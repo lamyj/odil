@@ -12,6 +12,7 @@
 #include <cstdint>
 #include <istream>
 
+#include "odil/odil.h"
 #include "odil/pdu/Object.h"
 
 namespace odil
@@ -21,7 +22,7 @@ namespace pdu
 {
 
 /// @brief Maximum Length Sub-Item Structure (PS 3.8, D.1).
-class MaximumLength: public Object
+class ODIL_API MaximumLength: public Object
 {
 public:
     /// @brief Item type.

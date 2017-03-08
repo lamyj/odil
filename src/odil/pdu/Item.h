@@ -16,6 +16,8 @@
 #include <utility>
 #include <vector>
 
+#include "odil/odil.h"
+
 namespace odil
 {
 
@@ -23,11 +25,11 @@ namespace pdu
 {
 
 /// @brief A sequence of fields forming a full PDU or a part of it.
-class Item
+class ODIL_API Item
 {
 public:
     /// @brief Generic field.
-    class Field
+    class ODIL_API Field
     {
     public:
         /// @brief Possible types stored in the field.
@@ -256,6 +258,7 @@ private:
 
 // No operator>> since we need explicit names and types.
 
+ODIL_API
 std::ostream &
 operator<<(std::ostream & stream, Item const & item);
 

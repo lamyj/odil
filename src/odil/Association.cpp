@@ -195,7 +195,7 @@ bool
 Association
 ::is_associated() const
 {
-    return this->_state_machine.get_transport().is_open();
+    return this->_state_machine.get_transport().is_open() && this->_state_machine.get_state() == odil::dul::StateMachine::State::Sta6 ;
 }
 
 void
@@ -276,7 +276,18 @@ Association
     if(data.pdu == NULL)
     {
         // We have rejected the request
-        //return false;
+        if(!data.reject)
+        {
+            throw (*data.reject);
+        }
+        else
+        {
+            throw AssociationRejected(
+                Association::RejectedTransient,
+                Association::ULServiceProvderPresentationRelatedFunction,
+                Association::NoReasonGiven,
+                "No reject information");
+        }
     }
     else
     {
@@ -446,6 +457,11 @@ Association
 ::send_message(
     message::Message const & message, std::string const & abstract_syntax)
 {
+    if(!this->is_associated())
+    {
+        throw Exception("Not associated");
+    }
+    
     auto const transfer_syntax_it =
         this->_transfer_syntaxes_by_abstract_syntax.find(abstract_syntax);
     if(transfer_syntax_it == this->_transfer_syntaxes_by_abstract_syntax.end())
@@ -463,8 +479,8 @@ Association
         command_stream, registry::ImplicitVRLittleEndian, // implicit vr for command
         Writer::ItemEncoding::ExplicitLength, true); // true for Command
     command_writer.write_data_set(message.get_command_set());
-    pdv_items.push_back(
-        pdu::PDataTF::PresentationDataValueItem(id, 3, command_stream.str()));
+    auto const command_buffer = command_stream.str();
+    pdv_items.emplace_back(id, 3, command_buffer);
 
     if (message.has_data_set())
     {
@@ -473,17 +489,55 @@ Association
             data_stream, transfer_syntax,
             Writer::ItemEncoding::ExplicitLength, false);
         data_writer.write_data_set(message.get_data_set());
-        pdv_items.push_back(
-            pdu::PDataTF::PresentationDataValueItem(
-                transfer_syntax_it->second.first, 2, data_stream.str()));
+        auto const data_buffer = data_stream.str();
+
+        auto const max_length = this->_negotiated_parameters.get_maximum_length();
+        auto current_length = command_buffer.size() + 12; // 12 is the size of all that is added on top of the fragment
+        if (!max_length 
+            || (current_length + data_buffer.size() + 6 < max_length))
+        {   // Can send all the buffer in one go
+            pdv_items.emplace_back(transfer_syntax_it->second.first, 2, data_buffer);
+
+            dul::EventData data;
+            data.pdu = std::make_shared<pdu::PDataTF>(pdv_items);
+            this->_state_machine.send_pdu(data);
+        }
+        else // We have to fragment into multiple PDUs
+        {
+            auto available = max_length - 6 - current_length; // Need at least 6 bytes for the headers
+            int64_t remaining = data_buffer.size();
+            std::size_t offset = 0;
+
+            if (available > 0) // Send some data with the command set
+            {
+                remaining -= available;
+                pdv_items.emplace_back(transfer_syntax_it->second.first, (remaining > 0 ? 0 : 2), data_buffer.substr(0, available));
+                offset += available;
+            }
+
+            auto pdu = std::make_shared<pdu::PDataTF>(pdv_items);
+            dul::EventData data;
+            data.pdu = pdu;
+            this->_state_machine.send_pdu(data);
+
+            available = max_length - 6; // In case some software do not take into account the size of the header when allocating their buffer
+            while (remaining > 0)
+            {
+                remaining -= available;
+                pdv_items.clear();
+                pdv_items.emplace_back(transfer_syntax_it->second.first, (remaining > 0 ? 0 : 2), data_buffer.substr(offset, available));
+                offset += available;
+                pdu->set_pdv_items(pdv_items);
+                this->_state_machine.send_pdu(data);
+            }
+        }
     }
-
-    auto pdu = std::make_shared<pdu::PDataTF>(pdv_items);
-
-    dul::EventData data;
-    data.pdu = pdu;
-
-    this->_state_machine.send_pdu(data);
+    else
+    {
+        dul::EventData data;
+        data.pdu = std::make_shared<pdu::PDataTF>(pdv_items);
+        this->_state_machine.send_pdu(data);
+    }
 }
 
 uint16_t

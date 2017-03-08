@@ -56,13 +56,14 @@ set_presentation_contexts(
     boost::python::list const & presentation_contexts)
 {
     std::vector<odil::AssociationParameters::PresentationContext> 
-        presentation_contexts_cpp(boost::python::len(presentation_contexts));
+        presentation_contexts_cpp;
+    presentation_contexts_cpp.reserve(boost::python::len(presentation_contexts));
     for(int i = 0; i<boost::python::len(presentation_contexts); ++i)
     {
-        presentation_contexts_cpp[i] = 
+        presentation_contexts_cpp.push_back(
             boost::python::extract<
                 odil::AssociationParameters::PresentationContext
-            >(presentation_contexts[i]);
+            >(presentation_contexts[i]));
     }
     parameters.set_presentation_contexts(presentation_contexts_cpp);
     
@@ -150,7 +151,8 @@ void wrap_AssociationParameters()
 
     {
         scope presentation_context_scope =
-            class_<AssociationParameters::PresentationContext>("PresentationContext")
+            class_<AssociationParameters::PresentationContext>(
+                "PresentationContext", no_init)
             .def(
                 "__init__", 
                 make_constructor(&presentation_context_constructor))
@@ -207,7 +209,8 @@ void wrap_AssociationParameters()
 
     {
         scope user_identity_scope = 
-            class_<AssociationParameters::UserIdentity>("UserIdentity")
+            class_<AssociationParameters::UserIdentity>(
+                "UserIdentity", init<>())
             .def_readwrite(
                 "type", 
                 &AssociationParameters::UserIdentity::type

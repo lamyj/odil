@@ -62,7 +62,7 @@ void run_server(Status * status)
 
 void run_client(Status * status, bool use_abort)
 {
-    std::string command = "echoscu";
+    std::string command = "echoscu -ll error";
     if(use_abort)
     {
         command += " --abort";

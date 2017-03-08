@@ -7,7 +7,9 @@ import sys
 import dicomdir
 import echo
 import find
+import get
 import print_
+import store
 import transcode
 
 def main():
@@ -16,7 +18,8 @@ def main():
     subparsers = parser.add_subparsers(help="Sub-commands help")
 
     modules = [
-        print_, transcode, dicomdir, echo, find
+        print_, transcode, dicomdir, 
+        echo, find, get, store
     ]
     for module in modules:
         sub_parser = module.add_subparser(subparsers)

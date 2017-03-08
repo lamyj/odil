@@ -62,6 +62,9 @@ FindSCP
 {
     message::CFindRequest const request(message);
 
+    Value::Integer final_status = message::CFindResponse::Success;
+    DataSet status_fields;
+
     try
     {
         this->_generator->initialize(request);
@@ -76,17 +79,19 @@ FindSCP
             this->_generator->next();
         }
     }
-    catch(Exception const & e)
+    catch(SCP::Exception const & e)
     {
-        message::CFindResponse response(
-            request.get_message_id(), message::CFindResponse::UnableToProcess);
-        this->_association.send_message(
-            response, request.get_affected_sop_class_uid());
-        return;
+        final_status = e.status;
+        status_fields = e.status_fields;
+    }
+    catch(odil::Exception const & e)
+    {
+        status_fields.add(registry::ErrorComment, {e.what()});
+        final_status = message::CFindResponse::UnableToProcess;
     }
 
-    message::CFindResponse response(
-        request.get_message_id(), message::CFindResponse::Success);
+    message::CFindResponse response(request.get_message_id(), final_status);
+    response.set_status_fields(status_fields);
     this->_association.send_message(
         response, request.get_affected_sop_class_uid());
 }

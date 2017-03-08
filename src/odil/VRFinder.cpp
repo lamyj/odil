@@ -13,8 +13,6 @@
 #include <string>
 #include <vector>
 
-#include <boost/regex.hpp>
-
 #include "odil/DataSet.h"
 #include "odil/ElementsDictionary.h"
 #include "odil/Exception.h"
@@ -48,7 +46,10 @@ VRFinder::operator()(
         try
         {
             vr = finder(tag, data_set, transfer_syntax);
-            break;
+            if (vr != VR::UNKNOWN)
+            {
+                break;
+            }
         }
         catch(Exception &)
         {
@@ -63,7 +64,10 @@ VRFinder::operator()(
             try
             {
                 vr = finder(tag, data_set, transfer_syntax);
-                break;
+                if (vr != VR::UNKNOWN)
+                {
+                    break;
+                }
             }
             catch(Exception &)
             {
@@ -85,18 +89,12 @@ VRFinder
 ::public_dictionary(
     Tag const & tag, DataSet const &, std::string const &)
 {
-    VR vr = VR::INVALID;
+    VR vr = VR::UNKNOWN;
     
     auto const iterator = find(registry::public_dictionary, tag);
     if(iterator != registry::public_dictionary.end())
     {
         vr = as_vr(iterator->second.vr);
-    }
-
-    if(vr == VR::INVALID)
-    {
-        throw Exception(
-            "Element " + std::string(tag) + " is not in the public dictionary");
     }
 
     return vr;
@@ -111,10 +109,8 @@ VRFinder
     {
         return VR::UL;
     }
-    else
-    {
-        throw Exception("Not a group length tag");
-    }
+  
+    return VR::UNKNOWN; // Not a group length tag
 }
 
 VR
@@ -126,10 +122,8 @@ VRFinder
     {
         return VR::UN;
     }
-    else
-    {
-        throw Exception("Not a private tag");
-    }
+
+    return VR::UNKNOWN; // Not a private tag
 }
 
 VR
@@ -186,16 +180,105 @@ VRFinder
             tag == registry::LargestPixelValueInSeries ||
             tag == registry::PixelPaddingValue)
         {
-            return VR::US;
+            if(!data_set.has(odil::registry::PixelRepresentation))
+            {
+                throw Exception("Cannot find VR without PixelRepresentation");
+            }
+            auto const & pixel_representation = 
+                data_set.as_int(odil::registry::PixelRepresentation)[0];
+            return (pixel_representation==0)?(VR::US):(VR::SS);
         }
         else
         {
-            throw Exception("Unknown tag");
+            // Unknown tag
+            return VR::UNKNOWN;
         }
     }
     else
     {
-        throw Exception("Unknown transfer syntax");
+        // Unknown transfer syntax
+        return VR::UNKNOWN;
+    }
+}
+
+VR
+VRFinder
+::explicit_vr_little_endian(
+    Tag const & tag, DataSet const & data_set,
+    std::string const & transfer_syntax)
+{
+    if(transfer_syntax == registry::ExplicitVRLittleEndian)
+    {
+        // PS3.5, A.1 (c)
+        if(tag == registry::PixelData)
+        {
+            if(!data_set.has(odil::registry::BitsAllocated))
+            {
+                throw Exception("Cannot find VR without BitsAllocated");
+            }
+            auto const & bits_allocated = 
+                data_set.as_int(odil::registry::BitsAllocated)[0];
+            return (bits_allocated<=8)?(VR::OB):(VR::OW);
+        }
+        else if((tag.group>>8) == 0x60 && tag.element == 0x3000)
+        {
+            return VR::OW;
+        }
+        else if(tag == registry::WaveformData)
+        {
+            return VR::OW;
+        }
+        else if(tag == registry::RedPaletteColorLookupTableData ||
+            tag == registry::GreenPaletteColorLookupTableData ||
+            tag == registry::BluePaletteColorLookupTableData ||
+            tag == registry::AlphaPaletteColorLookupTableData)
+        {
+            return VR::OW;
+        }
+        // {Red,Green,Blue,Alpha}PaletteColorLookupTableDescriptor
+        else if(tag == registry::SegmentedRedPaletteColorLookupTableData ||
+            tag == registry::SegmentedGreenPaletteColorLookupTableData ||
+            tag == registry::SegmentedBluePaletteColorLookupTableData)
+        {
+            return VR::OW;
+        }
+        // LUTData
+        // LUTDescriptor
+        else if(tag == registry::BlendingLookupTableData)
+        {
+            return VR::OW;
+        }
+        else if(tag == registry::VertexPointIndexList ||
+            tag == registry::EdgePointIndexList ||
+            tag == registry::TrianglePointIndexList ||
+            tag == registry::PrimitivePointIndexList)
+        {
+            return VR::OW;
+        }
+        else if(tag == registry::SmallestImagePixelValue ||
+            tag == registry::LargestImagePixelValue ||
+            tag == registry::SmallestPixelValueInSeries ||
+            tag == registry::LargestPixelValueInSeries ||
+            tag == registry::PixelPaddingValue)
+        {
+            if(!data_set.has(odil::registry::PixelRepresentation))
+            {
+                throw Exception("Cannot find VR without PixelRepresentation");
+            }
+            auto const & pixel_representation = 
+                data_set.as_int(odil::registry::PixelRepresentation)[0];
+            return (pixel_representation==0)?(VR::US):(VR::SS);
+        }
+        else
+        {
+            // Unknown tag
+            return VR::UNKNOWN;
+        }
+    }
+    else
+    {
+        // Unknown transfer syntax
+        return VR::UNKNOWN;
     }
 }
 
@@ -205,7 +288,7 @@ VRFinder
 {
     return {
         group_length, private_tag, implicit_vr_little_endian,
-        public_dictionary };
+        explicit_vr_little_endian, public_dictionary };
 }
 
 }

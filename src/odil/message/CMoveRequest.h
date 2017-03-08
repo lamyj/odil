@@ -10,6 +10,7 @@
 #define _f6e243d2_6113_4fe3_8d04_3f034fc796bf
 
 #include "odil/DataSet.h"
+#include "odil/odil.h"
 #include "odil/registry.h"
 #include "odil/message/Request.h"
 #include "odil/Value.h"
@@ -21,7 +22,7 @@ namespace message
 {
 
 /// @brief C-MOVE-RQ message.
-class CMoveRequest: public Request
+class ODIL_API CMoveRequest: public Request
 {
 public:
     /**

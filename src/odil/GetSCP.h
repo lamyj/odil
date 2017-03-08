@@ -12,6 +12,7 @@
 #include <memory>
 
 #include "odil/Association.h"
+#include "odil/odil.h"
 #include "odil/SCP.h"
 #include "odil/message/Message.h"
 
@@ -19,13 +20,15 @@ namespace odil
 {
 
 /// @brief SCP for C-Get services.
-class GetSCP: public SCP
+class ODIL_API GetSCP: public SCP
 {
 public:
 
+    /// @brief Generator of C-GET responses.
     class DataSetGenerator: public SCP::DataSetGenerator
     {
     public:
+        /// @brief Return the number of responses.
         virtual unsigned int count() const =0;
     };
 
@@ -56,4 +59,3 @@ private:
 }
 
 #endif // _2f0ad1fd_8779_4ab3_b7e8_6d37fdc0c018
-

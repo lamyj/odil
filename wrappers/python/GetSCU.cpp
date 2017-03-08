@@ -16,15 +16,29 @@ namespace
 void 
 get_with_python_callback(
     odil::GetSCU const & scu, 
-    odil::DataSet const & query, boost::python::object const & f)
+    odil::DataSet const & query,
+    boost::python::object const & store_callback,
+    boost::python::object const & get_callback)
 {
-    scu.get(
-        query, 
-        [f](odil::DataSet const & data_set) 
-        { 
-            boost::python::call<void>(f.ptr(), data_set); 
-        }
-    );
+    odil::GetSCU::StoreCallback store_callback_cpp;
+    if(!store_callback.is_none())
+    {
+        store_callback_cpp = [store_callback](odil::DataSet const & data_set)
+        {
+            boost::python::call<void>(store_callback.ptr(), data_set);
+        };
+    }
+
+    odil::GetSCU::GetCallback get_callback_cpp;
+    if(!get_callback.is_none())
+    {
+        get_callback_cpp = [get_callback](odil::message::CGetResponse const & message)
+        {
+            boost::python::call<void>(get_callback.ptr(), message);
+        };
+    }
+
+    scu.get(query, store_callback_cpp, get_callback_cpp);
 }
 
 }
@@ -37,7 +51,11 @@ void wrap_GetSCU()
     class_<GetSCU>("GetSCU", init<Association &>())
         .def(
             "get",
-            &get_with_python_callback
+            &get_with_python_callback,
+            (
+                arg("scu"), arg("query"), arg("store_callback"),
+                arg("get_callback")=object()
+            )
         )
         .def(
             "get", 

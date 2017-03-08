@@ -11,28 +11,59 @@
 
 #include "odil/Association.h"
 #include "odil/DataSet.h"
+#include "odil/Exception.h"
 #include "odil/message/Message.h"
 #include "odil/message/Request.h"
+#include "odil/odil.h"
+#include "odil/Value.h"
 
 namespace odil
 {
 
 /// @brief Base class for all Service Class Providers.
-class SCP
+class ODIL_API SCP
 {
 public:
-    /// @brief Abstract base class for SCP returning multiple data sets.
-    class DataSetGenerator
+    /**
+     * @brief Abstract base class for SCP returning multiple data sets.
+     *
+     * initialize, done, next and get shall throw an SCP::Exception on error.
+     */
+    class ODIL_API DataSetGenerator
     {
     public:
+        /// @brief Destructor.
         virtual ~DataSetGenerator() =0;
 
+        /// @brief Initialize the generator.
         virtual void initialize(message::Request const & request) =0;
 
+        /// @brief Test whether all elements have been generated.
         virtual bool done() const =0;
+        
+        /// @brief Prepare the next element.
         virtual void next() =0;
 
+        /// @brief Return the current element.
         virtual DataSet get() const =0;
+    };
+
+    class Exception: public odil::Exception
+    {
+    public:
+        /// @brief Status to be sent back to user.
+        Value::Integer status;
+
+        /// @brief Status detail fields (e.g. offending element).
+        DataSet status_fields;
+
+        /// @brief Constructor.
+        Exception(
+            std::string const & message,
+            Value::Integer status, DataSet const & status_fields=DataSet());
+
+        /// @brief Destructor.
+        virtual ~Exception() noexcept;
     };
 
     /// @brief Create a Service Class Provider.
@@ -47,6 +78,7 @@ public:
     /// @brief Process a message.
     virtual void operator()(message::Message const & message) =0;
 protected:
+    /// @brief Association with peer.
     Association & _association;
 };
 

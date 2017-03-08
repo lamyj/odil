@@ -1,0 +1,12 @@
+before_script:
+  - apt-get update -qq && apt-get install -y -qq build-essential pkg-config cmake ninja-build libdcmtk2-dev libwrap0-dev libjsoncpp-dev libicu-dev zlib1g-dev libboost-dev libboost-filesystem-dev libboost-python-dev libboost-regex-dev libboost-test-dev liblog4cpp5-dev dcmtk python-minimal python-nose
+  - mkdir build && cd build
+  - cmake -G Ninja -D CMAKE_CXX_FLAGS=-std=c++11 ../
+
+trusty:
+  image: ubuntu:trusty
+  script: ninja && ../tests/run --no-network
+
+xenial:
+  image: ubuntu:xenial
+  script: ninja && ../tests/run --no-network

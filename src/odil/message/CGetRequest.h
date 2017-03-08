@@ -10,6 +10,7 @@
 #define _6a22f126_7cc6_47ab_81c2_5f66b2714345
 
 #include "odil/DataSet.h"
+#include "odil/odil.h"
 #include "odil/registry.h"
 #include "odil/message/Request.h"
 #include "odil/Value.h"
@@ -21,7 +22,7 @@ namespace message
 {
 
 /// @brief C-GET-RQ message.
-class CGetRequest: public Request
+class ODIL_API CGetRequest: public Request
 {
 public:
     /**

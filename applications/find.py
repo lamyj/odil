@@ -1,3 +1,5 @@
+from __future__ import print_function
+import argparse
 import logging
 
 import odil
@@ -6,7 +8,8 @@ from print_ import find_max_name_length, print_data_set
 
 def add_subparser(subparsers):
     parser = subparsers.add_parser(
-        "find", help="DICOM query (C-FIND)")
+        "find", help="DICOM query (C-FIND)",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("host", help="Remote host address")
     parser.add_argument("port", type=int, help="Remote host port")
     parser.add_argument(
@@ -36,12 +39,10 @@ def find(host, port, calling_ae_title, called_ae_title, level, keys, decode_uids
         if value is not None:
             vr = odil.registry.public_dictionary[tag].vr
             if vr in ["DS", "FL", "FD"]:
-                value = odil.Value.Reals([float(x) for x in value])
+                value = [float(x) for x in value]
             elif vr in ["IS", "SL", "SS", "UL", "US"]:
-                value = odil.Value.Integers([int(x) for x in value])
-            else:
-                value = odil.Value.Strings(value)
-                
+                value = [int(x) for x in value]
+            
             query.add(tag, value)
         else:
             query.add(tag)
@@ -71,7 +72,7 @@ def find(host, port, calling_ae_title, called_ae_title, level, keys, decode_uids
     find = odil.FindSCU(association)
     find.set_affected_sop_class(sop_class)
     data_sets = find.find(query)
-    print "{} answer{}".format(len(data_sets), "s" if len(data_sets)>1 else "")
+    print("{} answer{}".format(len(data_sets), "s" if len(data_sets)>1 else ""))
 
     max_length = 0
     for data_set in data_sets:
@@ -79,7 +80,7 @@ def find(host, port, calling_ae_title, called_ae_title, level, keys, decode_uids
 
     for data_set in data_sets:
         print_data_set(data_set, decode_uids, "", max_length)
-        print
+        print()
 
     association.release()
     logging.info("Association released")

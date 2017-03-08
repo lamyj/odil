@@ -14,6 +14,7 @@
 
 #include "odil/DataSet.h"
 #include "odil/Element.h"
+#include "odil/odil.h"
 #include "odil/Tag.h"
 #include "odil/VR.h"
 
@@ -24,19 +25,19 @@ namespace dcmtk
 {
 
 /// @brief Convert a odil::VR to a DcmVR.
-DcmEVR convert(VR vr);
+ODIL_API DcmEVR convert(VR vr);
 
 /// @brief Convert a DcmVR to a odil::VR.
-VR convert(DcmEVR evr);
+ODIL_API VR convert(DcmEVR evr);
 
 /// @brief Convert a odil::Tag to a DcmTagKey.
-DcmTagKey convert(Tag const & tag);
+ODIL_API DcmTagKey convert(Tag const & tag);
 
 /// @brief Convert a DcmTagKey to a odil::Tag.
-Tag convert(DcmTagKey const & tag);
+ODIL_API Tag convert(DcmTagKey const & tag);
 
 /// @brief Convert a odil::Element to a DcmElement.
-DcmElement * convert(Tag const & tag, Element const & source);
+ODIL_API DcmElement * convert(Tag const & tag, Element const & source);
 
 /// @brief Low-level element converter.
 template<typename TSourceType, typename TDestinationType>
@@ -45,7 +46,7 @@ void convert(
     TSourceType const & (Element::*getter)() const);
 
 /// @brief Convert a DcmElement to a odil::Element.
-Element convert(DcmElement * source);
+ODIL_API Element convert(DcmElement * source);
 
 /// @brief Low-level element converter.
 template<typename TSourceType>
@@ -54,10 +55,11 @@ void convert(
     TSourceType const & (Element::*getter)() const);
 
 /// @brief Low-level element converter.
+ODIL_API
 void convert(Element const & source, DcmOtherByteOtherWord * destination);
 
 /// @brief Low-level element converter.
-void convert(Element const & source, DcmOtherFloat * destination);
+ODIL_API void convert(Element const & source, DcmOtherFloat * destination);
 
 /// @brief Low-level element converter.
 template<typename TSourceType, typename TDestinationType>
@@ -66,10 +68,10 @@ void convert(
     TDestinationType & (Element::*getter)());
 
 /// @brief Convert a odil::DataSet to a DcmDataset or a DcmItem.
-DcmItem * convert(DataSet const & source, bool as_data_set=true);
+ODIL_API DcmItem * convert(DataSet const & source, bool as_data_set=true);
 
 /// @brief Convert a DcmDataset to a odil::DataSet.
-DataSet convert(DcmItem * source);
+ODIL_API DataSet convert(DcmItem * source);
 
 }
 

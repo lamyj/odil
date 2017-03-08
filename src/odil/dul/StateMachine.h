@@ -19,6 +19,7 @@
 #include "odil/AssociationAcceptor.h"
 #include "odil/dul/EventData.h"
 #include "odil/dul/Transport.h"
+#include "odil/odil.h"
 
 namespace odil
 {
@@ -27,7 +28,7 @@ namespace dul
 {
 
 /// @brief State machine for the DICOM upper layer.
-class StateMachine
+class ODIL_API StateMachine
 {
 public:
 

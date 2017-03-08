@@ -8,6 +8,8 @@
 
 #include "odil/dcmtk/conversion.h"
 
+#include <memory>
+
 #include <dcmtk/config/osconfig.h>
 #include <dcmtk/dcmdata/dctk.h>
 
@@ -341,7 +343,7 @@ void convert<std::vector<uint8_t>, Value::Binary>(
 
 Element convert(DcmElement * source)
 {
-    Element destination;
+    std::shared_ptr<Element> destination;
 
     DcmEVR const source_vr = source->getTag().getVR().getValidEVR();
     VR const destination_vr = convert(source_vr);
@@ -352,13 +354,13 @@ Element convert(DcmElement * source)
        source_vr == EVR_ST || source_vr == EVR_TM || source_vr == EVR_UI ||
        source_vr == EVR_UT)
     {
-        destination = Element(Value::Strings(), destination_vr);
-        convert<std::string, Value::Strings>(source, destination, &Element::as_string);
+        destination = std::make_shared<Element>(Value::Strings(), destination_vr);
+        convert<std::string, Value::Strings>(source, *destination, &Element::as_string);
     }
     else if(source_vr == EVR_AT)
     {
-        destination = Element(Value::Strings(), destination_vr);
-        destination.as_string().reserve(source->getVM());
+        destination = std::make_shared<Element>(Value::Strings(), destination_vr);
+        destination->as_string().reserve(source->getVM());
         for(unsigned int i=0; i<source->getVM(); ++i)
         {
             DcmTagKey source_tag;
@@ -368,34 +370,34 @@ Element convert(DcmElement * source)
                 throw Exception(condition);
             }
             Tag const destination_tag = convert(source_tag);
-            destination.as_string().push_back(std::string(destination_tag));
+            destination->as_string().push_back(std::string(destination_tag));
         }
     }
     else if(source_vr == EVR_DS || source_vr == EVR_FD)
     {
-        destination = Element(Value::Reals(), destination_vr);
-        convert<Float64, Value::Reals>(source, destination, &Element::as_real);
+        destination = std::make_shared<Element>(Value::Reals(), destination_vr);
+        convert<Float64, Value::Reals>(source, *destination, &Element::as_real);
     }
     else if(source_vr == EVR_FL)
     {
-        destination = Element(Value::Reals(), destination_vr);
-        convert<Float32, Value::Reals>(source, destination, &Element::as_real);
+        destination = std::make_shared<Element>(Value::Reals(), destination_vr);
+        convert<Float32, Value::Reals>(source, *destination, &Element::as_real);
     }
     else if(source_vr == EVR_IS || source_vr == EVR_SL)
     {
-        destination = Element(Value::Integers(), destination_vr);
-        convert<Sint32, Value::Integers>(source, destination, &Element::as_int);
+        destination = std::make_shared<Element>(Value::Integers(), destination_vr);
+        convert<Sint32, Value::Integers>(source, *destination, &Element::as_int);
     }
     else if(source_vr == EVR_SQ)
     {
-        destination = Element(Value::DataSets(), destination_vr);
+        destination = std::make_shared<Element>(Value::DataSets(), destination_vr);
         DcmSequenceOfItems * sequence = dynamic_cast<DcmSequenceOfItems*>(source);
         if(sequence == NULL)
         {
             throw Exception("Element is not a DcmSequenceOfItems");
         }
 
-        Value::DataSets & destination_value = destination.as_data_set();
+        Value::DataSets & destination_value = destination->as_data_set();
 
         destination_value.reserve(sequence->card());
         for(unsigned int i=0; i<sequence->card(); ++i)
@@ -407,31 +409,31 @@ Element convert(DcmElement * source)
     }
     else if(source_vr == EVR_SS)
     {
-        destination = Element(Value::Integers(), destination_vr);
-        convert<Sint16, Value::Integers>(source, destination, &Element::as_int);
+        destination = std::make_shared<Element>(Value::Integers(), destination_vr);
+        convert<Sint16, Value::Integers>(source, *destination, &Element::as_int);
     }
     else if(source_vr == EVR_UL)
     {
-        destination = Element(Value::Integers(), destination_vr);
-        convert<Uint32, Value::Integers>(source, destination, &Element::as_int);
+        destination = std::make_shared<Element>(Value::Integers(), destination_vr);
+        convert<Uint32, Value::Integers>(source, *destination, &Element::as_int);
     }
     else if(source_vr == EVR_OB || source_vr == EVR_OF || source_vr == EVR_OW ||
             source_vr == EVR_UN)
     {
-        destination = Element(Value::Binary(), destination_vr);
-        convert<std::vector<uint8_t>, Value::Binary>(source, destination, &Element::as_binary);
+        destination = std::make_shared<Element>(Value::Binary(), destination_vr);
+        convert<std::vector<uint8_t>, Value::Binary>(source, *destination, &Element::as_binary);
     }
     else if(source_vr == EVR_US)
     {
-        destination = Element(Value::Integers(), destination_vr);
-        convert<Uint16, Value::Integers>(source, destination, &Element::as_int);
+        destination = std::make_shared<Element>(Value::Integers(), destination_vr);
+        convert<Uint16, Value::Integers>(source, *destination, &Element::as_int);
     }
     else
     {
         throw Exception("Unknown VR: "+std::string(DcmVR(source_vr).getVRName()));
     }
 
-    return destination;
+    return *destination;
 }
 
 void convert(Element const & source, DcmOtherByteOtherWord * destination)

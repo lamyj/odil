@@ -9,6 +9,7 @@
 #ifndef _266252d9_e801_479e_a805_004b101c5250
 #define _266252d9_e801_479e_a805_004b101c5250
 
+#include "odil/odil.h"
 #include "odil/registry.h"
 #include "odil/message/Response.h"
 #include "odil/Value.h"
@@ -20,7 +21,7 @@ namespace message
 {
 
 /// @brief C-ECHO-RSP message.
-class CEchoResponse: public Response
+class ODIL_API CEchoResponse: public Response
 {
 public:
     /**

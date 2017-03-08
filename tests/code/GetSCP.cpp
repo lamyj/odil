@@ -128,6 +128,7 @@ void run_server(Status * status)
 void run_client(Status * status)
 {
     std::string command = "getscu "
+        "-ll error "
         "-P -k QueryRetrieveLevel=PATIENT "
         "-k PatientID=* -k PatientName "
         "+B "

@@ -60,21 +60,25 @@ EchoSCP
     message::CEchoRequest const request(message);
 
     Value::Integer status=message::CEchoResponse::Success;
+    DataSet status_fields;
 
     try
     {
         status = this->_callback(request);
     }
-    catch(Exception const &)
+    catch(SCP::Exception const & e)
+    {
+        status = e.status;
+        status_fields = e.status_fields;
+    }
+    catch(odil::Exception const &)
     {
         status = message::CEchoResponse::ProcessingFailure;
-        // Error Comment
-        // Error ID
-        // Affected SOP Class UID
     }
 
-    message::CEchoResponse const response(
+    message::CEchoResponse response(
         request.get_message_id(), status, request.get_affected_sop_class_uid());
+    response.set_status_fields(status_fields);
     this->_association.send_message(
         response, request.get_affected_sop_class_uid());
 }

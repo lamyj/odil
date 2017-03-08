@@ -10,6 +10,8 @@
 
 #include "odil/StoreSCU.h"
 
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(storeMethod, odil::StoreSCU::store, 1, 3)
+
 void wrap_StoreSCU()
 {
     using namespace boost::python;
@@ -23,11 +25,12 @@ void wrap_StoreSCU()
         )
         .def(
             "set_affected_sop_class",
-            &StoreSCU::set_affected_sop_class
+            static_cast<void(StoreSCU::*)(DataSet const &)>(&StoreSCU::set_affected_sop_class)
         )
         .def(
             "store", 
-            &StoreSCU::store
+            &StoreSCU::store,
+            storeMethod()
         )
     ;
 }

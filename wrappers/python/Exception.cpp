@@ -10,16 +10,22 @@
 
 #include "odil/Exception.h"
 
+#include "exception_factory.h"
+
+namespace
+{
+
+PyObject * wrapped_Exception;
+
 void translator(odil::Exception const & e)
 {
-    PyErr_SetString(PyExc_UserWarning, e.what());
+    PyErr_SetString(wrapped_Exception, e.what());
+}
+
 }
 
 void wrap_Exception()
 {
-    using namespace boost::python;
-    using namespace odil;
-
-    register_exception_translator<Exception>(translator);
+    wrapped_Exception = exception_factory("Exception");
+    boost::python::register_exception_translator<odil::Exception>(translator);
 }
-
