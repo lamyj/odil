@@ -73,7 +73,7 @@ test_script:
       set PATH=%PATH%;%INSTALL_DIRECTORY%\bin
       set PYTHONPATH=%BUILD_DIRECTORY%\wrappers\%CONFIGURATION%
       cd %BUILD_DIRECTORY%
-      %Python_ROOT%\python.exe ..\tests\run --no-network --nose=%Python_ROOT%\Scripts\nosetests.exe
+      %Python_ROOT%\python.exe ..\tests\run --no-network -e ".*" --nose=%Python_ROOT%\Scripts\nosetests.exe
 
 after_test:
   - ps: |
