@@ -42,8 +42,8 @@ endif()
 
 if(BUILD_EMSCRIPTEN_WRAPPERS)
     file(
-        DOWNLOAD https://github.com/open-source-parsers/jsoncpp/archive/1.7.2.zip 
-        ${CMAKE_CURRENT_BINARY_DIR}/jsoncpp-1.7.2.zip)
+        DOWNLOAD https://github.com/open-source-parsers/jsoncpp/archive/1.8.0.zip 
+        ${CMAKE_CURRENT_BINARY_DIR}/jsoncpp-1.8.0.zip)
     file(
         GLOB files
         "js/*cpp" "../src/odil/base64.cpp" "../src/odil/DataSet.cpp"
@@ -56,13 +56,13 @@ if(BUILD_EMSCRIPTEN_WRAPPERS)
     add_custom_command(
         OUTPUT odil.js
         COMMAND 
-            unzip -n jsoncpp-1.7.2.zip && 
-            cd jsoncpp-1.7.2 && python amalgamate.py && cd .. && 
+            unzip -n jsoncpp-1.8.0.zip && 
+            cd jsoncpp-1.8.0 && python amalgamate.py && cd .. && 
             emcc 
                 --bind -o odil.js -O2
                 -s ALLOW_MEMORY_GROWTH=1
                 -s DISABLE_EXCEPTION_CATCHING=0
-                -I ../../src/ -I jsoncpp-1.7.2/dist/ -I /usr/local/include/ 
+                -I ../../src/ -I jsoncpp-1.8.0/dist/ -I /usr/local/include/ 
                 -D ODIL_MAJOR_VERSION=0
                 ${files}
                 "${CMAKE_CURRENT_BINARY_DIR}/jsoncpp-1.7.2/dist/jsoncpp.cpp"
