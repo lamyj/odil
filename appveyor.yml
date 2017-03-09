@@ -40,8 +40,7 @@ before_build:
       if (${env:PLATFORM} -eq "x64") { ${generator} = "${generator} Win64" }
       cmake `
         -G "${generator}" -DCMAKE_INSTALL_PREFIX="${env:INSTALL_DIRECTORY}" `
-        -DBUILD_WRAPPERS=OFF `
-        -DBUILD_EXAMPLES=ON -DBUILD_WRAPPERS=ON -DUSE_BUILTIN_DCMTK_GETSCU=OFF `
+        -DBUILD_EXAMPLES=ON -DBUILD_WRAPPERS=OFF -DUSE_BUILTIN_DCMTK_GETSCU=OFF `
         -DBUILD_SHARED_LIBS=ON -DBUILD_TESTING=ON -DWITH_DCMTK=ON `
         -DBOOST_LIBRARYDIR="${env:BOOST_ROOT}/lib64-msvc-14.0" `
         -DDCMTK_INCLUDE_DIR="${env:DCMTK_ROOT}/include" -DDCMTK_LIBRARY="${env:DCMTK_ROOT}/lib/dcmdata.lib" `
