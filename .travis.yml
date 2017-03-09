@@ -37,11 +37,12 @@ before_script:
   - export SRC_DIR=$PWD
   - mkdir build
   - cd build
+  # Travis has a weird Python environment. Disable the wrappers
   - export BIN_DIR=$PWD
-  - CMAKE_OPTIONS=""
+  - CMAKE_OPTIONS="-DBUILD_WRAPPERS=OFF"
   - if [ "${CC}" = "gcc" ]; then CMAKE_OPTIONS='${CMAKE_OPTIONS} -DCMAKE_CXX_FLAGS="--coverage"'; fi
-  - if [ "${CC}" = "gcc" ]; then CMAKE_OPTIONS='${CMAKE_OPTIONS} -DPYTHON_LIBRARY=/opt/python/2.7.12/lib/libpython2.7.so'; fi
-  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then CMAKE_OPTIONS='${CMAKE_OPTIONS} -DPYTHON_LIBRARY=/usr/local/Frameworks/Python.framework/Versions/2.7/lib/libpython2.7.dylib' ; fi
+  #- if [ "${CC}" = "gcc" ]; then CMAKE_OPTIONS='${CMAKE_OPTIONS} -DPYTHON_LIBRARY=/opt/python/2.7.12/lib/libpython2.7.so'; fi
+  #- if [ "$TRAVIS_OS_NAME" = "osx" ]; then CMAKE_OPTIONS='${CMAKE_OPTIONS} -DPYTHON_LIBRARY=/usr/local/Frameworks/Python.framework/Versions/2.7/lib/libpython2.7.dylib' ; fi
   - if [ "$TRAVIS_OS_NAME" = "osx" ]; then export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/usr/local/opt/icu4c/lib/pkgconfig; fi
   - cmake ${CMAKE_OPTIONS} ../
 script:
