@@ -51,7 +51,8 @@ if(BUILD_EMSCRIPTEN_WRAPPERS)
         "../src/odil/Exception.cpp" "../src/odil/json_converter.cpp" 
         "../src/odil/Reader.cpp" "../src/odil/registry.cpp" "../src/odil/Tag.cpp" 
         "../src/odil/uid.cpp" "../src/odil/UIDsDictionary.cpp" 
-        "../src/odil/Value.cpp" "../src/odil/VR.cpp" "../src/odil/VRFinder.cpp")
+        "../src/odil/unicode.cpp" "../src/odil/Value.cpp" "../src/odil/VR.cpp" 
+        "../src/odil/VRFinder.cpp")
     
     add_custom_command(
         OUTPUT odil.js
@@ -59,7 +60,7 @@ if(BUILD_EMSCRIPTEN_WRAPPERS)
             unzip -n jsoncpp-1.8.0.zip && 
             cd jsoncpp-1.8.0 && python amalgamate.py && cd .. && 
             emcc 
-                --bind -o odil.js -O2
+                --bind -o odil.js -O0
                 -s ALLOW_MEMORY_GROWTH=1
                 -s DISABLE_EXCEPTION_CATCHING=0
                 -I ../../src/ -I jsoncpp-1.8.0/dist/ -I /usr/local/include/ 

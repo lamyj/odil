@@ -2,7 +2,6 @@
 <html>
     <head>
         <meta charset="utf-8"> 
-        <script src="odil.js"></script>
         <script src="print.js"></script>
     </head>
     
@@ -59,7 +58,10 @@
                     'change', onFileSelect);
             }
             
-            Module['onRuntimeInitialized'] = main;
+            var Module = {
+                onRuntimeInitialized: main
+            };
         </script>
+        <script src="odil.js"></script>
     </body>
 </html>
