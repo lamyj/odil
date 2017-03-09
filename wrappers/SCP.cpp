@@ -30,11 +30,10 @@ set_callback(odil::SCP & scp, boost::python::object const & f)
 void wrap_SCP()
 {
     using namespace boost::python;
-    using namespace std;
     using namespace odil;
 
-    class_<SCP, shared_ptr<SCP>, boost::noncopyable>("SCP", no_init )
-            .def("receive_and_process", &SCP::receive_and_process )
-            ;
+    class_<SCP, bases<>, boost::shared_ptr<SCP>, boost::noncopyable>("SCP", no_init)
+        .def("receive_and_process", &SCP::receive_and_process)
+    ;
 
 }

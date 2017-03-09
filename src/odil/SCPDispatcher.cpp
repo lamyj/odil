@@ -14,6 +14,7 @@
 
 #include <map>
 #include <memory>
+#include <sstream>
 
 namespace odil
 {
@@ -67,8 +68,9 @@ SCPDispatcher
     auto const it = this->_providers.find(message.get_command_field());
     if(it == this->_providers.end())
     {
-        std::cout << std::endl<< std::endl<< message.get_command_field() << std::endl<< std::endl<< std::endl;
-        throw Exception("No provider for: " + message.get_command_field() );
+        std::ostringstream error_message;
+        error_message << "No provider for: " << message.get_command_field();
+        throw Exception(error_message.str());
     }
 
     auto& scp = *(it->second);
