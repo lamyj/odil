@@ -12,10 +12,10 @@ odil::webservices::URL const base_url{"", "example.com", "/dicom", "", ""};
 odil::webservices::URL const base_url_http{
     "http", "example.com", "/dicom", "", ""};
 
-odil::webservices::WADORSRequest::Selector const instance_selector(
+odil::webservices::Selector const instance_selector(
     "1.2", "3.4", "5.6");
 
-odil::webservices::WADORSRequest::Selector const frames_selector(
+odil::webservices::Selector const frames_selector(
     "1.2", "3.4", "5.6", {7,8,9});
 
 BOOST_AUTO_TEST_CASE(Constructor)

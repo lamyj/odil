@@ -31,84 +31,6 @@ namespace odil
 namespace webservices
 {
 
-WADORSRequest::Selector
-::Selector(
-    std::string const & study, std::string const & series,
-    std::string const & instance, std::vector<int> const & frames)
-{
-    if(!study.empty())
-    {
-        this->study = study;
-        if(!series.empty())
-        {
-            this->series = series;
-            if(!instance.empty())
-            {
-                this->instance = instance;
-                if(!frames.empty())
-                {
-                    this->frames = frames;
-                }
-            }
-        }
-    }
-}
-
-bool
-WADORSRequest::Selector
-::operator==(Selector const & other) const
-{
-    return (
-        this->study == other.study
-        && this->series == other.series
-        && this->instance == other.instance
-        && this->frames == other.frames
-    );
-}
-
-bool
-WADORSRequest::Selector
-::operator!=(Selector const & other) const
-{
-    return !(*this == other);
-}
-
-std::string
-WADORSRequest::Selector
-::get_path(bool include_frames) const
-{
-    if(this->study.empty())
-    {
-        throw Exception("Study may not be empty");
-    }
-
-    std::string path = "/studies/" + this->study;
-    if(!this->series.empty())
-    {
-        path += "/series/" + this->series;
-        if(!this->instance.empty())
-        {
-            path += "/instances/" + this->instance;
-            if(include_frames && !this->frames.empty())
-            {
-                path += "/frames/";
-
-                auto const last = --this->frames.end();
-                auto it = this->frames.begin();
-                while(it != last)
-                {
-                    path += std::to_string(*it) + ",";
-                    ++it;
-                }
-                path += std::to_string(*last);
-            }
-
-        }
-    }
-
-    return path;
-}
-
 WADORSRequest
 ::WADORSRequest(
     URL const & base_url,
@@ -379,7 +301,7 @@ WADORSRequest
     return this->_type;
 }
 
-WADORSRequest::Selector const &
+odil::webservices::Selector const &
 WADORSRequest
 ::get_selector() const
 {
@@ -511,7 +433,7 @@ WADORSRequest
     return HTTPRequest("GET", this->_url, "HTTP/1.0", headers);
 }
 
-std::pair<URL, WADORSRequest::Selector>
+std::pair<URL, odil::webservices::Selector>
 WADORSRequest
 ::_split_full_url(URL const & url)
 {

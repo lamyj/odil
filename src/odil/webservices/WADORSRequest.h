@@ -14,6 +14,7 @@
 
 #include "odil/odil.h"
 #include "odil/webservices/HTTPRequest.h"
+#include "odil/webservices/Selector.h"
 #include "odil/webservices/URL.h"
 #include "odil/webservices/WADORS.h"
 
@@ -27,32 +28,6 @@ namespace webservices
 class ODIL_API WADORSRequest
 {
 public:
-    /// @brief Target (in the DICOM data model) of the request.
-    struct ODIL_API Selector
-    {
-        std::string study;
-        std::string series;
-        std::string instance;
-        std::vector<int> frames;
-
-        /// @brief Constructor.
-        Selector(
-            std::string const & study="", std::string const & series="",
-            std::string const & instance="", std::vector<int> const & frames={});
-
-        /// @brief Equality operator.
-        bool operator==(Selector const & other) const;
-
-        /// @brief Difference operator.
-        bool operator!=(Selector const & other) const;
-
-        /**
-         * @brief Return the associated URL path, with the optional "frames"
-         * component.
-         */
-        std::string get_path(bool include_frames) const;
-    };
-
     /// @brief Constructor.
     WADORSRequest(
         URL const & base_url, std::string const & transfer_syntax="",
