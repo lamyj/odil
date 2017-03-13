@@ -42,10 +42,12 @@ emscripten::val getTag(std::string const & name)
 }
 
 void wrap_Tag();
+void wrap_VR();
 
 EMSCRIPTEN_BINDINGS(odil)
 {
     wrap_Tag();
+    wrap_VR();
         
     emscripten::function("readBuffer", readBuffer);
     emscripten::function("getTag", getTag);
