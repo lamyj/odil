@@ -41,15 +41,11 @@ emscripten::val getTag(std::string const & name)
     return result;
 }
 
+void wrap_Tag();
+
 EMSCRIPTEN_BINDINGS(odil)
 {
-    emscripten::class_<odil::Tag>("Tag")
-        .constructor<int, int>()
-        .property("group", &odil::Tag::group)
-        .property("element", &odil::Tag::element)
-        .function("getName", &odil::Tag::get_name)
-        .function("toString", &odil::Tag::operator std::string)
-    ;
+    wrap_Tag();
         
     emscripten::function("readBuffer", readBuffer);
     emscripten::function("getTag", getTag);

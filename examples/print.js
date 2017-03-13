@@ -11,7 +11,7 @@ function renderDataSet(dataSet, parent) {
         
         var tagName = tagString
         try {
-            var tagName = tag.getName();
+            var tagName = tag.get_name();
         }
         catch(e) {
             // Ignore the error
