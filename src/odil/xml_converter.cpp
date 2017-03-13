@@ -10,9 +10,51 @@
 #include <map>
 #include <vector>
 
+#include <boost/property_tree/ptree.hpp>
+
 #include "odil/base64.h"
+#include "odil/DataSet.h"
 #include "odil/registry.h"
+#include "odil/Value.h"
 #include "odil/xml_converter.h"
+
+namespace
+{
+
+template<typename TIterator>
+std::string join(TIterator first, TIterator last, std::string const & separator)
+{
+    std::string joined;
+    bool is_first=true;
+    while(first != last)
+    {
+        if(!is_first)
+        {
+            joined += separator;
+        }
+        joined += *first;
+        is_first = false;
+        ++first;
+    }
+    return joined;
+}
+
+template<typename TIterator>
+void split(
+    std::string const & string, std::string const & separator,
+    TIterator destination)
+{
+    std::string::size_type begin=0;
+    while(begin < string.size())
+    {
+        auto end = std::min(string.find(separator, begin), string.size());
+        *destination = string.substr(begin, end-begin);
+        ++destination;
+        begin = end+1;
+    }
+}
+
+}
 
 namespace odil
 {
@@ -20,6 +62,8 @@ namespace odil
 /// @brief Element visitor converting to XML.
 struct ToXMLVisitor
 {
+    BulkDataCreator bulk_data_creator;
+
     typedef boost::property_tree::ptree result_type;
 
     result_type operator()(VR const vr) const
@@ -52,26 +96,6 @@ struct ToXMLVisitor
         return result;
     }
 
-    result_type operator()(VR const vr, Value::Integers const & value) const
-    {
-        result_type result;
-
-        result.put("<xmlattr>.vr", as_string(vr)); // Mandatory
-
-        unsigned int count = 0;
-        for(auto const & item: value)
-        {
-            ++count;
-            boost::property_tree::ptree tag_value;
-            tag_value.put("<xmlattr>.number", count); // Mandatory
-            tag_value.put_value(item);
-
-            result.add_child("Value", tag_value);
-        }
-
-        return result;
-    }
-
     result_type operator()(VR const vr, Value::Strings const & value) const
     {
         result_type result;
@@ -80,7 +104,11 @@ struct ToXMLVisitor
 
         if(vr == VR::PN)
         {
-            auto const fields = { "Alphabetic", "Ideographic", "Phonetic" };
+            std::vector<std::string> const representation_names{
+                "Alphabetic", "Ideographic", "Phonetic" };
+            std::vector<std::string> const field_names{
+                "FamilyName", "GivenName", "MiddleName", "NamePrefix",
+                "NameSuffix" };
 
             unsigned int count = 0;
             for(auto const & item: value)
@@ -89,83 +117,36 @@ struct ToXMLVisitor
                 boost::property_tree::ptree tag_value;
                 tag_value.put("<xmlattr>.number", count); // Mandatory
 
-                auto fields_it = fields.begin();
-                std::string::size_type begin=0;
-                while(begin != std::string::npos)
+                std::vector<std::string> representations;
+                split(item, "=", std::back_inserter(representations));
+                for(unsigned int r=0;
+                    r<std::min(representation_names.size(), representations.size());
+                    ++r)
                 {
-                    std::string::size_type const end = item.find("=", begin);
-
-                    std::string::size_type size = 0;
-                    if(end != std::string::npos)
+                    if(representations[r].empty())
                     {
-                        size = end-begin;
-                    }
-                    else
-                    {
-                        size = std::string::npos;
+                        continue;
                     }
 
-                    boost::property_tree::ptree tag_field;
-                    std::string value_name = item.substr(begin, size);
+                    boost::property_tree::ptree representation_node;
 
-                    auto const fields_name = { "FamilyName", "GivenName",
-                                               "MiddleName", "NamePrefix",
-                                               "NameSuffix" };
-                    auto fields_name_it = fields_name.begin();
-                    std::string::size_type begin_name=0;
-                    while(begin_name != std::string::npos)
+                    std::vector<std::string> fields;
+                    split(representations[r], "^", std::back_inserter(fields));
+                    for(unsigned int f=0;
+                        f<std::min(field_names.size(), fields.size()); ++f)
                     {
-                        std::string::size_type const end_name =
-                                value_name.find("^", begin_name);
-
-                        std::string::size_type size_name = 0;
-                        if(end_name != std::string::npos)
+                        if(fields[f].empty())
                         {
-                            size_name = end_name-begin_name;
-                        }
-                        else
-                        {
-                            size_name = std::string::npos;
+                            continue;
                         }
 
-                        boost::property_tree::ptree tag_name;
-
-                        tag_name.put_value(value_name.substr(begin_name,
-                                                             size_name));
-
-                        tag_field.add_child(*fields_name_it, tag_name);
-
-                        if(end_name != std::string::npos)
-                        {
-                            begin_name = end_name+1;
-                            ++fields_name_it;
-                            if(fields_name_it == fields_name.end())
-                            {
-                                throw Exception("Invalid Person Name");
-                            }
-                        }
-                        else
-                        {
-                            begin_name = end_name;
-                        }
+                        representation_node.put(field_names[f], fields[f]);
                     }
 
-                    tag_value.add_child(*fields_it, tag_field);
-
-                    if(end != std::string::npos)
-                    {
-                        begin = end+1;
-                        ++fields_it;
-                        if(fields_it == fields.end())
-                        {
-                            throw Exception("Invalid Person Name");
-                        }
-                    }
-                    else
-                    {
-                        begin = end;
-                    }
+                    tag_value.add_child(
+                        representation_names[r], representation_node);
                 }
+
                 result.add_child("PersonName", tag_value);
             }
         }
@@ -198,7 +179,8 @@ struct ToXMLVisitor
             ++count;
             boost::property_tree::ptree tag_value;
             tag_value.put("<xmlattr>.number", count); // Mandatory
-            boost::property_tree::ptree tag_result = as_xml(item);
+            boost::property_tree::ptree tag_result = as_xml(
+                item, this->bulk_data_creator);
             tag_value.insert(tag_value.end(), tag_result.front().second.begin(),
                                               tag_result.front().second.end());
             result.add_child("Item", tag_value);
@@ -233,101 +215,15 @@ struct ToXMLVisitor
 
         return result;
     }
-
 };
 
-std::string get_person_name(boost::property_tree::ptree const & xml)
+boost::property_tree::ptree as_xml(
+    DataSet const & data_set,
+    BulkDataCreator const & bulk_data_creator)
 {
-    std::vector<std::string> const fields_name = { "NameSuffix", "NamePrefix",
-                                                   "MiddleName", "GivenName",
-                                                   "FamilyName" };
+    ToXMLVisitor visitor;
+    visitor.bulk_data_creator = bulk_data_creator;
 
-    std::map<std::string, std::string> values;
-    for(auto it = xml.begin(); it != xml.end(); ++it)
-    {
-        if (std::find(fields_name.begin(),
-                      fields_name.end(), it->first) != fields_name.end())
-        {
-            auto const value = it->second.get_value<std::string>();
-
-            values.insert(std::pair<std::string, std::string>(it->first, value));
-        }
-        else
-        {
-            std::stringstream error;
-            error << "Bad sub-Tag '" << it->first
-                  << "' for PersonName Tag";
-            throw Exception(error.str());
-        }
-    }
-
-    std::string return_value;
-    auto itfield = fields_name.begin();
-    do
-    {
-        std::stringstream current_value;
-
-        std::string value;
-        if (values.find(*itfield) != values.end())
-        {
-            value = values[*itfield];
-        }
-
-        ++itfield;
-
-        if (itfield != fields_name.end() && (value != "" || return_value != ""))
-        {
-            current_value << "^";
-        }
-        if (value != "")
-        {
-            current_value << value;
-        }
-        if (return_value != "")
-        {
-            current_value << return_value;
-        }
-
-        return_value = current_value.str();
-    }
-    while (itfield != fields_name.end());
-
-    return return_value;
-}
-
-template<typename TValueType>
-std::map<int, TValueType>
-parse_value(boost::property_tree::ptree const & xml, VR const & vr)
-{
-    std::map<int, TValueType> values;
-    for(auto it_value = xml.begin(); it_value != xml.end(); ++it_value)
-    {
-        if (it_value->first == "<xmlattr>")
-        {
-            continue;
-        }
-        else if (it_value->first != "Value")
-        {
-            std::stringstream error;
-            error << "Bad sub-Tag '" << it_value->first
-                  << "' for DicomAttribute Tag with VR = "
-                  << as_string(vr);
-            throw Exception(error.str());
-        }
-
-        int const position =
-                it_value->second.get<int>("<xmlattr>.number");
-
-        values.insert(std::pair<int, TValueType>(
-            position,
-            it_value->second.get_value<TValueType>()));
-    }
-
-    return values;
-}
-
-boost::property_tree::ptree as_xml(DataSet const & data_set)
-{
     // XML dataset element
     boost::property_tree::ptree nativedicommodel;
     for(auto const & it: data_set)
@@ -335,9 +231,23 @@ boost::property_tree::ptree as_xml(DataSet const & data_set)
         auto const & tag = it.first;
         auto const & element = it.second;
 
-        boost::property_tree::ptree dicomattribute =
-                apply_visitor(ToXMLVisitor(), element);
+        boost::property_tree::ptree dicomattribute;
 
+        auto const bulk_data_info =
+            bulk_data_creator?bulk_data_creator(data_set, tag)
+            :std::make_pair("", "");
+        if(!bulk_data_info.first.empty())
+        {
+            boost::property_tree::ptree bulk_data_element;
+            bulk_data_element.put(
+                "<xmlattr>."+bulk_data_info.first, bulk_data_info.second);
+            dicomattribute.add_child("BulkData", bulk_data_element);
+            dicomattribute.put("<xmlattr>.vr", as_string(element.vr));
+        }
+        else
+        {
+            dicomattribute = apply_visitor(visitor, element);
+        }
         // Add Mandatory attribute Tag
         dicomattribute.put("<xmlattr>.tag",  std::string(tag));
         // Add Optional attribute Keyword
@@ -349,7 +259,6 @@ boost::property_tree::ptree as_xml(DataSet const & data_set)
         }
         // Add Optional attribute PrivateCreator
         //dicomattribute.put("<xmlattr>.privateCreator", todo);
-
         nativedicommodel.add_child("DicomAttribute", dicomattribute);
     }
 
@@ -362,223 +271,260 @@ boost::property_tree::ptree as_xml(DataSet const & data_set)
     return dataset_xml;
 }
 
+void parse_value(
+    boost::property_tree::ptree const & xml, Element & element)
+{
+    auto const number = xml.get<unsigned int>("<xmlattr>.number");
+    if(element.is_int())
+    {
+        element.as_int()[number-1] = xml.get_value<Value::Integer>();
+    }
+    else if(element.is_real())
+    {
+        element.as_real()[number-1] = xml.get_value<Value::Real>();
+    }
+    else if(element.is_string())
+    {
+        // FIXME: Orthanc does not split strings using backslash
+        element.as_string()[number-1] = xml.get_value<Value::String>();
+    }
+    // SQ is handled by parse_item
+    // Binary is handled by parse_inline_binary
+    else
+    {
+        throw Exception("Cannot parse "+as_string(element.vr)+" as Value");
+    }
+}
+
+void parse_bulk_data(
+    boost::property_tree::ptree const & xml, Element & element)
+{
+    try
+    {
+        element.as_string() = {xml.get<std::string>("<xmlattr>.uri")};
+    }
+    catch(boost::property_tree::ptree_bad_path const &)
+    {
+        element.as_string() = {xml.get<std::string>("<xmlattr>.uuid")};
+    }
+}
+
+void parse_person_name(
+    boost::property_tree::ptree const & xml, Element & element)
+{
+    auto const number = xml.get<unsigned int>("<xmlattr>.number");
+
+    std::vector<std::string> const representations = {
+        "Alphabetic", "Ideographic", "Phonetic"
+    };
+    std::vector<std::string> names;
+    for(auto const & representation: representations)
+    {
+        auto const representation_it = xml.find(representation);
+        if(representation_it == xml.not_found())
+        {
+            names.push_back("");
+        }
+        else
+        {
+            std::vector<std::string> name;
+
+            std::vector<std::string> const components = {
+                "FamilyName", "GivenName", "MiddleName", "NamePrefix", "NameSuffix"};
+            for(auto const & component: components)
+            {
+                auto const & component_it = representation_it->second.find(component);
+                if(component_it == representation_it->second.not_found())
+                {
+                    name.push_back("");
+                }
+                else
+                {
+                    name.push_back(component_it->second.get_value<std::string>());
+                }
+            }
+
+            while(!name.empty() && name.rbegin()->empty())
+            {
+                name.pop_back();
+            }
+
+            names.push_back(join(name.begin(), name.end(), "^"));
+        }
+    }
+
+    while(!names.empty() && names.rbegin()->empty())
+    {
+        names.pop_back();
+    }
+
+    element.as_string()[number-1] = join(names.begin(), names.end(), "=");
+}
+
+void parse_attributes(
+    boost::property_tree::ptree const & xml, DataSet & data_set);
+
+void parse_item(
+    boost::property_tree::ptree const & xml, Element & element)
+{
+    DataSet data_set;
+    parse_attributes(xml, data_set);
+    auto const number = xml.get<unsigned int>("<xmlattr>.number");
+    element.as_data_set()[number-1] = data_set;
+}
+
+void parse_inline_binary(
+    boost::property_tree::ptree const & xml, Element & element)
+{
+    auto const & encoded = xml.get_value<std::string>();
+    Value::Binary::value_type decoded;
+    decoded.reserve(encoded.size()*3/4);
+    base64::decode(
+        encoded.begin(), encoded.end(),
+        std::back_inserter(decoded));
+    element.as_binary() = { decoded };
+}
+
+void parse_attributes(
+    boost::property_tree::ptree const & xml, DataSet & data_set)
+{
+    auto const attributes = xml.equal_range("DicomAttribute");
+    for(auto attribute = attributes.first; attribute != attributes.second; ++attribute)
+    {
+        auto const & children = attribute->second;
+
+        Tag const tag(children.get<std::string>("<xmlattr>.tag"));
+        VR const vr = as_vr(children.get<std::string>("<xmlattr>.vr"));
+
+        Element element(VR::UN);
+
+        std::pair<
+            boost::property_tree::ptree::const_assoc_iterator,
+            boost::property_tree::ptree::const_assoc_iterator> range(
+                children.not_found(), children.not_found());
+        std::function<void(boost::property_tree::ptree const &, Element &)> parser;
+        boost::property_tree::ptree normalized;
+        if(children.find("Value") != children.not_found())
+        {
+            range = children.equal_range("Value");
+            if(vr != VR::LT && vr != VR::ST && vr != VR::UT)
+            {
+                // Some providers use a wrong representation where multi-valued
+                // elements are joined using \\ instead of using multiple
+                // <Value> elements. Be nice to them.
+                bool must_normalize = false;
+                for(auto it=range.first; it != range.second; ++it)
+                {
+                    auto const value = it->second.get_value<std::string>();
+                    if(value.find("\\") != std::string::npos)
+                    {
+                        must_normalize = true;
+                        break;
+                    }
+                }
+                if(must_normalize)
+                {
+                    int count=0;
+                    for(auto it=range.first; it != range.second; ++it)
+                    {
+                        auto const original_value =
+                            it->second.get_value<std::string>();
+                        std::vector<std::string> values;
+                        split(original_value, "\\", std::back_inserter(values));
+                        for(auto const & value: values)
+                        {
+                            boost::property_tree::ptree value_node;
+                            value_node.put("<xmlattr>.number", 1+count);
+                            value_node.put_value(value);
+                            normalized.add_child("Value", value_node);
+                            ++count;
+                        }
+                    }
+                    range = normalized.equal_range("Value");
+                }
+                // Otherwise, nothing to do: range is OK
+            }
+            // Otherwise, nothing to do: range is OK
+            element = Element(vr);
+            parser = parse_value;
+        }
+        else if(children.find("BulkData") != children.not_found())
+        {
+            range = children.equal_range("BulkData");
+            element = Element(VR::UR);
+            parser = parse_bulk_data;
+        }
+        else if(children.find("PersonName") != children.not_found())
+        {
+            range = children.equal_range("PersonName");
+            element = Element(VR::PN);
+            parser = parse_person_name;
+        }
+        else if(children.find("Item") != children.not_found())
+        {
+            range = children.equal_range("Item");
+            element = Element(VR::SQ);
+            parser = parse_item;
+        }
+        else if(children.find("InlineBinary") != children.not_found())
+        {
+            range = children.equal_range("InlineBinary");
+            element = Element(vr);
+            parser = parse_inline_binary;
+        }
+        else
+        {
+            element = Element(vr);
+            parser = [](boost::property_tree::ptree const &, Element &) {};
+        }
+
+        auto const size = range.first==children.not_found()?0
+            :std::distance(range.first, range.second);
+        if(element.is_int())
+        {
+            element.as_int().resize(size);
+        }
+        else if(element.is_real())
+        {
+            element.as_real().resize(size);
+        }
+        else if(element.is_string())
+        {
+            element.as_string().resize(size);
+        }
+        else if(element.is_data_set())
+        {
+            element.as_data_set().resize(size);
+        }
+        else if(element.is_binary())
+        {
+            element.as_binary().resize(size);
+        }
+        else
+        {
+            throw Exception("Cannot resize "+as_string(vr));
+        }
+
+        for(auto it = range.first; it != range.second; ++it)
+        {
+            parser(it->second, element);
+        }
+
+        data_set.add(tag, element);
+    }
+}
+
 DataSet as_dataset(boost::property_tree::ptree const & xml)
 {
-    // XML contains only one NativeDicomModel
-    // <NativeDicomModel>
-    //     ...
-    // </NativeDicomModel>
-    if (xml.size() < 1 || xml.front().first != "NativeDicomModel")
+    if(xml.size() < 1 || xml.front().first != "NativeDicomModel")
     {
         throw Exception("Missing root node NativeDicomModel");
     }
 
     DataSet data_set;
 
-    for(auto it = xml.front().second.begin();
-        it != xml.front().second.end(); ++it)
-    {
-        // NativeDicomModel tag should only contains DicomAttribute tag
-        if (it->first != "DicomAttribute")
-        {
-            throw Exception("Bad DICOM tag: " + it->first);
-        }
-
-        // Get VR and tag
-        Tag const tag(it->second.get<std::string>("<xmlattr>.tag"));
-        VR const vr = as_vr(it->second.get<std::string>("<xmlattr>.vr"));
-
-        Element element(vr);
-
-        if(odil::is_string(vr) && vr != odil::VR::PN)
-        {
-            auto values = parse_value<Value::Strings::value_type>(it->second,
-                                                                  vr);
-
-            for (auto it = values.begin(); it != values.end(); ++it)
-            {
-                element.as_string().push_back(it->second);
-            }
-        }
-        else if(vr == VR::PN)
-        {
-            std::map<int, Value::Strings::value_type> values;
-            for(auto it_value = it->second.begin();
-                it_value != it->second.end(); ++it_value)
-            {
-                if (it_value->first == "<xmlattr>")
-                {
-                    continue;
-                }
-                else if (it_value->first != "PersonName")
-                {
-                    std::stringstream error;
-                    error << "Bad sub-Tag '" << it_value->first
-                          << "' for DicomAttribute Tag with VR = "
-                          << as_string(vr);
-                    throw Exception(error.str());
-                }
-
-                int const position =
-                        it_value->second.get<int>("<xmlattr>.number");
-
-                std::map<std::string, std::string> names;
-                auto const fields = { "Alphabetic", "Ideographic", "Phonetic" };
-                for(auto it_person = it_value->second.begin();
-                    it_person != it_value->second.end(); ++it_person)
-                {
-                    if (it_person->first == "<xmlattr>")
-                    {
-                        continue;
-                    }
-                    else if (std::find(fields.begin(),
-                                       fields.end(),
-                                       it_person->first) != fields.end())
-                    {
-                        names.insert(std::pair<std::string, std::string>(
-                                         it_person->first,
-                                         get_person_name(it_person->second)));
-                    }
-                    else
-                    {
-                        std::stringstream error;
-                        error << "Bad sub-Tag '" << it_person->first
-                              << "' for PersonName Tag";
-                        throw Exception(error.str());
-                    }
-                }
-
-                Value::Strings::value_type dicom_item;
-                for(auto const & field: fields)
-                {
-                    if (names.find(field) != names.end())
-                    {
-                        dicom_item += names[field];
-                    }
-                    dicom_item += "=";
-                }
-
-                while(*dicom_item.rbegin() == '=')
-                {
-                    dicom_item = dicom_item.substr(0, dicom_item.size()-1);
-                }
-
-                values.insert(std::pair<int, Value::Strings::value_type>(
-                                  position, dicom_item));
-            }
-
-            for (auto it = values.begin(); it != values.end(); ++it)
-            {
-                element.as_string().push_back(it->second);
-            }
-        }
-        else if(is_real(vr))
-        {
-            auto values = parse_value<Value::Reals::value_type>(it->second, vr);
-
-            for (auto it = values.begin(); it != values.end(); ++it)
-            {
-                element.as_real().push_back(it->second);
-            }
-        }
-        else if(is_int(vr))
-        {
-            auto values = parse_value<Value::Integers::value_type>(it->second,
-                                                                   vr);
-
-            for (auto it = values.begin(); it != values.end(); ++it)
-            {
-                element.as_int().push_back(it->second);
-            }
-        }
-        else if(vr == VR::SQ)
-        {
-            std::map<int, Value::DataSets::value_type> values;
-            for(auto it_value = it->second.begin();
-                it_value != it->second.end(); ++it_value)
-            {
-                if (it_value->first == "<xmlattr>")
-                {
-                    continue;
-                }
-                else if (it_value->first != "Item")
-                {
-                    std::stringstream error;
-                    error << "Bad sub-Tag '" << it_value->first
-                          << "' for DicomAttribute Tag with VR = "
-                          << as_string(vr);
-                    throw Exception(error.str());
-                }
-
-                boost::property_tree::ptree nativedicommodel;
-                nativedicommodel.insert(nativedicommodel.end(),
-                                        it_value->second.begin(),
-                                        it_value->second.end());
-                nativedicommodel.erase("<xmlattr>");
-
-                boost::property_tree::ptree dataset_xml;
-                dataset_xml.add_child("NativeDicomModel", nativedicommodel);
-
-                int const position =
-                        it_value->second.get<int>("<xmlattr>.number");
-
-                values.insert(std::pair<int, Value::DataSets::value_type>(
-                    position, as_dataset(dataset_xml)));
-            }
-
-            for (auto it = values.begin(); it != values.end(); ++it)
-            {
-                element.as_data_set().push_back(it->second);
-            }
-        }
-        else if(is_binary(vr))
-        {
-            bool find_inline_binary = false; // only one Tag InlineBinary
-            for(auto it_value = it->second.begin();
-                it_value != it->second.end(); ++it_value)
-            {
-                if (it_value->first == "<xmlattr>")
-                {
-                    continue;
-                }
-                else if (it_value->first != "InlineBinary")
-                {
-                    std::stringstream error;
-                    error << "Bad sub-Tag '" << it_value->first
-                          << "' for DicomAttribute Tag with VR = "
-                          << as_string(vr);
-                    throw Exception(error.str());
-                }
-                else if (find_inline_binary)
-                {
-                    std::stringstream error;
-                    error << "Too many sub-Tag '" << it_value->first
-                          << "' for DicomAttribute Tag with VR = "
-                          << as_string(vr);
-                    throw Exception(error.str());
-                }
-
-                auto const & encoded = it_value->second.get_value<std::string>();
-                // cf. ToXMLVisitor::operator()(VR, Value::Binary): InlineBinary
-                // is single-valued
-                auto & decoded = element.as_binary();
-                decoded.resize(1);
-                decoded[0].reserve(encoded.size()*3/4);
-                base64::decode(
-                    encoded.begin(), encoded.end(),
-                    std::back_inserter(decoded[0]));
-
-                find_inline_binary = true;
-            }
-        }
-        else
-        {
-            throw Exception("Unknown VR: "+as_string(vr));
-        }
-
-        data_set.add(tag, element);
-    }
-
+    auto const & root = xml.get_child("NativeDicomModel");
+    parse_attributes(root, data_set);
     return data_set;
 }
 
