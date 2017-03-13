@@ -3,12 +3,11 @@
     <head>
         <meta charset="utf-8"> 
         <script src="print.js"></script>
+        <style type="text/css">
+            ul { padding-left: 0px; margin-left: 0px; }
+            ul>li { list-style-type: none; }
+        </style>
     </head>
-    
-    <style type="text/css">
-        ul { padding-left: 0px; margin-left: 0px; }
-        ul>li { list-style-type: none; }
-    </style>
     
     <body>
         <label for="file">Select a DICOM file: </label>
@@ -21,9 +20,9 @@
         <script>
             function onFileRead(event) {
                 var buffer = event.target.result;
-                var headerAndDataSet = JSON.parse(odil.readBuffer(buffer));
-                var header = headerAndDataSet[0];
-                var dataSet = headerAndDataSet[1];
+                var headerAndDataSet = odil.readBuffer(buffer);
+                var header = headerAndDataSet.get(0);
+                var dataSet = headerAndDataSet.get(1);
                 
                 document.querySelector('#header').innerHTML = '';
                 document.querySelector('#dataSet').innerHTML = '';
@@ -31,9 +30,9 @@
                 renderDataSet(dataSet, document.querySelector('#dataSet'));
                 
                 var pixelDataCanvas = document.querySelector('#pixelData');
-                if(dataSet[odil.getTag('PixelData')] !== undefined) {
-                    var rows = dataSet[odil.getTag('Rows')].Value[0];
-                    var columns = dataSet[odil.getTag('Columns')].Value[0];
+                if(dataSet.has(odil.getTag('PixelData'))) {
+                    var rows = dataSet.as_int(odil.getTag('Rows')).get(0);
+                    var columns = dataSet.as_int(odil.getTag('Columns')).get(0);
                     pixelDataCanvas.width = columns;
                     pixelDataCanvas.height = rows;
                     var context = pixelDataCanvas.getContext('2d');

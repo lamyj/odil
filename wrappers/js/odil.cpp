@@ -7,21 +7,15 @@
 #include "odil/Reader.h"
 #include "odil/registry.h"
 
-std::string readBuffer(std::string const & buffer)
+std::vector<odil::DataSet> readBuffer(std::string const & buffer)
 {
     std::istringstream istream(buffer);
     auto const header_and_data_set = odil::Reader::read_file(istream);
     
-    auto const json_header = odil::as_json(header_and_data_set.first);
-    auto const json_data_set = odil::as_json(header_and_data_set.second);
-    
-    Json::Value root;
-    root.append(json_header);
-    root.append(json_data_set);
-    std::ostringstream ostream;
-    ostream << root;
-    
-    return ostream.str();
+    std::vector<odil::DataSet> result;
+    result.push_back(header_and_data_set.first);
+    result.push_back(header_and_data_set.second);
+    return result;
 }
 
 emscripten::val getTag(std::string const & name)
@@ -41,11 +35,24 @@ emscripten::val getTag(std::string const & name)
     return result;
 }
 
+void wrap_DataSet();
 void wrap_Tag();
 void wrap_VR();
 
 EMSCRIPTEN_BINDINGS(odil)
 {
+    using namespace emscripten;
+    using namespace odil;
+    
+    register_vector<int32_t>("Integers"); // FIXME: Javascript has no 64-bits int
+    register_vector<Value::Real>("Reals");
+    register_vector<Value::String>("Strings"); 
+    register_vector<DataSet>("DataSets");
+    register_vector<Value::Binary::value_type::value_type>("BinaryItem");
+    register_vector<Value::Binary::value_type>("Binary");
+    register_vector<Tag>("VectorTag");
+    
+    wrap_DataSet();
     wrap_Tag();
     wrap_VR();
         
