@@ -1,9 +1,9 @@
 #include <sstream>
 #include <string>
 
+#include <emscripten.h>
 #include <emscripten/bind.h>
 
-#include "odil/json_converter.h"
 #include "odil/Reader.h"
 #include "odil/registry.h"
 
@@ -39,6 +39,8 @@ void wrap_DataSet();
 void wrap_Tag();
 void wrap_VR();
 
+void wrap_webservices_URL();
+
 EMSCRIPTEN_BINDINGS(odil)
 {
     using namespace emscripten;
@@ -55,6 +57,11 @@ EMSCRIPTEN_BINDINGS(odil)
     wrap_DataSet();
     wrap_Tag();
     wrap_VR();
+    
+    EM_ASM(
+        Module['webservices'] = {};
+    );
+    wrap_webservices_URL();
         
     emscripten::function("readBuffer", readBuffer);
     emscripten::function("getTag", getTag);

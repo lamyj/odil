@@ -81,9 +81,10 @@ set(odil_files
     "${CMAKE_SOURCE_DIR}/src/odil/unicode.cpp" 
     "${CMAKE_SOURCE_DIR}/src/odil/Value.cpp" 
     "${CMAKE_SOURCE_DIR}/src/odil/VR.cpp" 
-    "${CMAKE_SOURCE_DIR}/src/odil/VRFinder.cpp")
+    "${CMAKE_SOURCE_DIR}/src/odil/VRFinder.cpp"
+    "${CMAKE_SOURCE_DIR}/src/odil/webservices/URL.cpp")
 
-file(GLOB files "*cpp") 
+file(GLOB_RECURSE files "*cpp") 
 
 set(CMAKE_C_COMPILER emcc)
 set(CMAKE_CXX_COMPILER em++)
