@@ -83,6 +83,7 @@ set(odil_files
     "${CMAKE_SOURCE_DIR}/src/odil/VR.cpp" 
     "${CMAKE_SOURCE_DIR}/src/odil/VRFinder.cpp"
     "${CMAKE_SOURCE_DIR}/src/odil/webservices/HTTPRequest.cpp"
+    "${CMAKE_SOURCE_DIR}/src/odil/webservices/HTTPResponse.cpp"
     "${CMAKE_SOURCE_DIR}/src/odil/webservices/ItemWithParameters.cpp"
     "${CMAKE_SOURCE_DIR}/src/odil/webservices/Message.cpp"
     "${CMAKE_SOURCE_DIR}/src/odil/webservices/URL.cpp"
