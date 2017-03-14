@@ -39,6 +39,8 @@ void wrap_DataSet();
 void wrap_Tag();
 void wrap_VR();
 
+void wrap_webservices_HTTPRequest();
+void wrap_webservices_Message();
 void wrap_webservices_URL();
 
 EMSCRIPTEN_BINDINGS(odil)
@@ -54,6 +56,8 @@ EMSCRIPTEN_BINDINGS(odil)
     register_vector<Value::Binary::value_type>("Binary");
     register_vector<Tag>("VectorTag");
     
+    register_map<std::string, std::string>("MapStringString");
+    
     wrap_DataSet();
     wrap_Tag();
     wrap_VR();
@@ -61,6 +65,10 @@ EMSCRIPTEN_BINDINGS(odil)
     EM_ASM(
         Module['webservices'] = {};
     );
+    
+    wrap_webservices_Message();
+    wrap_webservices_HTTPRequest();
+    
     wrap_webservices_URL();
         
     emscripten::function("readBuffer", readBuffer);
