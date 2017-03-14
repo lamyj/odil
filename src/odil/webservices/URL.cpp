@@ -81,7 +81,7 @@ URL
     
     qi::rule<Iterator, std::string()> scheme = +~qi::char_(":/?#");
     qi::rule<Iterator, std::string()> authority = +~qi::char_("/?#");
-    qi::rule<Iterator, std::string()> path = +~qi::char_("?#");
+    qi::rule<Iterator, std::string()> path = *~qi::char_("?#");
     qi::rule<Iterator, std::string()> query = +~qi::char_("#");
     qi::rule<Iterator, std::string()> fragment = +qi::char_;
     
