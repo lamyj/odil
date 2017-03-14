@@ -42,6 +42,7 @@ void wrap_VR();
 void wrap_webservices_HTTPRequest();
 void wrap_webservices_Message();
 void wrap_webservices_URL();
+void wrap_webservices_WADORS();
 
 EMSCRIPTEN_BINDINGS(odil)
 {
@@ -70,6 +71,7 @@ EMSCRIPTEN_BINDINGS(odil)
     wrap_webservices_HTTPRequest();
     
     wrap_webservices_URL();
+    wrap_webservices_WADORS();
         
     emscripten::function("readBuffer", readBuffer);
     emscripten::function("getTag", getTag);
