@@ -86,6 +86,7 @@ set(odil_files
     "${CMAKE_SOURCE_DIR}/src/odil/webservices/HTTPResponse.cpp"
     "${CMAKE_SOURCE_DIR}/src/odil/webservices/ItemWithParameters.cpp"
     "${CMAKE_SOURCE_DIR}/src/odil/webservices/Message.cpp"
+    "${CMAKE_SOURCE_DIR}/src/odil/webservices/multipart_related.cpp"
     "${CMAKE_SOURCE_DIR}/src/odil/webservices/URL.cpp"
     "${CMAKE_SOURCE_DIR}/src/odil/webservices/WADORSRequest.cpp"
     "${CMAKE_SOURCE_DIR}/src/odil/webservices/WADORSResponse.cpp")
