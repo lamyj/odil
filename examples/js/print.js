@@ -95,7 +95,8 @@ function putDataSetImage(dataSet, context) {
     var bitsAllocated = dataSet.as_int(odil.getTag('BitsAllocated')).get(0);
     var isSigned = false;
     if(dataSet.has(odil.getTag('PixelRepresentation'))) {
-        isSigned = (dataSet.as_int(odil.getTag('PixelRepresentation')).get(0) === 1);
+        isSigned = (
+            dataSet.as_int(odil.getTag('PixelRepresentation')).get(0) === 1);
     }
     
     var getter = 'get'+(isSigned?'Int':'Uint')+bitsAllocated;
