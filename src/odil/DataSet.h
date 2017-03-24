@@ -32,31 +32,42 @@ public:
     /// @brief Create an empty data set.
     explicit DataSet(std::string const & transfer_syntax="");
 
+    /** @addtogroup default_operations Default class operations
+     * @{
+     */
+    ~DataSet() =default;
+    DataSet(DataSet const &) =default;
+    DataSet(DataSet &&) =default;
+    DataSet & operator=(DataSet const &) =default;
+    DataSet & operator=(DataSet &&) =default;
+    /// @}
+
     /// @brief Add an element to the dataset.
     void add(Tag const & tag, Element const & element);
 
     /// @brief Add an empty element to the dataset.
     void add(Tag const & tag, VR vr=VR::UNKNOWN);
 
-    /// @brief Add an element to the dataset.
-    void add(
-        Tag const & tag, Value::Integers const & value, VR vr=VR::UNKNOWN);
+#define ODIL_DATASET_ADD(type) \
+    void add(\
+        Tag const & tag, Value::type const & value, VR vr=VR::UNKNOWN);\
+    void add(\
+        Tag const & tag, Value::type && value, VR vr=VR::UNKNOWN); \
+    void add(\
+        Tag const & tag, \
+        std::initializer_list<Value::type::value_type> const & value, \
+        VR vr=VR::UNKNOWN);
+    /*
+     * No need for for a rvalue reference version of std::initializer_list:
+     * copying a std::initializer_list does not copy the underlying objects.
+     */
 
-    /// @brief Add an element to the dataset.
-    void add(
-        Tag const & tag, Value::Reals const & value, VR vr=VR::UNKNOWN);
-
-    /// @brief Add an element to the dataset.
-    void add(
-        Tag const & tag, Value::Strings const & value, VR vr=VR::UNKNOWN);
-
-    /// @brief Add an element to the dataset.
-    void add(
-        Tag const & tag, Value::DataSets const & value, VR vr=VR::UNKNOWN);
-
-    /// @brief Add an element to the dataset.
-    void add(
-        Tag const & tag, Value::Binary const & value, VR vr=VR::UNKNOWN);
+    ODIL_DATASET_ADD(Integers);
+    ODIL_DATASET_ADD(Reals);
+    ODIL_DATASET_ADD(Strings);
+    ODIL_DATASET_ADD(DataSets);
+    ODIL_DATASET_ADD(Binary);
+#undef ODIL_DATASET_ADD
 
     /// @brief Add an element to the dataset.
     void add(
@@ -65,22 +76,8 @@ public:
 
     /// @brief Add an element to the dataset.
     void add(
-        Tag const & tag, std::initializer_list<Value::Integer> const & value,
-        VR vr=VR::UNKNOWN);
-
-    /// @brief Add an element to the dataset.
-    void add(
-        Tag const & tag, std::initializer_list<Value::Real> const & value,
-        VR vr=VR::UNKNOWN);
-
-    /// @brief Add an element to the dataset.
-    void add(
-        Tag const & tag, std::initializer_list<Value::String> const & value,
-        VR vr=VR::UNKNOWN);
-
-    /// @brief Add an element to the dataset.
-    void add(
-        Tag const & tag, std::initializer_list<DataSet> const & value,
+        Tag const & tag,
+        std::initializer_list<std::initializer_list<uint8_t>> const & value,
         VR vr=VR::UNKNOWN);
 
     /**

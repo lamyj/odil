@@ -8,6 +8,9 @@
 
 #include "odil/Element.h"
 
+#include <initializer_list>
+#include <utility>
+
 #include "odil/Exception.h"
 #include "odil/Value.h"
 #include "odil/DataSet.h"
@@ -53,71 +56,56 @@ Element
 }
 
 Element
-::Element(Value::Integers const & value, VR const & vr)
-: _value(value), vr(vr)
+::Element(Value && value, VR const & vr)
+: _value(std::move(value)), vr(vr)
 {
     // Nothing else
 }
 
-Element
-::Element(Value::Reals const & value, VR const & vr)
-: _value(value), vr(vr)
-{
-    // Nothing else
-}
+#define ODIL_ELEMENT_CONSTRUCTORS(type) \
+    Element\
+    ::Element(Value::type const & value, VR const & vr)\
+    : vr(vr), _value(value)\
+    {\
+    }\
+    \
+    Element\
+    ::Element(Value::type && value, VR const & vr)\
+    : vr(vr), _value(std::move(value))\
+    {\
+    }\
+    \
+    Element\
+    ::Element(\
+        std::initializer_list<Value::type::value_type> const & value, \
+        VR const & vr)\
+    : vr(vr), _value(value)\
+    {\
+    }
+    /*
+     * No need for for a rvalue reference version of std::initializer_list:
+     * copying a std::initializer_list does not copy the underlying objects.
+     */
 
-Element
-::Element(Value::Strings const & value, VR const & vr)
-: _value(value), vr(vr)
-{
-    // Nothing else
-}
-
-Element
-::Element(Value::DataSets const & value, VR const & vr)
-: _value(value), vr(vr)
-{
-    // Nothing else
-}
-
-Element
-::Element(Value::Binary const & value, VR const & vr)
-: _value(value), vr(vr)
-{
-    // Nothing else
-}
+    ODIL_ELEMENT_CONSTRUCTORS(Integers);
+    ODIL_ELEMENT_CONSTRUCTORS(Reals);
+    ODIL_ELEMENT_CONSTRUCTORS(Strings);
+    ODIL_ELEMENT_CONSTRUCTORS(DataSets);
+    ODIL_ELEMENT_CONSTRUCTORS(Binary);
+#undef ODIL_ELEMENT_CONSTRUCTORS
 
 Element
 ::Element(std::initializer_list<int> const & value, VR const & vr)
-: _value(value), vr(vr)
+: vr(vr), _value(value)
 {
     // Nothing else
 }
 
 Element
-::Element(std::initializer_list<Value::Integer> const & value, VR const & vr)
-: _value(value), vr(vr)
-{
-    // Nothing else
-}
-
-Element
-::Element(std::initializer_list<Value::Real> const & value, VR const & vr)
-: _value(value), vr(vr)
-{
-    // Nothing else
-}
-
-Element
-::Element(std::initializer_list<Value::String> const & value, VR const & vr)
-: _value(value), vr(vr)
-{
-    // Nothing else
-}
-
-Element
-::Element(std::initializer_list<DataSet> const & value, VR const & vr)
-: _value(value), vr(vr)
+::Element(
+    std::initializer_list<std::initializer_list<uint8_t>> const & value,
+    VR const & vr)
+: vr(vr), _value(value)
 {
     // Nothing else
 }

@@ -50,6 +50,16 @@ public:
      */
     Tag(char const * string);
 
+    /** @addtogroup default_operations Default class operations
+     * @{
+     */
+    ~Tag() =default;
+    Tag(Tag const &) =default;
+    Tag(Tag &&) =default;
+    Tag & operator=(Tag const &) =default;
+    Tag & operator=(Tag &&) =default;
+    /// @}
+
     /// @brief Group of the tag.
     uint16_t group;
 
