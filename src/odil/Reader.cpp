@@ -142,7 +142,7 @@ Reader
 
             if(this->keep_group_length || tag.element != 0)
             {
-                data_set.add(tag, element);
+                data_set.add(tag, std::move(element));
             }
         }
 
@@ -273,7 +273,7 @@ Reader
     // Read meta information
     Reader meta_information_reader(
         stream, registry::ExplicitVRLittleEndian, keep_group_length);
-    auto const meta_information = meta_information_reader.read_data_set(
+    auto meta_information = meta_information_reader.read_data_set(
         [](Tag const & tag) { return (tag.group != 0x0002); });
 
     if(!meta_information.has(registry::TransferSyntaxUID))
@@ -292,9 +292,9 @@ Reader
     Reader data_set_reader(
         stream, meta_information.as_string(registry::TransferSyntaxUID)[0],
         keep_group_length);
-    auto const data_set = data_set_reader.read_data_set(halt_condition);
+    auto data_set = data_set_reader.read_data_set(halt_condition);
 
-    return std::pair<DataSet, DataSet>(meta_information, data_set);
+    return std::make_pair(std::move(meta_information), std::move(data_set));
 }
 
 Reader::Visitor

@@ -35,7 +35,22 @@ DataSet
     auto const iterator = this->_elements.find(tag);
     if(iterator == this->_elements.end())
     {
-        this->_elements.insert({tag, element});
+        this->_elements.emplace(tag, element);
+    }
+    else
+    {
+        iterator->second = element;
+    }
+}
+
+void
+DataSet
+::add(Tag const & tag, Element && element)
+{
+    auto const iterator = this->_elements.find(tag);
+    if(iterator == this->_elements.end())
+    {
+        this->_elements.emplace(tag, std::move(element));
     }
     else
     {
