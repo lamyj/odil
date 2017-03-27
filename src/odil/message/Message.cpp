@@ -37,6 +37,17 @@ Message
 }
 
 Message
+::Message(DataSet && command_set)
+: _command_set(std::move(command_set))
+{
+    if(!this->_command_set.has(registry::CommandDataSetType))
+    {
+        this->_command_set.add(registry::CommandDataSetType, VR::US);
+    }
+    this->_command_set.as_int(registry::CommandDataSetType) = { DataSetType::ABSENT };
+}
+
+Message
 ::Message(DataSet const & command_set, DataSet const & data_set)
 : _command_set(command_set)
 {
@@ -45,6 +56,17 @@ Message
         this->_command_set.add(registry::CommandDataSetType, VR::US);
     }
     this->set_data_set(data_set);
+}
+
+Message
+::Message(DataSet && command_set, DataSet && data_set)
+: _command_set(std::move(command_set))
+{
+    if(!this->_command_set.has(registry::CommandDataSetType))
+    {
+        this->_command_set.add(registry::CommandDataSetType, VR::US);
+    }
+    this->set_data_set(std::move(data_set));
 }
 
 Message
@@ -78,11 +100,30 @@ Message
     return this->_data_set;
 }
 
+DataSet &
+Message
+::get_data_set()
+{
+    if(!this->has_data_set())
+    {
+        throw Exception("No data set in message");
+    }
+    return this->_data_set;
+}
+
 void
 Message
 ::set_data_set(DataSet const & data_set)
 {
     this->_data_set = data_set;
+    this->_command_set.as_int(registry::CommandDataSetType) = { DataSetType::PRESENT };
+}
+
+void
+Message
+::set_data_set(DataSet && data_set)
+{
+    this->_data_set = std::move(data_set);
     this->_command_set.as_int(registry::CommandDataSetType) = { DataSetType::PRESENT };
 }
 

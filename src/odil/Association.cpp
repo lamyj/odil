@@ -442,13 +442,13 @@ Association
         }
 
         Reader reader(data_stream, transfer_syntax_it->second);
-        auto const data_set = reader.read_data_set();
+        auto data_set = reader.read_data_set();
 
-        return message::Message(command_set, data_set);
+        return message::Message(std::move(command_set), std::move(data_set));
     }
     else
     {
-        return message::Message(command_set);
+        return message::Message(std::move(command_set));
     }
 }
 

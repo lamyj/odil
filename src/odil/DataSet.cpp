@@ -35,7 +35,11 @@ DataSet
     auto const iterator = this->_elements.find(tag);
     if(iterator == this->_elements.end())
     {
-        this->_elements.emplace(tag, element);
+        // WARNING: std::map<K,V>::emplace does not exist on old compilers.
+        // This is however a case of non-mandatory copy elision, so the copy
+        // constructor of element should only be called once.
+        this->_elements.insert(std::make_pair(tag, element));
+        //this->_elements.emplace(tag, element);
     }
     else
     {
@@ -50,7 +54,9 @@ DataSet
     auto const iterator = this->_elements.find(tag);
     if(iterator == this->_elements.end())
     {
-        this->_elements.emplace(tag, std::move(element));
+        // WARNING: std::map<K,V>::emplace does not exist on old compilers.
+        this->_elements.insert(std::make_pair(tag, std::move(element)));
+        //this->_elements.emplace(tag, std::move(element));
     }
     else
     {

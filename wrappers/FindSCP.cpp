@@ -38,7 +38,12 @@ void wrap_FindSCP()
     
     scope find_scp_scope = class_<FindSCP>("FindSCP", init<Association &>())
         .def("set_generator", &set_generator)
-        .def("__call__", &FindSCP::operator())
+        .def(
+            "__call__",
+            static_cast<
+                void (FindSCP::*)(message::Message const &)
+            >(&FindSCP::operator())
+        )
     ;
     
     class_<

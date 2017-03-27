@@ -25,7 +25,8 @@ void wrap_Message()
         return_value_policy<copy_const_reference>())
     .def("has_data_set", &Message::has_data_set)
     .def(
-        "get_data_set", &Message::get_data_set,
+        "get_data_set",
+        static_cast<DataSet const & (Message::*)() const>(&Message::get_data_set),
         return_value_policy<copy_const_reference>())
     .def(
         "get_command_field", &Message::get_command_field,

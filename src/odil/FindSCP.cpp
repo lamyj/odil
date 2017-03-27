@@ -61,7 +61,21 @@ FindSCP
 ::operator()(message::Message const & message)
 {
     message::CFindRequest const request(message);
+    this->operator()(request);
+}
 
+void
+FindSCP
+::operator()(message::Message && message)
+{
+    message::CFindRequest request(std::move(message));
+    this->operator()(request);
+}
+
+void
+FindSCP
+::operator()(message::CFindRequest const & request)
+{
     Value::Integer final_status = message::CFindResponse::Success;
     DataSet status_fields;
 
@@ -70,10 +84,10 @@ FindSCP
         this->_generator->initialize(request);
         while(!this->_generator->done())
         {
-            auto const data_set = this->_generator->get();
+            auto data_set = this->_generator->get();
             message::CFindResponse const response(
                 request.get_message_id(), message::CFindResponse::Pending,
-                data_set);
+                std::move(data_set));
             this->_association.send_message(
                 response, request.get_affected_sop_class_uid());
             this->_generator->next();

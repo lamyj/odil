@@ -33,11 +33,26 @@ public:
         Value::Integer priority, DataSet const & dataset);
 
     /**
+     * @brief Create an find request with given Message ID,
+     * affected SOP class UID, priority, and data set.
+     */
+    CFindRequest(
+        Value::Integer message_id, Value::String const & affected_sop_class_uid,
+        Value::Integer priority, DataSet && dataset);
+
+    /**
      * @brief Create a C-FIND-RQ from a generic Message.
      *
      * Raise an exception if the Message does not contain a C-FIND-RQ.
      */
     CFindRequest(Message const & message);
+
+    /**
+     * @brief Create a C-FIND-RQ from a generic Message.
+     *
+     * Raise an exception if the Message does not contain a C-FIND-RQ.
+     */
+    CFindRequest(Message && message);
 
     /// @brief Destructor.
     virtual ~CFindRequest();
@@ -45,6 +60,12 @@ public:
     ODIL_MESSAGE_MANDATORY_FIELD_STRING_MACRO(
         affected_sop_class_uid, registry::AffectedSOPClassUID)
     ODIL_MESSAGE_MANDATORY_FIELD_INTEGER_MACRO(priority, registry::Priority)
+
+private:
+    void _create(
+        Value::String const & affected_sop_class_uid, Value::Integer priority,
+        DataSet const & dataset);
+    void _parse(Message const & message);
 };
 
 }

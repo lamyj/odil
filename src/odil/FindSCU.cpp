@@ -10,6 +10,7 @@
 
 #include <functional>
 #include <sstream>
+#include <utility>
 #include <vector>
 
 #include "odil/Association.h"
@@ -42,6 +43,55 @@ FindSCU
     message::CFindRequest request(
         this->_association.next_message_id(),
         this->_affected_sop_class, message::Message::Priority::MEDIUM, query);
+    this->_find(request, callback);
+}
+
+void
+FindSCU
+::find(DataSet && query, Callback callback) const
+{
+    message::CFindRequest request(
+        this->_association.next_message_id(),
+        this->_affected_sop_class, message::Message::Priority::MEDIUM,
+        std::move(query));
+    this->_find(request, callback);
+}
+
+void _accumulate(std::vector<DataSet> & data_sets, DataSet && data_set)
+{
+    data_sets.push_back(std::move(data_set));
+}
+
+std::vector<DataSet>
+FindSCU
+::find(DataSet const & query) const
+{
+    std::vector<DataSet> result;
+    auto callback = [&result](DataSet && dataset) {
+        result.push_back(std::move(dataset));
+    };
+    this->find(query, callback);
+
+    return result;
+}
+
+std::vector<DataSet>
+FindSCU
+::find(DataSet && query) const
+{
+    std::vector<DataSet> result;
+    auto callback = [&result](DataSet && dataset) {
+        result.push_back(std::move(dataset));
+    };
+    this->find(std::move(query), callback);
+
+    return result;
+}
+
+void
+FindSCU
+::_find(message::CFindRequest & request, Callback callback) const
+{
     this->_association.send_message(request, this->_affected_sop_class);
 
     // Receive the responses
@@ -49,7 +99,7 @@ FindSCU
     while(!done)
     {
         // FIXME: include progress callback
-        message::CFindResponse const response =
+        message::CFindResponse response =
             this->_association.receive_message();
 
         if(response.get_message_id_being_responded_to() != request.get_message_id())
@@ -82,22 +132,9 @@ FindSCU
         done = !response.is_pending();
         if(!done)
         {
-            callback(response.get_data_set());
+            callback(std::move(response.get_data_set()));
         }
     }
-}
-
-std::vector<DataSet>
-FindSCU
-::find(DataSet const & query) const
-{
-    std::vector<DataSet> result;
-    auto callback = [&result](DataSet const & dataset) {
-        result.push_back(dataset);
-    };
-    this->find(query, callback);
-
-    return result;
 }
 
 }

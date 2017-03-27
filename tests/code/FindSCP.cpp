@@ -43,12 +43,12 @@ public:
         odil::DataSet data_set_1;
         data_set_1.add(odil::registry::PatientName, {"Hello^World"});
         data_set_1.add(odil::registry::PatientID, {"1234"});
-        this->_responses.push_back(data_set_1);
+        this->_responses.push_back(std::move(data_set_1));
 
         odil::DataSet data_set_2;
         data_set_2.add(odil::registry::PatientName, {"Doe^John"});
         data_set_2.add(odil::registry::PatientID, {"5678"});
-        this->_responses.push_back(data_set_2);
+        this->_responses.push_back(std::move(data_set_2));
 
         this->_response_iterator = this->_responses.begin();
     }
@@ -60,7 +60,7 @@ public:
 
     virtual odil::DataSet get() const
     {
-        return *this->_response_iterator;
+        return *std::make_move_iterator(this->_response_iterator);
     }
 
     virtual void next()
@@ -70,8 +70,8 @@ public:
 
 
 private:
-    std::vector<odil::DataSet> _responses;
-    std::vector<odil::DataSet>::const_iterator _response_iterator;
+    mutable std::vector<odil::DataSet> _responses;
+    std::vector<odil::DataSet>::iterator _response_iterator;
 };
 
 void run_server(Status * status)
@@ -88,8 +88,8 @@ void run_server(Status * status)
         find_scp.set_generator(generator);
 
         // Get echo message
-        auto const message = association.receive_message();
-        find_scp(message);
+        auto message = association.receive_message();
+        find_scp(std::move(message));
         // Should throw with peer closing connection
         association.receive_message();
     }
@@ -134,8 +134,8 @@ void run_client(Status * status)
         }
 
         std::ifstream stream(it->path().string());
-        auto const data_set = odil::Reader::read_file(stream).second;
-        status->responses.push_back(data_set);
+        auto data_set = odil::Reader::read_file(stream).second;
+        status->responses.push_back(std::move(data_set));
 
         boost::filesystem::remove(it->path());
     }

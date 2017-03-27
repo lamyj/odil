@@ -14,6 +14,7 @@
 #include "odil/Association.h"
 #include "odil/odil.h"
 #include "odil/SCP.h"
+#include "odil/message/CFindRequest.h"
 #include "odil/message/Message.h"
 
 namespace odil
@@ -44,8 +45,13 @@ public:
     /// @brief Process a C-Find request.
     virtual void operator()(message::Message const & message);
 
+    /// @brief Process a C-Find request.
+    virtual void operator()(message::Message && message);
+
 private:
     std::shared_ptr<DataSetGenerator> _generator;
+
+    void operator()(message::CFindRequest const & request);
 };
 
 }
