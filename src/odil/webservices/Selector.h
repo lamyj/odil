@@ -11,6 +11,7 @@
 
 #include <string>
 #include <vector>
+#include <map>
 
 #include "odil/odil.h"
 #include "odil/Exception.h"
@@ -26,9 +27,22 @@ class ODIL_API Selector
 {
 public:
     /// @brief Constructor.
+//    Selector(
+//        std::string const & study="", std::string const & series="",
+//        std::string const & instance="", std::vector<int> const & frames={});
+
+    typedef std::map<std::string, std::string> RequestPath;
+
+    /// @brief Constructor.
+    /// example :
+    /// wanted path : /studies/StudyInstanceUID/instances/
+    /// corresponding map :
+    ///     { {"studies" , StudyInstanceUID} ,
+    ///       {"instance", ""} }
     Selector(
-        std::string const & study="", std::string const & series="",
-        std::string const & instance="", std::vector<int> const & frames={});
+        RequestPath const & selector = {{"studies", ""}, {"series", ""}, {"instances", ""}},
+        std::vector<int> const & frames={});
+
 
     /// @brief Equality operator.
     bool operator==(Selector const & other) const;
@@ -43,9 +57,14 @@ public:
     std::string get_path(bool include_frames) const;
 
     std::string study;
+    bool study_present;
     std::string series;
+    bool series_present;
     std::string instance;
+    bool instance_present;
     std::vector<int> frames;
+
+    RequestPath selector;
 
 };
 

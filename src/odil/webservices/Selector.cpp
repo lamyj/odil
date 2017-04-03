@@ -6,6 +6,8 @@
  * for details.
  ************************************************************************/
 
+#include <cassert>
+#include <iostream> // TODO : remove me
 #include "odil/webservices/Selector.h"
 
 namespace odil
@@ -15,25 +17,27 @@ namespace webservices
 {
 
 Selector
-::Selector(
-    std::string const & study, std::string const & series,
-    std::string const & instance, std::vector<int> const & frames)
+::Selector(RequestPath const & selector_path, std::vector<int> const & frames):
+    study_present(false), series_present(false), instance_present(false)
 {
-    if(!study.empty())
+    if (selector_path.find("studies") != selector_path.end())
     {
-        this->study = study;
-        if(!series.empty())
-        {
-            this->series = series;
-            if(!instance.empty())
-            {
-                this->instance = instance;
-                if(!frames.empty())
-                {
-                    this->frames = frames;
-                }
-            }
-        }
+        this->study_present = true;
+        this->study = selector_path.at("studies");
+    }
+    if (selector_path.find("series") != selector_path.end())
+    {
+        this->series_present = true;
+        this->series = selector_path.at("series");
+    }
+    if (selector_path.find("instances") != selector_path.end())
+    {
+        this->instance_present = true;
+        this->instance = selector_path.at("instances");
+    }
+    if (!frames.empty())
+    {
+        this->frames = frames;
     }
 }
 
@@ -60,34 +64,33 @@ std::string
 Selector
 ::get_path(bool include_frames) const
 {
-    if(this->study.empty())
+    std::string path;
+    if(this->study_present)
     {
-        throw Exception("Study may not be empty");
+        path = "/studies/" + this->study;
     }
-
-    std::string path = "/studies/" + this->study;
-    if(!this->series.empty())
+    if(this->series_present)
     {
         path += "/series/" + this->series;
-        if(!this->instance.empty())
-        {
-            path += "/instances/" + this->instance;
-            if(include_frames && !this->frames.empty())
-            {
-                path += "/frames/";
-
-                auto const last = --this->frames.end();
-                auto it = this->frames.begin();
-                while(it != last)
-                {
-                    path += std::to_string(*it) + ",";
-                    ++it;
-                }
-                path += std::to_string(*last);
-            }
-
-        }
     }
+    if(this->instance_present)
+    {
+        path += "/instances/" + this->instance;
+    }
+    if(include_frames && !this->frames.empty())
+    {
+        path += "/frames/";
+
+        auto const last = --this->frames.end();
+        auto it = this->frames.begin();
+        while(it != last)
+        {
+            path += std::to_string(*it) + ",";
+            ++it;
+        }
+        path += std::to_string(*last);
+    }
+
 
     return path;
 }

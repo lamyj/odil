@@ -158,7 +158,7 @@ Tag
     
     if(!found)
     {
-        throw Exception("No such element: "+string);
+        throw Exception("No such element: \""+string+"\"");
     }
     else
     {

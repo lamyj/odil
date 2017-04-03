@@ -23,7 +23,7 @@
 #include "odil/webservices/HTTPRequest.h"
 #include "odil/webservices/ItemWithParameters.h"
 #include "odil/webservices/URL.h"
-#include "odil/webservices/WADORS.h"
+#include "odil/webservices/Utils.h"
 
 namespace odil
 {
@@ -40,7 +40,7 @@ WADORSRequest
   _transfer_syntax(transfer_syntax), _character_set(character_set),
   _include_media_type_in_query(include_media_type_in_query),
   _include_character_set_in_query(include_character_set_in_query),
-  _url(), _media_type(), _type(WADORS::Type::None)
+  _url(), _media_type(), _type(Type::None)
 {
     // Nothing else
 }
@@ -169,35 +169,35 @@ WADORSRequest
     {
         if(this->_media_type == "application/dicom")
         {
-            this->_type = WADORS::Type::DICOM;
-            this->_representation = WADORS::Representation::DICOM;
+            this->_type = Type::DICOM;
+            this->_representation = Representation::DICOM;
         }
         else if(this->_media_type == "application/dicom+xml")
         {
-            this->_type = WADORS::Type::DICOM;
-            this->_representation = WADORS::Representation::DICOM_XML;
+            this->_type = Type::DICOM;
+            this->_representation = Representation::DICOM_XML;
         }
         else if(this->_media_type == "application/dicom+json")
         {
-            this->_type = WADORS::Type::DICOM;
-            this->_representation = WADORS::Representation::DICOM_JSON;
+            this->_type = Type::DICOM;
+            this->_representation = Representation::DICOM_JSON;
         }
         else if(this->_media_type == "application/octet-stream")
         {
             // This could be a non-compressed pixel data or a non-pixel
             // bulk data. Since we cannot distinguish, assume the most generic
             // one
-            this->_type = WADORS::Type::BulkData;
+            this->_type = Type::BulkData;
         }
         else
         {
             // Specific media type: compressed pixel data
-            this->_type = WADORS::Type::PixelData;
+            this->_type = Type::PixelData;
         }
     }
     else
     {
-        this->_type = WADORS::Type::BulkData;
+        this->_type = Type::BulkData;
     }
 }
 
@@ -294,7 +294,7 @@ WADORSRequest
     this->_include_character_set_in_query = include_charcter_set_in_query;
 }
 
-WADORS::Type
+Type
 WADORSRequest
 ::get_type() const
 {
@@ -306,6 +306,19 @@ WADORSRequest
 ::get_selector() const
 {
     return this->_selector;
+}
+
+bool
+WADORSRequest
+::is_selector_valid(Selector const &selector)
+{
+
+    return(
+        (!selector.frames.empty() && !selector.instance.empty() && !selector.series.empty() && !selector.study.empty())
+        || (!selector.instance.empty() && !selector.series.empty() && !selector.study.empty())
+        || (!selector.series.empty() && !selector.study.empty())
+        || (!selector.study.empty())
+    );
 }
 
 URL const &
@@ -322,7 +335,7 @@ WADORSRequest
     return this->_media_type;
 }
 
-WADORS::Representation const &
+Representation const &
 WADORSRequest
 ::get_representation() const
 {
@@ -331,32 +344,32 @@ WADORSRequest
 
 void
 WADORSRequest
-::request_dicom(WADORS::Representation representation, Selector const & selector)
+::request_dicom(Representation representation, Selector const & selector)
 {
-    this->_type = WADORS::Type::DICOM;
+    this->_type = Type::DICOM;
     this->_selector = selector;
     this->_representation = representation;
 
     // RetrieveFrames may not return DICOM objects, PS 3.18, 6.4.1
     // RetrieveMetaData may do so.
     auto path = this->_base_url.path + selector.get_path(
-        representation != WADORS::Representation::DICOM);
-    if(representation != WADORS::Representation::DICOM)
+        representation != Representation::DICOM);
+    if(representation != Representation::DICOM)
     {
         path += "/metadata";
     }
     this->_url = {
         this->_base_url.scheme, this->_base_url.authority, path, "", ""};
 
-    if(representation == WADORS::Representation::DICOM)
+    if(representation == Representation::DICOM)
     {
         this->_media_type = "application/dicom";
     }
-    else if(representation == WADORS::Representation::DICOM_XML)
+    else if(representation == Representation::DICOM_XML)
     {
         this->_media_type = "application/dicom+xml";
     }
-    else if(representation == WADORS::Representation::DICOM_JSON)
+    else if(representation == Representation::DICOM_JSON)
     {
         this->_media_type = "application/dicom+json";
     }
@@ -370,9 +383,12 @@ void
 WADORSRequest
 ::request_bulk_data(Selector const & selector)
 {
-    this->_type = WADORS::Type::BulkData;
+    this->_type = Type::BulkData;
     this->_selector = selector;
 
+    if (!is_selector_valid(selector))
+        throw Exception("Selector not correctly constructed (" +
+                        selector.get_path(true) + ")");
     auto path = this->_base_url.path + selector.get_path(true);
     this->_url = {
         this->_base_url.scheme, this->_base_url.authority, path, "", ""};
@@ -383,7 +399,7 @@ void
 WADORSRequest
 ::request_bulk_data(URL const & url)
 {
-    this->_type = WADORS::Type::BulkData;
+    this->_type = Type::BulkData;
 
     this->_url = url;
     this->_media_type = "application/octet-stream";
@@ -393,9 +409,12 @@ void
 WADORSRequest
 ::request_pixel_data(Selector const & selector, std::string const & media_type)
 {
-    this->_type = WADORS::Type::PixelData;
+    this->_type = Type::PixelData;
     this->_selector = selector;
 
+    if (!is_selector_valid(selector))
+        throw Exception("Selector not correctly constructed (" +
+                        selector.get_path(true) + ")");
     auto path = this->_base_url.path + selector.get_path(true);
     this->_url = {
         this->_base_url.scheme, this->_base_url.authority, path, "", ""};
@@ -407,7 +426,7 @@ WADORSRequest
 ::get_http_request() const
 {
     ItemWithParameters accept;
-    if(this->_representation == WADORS::Representation::DICOM_JSON)
+    if(this->_representation == Representation::DICOM_JSON)
     {
         accept.name = this->_media_type;
     }
@@ -460,7 +479,7 @@ WADORSRequest
         using boost::spirit::qi::_1;
 
         qi::rule<Iterator, std::string()> uid = digit >> *(string(".") >> +digit);
-        qi::rule<Iterator, std::vector<int>()> frame_list = int_%",";
+        qi::rule<Iterator, std::vector<int>()> frame_list = int_%","; // in order to do a list
 
         qi::rule<Iterator> retrieve_study =
             lit("studies/") >> uid[p::ref(selector.study) = _1];

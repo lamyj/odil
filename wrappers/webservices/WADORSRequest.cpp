@@ -78,9 +78,11 @@ void wrap_webservices_WADORSRequest()
 
     scope wado_rs_request_selector_scope = class_<odil::webservices::Selector>(
             "Selector", init<
-                std::string, std::string, std::string, std::vector<int>
+                std::map <std::string, std::string>, std::vector<int>
             >((
-                arg("stduy")="", arg("series")="", arg("instance")="",
+                arg("selector_path")=std::map<std::string, std::string>(
+                    {{"studies", ""}, {"series", ""},{"instances", ""}}
+                    ),
                 arg("frames")=std::vector<int>())))
         .def_readwrite("study", &odil::webservices::Selector::study)
         .def_readwrite("series", &odil::webservices::Selector::series)

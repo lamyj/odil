@@ -16,7 +16,7 @@
 #include "odil/webservices/HTTPRequest.h"
 #include "odil/webservices/Selector.h"
 #include "odil/webservices/URL.h"
-#include "odil/webservices/WADORS.h"
+#include "odil/webservices/Utils.h"
 
 namespace odil
 {
@@ -75,10 +75,13 @@ public:
     void set_include_character_set_in_query(bool include_charcter_set_in_query);
 
     /// @brief Return the query type.
-    WADORS::Type get_type() const;
+    Type get_type() const;
 
     /// @brief Return the selector.
     Selector const & get_selector() const;
+
+    /// @brief Return if the given selector is valid or not
+    bool is_selector_valid(Selector const & selector);
 
     /// @brief Return the URL.
     URL const & get_url() const;
@@ -87,11 +90,11 @@ public:
     std::string const & get_media_type() const;
 
     /// @brief Return the representation.
-    WADORS::Representation const & get_representation() const;
+    Representation const & get_representation() const;
 
     /// @brief Prepare a DICOM request.
     void request_dicom(
-        WADORS::Representation representation, Selector const & selector);
+        Representation representation, Selector const & selector);
 
     /// @brief Prepare a bulk data request.
     void request_bulk_data(Selector const & selector);
@@ -117,8 +120,8 @@ private:
     Selector _selector;
     URL _url;
     std::string _media_type;
-    WADORS::Representation _representation;
-    WADORS::Type _type;
+    Representation _representation;
+    Type _type;
 
     /// @brief Split an URL in a pair of base_url and request selector.
     static std::pair<URL, Selector> _split_full_url(URL const & url);
