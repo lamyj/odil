@@ -165,7 +165,7 @@ WADORSRequest
     std::tie(this->_base_url, this->_selector) =
         WADORSRequest::_split_full_url(this->_url);
 
-    if(!this->_selector.study.empty())
+    if(!this->_selector.get_study().empty())
     {
         if(this->_media_type == "application/dicom")
         {
@@ -310,14 +310,13 @@ WADORSRequest
 
 bool
 WADORSRequest
-::is_selector_valid(Selector const &selector)
+::_is_selector_valid(Selector const &selector)
 {
-
     return(
-        (!selector.frames.empty() && !selector.instance.empty() && !selector.series.empty() && !selector.study.empty())
-        || (!selector.instance.empty() && !selector.series.empty() && !selector.study.empty())
-        || (!selector.series.empty() && !selector.study.empty())
-        || (!selector.study.empty())
+        (!selector.get_frames().empty() && !selector.get_instance().empty() && !selector.get_series().empty() && !selector.get_study().empty())
+        || (!selector.get_instance().empty() && !selector.get_series().empty() && !selector.get_study().empty())
+        || (!selector.get_series().empty() && !selector.get_study().empty())
+        || (!selector.get_study().empty())
     );
 }
 
@@ -347,6 +346,11 @@ WADORSRequest
 ::request_dicom(Representation representation, Selector const & selector)
 {
     this->_type = Type::DICOM;
+    if (!_is_selector_valid(selector))
+    {
+        throw Exception("Selector not correctly constructed (" +
+                        selector.get_path(true) + ")");
+    }
     this->_selector = selector;
     this->_representation = representation;
 
@@ -384,11 +388,13 @@ WADORSRequest
 ::request_bulk_data(Selector const & selector)
 {
     this->_type = Type::BulkData;
-    this->_selector = selector;
-
-    if (!is_selector_valid(selector))
+    if (!_is_selector_valid(selector))
+    {
         throw Exception("Selector not correctly constructed (" +
                         selector.get_path(true) + ")");
+    }
+    this->_selector = selector;
+
     auto path = this->_base_url.path + selector.get_path(true);
     this->_url = {
         this->_base_url.scheme, this->_base_url.authority, path, "", ""};
@@ -410,11 +416,13 @@ WADORSRequest
 ::request_pixel_data(Selector const & selector, std::string const & media_type)
 {
     this->_type = Type::PixelData;
-    this->_selector = selector;
-
-    if (!is_selector_valid(selector))
+    if (!_is_selector_valid(selector))
+    {
         throw Exception("Selector not correctly constructed (" +
                         selector.get_path(true) + ")");
+    }
+    this->_selector = selector;
+
     auto path = this->_base_url.path + selector.get_path(true);
     this->_url = {
         this->_base_url.scheme, this->_base_url.authority, path, "", ""};
@@ -456,9 +464,10 @@ std::pair<URL, odil::webservices::Selector>
 WADORSRequest
 ::_split_full_url(URL const & url)
 {
-    Selector selector;
     URL base_url;
     bool is_meta_data=false;
+    std::string study, series, instance;
+    std::vector<int> frames;
 
     auto const position = url.path.rfind("/studies/");
     if(position != std::string::npos)
@@ -482,13 +491,13 @@ WADORSRequest
         qi::rule<Iterator, std::vector<int>()> frame_list = int_%","; // in order to do a list
 
         qi::rule<Iterator> retrieve_study =
-            lit("studies/") >> uid[p::ref(selector.study) = _1];
+            lit("studies/") >> uid[p::ref(study) = _1];
         qi::rule<Iterator> retrieve_series =
-            lit("series/") >> uid[p::ref(selector.series) = _1];
+            lit("series/") >> uid[p::ref(series) = _1];
         qi::rule<Iterator> retrieve_instance =
-            lit("instances/") >> uid[p::ref(selector.instance) = _1];
+            lit("instances/") >> uid[p::ref(instance) = _1];
         qi::rule<Iterator> retrieve_frames =
-            lit("frames/") >> frame_list[p::ref(selector.frames) = _1];
+            lit("frames/") >> frame_list[p::ref(frames) = _1];
         qi::rule<Iterator> retrieve_metadata =
             lit("metadata")[p::ref(is_meta_data) = true];
 
@@ -504,6 +513,14 @@ WADORSRequest
                 >> -("/" >> retrieve_metadata),
             boost::spirit::qi::ascii::space
         );
+    }
+
+    Selector selector(study, series, instance, frames);
+
+    if (!WADORSRequest::_is_selector_valid(selector))
+    {
+        throw Exception("Selector not correctly constructed (" +
+                        selector.get_path(true) + ")");
     }
 
     return std::make_pair(base_url, selector);

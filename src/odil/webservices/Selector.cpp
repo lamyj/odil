@@ -7,7 +7,6 @@
  ************************************************************************/
 
 #include <cassert>
-#include <iostream> // TODO : remove me
 #include "odil/webservices/Selector.h"
 
 namespace odil
@@ -17,28 +16,21 @@ namespace webservices
 {
 
 Selector
-::Selector(RequestPath const & selector_path, std::vector<int> const & frames):
-    study_present(false), series_present(false), instance_present(false)
+::Selector():
+    _study_present(false), _series_present(false), _instance_present(false)
 {
-    if (selector_path.find("studies") != selector_path.end())
-    {
-        this->study_present = true;
-        this->study = selector_path.at("studies");
-    }
-    if (selector_path.find("series") != selector_path.end())
-    {
-        this->series_present = true;
-        this->series = selector_path.at("series");
-    }
-    if (selector_path.find("instances") != selector_path.end())
-    {
-        this->instance_present = true;
-        this->instance = selector_path.at("instances");
-    }
-    if (!frames.empty())
-    {
-        this->frames = frames;
-    }
+
+}
+
+Selector
+::Selector(std::string const &study,
+           std::string  const &series,
+           std::string const &instance,
+           std::vector<int> const &frames):
+    _study(study), _study_present(true), _series(series), _instance(instance), _frames(frames)
+{
+    _series_present = !series.empty();
+    _instance_present = !instance.empty();
 }
 
 bool
@@ -46,10 +38,13 @@ Selector
 ::operator==(Selector const & other) const
 {
     return (
-        this->study == other.study
-        && this->series == other.series
-        && this->instance == other.instance
-        && this->frames == other.frames
+        this->_study == other._study
+        && this->_study_present == other._study_present
+        && this->_series == other._series
+        && this->_series_present == other._series_present
+        && this->_instance == other._instance
+        && this->_instance_present == other._instance_present
+        && this->_frames == other._frames
     );
 }
 
@@ -60,29 +55,114 @@ Selector
     return !(*this == other);
 }
 
+bool
+Selector
+::is_study_present() const
+{
+    return _study_present;
+}
+
+bool
+Selector
+::is_series_present() const
+{
+    return _series_present;
+}
+
+bool
+Selector
+::is_instance_present() const
+{
+    return _instance_present;
+}
+
+std::string const &
+Selector
+::get_study() const
+{
+    return _study;
+}
+
+std::string const &
+Selector
+::get_series() const
+{
+    return _series;
+}
+
+std::string const &
+Selector
+::get_instance() const
+{
+    return _instance;
+}
+
+std::vector<int> const &
+Selector
+::get_frames() const
+{
+    return this->_frames;
+}
+
+Selector &
+Selector
+::set_study(std::string const & study)
+{
+    this->_study = study;
+    this->_study_present = true;
+
+    return *this;
+}
+
+Selector &
+Selector
+::set_series(std::string const & series)
+{
+    this->_series = series;
+    this->_series_present = true;
+    return *this;
+}
+
+Selector &
+Selector
+::set_instance(std::string const & instance)
+{
+    this->_instance = instance;
+    this->_instance_present = true;
+    return *this;
+}
+
+Selector &
+Selector
+::set_frames(std::vector<int> const &frames)
+{
+    this->_frames = frames;
+    return *this;
+}
+
 std::string
 Selector
 ::get_path(bool include_frames) const
 {
     std::string path;
-    if(this->study_present)
+    if(this->_study_present)
     {
-        path = "/studies/" + this->study;
+        path = "/studies/" + this->_study;
     }
-    if(this->series_present)
+    if(this->_series_present)
     {
-        path += "/series/" + this->series;
+        path += "/series/" + this->_series;
     }
-    if(this->instance_present)
+    if(this->_instance_present)
     {
-        path += "/instances/" + this->instance;
+        path += "/instances/" + this->_instance;
     }
-    if(include_frames && !this->frames.empty())
+    if(include_frames && !this->_frames.empty())
     {
         path += "/frames/";
 
-        auto const last = --this->frames.end();
-        auto it = this->frames.begin();
+        auto const last = --this->_frames.end();
+        auto it = this->_frames.begin();
         while(it != last)
         {
             path += std::to_string(*it) + ",";
@@ -90,8 +170,6 @@ Selector
         }
         path += std::to_string(*last);
     }
-
-
     return path;
 }
 

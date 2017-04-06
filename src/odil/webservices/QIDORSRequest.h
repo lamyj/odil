@@ -85,7 +85,7 @@ public:
     /// @brief Prepare a qido request
     void request_datasets(
             Representation representation, Selector const & selector,
-            DataSet const & query = DataSet(), std::vector<std::vector<Tag> > const & includefields = {},
+            DataSet const & query, std::vector<std::vector<Tag> > const & includefields = {},
             bool fuzzymatching = false, int limit = -1, int offset = 0, bool numerical_tags = false);
 
 
@@ -111,10 +111,10 @@ private:
     int _offset; // number of results the origin server shall skip before the first returned result.
 
     /// @brief Return if the selector is valid or not
-    static bool is_selector_valid (Selector const & selector);
+    static bool _is_selector_valid (Selector const & selector);
 
     /// @brief Return the tag as a numerical string or as a "string"
-    static std::string tag_to_string(odil::Tag const & tag, bool numerical_tag);
+    static std::string _tag_to_string(odil::Tag const & tag, bool numerical_tag);
 
     /// @brief Split an URL in a pair of base_url and request selector.
     static std::tuple<URL, Selector, DataSet, std::vector<std::vector< odil::Tag> >,

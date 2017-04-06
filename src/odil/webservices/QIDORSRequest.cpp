@@ -209,6 +209,9 @@ QIDORSRequest
     namespace p = boost::phoenix; // boost::phoenix::ref clashes with std::ref
 
 
+    typedef std::vector <std::pair <std::string, std::string> >  KeyVal;
+
+
     auto const positions = {url.path.rfind("/instances"),
                             url.path.rfind("/series"),
                             url.path.rfind("/studies")};
@@ -225,35 +228,56 @@ QIDORSRequest
         using boost::spirit::qi::digit;
         using boost::spirit::qi::int_;
         using boost::spirit::qi::lit;
+        using boost::spirit::qi::omit;
         using boost::spirit::qi::string;
         using boost::spirit::qi::_1;
 
         qi::rule<Iterator, std::string()> uid = digit >> *(string(".") >> +digit);
-        qi::rule<Iterator, std::vector<int>()> frame_list = int_%",";
 
-        qi::rule<Iterator> retrieve_study =
-            lit("studies/") >> uid[p::ref(selector.study) = _1];
-        qi::rule<Iterator> retrieve_series =
-            lit("series/") >> uid[p::ref(selector.series) = _1];
-        qi::rule<Iterator> retrieve_instance =
-            lit("instances/") >> uid[p::ref(selector.instance) = _1];
+        qi::rule<Iterator, std::string()> selec =
+                -string("studies")
+                >> -string("series")
+                >> -string("instances");
 
+        qi::rule<Iterator, KeyVal()> retrieve_selector =
+                (selec >> -(omit["/"] >> uid))% "/";
+
+        KeyVal selector_vector;
         auto iterator = resource.begin();
         qi::phrase_parse(
             iterator, resource.end(),
-            retrieve_study
-                >> -("/" >> retrieve_series
-                    >> -("/" >> retrieve_instance
-                    )
-                ),
-            boost::spirit::qi::ascii::space
+            retrieve_selector,
+            boost::spirit::qi::ascii::space, selector_vector
         );
+        for (auto const it : selector_vector)
+        {
+            if(it.first == "studies")
+            {
+                selector.set_study(it.second);
+            }
+            else if(it.first == "series")
+            {
+                selector.set_series(it.second);
+            }
+            else if(it.first == "instances")
+            {
+                selector.set_instance(it.second);
+            }
+            else
+            {
+                throw Exception("Unrecognize option (" + it.first + ")");
+            }
+        }
+    }
+
+    if (!QIDORSRequest::_is_selector_valid(selector))
+    {
+        throw Exception("Selector not correctly constructed (" +
+                        selector.get_path(false) + ")");
     }
 
     using boost::spirit::qi::char_;
     using boost::spirit::qi::omit;
-
-    typedef std::vector <std::pair <std::string, std::string> >  KeyVal;
 
     KeyVal key_val;
 
@@ -407,7 +431,7 @@ QIDORSRequest
                         }
                         else
                         {
-                            throw Exception("unrecognize VR for " + tag_to_string(current_tag, true));
+                            throw Exception("unrecognize VR for " + _tag_to_string(current_tag, true));
                         }
                     }
                 }
@@ -450,39 +474,53 @@ QIDORSRequest
 
 bool
 QIDORSRequest
-::is_selector_valid(Selector const & selector)
+::_is_selector_valid(Selector const & selector)
 {
     bool valid = false;
 
-    if (selector.study_present)
-        valid = true;
-    if (!selector.study_present || !selector.study.empty())
+    if (selector.is_study_present())
     {
-        if (selector.series_present)
-            valid = true;
-        if (!selector.series_present || !selector.series.empty())
+        valid = true;
+    }
+    else if (!selector.is_study_present() || !selector.get_study().empty())
+    {
+        if (selector.is_series_present())
         {
-            if (selector.instance_present)
+            valid = true;
+        }
+        else if (!selector.is_series_present() || !selector.get_series().empty())
+        {
+            if (selector.is_instance_present())
             {
                 valid = true;
             }
-            else if (!selector.study_present &&
-                     !selector.series_present &&
-                     !selector.instance_present)
+            else if (!selector.is_study_present() &&
+                     !selector.is_series_present() &&
+                     !selector.is_instance_present())
+            {
                 valid = false;
+            }
         }
         else
+        {
             valid = false;
+        }
     }
     else
-        valid = false;
-
-    if (!selector.frames.empty())
     {
-        if (!selector.instance.empty() && selector.instance_present)
+        valid = false;
+    }
+
+    if (!selector.get_frames().empty())
+    {
+        if (!selector.get_instance().empty() && selector.is_instance_present())
+        {
             valid = true;
+        }
         else
+        {
             valid = false;
+        }
     }
 
     return valid;
@@ -490,7 +528,7 @@ QIDORSRequest
 
 std::string
 QIDORSRequest
-::tag_to_string(Tag const & tag, bool numerical_tag)
+::_tag_to_string(Tag const & tag, bool numerical_tag)
 {
     if(numerical_tag)
     {
@@ -530,10 +568,10 @@ QIDORSRequest
     this->_limit = limit;
     this->_offset = offset;
 
-    if (!QIDORSRequest::is_selector_valid(selector))
+    if (!QIDORSRequest::_is_selector_valid(selector))
     {
         throw Exception("Selector not correctly constructed (" +
-                        selector.get_path(true) + ")");
+                        selector.get_path(false) + ")");
     }
 
     auto path = this->_base_url.path + selector.get_path(false);
@@ -550,25 +588,25 @@ QIDORSRequest
         current_tag = &tag_elem.first;
         current_element = &tag_elem.second;
 
-        ss_query << QIDORSRequest::tag_to_string(*current_tag, numerical_tags) ;
+        ss_query << QIDORSRequest::_tag_to_string(*current_tag, numerical_tags) ;
 
         while (current_element->is_data_set())
         {
             if (current_element->size() > 1)
             {
                 throw Exception("Query doesn't allow the use of multidimensional element ("+
-                                QIDORSRequest::tag_to_string(*current_tag, numerical_tags) +")");
+                                QIDORSRequest::_tag_to_string(*current_tag, numerical_tags) +")");
             }
             current_ds = &current_element->as_data_set()[0];
             current_tag = &current_ds->begin()->first;
             current_element = &current_ds->begin()->second;
-            ss_query << "." << QIDORSRequest::tag_to_string(*current_tag, numerical_tags)  ;
+            ss_query << "." << QIDORSRequest::_tag_to_string(*current_tag, numerical_tags)  ;
         }
 
         if (current_element->size() > 1)
         {
             throw Exception("Query doesn't allow the use of multidimensional element ("+
-                            QIDORSRequest::tag_to_string(*current_tag, numerical_tags) +")");
+                            QIDORSRequest::_tag_to_string(*current_tag, numerical_tags) +")");
         }
 
         // here we get the "final" element
@@ -587,7 +625,7 @@ QIDORSRequest
         else
         {
             throw Exception("Invalid query tag (" +
-                            QIDORSRequest::tag_to_string(*current_tag, numerical_tags) +")");
+                            QIDORSRequest::_tag_to_string(*current_tag, numerical_tags) +")");
         }
         if (query_element_count++ < query_nb_elements - 1)
         {
@@ -613,7 +651,7 @@ QIDORSRequest
             field_nb_elements = includefield.size();
             for(auto const & fields : includefield)
             {
-                ss_query << QIDORSRequest::tag_to_string(fields, numerical_tags) ;
+                ss_query << QIDORSRequest::_tag_to_string(fields, numerical_tags) ;
                 if(field_count++ < field_nb_elements -1)
                 {
                     ss_query << ".";

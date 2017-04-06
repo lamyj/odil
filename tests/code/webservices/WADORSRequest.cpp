@@ -3,9 +3,8 @@
 
 #include "odil/registry.h"
 #include "odil/webservices/HTTPRequest.h"
-#include "odil/webservices/Selector.h"
 #include "odil/webservices/URL.h"
-#include "odil/webservices/Utils.h"
+#include "odil/webservices/WADORS.h"
 #include "odil/webservices/WADORSRequest.h"
 
 odil::webservices::URL const base_url{"", "example.com", "/dicom", "", ""};
@@ -14,15 +13,10 @@ odil::webservices::URL const base_url_http{
     "http", "example.com", "/dicom", "", ""};
 
 odil::webservices::Selector const instance_selector(
-    std::map<std::string, std::string>(
-        {{"studies","1.2"}, {"series","3.4"}, {"instance","5.6"}})
-    );
+    "1.2", "3.4", "5.6");
 
 odil::webservices::Selector const frames_selector(
-    std::map<std::string, std::string>(
-        {{"studies", "1.2"}, {"series", "3.4"}, {"instances", "5.6"}}),
-    {7,8,9}
-    );
+    "1.2", "3.4", "5.6", {7,8,9});
 
 BOOST_AUTO_TEST_CASE(Constructor)
 {

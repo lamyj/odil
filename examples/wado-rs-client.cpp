@@ -71,17 +71,13 @@ int main()
         "http", "demo.orthanc-server.com", "/dicom-web"};
 
     odil::webservices::WADORSRequest wado_request(root);
-    odil::webservices::Selector selector(
-        std::map<std::string, std::string>(
-            {{"studies", "2.16.840.1.113669.632.20.1211.10000357775"},
-            {"series", "1.3.46.670589.11.0.0.11.4.2.0.8743.5.5396.2006120114314125550"},
-            {"instances", "1.3.46.670589.11.0.0.11.4.2.0.8743.5.5396.2006120114333648576"}})
-        );
 
     wado_request.request_dicom(
         odil::webservices::Representation::DICOM_XML,
-        selector
-        );
+        {
+            "2.16.840.1.113669.632.20.1211.10000357775",
+            "1.3.46.670589.11.0.0.11.4.2.0.8743.5.5396.2006120114314125550",
+            "1.3.46.670589.11.0.0.11.4.2.0.8743.5.5396.2006120114333648576"});
 
     auto http_request = wado_request.get_http_request();
     // Explicitely use HTTP/1.0 to avoid chunked encoding

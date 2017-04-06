@@ -15,6 +15,7 @@
 
 #include "odil/odil.h"
 #include "odil/Exception.h"
+#include <boost/optional.hpp>
 
 namespace odil
 {
@@ -26,23 +27,14 @@ namespace webservices
 class ODIL_API Selector
 {
 public:
-    /// @brief Constructor.
-//    Selector(
-//        std::string const & study="", std::string const & series="",
-//        std::string const & instance="", std::vector<int> const & frames={});
 
-    typedef std::map<std::string, std::string> RequestPath;
+    /// @brief Default Constructor
+    Selector ();
 
-    /// @brief Constructor.
-    /// example :
-    /// wanted path : /studies/StudyInstanceUID/instances/
-    /// corresponding map :
-    ///     { {"studies" , StudyInstanceUID} ,
-    ///       {"instance", ""} }
+    /// @brief Constructor which takes at least the study arg.
     Selector(
-        RequestPath const & selector = {{"studies", ""}, {"series", ""}, {"instances", ""}},
-        std::vector<int> const & frames={});
-
+        std::string const & study, std::string const & series="",
+        std::string const & instance="", std::vector<int> const & frames={});
 
     /// @brief Equality operator.
     bool operator==(Selector const & other) const;
@@ -56,15 +48,40 @@ public:
      */
     std::string get_path(bool include_frames) const;
 
-    std::string study;
-    bool study_present;
-    std::string series;
-    bool series_present;
-    std::string instance;
-    bool instance_present;
-    std::vector<int> frames;
+    /// @brief return if study field is present in the selector
+    bool is_study_present() const;
+    /// @brief return if series field is present in the selector
+    bool is_series_present() const;
+    /// @brief return if instance field is present in the selector
+    bool is_instance_present() const;
 
-    RequestPath selector;
+    /// @brief return the wanted study
+    std::string const & get_study() const;
+    /// @brief return the wanted series
+    std::string const & get_series() const;
+    /// @brief return the wanted instance
+    std::string const & get_instance() const;
+    /// @brief return the wanted frames
+    std::vector<int> const & get_frames() const;
+
+    /// @brief set the wanted study
+    Selector& set_study(std::string const & study);
+    /// @brief set the wanted series
+    Selector& set_series(std::string const & series);
+    /// @brief set the wanted instance
+    Selector& set_instance(std::string const & instance);
+    /// @brief set the wanted frames
+    Selector& set_frames(std::vector<int> const & frames);
+
+private:
+    std::string _study;
+    std::string _series;
+    std::string _instance;
+    std::vector<int> _frames;
+    bool _study_present;
+    bool _series_present;
+    bool _instance_present;
+
 
 };
 

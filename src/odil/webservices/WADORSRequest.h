@@ -80,8 +80,6 @@ public:
     /// @brief Return the selector.
     Selector const & get_selector() const;
 
-    /// @brief Return if the given selector is valid or not
-    bool is_selector_valid(Selector const & selector);
 
     /// @brief Return the URL.
     URL const & get_url() const;
@@ -125,6 +123,9 @@ private:
 
     /// @brief Split an URL in a pair of base_url and request selector.
     static std::pair<URL, Selector> _split_full_url(URL const & url);
+
+    /// @brief Return if the given selector is valid or not
+    static bool _is_selector_valid(Selector const & selector);
 };
 
 }
