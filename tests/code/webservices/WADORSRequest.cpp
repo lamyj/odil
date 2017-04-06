@@ -12,10 +12,10 @@ odil::webservices::URL const base_url{"", "example.com", "/dicom", "", ""};
 odil::webservices::URL const base_url_http{
     "http", "example.com", "/dicom", "", ""};
 
-odil::webservices::WADORSRequest::Selector const instance_selector(
+odil::webservices::Selector const instance_selector(
     "1.2", "3.4", "5.6");
 
-odil::webservices::WADORSRequest::Selector const frames_selector(
+odil::webservices::Selector const frames_selector(
     "1.2", "3.4", "5.6", {7,8,9});
 
 BOOST_AUTO_TEST_CASE(Constructor)
@@ -68,17 +68,17 @@ BOOST_AUTO_TEST_CASE(RequestDicom)
 {
     odil::webservices::WADORSRequest wado_request(base_url_http);
     wado_request.request_dicom(
-        odil::webservices::WADORS::Representation::DICOM,
+        odil::webservices::Representation::DICOM,
         instance_selector);
 
     BOOST_REQUIRE(
         wado_request.get_type()
-            == odil::webservices::WADORS::Type::DICOM);
+            == odil::webservices::Type::DICOM);
     BOOST_REQUIRE(wado_request.get_selector() == instance_selector);
     BOOST_REQUIRE_EQUAL(wado_request.get_media_type(), "application/dicom");
     BOOST_REQUIRE(
         wado_request.get_representation()
-            == odil::webservices::WADORS::Representation::DICOM);
+            == odil::webservices::Representation::DICOM);
 
     auto const http_request = wado_request.get_http_request();
     BOOST_REQUIRE_EQUAL(http_request.get_method(), "GET");
@@ -96,17 +96,17 @@ BOOST_AUTO_TEST_CASE(RequestDicomXML)
 {
     odil::webservices::WADORSRequest wado_request(base_url_http);
     wado_request.request_dicom(
-        odil::webservices::WADORS::Representation::DICOM_XML,
+        odil::webservices::Representation::DICOM_XML,
         frames_selector);
 
     BOOST_REQUIRE(
         wado_request.get_type()
-            == odil::webservices::WADORS::Type::DICOM);
+            == odil::webservices::Type::DICOM);
     BOOST_REQUIRE(wado_request.get_selector() == frames_selector);
     BOOST_REQUIRE_EQUAL(wado_request.get_media_type(), "application/dicom+xml");
     BOOST_REQUIRE(
         wado_request.get_representation()
-            == odil::webservices::WADORS::Representation::DICOM_XML);
+            == odil::webservices::Representation::DICOM_XML);
 
     auto const http_request = wado_request.get_http_request();
     BOOST_REQUIRE_EQUAL(http_request.get_method(), "GET");
@@ -124,17 +124,17 @@ BOOST_AUTO_TEST_CASE(RequestDicomJSON)
 {
     odil::webservices::WADORSRequest wado_request(base_url_http);
     wado_request.request_dicom(
-        odil::webservices::WADORS::Representation::DICOM_JSON,
+        odil::webservices::Representation::DICOM_JSON,
         frames_selector);
 
     BOOST_REQUIRE(
         wado_request.get_type()
-            == odil::webservices::WADORS::Type::DICOM);
+            == odil::webservices::Type::DICOM);
     BOOST_REQUIRE(wado_request.get_selector() == frames_selector);
     BOOST_REQUIRE_EQUAL(wado_request.get_media_type(), "application/dicom+json");
     BOOST_REQUIRE(
         wado_request.get_representation()
-            == odil::webservices::WADORS::Representation::DICOM_JSON);
+            == odil::webservices::Representation::DICOM_JSON);
 
     auto const http_request = wado_request.get_http_request();
     BOOST_REQUIRE_EQUAL(http_request.get_method(), "GET");
@@ -155,7 +155,7 @@ BOOST_AUTO_TEST_CASE(RequestBulkDataAll)
 
     BOOST_REQUIRE(
         wado_request.get_type()
-            == odil::webservices::WADORS::Type::BulkData);
+            == odil::webservices::Type::BulkData);
     BOOST_REQUIRE(wado_request.get_selector() == frames_selector);
     BOOST_REQUIRE_EQUAL(wado_request.get_media_type(), "application/octet-stream");
 
@@ -181,7 +181,7 @@ BOOST_AUTO_TEST_CASE(RequestBulkDataSingle)
 
     BOOST_REQUIRE(
         wado_request.get_type()
-            == odil::webservices::WADORS::Type::BulkData);
+            == odil::webservices::Type::BulkData);
     BOOST_REQUIRE_EQUAL(wado_request.get_media_type(), "application/octet-stream");
 
     auto const http_request = wado_request.get_http_request();
@@ -203,7 +203,7 @@ BOOST_AUTO_TEST_CASE(RequestPixelData)
 
     BOOST_REQUIRE(
         wado_request.get_type()
-            == odil::webservices::WADORS::Type::PixelData);
+            == odil::webservices::Type::PixelData);
     BOOST_REQUIRE(wado_request.get_selector() == frames_selector);
     BOOST_REQUIRE_EQUAL(wado_request.get_media_type(), "image/jpeg");
 
@@ -385,12 +385,12 @@ BOOST_AUTO_TEST_CASE(ParseRequestDICOM)
     BOOST_REQUIRE(wado_request.get_base_url() == base_url);
     BOOST_REQUIRE(
         wado_request.get_type()
-            == odil::webservices::WADORS::Type::DICOM);
+            == odil::webservices::Type::DICOM);
     BOOST_REQUIRE(wado_request.get_selector() == instance_selector);
     BOOST_REQUIRE_EQUAL(wado_request.get_media_type(), "application/dicom");
     BOOST_REQUIRE(
         wado_request.get_representation()
-            == odil::webservices::WADORS::Representation::DICOM);
+            == odil::webservices::Representation::DICOM);
 }
 
 BOOST_AUTO_TEST_CASE(ParseRequestDICOM_XML)
@@ -407,12 +407,12 @@ BOOST_AUTO_TEST_CASE(ParseRequestDICOM_XML)
     BOOST_REQUIRE(wado_request.get_base_url() == base_url);
     BOOST_REQUIRE(
         wado_request.get_type()
-            == odil::webservices::WADORS::Type::DICOM);
+            == odil::webservices::Type::DICOM);
     BOOST_REQUIRE(wado_request.get_selector() == frames_selector);
     BOOST_REQUIRE_EQUAL(wado_request.get_media_type(), "application/dicom+xml");
     BOOST_REQUIRE(
         wado_request.get_representation()
-            == odil::webservices::WADORS::Representation::DICOM_XML);
+            == odil::webservices::Representation::DICOM_XML);
 }
 
 BOOST_AUTO_TEST_CASE(ParseRequestDICOM_JSON)
@@ -429,12 +429,12 @@ BOOST_AUTO_TEST_CASE(ParseRequestDICOM_JSON)
     BOOST_REQUIRE(wado_request.get_base_url() == base_url);
     BOOST_REQUIRE(
         wado_request.get_type()
-            == odil::webservices::WADORS::Type::DICOM);
+            == odil::webservices::Type::DICOM);
     BOOST_REQUIRE(wado_request.get_selector() == frames_selector);
     BOOST_REQUIRE_EQUAL(wado_request.get_media_type(), "application/dicom+json");
     BOOST_REQUIRE(
         wado_request.get_representation()
-            == odil::webservices::WADORS::Representation::DICOM_JSON);
+            == odil::webservices::Representation::DICOM_JSON);
 }
 
 BOOST_AUTO_TEST_CASE(ParseRequestBulkDataSingle)
@@ -458,7 +458,7 @@ BOOST_AUTO_TEST_CASE(ParseRequestBulkDataSingle)
                 "", "" }));
     BOOST_REQUIRE(
         wado_request.get_type()
-            == odil::webservices::WADORS::Type::BulkData);
+            == odil::webservices::Type::BulkData);
     BOOST_REQUIRE(wado_request.get_selector() == instance_selector);
     BOOST_REQUIRE_EQUAL(wado_request.get_media_type(), "application/octet-stream");
 }
@@ -477,7 +477,7 @@ BOOST_AUTO_TEST_CASE(ParseRequestBulkDataAll)
     BOOST_REQUIRE(wado_request.get_base_url() == base_url);
     BOOST_REQUIRE(
         wado_request.get_type()
-            == odil::webservices::WADORS::Type::BulkData);
+            == odil::webservices::Type::BulkData);
     BOOST_REQUIRE(wado_request.get_selector() == instance_selector);
     BOOST_REQUIRE_EQUAL(wado_request.get_media_type(), "application/octet-stream");
 }
@@ -496,7 +496,7 @@ BOOST_AUTO_TEST_CASE(ParseRequestPixelDataUncompressed)
     BOOST_REQUIRE(wado_request.get_base_url() == base_url);
     BOOST_REQUIRE(
         wado_request.get_type()
-            == odil::webservices::WADORS::Type::BulkData);
+            == odil::webservices::Type::BulkData);
     BOOST_REQUIRE(wado_request.get_selector() == frames_selector);
     BOOST_REQUIRE_EQUAL(wado_request.get_media_type(), "application/octet-stream");
 }
@@ -515,7 +515,7 @@ BOOST_AUTO_TEST_CASE(ParseRequestPixelDataCompressed)
     BOOST_REQUIRE(wado_request.get_base_url() == base_url);
     BOOST_REQUIRE(
         wado_request.get_type()
-            == odil::webservices::WADORS::Type::PixelData);
+            == odil::webservices::Type::PixelData);
     BOOST_REQUIRE(wado_request.get_selector() == frames_selector);
     BOOST_REQUIRE_EQUAL(wado_request.get_media_type(), "image/jpeg");
 }

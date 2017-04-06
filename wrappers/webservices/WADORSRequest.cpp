@@ -64,7 +64,7 @@ void wrap_webservices_WADORSRequest()
         .def("request_dicom", &WADORSRequest::request_dicom)
         .def(
             "request_bulk_data",
-            static_cast<void(WADORSRequest::*)(WADORSRequest::Selector const &)>(
+            static_cast<void(WADORSRequest::*)(odil::webservices::Selector const &)>(
                 &WADORSRequest::request_bulk_data))
         .def(
             "request_bulk_data",
@@ -76,17 +76,12 @@ void wrap_webservices_WADORSRequest()
         .def(self != self)
     ;
 
-    scope wado_rs_request_selector_scope = class_<WADORSRequest::Selector>(
-            "Selector", init<
-                std::string, std::string, std::string, std::vector<int>
-            >((
-                arg("stduy")="", arg("series")="", arg("instance")="",
-                arg("frames")=std::vector<int>())))
-        .def_readwrite("study", &WADORSRequest::Selector::study)
-        .def_readwrite("series", &WADORSRequest::Selector::series)
-        .def_readwrite("instance", &WADORSRequest::Selector::instance)
-        .def_readwrite("frames", &WADORSRequest::Selector::frames)
-        .def("get_path", &WADORSRequest::Selector::get_path)
+    scope wado_rs_request_selector_scope = class_<odil::webservices::Selector>(
+        "Selector", init<std::string>((
+            arg("studies")=""
+            )))
+        // TODO : add functions to wrap
+        .def("get_path", &odil::webservices::Selector::get_path)
         .def(self == self)
         .def(self != self)
     ;

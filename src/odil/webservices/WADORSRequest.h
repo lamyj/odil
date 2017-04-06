@@ -14,8 +14,9 @@
 
 #include "odil/odil.h"
 #include "odil/webservices/HTTPRequest.h"
+#include "odil/webservices/Selector.h"
 #include "odil/webservices/URL.h"
-#include "odil/webservices/WADORS.h"
+#include "odil/webservices/Utils.h"
 
 namespace odil
 {
@@ -27,32 +28,6 @@ namespace webservices
 class ODIL_API WADORSRequest
 {
 public:
-    /// @brief Target (in the DICOM data model) of the request.
-    struct ODIL_API Selector
-    {
-        std::string study;
-        std::string series;
-        std::string instance;
-        std::vector<int> frames;
-
-        /// @brief Constructor.
-        Selector(
-            std::string const & study="", std::string const & series="",
-            std::string const & instance="", std::vector<int> const & frames={});
-
-        /// @brief Equality operator.
-        bool operator==(Selector const & other) const;
-
-        /// @brief Difference operator.
-        bool operator!=(Selector const & other) const;
-
-        /**
-         * @brief Return the associated URL path, with the optional "frames"
-         * component.
-         */
-        std::string get_path(bool include_frames) const;
-    };
-
     /// @brief Constructor.
     WADORSRequest(
         URL const & base_url, std::string const & transfer_syntax="",
@@ -100,10 +75,11 @@ public:
     void set_include_character_set_in_query(bool include_charcter_set_in_query);
 
     /// @brief Return the query type.
-    WADORS::Type get_type() const;
+    Type get_type() const;
 
     /// @brief Return the selector.
     Selector const & get_selector() const;
+
 
     /// @brief Return the URL.
     URL const & get_url() const;
@@ -112,11 +88,11 @@ public:
     std::string const & get_media_type() const;
 
     /// @brief Return the representation.
-    WADORS::Representation const & get_representation() const;
+    Representation const & get_representation() const;
 
     /// @brief Prepare a DICOM request.
     void request_dicom(
-        WADORS::Representation representation, Selector const & selector);
+        Representation representation, Selector const & selector);
 
     /// @brief Prepare a bulk data request.
     void request_bulk_data(Selector const & selector);
@@ -142,11 +118,14 @@ private:
     Selector _selector;
     URL _url;
     std::string _media_type;
-    WADORS::Representation _representation;
-    WADORS::Type _type;
+    Representation _representation;
+    Type _type;
 
     /// @brief Split an URL in a pair of base_url and request selector.
     static std::pair<URL, Selector> _split_full_url(URL const & url);
+
+    /// @brief Return if the given selector is valid or not
+    static bool _is_selector_valid(Selector const & selector);
 };
 
 }
