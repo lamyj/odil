@@ -40,8 +40,8 @@ QIDORSRequest
 QIDORSRequest
 ::QIDORSRequest(HTTPRequest const & request)
 {
-    // Build URL from target and "Host" header
-    this->_url = URL::parse(request.get_target());
+    // Build tmp URL from target and "Host" header
+    URL tmp_url = URL::parse(request.get_target());
     if(request.has_header("Host"))
     {
         this->_url.authority = request.get_header("Host");
@@ -87,10 +87,9 @@ QIDORSRequest
         this->_representation = Representation::DICOM_JSON;
     }
 
-    std::tie(this->_base_url, this->_selector, this->_query_data_set, this->_includefields,
+    std::tie(this->_base_url, this->_url, this->_selector, this->_query_data_set, this->_includefields,
              this->_fuzzymatching, this->_limit, this->_offset) =
-        QIDORSRequest::_split_full_url(this->_url);
-
+        QIDORSRequest::_split_full_url(tmp_url);
 }
 
 bool
@@ -167,7 +166,7 @@ QIDORSRequest
     return this->_query_data_set;
 }
 
-std::vector < std::vector < odil::Tag > > const &
+std::set < std::vector < odil::Tag > > const &
 QIDORSRequest
 ::get_includefields() const
 {
@@ -195,7 +194,7 @@ QIDORSRequest
     return this->_offset;
 }
 
-std::tuple<URL, Selector, DataSet, std::vector< std::vector <odil::Tag> >,
+std::tuple<URL, URL, Selector, DataSet, std::set< std::vector <odil::Tag> >,
            bool /*fuzzymatching*/, int /*offset*/, int /*limit*/>
 QIDORSRequest
 ::_split_full_url(const URL &url)
@@ -298,7 +297,7 @@ QIDORSRequest
 
     bool fuzzy = false;
     int limit = -1, offset = 0;
-    std::vector< std::vector<odil::Tag> > includefields;
+    std::set< std::vector<odil::Tag> > includefields;
     bool include_all = true;
     odil::DataSet data_set;
     for (auto const pair : key_val)
@@ -368,7 +367,8 @@ QIDORSRequest
                     }
                     if (!current_dicom_tags.empty())
                     {
-                        includefields.push_back(current_dicom_tags);
+                        includefields.insert(current_dicom_tags);
+                        include_all = false;
                     }
                 }
             }
@@ -444,7 +444,11 @@ QIDORSRequest
         includefields.clear();
     }
 
-    return std::make_tuple(base_url, selector, data_set, includefields,
+    URL full_url = QIDORSRequest::_generate_url(base_url, selector, data_set,
+                                           includefields, fuzzy,
+                                           limit, offset, false);
+
+    return std::make_tuple(base_url, full_url, selector, data_set, includefields,
                            fuzzy, limit, offset
                            );
 }
@@ -547,34 +551,13 @@ QIDORSRequest
     }
 }
 
-void
+URL
 QIDORSRequest
-::request_datasets(
-    Representation representation, Selector const & selector,
-    DataSet const & query_data_set,
-    std::vector< std::vector < odil::Tag > > const & includefields,
-    bool fuzzymatching, int limit, int offset, bool numerical_tags)
+::_generate_url(URL const & base_url, Selector const & selector, DataSet const & query_data_set,
+                std::set< std::vector < odil::Tag > > const & includefields,
+                bool fuzzymatching, int limit, int offset, bool numerical_tags)
 {
-    if (representation != Representation::DICOM_JSON &&
-            representation != Representation::DICOM_XML)
-    {
-        throw Exception("Given representation is not available for QIDO-RS");
-    }
-    this->_representation = representation;
-    this->_selector = selector;
-    this->_query_data_set = query_data_set;
-    this->_includefields = includefields;
-    this->_fuzzymatching = fuzzymatching;
-    this->_limit = limit;
-    this->_offset = offset;
-
-    if (!QIDORSRequest::_is_selector_valid(selector))
-    {
-        throw Exception("Selector not correctly constructed (" +
-                        selector.get_path(false) + ")");
-    }
-
-    auto path = this->_base_url.path + selector.get_path(false);
+    auto path = base_url.path + selector.get_path(false);
     std::stringstream ss_query;
 
     // ----- QUERY (DATASET ELEMENTS)
@@ -649,6 +632,7 @@ QIDORSRequest
         for (auto const & includefield : includefields)
         {
             field_nb_elements = includefield.size();
+            field_count = 0;
             for(auto const & fields : includefield)
             {
                 ss_query << QIDORSRequest::_tag_to_string(fields, numerical_tags) ;
@@ -691,9 +675,41 @@ QIDORSRequest
 
     std::string query = ss_query.str();
 
-    this->_url = {
-        this->_base_url.scheme, this->_base_url.authority, path, query, ""
+    return {
+        base_url.scheme, base_url.authority, path, query, ""
     };
+}
+
+void
+QIDORSRequest
+::request_datasets(
+    Representation representation, Selector const & selector,
+    DataSet const & query_data_set,
+    std::set< std::vector < odil::Tag > > const & includefields,
+    bool fuzzymatching, int limit, int offset, bool numerical_tags)
+{
+    if (representation != Representation::DICOM_JSON &&
+            representation != Representation::DICOM_XML)
+    {
+        throw Exception("Given representation is not available for QIDO-RS");
+    }
+    this->_representation = representation;
+    this->_selector = selector;
+    this->_query_data_set = query_data_set;
+    this->_includefields = includefields;
+    this->_fuzzymatching = fuzzymatching;
+    this->_limit = limit;
+    this->_offset = offset;
+
+    if (!QIDORSRequest::_is_selector_valid(selector))
+    {
+        throw Exception("Selector not correctly constructed (" +
+                        selector.get_path(false) + ")");
+    }
+
+    this->_url = QIDORSRequest::_generate_url(this->_base_url, selector,
+                                              query_data_set, includefields, fuzzymatching,
+                                              limit, offset, numerical_tags);
 }
 
 }

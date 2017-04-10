@@ -314,9 +314,9 @@ WADORSRequest
 {
     return(
         (!selector.get_frames().empty() && !selector.get_instance().empty() && !selector.get_series().empty() && !selector.get_study().empty())
-        || (!selector.get_instance().empty() && !selector.get_series().empty() && !selector.get_study().empty())
-        || (!selector.get_series().empty() && !selector.get_study().empty())
-        || (!selector.get_study().empty())
+        || (selector.get_frames().empty() && !selector.get_instance().empty() && !selector.get_series().empty() && !selector.get_study().empty())
+        || (selector.get_frames().empty() && selector.get_instance().empty() && !selector.get_series().empty() && !selector.get_study().empty())
+        || (selector.get_frames().empty() && selector.get_instance().empty() && selector.get_series().empty() && !selector.get_study().empty())
     );
 }
 

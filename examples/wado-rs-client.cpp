@@ -82,7 +82,7 @@ int main()
     auto http_request = wado_request.get_http_request();
     // Explicitely use HTTP/1.0 to avoid chunked encoding
     http_request.set_http_version("HTTP/1.0");
-    http_request.set_header("Host", wado_request.get_base_url().authority);
+    http_request.set_header("Host", root.authority);
     http_request.set_header("Connection", "close");
 
     boost::asio::ip::tcp::iostream stream;

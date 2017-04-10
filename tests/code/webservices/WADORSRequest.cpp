@@ -92,6 +92,22 @@ BOOST_AUTO_TEST_CASE(RequestDicom)
     BOOST_REQUIRE(http_request.get_body().empty());
 }
 
+BOOST_AUTO_TEST_CASE(RequestDicomException)
+{
+    odil::webservices::WADORSRequest wado_request(base_url_http);
+    odil::webservices::Selector selector;
+    selector.set_study("1.2").set_instance("5.6"); // need series in order to have instance
+    odil::webservices::Selector selector_1; // empty : need at least a study
+    BOOST_REQUIRE_THROW(
+                wado_request.request_dicom(
+                    odil::webservices::Representation::DICOM, selector
+                    ), odil::Exception);
+    BOOST_REQUIRE_THROW(
+                wado_request.request_dicom(
+                    odil::webservices::Representation::DICOM, selector_1
+                    ), odil::Exception);
+}
+
 BOOST_AUTO_TEST_CASE(RequestDicomXML)
 {
     odil::webservices::WADORSRequest wado_request(base_url_http);
