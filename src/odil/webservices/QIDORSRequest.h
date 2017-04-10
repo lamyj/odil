@@ -11,6 +11,8 @@
 
 #include <string>
 #include <tuple>
+#include <vector>
+#include <set>
 
 #include "odil/DataSet.h"
 #include "odil/odil.h"
@@ -68,7 +70,7 @@ public:
     DataSet const & get_query_data_set() const;
 
     /// @brief Return the wanted fields.
-    std::vector< std::vector < odil::Tag> > const & get_includefields() const;
+    std::set< std::vector < odil::Tag> > const & get_includefields() const;
 
     /// @brief Return whether fuzzymatching is wanted or not.
     bool get_fuzzymatching() const;
@@ -79,13 +81,13 @@ public:
     /// @brief Return the wanted offset.
     int get_offset() const;
 
-    /// @brief Generete the associated HTTP request.
+    /// @brief Generate the associated HTTP request.
     HTTPRequest get_http_request() const;
 
     /// @brief Prepare a qido request
     void request_datasets(
             Representation representation, Selector const & selector,
-            DataSet const & query, std::vector<std::vector<Tag> > const & includefields = {},
+            DataSet const & query, std::set<std::vector<Tag> > const & includefields = {},
             bool fuzzymatching = false, int limit = -1, int offset = 0, bool numerical_tags = false);
 
 
@@ -104,7 +106,7 @@ private:
     // if _includefields[i].size() = 1 -> element at top level (DataSet level)
     // else _includefields[i][0] = top_seq at top_level,
     //      and next elements of _includefields[i] are subsequences until leaf element
-    std::vector< std::vector <odil::Tag> >  _includefields;
+    std::set< std::vector <odil::Tag> >  _includefields;
 
     bool _fuzzymatching;
     int _limit; // maximum number of results the origin server shall return.
@@ -117,9 +119,14 @@ private:
     static std::string _tag_to_string(odil::Tag const & tag, bool numerical_tag);
 
     /// @brief Split an URL in a pair of base_url and request selector.
-    static std::tuple<URL, Selector, DataSet, std::vector<std::vector< odil::Tag> >,
+    static std::tuple<URL, URL, Selector, DataSet, std::set<std::vector< odil::Tag> >,
         bool, int /*offset*/, int /*limit*/ >
         _split_full_url(URL const & url);
+
+    static URL _generate_url(URL const & base_url, Selector const & selector, DataSet const & query,
+                             std::set<std::vector<Tag> > const & includefields = {},
+                             bool fuzzymatching = false, int limit = -1,
+                             int offset = 0, bool numerical_tags = false);
 };
 
 }

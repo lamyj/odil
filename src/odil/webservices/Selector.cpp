@@ -147,20 +147,31 @@ Selector
     std::string path;
     if(this->_study_present)
     {
-        path = "/studies/" + this->_study;
+        path = "/studies";
+        if (!this->_study.empty())
+        {
+            path += "/" + this->_study;
+        }
     }
     if(this->_series_present)
     {
-        path += "/series/" + this->_series;
+        path += "/series";
+        if (!this->_series.empty())
+        {
+            path += "/" + this->_series;
+        }
     }
     if(this->_instance_present)
     {
-        path += "/instances/" + this->_instance;
+        path += "/instances";
+        if (!this->_instance.empty())
+        {
+            path += "/" + this->_instance;
+        }
     }
     if(include_frames && !this->_frames.empty())
     {
         path += "/frames/";
-
         auto const last = --this->_frames.end();
         auto it = this->_frames.begin();
         while(it != last)
