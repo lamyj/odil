@@ -14,7 +14,11 @@ def main():
         description="Run all tests (C++ and Python). "
             "This program must be run from the build directory.")
     parser.add_argument("tests", nargs="*", help="Python only")
-    parser.add_argument("--no-network", action="store_true")
+    parser.add_argument(
+        "--no-network", action="store_true",
+        help="Don't run network-related tests")
+    parser.add_argument(
+        "--verbose", "-v", action="store_true", help="Increase tests verbosity")
     parser.add_argument("--test-regex", "-R", help="C++ only")
     parser.add_argument("--exclude-regex", "-E", help="C++ only")
     parser.add_argument(
@@ -69,15 +73,16 @@ def main():
                 source_directory = match.group(1)
                 break
 
-    cpp_code = subprocess.call(
-        ["ctest", "--no-compress-output", "-T", "Test"]+cpp_args,
-        env=environment)
-    python_code = subprocess.call(
-        [
-            arguments.nose,
-            os.path.join(source_directory, "tests", "wrappers")
-        ]+python_args,
-        env=environment)
+    ctest = ["ctest", "--no-compress-output", "-T", "Test"]
+    if arguments.verbose:
+        ctest.append("-V")
+    cpp_code = subprocess.call(ctest+cpp_args, env=environment)
+
+    nose = [
+        arguments.nose, os.path.join(source_directory, "tests", "wrappers")]
+    if arguments.verbose:
+        nose.append("-v")
+    python_code = subprocess.call(nose+python_args, env=environment)
 
     tearDown(directory, process)
 
