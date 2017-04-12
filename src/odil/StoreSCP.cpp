@@ -60,14 +60,14 @@ void
 StoreSCP
 ::operator()(message::Message const & message)
 {
-    message::CStoreRequest const request(message);
+    message::CStoreRequest request(message);
 
     Value::Integer status=message::CStoreResponse::Success;
     DataSet status_fields;
 
     try
     {
-        status = this->_callback(request);
+        status = this->_callback(std::move(request));
     }
     catch(SCP::Exception const & e)
     {

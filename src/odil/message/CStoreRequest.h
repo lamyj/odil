@@ -39,11 +39,29 @@ public:
         Value::Integer move_originator_message_id = -1);
 
     /**
+     * @brief Create an store request with given Message ID,
+     * affected SOP class UID, priority, and data set.
+     */
+    CStoreRequest(
+        Value::Integer message_id, Value::String const & affected_sop_class_uid,
+        Value::String const & affected_sop_instance_uid,
+        Value::Integer priority, DataSet && dataset,
+        Value::String const & move_originator_ae_title = "",
+        Value::Integer move_originator_message_id = -1);
+
+    /**
      * @brief Create a C-STORE-RQ from a generic Message.
      *
      * Raise an exception if the Message does not contain a C-STORE-RQ.
      */
     CStoreRequest(Message const & message);
+
+    /**
+     * @brief Create a C-STORE-RQ from a generic Message.
+     *
+     * Raise an exception if the Message does not contain a C-STORE-RQ.
+     */
+    CStoreRequest(Message && message);
 
     /// @brief Destructor.
     virtual ~CStoreRequest();
@@ -58,6 +76,15 @@ public:
         move_originator_ae_title, registry::MoveOriginatorApplicationEntityTitle)
     ODIL_MESSAGE_OPTIONAL_FIELD_INTEGER_MACRO(
         move_originator_message_id, registry::MoveOriginatorMessageID)
+
+private:
+    void _create(
+        Value::String const & affected_sop_class_uid,
+        Value::String const & affected_sop_instance_uid,
+        Value::Integer priority, DataSet const & dataset,
+        Value::String const & move_originator_ae_title,
+        Value::Integer move_originator_message_id);
+    void _parse(Message const & message);
 };
 
 }

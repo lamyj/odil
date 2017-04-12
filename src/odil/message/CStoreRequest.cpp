@@ -28,6 +28,58 @@ CStoreRequest
     Value::Integer move_originator_message_id)
 : Request(message_id)
 {
+    this->_create(
+        affected_sop_class_uid, affected_sop_instance_uid, priority,
+        dataset, move_originator_ae_title, move_originator_message_id);
+    this->set_data_set(dataset);
+}
+
+CStoreRequest
+::CStoreRequest(
+    Value::Integer message_id, Value::String const & affected_sop_class_uid,
+    Value::String const & affected_sop_instance_uid,
+    Value::Integer priority, DataSet && dataset,
+    Value::String const & move_originator_ae_title,
+    Value::Integer move_originator_message_id)
+: Request(message_id)
+{
+    this->_create(
+        affected_sop_class_uid, affected_sop_instance_uid, priority,
+        dataset, move_originator_ae_title, move_originator_message_id);
+    this->set_data_set(std::move(dataset));
+}
+
+CStoreRequest
+::CStoreRequest(Message const & message)
+: Request(message)
+{
+    this->_parse(message);
+    this->set_data_set(message.get_data_set());
+}
+
+CStoreRequest
+::CStoreRequest(Message && message)
+: Request(message)
+{
+    this->_parse(message);
+    this->set_data_set(std::move(message.get_data_set()));
+}
+
+CStoreRequest
+::~CStoreRequest()
+{
+    // Nothing to do.
+}
+
+void
+CStoreRequest
+::_create(
+    Value::String const & affected_sop_class_uid,
+    Value::String const & affected_sop_instance_uid,
+    Value::Integer priority, DataSet const & dataset,
+    Value::String const & move_originator_ae_title,
+    Value::Integer move_originator_message_id)
+{
     this->set_command_field(Command::C_STORE_RQ);
     this->set_affected_sop_class_uid(affected_sop_class_uid);
     this->set_affected_sop_instance_uid(affected_sop_instance_uid);
@@ -42,12 +94,11 @@ CStoreRequest
     {
         throw Exception("Data set is required");
     }
-    this->set_data_set(dataset);
 }
 
+void
 CStoreRequest
-::CStoreRequest(Message const & message)
-: Request(message)
+::_parse(Message const & message)
 {
     if(message.get_command_field() != Command::C_STORE_RQ)
     {
@@ -72,13 +123,6 @@ CStoreRequest
     {
         throw Exception("Data set is required");
     }
-    this->set_data_set(message.get_data_set());
-}
-
-CStoreRequest
-::~CStoreRequest()
-{
-    // Nothing to do.
 }
 
 }
