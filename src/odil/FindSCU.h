@@ -52,7 +52,7 @@ public:
     std::vector<DataSet> find(DataSet && query) const;
 
 private:
-    void _find(message::CFindRequest & request, Callback callback) const;
+    void _find(message::CFindRequest const & request, Callback callback) const;
 };
 
 }

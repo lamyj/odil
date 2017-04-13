@@ -63,6 +63,21 @@ BOOST_FIXTURE_TEST_CASE(Get, Fixture)
                 {"2.25.95090344942250266709587559073467305647"}));
 }
 
+BOOST_FIXTURE_TEST_CASE(GetMove, Fixture)
+{
+    odil::GetSCU scu(this->association);
+
+    scu.set_affected_sop_class(
+        odil::registry::PatientRootQueryRetrieveInformationModelGET);
+    auto const results = scu.get(std::move(this->query));
+
+    BOOST_REQUIRE_EQUAL(results.size(), 1);
+    BOOST_CHECK(
+        results[0].as_string("SOPInstanceUID") ==
+            odil::Value::Strings(
+                {"2.25.95090344942250266709587559073467305647"}));
+}
+
 BOOST_FIXTURE_TEST_CASE(GetBothCallbacks, Fixture)
 {
     odil::GetSCU scu(this->association);
@@ -75,6 +90,19 @@ BOOST_FIXTURE_TEST_CASE(GetBothCallbacks, Fixture)
     BOOST_CHECK(Fixture::get_callback_called);
 }
 
+BOOST_FIXTURE_TEST_CASE(GetBothCallbacksMove, Fixture)
+{
+    odil::GetSCU scu(this->association);
+
+    scu.set_affected_sop_class(
+        odil::registry::PatientRootQueryRetrieveInformationModelGET);
+    scu.get(
+        std::move(this->query), Fixture::store_callback, Fixture::get_callback);
+
+    BOOST_CHECK(Fixture::store_callback_called);
+    BOOST_CHECK(Fixture::get_callback_called);
+}
+
 BOOST_FIXTURE_TEST_CASE(GetOnlyStoreCallback, Fixture)
 {
     odil::GetSCU scu(this->association);
@@ -82,6 +110,18 @@ BOOST_FIXTURE_TEST_CASE(GetOnlyStoreCallback, Fixture)
     scu.set_affected_sop_class(
         odil::registry::PatientRootQueryRetrieveInformationModelGET);
     scu.get(this->query, Fixture::store_callback);
+
+    BOOST_CHECK(Fixture::store_callback_called);
+    BOOST_CHECK(!Fixture::get_callback_called);
+}
+
+BOOST_FIXTURE_TEST_CASE(GetOnlyStoreCallbackMove, Fixture)
+{
+    odil::GetSCU scu(this->association);
+
+    scu.set_affected_sop_class(
+        odil::registry::PatientRootQueryRetrieveInformationModelGET);
+    scu.get(std::move(this->query), Fixture::store_callback);
 
     BOOST_CHECK(Fixture::store_callback_called);
     BOOST_CHECK(!Fixture::get_callback_called);

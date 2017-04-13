@@ -90,7 +90,7 @@ FindSCU
 
 void
 FindSCU
-::_find(message::CFindRequest & request, Callback callback) const
+::_find(message::CFindRequest const & request, Callback callback) const
 {
     this->_association.send_message(request, this->_affected_sop_class);
 

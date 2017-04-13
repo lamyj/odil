@@ -11,6 +11,7 @@
 
 #include "odil/Association.h"
 #include "odil/DataSet.h"
+#include "odil/message/CStoreRequest.h"
 #include "odil/odil.h"
 #include "odil/SCU.h"
 
@@ -37,6 +38,14 @@ public:
         DataSet const & dataset,
         Value::String const & move_originator_ae_title = "",
         Value::Integer move_originator_message_id = -1) const;
+
+    /// @brief Perform the C-STORE.
+    void store(
+        DataSet && dataset,
+        Value::String const & move_originator_ae_title = "",
+        Value::Integer move_originator_message_id = -1) const;
+private:
+    void _store(message::CStoreRequest const & request) const;
 };
 
 }
