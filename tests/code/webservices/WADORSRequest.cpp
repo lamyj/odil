@@ -4,7 +4,7 @@
 #include "odil/registry.h"
 #include "odil/webservices/HTTPRequest.h"
 #include "odil/webservices/URL.h"
-#include "odil/webservices/WADORS.h"
+#include "odil/webservices/Utils.h"
 #include "odil/webservices/WADORSRequest.h"
 
 odil::webservices::URL const base_url{"", "example.com", "/dicom", "", ""};

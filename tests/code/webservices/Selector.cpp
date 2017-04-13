@@ -50,7 +50,7 @@ BOOST_AUTO_TEST_CASE(GetPath)
 
     odil::webservices::Selector selector_1;
     selector_1.set_study("1.2").set_series("");
-    BOOST_REQUIRE_EQUAL(selector_1.get_path(false), "/studies/1.2/series/");
+    BOOST_REQUIRE_EQUAL(selector_1.get_path(false), "/studies/1.2/series");
 
     odil::webservices::Selector const selector_2("1.2", "3.4", "5.6", {1,2,3});
     BOOST_REQUIRE_EQUAL(selector_2.get_path(true), "/studies/1.2/series/3.4/instances/5.6/frames/1,2,3");

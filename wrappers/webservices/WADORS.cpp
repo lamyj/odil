@@ -8,19 +8,19 @@
 
 #include <boost/python.hpp>
 
-#include "odil/webservices/WADORS.h"
+#include "odil/webservices/Utils.h"
 
 namespace
 {
 class wadors_namespace {};
 }
 
-void wrap_webservices_WADORS()
+void wrap_webservices_Utils()
 {
     using namespace boost::python;
-    using namespace odil::webservices::WADORS;
+    using namespace odil::webservices;
 
-    scope wadors_scope = class_<wadors_namespace>("WADORS");
+    scope wadors_scope = class_<wadors_namespace>("Utils");
 
     enum_<Type>("Type")
         .value("None", Type::None)
