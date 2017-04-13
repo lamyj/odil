@@ -55,7 +55,12 @@ void wrap_GetSCP()
     
     scope get_scp_scope = class_<GetSCP>("GetSCP", init<Association &>())
         .def("set_generator", &set_generator)
-        .def("__call__", &odil::GetSCP::operator())
+        .def(
+            "__call__",
+            static_cast<
+                void (GetSCP::*)(message::Message const &)
+            >(&GetSCP::operator())
+        )
     ;
     
     class_<DataSetGeneratorWrapperGet, boost::noncopyable>(

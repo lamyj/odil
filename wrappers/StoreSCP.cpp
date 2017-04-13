@@ -38,7 +38,12 @@ void wrap_StoreSCP()
     class_<StoreSCP>("StoreSCP", init<Association&>())
     .def(init<Association&, StoreSCP::Callback& >())
     .def("set_callback", &set_callback)
-    .def("__call__", &StoreSCP::operator())
+    .def(
+        "__call__",
+        static_cast<
+            void (StoreSCP::*)(message::Message const &)
+        >(&StoreSCP::operator())
+    )
     ;
 
 }
