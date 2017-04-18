@@ -29,7 +29,7 @@
 #include "odil/webservices/HTTPResponse.h"
 #include "odil/webservices/ItemWithParameters.h"
 #include "odil/webservices/multipart_related.h"
-#include "odil/webservices/WADORS.h"
+#include "odil/webservices/Utils.h"
 #include "odil/Writer.h"
 #include "odil/xml_converter.h"
 
@@ -56,8 +56,8 @@ namespace webservices
 
 WADORSResponse
 ::WADORSResponse()
-: _data_sets(), _is_partial(false), _type(WADORS::Type::None), 
-  _representation(WADORS::Representation::DICOM), _media_type("")
+: _data_sets(), _is_partial(false), _type(odil::webservices::Type::None),
+  _representation(odil::webservices::Representation::DICOM), _media_type("")
 {
     // Nothing else.
 }
@@ -100,8 +100,8 @@ WADORSResponse
 
     if(this->_media_type == "application/dicom")
     {
-        this->_type = WADORS::Type::DICOM;
-        this->_representation = WADORS::Representation::DICOM;
+        this->_type = odil::webservices::Type::DICOM;
+        this->_representation = odil::webservices::Representation::DICOM;
 
         std::string transfer_syntax = odil::registry::ExplicitVRLittleEndian;
         auto const transfer_syntax_it = content_type.name_parameters.find(
@@ -124,8 +124,8 @@ WADORSResponse
     }
     else if(this->_media_type == "application/dicom+xml")
     {
-        this->_type = WADORS::Type::DICOM;
-        this->_representation = WADORS::Representation::DICOM_XML;
+        this->_type = odil::webservices::Type::DICOM;
+        this->_representation = odil::webservices::Representation::DICOM_XML;
 
         auto const converter =
             [](Message const & part)
@@ -140,8 +140,8 @@ WADORSResponse
     }
     else if(this->_media_type == "application/dicom+json")
     {
-        this->_type = WADORS::Type::DICOM;
-        this->_representation = WADORS::Representation::DICOM_JSON;
+        this->_type = odil::webservices::Type::DICOM;
+        this->_representation = odil::webservices::Representation::DICOM_JSON;
 
         std::istringstream stream(response.get_body());
         Json::Value array;
@@ -162,7 +162,7 @@ WADORSResponse
         // This could be a non-compressed pixel data or a non-pixel
         // bulk data. Since we cannot distinguish, assume the most generic
         // one
-        this->_type = WADORS::Type::BulkData;
+        this->_type = odil::webservices::Type::BulkData;
         auto const converter =
             [](Message const & part)
             {
@@ -178,7 +178,7 @@ WADORSResponse
     else
     {
         // Specific media type: compressed pixel data
-        this->_type = WADORS::Type::PixelData;
+        this->_type = odil::webservices::Type::PixelData;
         auto const converter =
             [](Message const & part)
             {
@@ -268,14 +268,14 @@ WADORSResponse
     this->_is_partial = partial;
 }
 
-WADORS::Type 
+odil::webservices::Type
 WADORSResponse
 ::get_type() const
 {
     return this->_type;
 }
 
-WADORS::Representation const & 
+odil::webservices::Representation const &
 WADORSResponse
 ::get_representation() const
 {
@@ -284,9 +284,9 @@ WADORSResponse
 
 void 
 WADORSResponse
-::respond_dicom(WADORS::Representation representation)
+::respond_dicom(odil::webservices::Representation representation)
 {
-    this->_type = WADORS::Type::DICOM;
+    this->_type = odil::webservices::Type::DICOM;
     this->_representation = representation;
 }
 
@@ -294,14 +294,14 @@ void
 WADORSResponse
 ::respond_bulk_data()
 {
-    this->_type = WADORS::Type::BulkData;
+    this->_type = odil::webservices::Type::BulkData;
 }
 
 void 
 WADORSResponse
 ::respond_pixel_data(std::string const & media_type)
 {
-    this->_type = WADORS::Type::PixelData;
+    this->_type = odil::webservices::Type::PixelData;
     this->_media_type = media_type;
 }
 
@@ -313,9 +313,9 @@ WADORSResponse
     response.set_status(this->_is_partial?206:200);
     response.set_reason(this->_is_partial?"Partial Content":"OK");
 
-    if(this->_type == WADORS::Type::DICOM)
+    if(this->_type == odil::webservices::Type::DICOM)
     {
-        if(this->_representation == WADORS::Representation::DICOM)
+        if(this->_representation == odil::webservices::Representation::DICOM)
         {
             // PS 3.18, 6.1.1.8
             auto const default_transfer_syntax =
@@ -358,7 +358,7 @@ WADORSResponse
                         {"type", "application/dicom"},
                         {"boundary", boundary}}));
         }
-        else if(this->_representation == WADORS::Representation::DICOM_XML)
+        else if(this->_representation == odil::webservices::Representation::DICOM_XML)
         {
             auto const accumulator =
                 [](DataSet const & data_set)
@@ -394,7 +394,7 @@ WADORSResponse
                         {"type", "application/dicom+xml"},
                         {"boundary", boundary}}));
         }
-        else if(this->_representation == WADORS::Representation::DICOM_JSON)
+        else if(this->_representation == odil::webservices::Representation::DICOM_JSON)
         {
             Json::Value json;
             json.resize(this->_data_sets.size());
@@ -413,7 +413,7 @@ WADORSResponse
             throw Exception("Unknown representation");
         }
     }
-    else if(this->_type == WADORS::Type::BulkData)
+    else if(this->_type == odil::webservices::Type::BulkData)
     {
         auto const accumulator =
             [](BulkData const & bulk_data)
@@ -441,7 +441,7 @@ WADORSResponse
                     {"type", "application/octet-stream"},
                     {"boundary", boundary}}));
     }
-    else if(this->_type == WADORS::Type::PixelData)
+    else if(this->_type == odil::webservices::Type::PixelData)
     {
         auto const accumulator =
             [](BulkData const & bulk_data)

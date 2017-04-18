@@ -17,7 +17,7 @@
 #include "odil/Value.h"
 #include "odil/webservices/BulkData.h"
 #include "odil/webservices/HTTPResponse.h"
-#include "odil/webservices/WADORS.h"
+#include "odil/webservices/Utils.h"
 
 namespace odil
 {
@@ -71,10 +71,10 @@ public:
     void set_partial(bool partial);
 
     /// @brief Return the response type.
-    WADORS::Type get_type() const;
+    odil::webservices::Type get_type() const;
 
     /// @brief Return the representation.
-    WADORS::Representation const & get_representation() const;
+    odil::webservices::Representation const & get_representation() const;
 
     /**
      * @brief Prepare a DICOM response.
@@ -82,7 +82,7 @@ public:
      * With a DICOM representation, the transfer_syntax of each data set will
      * be used.
      */
-    void respond_dicom(WADORS::Representation representation);
+    void respond_dicom(odil::webservices::Representation representation);
 
     /// @brief Prepare a bulk data response.
     void respond_bulk_data();
@@ -98,8 +98,8 @@ private:
     std::vector<DataSet> _data_sets;
     std::vector<BulkData> _bulk_data;
     bool _is_partial;
-    WADORS::Type _type;
-    WADORS::Representation _representation;
+    odil::webservices::Type _type;
+    odil::webservices::Representation _representation;
     std::string _media_type;
 };
 

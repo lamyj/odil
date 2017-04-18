@@ -15,7 +15,7 @@
 #include "odil/webservices/BulkData.h"
 #include "odil/webservices/ItemWithParameters.h"
 #include "odil/webservices/multipart_related.h"
-#include "odil/webservices/WADORS.h"
+#include "odil/webservices/Utils.h"
 #include "odil/webservices/WADORSResponse.h"
 #include "odil/Writer.h"
 #include "odil/xml_converter.h"
@@ -54,7 +54,7 @@ BOOST_AUTO_TEST_CASE(Constructor)
     BOOST_REQUIRE(response.get_data_sets().empty());
     BOOST_REQUIRE(response.get_bulk_data().empty());
     BOOST_REQUIRE(!response.is_partial());
-    BOOST_REQUIRE(response.get_type() == odil::webservices::WADORS::Type::None);
+    BOOST_REQUIRE(response.get_type() == odil::webservices::Type::None);
 }
 
 BOOST_FIXTURE_TEST_CASE(DataSets, Fixture)
@@ -93,7 +93,7 @@ BOOST_FIXTURE_TEST_CASE(RespondFull, Fixture)
     wado.set_data_sets(data_sets);
     wado.set_partial(false);
 
-    wado.respond_dicom(odil::webservices::WADORS::Representation::DICOM);
+    wado.respond_dicom(odil::webservices::Representation::DICOM);
 
     auto const http = wado.get_http_response();
     BOOST_REQUIRE_EQUAL(http.get_status(), 200);
@@ -106,7 +106,7 @@ BOOST_FIXTURE_TEST_CASE(RespondPartial, Fixture)
     wado.set_data_sets(data_sets);
     wado.set_partial(true);
 
-    wado.respond_dicom(odil::webservices::WADORS::Representation::DICOM);
+    wado.respond_dicom(odil::webservices::Representation::DICOM);
 
     auto const http = wado.get_http_response();
     BOOST_REQUIRE_EQUAL(http.get_status(), 206);
@@ -119,12 +119,12 @@ BOOST_FIXTURE_TEST_CASE(RespondDICOM, Fixture)
     data_sets[0].set_transfer_syntax(odil::registry::ImplicitVRLittleEndian);
     wado.set_data_sets(data_sets);
 
-    wado.respond_dicom(odil::webservices::WADORS::Representation::DICOM);
+    wado.respond_dicom(odil::webservices::Representation::DICOM);
 
-    BOOST_REQUIRE(wado.get_type() == odil::webservices::WADORS::Type::DICOM);
+    BOOST_REQUIRE(wado.get_type() == odil::webservices::Type::DICOM);
     BOOST_REQUIRE(
         wado.get_representation()
-            == odil::webservices::WADORS::Representation::DICOM);
+            == odil::webservices::Representation::DICOM);
 
     auto const http = wado.get_http_response();
     BOOST_REQUIRE(odil::webservices::is_multipart_related(http));
@@ -179,12 +179,12 @@ BOOST_FIXTURE_TEST_CASE(RespondDICOMXML, Fixture)
     odil::webservices::WADORSResponse wado;
     wado.set_data_sets(data_sets);
 
-    wado.respond_dicom(odil::webservices::WADORS::Representation::DICOM_XML);
+    wado.respond_dicom(odil::webservices::Representation::DICOM_XML);
 
-    BOOST_REQUIRE(wado.get_type() == odil::webservices::WADORS::Type::DICOM);
+    BOOST_REQUIRE(wado.get_type() == odil::webservices::Type::DICOM);
     BOOST_REQUIRE(
         wado.get_representation()
-            == odil::webservices::WADORS::Representation::DICOM_XML);
+            == odil::webservices::Representation::DICOM_XML);
 
     auto const http = wado.get_http_response();
     BOOST_REQUIRE(odil::webservices::is_multipart_related(http));
@@ -226,12 +226,12 @@ BOOST_FIXTURE_TEST_CASE(RespondDICOMJSON, Fixture)
     odil::webservices::WADORSResponse wado;
     wado.set_data_sets(data_sets);
 
-    wado.respond_dicom(odil::webservices::WADORS::Representation::DICOM_JSON);
+    wado.respond_dicom(odil::webservices::Representation::DICOM_JSON);
 
-    BOOST_REQUIRE(wado.get_type() == odil::webservices::WADORS::Type::DICOM);
+    BOOST_REQUIRE(wado.get_type() == odil::webservices::Type::DICOM);
     BOOST_REQUIRE(
         wado.get_representation()
-            == odil::webservices::WADORS::Representation::DICOM_JSON);
+            == odil::webservices::Representation::DICOM_JSON);
 
     auto const http = wado.get_http_response();
     BOOST_REQUIRE(!odil::webservices::is_multipart_related(http));
@@ -259,7 +259,7 @@ BOOST_FIXTURE_TEST_CASE(RespondBulkData, Fixture)
 
     wado.respond_bulk_data();
 
-    BOOST_REQUIRE(wado.get_type() == odil::webservices::WADORS::Type::BulkData);
+    BOOST_REQUIRE(wado.get_type() == odil::webservices::Type::BulkData);
 
     auto const http = wado.get_http_response();
     BOOST_REQUIRE(odil::webservices::is_multipart_related(http));
@@ -296,7 +296,7 @@ BOOST_FIXTURE_TEST_CASE(RespondPixelData, Fixture)
 
     wado.respond_pixel_data("image/jpeg");
 
-    BOOST_REQUIRE(wado.get_type() == odil::webservices::WADORS::Type::PixelData);
+    BOOST_REQUIRE(wado.get_type() == odil::webservices::Type::PixelData);
 
     auto const http = wado.get_http_response();
     BOOST_REQUIRE(odil::webservices::is_multipart_related(http));
