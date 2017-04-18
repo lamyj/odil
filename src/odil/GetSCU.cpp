@@ -146,11 +146,15 @@ GetSCU
         ODIL_LOG(ERROR) << "C-GET response status: " << response.get_status();
     }
 
+    // Store status before moving the response.
+    auto const done = !response.is_pending();
+
     if(callback)
     {
         callback(std::move(response));
     }
-    return !response.is_pending();
+
+    return done;
 }
 
 void
