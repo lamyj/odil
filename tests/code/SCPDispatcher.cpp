@@ -127,6 +127,6 @@ BOOST_AUTO_TEST_CASE(DispatchWithoutEcho)
     client.join();
 
     BOOST_REQUIRE_EQUAL(status.client, 0);
-    BOOST_REQUIRE_EQUAL(status.server, "No such provider");
+    BOOST_REQUIRE_EQUAL(status.server, "No provider for: 0030");
     BOOST_REQUIRE_EQUAL(status.called, false);
 }

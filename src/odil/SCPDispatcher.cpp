@@ -69,7 +69,10 @@ SCPDispatcher
     if(it == this->_providers.end())
     {
         std::ostringstream error_message;
-        error_message << "No provider for: " << message.get_command_field();
+        error_message
+            << "No provider for: "
+            << std::hex << std::setw(4) << std::setfill('0')
+            << message.get_command_field();
         throw Exception(error_message.str());
     }
 
