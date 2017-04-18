@@ -1,5 +1,4 @@
-Odil
-=======
+# Odil
 
 Odil is a C++11 library for the [DICOM](http://dicom.nema.org/) standard.
 
@@ -13,11 +12,12 @@ Odil also provides conversion to and from
 [DCMTK](http://dicom.offis.de/dcmtk.php.en) data structures.
 
 Odil builds and run on:
+
 * Linux (Debian 7 and 8, Ubuntu 12.04, 14.04, and 16.04, all 32 and 64 bits).
   Official packages are available ([Debian](https://packages.debian.org/search?keywords=odil&searchon=sourcenames&suite=all&section=all), [Ubuntu](http://packages.ubuntu.com/search?keywords=odil&searchon=sourcenames&suite=all&section=all)),
-  as well as [unofficial backports](https://github.com/lamyj/packages).
-    
+  as well as [unofficial backports](https://github.com/lamyj/packages).    
 * OS X
+* Windows
 
 [![Build Status (Travis)](https://travis-ci.org/lamyj/odil.svg?branch=master)](https://travis-ci.org/lamyj/odil)
 [![Build Status (Appveyor)](https://ci.appveyor.com/api/projects/status/github/lamyj/odil?svg=true)](https://ci.appveyor.com/project/lamyj/odil)

@@ -12,7 +12,7 @@ environment:
   JsonCpp_ROOT: C:/Libraries/jsoncpp
   Log4Cpp_ROOT: C:/Libraries/log4cpp
   Python_ROOT: C:/Python27-x64
-  VERSION: 0.7.3-1
+  VERSION: 0.8.0-1
 
 install:
   - ps: |
