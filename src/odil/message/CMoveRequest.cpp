@@ -27,6 +27,50 @@ CMoveRequest
     DataSet const & dataset)
 : Request(message_id)
 {
+    this->_create(affected_sop_class_uid, priority, move_destination, dataset);
+    this->set_data_set(dataset);
+}
+
+CMoveRequest
+::CMoveRequest(
+    Value::Integer message_id, Value::String const & affected_sop_class_uid,
+    Value::Integer priority, Value::String const & move_destination,
+    DataSet && dataset)
+: Request(message_id)
+{
+    this->_create(affected_sop_class_uid, priority, move_destination, dataset);
+    this->set_data_set(std::move(dataset));
+}
+
+CMoveRequest
+::CMoveRequest(Message const & message)
+: Request(message)
+{
+    this->_parse(message);
+    this->set_data_set(message.get_data_set());
+}
+
+CMoveRequest
+::CMoveRequest(Message && message)
+: Request(message)
+{
+    this->_parse(message);
+    this->set_data_set(std::move(message.get_data_set()));
+}
+
+CMoveRequest
+::~CMoveRequest()
+{
+    // Nothing to do.
+}
+
+void
+CMoveRequest
+::_create(
+    Value::String const & affected_sop_class_uid,
+    Value::Integer priority, Value::String const & move_destination,
+    DataSet const & dataset)
+{
     this->set_command_field(Command::C_MOVE_RQ);
     this->set_affected_sop_class_uid(affected_sop_class_uid);
     this->set_priority(priority);
@@ -35,12 +79,11 @@ CMoveRequest
     {
         throw Exception("Data set is required");
     }
-    this->set_data_set(dataset);
 }
 
+void
 CMoveRequest
-::CMoveRequest(Message const & message)
-: Request(message)
+::_parse(Message const & message)
 {
     if(message.get_command_field() != Command::C_MOVE_RQ)
     {
@@ -60,13 +103,6 @@ CMoveRequest
     {
         throw Exception("Data set is required");
     }
-    this->set_data_set(message.get_data_set());
-}
-
-CMoveRequest
-::~CMoveRequest()
-{
-    // Nothing to do.
 }
 
 }

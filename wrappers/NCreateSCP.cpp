@@ -33,6 +33,11 @@ void wrap_NCreateSCP()
 
     class_<NCreateSCP>("NCreateSCP", init<Association &>())
         .def("set_callback", &set_callback)
-        .def("__call__", &NCreateSCP::operator())
+        .def(
+            "__call__",
+            static_cast<
+                void (NCreateSCP::*)(message::Message const &)
+            >(&NCreateSCP::operator())
+        )
     ;
 }

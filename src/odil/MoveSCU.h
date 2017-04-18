@@ -15,6 +15,7 @@
 
 #include "odil/Association.h"
 #include "odil/DataSet.h"
+#include "odil/message/CMoveRequest.h"
 #include "odil/message/CMoveResponse.h"
 #include "odil/odil.h"
 #include "odil/SCU.h"
@@ -27,7 +28,7 @@ class ODIL_API MoveSCU: public SCU
 {
 public:
     /// @brief Callback called when a C-STORE request is received.
-    typedef std::function<void(DataSet const &)> StoreCallback;
+    typedef std::function<void(DataSet &&)> StoreCallback;
 
     /**
      * @brief Typedef to keep compatibility with previous versions.
@@ -36,7 +37,7 @@ public:
     typedef StoreCallback Callback;
 
     /// @brief Callback called when a C-MOVE response is received.
-    typedef std::function<void(message::CMoveResponse const &)> MoveCallback;
+    typedef std::function<void(message::CMoveResponse &&)> MoveCallback;
     
     /// @brief Constructor.
     MoveSCU(Association & association);
@@ -57,13 +58,24 @@ public:
     
     /// @brief Perform the C-MOVE using callbacks.
     void move(DataSet const & query, StoreCallback store_callback) const;
+
+    /// @brief Perform the C-MOVE using callbacks.
+    void move(DataSet && query, StoreCallback store_callback) const;
         
     /// @brief Perform the C-MOVE using callbacks.
     void move(DataSet const & query, MoveCallback move_callback) const;
 
     /// @brief Perform the C-MOVE using callbacks.
+    void move(DataSet && query, MoveCallback move_callback) const;
+
+    /// @brief Perform the C-MOVE using callbacks.
     void move(
         DataSet const & query, StoreCallback store_callback,
+        MoveCallback move_callback) const;
+
+    /// @brief Perform the C-MOVE using callbacks.
+    void move(
+        DataSet && query, StoreCallback store_callback,
         MoveCallback move_callback) const;
     
     /**
@@ -71,9 +83,18 @@ public:
      */
     std::vector<DataSet> move(DataSet const & query) const;
 
+    /**
+     * @brief Return a list of datasets matching the query.
+     */
+    std::vector<DataSet> move(DataSet && query) const;
+
 private:
     std::string _move_destination;
     uint16_t _incoming_port;
+
+    void _move(
+        message::CMoveRequest const & request, StoreCallback store_callback,
+        MoveCallback move_callback) const;
     
     void _dispatch(
         Association & store_association, StoreCallback store_callback,

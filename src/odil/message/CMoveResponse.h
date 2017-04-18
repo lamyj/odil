@@ -53,11 +53,26 @@ public:
         DataSet const & dataset);
 
     /**
+     * @brief Create an move response with given Message ID, status,
+     * and data set.
+     */
+    CMoveResponse(
+        Value::Integer message_id_being_responded_to, Value::Integer status,
+        DataSet && dataset);
+
+    /**
      * @brief Create a C-MOVE-RSP from a generic Message.
      *
      * Raise an exception if the Message does not contain a C-MOVE-RSP.
      */
     CMoveResponse(Message const & message);
+
+    /**
+     * @brief Create a C-MOVE-RSP from a generic Message.
+     *
+     * Raise an exception if the Message does not contain a C-MOVE-RSP.
+     */
+    CMoveResponse(Message && message);
 
     /// @brief Destructor.
     virtual ~CMoveResponse();
@@ -74,6 +89,9 @@ public:
         number_of_failed_sub_operations, registry::NumberOfFailedSuboperations)
     ODIL_MESSAGE_OPTIONAL_FIELD_INTEGER_MACRO(
         number_of_warning_sub_operations, registry::NumberOfWarningSuboperations)
+
+private:
+    void _parse(Message const & message);
 };
 
 }

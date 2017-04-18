@@ -65,7 +65,21 @@ MoveSCP
 ::operator()(message::Message const & message)
 {
     message::CMoveRequest const request(message);
+    this->operator()(request);
+}
 
+void
+MoveSCP
+::operator()(message::Message && message)
+{
+    message::CMoveRequest const request(std::move(message));
+    this->operator()(request);
+}
+
+void
+MoveSCP
+::operator()(message::CMoveRequest const & request)
+{
     Association move_association;
     try
     {
@@ -114,11 +128,13 @@ MoveSCP
             this->_association.send_message(
                 response, request.get_affected_sop_class_uid());
 
-            auto const data_set = this->_generator->get();
+            auto data_set = this->_generator->get();
             store_scu.set_affected_sop_class(data_set);
             try
             {
-                store_scu.store(data_set, move_originator_aet, move_originator_message_id);
+                store_scu.store(
+                    std::move(data_set), move_originator_aet,
+                    move_originator_message_id);
 
                 --remaining_sub_operations;
                 ++completed_sub_operations;

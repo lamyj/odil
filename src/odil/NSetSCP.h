@@ -49,9 +49,13 @@ public:
     /// @brief Process a N-Set request.
     virtual void operator()(message::Message const & message);
 
+    /// @brief Process a N-Set request.
+    virtual void operator()(message::Message && message);
+
 
 private:
     Callback _callback;
+    void operator()(message::NSetRequest const & message);
 };
 
 }

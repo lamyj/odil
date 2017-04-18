@@ -52,10 +52,24 @@ NSetSCP
 
 void
 NSetSCP
-::operator()(message::Message const& message)
+::operator()(message::Message const & message)
 {
     message::NSetRequest const request(message);
+    this->operator()(request);
+}
 
+void
+NSetSCP
+::operator()(message::Message && message)
+{
+    message::NSetRequest const request(std::move(message));
+    this->operator()(request);
+}
+
+void
+NSetSCP
+::operator()(message::NSetRequest const & request)
+{
     Value::Integer status = message::NSetResponse::Success;
     DataSet status_fields;
 

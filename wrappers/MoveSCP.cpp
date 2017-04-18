@@ -62,7 +62,12 @@ void wrap_MoveSCP()
     
     scope move_scp_scope = class_<MoveSCP>("MoveSCP", init<Association &>())
         .def("set_generator", &set_generator)
-        .def("__call__", &odil::MoveSCP::operator())
+        .def(
+            "__call__",
+            static_cast<
+                void (MoveSCP::*)(message::Message const &)
+            >(&MoveSCP::operator())
+        )
     ;
     
     class_<DataSetGeneratorWrapperMove, boost::noncopyable>(

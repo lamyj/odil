@@ -31,8 +31,13 @@ void wrap_NSetSCP()
     using namespace odil;
 
     class_<NSetSCP >("NSetSCP", init<Association&>() )
-    .def (init<Association&, NSetSCP::Callback&>())
-    .def("set_callback", &set_callback)
-    .def("__call__", &NSetSCP::operator())
+        .def (init<Association&, NSetSCP::Callback&>())
+        .def("set_callback", &set_callback)
+        .def(
+            "__call__",
+            static_cast<
+                void (NSetSCP::*)(message::Message const &)
+            >(&NSetSCP::operator())
+        )
     ;
 }

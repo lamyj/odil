@@ -38,8 +38,13 @@ void wrap_EchoSCP()
     using namespace odil;
 
     class_<EchoSCP>("EchoSCP", init<Association&>())
-    .def("set_callback", &set_callback)
-    .def("__call__", &EchoSCP::operator())
+        .def("set_callback", &set_callback)
+        .def(
+            "__call__",
+            static_cast<
+                void (EchoSCP::*)(message::Message const &)
+            >(&EchoSCP::operator())
+        )
     ;
 
 

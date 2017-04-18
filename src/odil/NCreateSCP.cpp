@@ -56,7 +56,21 @@ NCreateSCP
 ::operator()(message::Message const & message)
 {
     message::NCreateRequest const request(message);
+    this->operator()(request);
+}
 
+void
+NCreateSCP
+::operator()(message::Message && message)
+{
+    message::NCreateRequest const request(std::move(message));
+    this->operator()(request);
+}
+
+void
+NCreateSCP
+::operator()(message::NCreateRequest const & request)
+{
     Value::Integer status=message::NCreateResponse::Success;
     DataSet status_fields;
 

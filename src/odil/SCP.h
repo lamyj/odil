@@ -77,6 +77,9 @@ public:
 
     /// @brief Process a message.
     virtual void operator()(message::Message const & message) =0;
+
+    /// @brief Process a message.
+    virtual void operator()(message::Message && message) =0;
 protected:
     /// @brief Association with peer.
     Association & _association;
