@@ -37,9 +37,12 @@ NCreateResponse
         throw Exception("Message is not a N-CREATE-RSP");
     }
     this->set_command_field(message.get_command_field());
-    
+
     this->set_affected_sop_class_uid(
         message.get_command_set().as_string(registry::AffectedSOPClassUID, 0));
+
+    ODIL_MESSAGE_SET_OPTIONAL_FIELD_MACRO( message.get_command_set(), affected_sop_instance_uid,
+                                           registry::AffectedSOPInstanceUID, as_string)
 }
 
 NCreateResponse
