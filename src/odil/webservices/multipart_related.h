@@ -39,7 +39,8 @@ void transform_parts(
 
 /**
  * @brief Serialize the (begin, end) sequence as a multipart/related message
- * body in stream.
+ * body in stream as described in the RFC 2046
+ * https://tools.ietf.org/html/rfc2046#section-5.1.1.
  */
 template<typename Iterator, typename UnaryFunction>
 std::ostream & accumulate_parts(

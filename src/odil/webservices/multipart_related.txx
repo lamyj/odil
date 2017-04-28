@@ -44,10 +44,10 @@ void transform_parts(
     auto begin = body.find("--"+boundary+"\r\n");
     while(begin < body.size() && begin != std::string::npos)
     {
-        auto end = body.find("--"+boundary+"\r\n", begin+1);
+        auto end = body.find("\r\n--"+boundary+"\r\n", begin+1);
         if(end == std::string::npos)
         {
-            end = body.find("--"+boundary+"--\r\n", begin+1);
+            end = body.find("\r\n--"+boundary+"--\r\n", begin+1);
         }
 
         std::string part;
@@ -76,7 +76,7 @@ std::ostream & accumulate_parts(
     for(/* no initialization */; begin != end; ++begin)
     {
         auto const part = serialize(*begin);
-        stream << "--" << boundary << "\r\n" << part;
+        stream << "--" << boundary << "\r\n" << part << "\r\n";
     }
 
     stream << "--" << boundary << "--" << "\r\n";
