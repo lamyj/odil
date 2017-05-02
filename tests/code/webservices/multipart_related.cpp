@@ -36,8 +36,8 @@ BOOST_AUTO_TEST_CASE(count_parts)
 {
     odil::webservices::Message const message(
         odil::webservices::Message::Headers{{
-            "Content-Type", "Multipart/Related; "
-            "boundary=example-1;start=\"<950120.aaCC@XIson.com>\";"
+            "Content-Type", "Multipart/Related; boundary=example-1;"
+            "start=\"<950120.aaCC@XIson.com>\";"
             "type=\"Application/X-FixedRecord\";start-info=\"-o ps\"\r\n"}},
         "--example-1\r\n"
         "Content-Type: Application/X-FixedRecord\r\n"
@@ -132,7 +132,7 @@ struct Fixture
                 "25\r\n"
                 "21\r\n"
                 "26\r\n"
-                "10\r\n"
+                "10"
             },
             {
                 {
@@ -147,7 +147,6 @@ struct Fixture
                 "BxdWFjayBxdWFjayBoZXJlLAphIHF1YWNrIHF1\r\n"
                 "YWNrIHRoZXJlLApldmVyeSB3aGVyZSBhIHF1YW\r\n"
                 "NrIHF1YWNrCkUgSSBFIEkgTwo=\r\n"
-                "\r\n"
             }
         };
     }
