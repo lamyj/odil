@@ -118,11 +118,12 @@ private:
     /// @brief Return the tag as a numerical string or as a "string"
     static std::string _tag_to_string(odil::Tag const & tag, bool numerical_tag);
 
-    /// @brief Split an URL in a pair of base_url and request selector.
+    /// @brief Split an URL into a tuple
     static std::tuple<URL, URL, Selector, DataSet, std::set<std::vector< odil::Tag> >,
         bool, int /*offset*/, int /*limit*/ >
         _split_full_url(URL const & url);
 
+    /// @brief Generate a generic URL from class information
     static URL _generate_url(URL const & base_url, Selector const & selector, DataSet const & query,
                              std::set<std::vector<Tag> > const & includefields = {},
                              bool fuzzymatching = false, int limit = -1,
