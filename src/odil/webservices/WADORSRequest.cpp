@@ -211,7 +211,7 @@ WADORSRequest
         && this->_character_set == other._character_set
         && this->_include_media_type_in_query == other._include_media_type_in_query
         && this->_include_character_set_in_query == other._include_media_type_in_query
-        && this->_url == other._base_url
+        && this->_url == other._url
         && this->_media_type == other._media_type
         && this->_type == other._type
     );
