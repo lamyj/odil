@@ -19,13 +19,15 @@ namespace message
 {
 
 NCreateRequest
-::NCreateRequest(Value::Integer message_id, const Value::String &affected_sop_class_uid, DataSet const & dataset)
+::NCreateRequest(
+    Value::Integer message_id, const Value::String &affected_sop_class_uid, 
+    DataSet const & dataset)
 : Request(message_id)
 {
     this->set_command_field(Command::N_CREATE_RQ);
-    this->set_affected_sop_class_uid( affected_sop_class_uid ) ;
+    this->set_affected_sop_class_uid(affected_sop_class_uid);
 
-    if(dataset.empty() )
+    if(dataset.empty())
     {
         throw Exception("Data set is required");
     }
@@ -45,10 +47,11 @@ NCreateRequest
     this->set_affected_sop_class_uid(
         message.get_command_set().as_string( registry::AffectedSOPClassUID, 0));
 
-    ODIL_MESSAGE_SET_OPTIONAL_FIELD_MACRO( message.get_command_set(), affected_sop_instance_uid,
-                                           registry::AffectedSOPInstanceUID, as_string)
+    ODIL_MESSAGE_SET_OPTIONAL_FIELD_MACRO(
+        message.get_command_set(), affected_sop_instance_uid,
+        registry::AffectedSOPInstanceUID, as_string)
 
-    if(!message.has_data_set() || message.get_data_set().empty() )
+    if(!message.has_data_set() || message.get_data_set().empty())
     {
         throw Exception("Data set is required");
     }

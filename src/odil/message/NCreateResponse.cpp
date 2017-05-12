@@ -20,7 +20,9 @@ namespace message
 {
 
 NCreateResponse
-::NCreateResponse(const Value::Integer &message_id_being_responded_to, const Value::Integer &status,
+::NCreateResponse(
+    Value::Integer const & message_id_being_responded_to, 
+    Value::Integer const & status,
     Value::String const & affected_sop_class_uid)
 : Response(message_id_being_responded_to, status)
 {
@@ -41,8 +43,9 @@ NCreateResponse
     this->set_affected_sop_class_uid(
         message.get_command_set().as_string(registry::AffectedSOPClassUID, 0));
 
-    ODIL_MESSAGE_SET_OPTIONAL_FIELD_MACRO( message.get_command_set(), affected_sop_instance_uid,
-                                           registry::AffectedSOPInstanceUID, as_string)
+    ODIL_MESSAGE_SET_OPTIONAL_FIELD_MACRO(
+        message.get_command_set(), affected_sop_instance_uid,
+        registry::AffectedSOPInstanceUID, as_string)
 }
 
 NCreateResponse

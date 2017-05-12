@@ -36,11 +36,10 @@ public:
      * requested SOP class UID and SOP Instance UID.
      */
     NSetRequest(
-            Value::Integer message_id,
-            Value::String const & requested_sop_class_uid,
-            Value::String const & requested_sop_instance_uid,
-            DataSet const & dataset //will be used to describe list of modifications to do.
-            );
+        Value::Integer message_id,
+        Value::String const & requested_sop_class_uid,
+        Value::String const & requested_sop_instance_uid,
+        DataSet const & dataset);
 
     /// @brief Destructor.
     virtual ~NSetRequest();

@@ -29,11 +29,10 @@ public:
      * affected SOP class UID.
      */
     NSetResponse(
-            Value::Integer const & message_id_being_responded_to,
-            Value::Integer const & status,
-            Value::String const & requested_sop_class_uid  ,
-            Value::String const & requested_sop_instance_uid
-            );
+        Value::Integer const & message_id_being_responded_to,
+        Value::Integer const & status,
+        Value::String const & requested_sop_class_uid,
+        Value::String const & requested_sop_instance_uid);
 
     /**
      * @brief Create a N-Set-RSP from a generic Message.
@@ -47,7 +46,8 @@ public:
     
     ODIL_MESSAGE_MANDATORY_FIELD_INTEGER_MACRO( status, registry::Status )
 
-    ODIL_MESSAGE_OPTIONAL_FIELD_STRING_MACRO(affected_sop_class_uid, registry::AffectedSOPClassUID)
+    ODIL_MESSAGE_OPTIONAL_FIELD_STRING_MACRO(
+        affected_sop_class_uid, registry::AffectedSOPClassUID)
 
 };
 

@@ -47,13 +47,13 @@ public:
         message_id, registry::MessageID)
 
     ODIL_MESSAGE_MANDATORY_FIELD_STRING_MACRO(
-            affected_sop_class_uid, registry::AffectedSOPClassUID)
+        affected_sop_class_uid, registry::AffectedSOPClassUID)
 
     ODIL_MESSAGE_OPTIONAL_FIELD_STRING_MACRO(
-            affected_sop_instance_uid, registry::AffectedSOPInstanceUID)
+        affected_sop_instance_uid, registry::AffectedSOPInstanceUID)
 
     ODIL_MESSAGE_OPTIONAL_FIELD_STRING_MACRO(
-            attribute_list, registry::AttributeIdentifierList)
+        attribute_list, registry::AttributeIdentifierList)
 
 };
 

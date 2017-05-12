@@ -21,43 +21,22 @@ namespace message
 
 NSetRequest
 ::NSetRequest(
-        Value::Integer message_id,
-        Value::String const & requested_sop_class_uid,
-        Value::String const & requested_sop_instance_uid,
-        DataSet const & dataset)
+    Value::Integer message_id,
+    Value::String const & requested_sop_class_uid,
+    Value::String const & requested_sop_instance_uid,
+    DataSet const & dataset)
 : Request(message_id)
 {
     this->set_command_field( ::odil::message::Message::Command::N_SET_RQ);
     this->set_requested_sop_class_uid(requested_sop_class_uid);
     this->set_requested_sop_instance_uid(requested_sop_instance_uid);
 
-    if(dataset.empty() )
+    if(dataset.empty())
     {
         throw Exception("Data set is required");
     }
     this->set_data_set(dataset);
 }
-
-/*
-NSetRequest
-::NSetRequest(Value::Integer message_id,
-              Value::String const & requested_sop_class_uid,
-              Value::String const & requested_sop_instance_uid,
-              DataSet const & dataset
-              )
-    : Request(message_id)
-{
-    this->set_command_field( ::odil::message::Message::Command::N_SET_RQ);
-    this->set_requested_sop_class_uid(requested_sop_class_uid);
-    this->set_requested_sop_instance_uid(requested_sop_instance_uid);
-
-    if( dataset.empty() )
-    {
-        throw Exception("Data set is required");
-    }
-    this->set_data_set(dataset);
-}
-*/
 
 NSetRequest
 ::NSetRequest(Message const & message)
@@ -73,9 +52,9 @@ NSetRequest
     this->set_requested_sop_class_uid(
         message.get_command_set().as_string(registry::RequestedSOPClassUID, 0));
     this->set_requested_sop_instance_uid(
-                message.get_command_set().as_string(registry::RequestedSOPInstanceUID, 0));
+        message.get_command_set().as_string(registry::RequestedSOPInstanceUID, 0));
 
-    if(!message.has_data_set() || message.get_data_set().empty() )
+    if(!message.has_data_set() || message.get_data_set().empty())
     {
         throw Exception("Data set is required");
     }

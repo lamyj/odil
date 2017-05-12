@@ -29,9 +29,9 @@ public:
      * affected SOP class UID.
      */
     NCreateResponse(
-        Value::Integer const & message_id_being_responded_to
-            , Value::Integer const & status
-            , Value::String const & affected_sop_class_uid);
+        Value::Integer const & message_id_being_responded_to, 
+        Value::Integer const & status, 
+        Value::String const & affected_sop_class_uid);
 
     /**
      * @brief Create a N-Create-RSP from a generic Message.
@@ -48,10 +48,6 @@ public:
 
     ODIL_MESSAGE_OPTIONAL_FIELD_STRING_MACRO(
         affected_sop_class_uid, registry::AffectedSOPClassUID)
-
-
-
-
 };
 
 }

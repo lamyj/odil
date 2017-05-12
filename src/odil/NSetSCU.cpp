@@ -54,8 +54,7 @@ NSetSCU
         this->_association.next_message_id(),
         this->_affected_sop_class,
         dataset.as_string(registry::RequestedSOPInstanceUID, 0),
-        dataset
-        );
+        dataset);
 
     this->_association.send_message(request, this->_affected_sop_class);
     
