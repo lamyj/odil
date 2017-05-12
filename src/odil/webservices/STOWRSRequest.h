@@ -23,7 +23,8 @@ namespace odil
 
 namespace webservices
 {
-
+/// @brief STOW-RS request generator and parser.
+// TODO : Wrap me
 class ODIL_API STOWRSRequest
 {
 
