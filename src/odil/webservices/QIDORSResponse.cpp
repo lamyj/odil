@@ -66,7 +66,7 @@ QIDORSResponse
     // Find the media type.
     if(!response.has_header("Content-Type"))
     {
-        throw Exception("Cannot parse request: Accept header missing");
+        throw Exception("Cannot parse request: Content-Type header missing");
     }
     auto const & content_type = boost::lexical_cast<ItemWithParameters>(
         response.get_header("Content-Type"));

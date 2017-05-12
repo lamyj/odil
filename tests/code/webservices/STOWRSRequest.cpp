@@ -9,7 +9,6 @@
 #include "odil/webservices/STOWRSRequest.h"
 #include "odil/webservices/URL.h"
 
-#include <iostream> // TODO : Remove me
 struct Fixture
 {
     std::vector<odil::DataSet> data_sets;
