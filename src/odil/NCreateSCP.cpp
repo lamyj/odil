@@ -91,6 +91,10 @@ NCreateSCP
     message::NCreateResponse response(
         request.get_message_id()
                 , status, request.get_affected_sop_class_uid());
+    if(request.has_affected_sop_instance_uid())
+    {
+        response.set_affected_sop_instance_uid(request.get_affected_sop_instance_uid());
+    }
     response.set_status_fields(status_fields);
     this->_association.send_message(
         response, request.get_affected_sop_class_uid());
