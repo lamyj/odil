@@ -37,6 +37,12 @@ template<typename Iterator, typename UnaryFunctor>
 void transform_parts(
     Message const & message, Iterator destination, UnaryFunctor functor);
 
+
+/// @brief Use to call a functor for each part of a multipart/related message.
+template<typename UnaryFunctor>
+void for_each_part(
+    Message const & message, UnaryFunctor functor);
+
 /**
  * @brief Serialize the (begin, end) sequence as a multipart/related message
  * body in stream as described in the RFC 2046

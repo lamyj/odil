@@ -68,6 +68,48 @@ void transform_parts(
     }
 }
 
+template<typename UnaryFunctor>
+void for_each_part(
+    Message const & message, UnaryFunctor functor)
+{
+    if(!is_multipart_related(message))
+    {
+        return;
+    }
+
+    std::stringstream stream(message.get_header("Content-Type"));
+    ItemWithParameters content_type;
+    stream >> content_type;
+
+    std::string const & boundary = content_type.name_parameters["boundary"];
+
+    auto const & body = message.get_body();
+
+    auto begin = body.find("--"+boundary+"\r\n");
+    while(begin < body.size() && begin != std::string::npos)
+    {
+        auto end = body.find("\r\n--"+boundary+"\r\n", begin+1);
+        if(end == std::string::npos)
+        {
+            end = body.find("\r\n--"+boundary+"--\r\n", begin+1);
+        }
+
+        std::string part;
+        if(end != std::string::npos)
+        {
+            auto const part_content = body.substr(
+                begin+boundary.size()+4, end-(begin+boundary.size()+4));
+
+            std::istringstream stream(part_content);
+            Message sub_message;
+            stream >> sub_message;
+            functor(sub_message);
+        }
+
+        begin = end;
+    }
+}
+
 template<typename Iterator, typename UnaryFunction>
 std::ostream & accumulate_parts(
     Iterator begin, Iterator end, UnaryFunction serialize, std::ostream & stream,
