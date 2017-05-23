@@ -12,6 +12,7 @@
 #include <initializer_list>
 #include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "odil/DataSet.h"
@@ -57,75 +58,65 @@ struct ClearValue
 namespace odil
 {
 
+#define ODIL_VALUE_CONSTRUCTORS(type, holder) \
+    Value\
+    ::Value(type const & value)\
+    : _type(Type::type), holder(value) \
+    {} \
+    \
+    Value\
+    ::Value(type && value)\
+    : _type(Type::type), holder(std::move(value)) \
+    {} \
+    \
+    Value\
+    ::Value(std::initializer_list<type::value_type> const & value)\
+    : _type(Type::type), holder(value) \
+    {}
+    /*
+     * No need for for a rvalue reference version of std::initializer_list:
+     * copying a std::initializer_list does not copy the underlying objects.
+     */
+
+    ODIL_VALUE_CONSTRUCTORS(Integers, _integers);
+    ODIL_VALUE_CONSTRUCTORS(Reals, _reals);
+    ODIL_VALUE_CONSTRUCTORS(Strings, _strings);
+    ODIL_VALUE_CONSTRUCTORS(Binary, _binary);
+
+#undef ODIL_VALUE_CONSTRUCTORS
+
 Value
-::Value(Integers const & integers)
-: _type(Type::Integers), _integers(integers)
+::Value(DataSets const & value)
+: _type(Type::DataSets), _data_sets(std::make_shared<DataSets>(value))
 {
-    // Nothing else.
 }
 
 Value
-::Value(Reals const & reals)
-: _type(Type::Reals), _reals(reals)
+::Value(DataSets && value)
+: _type(Type::DataSets), _data_sets(std::make_shared<DataSets>(std::move(value)))
 {
-    // Nothing else.
 }
 
 Value
-::Value(Strings const & strings)
-: _type(Type::Strings), _strings(strings)
+::Value(std::initializer_list<DataSets::value_type> const & value)
+: _type(Type::DataSets), _data_sets(std::make_shared<DataSets>(value))
 {
-    // Nothing else.
 }
 
 Value
-::Value(DataSets const & datasets)
-: _type(Type::DataSets), _data_sets(std::make_shared<DataSets>(datasets))
-{
-    // Nothing else.
-}
-
-Value
-::Value(Binary const & binary)
-: _type(Type::Binary), _binary(binary)
-{
-    // Nothing else.
-}
-
-Value
-::Value(std::initializer_list<int> const & list)
+::Value(std::initializer_list<int> const & value)
 : _type(Type::Integers)
 {
-    this->_integers.resize(list.size());
-    std::copy(list.begin(), list.end(), this->_integers.begin());
+    this->_integers.resize(value.size());
+    std::copy(value.begin(), value.end(), this->_integers.begin());
 }
 
 Value
-::Value(std::initializer_list<Integer> const & list)
-: _type(Type::Integers), _integers(list)
+::Value(std::initializer_list<std::initializer_list<uint8_t>> const & value)
+: _type(Type::Binary)
 {
-    // Nothing else
-}
-
-Value
-::Value(std::initializer_list<Real> const & list)
-: _type(Type::Reals), _reals(list)
-{
-    // Nothing else
-}
-
-Value
-::Value(std::initializer_list<String> const & list)
-: _type(Type::Strings), _strings(list)
-{
-    // Nothing else
-}
-
-Value
-::Value(std::initializer_list<DataSet> const & list)
-: _type(Type::DataSets), _data_sets(std::make_shared<DataSets>(list))
-{
-    // Nothing else
+    this->_binary.resize(value.size());
+    std::copy(value.begin(), value.end(), this->_binary.begin());
 }
 
 Value::Type

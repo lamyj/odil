@@ -62,35 +62,35 @@ public:
     /// @brief Binary data container.
     typedef std::vector<std::vector<uint8_t>> Binary;
 
-    /// @brief Build a value from integers.
-    Value(Integers const & integers);
+#define ODIL_VALUE_CONSTRUCTORS(type) \
+    Value(type const & value); \
+    Value(type && value); \
+    Value(std::initializer_list<type::value_type> const & value);
+    /*
+     * No need for for a rvalue reference version of std::initializer_list:
+     * copying a std::initializer_list does not copy the underlying objects.
+     */
 
-    /// @brief Build a value from reals.
-    Value(Reals const & reals);
+    ODIL_VALUE_CONSTRUCTORS(Integers);
+    ODIL_VALUE_CONSTRUCTORS(Reals);
+    ODIL_VALUE_CONSTRUCTORS(Strings);
+    ODIL_VALUE_CONSTRUCTORS(DataSets);
+    ODIL_VALUE_CONSTRUCTORS(Binary);
+#undef ODIL_VALUE_CONSTRUCTORS
 
-    /// @brief Build a value from strings.
-    Value(Strings const & strings);
+    Value(std::initializer_list<int> const & value);
 
-    /// @brief Build a value from data sets.
-    Value(DataSets const & datasets);
+    Value(std::initializer_list<std::initializer_list<uint8_t>> const & value);
 
-    /// @brief Build a value from binary data.
-    Value(Binary const & binary);
-
-    /// @brief Build a value from integers.
-    Value(std::initializer_list<int> const & list);
-
-    /// @brief Build a value from integers.
-    Value(std::initializer_list<Integer> const & list);
-
-    /// @brief Build a value from reals.
-    Value(std::initializer_list<Real> const & list);
-
-    /// @brief Build a value from strings.
-    Value(std::initializer_list<String> const & list);
-
-    /// @brief Build a value from data sets.
-    Value(std::initializer_list<DataSet> const & list);
+    /** @addtogroup default_operations Default class operations
+     * @{
+     */
+    ~Value() =default;
+    Value(Value const &) =default;
+    Value(Value &&) =default;
+    Value & operator=(Value const &) =default;
+    Value & operator=(Value &&) =default;
+    /// @}
 
     /// @brief Return the type store in the value.
     Type get_type() const;

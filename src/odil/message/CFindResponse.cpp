@@ -39,21 +39,20 @@ CFindResponse
 }
 
 CFindResponse
+::CFindResponse(
+    Value::Integer message_id_being_responded_to, Value::Integer status,
+    DataSet && dataset)
+: Response(message_id_being_responded_to, status)
+{
+    this->set_command_field(Command::C_FIND_RSP);
+    this->set_data_set(std::move(dataset));
+}
+
+CFindResponse
 ::CFindResponse(Message const & message)
 : Response(message)
 {
-    if(message.get_command_field() != Command::C_FIND_RSP)
-    {
-        throw Exception("Message is not a C-FIND-RSP");
-    }
-    this->set_command_field(message.get_command_field());
-    
-    ODIL_MESSAGE_SET_OPTIONAL_FIELD_MACRO(
-        message.get_command_set(), message_id, registry::MessageID, as_int)
-    ODIL_MESSAGE_SET_OPTIONAL_FIELD_MACRO(
-        message.get_command_set(), affected_sop_class_uid,
-        registry::AffectedSOPClassUID, as_string)
-
+    this->_parse(message);
     if(message.has_data_set())
     {
         this->set_data_set(message.get_data_set());
@@ -61,9 +60,37 @@ CFindResponse
 }
 
 CFindResponse
+::CFindResponse(Message && message)
+: Response(message)
+{
+    this->_parse(message);
+    if(message.has_data_set())
+    {
+        this->set_data_set(std::move(message.get_data_set()));
+    }
+}
+
+CFindResponse
 ::~CFindResponse()
 {
     // Nothing to do.
+}
+
+void
+CFindResponse
+::_parse(Message const & message)
+{
+    if(message.get_command_field() != Command::C_FIND_RSP)
+    {
+        throw Exception("Message is not a C-FIND-RSP");
+    }
+    this->set_command_field(message.get_command_field());
+
+    ODIL_MESSAGE_SET_OPTIONAL_FIELD_MACRO(
+        message.get_command_set(), message_id, registry::MessageID, as_int)
+    ODIL_MESSAGE_SET_OPTIONAL_FIELD_MACRO(
+        message.get_command_set(), affected_sop_class_uid,
+        registry::AffectedSOPClassUID, as_string)
 }
 
 }

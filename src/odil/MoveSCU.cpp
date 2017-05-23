@@ -16,6 +16,7 @@
 #include "odil/Association.h"
 #include "odil/DataSet.h"
 #include "odil/Exception.h"
+#include "odil/logging.h"
 #include "odil/StoreSCP.h"
 #include "odil/message/CMoveRequest.h"
 #include "odil/message/CMoveResponse.h"
@@ -74,11 +75,24 @@ MoveSCU
 
 void
 MoveSCU
+::move(DataSet && query, StoreCallback store_callback) const
+{
+    this->move(std::move(query), store_callback, MoveCallback());
+}
+
+void
+MoveSCU
 ::move(DataSet const & query, MoveCallback move_callback) const
 {
     this->move(query, StoreCallback(), move_callback);
 }
 
+void
+MoveSCU
+::move(DataSet && query, MoveCallback move_callback) const
+{
+    this->move(std::move(query), StoreCallback(), move_callback);
+}
 
 void
 MoveSCU
@@ -91,6 +105,29 @@ MoveSCU
         this->_association.next_message_id(),
         this->_affected_sop_class, message::Message::Priority::MEDIUM,
         this->_move_destination, query);
+    this->_move(request, store_callback, move_callback);
+}
+
+void
+MoveSCU
+::move(
+    DataSet && query, StoreCallback store_callback,
+    MoveCallback move_callback) const
+{
+    // Send the request
+    message::CMoveRequest const request(
+        this->_association.next_message_id(),
+        this->_affected_sop_class, message::Message::Priority::MEDIUM,
+        this->_move_destination, std::move(query));
+    this->_move(request, store_callback, move_callback);
+}
+
+void
+MoveSCU
+::_move(
+    message::CMoveRequest const & request, StoreCallback store_callback,
+    MoveCallback move_callback) const
+{
     this->_association.send_message(request, this->_affected_sop_class);
 
     // Receive the responses
@@ -145,6 +182,19 @@ MoveSCU
     return result;
 }
 
+std::vector<DataSet>
+MoveSCU
+::move(DataSet && query) const
+{
+    std::vector<DataSet> result;
+    auto callback = [&result](DataSet && data_set) {
+        result.push_back(std::move(data_set));
+    };
+    this->move(std::move(query), callback, MoveCallback());
+
+    return result;
+}
+
 void
 MoveSCU
 ::_dispatch(
@@ -174,12 +224,24 @@ bool
 MoveSCU
 ::_handle_main_association(MoveCallback callback) const
 {
-    message::CMoveResponse const response = this->_association.receive_message();
+    message::CMoveResponse response = this->_association.receive_message();
+    if(message::Response::is_warning(response.get_status()))
+    {
+        ODIL_LOG(WARN) << "C-MOVE response status: " << response.get_status();
+    }
+    else if(message::Response::is_failure(response.get_status()))
+    {
+        ODIL_LOG(ERROR) << "C-MOVE response status: " << response.get_status();
+    }
+
+    // Store status before moving the response.
+    auto const done = !response.is_pending();
+
     if(callback)
     {
-        callback(response);
+        callback(std::move(response));
     }
-    return !response.is_pending();
+    return done;
 }
 
 bool
@@ -190,10 +252,10 @@ MoveSCU
     bool result = false;
     try
     {
-        auto const store_callback = [&callback](message::CStoreRequest const & request) {
+        auto const store_callback = [&callback](message::CStoreRequest && request) {
             if(callback)
             {
-                callback(request.get_data_set());
+                callback(std::move(request.get_data_set()));
             }
             return message::Response::Success;
         };

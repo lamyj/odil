@@ -1,4 +1,7 @@
 version: "{build}"
+branches:
+  only:
+    - master
 image: Visual Studio 2015
 platform:
   - x64
@@ -12,7 +15,7 @@ environment:
   JsonCpp_ROOT: C:/Libraries/jsoncpp
   Log4Cpp_ROOT: C:/Libraries/log4cpp
   Python_ROOT: C:/Python27-x64
-  VERSION: 0.7.3-1
+  VERSION: 0.8.0-1
 
 install:
   - ps: |
@@ -40,7 +43,7 @@ before_build:
       if (${env:PLATFORM} -eq "x64") { ${generator} = "${generator} Win64" }
       cmake `
         -G "${generator}" -DCMAKE_INSTALL_PREFIX="${env:INSTALL_DIRECTORY}" `
-        -DBUILD_EXAMPLES=ON -DBUILD_WRAPPERS=ON -DUSE_BUILTIN_DCMTK_GETSCU=OFF `
+        -DBUILD_EXAMPLES=ON -DBUILD_WRAPPERS=OFF -DUSE_BUILTIN_DCMTK_GETSCU=OFF `
         -DBUILD_SHARED_LIBS=ON -DBUILD_TESTING=ON -DWITH_DCMTK=ON `
         -DBOOST_LIBRARYDIR="${env:BOOST_ROOT}/lib64-msvc-14.0" `
         -DDCMTK_INCLUDE_DIR="${env:DCMTK_ROOT}/include" -DDCMTK_LIBRARY="${env:DCMTK_ROOT}/lib/dcmdata.lib" `
@@ -49,7 +52,6 @@ before_build:
         -DICU_INCLUDE_DIR="${env:ICU_ROOT}/include" -DICU_LIBRARY="${env:ICU_ROOT}/lib64/icuuc.lib" `
         -DJsonCpp_INCLUDE_DIR="${env:JsonCpp_ROOT}/include" -DJsonCpp_LIBRARY="${env:JsonCpp_ROOT}/lib/jsoncpp.lib" `
         -DLog4Cpp_INCLUDE_DIR="${env:Log4Cpp_ROOT}/include" -DLog4Cpp_LIBRARY="${env:Log4Cpp_ROOT}/lib/log4cpp.lib" `
-        -DPYTHON_LIBRARY="${env:Python_ROOT}/libs/python27.lib" `
         "${env:APPVEYOR_BUILD_FOLDER}"
 
 build_script:
@@ -72,7 +74,7 @@ test_script:
       set PATH=%PATH%;%INSTALL_DIRECTORY%\bin
       set PYTHONPATH=%BUILD_DIRECTORY%\wrappers\%CONFIGURATION%
       cd %BUILD_DIRECTORY%
-      %Python_ROOT%\python.exe ..\tests\run --no-network --nose=%Python_ROOT%\Scripts\nosetests.exe
+      %Python_ROOT%\python.exe ..\tests\run --no-network -e ".*" --nose=%Python_ROOT%\Scripts\nosetests.exe
 
 after_test:
   - ps: |

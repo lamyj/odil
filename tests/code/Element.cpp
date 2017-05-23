@@ -61,6 +61,10 @@ void test_container(
 {
     odil::Element const element(contents, vr);
     test_value(element, vr, contents, type_check, getter);
+
+    auto contents_copy(contents);
+    odil::Element const other_element(std::move(contents_copy));
+    BOOST_CHECK(contents_copy.empty());
 }
 
 template<typename TContainer>
@@ -69,8 +73,6 @@ void test_initializer_list(
     bool (odil::Element::*type_check)() const,
     TContainer const & (odil::Element::*getter)() const)
 {
-    TContainer container(contents);
-
     odil::Element const element(contents);
     test_value(element, element.vr, TContainer(contents), type_check, getter);
 }
@@ -239,6 +241,7 @@ BOOST_AUTO_TEST_CASE(ImplicitType)
 
 BOOST_AUTO_TEST_CASE(Int)
 {
+    BOOST_CHECK(odil::Element({1234, 5678}).is_int());
     test<odil::Value::Integers>(
         {1234, 5678}, {9012, 3456}, odil::VR::US, odil::VR::UL, 
         &odil::Element::is_int,
@@ -247,6 +250,7 @@ BOOST_AUTO_TEST_CASE(Int)
 
 BOOST_AUTO_TEST_CASE(Real)
 {
+    BOOST_CHECK(odil::Element({12.34, 56.78}).is_real());
     test<odil::Value::Reals>(
         {12.34, 56.78}, {1., 2.}, odil::VR::FD, odil::VR::DS, 
         &odil::Element::is_real,
@@ -255,6 +259,7 @@ BOOST_AUTO_TEST_CASE(Real)
 
 BOOST_AUTO_TEST_CASE(String)
 {
+    BOOST_CHECK(odil::Element({"foo", "bar"}).is_string());
     test<odil::Value::Strings>(
         {"foo", "bar"}, {"plip", "plop"}, odil::VR::CS, odil::VR::UT, 
         &odil::Element::is_string,
@@ -269,6 +274,7 @@ BOOST_AUTO_TEST_CASE(DataSets)
     odil::DataSet data_set_2;
     data_set_2.add("EchoTime", {100});
 
+    BOOST_CHECK(odil::Element({data_set_1, data_set_2}).is_data_set());
     test<odil::Value::DataSets>(
         {data_set_1, data_set_2}, {data_set_2, data_set_1}, 
         odil::VR::SQ, odil::VR::UN,
@@ -278,6 +284,7 @@ BOOST_AUTO_TEST_CASE(DataSets)
 
 BOOST_AUTO_TEST_CASE(Binary)
 {
+    BOOST_CHECK(odil::Element({{0x1, 0x2}, {0x3}}).is_binary());
     test<odil::Value::Binary>(
         {{0x1, 0x2}, {0x3}}, {{0x4}, {0x5, 0x6}},
         odil::VR::OB, odil::VR::OW,

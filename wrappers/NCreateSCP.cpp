@@ -6,44 +6,38 @@
  * for details.
  ************************************************************************/
 
-#include "odil/StoreSCP.h"
-
 #include <boost/python.hpp>
 
-#include <functional>
+#include "odil/NCreateSCP.h"
 
 namespace
 {
-using namespace std;
-void
-set_callback(odil::StoreSCP& scp, boost::python::object const& f)
+
+void 
+set_callback(odil::NCreateSCP & scp, boost::python::object const & f)
 {
     scp.set_callback(
-        [f](odil::message::CStoreRequest const& message)
-        {
+        [f](odil::message::NCreateRequest const & message) 
+        { 
             return boost::python::call<odil::Value::Integer>(f.ptr(), message);
         }
-        );
+    );
 }
 
 }
 
-void wrap_StoreSCP()
+void wrap_NCreateSCP()
 {
     using namespace boost::python;
-    using namespace std;
     using namespace odil;
 
-//    class_<StoreSCP, bases<SCP>>("StoreSCP", init<Association &>())
-    class_<StoreSCP>("StoreSCP", init<Association&>())
-    .def(init<Association&, StoreSCP::Callback& >())
-    .def("set_callback", &set_callback)
-    .def(
-        "__call__",
-        static_cast<
-            void (StoreSCP::*)(message::Message const &)
-        >(&StoreSCP::operator())
-    )
+    class_<NCreateSCP>("NCreateSCP", init<Association &>())
+        .def("set_callback", &set_callback)
+        .def(
+            "__call__",
+            static_cast<
+                void (NCreateSCP::*)(message::Message const &)
+            >(&NCreateSCP::operator())
+        )
     ;
-
 }

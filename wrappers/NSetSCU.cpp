@@ -8,33 +8,27 @@
 
 #include <boost/python.hpp>
 
-#include "odil/StoreSCU.h"
+#include "odil/NSetSCU.h"
 
-BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(
-    store_overloads, odil::StoreSCU::store, 1, 3)
 
-void wrap_StoreSCU()
+void wrap_NSetSCU()
 {
     using namespace boost::python;
     using namespace odil;
 
-    typedef
-        void (StoreSCU::*StoreFunction)(
-            DataSet const &, Value::String const &, Value::Integer) const;
-
-    class_<StoreSCU>("StoreSCU", init<Association &>())
+    class_<NSetSCU>("NSetSCU", init<Association &>())
         .def(
             "get_affected_sop_class",
-            &StoreSCU::get_affected_sop_class,
+            &NSetSCU::get_affected_sop_class,
             return_value_policy<copy_const_reference>()
         )
         .def(
             "set_affected_sop_class",
-            static_cast<void(StoreSCU::*)(DataSet const &)>(&StoreSCU::set_affected_sop_class)
+            static_cast<void(NSetSCU::*)(DataSet const &)>(&NSetSCU::set_affected_sop_class)
         )
         .def(
-            "store",
-            static_cast<StoreFunction>(&odil::StoreSCU::store),
-            store_overloads())
+            "set",
+            &NSetSCU::set
+        )
     ;
 }

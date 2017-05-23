@@ -92,12 +92,16 @@ odil::Value::Integer nset(odil::message::NSetRequest const & request)
 int main()
 {
     odil::Association association;
+    while (true)
+   {
+    std::cout << "Waiting for an association on port : 11112..." << std::endl;
+
     association.receive_association(boost::asio::ip::tcp::v4(), 11112);
 
     std::cout
         << "Received association from "
         << association.get_peer_host() << ":" << association.get_peer_port()
-        << "\n";
+        << std::endl ;
 
     auto const & contexts =
         association.get_negotiated_parameters().get_presentation_contexts();
@@ -105,7 +109,7 @@ int main()
     for(auto const & context: contexts)
     {
         std::cout
-            << "    "
+            << "\t"
             << odil::registry::uids_dictionary.at(context.abstract_syntax).name
             << ": "
             << odil::registry::uids_dictionary.at(context.transfer_syntaxes[0]).name
@@ -151,5 +155,6 @@ int main()
                 << std::endl;
             done = true;
         }
+    }
     }
 }

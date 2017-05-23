@@ -16,6 +16,7 @@
 #include "odil/DataSet.h"
 #include "odil/odil.h"
 #include "odil/SCU.h"
+#include "odil/message/CGetRequest.h"
 #include "odil/message/CGetResponse.h"
 #include "odil/message/CStoreRequest.h"
 
@@ -27,7 +28,7 @@ class ODIL_API GetSCU: public SCU
 {
 public:
     /// @brief Callback called when a C-STORE request is received.
-    typedef std::function<void(DataSet const &)> StoreCallback;
+    typedef std::function<void(DataSet &&)> StoreCallback;
 
     /**
      * @brief Typedef to keep compatibility with previous versions.
@@ -36,7 +37,7 @@ public:
     typedef StoreCallback Callback;
 
     /// @brief Callback called when a C-GET response is received.
-    typedef std::function<void(message::CGetResponse const &)> GetCallback;
+    typedef std::function<void(message::CGetResponse &&)> GetCallback;
 
     /// @brief Constructor.
     GetSCU(Association & association);
@@ -48,17 +49,30 @@ public:
     void get(
         DataSet const & query, StoreCallback store_callback,
         GetCallback get_callback=GetCallback()) const;
+
+    /// @brief Perform the C-GET using callbacks.
+    void get(
+        DataSet && query, StoreCallback store_callback,
+        GetCallback get_callback=GetCallback()) const;
     
     /**
      * @brief Return a list of datasets matching the query.
      */
     std::vector<DataSet> get(DataSet const & query) const;
 
+    /**
+     * @brief Return a list of datasets matching the query.
+     */
+    std::vector<DataSet> get(DataSet && query) const;
+
 private:
+    void _get(
+        message::CGetRequest const & request,
+        StoreCallback store_callback, GetCallback get_callback) const;
     bool _handle_get_response(
-        message::CGetResponse const & response, GetCallback callback) const;
+        message::CGetResponse && response, GetCallback callback) const;
     void _handle_store_request(
-        message::CStoreRequest const & request, StoreCallback callback) const;
+        message::CStoreRequest && request, StoreCallback callback) const;
 };
 
 }

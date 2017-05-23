@@ -49,8 +49,12 @@ public:
     /// @brief Process a C-Echo request.
     virtual void operator()(message::Message const & message);
 
+    /// @brief Process a C-Echo request.
+    virtual void operator()(message::Message && message);
+
 private:
     Callback _callback;
+    void operator()(message::CEchoRequest const & request);
 };
 
 }

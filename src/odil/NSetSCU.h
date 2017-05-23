@@ -6,12 +6,11 @@
  * for details.
  ************************************************************************/
 
-#ifndef _1b2f876e_1ad2_464d_9423_28181320aed0
-#define _1b2f876e_1ad2_464d_9423_28181320aed0
+#ifndef _c80c338c_36d7_4724_9732_c7afed87902b
+#define _c80c338c_36d7_4724_9732_c7afed87902b
 
 #include "odil/Association.h"
 #include "odil/DataSet.h"
-#include "odil/message/CStoreRequest.h"
 #include "odil/odil.h"
 #include "odil/SCU.h"
 
@@ -19,35 +18,24 @@ namespace odil
 {
 
 /// @brief SCU for C-Store services.
-class ODIL_API StoreSCU: public SCU
+class ODIL_API NSetSCU: public SCU
 {
 public:
     /// @brief Constructor.
-    StoreSCU(Association & association);
+    NSetSCU(Association & association);
 
     /// @brief Destructor.
-    virtual ~StoreSCU();
+    virtual ~NSetSCU();
     
     /// @brief Set the affected SOP class based on the dataset.
     void set_affected_sop_class(DataSet const & dataset);
 
 	using SCU::set_affected_sop_class;
     
-    /// @brief Perform the C-STORE.
-    void store(
-        DataSet const & dataset,
-        Value::String const & move_originator_ae_title = "",
-        Value::Integer move_originator_message_id = -1) const;
-
-    /// @brief Perform the C-STORE.
-    void store(
-        DataSet && dataset,
-        Value::String const & move_originator_ae_title = "",
-        Value::Integer move_originator_message_id = -1) const;
-private:
-    void _store(message::CStoreRequest const & request) const;
+    /// @brief Perform the N-SET.
+    void set( DataSet const & dataset) const;
 };
 
 }
 
-#endif // _1b2f876e_1ad2_464d_9423_28181320aed0
+#endif // _c80c338c_36d7_4724_9732_c7afed87902b

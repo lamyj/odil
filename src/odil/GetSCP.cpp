@@ -62,7 +62,21 @@ GetSCP
 ::operator()(message::Message const & message)
 {
     message::CGetRequest const request(message);
+    this->operator()(request);
+}
 
+void
+GetSCP
+::operator()(message::Message && message)
+{
+    message::CGetRequest request(std::move(message));
+    this->operator()(request);
+}
+
+void
+GetSCP
+::operator()(message::CGetRequest const & request)
+{
     StoreSCU store_scu(this->_association);
 
     Value::Integer final_status = message::CGetResponse::Success;
@@ -92,11 +106,11 @@ GetSCP
             this->_association.send_message(
                 response, request.get_affected_sop_class_uid());
 
-            auto const data_set = this->_generator->get();
+            auto data_set = this->_generator->get();
             store_scu.set_affected_sop_class(data_set);
             try
             {
-                store_scu.store(data_set);
+                store_scu.store(std::move(data_set));
 
                 --remaining_sub_operations;
                 ++completed_sub_operations;

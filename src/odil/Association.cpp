@@ -195,7 +195,7 @@ bool
 Association
 ::is_associated() const
 {
-    return this->_state_machine.get_transport().is_open();
+    return this->_state_machine.get_transport().is_open() && this->_state_machine.get_state() == odil::dul::StateMachine::State::Sta6 ;
 }
 
 void
@@ -442,13 +442,13 @@ Association
         }
 
         Reader reader(data_stream, transfer_syntax_it->second);
-        auto const data_set = reader.read_data_set();
+        auto data_set = reader.read_data_set();
 
-        return message::Message(command_set, data_set);
+        return message::Message(std::move(command_set), std::move(data_set));
     }
     else
     {
-        return message::Message(command_set);
+        return message::Message(std::move(command_set));
     }
 }
 

@@ -56,7 +56,21 @@ NCreateSCP
 ::operator()(message::Message const & message)
 {
     message::NCreateRequest const request(message);
+    this->operator()(request);
+}
 
+void
+NCreateSCP
+::operator()(message::Message && message)
+{
+    message::NCreateRequest const request(std::move(message));
+    this->operator()(request);
+}
+
+void
+NCreateSCP
+::operator()(message::NCreateRequest const & request)
+{
     Value::Integer status=message::NCreateResponse::Success;
     DataSet status_fields;
 
@@ -75,8 +89,12 @@ NCreateSCP
     }
 
     message::NCreateResponse response(
-        request.get_message_id()
-                , status, request.get_affected_sop_class_uid());
+        request.get_message_id(), status, request.get_affected_sop_class_uid());
+    if(request.has_affected_sop_instance_uid())
+    {
+        response.set_affected_sop_instance_uid(
+            request.get_affected_sop_instance_uid());
+    }
     response.set_status_fields(status_fields);
     this->_association.send_message(
         response, request.get_affected_sop_class_uid());

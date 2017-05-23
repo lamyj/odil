@@ -43,6 +43,21 @@ BOOST_FIXTURE_TEST_CASE(Find, Fixture)
 
     scu.set_affected_sop_class(odil::registry::PatientRootQueryRetrieveInformationModelFIND);
     auto const results = scu.find(this->query);
+    BOOST_REQUIRE(!this->query.empty());
+
+    BOOST_REQUIRE_EQUAL(results.size(), 1);
+    BOOST_CHECK(
+        results[0].as_string("PatientID") ==
+            odil::Value::Strings({"DJ001"}));
+}
+
+BOOST_FIXTURE_TEST_CASE(FindMove, Fixture)
+{
+    odil::FindSCU scu(this->association);
+
+    scu.set_affected_sop_class(odil::registry::PatientRootQueryRetrieveInformationModelFIND);
+    auto const results = scu.find(std::move(this->query));
+    BOOST_REQUIRE(this->query.empty());
 
     BOOST_REQUIRE_EQUAL(results.size(), 1);
     BOOST_CHECK(
@@ -56,6 +71,18 @@ BOOST_FIXTURE_TEST_CASE(FindCallback, Fixture)
 
     scu.set_affected_sop_class(odil::registry::PatientRootQueryRetrieveInformationModelFIND);
     scu.find(this->query, Fixture::callback);
+    BOOST_REQUIRE(!this->query.empty());
+
+    BOOST_CHECK(Fixture::called);
+}
+
+BOOST_FIXTURE_TEST_CASE(FindCallbackMove, Fixture)
+{
+    odil::FindSCU scu(this->association);
+
+    scu.set_affected_sop_class(odil::registry::PatientRootQueryRetrieveInformationModelFIND);
+    scu.find(std::move(this->query), Fixture::callback);
+    BOOST_REQUIRE(this->query.empty());
 
     BOOST_CHECK(Fixture::called);
 }

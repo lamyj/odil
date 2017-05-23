@@ -45,6 +45,10 @@ void test_container(
 {
     odil::Value const value(contents);
     test_contents(value, contents, type, getter);
+
+    auto contents_copy(contents);
+    odil::Value const other_value(std::move(contents_copy));
+    BOOST_CHECK(contents_copy.empty());
 }
 
 template<typename TContainer>
@@ -142,6 +146,8 @@ void test(
  
 BOOST_AUTO_TEST_CASE(Integers)
 {
+    BOOST_CHECK(
+        odil::Value({1234, 5678}).get_type() == odil::Value::Type::Integers);
     test<odil::Value::Integers>(
         {1234, 5678}, {9012, 3456},
         odil::Value::Type::Integers,
@@ -150,6 +156,8 @@ BOOST_AUTO_TEST_CASE(Integers)
 
 BOOST_AUTO_TEST_CASE(Reals)
 {
+    BOOST_CHECK(
+        odil::Value({12.34, 56.78}).get_type() == odil::Value::Type::Reals);
     test<odil::Value::Reals>(
         {12.34, 56.78}, {1., 2.},
         odil::Value::Type::Reals,
@@ -158,6 +166,8 @@ BOOST_AUTO_TEST_CASE(Reals)
 
 BOOST_AUTO_TEST_CASE(Strings)
 {
+    BOOST_CHECK(
+        odil::Value({"foo", "bar"}).get_type() == odil::Value::Type::Strings);
     test<odil::Value::Strings>(
         {"foo", "bar"}, {"plip", "plop"},
         odil::Value::Type::Strings,
@@ -172,6 +182,9 @@ BOOST_AUTO_TEST_CASE(DataSets)
     odil::DataSet data_set_2;
     data_set_2.add("EchoTime", {100});
 
+    BOOST_CHECK(
+        odil::Value({data_set_1, data_set_2}).get_type()
+            == odil::Value::Type::DataSets);
     test<odil::Value::DataSets>(
         {data_set_1, data_set_2}, {data_set_2, data_set_1},
         odil::Value::Type::DataSets,
@@ -180,6 +193,9 @@ BOOST_AUTO_TEST_CASE(DataSets)
 
 BOOST_AUTO_TEST_CASE(Binary)
 {
+    BOOST_CHECK(
+        odil::Value({{0x1, 0x2}, {0x3}}).get_type()
+            == odil::Value::Type::Binary);
     test<odil::Value::Binary>(
         {{0x1, 0x2}, {0x3}}, {{0x4}, {0x5, 0x6}},
         odil::Value::Type::Binary,

@@ -41,11 +41,13 @@ public:
 
     /// @brief Receive and dispatch an incoming message.
     void dispatch();
+
 private:
     typedef std::shared_ptr<SCP> SCPPointer;
 
     Association & _association;
-    std::map<Value::Integer, std::shared_ptr<SCP>> _providers;
+    std::map<Value::Integer, std::shared_ptr<SCP> > _providers;
+
 };
 
 }

@@ -20,43 +20,18 @@ namespace message
 {
 
 NSetRequest
-::NSetRequest(Value::Integer message_id,
-        Value::String const & requested_sop_class_uid,
-        Value::String const & requested_sop_instance_uid,
-        Value::Integer const & command_data_set_type,
-        DataSet const & dataset)
+::NSetRequest(
+    Value::Integer message_id,
+    Value::String const & requested_sop_class_uid,
+    Value::String const & requested_sop_instance_uid,
+    DataSet const & dataset)
 : Request(message_id)
 {
     this->set_command_field( ::odil::message::Message::Command::N_SET_RQ);
     this->set_requested_sop_class_uid(requested_sop_class_uid);
     this->set_requested_sop_instance_uid(requested_sop_instance_uid);
-    this->set_command_data_set_type(command_data_set_type);
 
-    if(dataset.empty() ) // && command_data_set_type != NULL && command_data_set_type != 0x0101 )
-    {
-        throw Exception("Data set is required");
-    }
-    this->set_data_set(dataset);
-}
-
-NSetRequest
-::NSetRequest(Value::Integer message_id,
-              Value::String const & requested_sop_class_uid,
-              Value::String const & requested_sop_instance_uid,
-              Value::Integer const & command_data_set_type,
-              DataSet const & dataset,
-              Value::Integer const & command_group_length )
-    : Request(message_id)
-{
-    this->set_command_field( ::odil::message::Message::Command::N_SET_RQ);
-    this->set_requested_sop_class_uid(requested_sop_class_uid);
-    this->set_requested_sop_instance_uid(requested_sop_instance_uid);
-    this->set_command_data_set_type(command_data_set_type);
-    this->set_command_group_length(command_group_length );
-
-    if(
-        dataset.empty() && command_data_set_type != DataSetType::PRESENT 
-        && command_data_set_type != 0x0101)
+    if(dataset.empty())
     {
         throw Exception("Data set is required");
     }
@@ -77,12 +52,9 @@ NSetRequest
     this->set_requested_sop_class_uid(
         message.get_command_set().as_string(registry::RequestedSOPClassUID, 0));
     this->set_requested_sop_instance_uid(
-                message.get_command_set().as_string(registry::RequestedSOPInstanceUID, 0));
+        message.get_command_set().as_string(registry::RequestedSOPInstanceUID, 0));
 
-    ODIL_MESSAGE_SET_OPTIONAL_FIELD_MACRO( message.get_command_set() , command_data_set_type ,
-                                      registry::CommandDataSetType , as_int )
-
-    if(!message.has_data_set() || message.get_data_set().empty() ) // && message.get_ )
+    if(!message.has_data_set() || message.get_data_set().empty())
     {
         throw Exception("Data set is required");
     }

@@ -29,7 +29,7 @@ public:
      * @brief Callback called when a request is received, shall throw an
      * SCP::Exception on error.
      */
-    typedef std::function<Value::Integer(message::CStoreRequest const &)> Callback;
+    typedef std::function<Value::Integer(message::CStoreRequest &&)> Callback;
 
     /// @brief Constructor.
     StoreSCP(Association & association);
@@ -49,8 +49,12 @@ public:
     /// @brief Process a C-Store request.
     virtual void operator()(message::Message const & message);
 
+    /// @brief Process a C-Store request.
+    virtual void operator()(message::Message && message);
+
 private:
     Callback _callback;
+    void operator()(message::CStoreRequest & request);
 };
 
 }

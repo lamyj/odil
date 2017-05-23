@@ -35,7 +35,28 @@ DataSet
     auto const iterator = this->_elements.find(tag);
     if(iterator == this->_elements.end())
     {
-        this->_elements.insert({tag, element});
+        // WARNING: std::map<K,V>::emplace does not exist on old compilers.
+        // This is however a case of non-mandatory copy elision, so the copy
+        // constructor of element should only be called once.
+        this->_elements.insert(std::make_pair(tag, element));
+        //this->_elements.emplace(tag, element);
+    }
+    else
+    {
+        iterator->second = element;
+    }
+}
+
+void
+DataSet
+::add(Tag const & tag, Element && element)
+{
+    auto const iterator = this->_elements.find(tag);
+    if(iterator == this->_elements.end())
+    {
+        // WARNING: std::map<K,V>::emplace does not exist on old compilers.
+        this->_elements.insert(std::make_pair(tag, std::move(element)));
+        //this->_elements.emplace(tag, std::move(element));
     }
     else
     {
@@ -55,60 +76,52 @@ DataSet
     this->add(tag, Element(vr));
 }
 
-void
-DataSet
-::add(Tag const & tag, Value::Integers const & value, VR vr)
-{
-    if(vr == VR::UNKNOWN)
-    {
-        vr = as_vr(tag);
+#define ODIL_DATASET_ADD(type) \
+    void\
+    DataSet\
+    ::add(\
+        Tag const & tag, Value::type const & value, VR vr)\
+        { \
+            if(vr == VR::UNKNOWN)\
+            {\
+                vr = as_vr(tag);\
+            }\
+            this->add(tag, Element(value, vr));\
+        }\
+    void\
+    DataSet\
+    ::add(\
+        Tag const & tag, Value::type && value, VR vr)\
+    { \
+        if(vr == VR::UNKNOWN)\
+        {\
+            vr = as_vr(tag);\
+        }\
+        this->add(tag, Element(std::move(value), vr));\
+    }\
+    void\
+    DataSet\
+    ::add(\
+        Tag const & tag, \
+        std::initializer_list<Value::type::value_type> const & value, VR vr)\
+    { \
+        if(vr == VR::UNKNOWN)\
+        {\
+            vr = as_vr(tag);\
+        }\
+        this->add(tag, Element(value, vr));\
     }
-    this->add(tag, Element(value, vr));
-}
+    /*
+     * No need for for a rvalue reference version of std::initializer_list:
+     * copying a std::initializer_list does not copy the underlying objects.
+     */
 
-void
-DataSet
-::add(Tag const & tag, Value::Reals const & value, VR vr)
-{
-    if(vr == VR::UNKNOWN)
-    {
-        vr = as_vr(tag);
-    }
-    this->add(tag, Element(value, vr));
-}
-
-void
-DataSet
-::add(Tag const & tag, Value::Strings const & value, VR vr)
-{
-    if(vr == VR::UNKNOWN)
-    {
-        vr = as_vr(tag);
-    }
-    this->add(tag, Element(value, vr));
-}
-
-void
-DataSet
-::add(Tag const & tag, Value::DataSets const & value, VR vr)
-{
-    if(vr == VR::UNKNOWN)
-    {
-        vr = as_vr(tag);
-    }
-    this->add(tag, Element(value, vr));
-}
-
-void
-DataSet
-::add(Tag const & tag, Value::Binary const & value, VR vr)
-{
-    if(vr == VR::UNKNOWN)
-    {
-        vr = as_vr(tag);
-    }
-    this->add(tag, Element(value, vr));
-}
+    ODIL_DATASET_ADD(Integers);
+    ODIL_DATASET_ADD(Reals);
+    ODIL_DATASET_ADD(Strings);
+    ODIL_DATASET_ADD(DataSets);
+    ODIL_DATASET_ADD(Binary);
+#undef ODIL_DATASET_ADD
 
 void
 DataSet
@@ -124,43 +137,8 @@ DataSet
 void
 DataSet
 ::add(
-    Tag const & tag, std::initializer_list<Value::Integer> const & value, VR vr)
-{
-    if(vr == VR::UNKNOWN)
-    {
-        vr = as_vr(tag);
-    }
-    this->add(tag, Element(value, vr));
-}
-
-void
-DataSet
-::add(
-    Tag const & tag, std::initializer_list<Value::Real> const & value, VR vr)
-{
-    if(vr == VR::UNKNOWN)
-    {
-        vr = as_vr(tag);
-    }
-    this->add(tag, Element(value, vr));
-}
-
-void
-DataSet
-::add(
-    Tag const & tag, std::initializer_list<Value::String> const & value, VR vr)
-{
-    if(vr == VR::UNKNOWN)
-    {
-        vr = as_vr(tag);
-    }
-    this->add(tag, Element(value, vr));
-}
-
-void
-DataSet
-::add(
-    Tag const & tag, std::initializer_list<DataSet> const & value, VR vr)
+    Tag const & tag,
+    std::initializer_list<std::initializer_list<uint8_t>> const & value, VR vr)
 {
     if(vr == VR::UNKNOWN)
     {
@@ -418,6 +396,20 @@ DataSet
     return it->second.size();
 }
 
+DataSet::const_iterator
+DataSet
+::begin() const
+{
+    return this->_elements.begin();
+}
+
+DataSet::const_iterator
+DataSet
+::end() const
+{
+    return this->_elements.end();
+}
+
 bool
 DataSet
 ::operator==(DataSet const & other) const
@@ -460,4 +452,3 @@ DataSet
 }
 
 }
-

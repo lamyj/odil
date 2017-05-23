@@ -58,7 +58,21 @@ EchoSCP
 ::operator()(message::Message const & message)
 {
     message::CEchoRequest const request(message);
+    this->operator()(request);
+}
 
+void
+EchoSCP
+::operator()(message::Message && message)
+{
+    message::CEchoRequest const request(std::move(message));
+    this->operator()(request);
+}
+
+void
+EchoSCP
+::operator()(message::CEchoRequest const & request)
+{
     Value::Integer status=message::CEchoResponse::Success;
     DataSet status_fields;
 

@@ -64,3 +64,11 @@ BOOST_FIXTURE_TEST_CASE(Store, Fixture)
     scu.set_affected_sop_class(this->dataset);
     scu.store(this->dataset);
 }
+
+BOOST_FIXTURE_TEST_CASE(StoreMove, Fixture)
+{
+    odil::StoreSCU scu(this->association);
+
+    scu.set_affected_sop_class(this->dataset);
+    scu.store(std::move(this->dataset));
+}

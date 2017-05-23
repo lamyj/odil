@@ -170,6 +170,11 @@ void test_container(
     odil::DataSet data_set;
     data_set.add(tag, contents);
     test_element_value(data_set, tag, contents, type_check, getter, getter_pos);
+
+    auto contents_copy(contents);
+    odil::DataSet other_data_set;
+    other_data_set.add(tag, std::move(contents_copy));
+    BOOST_CHECK(contents_copy.empty());
 }
 
 template<typename TContainer>
@@ -182,6 +187,11 @@ void test_container(
     odil::DataSet data_set;
     data_set.add(tag, contents, vr);
     test_element_value(data_set, tag, contents, type_check, getter, getter_pos);
+
+    auto contents_copy(contents);
+    odil::DataSet other_data_set;
+    other_data_set.add(tag, std::move(contents_copy));
+    BOOST_CHECK(contents_copy.empty());
 }
 
 template<typename TContainer>
@@ -263,6 +273,10 @@ void test_element(
 
 BOOST_AUTO_TEST_CASE(Int)
 {
+    odil::DataSet data_set;
+    data_set.add(odil::registry::Rows, {1234, 5678});
+    data_set.is_int(odil::registry::Rows);
+
     test_element<odil::Value::Integers>(
         odil::registry::Rows, {1234, 5678}, odil::VR::US,
         &odil::DataSet::is_int, 
@@ -271,6 +285,10 @@ BOOST_AUTO_TEST_CASE(Int)
 
 BOOST_AUTO_TEST_CASE(Real)
 {
+    odil::DataSet data_set;
+    data_set.add(odil::registry::SpacingBetweenSlices, {12.34, 56.78});
+    data_set.is_int(odil::registry::SpacingBetweenSlices);
+
     test_element<odil::Value::Reals>(
         odil::registry::SpacingBetweenSlices, {12.34, 56.78}, odil::VR::FL,
         &odil::DataSet::is_real, 
@@ -279,6 +297,10 @@ BOOST_AUTO_TEST_CASE(Real)
 
 BOOST_AUTO_TEST_CASE(String)
 {
+    odil::DataSet data_set;
+    data_set.add(odil::registry::PatientID, {"foo", "bar"});
+    data_set.is_int(odil::registry::PatientID);
+
     test_element<odil::Value::Strings>(
         odil::registry::PatientID, {"foo", "bar"}, odil::VR::LT,
         &odil::DataSet::is_string, 
@@ -293,6 +315,11 @@ BOOST_AUTO_TEST_CASE(DataSets)
     odil::DataSet data_set_2;
     data_set_2.add("EchoTime", {100});
 
+    odil::DataSet data_set;
+    data_set.add(
+        odil::registry::ReferencedStudySequence, {data_set_1, data_set_2});
+    data_set.is_int(odil::registry::ReferencedStudySequence);
+
     test_element<odil::Value::DataSets>(
         odil::registry::ReferencedStudySequence, {data_set_1, data_set_2}, odil::VR::SQ,
         &odil::DataSet::is_data_set, 
@@ -301,6 +328,10 @@ BOOST_AUTO_TEST_CASE(DataSets)
 
 BOOST_AUTO_TEST_CASE(Binary)
 {
+    odil::DataSet data_set;
+    data_set.add(odil::registry::BadPixelImage, {{0x1, 0x2}, {0x3}});
+    data_set.is_int(odil::registry::BadPixelImage);
+
     test_element<odil::Value::Binary>(
         odil::registry::BadPixelImage, {{0x1, 0x2}, {0x3}}, odil::VR::OB,
         &odil::DataSet::is_binary,

@@ -54,8 +54,8 @@ void
 SCP
 ::receive_and_process()
 {
-    auto const message = this->_association.receive_message();
-    (*this)(message);
+    auto message = this->_association.receive_message();
+    (*this)(std::move(message));
 }
 
 }

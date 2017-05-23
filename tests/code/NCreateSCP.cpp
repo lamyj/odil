@@ -85,7 +85,6 @@ BOOST_AUTO_TEST_CASE(Callback)
         };
 
     scp.set_callback(callback);
-    scp.get_callback()(odil::message::NCreateRequest(1, ""));
+    scp.get_callback()(odil::message::NCreateRequest(1, "", odil::DataSet()));
     BOOST_REQUIRE_EQUAL(called, true);
 }
-

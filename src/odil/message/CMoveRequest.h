@@ -35,11 +35,27 @@ public:
         DataSet const & dataset);
 
     /**
+     * @brief Create an move request with given Message ID,
+     * affected SOP class UID, priority, move destination, and data set.
+     */
+    CMoveRequest(
+        Value::Integer message_id, Value::String const & affected_sop_class_uid,
+        Value::Integer priority, Value::String const & move_destination,
+        DataSet && dataset);
+
+    /**
      * @brief Create a C-MOVE-RQ from a generic Message.
      *
      * Raise an exception if the Message does not contain a C-MOVE-RQ.
      */
     CMoveRequest(Message const & message);
+
+    /**
+     * @brief Create a C-MOVE-RQ from a generic Message.
+     *
+     * Raise an exception if the Message does not contain a C-MOVE-RQ.
+     */
+    CMoveRequest(Message && message);
 
     /// @brief Destructor.
     virtual ~CMoveRequest();
@@ -49,6 +65,13 @@ public:
     ODIL_MESSAGE_MANDATORY_FIELD_INTEGER_MACRO(priority, registry::Priority)
     ODIL_MESSAGE_MANDATORY_FIELD_STRING_MACRO(
         move_destination, registry::MoveDestination)
+
+private:
+    void _create(
+        Value::String const & affected_sop_class_uid,
+        Value::Integer priority, Value::String const & move_destination,
+        DataSet const & dataset);
+    void _parse(Message const & message);
 };
 
 }

@@ -143,7 +143,13 @@ public:
     Message(DataSet const & command_set);
 
     /// @brief Create a message from existing data.
+    Message(DataSet && command_set);
+
+    /// @brief Create a message from existing data.
     Message(DataSet const & command_set, DataSet const & data_set);
+
+    /// @brief Create a message from existing data.
+    Message(DataSet && command_set, DataSet && data_set);
 
     /// @brief Destructor;
     virtual ~Message();
@@ -159,9 +165,18 @@ public:
      * data set is present.
      */
     DataSet const & get_data_set() const;
+
+    /**
+     * @brief Return the data set of the message, raise an exception if no
+     * data set is present.
+     */
+    DataSet & get_data_set();
     
     /// @brief Set the data set of the message.
     void set_data_set(DataSet const & data_set);
+
+    /// @brief Set the data set of the message.
+    void set_data_set(DataSet && data_set);
 
     /// @brief Delete the data set in this message.
     void delete_data_set();

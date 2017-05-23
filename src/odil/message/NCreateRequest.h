@@ -30,7 +30,8 @@ public:
      */
     NCreateRequest(
         Value::Integer message_id,
-        Value::String const & affected_sop_class_uid);
+        Value::String const & affected_sop_class_uid,
+        DataSet const & dataset);
 
     /**
      * @brief Create a N-Create-RQ from a generic Message.
@@ -41,18 +42,18 @@ public:
 
     /// @brief Destructor.
     virtual ~NCreateRequest();
-    
+
     ODIL_MESSAGE_MANDATORY_FIELD_INTEGER_MACRO(
         message_id, registry::MessageID)
 
     ODIL_MESSAGE_MANDATORY_FIELD_STRING_MACRO(
-            affected_sop_class_uid, registry::AffectedSOPClassUID)
-
-    ODIL_MESSAGE_OPTIONAL_FIELD_INTEGER_MACRO(
-            affected_sop_instance_uid, registry::AffectedSOPInstanceUID)
+        affected_sop_class_uid, registry::AffectedSOPClassUID)
 
     ODIL_MESSAGE_OPTIONAL_FIELD_STRING_MACRO(
-            attribute_list, registry::AttributeIdentifierList)
+        affected_sop_instance_uid, registry::AffectedSOPInstanceUID)
+
+    ODIL_MESSAGE_OPTIONAL_FIELD_STRING_MACRO(
+        attribute_list, registry::AttributeIdentifierList)
 
 };
 

@@ -13,6 +13,7 @@
 
 #include "odil/Association.h"
 #include "odil/DataSet.h"
+#include "odil/message/CFindRequest.h"
 #include "odil/odil.h"
 #include "odil/SCU.h"
 
@@ -24,7 +25,7 @@ class ODIL_API FindSCU: public SCU
 {
 public:
     /// @brief Callback called when a response is received.
-    typedef std::function<void(DataSet const &)> Callback;
+    typedef std::function<void(DataSet &&)> Callback;
 
     /// @brief Constructor.
     FindSCU(Association & association);
@@ -34,12 +35,24 @@ public:
     
     /// @brief Perform the C-FIND using an optional callback.
     void find(DataSet const & query, Callback callback) const;
+
+    /// @brief Perform the C-FIND using an optional callback.
+    void find(DataSet && query, Callback callback) const;
     
     /**
      * @brief Return a list of datasets matching the query. The user is 
      * responsible for the de-allocation of the matches.
      */
     std::vector<DataSet> find(DataSet const & query) const;
+
+    /**
+     * @brief Return a list of datasets matching the query. The user is
+     * responsible for the de-allocation of the matches.
+     */
+    std::vector<DataSet> find(DataSet && query) const;
+
+private:
+    void _find(message::CFindRequest const & request, Callback callback) const;
 };
 
 }

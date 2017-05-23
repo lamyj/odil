@@ -37,43 +37,42 @@ public:
     Element(Value const & value, VR const & vr);
 
     /// @brief Constructor.
-    Element(Value::Integers const & value, VR const & vr=VR::INVALID);
+    Element(Value && value, VR const & vr);
 
-    /// @brief Constructor.
-    Element(Value::Reals const & value, VR const & vr=VR::INVALID);
+#define ODIL_ELEMENT_CONSTRUCTORS(type) \
+    Element(Value::type const & value, VR const & vr=VR::INVALID); \
+    Element(Value::type && value, VR const & vr=VR::INVALID); \
+    Element(\
+        std::initializer_list<Value::type::value_type> const & value, \
+        VR const & vr=VR::INVALID);
+    /*
+     * No need for for a rvalue reference version of std::initializer_list:
+     * copying a std::initializer_list does not copy the underlying objects.
+     */
 
-    /// @brief Constructor.
-    Element(Value::Strings const & value, VR const & vr=VR::INVALID);
+    ODIL_ELEMENT_CONSTRUCTORS(Integers);
+    ODIL_ELEMENT_CONSTRUCTORS(Reals);
+    ODIL_ELEMENT_CONSTRUCTORS(Strings);
+    ODIL_ELEMENT_CONSTRUCTORS(DataSets);
+    ODIL_ELEMENT_CONSTRUCTORS(Binary);
+#undef ODIL_ELEMENT_CONSTRUCTORS
 
-    /// @brief Constructor.
-    Element(Value::DataSets const & value, VR const & vr=VR::INVALID);
-
-    /// @brief Constructor.
-    Element(Value::Binary const & value, VR const & vr=VR::INVALID);
-
-    /// @brief Constructor.
     Element(
         std::initializer_list<int> const & value, VR const & vr=VR::INVALID);
 
-    /// @brief Constructor.
     Element(
-        std::initializer_list<Value::Integer> const & value,
+        std::initializer_list<std::initializer_list<uint8_t>> const & value,
         VR const & vr=VR::INVALID);
 
-    /// @brief Constructor.
-    Element(
-        std::initializer_list<Value::Real> const & value,
-        VR const & vr=VR::INVALID);
-
-    /// @brief Constructor.
-    Element(
-        std::initializer_list<Value::String> const & value,
-        VR const & vr=VR::INVALID);
-
-    /// @brief Constructor.
-    Element(
-        std::initializer_list<DataSet> const & value,
-        VR const & vr=VR::INVALID);
+    /** @addtogroup default_operations Default class operations
+     * @{
+     */
+    ~Element() =default;
+    Element(Element const &) =default;
+    Element(Element &&) =default;
+    Element & operator=(Element const &) =default;
+    Element & operator=(Element &&) =default;
+    /// @}
 
     /// @brief Test whether the element is empty.
     bool empty() const;

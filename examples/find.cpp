@@ -8,11 +8,11 @@
 
 void print_informations(odil::DataSet const & response)
 {
-    auto const name = response.has("PatientName")?
+    auto const name = (response.has("PatientName") && !response.empty("PatientName"))?
         response.as_string("PatientName", 0):"(no name)";
-    auto const study = response.has("StudyDescription")?
+    auto const study = (response.has("StudyDescription") && !response.empty("StudyDescription"))?
         response.as_string("StudyDescription", 0):"(no description)";
-    auto const date = response.has("StudyDate")?
+    auto const date = (response.has("StudyDate") && !response.empty("StudyDate"))?
         response.as_string("StudyDate", 0):"(no date)";
     std::cout
         << "\"" << name << "\": \"" << study << "\" on " << date << "\n";
@@ -56,6 +56,7 @@ int main()
     std::cout << "Callback\n";
     std::cout << "--------\n\n";
     
+    // We are re-using the query in the next call to "find", so do not move it.
     scu.find(query, print_informations);
 
     std::cout << "\n";
@@ -64,7 +65,8 @@ int main()
     std::cout << "vector\n";
     std::cout << "------\n\n";
     
-    auto const result = scu.find(query);
+    // We are not re-using the query, so move it.
+    auto const result = scu.find(std::move(query));
     for(auto const & dataset: result)
     {
         print_informations(dataset);

@@ -64,8 +64,12 @@ public:
     /// @brief Process a C-Get request.
     virtual void operator()(message::Message const & message);
 
+    /// @brief Process a C-Get request.
+    virtual void operator()(message::Message && message);
+
 private:
     std::shared_ptr<DataSetGenerator> _generator;
+    void operator()(message::CMoveRequest const & request);
 };
 
 }

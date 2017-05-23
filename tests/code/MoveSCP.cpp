@@ -51,7 +51,7 @@ public:
             {"1.2.826.0.1.3680043.9.5560.3127449359877365688774406533090568532"});
         data_set_1.add("PatientName", {"Hello^World"});
         data_set_1.add("PatientID", {"1234"});
-        this->_responses.push_back(data_set_1);
+        this->_responses.push_back(std::move(data_set_1));
 
         odil::DataSet data_set_2;
         data_set_2.add("SOPClassUID", {odil::registry::RawDataStorage});
@@ -60,7 +60,7 @@ public:
             {"1.2.826.0.1.3680043.9.5560.3221615743193123463515381981101110692"});
         data_set_2.add("PatientName", {"Doe^John"});
         data_set_2.add("PatientID", {"5678"});
-        this->_responses.push_back(data_set_2);
+        this->_responses.push_back(std::move(data_set_2));
 
         this->_response_iterator = this->_responses.begin();
     }
@@ -72,7 +72,7 @@ public:
 
     virtual odil::DataSet get() const
     {
-        return *this->_response_iterator;
+        return *std::make_move_iterator(this->_response_iterator);
     }
 
     virtual void next()
@@ -120,8 +120,8 @@ public:
     }
 
 private:
-    std::vector<odil::DataSet> _responses;
-    std::vector<odil::DataSet>::const_iterator _response_iterator;
+    mutable std::vector<odil::DataSet> _responses;
+    std::vector<odil::DataSet>::iterator _response_iterator;
     odil::Association & _association;
 };
 
@@ -139,8 +139,8 @@ void run_server(Status * status)
         move_scp.set_generator(generator);
 
         // Get move message
-        auto const message = association.receive_message();
-        move_scp(message);
+        auto message = association.receive_message();
+        move_scp(std::move(message));
         // Should throw with peer closing connection
         association.receive_message();
     }
@@ -185,8 +185,8 @@ void run_client(Status * status)
         }
 
         std::ifstream stream(it->path().string());
-        auto const data_set = odil::Reader::read_file(stream).second;
-        status->responses.push_back(data_set);
+        auto data_set = odil::Reader::read_file(stream).second;
+        status->responses.push_back(std::move(data_set));
 
         boost::filesystem::remove(it->path());
     }
