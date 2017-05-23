@@ -16,7 +16,7 @@ void wrap_webservices_WADORSRequest()
     using namespace boost::python;
     using namespace odil::webservices;
 
-    scope wado_rs_request_scope = class_<WADORSRequest>(
+    class_<WADORSRequest>(
         "WADORSRequest",
         init<URL, std::string, std::string, bool, bool>((
             arg("base_url")=URL(), arg("transfer_syntax")="",
@@ -72,16 +72,6 @@ void wrap_webservices_WADORSRequest()
                 &WADORSRequest::request_bulk_data))
         .def("request_pixel_data", &WADORSRequest::request_pixel_data)
         .def("get_http_request", &WADORSRequest::get_http_request)
-        .def(self == self)
-        .def(self != self)
-    ;
-
-    scope wado_rs_request_selector_scope = class_<odil::webservices::Selector>(
-        "Selector", init<std::string>((
-            arg("studies")=""
-            )))
-        // TODO : add functions to wrap
-        .def("get_path", &odil::webservices::Selector::get_path)
         .def(self == self)
         .def(self != self)
     ;
