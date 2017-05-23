@@ -181,6 +181,34 @@ BOOST_FIXTURE_TEST_CASE(transform_parts, Fixture)
     ));
 }
 
+BOOST_FIXTURE_TEST_CASE(for_each_part, Fixture)
+{
+    std::vector< odil::webservices::Message > transformed_parts;
+    unsigned int part_counter = 0;
+    auto const functor =
+        [&transformed_parts, &part_counter](odil::webservices::Message const & part)
+        {
+            part_counter ++;
+            transformed_parts.push_back(part);
+        };
+    odil::webservices::for_each_part(
+        this->message, functor);
+    BOOST_REQUIRE_EQUAL(part_counter, this->parts.size());
+    BOOST_REQUIRE(
+        std::equal(
+            this->parts.begin(), this->parts.end(),
+            transformed_parts.begin(),
+            [](
+                odil::webservices::Message const & m1,
+                odil::webservices::Message const & m2)
+            {
+                return (
+                    m1.get_headers() == m2.get_headers()
+                    && m1.get_body() == m2.get_body());
+            }
+    ));
+}
+
 BOOST_FIXTURE_TEST_CASE(accumulate_parts, Fixture)
 {
     std::ostringstream stream;
