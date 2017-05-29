@@ -11,6 +11,9 @@
 
 #include <vector>
 
+#include <boost/uuid/random_generator.hpp>
+#include <boost/uuid/uuid.hpp>
+
 #include "odil/DataSet.h"
 #include "odil/webservices/BulkData.h"
 #include "odil/webservices/HTTPRequest.h"
@@ -72,14 +75,11 @@ public:
      * @brief Prepare a dicom request
      *
      * with a vector of datasets to store (each one will be used in a part of the request)
-     * And a selector corresponding to the location where the instance will be stored
+     * A selector corresponding to the location where the instance will be stored
+     * and a representation corresponding to the way the request will be encoded
      */
-    void request_dicom(std::vector<DataSet> const & data_sets, Selector const & selector);
-
-    // TODO : Complete me when understanding the content of JSON or XML request
-//    void request_dicom_xml(std::vector<DataSet>, std::vector<BulkData>);
-
-//    void request_dicom_json(std::vector<DataSet>, std::vector<BulkData>);
+    void request_dicom(std::vector<DataSet> const & data_sets, Selector const & selector,
+                       Representation const & representation);
 
     /// @brief Generate the associated HTTP request.
     HTTPRequest get_http_request() const;
@@ -92,13 +92,24 @@ private:
 
     Representation _representation; // Available request representations : DICOM - DICOM_XML - DICOM_JSON
     std::vector<DataSet> _data_sets;
-//    std::vector<BulkData> _bulk_data;
 
     /// @brief Return if the selector is valid or not
     static bool _is_selector_valid (Selector const & selector);
 
+    /// @brief Return the media-type deduced from the transfer-syntax of the dataSet
+    static std::string _media_type_from_transfer_syntax(std::string const & transfer_syntax);
+
     /// @brief Split an url into a pair containing the base url, and the Selector
     static std::pair <URL, Selector> _split_full_url (const URL& url);
+
+    /// @brief Function that extracts bulk data from a data_set and store them into the uuid_to_bulk vector
+    static void _extract_bulk_data( DataSet & data_set, std::vector<BulkData> & bulk_data);
+
+    /**
+     * @brief Function used to restore the dataSet to its initial state (With bulk data at the correct location)
+     * In this function we also change the content of uuid_to_bulk map
+     */
+    static void _restore_data_set(DataSet & data_set, std::map<std::string, std::string>& uuid_bulk_raw);
 };
 
 }

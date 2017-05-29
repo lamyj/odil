@@ -5,9 +5,10 @@
 #include "odil/registry.h"
 #include "odil/webservices/HTTPRequest.h"
 #include "odil/webservices/ItemWithParameters.h"
-#include "odil/webservices/Utils.h"
+#include "odil/webservices/multipart_related.h"
 #include "odil/webservices/STOWRSRequest.h"
 #include "odil/webservices/URL.h"
+#include "odil/webservices/Utils.h"
 
 struct Fixture
 {
@@ -26,6 +27,7 @@ struct Fixture
         data_set_2.add("SOPInstanceUID", {"1.2.3.5"});
         data_set_2.add("PatientName", {"Doe^John"});
         data_set_2.add("PatientAge", {"042Y"});
+        data_set_2.add("Signature", odil::Value::Binary({{0x01, 0x02, 0x03, 0x04}}));
 
         this->data_sets = { data_set_1, data_set_2 };
     }
@@ -95,29 +97,55 @@ BOOST_FIXTURE_TEST_CASE(FailRequestDataSets, Fixture)
     odil::webservices::Selector invalid_selector("1.2", "3.4");
 
     //-------------------- Require exception
-    BOOST_REQUIRE_THROW(request.request_dicom(data_sets, invalid_selector), odil::Exception);
+    BOOST_REQUIRE_THROW(request.request_dicom(data_sets, invalid_selector,
+                                              odil::webservices::Representation::DICOM),
+                        odil::Exception);
 }
-
 
 BOOST_FIXTURE_TEST_CASE(GetHttpRequest, Fixture)
 {
     odil::webservices::STOWRSRequest request(base_url_http);
-    request.request_dicom(data_sets, selector);
+    request.request_dicom(data_sets, selector, odil::webservices::Representation::DICOM_XML);
     odil::webservices::HTTPRequest http_request = request.get_http_request();
     //-------------------- Check for http request content
     BOOST_REQUIRE(http_request.has_header("Content-Type"));
     BOOST_REQUIRE(http_request.get_method() == "POST");
     BOOST_REQUIRE(http_request.get_http_version() == "HTTP/1.0");
+    BOOST_REQUIRE(odil::webservices::count_parts(http_request) == 3);// Two part for dataSets & 1 for binary
     BOOST_REQUIRE(request.get_base_url() == base_url_http);
+
+    request.request_dicom(data_sets, selector, odil::webservices::Representation::DICOM);
+    odil::webservices::HTTPRequest http_request_dcm = request.get_http_request();
+    BOOST_REQUIRE(odil::webservices::count_parts(http_request_dcm) == 2);// only two parts here
+}
+
+BOOST_FIXTURE_TEST_CASE(DataSetsEquality, Fixture)
+{
+    // We use a getHttpRequest function that can change the dataSet internally, and we check if they remain the sames
+    odil::webservices::STOWRSRequest request(base_url_http);
+    request.request_dicom({data_sets[1]}, selector, odil::webservices::Representation::DICOM_JSON);
+    odil::webservices::HTTPRequest http_request = request.get_http_request();
+
+    BOOST_REQUIRE(request.get_data_sets() == std::vector<odil::DataSet>({data_sets[1]}));
 }
 
 BOOST_FIXTURE_TEST_CASE(Equality, Fixture)
 {
     odil::webservices::STOWRSRequest request(base_url_http);
-    request.request_dicom(data_sets, selector);
+    request.request_dicom(data_sets, selector, odil::webservices::Representation::DICOM);
     odil::webservices::HTTPRequest const http_request = request.get_http_request();
     odil::webservices::STOWRSRequest second_request(http_request);
 
     //-------------------- Check equality
     BOOST_REQUIRE (request == second_request);
+}
+
+BOOST_FIXTURE_TEST_CASE(Equality_2, Fixture)
+{
+    odil::webservices::STOWRSRequest request(base_url_http);
+    request.request_dicom(data_sets, selector, odil::webservices::Representation::DICOM_XML);
+    odil::webservices::HTTPRequest http_request = request.get_http_request();
+    odil::webservices::STOWRSRequest request_copy(http_request);
+    BOOST_REQUIRE(request_copy == request);
+    BOOST_REQUIRE(data_sets == request_copy.get_data_sets());
 }
