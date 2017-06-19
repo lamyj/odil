@@ -29,7 +29,7 @@ class TestWADORSRequest(unittest.TestCase):
             wado_rs_request.get_type(), odil.webservices.Utils.Type.DICOM)
         self.assertEqual(
             wado_rs_request.get_selector(),
-            odil.webservices.Selector("1.2"))
+            odil.webservices.Selector({"studies" : "1.2"}))
         self.assertEqual(str(wado_rs_request.get_url()), "/foo/studies/1.2")
         self.assertEqual(wado_rs_request.get_media_type(), "application/dicom")
         self.assertEqual(

@@ -16,21 +16,31 @@ namespace webservices
 {
 
 Selector
-::Selector():
-    _study_present(false), _series_present(false), _instance_present(false)
+::Selector(std::map<std::string, std::string> const & selector, std::vector<int> const & frames):
+    _study_present(false), _series_present(false), _instance_present(false),_frames(frames)
 {
-
-}
-
-Selector
-::Selector(std::string const &study,
-           std::string  const &series,
-           std::string const &instance,
-           std::vector<int> const &frames):
-    _study(study), _study_present(true), _series(series), _instance(instance), _frames(frames)
-{
-    _series_present = !series.empty();
-    _instance_present = !instance.empty();
+    for (auto const pair_: selector)
+    {
+        if (pair_.first == "studies")
+        {
+            _study_present = true;
+            _study = pair_.second;
+        }
+        else if (pair_.first == "series")
+        {
+            _series_present = true;
+            _series = pair_.second;
+        }
+        else if (pair_.first == "instances")
+        {
+            _instance_present = true;
+            _instance = pair_.second;
+        }
+        else
+        {
+            throw Exception("Unknown option " + pair_.first);
+        }
+    }
 }
 
 bool

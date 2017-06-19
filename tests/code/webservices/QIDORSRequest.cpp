@@ -18,12 +18,16 @@ odil::webservices::URL const base_url_http{
     "http", "example.com", "/dicom", "", ""};
 
 odil::webservices::Selector const instance_selector(
-    "1.2", "3.4", "5.6");
+    std::map<std::string, std::string>(
+        {{"studies", "1.2"},
+         {"series", "3.4"},
+         {"instances", ""}})
+);
 
 odil::webservices::URL const full_url {
     "http", // scheme
     "example.com", // authority
-    "/dicom/series/1.2/instances", // path
+    "/dicom/studies/1.2/instances", // path
     "PatientName=TOTO&"
     "SharedFunctionalGroupsSequence.EffectiveEchoTime=10.5&"
     "includefield=00200020&includefield=52009229.00200035", // query
@@ -65,7 +69,7 @@ BOOST_AUTO_TEST_CASE(FullUrl)
     odil::webservices::URL const full_url_alphabetic {
         "http", // scheme
         "example.com", // authority
-        "/dicom/series/1.2/instances", // path
+        "/dicom/studies/1.2/instances", // path
         "PatientName=TOTO&"
         "SharedFunctionalGroupsSequence.EffectiveEchoTime=10.5&"
         "includefield=PatientOrientation&includefield=SharedFunctionalGroupsSequence.ImageOrientation&"
@@ -85,7 +89,7 @@ BOOST_AUTO_TEST_CASE(Selector)
     odil::webservices::QIDORSRequest const request(http_request);
 
     //-------------------- Check for selector
-    BOOST_REQUIRE_EQUAL(request.get_selector().get_path(false), "/series/1.2/instances");
+    BOOST_REQUIRE_EQUAL(request.get_selector().get_path(false), "/studies/1.2/instances");
 }
 
 BOOST_AUTO_TEST_CASE(QueryDataset)
@@ -167,7 +171,7 @@ BOOST_AUTO_TEST_CASE(RequestDataset)
 {
     //-------------------- Selector
     odil::webservices::Selector selector;
-    selector.set_series("1.2").set_instance("");
+    selector.set_study("1.2").set_instance("");
 
     //-------------------- Query Dataset
     odil::DataSet dataset;
@@ -193,7 +197,7 @@ BOOST_AUTO_TEST_CASE(RequestDataset)
     odil::webservices::URL const full_url_alphabetic_tags {
         "http", // scheme
         "example.com", // authority
-        "/dicom/series/1.2/instances", // path
+        "/dicom/studies/1.2/instances", // path
         "PatientName=TOTO&"
         "SharedFunctionalGroupsSequence.StudyDate=20130509&"
         "includefield=PatientOrientation&includefield=SharedFunctionalGroupsSequence.ImageOrientation&"
@@ -210,7 +214,7 @@ BOOST_AUTO_TEST_CASE(Equality)
     odil::webservices::URL const full_url_cpy {
         "http", // scheme
         "example.com", // authority
-        "/dicom/series/1.2/instances", // path
+        "/dicom/studies/1.2/instances", // path
         "SharedFunctionalGroupsSequence.EffectiveEchoTime=10.5&"
         "includefield=00200020&includefield=52009229.00200035&" // query
         "PatientName=TOTO"
@@ -237,7 +241,7 @@ BOOST_AUTO_TEST_CASE(Difference)
     odil::webservices::URL const full_url_cpy {
         "http", // scheme
         "example.com", // authority
-        "/dicom/series/1.2/instances", // path
+        "/dicom/studies/1.2/instances", // path
         "SharedFunctionalGroupsSequence.EffectiveEchoTime=10.5&"
         "includefield=00200020&includefield=52009229.00200035&" // query
         "PatientName=TUTU"

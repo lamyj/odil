@@ -45,7 +45,7 @@ odil::webservices::URL const full_url {
 };
 
 odil::webservices::Selector const selector(
-    "1.2");
+    std::map<std::string, std::string>({{"studies", "1.2"}}));
 
 BOOST_AUTO_TEST_CASE(Constructor_BaseUrl)
 {
@@ -94,7 +94,11 @@ BOOST_FIXTURE_TEST_CASE(DataSets, Fixture)
 BOOST_FIXTURE_TEST_CASE(FailRequestDataSets, Fixture)
 {
     odil::webservices::STOWRSRequest request(base_url_http);
-    odil::webservices::Selector invalid_selector("1.2", "3.4");
+    odil::webservices::Selector invalid_selector(
+        std::map<std::string, std::string>(
+            {{"studies", "1.2"},
+             {"series", "3.4"}})
+    );
 
     //-------------------- Require exception
     BOOST_REQUIRE_THROW(request.request_dicom(data_sets, invalid_selector,

@@ -15,7 +15,6 @@
 
 #include "odil/odil.h"
 #include "odil/Exception.h"
-#include <boost/optional.hpp>
 
 namespace odil
 {
@@ -28,13 +27,10 @@ class ODIL_API Selector
 {
 public:
 
-    /// @brief Default Constructor
-    Selector ();
+    /// @brief Default constructor
+    Selector(std::map<std::string, std::string> const & selector ={},
+             std::vector<int> const& frames={});
 
-    /// @brief Constructor which takes at least the study arg.
-    Selector(
-        std::string const & study, std::string const & series="",
-        std::string const & instance="", std::vector<int> const & frames={});
 
     /// @brief Equality operator.
     bool operator==(Selector const & other) const;

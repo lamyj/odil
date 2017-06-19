@@ -480,54 +480,27 @@ bool
 QIDORSRequest
 ::_is_selector_valid(Selector const & selector)
 {
-    bool valid = false;
-
-    if (selector.is_study_present())
+    if (!selector.get_frames().empty() || !selector.get_instance().empty())
     {
-        valid = true;
-    }
-    else if (!selector.is_study_present() || !selector.get_study().empty())
-    {
-        if (selector.is_series_present())
-        {
-            valid = true;
-        }
-        else if (!selector.is_series_present() || !selector.get_series().empty())
-        {
-            if (selector.is_instance_present())
-            {
-                valid = true;
-            }
-            else if (!selector.is_study_present() &&
-                     !selector.is_series_present() &&
-                     !selector.is_instance_present())
-            {
-                valid = false;
-            }
-        }
-        else
-        {
-            valid = false;
-        }
+        return false;
     }
     else
     {
-        valid = false;
+        return(
+            // /studies
+            (selector.is_study_present() && selector.get_study().empty() && !selector.is_series_present() && !selector.is_instance_present())
+            // /studies/1.2/series
+            ||(selector.is_study_present() && !selector.get_study().empty() && selector.is_series_present() && selector.get_series().empty() && !selector.is_instance_present())
+            // /series
+            ||(!selector.is_study_present() && selector.is_series_present() && selector.get_series().empty() && !selector.is_instance_present())
+            // /studies/1.2/series/3.4/instances
+            ||(selector.is_study_present() && !selector.get_study().empty() && selector.is_series_present() && !selector.get_series().empty() && selector.is_instance_present())
+            // /studies/1.2/instances
+            ||(selector.is_study_present() && !selector.get_study().empty() && !selector.is_series_present() && selector.is_instance_present())
+            // /instances
+            || (!selector.is_study_present() && !selector.is_series_present() && selector.is_instance_present())
+        );
     }
-
-    if (!selector.get_frames().empty())
-    {
-        if (!selector.get_instance().empty() && selector.is_instance_present())
-        {
-            valid = true;
-        }
-        else
-        {
-            valid = false;
-        }
-    }
-
-    return valid;
 }
 
 std::string

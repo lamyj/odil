@@ -50,6 +50,8 @@ void wrap_webservices_URL()
         .def_readwrite("fragment", &URL::fragment)
         .def("__str__", &URL::operator std::string)
         .def("parse", &URL::parse)
+        .def(self == self)
+        .def(self != self)
         .staticmethod("parse")
     ;
 }

@@ -313,10 +313,13 @@ WADORSRequest
 ::_is_selector_valid(Selector const &selector)
 {
     return(
-        (!selector.get_frames().empty() && !selector.get_instance().empty() && !selector.get_series().empty() && !selector.get_study().empty())
-        || (selector.get_frames().empty() && !selector.get_instance().empty() && !selector.get_series().empty() && !selector.get_study().empty())
-        || (selector.get_frames().empty() && selector.get_instance().empty() && !selector.get_series().empty() && !selector.get_study().empty())
-        || (selector.get_frames().empty() && selector.get_instance().empty() && selector.get_series().empty() && !selector.get_study().empty())
+        // /studies/1.2
+        (selector.is_study_present() && !selector.get_study().empty() && !selector.is_series_present() && !selector.is_instance_present() && selector.get_frames().empty())
+        // /studies/1.2/series/3.4
+        || (selector.is_study_present() && !selector.get_study().empty() && selector.is_series_present() && !selector.get_series().empty() && !selector.is_instance_present() && selector.get_frames().empty())
+        // /studies/1.2/series/3.4/instances/5.6/
+        // /studies/1.2/series/3.4/instances/5.6/frames/7,8,9
+        || (selector.is_study_present() && !selector.get_study().empty() && selector.is_series_present() && !selector.get_series().empty() && selector.is_instance_present() && !selector.get_instance().empty())
     );
 }
 
@@ -466,17 +469,23 @@ WADORSRequest
 {
     URL base_url;
     bool is_meta_data=false;
-    std::string study, series, instance;
     std::vector<int> frames;
 
     auto const position = url.path.rfind("/studies/");
+
+
+    typedef std::string::const_iterator Iterator;
+
+    typedef std::map <std::string, std::string>  KeyVal;
+
+    typedef std::pair< KeyVal, std::vector<int> > KeyValFrames;
+
+    KeyValFrames selector_;
     if(position != std::string::npos)
     {
         base_url = {
             url.scheme, url.authority, url.path.substr(0, position), "", "" };
         auto const resource = url.path.substr(position+1);
-
-        typedef std::string::const_iterator Iterator;
 
         namespace qi = boost::spirit::qi;
         namespace p = boost::phoenix; // boost::phoenix::ref clashes with std::ref
@@ -484,38 +493,32 @@ WADORSRequest
         using boost::spirit::qi::digit;
         using boost::spirit::qi::int_;
         using boost::spirit::qi::lit;
+        using boost::spirit::qi::omit;
         using boost::spirit::qi::string;
         using boost::spirit::qi::_1;
 
         qi::rule<Iterator, std::string()> uid = digit >> *(string(".") >> +digit);
+
+        qi::rule<Iterator, std::string()> selec =
+                string("studies") | string("series") | string("instances");
+
         qi::rule<Iterator, std::vector<int>()> frame_list = int_%","; // in order to do a list
 
-        qi::rule<Iterator> retrieve_study =
-            lit("studies/") >> uid[p::ref(study) = _1];
-        qi::rule<Iterator> retrieve_series =
-            lit("series/") >> uid[p::ref(series) = _1];
-        qi::rule<Iterator> retrieve_instance =
-            lit("instances/") >> uid[p::ref(instance) = _1];
-        qi::rule<Iterator> retrieve_frames =
-            lit("frames/") >> frame_list[p::ref(frames) = _1];
-        qi::rule<Iterator> retrieve_metadata =
-            lit("metadata")[p::ref(is_meta_data) = true];
+        qi::rule<Iterator, KeyValFrames()> retrieve_selector =
+                (
+                    (selec >> omit["/"] >> uid)% "/"
+                    >> -(lit("/frames/") >> frame_list)
+                );
 
         auto iterator = resource.begin();
         qi::phrase_parse(
             iterator, resource.end(),
-            retrieve_study
-                >> -("/" >> retrieve_series
-                    >> -("/" >> retrieve_instance
-                        >> -("/" >> retrieve_frames)
-                    )
-                )
-                >> -("/" >> retrieve_metadata),
-            boost::spirit::qi::ascii::space
+            retrieve_selector,
+            boost::spirit::qi::ascii::space, selector_
         );
     }
 
-    Selector selector(study, series, instance, frames);
+    Selector selector(selector_.first, selector_.second);
 
     if (!WADORSRequest::_is_selector_valid(selector))
     {

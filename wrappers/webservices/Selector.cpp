@@ -18,9 +18,9 @@ void wrap_webservices_Selector()
 
     class_<Selector>("Selector", init<>())
         .def(
-            init<std::string, std::string, std::string, std::vector<int>>((
-                arg("study"), arg("series")="",
-                arg("instance")="", arg("frames")=std::vector<int>())))
+            init<std::map<std::string, std::string>, std::vector<int>>((
+                arg("selector") = std::map<std::string, std::string>(),
+                arg("frames")=std::vector<int>()), "selector : {\"studies\" : \"StudiesInstanceUID\", \"series\" : \"SeriesInstanceUID\", \"instances\" : \"SOPInstanceUID\"} "))
         .def("get_path", &Selector::get_path)
         .def("is_study_present", &Selector::is_study_present)
         .def("is_series_present", &Selector::is_series_present)

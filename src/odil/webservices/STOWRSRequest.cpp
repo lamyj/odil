@@ -255,7 +255,7 @@ STOWRSRequest
         );
     }
 
-    Selector selector(study);
+    Selector selector({{"studies", study}});
 
     return std::make_pair(base_url, selector);
 }

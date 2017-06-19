@@ -11,7 +11,7 @@ class TestSelector(unittest.TestCase):
         self.assertEqual(list(selector.get_frames()), [])
 
     def test_full_constructor(self):
-        selector = odil.webservices.Selector("1.2", "3.4", "5.6", [7,8])
+        selector = odil.webservices.Selector({"studies" :"1.2", "series" :"3.4", "instances" :"5.6"}, [7,8])
         self.assertTrue(selector.is_study_present())
         self.assertEqual(selector.get_study(), "1.2")
 
@@ -25,13 +25,13 @@ class TestSelector(unittest.TestCase):
 
     def test_get_path_no_frames(self):
         selector = odil.webservices.Selector(
-            "1.2", "3.4", "5.6", [7,8])
+            {"studies" :"1.2", "series" :"3.4", "instances" :"5.6"}, [7,8])
         self.assertEqual(
             selector.get_path(False), "/studies/1.2/series/3.4/instances/5.6")
 
     def test_get_path_frames(self):
         selector = odil.webservices.Selector(
-            "1.2", "3.4", "5.6", [7,8])
+            {"studies" :"1.2", "series" :"3.4", "instances" :"5.6"}, [7,8])
         self.assertEqual(
             selector.get_path(True),
             "/studies/1.2/series/3.4/instances/5.6/frames/7,8")
