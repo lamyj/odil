@@ -13,10 +13,19 @@ odil::webservices::URL const base_url_http{
     "http", "example.com", "/dicom", "", ""};
 
 odil::webservices::Selector const instance_selector(
-    "1.2", "3.4", "5.6");
+    std::map<std::string, std::string>(
+        {{"studies", "1.2"},
+         {"series", "3.4"},
+         {"instances", "5.6"}})
+);
 
 odil::webservices::Selector const frames_selector(
-    "1.2", "3.4", "5.6", {7,8,9});
+    std::map<std::string, std::string>(
+        {{"studies", "1.2"},
+         {"series", "3.4"},
+         {"instances", "5.6"}}),
+    {7,8,9}
+);
 
 BOOST_AUTO_TEST_CASE(Constructor)
 {

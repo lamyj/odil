@@ -11,9 +11,60 @@
 #include <boost/python.hpp>
 
 #include "odil/DataSet.h"
+#include "odil/webservices/BulkData.h"
 #include "odil/webservices/WADORSResponse.h"
+#include "odil/Value.h"
 
-void wrap_webservices_WADORSResponse()
+boost::python::list
+get_data_sets(odil::webservices::WADORSResponse& self)
+{
+    boost::python::list python_ds;
+    auto const cpp_val = self.get_data_sets();
+    for (auto const ds : cpp_val)
+    {
+        python_ds.append(ds);
+    }
+    return python_ds;
+}
+
+void
+set_data_sets(odil::webservices::WADORSResponse& self,
+                   boost::python::object data_sets)
+{
+    odil::Value::DataSets odil_ds;
+    for(int i = 0; i < boost::python::len(data_sets) ; ++i)
+    {
+        odil_ds.push_back(boost::python::extract<odil::DataSet>(data_sets[i]));
+    }
+    self.set_data_sets(odil_ds);
+}
+
+boost::python::list
+get_bulk_data(odil::webservices::WADORSResponse& self)
+{
+    auto const & cpp_val = self.get_bulk_data();
+    boost::python::list python_val;
+    for (auto const & bulk : cpp_val)
+    {
+        python_val.append(bulk);
+    }
+    return python_val;
+}
+
+void
+set_bulk_data(odil::webservices::WADORSResponse& self,
+                   boost::python::object bulk_data)
+{
+    std::vector<odil::webservices::BulkData> cpp_val;
+    for (int i = 0; i < boost::python::len(bulk_data); ++i)
+    {
+        cpp_val.push_back(boost::python::extract<odil::webservices::BulkData>(bulk_data[i]));
+    }
+    self.set_bulk_data(cpp_val);
+}
+
+void
+wrap_webservices_WADORSResponse()
 {
     using namespace boost::python;
     using namespace odil;
@@ -21,13 +72,10 @@ void wrap_webservices_WADORSResponse()
 
     class_<WADORSResponse>("WADORSResponse", init<>())
         .def(init<HTTPResponse>())
-        .def(
-            "get_data_sets",
-            static_cast<
-                std::vector<DataSet> const & (WADORSResponse::*)() const
-            >(&WADORSResponse::get_data_sets),
-            return_value_policy<copy_const_reference>())
-        .def("set_data_sets", &WADORSResponse::set_data_sets)
+        .def("get_data_sets", get_data_sets)
+        .def("set_data_sets", set_data_sets)
+        .def("get_bulk_data", get_bulk_data)
+        .def("set_bulk_data", set_bulk_data)
         // TODO: bulk_data
         .def("is_partial", &WADORSResponse::is_partial)
         .def("set_partial", &WADORSResponse::set_partial)

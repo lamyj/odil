@@ -72,8 +72,13 @@ struct Printer
 
 int main ()
 {
+    // orthanc local
+//    odil::webservices::URL const root{
+//        "http", "localhost", "/dicom-web"};
+    // orthanc remote
     odil::webservices::URL const root{
         "http", "demo.orthanc-server.com", "/dicom-web"};
+
 
     odil::webservices::QIDORSRequest qido_request(root);
 
@@ -105,6 +110,9 @@ int main ()
     http_request.set_header("Host", root.authority);
     http_request.set_header("Connection", "close");
 
+    // orthanc local
+//    boost::asio::ip::tcp::iostream stream("localhost", "8042");
+    // orthanc remote
     boost::asio::ip::tcp::iostream stream;
     stream.connect(root.authority, root.scheme);
     if(!stream)
