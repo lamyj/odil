@@ -49,7 +49,7 @@ struct Fixture
 BOOST_AUTO_TEST_CASE(Constructor)
 {
     odil::webservices::STOWRSResponse const response;
-    BOOST_REQUIRE(response.get_store_instance_reponses().empty());
+    BOOST_REQUIRE(response.get_store_instance_responses().empty());
 }
 
 BOOST_FIXTURE_TEST_CASE(RespondDICOM_XML, Fixture)

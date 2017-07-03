@@ -152,6 +152,10 @@ int main()
         return 1;
     }
 
+    for (auto const header: http_request.get_headers())
+    {
+        std::cout << header.first << " : " << header.second << std::endl;
+    }
     stream << http_request;
     if(!stream)
     {
@@ -170,7 +174,7 @@ int main()
 
     odil::webservices::STOWRSResponse stow_response(http_response);
 
-    odil::DataSet data_set = stow_response.get_store_instance_reponses();
+    odil::DataSet data_set = stow_response.get_store_instance_responses();
 
     Printer printer(std::cout);
     printer(data_set);

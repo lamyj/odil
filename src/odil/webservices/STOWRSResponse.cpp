@@ -139,7 +139,7 @@ STOWRSResponse
 
 DataSet const &
 STOWRSResponse
-::get_store_instance_reponses() const
+::get_store_instance_responses() const
 {
     return this->_store_instance_responses;
 }
@@ -249,7 +249,7 @@ STOWRSResponse
 
     if(this->_representation == odil::webservices::Representation::DICOM_XML)
     {
-        auto const xml = as_xml(this->get_store_instance_reponses());
+        auto const xml = as_xml(this->get_store_instance_responses());
         std::ostringstream body;
 #if BOOST_VERSION >= 105600
         typedef boost::property_tree::xml_writer_settings<std::string> SettingsType;
@@ -265,7 +265,7 @@ STOWRSResponse
     {
         Json::Value json;
         json.resize(1);
-        json[0] = as_json(this->get_store_instance_reponses());
+        json[0] = as_json(this->get_store_instance_responses());
 
         Json::FastWriter writer;
         response.set_body(writer.write(json));

@@ -66,10 +66,8 @@ void wrap_webservices_QIDORSRequest()
     using namespace odil::webservices;
 
     class_<QIDORSRequest>(
-        "QIDORSRequest",
-        init<URL>((
-            arg("base_url")=URL()
-        )))
+        "QIDORSRequest", no_init)
+        .def(init<URL>())
         .def(init<HTTPRequest>())
         .def(
             "get_base_url", &QIDORSRequest::get_base_url,

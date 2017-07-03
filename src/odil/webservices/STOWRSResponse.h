@@ -46,7 +46,7 @@ public:
     void set_store_instance_responses(DataSet const & responses);
 
     /// @brief Get store instance responses
-    DataSet const & get_store_instance_reponses() const;
+    DataSet const & get_store_instance_responses() const;
 
     /// @brief Get the media type
     std::string const & get_media_type() const;

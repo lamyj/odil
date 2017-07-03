@@ -78,7 +78,7 @@ BOOST_AUTO_TEST_CASE(Constructor_Http)
     //-------------------- Check for representation
     BOOST_REQUIRE(request.get_representation() == odil::webservices::Representation::DICOM);
 
-    //-------------------- Check for representation
+    //-------------------- Check for selector
     BOOST_REQUIRE(request.get_selector() == selector);
 }
 
@@ -127,10 +127,10 @@ BOOST_FIXTURE_TEST_CASE(DataSetsEquality, Fixture)
 {
     // We use a getHttpRequest function that can change the dataSet internally, and we check if they remain the sames
     odil::webservices::STOWRSRequest request(base_url_http);
-    request.request_dicom({data_sets[1]}, selector, odil::webservices::Representation::DICOM_JSON);
+    request.request_dicom({data_sets[0]}, selector, odil::webservices::Representation::DICOM_JSON);
     odil::webservices::HTTPRequest http_request = request.get_http_request();
 
-    BOOST_REQUIRE(request.get_data_sets() == std::vector<odil::DataSet>({data_sets[1]}));
+    BOOST_REQUIRE(request.get_data_sets() == std::vector<odil::DataSet>({data_sets[0]}));
 }
 
 BOOST_FIXTURE_TEST_CASE(Equality, Fixture)
