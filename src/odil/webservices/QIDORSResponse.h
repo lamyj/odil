@@ -23,7 +23,6 @@ namespace webservices
 {
 
 /// @brief QIDO-RS response generator and parser.
-// TODO : Wrap me
 class QIDORSResponse
 {
 public:

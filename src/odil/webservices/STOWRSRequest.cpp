@@ -44,8 +44,8 @@ namespace webservices
 
 STOWRSRequest
 ::STOWRSRequest(URL const & base_url)
-    : _base_url(base_url), _selector(), _url(), _media_type(""),
-      _representation(), _data_sets()
+    : _base_url(base_url), _transfer_syntax(""), _selector(), _url(),
+      _media_type(""), _representation(), _data_sets()
 {
     // Nothing else.
 }
@@ -112,10 +112,9 @@ STOWRSRequest
                     // get the transfer syntax in the ContentType header
                     auto const transfer_syntax_it = header_content_type.name_parameters.find(
                         "transfer-syntax");
-                    std::string transfer_syntax;
                     if(transfer_syntax_it != header_content_type.name_parameters.end())
                     {
-                        transfer_syntax = transfer_syntax_it->second;
+                        this->_transfer_syntax = transfer_syntax_it->second;
                     }
                     else
                     {
@@ -157,10 +156,9 @@ STOWRSRequest
                     // get the transfer syntax in the ContentType header
                     auto const transfer_syntax_it = header_content_type.name_parameters.find(
                         "transfer-syntax");
-                    std::string transfer_syntax;
                     if(transfer_syntax_it != header_content_type.name_parameters.end())
                     {
-                        transfer_syntax = transfer_syntax_it->second;
+                        this->_transfer_syntax = transfer_syntax_it->second;
                     }
                     else
                     {
@@ -173,7 +171,10 @@ STOWRSRequest
                     {
                         throw Exception("Body must be an array");
                     }
-                    this->get_data_sets().push_back(as_dataset(array[0]));
+                    for (auto const json : array)
+                    {
+                        this->get_data_sets().push_back(as_dataset(json));
+                    }
                 }
                 else
                 {
@@ -203,6 +204,7 @@ STOWRSRequest
 {
     return(
         this->_base_url == other._base_url
+        && this->_transfer_syntax == other._transfer_syntax
         && this->_selector == other._selector
         && this->_url == other._url
         && this->_data_sets == other._data_sets
@@ -271,7 +273,7 @@ STOWRSRequest
 void
 STOWRSRequest
 ::request_dicom(std::vector<DataSet> const & data_sets, Selector const & selector,
-                Representation const & representation)
+                Representation const & representation, std::string const & transfer_syntax)
 {
     switch (representation)
     {
@@ -282,10 +284,12 @@ STOWRSRequest
     case Representation::DICOM_XML :
         this->_representation = Representation::DICOM_XML;
         this->_media_type = "application/dicom+xml";
+        this->_transfer_syntax = transfer_syntax;
         break;
     case Representation::DICOM_JSON :
         this->_representation = Representation::DICOM_JSON;
         this->_media_type = "application/dicom+json";
+        this->_transfer_syntax = transfer_syntax;
         break;
     default :
         throw Exception("Invalid representation");
@@ -329,6 +333,20 @@ STOWRSRequest
 ::set_base_url(URL const & url)
 {
     this->_base_url = url;
+}
+
+std::string const &
+STOWRSRequest
+::get_transfer_syntax() const
+{
+    return this->_transfer_syntax;
+}
+
+void
+STOWRSRequest
+::set_transfer_syntax(std::string const & transfer_syntax)
+{
+    this->_transfer_syntax = transfer_syntax;
 }
 
 std::string const &
@@ -420,19 +438,21 @@ STOWRSRequest
                 { bulk_data.data.begin(), bulk_data.data.end() }
                 );
             };
-        auto const default_transfer_syntax =
-            odil::registry::ExplicitVRLittleEndian;
-        auto const accumulator_meta_data =
-            [default_transfer_syntax](DataSet const & data_set)
-            {
-                Json::Value json;
-                json.resize(1);
-                json[0] = as_json(data_set);
-                auto const transfer_syntax =
-                    data_set.get_transfer_syntax().empty()
-                        ?default_transfer_syntax
-                        :data_set.get_transfer_syntax();
+        auto const transfer_syntax = this->_transfer_syntax;
+        int meta_data_count = 0;
+        // Here we use a vector only to keep the same behaviour for accumulate_parts
+        std::vector<Json::Value> json_vec;
+        Json::Value json;
+        json.resize(this->_data_sets.size());
+        for (auto const data_set : copy )
+        {
+            json[meta_data_count++] = as_json(data_set);
+        }
+        json_vec.push_back(json);
 
+        auto const accumulator_meta_data =
+            [transfer_syntax](Json::Value const & json_)
+            {
                 Json::FastWriter writer;
                 return Message(
                     {{
@@ -441,14 +461,14 @@ STOWRSRequest
                             "application/dicom+json",
                             {{"transfer-syntax", transfer_syntax}})
                     }},
-                    writer.write(json)
+                    writer.write(json_)
                 );
             };
         auto const boundary = random_boundary();
         std::ostringstream body;
         // add here first the meta_data
         accumulate_parts(
-            copy.begin(), copy.end(),
+            json_vec.begin(), json_vec.end(),
             accumulator_meta_data, body, boundary);
         // add then the bulk data
         if (!bulk_data.empty())
@@ -499,10 +519,9 @@ STOWRSRequest
                 );
             };
 
-        auto const default_transfer_syntax =
-            odil::registry::ExplicitVRLittleEndian;
+        auto const transfer_syntax = this->_transfer_syntax;
         auto const accumulator_meta_data =
-            [default_transfer_syntax](DataSet const & data_set)
+            [transfer_syntax](DataSet const & data_set)
             {
                 auto const xml = as_xml(data_set);
                 std::ostringstream stream;
@@ -514,11 +533,6 @@ STOWRSRequest
 #endif
 
                 boost::property_tree::write_xml(stream, xml, SettingsType());
-
-                auto const transfer_syntax =
-                    data_set.get_transfer_syntax().empty()
-                        ?default_transfer_syntax
-                        :data_set.get_transfer_syntax();
 
                 return Message(
                     {{

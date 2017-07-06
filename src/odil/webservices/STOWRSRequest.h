@@ -15,6 +15,7 @@
 #include <boost/uuid/uuid.hpp>
 
 #include "odil/DataSet.h"
+#include "odil/registry.h"
 #include "odil/webservices/BulkData.h"
 #include "odil/webservices/HTTPRequest.h"
 #include "odil/webservices/Selector.h"
@@ -27,7 +28,6 @@ namespace odil
 namespace webservices
 {
 /// @brief STOW-RS request generator and parser.
-// TODO : Wrap me
 class ODIL_API STOWRSRequest
 {
 
@@ -52,6 +52,12 @@ public:
 
     /// @brief Set the base url.
     void set_base_url(URL const & url);
+
+    /// @brief Return the transfer syntax.
+    std::string const & get_transfer_syntax() const;
+
+    /// @brief Set the transfer syntax.
+    void set_transfer_syntax(std::string const & transfer_syntax);
 
     /// @brief Return the media type.
     std::string const & get_media_type() const;
@@ -79,13 +85,15 @@ public:
      * and a representation corresponding to the way the request will be encoded
      */
     void request_dicom(std::vector<DataSet> const & data_sets, Selector const & selector,
-                       Representation const & representation);
+                       Representation const & representation,
+                       std::string const & transfer_syntax=odil::registry::ExplicitVRLittleEndian);
 
     /// @brief Generate the associated HTTP request.
     HTTPRequest get_http_request() const;
 
 private:
     URL _base_url;
+    std::string _transfer_syntax;
     Selector _selector;
     URL _url;
     std::string _media_type;

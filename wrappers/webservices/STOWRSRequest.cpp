@@ -48,7 +48,7 @@ wrap_webservices_STOWRSRequest()
 
     class_<STOWRSRequest>(
         "STOWRSRequest", no_init)
-        .def(init<URL>())
+        .def(init<URL>((arg("base_url")=URL())))
         .def(init<HTTPRequest>())
         .def(self == self)
         .def(self != self)
