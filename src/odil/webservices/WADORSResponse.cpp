@@ -33,21 +33,6 @@
 #include "odil/Writer.h"
 #include "odil/xml_converter.h"
 
-namespace
-{
-
-std::vector<odil::DataSet>
-multipart_converter(
-    std::function<odil::DataSet(std::string const &)> part_converter,
-    std::string const & body)
-{
-    std::vector<odil::DataSet> data_sets;
-
-    return data_sets;
-}
-
-}
-
 namespace odil
 {
 
@@ -112,11 +97,11 @@ WADORSResponse
         }
 
         auto const converter =
-            [&transfer_syntax](Message const & part)
+            [](Message const & part)
             {
                 std::stringstream stream(part.get_body());
-                Reader reader(stream, transfer_syntax);
-                return reader.read_data_set();
+                auto const data_set_and_header = Reader::read_file(stream);
+                return data_set_and_header.first;
             };
 
         transform_parts(

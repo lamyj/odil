@@ -9,7 +9,8 @@ set(odil_VERSION
 
 option(BUILD_SHARED_LIBS "Build Odil with shared libraries." ON)
 option(BUILD_EXAMPLES "Build the examples directory." ON)
-option(BUILD_WRAPPERS "Build the Python Wrappers." ON)
+option(BUILD_PYTHON_WRAPPERS "Build the Python Wrappers." ON)
+option(BUILD_JAVASCRIPT_WRAPPERS "Build the Javascript Wrappers." OFF)
 
 option(WITH_DCMTK "Build the DCMTK converter" ON)
 option(
@@ -60,8 +61,12 @@ if(BUILD_TESTING)
     add_subdirectory("tests")
 endif()
 
-if(BUILD_WRAPPERS)
-    add_subdirectory("wrappers")
+if(BUILD_PYTHON_WRAPPERS)
+    add_subdirectory("wrappers/python")
+endif()
+
+if(BUILD_JAVASCRIPT_WRAPPERS)
+    add_subdirectory("wrappers/js")
 endif()
 
 add_custom_target(

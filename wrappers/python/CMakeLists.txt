@@ -14,7 +14,7 @@ if(BUILD_SHARED_LIBS)
 endif()
 
 include_directories(
-    ${CMAKE_CURRENT_SOURCE_DIR}/../src ${Boost_INCLUDE_DIRS}
+    ${CMAKE_SOURCE_DIR}/src ${Boost_INCLUDE_DIRS}
     ${JsonCpp_INCLUDE_DIRS} ${PYTHON_INCLUDE_DIRS})
 link_directories(${Boost_LIBRARY_DIRS})
 

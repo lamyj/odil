@@ -1,0 +1,80 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <script src="print.js"></script>
+        <script src="wado.js"></script>
+        <style type="text/css">
+            label[for="baseUrl"],
+                label[for="study"], label[for="series"], label[for="instance"],
+                label[for="representation"] {
+                display: inline-block;
+                text-align: right;
+                width: 7em;
+            }
+            #study, #series, #instance {
+                width: 40em;
+            }
+        </style>
+    </head>
+    
+    <body>
+        <form action="" method="get" name="wado">
+            <fieldset>
+                <label for="baseUrl">Base URL:</label>
+                <input type="text" id="baseUrl" name="baseUrl" value="http://localhost:5000"/><br>
+                
+                <label for="study">Study:</label>
+                <input type="text" id="study" name="study" value="1.2.392.200036.9123.100.12.11.12029.200707248120151"/><br>
+                
+                <label for="series">Series:</label>
+                <input type="text" id="series" name="series" value="1.2.392.200036.9123.100.12.11.12029.20070724125001.1"/><br>
+                
+                <label for="instance">Instance:</label>
+                <input type="text" id="instance" name="instance" value="1.2.392.200036.9123.100.12.11.12029.20070724125001.1.2"/><br>
+                
+                <label for="representation">Representation:</label>
+                <input type="radio" name="representation" value="dicom" id="representation__dicom" checked="checked">
+                <label for="representation__dicom">DICOM</label>
+                <input type="radio" name="representation" value="xml" id="representation__xml">
+                <label for="representation__xml">XML</label>
+                <input type="radio" name="representation" value="json" id="representation__json">
+                <label for="representation__json">JSON</label><br>
+                
+                <input type="button" id="retrieve" value="Retrieve">
+            </fieldset>
+        </form>
+        
+        <nav>
+            <span id="previous">&larr;</span>
+            <span id="pagination"></span>
+            <span id="next">&rarr;</span>
+        </nav>
+        
+        <div id="dataSet">
+            <canvas id="pixelData"></canvas>
+            <ul id="elements"></ul>
+        </div>
+        
+        <script>
+        function main() {
+            window.odil = Module;
+            window.state = {
+                'dataSets': new odil.DataSets(),
+                'current': null,
+            };
+            document.querySelector('#retrieve').addEventListener(
+                'click', onRetrieve);
+            document.querySelector('#previous').addEventListener(
+                'click', onPrevious);
+            document.querySelector('#next').addEventListener('click', onNext);
+            updateGui();
+        }
+        
+        var Module = {
+            onRuntimeInitialized: main
+        };
+    </script>
+    <script src="odil.js"></script>
+    </body>
+</html>

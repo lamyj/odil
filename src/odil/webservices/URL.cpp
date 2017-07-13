@@ -11,7 +11,9 @@
 #include <sstream>
 #include <string>
 
-#include <boost/regex.hpp>
+#include <boost/fusion/adapted/struct/adapt_struct.hpp>
+#include <boost/fusion/include/adapt_struct.hpp>
+#include <boost/spirit/include/qi.hpp>
 
 #include "odil/Exception.h"
 
@@ -74,41 +76,37 @@ URL
 URL
 ::parse(std::string const & string)
 {
-    // RFC 3986, Appendix B
-    boost::regex const regex(
-        "^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\\?([^#]*))?(#(.*))?");
-    boost::smatch match;
-    auto const matched = boost::regex_match(string, match, regex);
+    namespace qi = boost::spirit::qi;
+    typedef std::string::const_iterator Iterator;
+    
+    qi::rule<Iterator, std::string()> scheme = +~qi::char_(":/?#");
+    qi::rule<Iterator, std::string()> authority = +~qi::char_("/?#");
+    qi::rule<Iterator, std::string()> path = *~qi::char_("?#");
+    qi::rule<Iterator, std::string()> query = +~qi::char_("#");
+    qi::rule<Iterator, std::string()> fragment = +qi::char_;
+    
+    // RFC 3986, Appendix B 
+    boost::fusion::vector<
+        std::string, std::string, std::string, std::string, std::string> url_value;
 
-    if(!matched)
-    {
-        throw odil::Exception("Invalid URL");
-    }
+    auto const ok = qi::parse(
+        string.begin(), string.end(), 
+            -(scheme >> ":") >> -("//" >> authority)
+            >> path >> -( "?" >> query) >> -( "#" >> fragment), 
+        url_value);
 
-    URL url;
-
-    if(match[2].matched)
+    if(!ok)
     {
-        url.scheme = std::string(match[2].first, match[2].second);
-    }
-    if(match[4].matched)
-    {
-        url.authority = std::string(match[4].first, match[4].second);
-    }
-    if(match[5].matched)
-    {
-        url.path = std::string(match[5].first, match[5].second);
-    }
-    if(match[7].matched)
-    {
-        url.query = std::string(match[7].first, match[7].second);
-    }
-    if(match[9].matched)
-    {
-        url.fragment = std::string(match[9].first, match[9].second);
+        throw Exception("Could not parse URL");
     }
 
-    return url;
+    return URL{
+        boost::fusion::at_c<0>(url_value),
+        boost::fusion::at_c<1>(url_value),
+        boost::fusion::at_c<2>(url_value),
+        boost::fusion::at_c<3>(url_value),
+        boost::fusion::at_c<4>(url_value)
+    };
 }
 
 }

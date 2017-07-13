@@ -27,9 +27,6 @@ void wrap_GetSCU();
 void wrap_json_converter();
 void wrap_MoveSCP();
 void wrap_MoveSCU();
-void wrap_NCreateSCP();
-void wrap_NSetSCP();
-void wrap_NSetSCU();
 void wrap_read();
 void wrap_SCPDispatcher();
 void wrap_StoreSCU();
@@ -46,8 +43,6 @@ void wrap_xml_converter();
 void wrap_registry();
 
 void wrap_Message();
-void wrap_CommandTypeEnum();
-void wrap_ResponseStatus();
 void wrap_Request();
 void wrap_Response();
 void wrap_CEchoRequest();
@@ -84,11 +79,7 @@ BOOST_PYTHON_MODULE(odil)
     wrap_json_converter();
     wrap_MoveSCP();
     wrap_MoveSCU();
-    wrap_NCreateSCP();
-    wrap_NSetSCP();
-    wrap_NSetSCU();
     wrap_read();
-    wrap_SCPDispatcher();
     wrap_StoreSCP();
     wrap_StoreSCU();
     wrap_Tag();
@@ -103,8 +94,6 @@ BOOST_PYTHON_MODULE(odil)
     wrap_registry();
 
     wrap_Message();
-    wrap_CommandTypeEnum();
-    wrap_ResponseStatus();
     wrap_Request();
     wrap_Response();
     wrap_CEchoRequest();
