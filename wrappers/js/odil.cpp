@@ -50,8 +50,9 @@ void wrap_VR();
 void wrap_webservices_HTTPRequest();
 void wrap_webservices_HTTPResponse();
 void wrap_webservices_Message();
+void wrap_webservices_Selector();
 void wrap_webservices_URL();
-void wrap_webservices_WADORS();
+void wrap_webservices_Utils();
 void wrap_webservices_WADORSRequest();
 void wrap_webservices_WADORSResponse();
 
@@ -81,9 +82,9 @@ EMSCRIPTEN_BINDINGS(odil)
     wrap_webservices_Message();
     wrap_webservices_HTTPRequest();
     wrap_webservices_HTTPResponse();
-    
+    wrap_webservices_Selector();
     wrap_webservices_URL();
-    wrap_webservices_WADORS();
+    wrap_webservices_Utils();
     wrap_webservices_WADORSRequest();
     wrap_webservices_WADORSResponse();
     

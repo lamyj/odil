@@ -101,7 +101,7 @@ WADORSResponse
             {
                 std::stringstream stream(part.get_body());
                 auto const data_set_and_header = Reader::read_file(stream);
-                return data_set_and_header.first;
+                return data_set_and_header.second;
             };
 
         transform_parts(

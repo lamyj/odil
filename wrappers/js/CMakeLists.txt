@@ -21,6 +21,10 @@ if(NOT EXISTS "${CMAKE_CURRENT_BINARY_DIR}/jsoncpp-1.8.0/dist/jsoncpp.cpp")
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/jsoncpp-1.8.0)
 endif()
 
+if (NOT EXISTS "${CMAKE_CURRENT_BINARY_DIR}/boost")
+    execute_process( COMMAND ln -s ${Boost_INCLUDE_DIRS}/boost ${CMAKE_CURRENT_BINARY_DIR})
+endif()
+
 set(icu_files
     "${CMAKE_CURRENT_BINARY_DIR}/icu/source/common/bytestream.cpp"
     "${CMAKE_CURRENT_BINARY_DIR}/icu/source/common/charstr.cpp"
@@ -87,6 +91,7 @@ set(odil_files
     "${CMAKE_SOURCE_DIR}/src/odil/webservices/ItemWithParameters.cpp"
     "${CMAKE_SOURCE_DIR}/src/odil/webservices/Message.cpp"
     "${CMAKE_SOURCE_DIR}/src/odil/webservices/multipart_related.cpp"
+    "${CMAKE_SOURCE_DIR}/src/odil/webservices/Selector.cpp"
     "${CMAKE_SOURCE_DIR}/src/odil/webservices/URL.cpp"
     "${CMAKE_SOURCE_DIR}/src/odil/webservices/WADORSRequest.cpp"
     "${CMAKE_SOURCE_DIR}/src/odil/webservices/WADORSResponse.cpp")
@@ -98,7 +103,7 @@ set(CMAKE_CXX_COMPILER em++)
 set(CMAKE_AR emar)
 set(CMAKE_RANLIB emranlib)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --bind")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --bind -s ALLOW_MEMORY_GROWTH=1")
 
 set(CMAKE_C_CREATE_STATIC_LIBRARY "<CMAKE_AR> rc <TARGET> <LINK_FLAGS> <OBJECTS>")
 set(CMAKE_CXX_CREATE_STATIC_LIBRARY "<CMAKE_AR> rc <TARGET> <LINK_FLAGS> <OBJECTS>")
@@ -110,6 +115,7 @@ add_definitions(
 
 include_directories(
     ${Boost_INCLUDE_DIRS}
+    ${CMAKE_CURRENT_BINARY_DIR}
     ${CMAKE_CURRENT_BINARY_DIR}/icu/source/common
     ${CMAKE_CURRENT_BINARY_DIR}/jsoncpp-1.8.0/dist/
     ${CMAKE_SOURCE_DIR}/src)

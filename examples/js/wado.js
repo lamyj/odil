@@ -21,29 +21,54 @@ function onNext(event) {
 function getWADORequest() {
     var baseUrl = odil.webservices.URL.parse(
         document.querySelector('#baseUrl').value);
-    
-    var selector = new odil.webservices.WADORSRequest.Selector();
-    var selectorFields = ['study', 'series', 'instance'];
-    for(var i=0; i<selectorFields.length; ++i) {
-        var field = selectorFields[i];
-        
-        var value = document.querySelector('#'+field).value;
-        if(value !== '') {
-            selector[field] = value;
-        }
+    var selector = new odil.webservices.Selector();
+    // Set study
+    var study = document.querySelector('#study').value;
+    if (study !== '')
+    {
+        selector.set_study(study);
+    }
+    // Set series
+    var series = document.querySelector('#series').value;
+    if (series !== '')
+    {
+        selector.set_series(series);
+    }
+    // Set instance
+    var instance = document.querySelector('#instance').value;
+    if (instance !== '')
+    {
+        selector.set_instance(instance);
     }
     
     var wadoRequest = new odil.webservices.WADORSRequest(
         baseUrl, '', '', false, false);
-    
+    var repr_dcm = document.querySelector('#representation__dicom');
+    var repr_xml = document.querySelector('#representation__xml');
+    var repr_json = document.querySelector('#representation__json');
+
+    // for the moment only DICOM representation is handled
+    var repr = odil.webservices.Utils.Representation.DICOM;
+//    if(repr_dcm.checked)
+//    {
+//        repr = odil.webservices.Utils.Representation.DICOM;
+//    }
+//    else if (repr_xml.checked)
+//    {
+//        repr = odil.webservices.Utils.Representation.DICOM_XML;
+//    }
+//    else // if (repr_json.checked())
+//    {
+//        repr = odil.webservices.Utils.Representation.DICOM_JSON;
+//    }
+
     wadoRequest.request_dicom(
-        odil.webservices.WADORS.Representation.DICOM, selector);
+        repr, selector);
     return wadoRequest;
 }
 
 function getXMLHttpRequest(wadoRequest) {
     var httpRequest = wadoRequest.get_http_request();
-    
     var xhr = new XMLHttpRequest();
     xhr.addEventListener('load', function(event) {
         var xhr = event.target;
@@ -93,8 +118,8 @@ function updateGui() {
         })
         
         var dataSet = window.state['dataSets'].get(window.state['current']);
-        
         renderDataSet(dataSet, document.querySelector('#elements'));
+
         var pixelDataCanvas = document.querySelector('#pixelData');
         if(dataSet.has(odil.getTag('PixelData'))) {
             var rows = dataSet.as_int(odil.getTag('Rows')).get(0);

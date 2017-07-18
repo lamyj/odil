@@ -27,17 +27,6 @@ void wrap_webservices_WADORSRequest()
     using namespace emscripten;
     using namespace odil::webservices;
     
-    class_<WADORSRequest::Selector>("webservices_WADORSRequest_Selector")
-        .constructor<>()
-        .property("study", &WADORSRequest::Selector::study)
-        .property("series", &WADORSRequest::Selector::series)
-        .property("instance", &WADORSRequest::Selector::instance)
-        .property("frames", &WADORSRequest::Selector::frames)
-        .function("equal", &WADORSRequest::Selector::operator==)
-        .function("notEqual", &WADORSRequest::Selector::operator!=)
-        .function("get_path", &WADORSRequest::Selector::get_path)
-    ;
-    
     class_<WADORSRequest>("webservices_WADORSRequest")
         .constructor<URL, std::string, std::string, bool, bool>()
         .class_function("fromHTTPRequest", &WADORSRequest_fromHTTPRequest)
@@ -78,10 +67,5 @@ void wrap_webservices_WADORSRequest()
             Module['webservices_WADORSRequest'];
         delete Module['webservices_WADORSRequest'];
     );
-    
-    EM_ASM(
-        Module['webservices']['WADORSRequest']['Selector'] = 
-            Module['webservices_WADORSRequest_Selector'];
-        delete Module['webservices_WADORSRequest_Selector'];
-    );
+
 }

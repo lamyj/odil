@@ -9,35 +9,35 @@
 #include <emscripten.h>
 #include <emscripten/bind.h>
 
-#include "odil/webservices/WADORS.h"
+#include "odil/webservices/Utils.h"
 
-void wrap_webservices_WADORS()
+void wrap_webservices_Utils()
 {
     using namespace emscripten;
-    using namespace odil::webservices::WADORS;
-    
-    enum_<Type>("webservices_WADORS_Type")
+    using namespace odil::webservices;
+
+    enum_<Type>("webservices_Utils_Type")
         .value("None", Type::None)
         .value("DICOM", Type::DICOM)
         .value("BulkData", Type::BulkData)
         .value("PixelData", Type::PixelData)
     ;
 
-    enum_<Representation>("webservices_WADORS_Representation")
+    enum_<Representation>("webservices_Utils_Representation")
         .value("DICOM", Representation::DICOM)
         .value("DICOM_XML", Representation::DICOM_XML)
         .value("DICOM_JSON", Representation::DICOM_JSON)
     ;
 
     EM_ASM(
-        Module['webservices']['WADORS'] = {};
-        
-        Module['webservices']['WADORS']['Type'] = 
-            Module['webservices_WADORS_Type'];
-        delete Module['webservices_WADORS_Type'];
-        
-        Module['webservices']['WADORS']['Representation'] = 
-            Module['webservices_WADORS_Representation'];
-        delete Module['webservices_WADORS_Representation'];
+        Module['webservices']['Utils'] = {};
+
+        Module['webservices']['Utils']['Type'] =
+            Module['webservices_Utils_Type'];
+        delete Module['webservices_Utils_Type'];
+
+        Module['webservices']['Utils']['Representation'] =
+            Module['webservices_Utils_Representation'];
+        delete Module['webservices_Utils_Representation'];
     );
 }
