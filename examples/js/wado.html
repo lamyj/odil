@@ -45,13 +45,14 @@
             </fieldset>
         </form>
         
-        <nav>
-            <span id="previous">&larr;</span>
-            <span id="pagination"></span>
-            <span id="next">&rarr;</span>
-        </nav>
-        
+        <p id="info"></p>
+        <div id="Result">
+            Result : </br>
+            <ul id="Study">
+            </ul>
+        </div>
         <div id="dataSet">
+            Choosen DataSet: </br>
             <canvas id="pixelData"></canvas>
             <ul id="elements"></ul>
         </div>
@@ -61,14 +62,9 @@
             window.odil = Module;
             window.state = {
                 'dataSets': new odil.DataSets(),
-                'current': null,
             };
             document.querySelector('#retrieve').addEventListener(
                 'click', onRetrieve);
-            document.querySelector('#previous').addEventListener(
-                'click', onPrevious);
-            document.querySelector('#next').addEventListener('click', onNext);
-            updateGui();
         }
         
         var Module = {

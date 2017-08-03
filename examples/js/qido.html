@@ -1,0 +1,114 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <script src="print.js"> </script>
+        <script src="qido.js"> </script>
+        <style type="text/css">
+            label[for="baseUrl"], label[for="studyInstanceUID"],
+            label[for="seriesInstanceUID"], label[for="patientName"],
+            label[for="seriesDescription"], label[for="studyDescription"]{
+            display: inline-block;
+            text-align: right;
+            width: 11em;
+        }
+        </style>
+    </head>
+
+    <body>
+
+        <select id="retrieve_level" onchange="onRetrieveLevelChange()">
+            <option value="studies" selected="selected">SearchForStudies
+            <option value="series">SearchForSeries
+            <option value="instances">SearchForInstances
+        </select>
+        <form action="" method="get" name="qido">
+            <fieldset id="fiedlset">
+                <label for="baseUrl">Base URL:</label>
+                <input type="text" id="baseUrl" name="baseUrl" value="http://localhost:5000"/><br>
+                <label for="studyInstanceUID">Study Instance UID: </label>
+                <input type="text" id="studyInstanceUID" name="studyInstanceUID" disabled="true" value=""/><br>
+                <label for="seriesInstanceUID">Series Instance UID: </label>
+                <input type="text" id="seriesInstanceUID" name="seriesInstanceUID" disabled="true" value=""/><br>
+                <label for="patientName">PatientName: </label>
+                <input type="text" id="patientName" name="patientName" value=""/><br>
+                <label for="studyDescription">StudyDescription: </label>
+                <input type="text" id="studyDescription" name="studyDescription" value=""/><br>
+                <label for="seriesDescription">SeriesDescription: </label>
+                <input type="text" id="seriesDescription" name="seriesDescription" value=""/><br>
+                <input type="button" id="retrieve" value="Retrieve" onclick="onRetrieveClick()">
+            </fieldset>
+        </form>
+
+        <p id="info"></p>
+        <div id="Result">
+            <ul id="Study">
+            </ul>
+        </div>
+
+        <script>
+            function onRetrieveClick()
+            {
+                var form = document.forms["qido"]
+                for(var i=0; i < form.elements.length; i++)
+                {
+                    if(form.elements[i].value === '' && form.elements[i].required)
+                    {
+                        alert('There are some required fields!');
+                        return false;
+                    }
+                }
+                onRetrieve();
+            }
+            function onRetrieveLevelChange()
+            {
+                //reset();
+                var x = document.getElementById("retrieve_level").value;
+                var form = document.forms["qido"];
+                var studyInstanceUID = document.forms["qido"]["studyInstanceUID"];
+                var seriesInstanceUID = document.forms["qido"]["seriesInstanceUID"];
+
+                console.log
+                if (x === "studies")
+                {
+                    studyInstanceUID.disabled = true;
+                    seriesInstanceUID.disabled = true;
+                }
+                if (x === "series")
+                {
+                    studyInstanceUID.disabled = false;
+                    seriesInstanceUID.disabled = true;
+                    studyInstanceUID.required = true;
+                }
+                else if (x === "instances")
+                {
+                    studyInstanceUID.disabled = false;
+                    seriesInstanceUID.disabled = false;
+                    studyInstanceUID.required = true;
+                    seriesInstanceUID.required = true;
+                }
+            }
+            function reset()
+            {
+                var patientName = document.forms["qido"]["patientName"];
+                var studyDescription = document.forms["qido"]["studyDescription"];
+                var seriesDescription = document.forms["qido"]["seriesDescription"];
+                patientName.required = false;
+                studyDescription.required = false;
+                seriesDescription.required = false;
+            }
+
+            function main() {
+                reset();
+                window.odil = Module;
+                window.state = {
+                    'dataSets': new odil.DataSets()
+                };
+             }
+            var Module = {
+                onRuntimeInitialized: main
+            };
+        </script>
+        <script src="odil.js"></script>
+    </body>
+</html>

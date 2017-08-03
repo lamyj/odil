@@ -1,21 +1,12 @@
 function onRetrieve(event) {
+    document.querySelector('#Study').innerHTML = '';
+    document.querySelector("#elements").innerHTML = '';
+    document.querySelector("#pixelData").width = 0;
+    document.querySelector("#pixelData").height = 0;
+    document.querySelector("#info").innerHTML = '';
     var wadoRequest = getWADORequest();
     var xhr = getXMLHttpRequest(wadoRequest);
     xhr.send();
-}
-
-function onPrevious(event) {
-    if(window.state['current'] > 0) {
-        window.state['current'] -= 1;
-        updateGui();
-    }
-}
-
-function onNext(event) {
-    if(window.state['current'] < window.state['dataSets'].size()-1) {
-        window.state['current'] += 1;
-        updateGui();
-    }
 }
 
 function getWADORequest() {
@@ -81,7 +72,6 @@ function getXMLHttpRequest(wadoRequest) {
         var wadoResponse = odil.webservices.WADORSResponse.fromHTTPResponse(
             httpResponse);
         window.state['dataSets'] = wadoResponse.get_data_sets();
-        window.state['current'] = 0;
         
         updateGui();
     });
@@ -98,40 +88,99 @@ function getXMLHttpRequest(wadoRequest) {
     return xhr;
 }
 
-function updateGui() {
-    if(window.state['dataSets'].size() === 0) {
-        document.querySelector('#pagination').textContent = '(no data set)';
-        document.querySelector('#pagination').style['color'] = 'gray';
-        
-        ['#previous', '#next', '#dataSet'].forEach(function(x) {
-            document.querySelector(x).style['visibility'] = 'hidden';
-        })
+function updateGui()
+{
+    var ds = window.state['dataSets'];
+    document.querySelector("#info").textContent = "Found "+ds.size()+" dataSet(s)";
+
+    var tag_studyInstanceUID = new odil.Tag(32,13);
+    var tag_seriesInstanceUID = new odil.Tag(32,14);
+    var tag_sopInstanceUID = new odil.Tag(8,24);
+
+    for (var i = 0; i < ds.size(); i++)
+    {
+        var sopInstanceUID = ds.get(i).as_string(tag_sopInstanceUID).get(0);
+        if (ds.get(i).has(tag_studyInstanceUID) && document.getElementById(sopInstanceUID) === null)
+        {
+            // append to the wanted study
+            // 1 . find li with SeriesUID id
+            var studyUID = ds.get(i).as_string(tag_studyInstanceUID).get(0);
+            var study_item = document.getElementById(studyUID);
+            var series_ul = document.getElementById("Study"+studyUID+"-Series");
+            var study_list = document.getElementById("Study");
+            if (study_item === null)
+            {
+                study_item = document.createElement("li");
+                study_item.id = studyUID;
+                study_item.appendChild(document.createTextNode("Study "+ studyUID));
+                series_ul = document.createElement("ul");
+                series_ul.id = "Study"+studyUID+"-Series";
+            }
+
+            // append series
+            if (ds.get(i).has(tag_seriesInstanceUID))
+            {
+                var seriesUID = ds.get(i).as_string(tag_seriesInstanceUID).get(0);
+                var series_item = document.getElementById(seriesUID);
+                var instance_ul = document.getElementById("Series"+seriesUID+"-Instances");
+                if (series_item === null)
+                {
+                    series_item = document.createElement("li");
+                    series_item.id = seriesUID;
+                    series_item.appendChild(document.createTextNode("Series "+seriesUID));
+                    instance_ul = document.createElement("ul");
+                    instance_ul.id = "Series"+seriesUID+"-Instances";
+                }
+
+
+                // append Instance
+                var instance_item = document.createElement("li");
+                instance_item.id  = sopInstanceUID;
+                var instance_link = document.createElement("a");
+                instance_link.innerHTML = "Instance "+sopInstanceUID;
+                instance_link.dataset.id = i;
+                instance_link.href = "#";
+                instance_link.addEventListener("click",displayDs);
+                instance_item.appendChild(instance_link);
+                instance_ul.appendChild(instance_item);
+                series_item.append(instance_ul);
+
+
+                // append Elements in the right order
+                series_ul.appendChild(series_item);
+                study_item.appendChild(series_ul);
+            }
+            else
+            {
+                // add into "Unknow Series"
+            }
+            study_list.appendChild(study_item);
+        }
+    }
+}
+
+
+function displayDs(event)
+{
+    document.querySelector("#elements").innerHTML = '';
+    document.querySelector("#pixelData").width = 0;
+    document.querySelector("#pixelData").height = 0;
+
+    var idx = event.target.dataset.id;
+    var dataSet = window.state['dataSets'].get(Number(idx));
+    renderDataSet(dataSet, document.querySelector('#elements'));
+
+    var pixelDataCanvas = document.querySelector('#pixelData');
+    if(dataSet.has(odil.getTag('PixelData'))) {
+        var rows = dataSet.as_int(odil.getTag('Rows')).get(0);
+        var columns = dataSet.as_int(odil.getTag('Columns')).get(0);
+        pixelDataCanvas.width = columns;
+        pixelDataCanvas.height = rows;
+        var context = pixelDataCanvas.getContext('2d');
+        putDataSetImage(dataSet, context);
     }
     else {
-        document.querySelector('#pagination').textContent = 
-            1+window.state['current'] 
-            + '/' + window.state['dataSets'].size();
-        document.querySelector('#pagination').style['color'] = 'black';
-        
-        ['#previous', '#next', '#dataSet'].forEach(function(x) {
-            document.querySelector(x).style['visibility'] = 'visible';
-        })
-        
-        var dataSet = window.state['dataSets'].get(window.state['current']);
-        renderDataSet(dataSet, document.querySelector('#elements'));
-
-        var pixelDataCanvas = document.querySelector('#pixelData');
-        if(dataSet.has(odil.getTag('PixelData'))) {
-            var rows = dataSet.as_int(odil.getTag('Rows')).get(0);
-            var columns = dataSet.as_int(odil.getTag('Columns')).get(0);
-            pixelDataCanvas.width = columns;
-            pixelDataCanvas.height = rows;
-            var context = pixelDataCanvas.getContext('2d');
-            putDataSetImage(dataSet, context);
-        }
-        else {
-            pixelDataCanvas.width = 0;
-            pixelDataCanvas.height = 0;
-        }
+        pixelDataCanvas.width = 0;
+        pixelDataCanvas.height = 0;
     }
 }

@@ -91,6 +91,8 @@ set(odil_files
     "${CMAKE_SOURCE_DIR}/src/odil/webservices/ItemWithParameters.cpp"
     "${CMAKE_SOURCE_DIR}/src/odil/webservices/Message.cpp"
     "${CMAKE_SOURCE_DIR}/src/odil/webservices/multipart_related.cpp"
+    "${CMAKE_SOURCE_DIR}/src/odil/webservices/QIDORSRequest.cpp"
+    "${CMAKE_SOURCE_DIR}/src/odil/webservices/QIDORSResponse.cpp"
     "${CMAKE_SOURCE_DIR}/src/odil/webservices/Selector.cpp"
     "${CMAKE_SOURCE_DIR}/src/odil/webservices/URL.cpp"
     "${CMAKE_SOURCE_DIR}/src/odil/webservices/WADORSRequest.cpp"

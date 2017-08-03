@@ -11,6 +11,18 @@
 
 #include "odil/webservices/Selector.h"
 
+namespace
+{
+
+odil::webservices::Selector
+Selector_fromMap(std::map<std::string, std::string> const & path,
+                 std::vector<int> const & frames)
+{
+    return odil::webservices::Selector(path, frames);
+}
+
+}
+
 
 void wrap_webservices_Selector()
 {
@@ -19,6 +31,7 @@ void wrap_webservices_Selector()
 
     class_<Selector>("webservices_Selector")
         .constructor<>()
+        .class_function("fromMap", &Selector_fromMap)
         .constructor<std::map<std::string, std::string>, std::vector<int>>()
         .function("get_study", &Selector::get_study)
         .function("get_series", &Selector::get_series)
