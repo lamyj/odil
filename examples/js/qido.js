@@ -39,40 +39,23 @@ function getQIDORequest()
     var patientName = document.getElementById("patientName").value;
     var studyDescription = document.getElementById("studyDescription").value;
     var seriesDescription = document.getElementById("seriesDescription").value;
-    var json_txt = '[{';
-    var first = true;
+    var queryElement = {};
     if (patientName !== "")
     {
-        // insert element in JSOn array here
-        json_txt += '"00100010":{"Value":[{"Alphabetic":"' + patientName + '"}],"vr":"PN"}';
-        first = false;
+        queryElement["00100010"] = {"Value" : [ { "Alphabetic" : ""+patientName+"" }], "vr" : "PN" } ;
     }
     if (studyDescription !== "")
     {
-        if (!first)
-        {
-            json_txt += ",";
-        }
-        json_txt += '"00081030":{"Value":["' + studyDescription + '"],"vr":"LO"}';
-        first = false;
+        queryElement["00081030"] = {"Value" : [ {"Alphabetic" : ""+studyDescription+"" }], "vr" : "LO"};
     }
     if (seriesDescription !== "")
     {
-        if (!first)
-        {
-            json_txt += ",";
-        }
-        json_txt += '"0008103e":{"Value":["' + seriesDescription + '"],"vr":"LO"}';
-        first = false;
+        queryElement["0008103e"] = {"Value" : [ ""+seriesDescription+"" ] , "vr" : "LO" };
     }
 
-    json_txt += '}]';
+    var json = JSON.stringify([queryElement]);
 
-    console.log(json_txt);
-    // var ds_json = JSON.parse(json_txt);
-    // TODO : give an object instead of a string and change request_datasets function
-
-    qidoRequest.request_datasets(repr, selector, json_txt);
+    qidoRequest.request_datasets(repr, selector, json);
 
     return qidoRequest;
 }

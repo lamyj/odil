@@ -87,8 +87,8 @@ public:
     /// @brief Prepare a qido request
     void request_datasets(
             Representation representation, Selector const & selector,
-            DataSet const & query, std::set<std::vector<Tag> > const & includefields = {},
-            bool fuzzymatching = false, int limit = -1, int offset = 0, bool numerical_tags = false);
+            DataSet const & query, bool fuzzymatching = false,
+            int limit = -1, int offset = 0, bool numerical_tags = false);
 
 
 private:
@@ -102,11 +102,6 @@ private:
     URL _url;
     Selector _selector;
     DataSet _query_data_set;
-    // include types where at each index :
-    // if _includefields[i].size() = 1 -> element at top level (DataSet level)
-    // else _includefields[i][0] = top_seq at top_level,
-    //      and next elements of _includefields[i] are subsequences until leaf element
-    std::set< std::vector <odil::Tag> >  _includefields;
 
     bool _fuzzymatching;
     int _limit; // maximum number of results the origin server shall return.
@@ -119,15 +114,14 @@ private:
     static std::string _tag_to_string(odil::Tag const & tag, bool numerical_tag);
 
     /// @brief Split an URL into a tuple
-    static std::tuple<URL, URL, Selector, DataSet, std::set<std::vector< odil::Tag> >,
-        bool, int /*offset*/, int /*limit*/ >
+    static std::tuple<URL, URL, Selector, DataSet, bool, int /*offset*/, int /*limit*/ >
         _split_full_url(URL const & url);
 
     /// @brief Generate a generic URL from class information
     static URL _generate_url(URL const & base_url, Selector const & selector, DataSet const & query,
-                             std::set<std::vector<Tag> > const & includefields = {},
                              bool fuzzymatching = false, int limit = -1,
                              int offset = 0, bool numerical_tags = false);
+
 };
 
 }

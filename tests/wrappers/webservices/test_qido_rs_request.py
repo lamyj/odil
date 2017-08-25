@@ -22,7 +22,6 @@ class TestQIDORSRequest(unittest.TestCase):
         self.assertEqual(request.get_url(), odil.webservices.URL())
         self.assertEqual(request.get_selector(), odil.webservices.Selector())
         self.assertEqual(request.get_query_data_set(), odil.DataSet())
-        self.assertEqual(request.get_include_fields(), [])
         self.assertFalse(request.get_fuzzymatching())
         self.assertEqual(request.get_limit(), -1)
         self.assertEqual(request.get_offset(), 0)
@@ -46,7 +45,8 @@ class TestQIDORSRequest(unittest.TestCase):
             "/dicom/studies/1.2/instances",
             "PatientName=TOTO&"
             "SharedFunctionalGroupsSequence.EffectiveEchoTime=10.5&"
-            "includefield=PatientOrientation&includefield=SharedFunctionalGroupsSequence.ImageOrientation&"
+            "includefield=PatientOrientation&"
+            "includefield=SharedFunctionalGroupsSequence.ImageOrientation&"
             "fuzzymatching=false",
             ""
         )
@@ -67,21 +67,12 @@ class TestQIDORSRequest(unittest.TestCase):
         # Check For DataSet
         dataset = odil.DataSet()
         dataset.add(odil.Tag("PatientName"),["TOTO"])
+        dataset.add(odil.Tag("00200020"))
         shared = odil.DataSet()
         shared.add(odil.Tag("EffectiveEchoTime"), [10.5])
+        shared.add(odil.Tag("00200035"))
         dataset.add(odil.Tag("SharedFunctionalGroupsSequence"), [shared])
         self.assertEqual(request.get_query_data_set(), dataset)
-
-    def test_includefields(self):
-        http_request = odil.webservices.HTTPRequest("GET", self.full_url)
-        http_request.set_header("Accept", "application/dicom+json")
-        request = odil.webservices.QIDORSRequest(http_request)
-        # Check For Include Fields
-        include_fields = [
-            [odil.Tag("00200020")],
-            [odil.Tag("52009229"), odil.Tag("00200035")]
-        ]
-        self.assertEqual(request.get_include_fields(), include_fields)
 
     def test_fuzzy_limit_offset(self):
         http_request = odil.webservices.HTTPRequest("GET", self.full_url)
@@ -118,21 +109,17 @@ class TestQIDORSRequest(unittest.TestCase):
         # DataSet
         dataset = odil.DataSet()
         dataset.add(odil.Tag("PatientName"),["TOTO"])
+        dataset.add(odil.Tag("00200020"))
         shared = odil.DataSet()
         shared.add(odil.Tag("StudyDate"), [20130509])
+        shared.add(odil.Tag("00200035"))
         dataset.add(odil.Tag("SharedFunctionalGroupsSequence"), [shared])
-        # IncludeFields
-        include_fields = [
-            [odil.Tag("00200020")],
-            [odil.Tag("52009229"), odil.Tag("00200035")]
-        ]
 
         request = odil.webservices.QIDORSRequest(self.base_url_http)
         request.request_datasets(
             odil.webservices.Utils.Representation.DICOM_XML,
             selector,
-            dataset,
-            include_fields
+            dataset
         )
 
         full_url_alphabetic_tags = odil.webservices.URL(
@@ -141,7 +128,8 @@ class TestQIDORSRequest(unittest.TestCase):
             "/dicom/studies/1.2/instances",
             "PatientName=TOTO&"
             "SharedFunctionalGroupsSequence.StudyDate=20130509&"
-            "includefield=PatientOrientation&includefield=SharedFunctionalGroupsSequence.ImageOrientation&"
+            "includefield=PatientOrientation&"
+            "includefield=SharedFunctionalGroupsSequence.ImageOrientation&"
             "fuzzymatching=false",
             ""
         )
@@ -154,7 +142,8 @@ class TestQIDORSRequest(unittest.TestCase):
             "example.com",
             "/dicom/studies/1.2/instances",
             "SharedFunctionalGroupsSequence.EffectiveEchoTime=10.5&"
-            "includefield=00200020&includefield=52009229.00200035&"
+            "includefield=00200020&"
+            "includefield=52009229.00200035&"
             "PatientName=TOTO"
             ""
         )
@@ -173,7 +162,8 @@ class TestQIDORSRequest(unittest.TestCase):
             "example.com",
             "/dicom/studies/1.2/instances",
             "SharedFunctionalGroupsSequence.EffectiveEchoTime=10.5&"
-            "includefield=00200020&includefield=52009229.00200035&"
+            "includefield=00200020&"
+            "includefield=52009229.00200035&"
             "PatientName=TUTU"
             ""
         )

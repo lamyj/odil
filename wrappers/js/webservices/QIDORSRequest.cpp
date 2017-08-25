@@ -31,52 +31,43 @@ void
 request_datasets(odil::webservices::QIDORSRequest & qido,
                  odil::webservices::Representation const & repr,
                  odil::webservices::Selector const & selector,
-                 std::string const& json)
+                 Json::Value const & array)
 // Following fields are not handled still now
-//                               std::set<std::vector<odil::Tag>> const & includefields,
 //                               bool fuzzymatching,
 //                               int limit,
 //                               int offset,
 //                               bool numerical_tags)
 {
-    std::istringstream stream(json);
-    Json::Value array;
-    stream >> array;
     odil::DataSet query = odil::as_dataset(array[0]);
 
+    std::vector<odil::Tag> wanted_includefields = {
+        odil::Tag("00100010"), // PatientName
+        odil::Tag("0008103e"), // SeriesDesc
+        odil::Tag("00081030"), // StudyDesc
+        // Study
+        odil::Tag("0020000d"), // StudyInstanceUID
+        odil::Tag("00080020"), // StudyDate
+        odil::Tag("00080030"), // StudyTime
+        odil::Tag("00201206"), // NumberOfStudyRelatedSeries
+        // Series
+        odil::Tag("00200011"), // Series Number
+        odil::Tag("00080060"), // Modality
+        odil::Tag("0020000E"), // SeriesInstanceUID
+        odil::Tag("00201209"), // NumberOfSeriesRelatedInstances
+    };
 
-    std::set< std::vector< odil::Tag >> includefields;
-
-    if (!query.has(odil::Tag("00100010")))
+    for (auto const tag : wanted_includefields)
     {
-        includefields.insert({odil::Tag("00100010")});
+        if (!query.has(tag))
+        {
+            query.add(tag);
+        }
     }
-    if (!query.has(odil::Tag("00081030")))
-    {
-        includefields.insert({odil::Tag("00081030")}); // StudyDesc
-    }
-    if (!query.has(odil::Tag("0008103e")))
-    {
-        includefields.insert({odil::Tag("0008103e")}); // SeriesDesc
-    }
-
-    // Study Level
-    includefields.insert({odil::Tag("0020000d")}); // StudyInstanceUID
-    includefields.insert({odil::Tag("00080020")}); // StudyDate
-    includefields.insert({odil::Tag("00080030")}); // StudyTime
-    includefields.insert({odil::Tag("00201206")}); // NumberOfStudyRelatedSeries
-
-    // Series Level
-    includefields.insert({odil::Tag("00200011")}); // Series Number
-    includefields.insert({odil::Tag("00080060")}); // Modality
-    includefields.insert({odil::Tag("0020000E")}); // SeriesInstanceUID
-    includefields.insert({odil::Tag("00201209")}); // NumberOfSeriesRelatedInstances
 
 
     // Still here ds is correctly constructed, and qido is correctly obtained, repr is ok, selector
-    qido.request_datasets(repr, selector, query, includefields);
+    qido.request_datasets(repr, selector, query);
 }
-
 
 void wrap_webservices_QIDORSRequest()
 {

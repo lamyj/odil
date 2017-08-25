@@ -16,6 +16,11 @@
 
 #include "odil/json_converter.h"
 
+#include "odil/registry.h"
+#include "list"
+#include <boost/lexical_cast.hpp>
+#include "odil/Exception.h"
+
 struct Printer
 {
     typedef void result_type;
@@ -85,23 +90,18 @@ int main ()
     //-------------------- Query DataSet creation
     odil::DataSet query_ds;
     query_ds.add(odil::Tag("PatientName"), {"KNI*"}); // Only to test the regex
+    //-------------------- Wanted included fields
+    query_ds.add(odil::Tag("00200035"));
+    query_ds.add(odil::Tag("00200030"));
 
     //-------------------- Selector creation
     odil::webservices::Selector selector;
     selector.set_series("");
 
-    //-------------------- Wanted included fields
-    std::set< std::vector< odil::Tag > > includefields;
-    includefields.insert({odil::Tag("00200035")});
-    includefields.insert({odil::Tag("00200030")});
-
-
     qido_request.request_datasets(
         odil::webservices::Representation::DICOM_JSON,
         selector,
-        query_ds,
-        includefields // WARNING : the server specified here doesn't handle <includefield> field
-                      // the option includefield=all is understand as <DicomTag>=<Value> so it leads to an error
+        query_ds
         );
 
     auto http_request = qido_request.get_http_request();

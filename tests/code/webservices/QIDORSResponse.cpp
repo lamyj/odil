@@ -49,6 +49,18 @@ BOOST_AUTO_TEST_CASE(Constructor)
     BOOST_REQUIRE(response.get_data_sets().empty());
 }
 
+BOOST_AUTO_TEST_CASE(Constructor_HttpReq)
+{
+    odil::webservices::HTTPResponse http_response;
+    http_response.set_status(200);
+    http_response.set_header("Content-Type", "application/dicom+json");
+    http_response.set_body("[]");
+    odil::webservices::QIDORSResponse const response(http_response);
+
+    BOOST_REQUIRE(response.get_representation() == odil::webservices::Representation::DICOM_JSON);
+    BOOST_REQUIRE(response.get_media_type() == "application/dicom+json");
+}
+
 BOOST_FIXTURE_TEST_CASE(DataSets, Fixture)
 {
     odil::webservices::QIDORSResponse response;
@@ -134,4 +146,22 @@ BOOST_AUTO_TEST_CASE(EmptyResponse)
     auto const http = response.get_http_response();
     BOOST_REQUIRE(http.get_status() == 204);
     BOOST_REQUIRE_EQUAL(http.get_reason(), "No Content");
+}
+
+BOOST_FIXTURE_TEST_CASE(Equality, Fixture)
+{
+    odil::webservices::QIDORSResponse response, response2;
+    response.set_representation(odil::webservices::Representation::DICOM_XML);
+    response2.set_representation(odil::webservices::Representation::DICOM_XML);
+    response.set_data_sets(data_sets);
+    response2.set_data_sets(data_sets);
+    BOOST_REQUIRE(response == response2);
+}
+
+BOOST_FIXTURE_TEST_CASE(Difference, Fixture)
+{
+    odil::webservices::QIDORSResponse response, response2;
+    response.set_representation(odil::webservices::Representation::DICOM_XML);
+    response.set_data_sets(data_sets);
+    BOOST_REQUIRE(response != response2);
 }

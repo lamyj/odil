@@ -21,7 +21,7 @@
 
 #include "odil/webservices/ItemWithParameters.h"
 #include "odil/VR.h"
-
+#include "odil/json_converter.h"
 namespace odil
 {
 
@@ -31,7 +31,7 @@ namespace webservices
 QIDORSRequest
 ::QIDORSRequest(const URL &base_url)
     : _base_url(base_url), _media_type(), _representation(Representation::DICOM_JSON),
-      _url(), _selector(), _query_data_set(), _includefields(),
+      _url(), _selector(), _query_data_set(),
       _fuzzymatching(false), _limit(-1), _offset(0)
 {
     // Nothing else
@@ -87,7 +87,7 @@ QIDORSRequest
         this->_representation = Representation::DICOM_JSON;
     }
 
-    std::tie(this->_base_url, this->_url, this->_selector, this->_query_data_set, this->_includefields,
+    std::tie(this->_base_url, this->_url, this->_selector, this->_query_data_set,
              this->_fuzzymatching, this->_limit, this->_offset) =
         QIDORSRequest::_split_full_url(tmp_url);
 }
@@ -103,7 +103,6 @@ QIDORSRequest
         && this->_url == other._url
         && this->_selector == other._selector
         && this->_query_data_set == other._query_data_set
-        && this->_includefields == other._includefields
         && this->_fuzzymatching == other._fuzzymatching
         && this->_limit == other._limit
         && this->_offset == other._offset
@@ -166,13 +165,6 @@ QIDORSRequest
     return this->_query_data_set;
 }
 
-std::set < std::vector < odil::Tag > > const &
-QIDORSRequest
-::get_includefields() const
-{
-    return this->_includefields;
-}
-
 bool
 QIDORSRequest
 ::get_fuzzymatching() const
@@ -194,8 +186,7 @@ QIDORSRequest
     return this->_offset;
 }
 
-std::tuple<URL, URL, Selector, DataSet, std::set< std::vector <odil::Tag> >,
-           bool /*fuzzymatching*/, int /*offset*/, int /*limit*/>
+std::tuple<URL, URL, Selector, DataSet, bool /*fuzzymatching*/, int /*offset*/, int /*limit*/>
 QIDORSRequest
 ::_split_full_url(const URL &url)
 {
@@ -359,16 +350,25 @@ QIDORSRequest
                                 retrieve_attribute_id,
                         boost::spirit::qi::ascii::space, dicom_tag_vec
                     );
-                    std::vector<odil::Tag> current_dicom_tags;
-                    // retrieve corresponding dicomTag
+                    odil::DataSet* current_ds = &data_set;
+                    bool last = false;
+                    odil::Tag last_tag = dicom_tag_vec.back();
+                    if (dicom_tag_vec.size() >= 1)
+                    {
+                        dicom_tag_vec.pop_back();
+                        last = true;
+                    }
                     for (auto const dicom_tag : dicom_tag_vec)
                     {
-                        current_dicom_tags.push_back(odil::Tag(dicom_tag));
+                        if (!current_ds->has(dicom_tag))
+                        {
+                            current_ds->add(dicom_tag, {odil::DataSet()});
+                        }
+                        current_ds = &current_ds->as_data_set(dicom_tag)[0];
                     }
-                    if (!current_dicom_tags.empty())
+                    if (last)
                     {
-                        includefields.insert(current_dicom_tags);
-                        include_all = false;
+                        current_ds->add(last_tag);
                     }
                 }
             }
@@ -389,7 +389,10 @@ QIDORSRequest
 
                     if (i < dicom_tag_vec_size - 1)
                     {
-                        top_seq->add(current_tag, {odil::DataSet()}, VR::SQ);
+                        if (!top_seq->has(current_tag))
+                        {
+                            top_seq->add(current_tag, {odil::DataSet()}, VR::SQ);
+                        }
                         top_seq = &top_seq->as_data_set(current_tag)[0];
                     }
                     else
@@ -439,16 +442,17 @@ QIDORSRequest
         }
     }
 
-    if (include_all)
-    {
-        includefields.clear();
-    }
+    // TODO : Fix includefields = all -> need to look for all includefields in the query_dataset (query[tag] = empty
+    // with tag that can be a sequence
+//    if (include_all)
+//    {
+//        includefields.clear();
+//    }
 
     URL full_url = QIDORSRequest::_generate_url(base_url, selector, data_set,
-                                           includefields, fuzzy,
-                                           limit, offset, false);
+                                           fuzzy, limit, offset, false);
 
-    return std::make_tuple(base_url, full_url, selector, data_set, includefields,
+    return std::make_tuple(base_url, full_url, selector, data_set,
                            fuzzy, limit, offset
                            );
 }
@@ -524,103 +528,117 @@ QIDORSRequest
     }
 }
 
+
 URL
 QIDORSRequest
 ::_generate_url(URL const & base_url, Selector const & selector, DataSet const & query_data_set,
-                std::set< std::vector < odil::Tag > > const & includefields,
-                bool fuzzymatching, int limit, int offset, bool numerical_tags)
+                  bool fuzzymatching, int limit, int offset, bool numerical_tags)
 {
     auto path = base_url.path + selector.get_path(false);
-    std::stringstream ss_query;
+    std::stringstream ss_query, includefield_ss_query;
 
-    // ----- QUERY (DATASET ELEMENTS)
+    // ----- QUERY + INCLUDEFIELD
 
-    int query_element_count  = 0, query_nb_elements = query_data_set.size(); // use to add the "&" char between query elements
+    typedef std::tuple<odil::Element const *, odil::Tag const *, std::string> leaf;
+
+        // loop vars
     odil::Tag const * current_tag;
     odil::Element const * current_element;
     odil::DataSet const * current_ds;
-    for (auto const & tag_elem : query_data_set)
+
+    std::vector<leaf> leaves;
+    std::list< std::pair < odil::DataSet const * , std::string > > data_sets; // str for the root and pointer to the root element
+    data_sets.push_back(std::make_pair(&query_data_set, std::string("")));
+    std::list< std::pair < odil::DataSet const *, std::string > >::iterator it;
+
+        // loop
+    while (!data_sets.empty())
     {
-        current_tag = &tag_elem.first;
-        current_element = &tag_elem.second;
+        it = data_sets.begin();
+        current_ds = (*it).first;
+        std::stringstream current_ds_sstr;
+        current_ds_sstr << (*it).second;
 
-        ss_query << QIDORSRequest::_tag_to_string(*current_tag, numerical_tags) ;
-
-        while (current_element->is_data_set())
+        for (auto const & tag_elem : * current_ds)
         {
-            if (current_element->size() > 1)
+            std::stringstream current_sstr; // copy of the root string where the leaf element will be append
+            current_sstr << current_ds_sstr.str();
+            current_tag = &tag_elem.first;
+            current_element = &tag_elem.second;
+            if (current_element->is_data_set())
             {
-                throw Exception("Query doesn't allow the use of multidimensional element ("+
-                                QIDORSRequest::_tag_to_string(*current_tag, numerical_tags) +")");
+                if (current_sstr.str().size() > 0)
+                {
+                    current_sstr << ".";
+                }
+                current_sstr << QIDORSRequest::_tag_to_string(*current_tag, numerical_tags);
+                data_sets.push_back(std::make_pair(&current_element->as_data_set()[0],
+                                    current_sstr.str()));
             }
-            current_ds = &current_element->as_data_set()[0];
-            current_tag = &current_ds->begin()->first;
-            current_element = &current_ds->begin()->second;
-            ss_query << "." << QIDORSRequest::_tag_to_string(*current_tag, numerical_tags)  ;
+            else
+            {
+                if (current_sstr.str().size() > 0)
+                {
+                    current_sstr << ".";
+                }
+                current_sstr << QIDORSRequest::_tag_to_string(*current_tag, numerical_tags);
+                leaves.push_back(std::make_tuple(current_element, current_tag, current_sstr.str()));
+            }
         }
+        data_sets.pop_front();
+    }
 
-        if (current_element->size() > 1)
-        {
-            throw Exception("Query doesn't allow the use of multidimensional element ("+
-                            QIDORSRequest::_tag_to_string(*current_tag, numerical_tags) +")");
-        }
+        // query writing
+    unsigned int leaves_size = leaves.size(), leaves_count = 0;
+    std::stringstream* current_ss;
 
-        // here we get the "final" element
-        if (current_element->is_int())
+    for (auto const it : leaves)
+    {
+        odil::Element const * elem;
+        odil::Tag const * tag;
+        std::string elem_str;
+        std::tie(elem, tag, elem_str) = it;
+
+        if (elem->empty()) // includefield
         {
-            ss_query << "=" << boost::lexical_cast<std::string>(current_element->as_int()[0]);
+             includefield_ss_query << "includefield=" << elem_str;
+             current_ss = &includefield_ss_query;
         }
-        else if (current_element->is_real())
+        else if (elem->size() == 1)
         {
-            ss_query << "=" << boost::lexical_cast<std::string>(current_element->as_real()[0]);
-        }
-        else if (current_element->is_string())
-        {
-            ss_query << "=" << current_element->as_string()[0];
+            ss_query << elem_str << "=";
+            if (elem->is_int())
+            {
+                ss_query << boost::lexical_cast<std::string>(elem->as_int()[0]);
+            }
+            else if (elem->is_real())
+            {
+                ss_query << boost::lexical_cast<std::string>(elem->as_real()[0]);
+            }
+            else if (elem->is_string())
+            {
+                ss_query << elem->as_string()[0];
+            }
+            else
+            {
+                throw Exception("Invalid query tag (" +
+                                QIDORSRequest::_tag_to_string(*tag, numerical_tags) +")");
+            }
+            current_ss = &ss_query;
         }
         else
         {
-            throw Exception("Invalid query tag (" +
-                            QIDORSRequest::_tag_to_string(*current_tag, numerical_tags) +")");
+            throw Exception("Query doesn't allow the use of multidimensional element ("+
+                            QIDORSRequest::_tag_to_string(*tag, numerical_tags) +")");
         }
-        if (query_element_count++ < query_nb_elements - 1)
+        if (leaves_count ++ < leaves_size -1)
         {
-            ss_query << "&" ;
+            *current_ss << "&";
         }
     }
 
-    // ----- INCLUDEFIELD
-
-    query_element_count = 0;
-    query_nb_elements = includefields.size();
-    int field_count = 0, field_nb_elements = 0;
-
-    ss_query << "&includefield=";
-    if (query_nb_elements == 0)
-    {
-        ss_query << "all";
-    }
-    else
-    {
-        for (auto const & includefield : includefields)
-        {
-            field_nb_elements = includefield.size();
-            field_count = 0;
-            for(auto const & fields : includefield)
-            {
-                ss_query << QIDORSRequest::_tag_to_string(fields, numerical_tags) ;
-                if(field_count++ < field_nb_elements -1)
-                {
-                    ss_query << ".";
-                }
-            }
-            if (query_element_count++ < query_nb_elements -1)
-            {
-                ss_query << "&includefield=";
-            }
-        }
-    }
-
+        // append includefield at the end of the query string
+    ss_query << includefield_ss_query.str() ;
 
     // ----- FUZZYMATCHING
 
@@ -653,13 +671,13 @@ QIDORSRequest
     };
 }
 
+
 void
 QIDORSRequest
 ::request_datasets(
     Representation representation, Selector const & selector,
-    DataSet const & query_data_set,
-    std::set< std::vector < odil::Tag > > const & includefields,
-    bool fuzzymatching, int limit, int offset, bool numerical_tags)
+    DataSet const & query_data_set, bool fuzzymatching,
+    int limit, int offset, bool numerical_tags)
 {
     if (representation != Representation::DICOM_JSON &&
             representation != Representation::DICOM_XML)
@@ -669,7 +687,6 @@ QIDORSRequest
     this->_representation = representation;
     this->_selector = selector;
     this->_query_data_set = query_data_set;
-    this->_includefields = includefields;
     this->_fuzzymatching = fuzzymatching;
     this->_limit = limit;
     this->_offset = offset;
@@ -681,7 +698,7 @@ QIDORSRequest
     }
 
     this->_url = QIDORSRequest::_generate_url(this->_base_url, selector,
-                                              query_data_set, includefields, fuzzymatching,
+                                              query_data_set, fuzzymatching,
                                               limit, offset, numerical_tags);
 }
 

@@ -14,52 +14,6 @@
 #include "odil/webservices/Utils.h"
 
 
-// Need to cast into boost::python::list because boost::python::set doesn't exist
-boost::python::object
-get_includefields(odil::webservices::QIDORSRequest self)
-{
-    auto const result_cpp = self.get_includefields();
-    boost::python::list result_python;
-    for (auto const & fields : result_cpp)
-    {
-        boost::python::list sub_res;
-        for (auto const & tag : fields)
-        {
-            sub_res.append(tag);
-        }
-        result_python.append(sub_res);
-    }
-    return result_python;
-}
-
-void request_datasets(odil::webservices::QIDORSRequest& self,
-                      odil::webservices::Representation representation,
-                      odil::webservices::Selector selector,
-                      odil::DataSet dataset,
-                      boost::python::list includefields,
-                      bool fuzzymatching,
-                      int limit,
-                      int offset,
-                      bool numerical_tags
-                      )
-{
-    // Convert here boost::python::list into std::set
-    std::set < std::vector< odil::Tag> > cpp_set;
-    for (int i = 0; i < boost::python::len(includefields); ++i)
-    {
-        std::vector<odil::Tag> cpp_vec;
-        for (int j = 0; j < boost::python::len(includefields[i]); ++j)
-        {
-            cpp_vec.push_back(boost::python::extract<odil::Tag>(includefields[i][j]));
-        }
-        cpp_set.insert(cpp_vec);
-    }
-    self.request_datasets(
-        representation, selector, dataset, cpp_set,
-        fuzzymatching, limit, offset, numerical_tags);
-}
-
-
 void wrap_webservices_QIDORSRequest()
 {
     using namespace boost::python;
@@ -90,8 +44,6 @@ void wrap_webservices_QIDORSRequest()
             "get_query_data_set", &QIDORSRequest::get_query_data_set,
             return_value_policy<copy_const_reference>())
         .def(
-            "get_include_fields", get_includefields)
-        .def(
             "get_fuzzymatching", &QIDORSRequest::get_fuzzymatching)
         .def(
             "get_limit", &QIDORSRequest::get_limit)
@@ -100,11 +52,14 @@ void wrap_webservices_QIDORSRequest()
         .def(
             "get_http_request", &QIDORSRequest::get_http_request)
         .def(
-            "request_datasets", request_datasets,
-            (arg("representation"), arg("selector"), arg("query"),
-             arg("includefields") = boost::python::list(),
-             arg("fuzzymatching") = false, arg("limit") = -1,
-             arg("offset") = 0, arg("numerical_tags") = false
+            "request_datasets", &QIDORSRequest::request_datasets,
+                (arg("representation"),
+                 arg("selector"),
+                 arg("data_sets"),
+                 arg("fuzzymatching") = false,
+                 arg("limit") = -1,
+                 arg("offset") = 0,
+                 arg("numerical_tags") = false
             ))
         .def(self == self)
         .def(self != self)

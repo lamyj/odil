@@ -57,6 +57,20 @@ BOOST_AUTO_TEST_CASE(Constructor)
     BOOST_REQUIRE(response.get_type() == odil::webservices::Type::None);
 }
 
+BOOST_AUTO_TEST_CASE(Constructor_HttpReq)
+{
+    odil::webservices::HTTPResponse http_response;
+    http_response.set_status(200);
+    http_response.set_header("Content-Type", "multipart/related;type=application/dicom+xml");
+    http_response.set_body("");
+    odil::webservices::WADORSResponse response(http_response);
+
+    BOOST_REQUIRE(response.is_partial() == false);
+    BOOST_REQUIRE(response.get_representation() == odil::webservices::Representation::DICOM_XML);
+    BOOST_REQUIRE(response.get_type() == odil::webservices::Type::DICOM);
+}
+
+
 BOOST_FIXTURE_TEST_CASE(DataSets, Fixture)
 {
     odil::webservices::WADORSResponse response;

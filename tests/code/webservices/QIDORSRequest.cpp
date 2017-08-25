@@ -14,6 +14,8 @@
 #include "odil/webservices/Selector.h"
 #include "odil/webservices/URL.h"
 
+#include <iostream>
+
 odil::webservices::URL const base_url_http{
     "http", "example.com", "/dicom", "", ""};
 
@@ -72,7 +74,8 @@ BOOST_AUTO_TEST_CASE(FullUrl)
         "/dicom/studies/1.2/instances", // path
         "PatientName=TOTO&"
         "SharedFunctionalGroupsSequence.EffectiveEchoTime=10.5&"
-        "includefield=PatientOrientation&includefield=SharedFunctionalGroupsSequence.ImageOrientation&"
+        "includefield=PatientOrientation&"
+        "includefield=SharedFunctionalGroupsSequence.ImageOrientation&"
         "fuzzymatching=false", // query
         ""// fragment
     };
@@ -102,25 +105,12 @@ BOOST_AUTO_TEST_CASE(QueryDataset)
     //-------------------- Check for dataSet
     odil::DataSet dataset;
     dataset.add(odil::Tag("PatientName"),{"TOTO"});
+    dataset.add(odil::Tag("00200020"));
     odil::DataSet shared;
     shared.add(odil::Tag("EffectiveEchoTime"), {10.5});
+    shared.add(odil::Tag("00200035"));
     dataset.add(odil::Tag("SharedFunctionalGroupsSequence"), {shared});
     BOOST_REQUIRE(request.get_query_data_set() == dataset);
-}
-
-BOOST_AUTO_TEST_CASE(IncludeFields)
-{
-    odil::webservices::HTTPRequest http_request(
-                "GET", full_url);
-    http_request.set_header("Accept", "application/dicom+json");
-    odil::webservices::QIDORSRequest const request(http_request);
-
-    //-------------------- Check for include_fields
-    std::set< std::vector < odil::Tag> > const include_fields{
-        {odil::Tag("00200020")},
-        {odil::Tag("52009229"), odil::Tag("00200035")}
-    };
-    BOOST_REQUIRE(request.get_includefields() == include_fields);
 }
 
 BOOST_AUTO_TEST_CASE(FuzzyLimitOffset)
@@ -167,6 +157,15 @@ BOOST_AUTO_TEST_CASE(MediaTypeUnrecognized)
                         odil::Exception);
 }
 
+BOOST_AUTO_TEST_CASE(MediaTypeUnrecognized2)
+{
+    odil::webservices::HTTPRequest http_request(
+                "GET", full_url);
+    http_request.set_header("Accept", "application/dicom+xml");
+    BOOST_REQUIRE_THROW(odil::webservices::QIDORSRequest const request(http_request),
+                        odil::Exception);
+}
+
 BOOST_AUTO_TEST_CASE(RequestDataset)
 {
     //-------------------- Selector
@@ -176,22 +175,17 @@ BOOST_AUTO_TEST_CASE(RequestDataset)
     //-------------------- Query Dataset
     odil::DataSet dataset;
     dataset.add(odil::Tag("PatientName"), {"TOTO"});
+    dataset.add(odil::Tag("00200020"));
     odil::DataSet shared;
     shared.add(odil::Tag("StudyDate"), {20130509});
+    shared.add(odil::Tag("00200035"));
     dataset.add(odil::Tag("SharedFunctionalGroupsSequence"), {shared});
-
-    //-------------------- IncludeFields
-    std::set< std::vector < odil::Tag> > include_fields{
-        {odil::Tag("00200020")},
-        {odil::Tag("52009229"), odil::Tag("00200035")}
-    };
 
     odil::webservices::QIDORSRequest request(base_url_http);
     request.request_datasets(
         odil::webservices::Representation::DICOM_XML,
         selector,
-        dataset,
-        include_fields
+        dataset
     );
 
     odil::webservices::URL const full_url_alphabetic_tags {
@@ -200,7 +194,8 @@ BOOST_AUTO_TEST_CASE(RequestDataset)
         "/dicom/studies/1.2/instances", // path
         "PatientName=TOTO&"
         "SharedFunctionalGroupsSequence.StudyDate=20130509&"
-        "includefield=PatientOrientation&includefield=SharedFunctionalGroupsSequence.ImageOrientation&"
+        "includefield=PatientOrientation&"
+        "includefield=SharedFunctionalGroupsSequence.ImageOrientation&"
         "fuzzymatching=false", // query
         ""// fragment
     };
