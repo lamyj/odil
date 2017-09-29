@@ -52,7 +52,7 @@ protected:
 
     int uflow();
 
-    // TODO: int overflow(int ch=std::char_traits<char>::eof());
+    int overflow(int ch=std::char_traits<char>::eof());
 
 private:
     boost::python::object _object;

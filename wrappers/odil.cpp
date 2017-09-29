@@ -40,6 +40,7 @@ void wrap_Value();
 void wrap_VR();
 void wrap_VRFinder();
 void wrap_write();
+void wrap_Writer();
 void wrap_xml_converter();
 
 void wrap_registry();
@@ -93,15 +94,16 @@ BOOST_PYTHON_MODULE(odil)
     wrap_Value();
     wrap_VR();
     wrap_VRFinder();
-    wrap_write();
     wrap_xml_converter();
 
     wrap_iostream();
 
     wrap_Reader();
+    wrap_Writer();
     wrap_registry();
 
     wrap_read();
+    wrap_write();
 
     wrap_Message();
     wrap_CommandTypeEnum();

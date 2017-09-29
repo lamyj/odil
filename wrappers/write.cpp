@@ -38,20 +38,10 @@ write(
 
 }
 
-class Dummy { };
-
 void wrap_write()
 {
     using namespace boost::python;
     using namespace odil;
-
-    {
-        scope writer_scope = class_<Dummy>("Writer");
-        enum_<Writer::ItemEncoding>("ItemEncoding")
-            .value("ExplicitLength", Writer::ItemEncoding::ExplicitLength)
-            .value("UndefinedLength", Writer::ItemEncoding::UndefinedLength)
-        ;
-    }
 
     def(
         "write", 

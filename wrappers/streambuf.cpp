@@ -31,6 +31,7 @@ streambuf
   _buffer_size(buffer_size), _buffer(), _current(std::string::npos)
 {
     this->setg(nullptr, nullptr, nullptr);
+    this->setp(nullptr, nullptr);
 }
 
 std::streambuf::pos_type
@@ -121,6 +122,17 @@ streambuf
         }
     }
     return character;
+}
+
+int
+streambuf
+::overflow(int ch)
+{
+    if(ch != std::char_traits<char>::eof())
+    {
+        this->_object.attr("write")(char(ch));
+    }
+    return ch;
 }
 
 void
