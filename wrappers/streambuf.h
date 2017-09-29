@@ -63,6 +63,18 @@ private:
     void _update_buffer();
 };
 
+class iostream: public std::iostream
+{
+public:
+    iostream(boost::python::object file_like)
+    : std::iostream(nullptr), _streambuf(file_like)
+    {
+        this->rdbuf(&this->_streambuf);
+    }
+private:
+    streambuf _streambuf;
+};
+
 }
 
 }

@@ -145,3 +145,11 @@ streambuf
 }
 
 }
+
+void wrap_iostream()
+{
+    using namespace boost::python;
+    using namespace odil::wrappers::python;
+
+    class_<iostream, boost::noncopyable>("iostream", init<object>());
+}

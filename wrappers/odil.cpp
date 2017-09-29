@@ -16,6 +16,7 @@ void wrap_EchoSCP();
 void wrap_EchoSCU();
 void wrap_Element();
 void wrap_ElementsDictionary();
+void wrap_endian();
 void wrap_Exception();
 void wrap_FindSCP();
 void wrap_FindSCU();
@@ -28,7 +29,7 @@ void wrap_NCreateSCP();
 void wrap_NSetSCP();
 void wrap_NSetSCU();
 void wrap_read();
-//__attribute__((__visibility__("default")))
+void wrap_Reader();
 void wrap_SCPDispatcher();
 void wrap_StoreSCU();
 void wrap_StoreSCP();
@@ -58,6 +59,8 @@ void wrap_CStoreRequest();
 void wrap_CStoreResponse();
 void wrap_NSetRequest();
 
+void wrap_iostream();
+
 BOOST_PYTHON_MODULE(odil)
 {
     wrap_Exception();
@@ -70,6 +73,7 @@ BOOST_PYTHON_MODULE(odil)
     wrap_EchoSCU();
     wrap_Element();
     wrap_ElementsDictionary();
+    wrap_endian();
     wrap_FindSCP();
     wrap_FindSCU();
     wrap_GetSCP();
@@ -80,7 +84,6 @@ BOOST_PYTHON_MODULE(odil)
     wrap_NCreateSCP();
     wrap_NSetSCP();
     wrap_NSetSCU();
-    wrap_read();
     wrap_SCPDispatcher();
     wrap_StoreSCP();
     wrap_StoreSCU();
@@ -93,7 +96,12 @@ BOOST_PYTHON_MODULE(odil)
     wrap_write();
     wrap_xml_converter();
 
+    wrap_iostream();
+
+    wrap_Reader();
     wrap_registry();
+
+    wrap_read();
 
     wrap_Message();
     wrap_CommandTypeEnum();
