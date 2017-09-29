@@ -38,8 +38,8 @@ class TestReader(unittest.TestCase):
 
     def test_read_data_set_halt_condition(self):
         string_io = StringIO.StringIO(
-            "\x10\x00\x10\x00PN\x07\x00Foo^Bar"
-            "\x10\x00\x20\x00CS\x03\x00FOO"
+            "\x10\x00\x10\x00" "PN" "\x08\x00" "Foo^Bar "
+            "\x10\x00\x20\x00" "LO" "\x04\x00" "FOO "
         )
         stream = odil.iostream(string_io)
         reader = odil.Reader(stream, odil.registry.ExplicitVRLittleEndian)
@@ -60,7 +60,7 @@ class TestReader(unittest.TestCase):
         self.assertEqual(reader.read_length(odil.VR.CS), 0x1234)
 
     def test_read_element(self):
-        string_io = StringIO.StringIO("PN\x07\x00Foo^Bar")
+        string_io = StringIO.StringIO("PN\x08\x00Foo^Bar ")
         stream = odil.iostream(string_io)
         reader = odil.Reader(stream, odil.registry.ExplicitVRLittleEndian)
         self.assertEqual(
@@ -70,8 +70,8 @@ class TestReader(unittest.TestCase):
     def test_read_file(self):
         data = (
             128*"\0"+"DICM"+
-            "\x02\x00\x10\x00" "UI" "\x14\x00" "1.2.840.10008.1.2.1 "
-            "\x10\x00\x10\x00" "PN" "\x07\x00" "Foo^Bar"
+            "\x02\x00\x10\x00" "UI" "\x14\x00" "1.2.840.10008.1.2.1\x00"
+            "\x10\x00\x10\x00" "PN" "\x08\x00" "Foo^Bar "
         )
         string_io = StringIO.StringIO(data)
         stream = odil.iostream(string_io)

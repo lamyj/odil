@@ -53,6 +53,17 @@ create_Writer_2(
     return boost::shared_ptr<odil::Writer>(writer);
 }
 
+void write_file(
+    odil::DataSet const & data_set, odil::wrappers::python::iostream & stream,
+    odil::DataSet const & meta_information, std::string const & transfer_syntax,
+    int item_encoding, bool use_group_length)
+{
+    odil::Writer::write_file(
+        data_set, stream, meta_information, transfer_syntax,
+        static_cast<odil::Writer::ItemEncoding>(item_encoding),
+        use_group_length);
+}
+
 }
 
 void wrap_Writer()
@@ -81,7 +92,7 @@ void wrap_Writer()
         .def("write_tag", &Writer::write_tag)
         .def("write_element", &Writer::write_element)
         .def(
-            "write_file", &Writer::write_file,
+            "write_file", write_file,
             (
                 arg("data_set"), arg("stream"),
                 arg("meta_information")=DataSet(),
