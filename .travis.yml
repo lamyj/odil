@@ -44,7 +44,7 @@ before_script:
   #- if [ "$TRAVIS_OS_NAME" = "osx" ]; then CMAKE_OPTIONS='${CMAKE_OPTIONS} -DPYTHON_LIBRARY=/usr/local/Frameworks/Python.framework/Versions/2.7/lib/libpython2.7.dylib' ; fi
   - if [ "$TRAVIS_OS_NAME" = "osx" ]; then export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/usr/local/opt/icu4c/lib/pkgconfig; fi
   # Travis has a weird Python environment. Disable the wrappers
-  - cmake ${CMAKE_OPTIONS} -DBUILD_WRAPPERS=OFF ../
+  - cmake ${CMAKE_OPTIONS} -BUILD_PYTHON_WRAPPERS=OFF ../
 script:
   - make
   - ../tests/run --no-network -e ".*"
