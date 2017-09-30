@@ -62,7 +62,7 @@ def main():
     environment["PATH"] = os.pathsep.join(
         [os.path.abspath("tests/tools"), environment["PATH"]])
     environment["PYTHONPATH"] = os.pathsep.join(
-        [os.path.abspath("wrappers"), environment.get("PYTHONPATH", "")])
+        [os.path.abspath("wrappers/python"), environment.get("PYTHONPATH", "")])
 
     source_directory = None
     with open("CMakeCache.txt") as fd:
