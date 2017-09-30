@@ -1,0 +1,66 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8"> 
+        <script src="print.js"></script>
+        <style type="text/css">
+            ul { padding-left: 0px; margin-left: 0px; }
+            ul>li { list-style-type: none; }
+        </style>
+    </head>
+    
+    <body>
+        <label for="file">Select a DICOM file: </label>
+        <input type="file" id="file" name="file"/><br>
+        
+        <canvas id="pixelData"></canvas>
+        <ul id="header"></ul>
+        <ul id="dataSet"></ul>
+        
+        <script>
+            function onFileRead(event) {
+                var buffer = event.target.result;
+                var headerAndDataSet = odil.readBuffer(buffer);
+                var header = headerAndDataSet.get(0);
+                var dataSet = headerAndDataSet.get(1);
+                
+                document.querySelector('#header').innerHTML = '';
+                document.querySelector('#dataSet').innerHTML = '';
+                renderDataSet(header, document.querySelector('#header'));
+                renderDataSet(dataSet, document.querySelector('#dataSet'));
+                
+                var pixelDataCanvas = document.querySelector('#pixelData');
+                if(dataSet.has(odil.getTag('PixelData'))) {
+                    var rows = dataSet.as_int(odil.getTag('Rows')).get(0);
+                    var columns = dataSet.as_int(odil.getTag('Columns')).get(0);
+                    pixelDataCanvas.width = columns;
+                    pixelDataCanvas.height = rows;
+                    var context = pixelDataCanvas.getContext('2d');
+                    putDataSetImage(dataSet, context);
+                }
+                else {
+                    pixelDataCanvas.width = 0;
+                    pixelDataCanvas.height = 0;
+                }
+            }
+            
+            function onFileSelect(event) {
+                var file = event.target.files[0];
+                var reader = new FileReader();
+                reader.addEventListener('loadend', onFileRead);
+                reader.readAsArrayBuffer(file);
+            }
+            
+            function main() {
+                window.odil = Module;
+                document.querySelector('#file').addEventListener(
+                    'change', onFileSelect);
+            }
+            
+            var Module = {
+                onRuntimeInitialized: main
+            };
+        </script>
+        <script src="odil.js"></script>
+    </body>
+</html>
