@@ -11,6 +11,7 @@
 
 #include <string>
 
+#include "odil/odil.h"
 #include "odil/webservices/Message.h"
 
 namespace odil
@@ -20,7 +21,7 @@ namespace webservices
 {
 
 /// @brief HTTP Response
-class HTTPResponse: public Message
+class ODIL_API HTTPResponse: public Message
 {
 public:
     /**

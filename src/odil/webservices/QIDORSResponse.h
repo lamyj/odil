@@ -13,6 +13,7 @@
 #include <vector>
 
 #include "odil/DataSet.h"
+#include "odil/odil.h"
 #include "odil/webservices/HTTPResponse.h"
 #include "odil/webservices/Utils.h"
 
@@ -23,7 +24,7 @@ namespace webservices
 {
 
 /// @brief QIDO-RS response generator and parser.
-class QIDORSResponse
+class ODIL_API QIDORSResponse
 {
 public:
     /// @brief Constructor.

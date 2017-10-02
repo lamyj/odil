@@ -15,6 +15,7 @@
 #include <boost/uuid/uuid.hpp>
 
 #include "odil/DataSet.h"
+#include "odil/odil.h"
 #include "odil/registry.h"
 #include "odil/webservices/BulkData.h"
 #include "odil/webservices/HTTPRequest.h"

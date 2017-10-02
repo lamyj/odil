@@ -11,6 +11,7 @@
 
 #include <string>
 
+#include "odil/odil.h"
 #include "odil/webservices/Message.h"
 #include "odil/webservices/URL.h"
 
@@ -21,7 +22,7 @@ namespace webservices
 {
 
 /// @brief HTTP request
-class HTTPRequest: public Message
+class ODIL_API HTTPRequest: public Message
 {
 public:
     /**

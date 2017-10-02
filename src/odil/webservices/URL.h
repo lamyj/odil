@@ -11,6 +11,8 @@
 
 #include <string>
 
+#include "odil/odil.h"
+
 namespace odil
 {
 
@@ -18,7 +20,7 @@ namespace webservices
 {
 
 /// @brief Uniform resource locator
-struct URL
+struct ODIL_API URL
 {
     std::string scheme;
     std::string authority;

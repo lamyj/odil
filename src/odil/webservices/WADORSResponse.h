@@ -14,6 +14,7 @@
 
 #include "odil/DataSet.h"
 #include "odil/Element.h"
+#include "odil/odil.h"
 #include "odil/Value.h"
 #include "odil/webservices/BulkData.h"
 #include "odil/webservices/HTTPResponse.h"
@@ -26,7 +27,7 @@ namespace webservices
 {
 
 /// @brief WADO-RS response generator and parser.
-class WADORSResponse
+class ODIL_API WADORSResponse
 {
 public:
     /// @brief Constructor.

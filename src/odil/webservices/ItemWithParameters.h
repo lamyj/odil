@@ -14,6 +14,8 @@
 #include <ostream>
 #include <string>
 
+#include "odil/odil.h"
+
 namespace odil
 {
 
@@ -29,7 +31,7 @@ namespace webservices
  * weight of this item), while extension_parameters will store the optional
  * weight and subsequent parameters.
  */
-struct ItemWithParameters
+struct ODIL_API ItemWithParameters
 {
     std::string name;
     std::map<std::string, std::string> name_parameters;

@@ -14,6 +14,8 @@
 #include <ostream>
 #include <string>
 
+#include "odil/odil.h"
+
 namespace odil
 {
 
@@ -21,7 +23,7 @@ namespace webservices
 {
 
 /// @brief RFC 5322 Message (i.e. headers with body).
-class Message
+class ODIL_API Message
 {
 public:
     /// @brief Associative container for headers.

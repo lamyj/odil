@@ -14,6 +14,7 @@
 
 
 #include "odil/DataSet.h"
+#include "odil/odil.h"
 #include "odil/webservices/HTTPResponse.h"
 #include "odil/webservices/Utils.h"
 
@@ -23,7 +24,7 @@ namespace odil
 namespace webservices
 {
 /// @brief STOW-RS request generator and parser.
-class STOWRSResponse
+class ODIL_API STOWRSResponse
 {
 public:
     /// @brief Constructor.
