@@ -21,16 +21,16 @@ namespace webservices
 {
 
 /// @brief Test whether the message is multipart/related.
-bool is_multipart_related(Message const & message);
+ODIL_API bool is_multipart_related(Message const & message);
 
 /**
  * @brief Return the number of parts in the message, 0 if the message is not
  * multipart/related.
  */
-std::size_t count_parts(Message const & message);
+ODIL_API std::size_t count_parts(Message const & message);
 
 /// @brief Return a random multipart/related boundary.
-std::string random_boundary();
+ODIL_API std::string random_boundary();
 
 /// @brief Transform each part of a multipart/related message.
 template<typename Iterator, typename UnaryFunctor>

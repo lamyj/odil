@@ -63,10 +63,14 @@ private:
 };
 
 /// @brief Input an HTTP response from a stream.
-std::istream & operator>>(std::istream & stream, HTTPResponse & Response);
+ODIL_API
+std::istream &
+operator>>(std::istream & stream, HTTPResponse & Response);
 
 /// @brief Output an HTTP response to a stream.
-std::ostream & operator<<(std::ostream & stream, HTTPResponse const & Response);
+ODIL_API
+std::ostream &
+operator<<(std::ostream & stream, HTTPResponse const & Response);
 
 }
 

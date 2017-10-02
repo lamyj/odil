@@ -52,10 +52,14 @@ struct ODIL_API ItemWithParameters
 };
 
 /// @brief Input an AcceptableItem from a stream.
-std::istream & operator>>(std::istream & stream, ItemWithParameters & item);
+ODIL_API
+std::istream &
+operator>>(std::istream & stream, ItemWithParameters & item);
 
 /// @brief Output an AcceptableItem to a stream.
-std::ostream & operator<<(std::ostream & stream, ItemWithParameters const & item);
+ODIL_API
+std::ostream &
+operator<<(std::ostream & stream, ItemWithParameters const & item);
 
 }
 

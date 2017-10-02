@@ -79,10 +79,14 @@ private:
 };
 
 /// @brief Input a Message from a stream.
-std::istream & operator>>(std::istream & stream, Message & message);
+ODIL_API
+std::istream &
+operator>>(std::istream & stream, Message & message);
 
 /// @brief Output a Message to a stream.
-std::ostream & operator<<(std::ostream & stream, Message const & message);
+ODIL_API
+std::ostream &
+operator<<(std::ostream & stream, Message const & message);
 
 }
 
