@@ -1,12 +1,15 @@
 import unittest
 
-import StringIO
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
 
 import odil
 
 class TestWriter(unittest.TestCase):
     def test_constructor_1(self):
-        stream = odil.iostream(StringIO.StringIO())
+        stream = odil.iostream(StringIO())
         writer = odil.Writer(stream, odil.ByteOrdering.LittleEndian, False)
         self.assertEqual(writer.byte_ordering, odil.ByteOrdering.LittleEndian)
         self.assertFalse(writer.explicit_vr)
@@ -15,7 +18,7 @@ class TestWriter(unittest.TestCase):
         self.assertFalse(writer.use_group_length)
 
     def test_constructor_2(self):
-        stream = odil.iostream(StringIO.StringIO())
+        stream = odil.iostream(StringIO())
         writer = odil.Writer(
             stream, odil.registry.ExplicitVRBigEndian_Retired)
         self.assertEqual(writer.byte_ordering, odil.ByteOrdering.BigEndian)
@@ -29,7 +32,7 @@ class TestWriter(unittest.TestCase):
         data_set.add("PatientName", ["Foo^Bar"])
         data_set.add("PatientID", ["FOO"])
 
-        string_io = StringIO.StringIO()
+        string_io = StringIO()
         stream = odil.iostream(string_io)
         writer = odil.Writer(stream, odil.registry.ExplicitVRLittleEndian)
         writer.write_data_set(data_set)
@@ -41,7 +44,7 @@ class TestWriter(unittest.TestCase):
         )
 
     def test_write_tag(self):
-        string_io = StringIO.StringIO()
+        string_io = StringIO()
         stream = odil.iostream(string_io)
         writer = odil.Writer(stream, odil.registry.ExplicitVRLittleEndian)
         writer.write_tag(odil.registry.PatientID)
@@ -49,7 +52,7 @@ class TestWriter(unittest.TestCase):
         self.assertEqual(string_io.getvalue(), "\x10\x00\x20\x00")
 
     def test_write_element(self):
-        string_io = StringIO.StringIO()
+        string_io = StringIO()
         stream = odil.iostream(string_io)
         writer = odil.Writer(stream, odil.registry.ExplicitVRLittleEndian)
         writer.write_element(odil.Element(["Foo^Bar"], odil.VR.PN))
@@ -61,7 +64,7 @@ class TestWriter(unittest.TestCase):
         data_set.add("SOPInstanceUID", ["1.2.3.4.5"])
         data_set.add("PatientName", ["Foo^Bar"])
 
-        string_io = StringIO.StringIO()
+        string_io = StringIO()
         stream = odil.iostream(string_io)
 
         odil.Writer.write_file(
