@@ -1,0 +1,36 @@
+#!/bin/sh
+
+export Architecture=${Architecture:?}
+export Distribution=${Distribution:?}
+export Python=${Python:?}
+export WORKSPACE=${WORKSPACE:?}
+
+APT_GET="sudo apt-get -qq -y"
+
+if [ "${Python}" = "2" ]
+then
+  PYTHON_PREFIX="python"
+elif [ "${Python}" = "3" ]
+then
+  PYTHON_PREFIX="python3"
+fi
+
+# Compilation toolchain
+PACKAGES="build-essential cmake pkg-config python-minimal"
+# Dependencies of main lib
+PACKAGES="${PACKAGES} libboost-dev libboost-date-time-dev libboost-filesystem-dev"
+PACKAGES="${PACKAGES} libdcmtk2-dev libicu-dev libjsoncpp-dev liblog4cpp5-dev zlib1g-dev"
+# Dependencies of Python wrappers
+PACKAGES="${PACKAGES} libboost-python-dev ${PYTHON_PREFIX}-dev"
+# Dependencies of unit tests
+PACKAGES="${PACKAGES} dcmtk libboost-test-dev ${PYTHON_PREFIX}-nose"
+# Coverage and static analysis
+PACKAGES="${PACKAGES} cppcheck lcov"
+
+if [ "${Distribution}" = "ubuntu/precise" ]
+then
+  PACKAGES="${PACKAGES} libwrap0-dev"
+fi
+
+${APT_GET} update
+${APT_GET} install ${PACKAGES}

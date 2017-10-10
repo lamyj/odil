@@ -69,9 +69,10 @@ if(BUILD_JAVASCRIPT_WRAPPERS)
     add_subdirectory("wrappers/js")
 endif()
 
+file(GLOB_RECURSE ci_resources .ci/*)
 add_custom_target(
     CIIntegration ${CMAKE_COMMAND} -E echo "CI Integration"
-    SOURCES appveyor.yml .gitlab-ci.yml .travis.yml)
+    SOURCES appveyor.yml .gitlab-ci.yml .travis.yml ${ci_resources})
 set_target_properties(CIIntegration PROPERTIES FOLDER "Utils")
 
 add_custom_target(

@@ -1,0 +1,49 @@
+#!/bin/sh
+
+export Architecture=${Architecture:?}
+export Distribution=${Distribution:?}
+export Python=${Python:?}
+export WORKSPACE=${WORKSPACE:?}
+
+rm -rf generatedJUnitFiles/CTest/*
+cd build
+rm -rf Testing/*
+
+if [ ! -d "${WORKSPACE}/generatedJUnitFiles" ]; then
+  mkdir "${WORKSPACE}/generatedJUnitFiles"
+fi
+
+sudo wget -O /usr/local/bin/lcov_cobertura https://raw.github.com/eriwen/lcov-to-cobertura-xml/master/lcov_cobertura/lcov_cobertura.py
+sudo chmod a+x /usr/local/bin/lcov_cobertura
+
+if [ "${Python}" = "2" ]
+then
+  NOSE="nosetests-2.7"
+elif [ "${Python}" = "3" ]
+then
+  NOSE="nosetests3"
+fi
+
+if [ "${Python}" = "3" -a "${Distribution}" = "ubuntu/precise" -o "${Distribution}" = "debian/wheezy" ]
+then
+  # Python 3.2 does not include PEP0414
+  2to3 -w ../tests/wrappers/test_vr.py
+fi
+
+"${WORKSPACE}/tests/run" -v --no-network --nose ${NOSE}
+
+DIRECTORY=`mktemp -d`
+if [ "${Distribution}" != "ubuntu/precise" -a "${Distribution}" != "debian/wheezy" ]; then
+  lcov --capture --directory "${WORKSPACE}" --output-file ${DIRECTORY}/test.info
+  lcov --remove ${DIRECTORY}/test.info -o ${DIRECTORY}/filtered.info \
+    '/usr/*' 'src/appli/*' 'tests/*' 'build/*'
+else
+  touch ${DIRECTORY}/filtered.info
+fi
+/usr/local/bin/lcov_cobertura ${DIRECTORY}/filtered.info -b "${WORKSPACE}"
+rm -rf ${DIRECTORY}
+
+cppcheck -q --xml --xml-version=2 --enable=all \
+  -i "${WORKSPACE}/tests/tools" \
+  "${WORKSPACE}/src/" "${WORKSPACE}/tests/" "${WORKSPACE}/wrappers/" \
+  2> ${WORKSPACE}/build/cppcheck.xml
