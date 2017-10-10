@@ -18,9 +18,13 @@ include_directories(
     ${JsonCpp_INCLUDE_DIRS} ${PYTHON_INCLUDE_DIRS})
 link_directories(${Boost_LIBRARY_DIRS})
 
-file(GLOB_RECURSE files "*.cpp")
-list(SORT files)
-python_add_module(pyodil SHARED ${files})
+file(GLOB_RECURSE Header_Files "*.h")
+file(GLOB_RECURSE Source_Files "*.cpp")
+
+list(SORT Header_Files)
+list(SORT Source_Files)
+
+python_add_module(pyodil SHARED ${Source_Files} ${Header_Files})
 set_target_properties(
     pyodil PROPERTIES OUTPUT_NAME odil FOLDER "Wrappers")
 if(APPLE)
