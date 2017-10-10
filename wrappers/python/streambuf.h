@@ -24,7 +24,7 @@ namespace wrappers
 namespace python
 {
 
-/// @brief streambuf wrapper around Python file-like objects.
+/// @brief streambuf wrapper around Python byte-based file-like objects.
 class streambuf : public std::streambuf
 {
 public:

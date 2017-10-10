@@ -16,6 +16,13 @@
 
 #include "odil/Exception.h"
 
+#if PY_MAJOR_VERSION >= 3
+    #define FromStringAndSize(v, len) PyBytes_FromStringAndSize(v, len)
+#else
+    #define IS_PY2
+    #define FromStringAndSize(v, len) PyString_FromStringAndSize(v, len)
+#endif
+
 namespace odil
 {
 
@@ -130,7 +137,10 @@ streambuf
 {
     if(ch != std::char_traits<char>::eof())
     {
-        this->_object.attr("write")(char(ch));
+        char const cast_ch(ch);
+        boost::python::object bytes_ch = boost::python::object(
+            boost::python::handle<>(FromStringAndSize(&cast_ch, 1)));
+        this->_object.attr("write")(bytes_ch);
     }
     return ch;
 }
