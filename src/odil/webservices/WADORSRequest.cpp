@@ -490,28 +490,27 @@ WADORSRequest
         namespace qi = boost::spirit::qi;
         namespace p = boost::phoenix; // boost::phoenix::ref clashes with std::ref
 
-        using boost::spirit::qi::digit;
+        using boost::spirit::qi::char_;
         using boost::spirit::qi::int_;
         using boost::spirit::qi::lit;
         using boost::spirit::qi::omit;
         using boost::spirit::qi::string;
         using boost::spirit::qi::_1;
 
-        qi::rule<Iterator, std::string()> uid = digit >> *(string(".") >> +digit);
-
         qi::rule<Iterator, std::string()> selec =
-                string("studies") | string("series") | string("instances");
+            string("studies") | string("series") | string("instances");
 
-        qi::rule<Iterator, std::vector<int>()> frame_list = int_%","; // in order to do a list
+        qi::rule<Iterator, std::string()> value = +(~char_("/"));
+
+        qi::rule<Iterator, std::vector<int>()> frame_list = int_ % ",";
 
         qi::rule<Iterator, KeyValFrames()> retrieve_selector =
-                (
-                    (selec >> omit["/"] >> uid)% "/"
-                    >> -(lit("/frames/") >> frame_list)
-                );
+            (selec >> omit["/"] >> value) % "/"
+            >> -(lit("/frames/") >> frame_list)
+        ;
 
         auto iterator = resource.begin();
-        qi::phrase_parse(
+        auto const parsed = qi::phrase_parse(
             iterator, resource.end(),
             retrieve_selector,
             boost::spirit::qi::ascii::space, selector_

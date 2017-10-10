@@ -28,8 +28,9 @@ class ODIL_API Selector
 public:
 
     /// @brief Default constructor
-    Selector(std::map<std::string, std::string> const & selector ={},
-             std::vector<int> const& frames={});
+    Selector(
+        std::map<std::string, std::string> const & selector=std::map<std::string, std::string>(),
+        std::vector<int> const & frames=std::vector<int>());
 
 
     /// @brief Equality operator.

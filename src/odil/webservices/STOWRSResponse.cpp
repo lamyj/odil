@@ -8,6 +8,7 @@
 
 #include "odil/webservices/STOWRSResponse.h"
 
+#include <array>
 #include <sstream>
 
 #include <json/json.h>

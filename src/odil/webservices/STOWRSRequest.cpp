@@ -239,15 +239,15 @@ STOWRSRequest
         namespace qi = boost::spirit::qi;
         namespace p = boost::phoenix;
 
-        using boost::spirit::qi::digit;
+        using boost::spirit::qi::char_;
         using boost::spirit::qi::lit;
         using boost::spirit::qi::string;
         using boost::spirit::qi::_1;
 
-        qi::rule<Iterator, std::string()> uid = digit >> *(string(".") >> +digit);
+        qi::rule<Iterator, std::string()> value = +(~char_("/"));
 
         qi::rule<Iterator> retrieve_study =
-            lit("studies/") >> uid[p::ref(study) = _1];
+            lit("studies/") >> value[p::ref(study) = _1];
 
         auto iterator = resource.begin();
         qi::phrase_parse(
@@ -475,10 +475,8 @@ STOWRSRequest
         {
             // Remove the last boundary of the message
             auto body_content = body.str();
-            for (int i=0; i < boundary.size() + 6*sizeof(char); ++i)
-            {
-                body_content.pop_back();
-            }
+            body_content = body_content.substr(
+                0, body_content.size()-boundary.size()-6);
             body.str(std::string()); // clear the content
             body << body_content;
 
@@ -556,10 +554,8 @@ STOWRSRequest
         {
             // Remove the last boundary of the message
             auto body_content = body.str();
-            for (int i=0; i < boundary.size() + 6*sizeof(char); ++i)
-            {
-                body_content.pop_back();
-            }
+            body_content = body_content.substr(
+                0, body_content.size()-boundary.size()-6);
             body.str(std::string()); // clear the content
             body << body_content;
 

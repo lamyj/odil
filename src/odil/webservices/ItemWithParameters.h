@@ -39,8 +39,8 @@ struct ODIL_API ItemWithParameters
 
     ItemWithParameters(
         std::string const & name="",
-        std::map<std::string, std::string> const & name_parameters={},
-        std::map<std::string, std::string> const & extension_parameters={});
+        std::map<std::string, std::string> const & name_parameters=std::map<std::string, std::string>(),
+        std::map<std::string, std::string> const & extension_parameters=std::map<std::string, std::string>());
 
     ~ItemWithParameters() =default;
     ItemWithParameters(ItemWithParameters const &) =default;

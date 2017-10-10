@@ -235,7 +235,7 @@ boost::property_tree::ptree as_xml(
 
         auto const bulk_data_info =
             bulk_data_creator?bulk_data_creator(data_set, tag)
-            :std::make_pair("", "");
+            :std::make_pair(std::string(), std::string());
         if(!bulk_data_info.first.empty())
         {
             boost::property_tree::ptree bulk_data_element;

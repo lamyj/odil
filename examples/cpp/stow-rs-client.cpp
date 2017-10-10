@@ -148,7 +148,11 @@ int main()
 //    stream.connect(root.authority, root.scheme);
     if(!stream)
     {
-        std::cerr << "Error connecting: " << stream.error().message() << std::endl;
+        std::cerr << "Error connecting: "
+#if BOOST_VERSION >= 104700
+            << stream.error().message()
+#endif
+            << std::endl;
         return 1;
     }
 
@@ -159,7 +163,11 @@ int main()
     stream << http_request;
     if(!stream)
     {
-        std::cerr << "Error sending: " << stream.error().message() << std::endl;
+        std::cerr << "Error sending: "
+#if BOOST_VERSION >= 104700
+            << stream.error().message()
+#endif
+            << std::endl;
         return 1;
     }
 
@@ -168,7 +176,11 @@ int main()
 
     if (!stream)
     {
-        std::cerr << "Error receiving : " << stream.error().message() << std::endl;
+        std::cerr << "Error receiving : "
+#if BOOST_VERSION >= 104700
+            << stream.error().message()
+#endif
+            << std::endl;
         return 1;
     }
 

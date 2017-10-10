@@ -215,22 +215,22 @@ QIDORSRequest
         auto const resource = url.path.substr(position+1);
 
 
-        using boost::spirit::qi::digit;
+        using boost::spirit::qi::char_;
         using boost::spirit::qi::int_;
         using boost::spirit::qi::lit;
         using boost::spirit::qi::omit;
         using boost::spirit::qi::string;
         using boost::spirit::qi::_1;
 
-        qi::rule<Iterator, std::string()> uid = digit >> *(string(".") >> +digit);
-
         qi::rule<Iterator, std::string()> selec =
                 -string("studies")
                 >> -string("series")
                 >> -string("instances");
 
+        qi::rule<Iterator, std::string()> value = +(~char_("/"));
+
         qi::rule<Iterator, KeyVal()> retrieve_selector =
-                (selec >> -(omit["/"] >> uid))% "/";
+                (selec >> -(omit["/"] >> value))% "/";
 
         KeyVal selector_vector;
         auto iterator = resource.begin();
