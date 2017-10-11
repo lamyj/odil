@@ -8,9 +8,11 @@
 
 #include "streambuf.h"
 
+#include <algorithm>
 #include <ios>
 #include <streambuf>
 #include <string>
+#include <vector>
 
 #include <boost/python.hpp>
 
@@ -157,7 +159,17 @@ streambuf
     }
     else
     {
+#if PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION <= 2
+        // Exception as seen in Debian Wheezy / Ubuntu Precise:
+        // No registered converter was able to produce a C++ rvalue of type
+        //   std::string from this Python object of type bytes
+        std::vector<int> data_int =
+            boost::python::extract<std::vector<int>>(data);
+        this->_buffer.resize(data_int.size());
+        std::copy(data_int.begin(), data_int.end(), this->_buffer.begin());
+#else
         this->_buffer = boost::python::extract<std::string>(data);
+#endif
         this->_current = 0;
     }
 }
