@@ -7,6 +7,7 @@
  ************************************************************************/
 
 #include "odil/EchoSCP.h"
+#include "odil/NCreateSCP.h" 
 #include "odil/NSetSCP.h"
 #include "odil/SCP.h"
 #include "odil/SCPDispatcher.h"
@@ -41,6 +42,7 @@ void wrap_SCPDispatcher()
     .def("set_echo_scp", &set_scp<EchoSCP, message::Message::Command::Type::C_ECHO_RQ>)
     .def("set_store_scp", &set_scp<StoreSCP, message::Message::Command::Type::C_STORE_RQ>)
     .def("set_nset_scp", &set_scp<NSetSCP, message::Message::Command::Type::N_SET_RQ>)
+    .def("set_ncreate_scp", &set_scp<NCreateSCP, message::Message::Command::Type::N_CREATE_RQ>)
     ;
 }
 
