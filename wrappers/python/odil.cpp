@@ -38,6 +38,7 @@ void wrap_StoreSCU();
 void wrap_StoreSCP();
 void wrap_Tag();
 void wrap_uid();
+void wrap_unicode();
 void wrap_UIDsDictionary();
 void wrap_Value();
 void wrap_VR();
@@ -99,6 +100,7 @@ BOOST_PYTHON_MODULE(odil)
     wrap_StoreSCU();
     wrap_Tag();
     wrap_uid();
+    wrap_unicode();
     wrap_UIDsDictionary();
     wrap_Value();
     wrap_VR();
