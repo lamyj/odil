@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -ev
+
 export Architecture=${Architecture:?}
 export Distribution=${Distribution:?}
 export Python=${Python:?}

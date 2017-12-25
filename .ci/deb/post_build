@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -ev
+
 export Architecture=${Architecture:?}
 export Distribution=${Distribution:?}
 export Python=${Python:?}
@@ -30,7 +32,7 @@ then
   2to3 -w ../tests/wrappers/test_vr.py
 fi
 
-"${WORKSPACE}/tests/run" -v --no-network --nose ${NOSE}
+"${WORKSPACE}/tests/run" --no-network --nose ${NOSE}
 
 DIRECTORY=`mktemp -d`
 if [ "${Distribution}" != "ubuntu/precise" -a "${Distribution}" != "debian/wheezy" ]; then

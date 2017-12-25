@@ -5,48 +5,19 @@ matrix:
       sudo: required
       dist: trusty
       compiler: gcc
-    - os: osx
-      compiler: clang
-addons:
-  apt:
-    packages:
-    - libdcmtk2-dev
-    - libwrap0-dev
-    - libjsoncpp-dev
-    - libicu-dev
-    - zlib1g-dev
-    - libboost-dev
-    - libboost-date-time-dev
-    - libboost-filesystem-dev
-    - libboost-python-dev
-    - libboost-test-dev
-    - liblog4cpp5-dev
-    - dcmtk
-    - cmake
-    - pkg-config
-before_install:
-  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew update; fi
-  # JSONCpp conflicts with json-c
-  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew uninstall --ignore-dependencies json-c; fi
-  # Boost is already installed with another version
-  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew unlink boost; brew install boost boost-python; fi
-  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew install dcmtk icu4c jsoncpp log4cpp; fi
-  - pip install --user cpp-coveralls nose
+      env: Architecture=amd64 Distribution=ubuntu/trusty Python=2 WORKSPACE=${TRAVIS_BUILD_DIR}
+    # - os: osx
+    #   compiler: clang
+install:
+  - pip install --user cpp-coveralls
   - export PATH=$(python -c 'import site; print(site.getuserbase())')/bin:${PATH}
-before_script:
-  - export SRC_DIR=$PWD
-  - mkdir build
-  - cd build
-  - export BIN_DIR=$PWD
-  - CMAKE_OPTIONS=""
-  - if [ "${CC}" = "gcc" ]; then CMAKE_OPTIONS='${CMAKE_OPTIONS} -DCMAKE_CXX_FLAGS="--coverage"'; fi
-  #- if [ "${CC}" = "gcc" ]; then CMAKE_OPTIONS='${CMAKE_OPTIONS} -DPYTHON_LIBRARY=/opt/python/2.7.12/lib/libpython2.7.so'; fi
-  #- if [ "$TRAVIS_OS_NAME" = "osx" ]; then CMAKE_OPTIONS='${CMAKE_OPTIONS} -DPYTHON_LIBRARY=/usr/local/Frameworks/Python.framework/Versions/2.7/lib/libpython2.7.dylib' ; fi
-  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/usr/local/opt/icu4c/lib/pkgconfig; fi
-  # Travis has a weird Python environment. Disable the wrappers
-  - cmake ${CMAKE_OPTIONS} -DBUILD_PYTHON_WRAPPERS=OFF ../
+  - env
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo -E sh ./.ci/deb/install; fi
+  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then ./.ci/brew/install; fi
 script:
-  - make
-  - ../tests/run --no-network -e ".*"
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then CMAKE_OPTIONS="-D CMAKE_CXX_FLAGS=--coverage" MAKE_OPTIONS=$(nproc) ./.ci/deb/build; fi
+  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then MAKE_OPTIONS=$(sysctl -n hw.ncpu) ./.ci/brew/build; fi
 after_success:
-  - if [ "${CC}" = "gcc" ]; then coveralls --exclude examples --exclude tests --exclude-pattern '.*CMake[^/]+\.c(?:pp)?' --exclude-pattern "/usr/.*" --root=${SRC_DIR} --build-root ${BIN_DIR} > /dev/null; fi
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then ./.ci/deb/post_build; fi
+  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then ./.ci/brew/post_build; fi
+  - if [ "${CC}" = "gcc" ]; then coveralls --exclude examples --exclude tests --exclude-pattern '.*CMake[^/]+\.c(?:pp)?' --exclude-pattern "/usr/.*" --root=${WORKSPACE} --build-root ${WORKSPACE}/build > /dev/null; fi

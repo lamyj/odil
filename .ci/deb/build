@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -ev
+
 export Architecture=${Architecture:?}
 export Distribution=${Distribution:?}
 export Python=${Python:?}
@@ -27,8 +29,8 @@ BOOST_PYTHON_LIBRARY=/usr/lib/${TRIPLET}/libboost_python-py${PYTHON_VERSION_NO_D
 
 cd ${WORKSPACE}
 
-mkdir build
-mkdir install
+mkdir -p build
+mkdir -p install
 cd build
 cmake \
   -D CMAKE_INSTALL_PREFIX="${WORKSPACE}/install" \
