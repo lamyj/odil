@@ -15,8 +15,8 @@ install:
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo -E sh ./.ci/deb/install; fi
   - if [ "$TRAVIS_OS_NAME" = "osx" ]; then ./.ci/brew/install; fi
 script:
-  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then CMAKE_OPTIONS="-D CMAKE_CXX_FLAGS=--coverage" MAKE_OPTIONS=$(nproc) ./.ci/deb/build; fi
-  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then MAKE_OPTIONS=$(sysctl -n hw.ncpu) ./.ci/brew/build; fi
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then CMAKE_OPTIONS="-D CMAKE_CXX_FLAGS=--coverage" MAKE_OPTIONS="-j$(nproc)" ./.ci/deb/build; fi
+  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then MAKE_OPTIONS="-j$(sysctl -n hw.ncpu)" ./.ci/brew/build; fi
 after_success:
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then ./.ci/deb/post_build; fi
   - if [ "$TRAVIS_OS_NAME" = "osx" ]; then ./.ci/brew/post_build; fi
