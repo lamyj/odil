@@ -15,7 +15,7 @@ brew install jq
 for formula in ${BREW_CONFLICTING}; do
   json=$(brew info --json=v1 ${formula})
 
-  if [ $(echo ${json} | jq ".[].installed|length") -gt 0 ]; then
+  if [ $(echo ${json} | jq -r ".[].installed|length") -gt 0 ]; then
     brew unlink ${formula}
   fi
 done
@@ -23,11 +23,11 @@ done
 for formula in ${BREW_NEED_LATEST}; do
   json=$(brew info --json=v1 ${formula})
 
-  if [ $(echo ${json} | jq ".[].installed|length") -eq 0 ]; then
+  if [ $(echo ${json} | jq -r ".[].installed|length") -eq 0 ]; then
     brew install ${formula}
   else
-    installed=$(echo ${json} | jq ".[].installed[-1].version")
-    available=$(echo $json | jq ".[].versions.stable")
+    installed=$(echo ${json} | jq -r ".[].installed[-1].version")
+    available=$(echo $json | jq -r ".[].versions.stable")
     if [ "${available}" != "${installed}" ]; then
       brew upgrade ${formula}
     fi
