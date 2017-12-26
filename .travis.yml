@@ -10,11 +10,10 @@ matrix:
       compiler: clang
       env: Python=2 WORKSPACE=${TRAVIS_BUILD_DIR} MAKE_OPTIONS="-j$(sysctl -n hw.ncpu)"
 install:
-  - pip install --user cpp-coveralls
-  - export PATH=$(python -c 'import site; print(site.getuserbase())')/bin:${PATH}
-  - env
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo -E sh ./.ci/deb/install; fi
   - if [ "$TRAVIS_OS_NAME" = "osx" ]; then ./.ci/brew/install; fi
+  - if [ "${CC}" = "gcc" ]; then pip${Python} install --user cpp-coveralls; fi
+  - if [ "${CC}" = "gcc" ]; then export PATH=$(python -c 'import site; print(site.getuserbase())')/bin:${PATH}; fi
 script:
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then ./.ci/deb/build; fi
   - if [ "$TRAVIS_OS_NAME" = "osx" ]; then ./.ci/brew/build; fi
