@@ -13,27 +13,16 @@ PIP_PACKAGES="cpp-coveralls nose"
 brew install jq
 
 for formula in ${BREW_CONFLICTING}; do
-  json=$(brew info --json=v1 ${formula} | tr -d '\n')
-
-  if [ $(echo ${json} | jq -r ".[].installed|length") -gt 0 ]; then
+  if ! (brew info ${formula} | grep -q "Not installed"); then
     brew unlink ${formula}
   fi
 done
 
 for formula in ${BREW_NEED_LATEST}; do
-  json=$(brew info --json=v1 ${formula} | tr -d '\n')
-  echo ${formula}
-  echo ${json}
-  echo -n ${json} | od -c -tx1
-
-  if [ $(echo ${json} | jq -r ".[].installed|length") -eq 0 ]; then
-    brew install ${formula}
+  if (brew outdated | grep -q ${formula}); then
+    brew upgrade ${formula}
   else
-    installed=$(echo ${json} | jq -r ".[].installed[-1].version")
-    available=$(echo $json | jq -r ".[].versions.stable")
-    if [ "${available}" != "${installed}" ]; then
-      brew upgrade ${formula}
-    fi
+    brew install ${formula}
   fi
 done
 
