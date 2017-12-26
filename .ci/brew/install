@@ -1,0 +1,37 @@
+#!/bin/sh
+
+set -ev
+
+export Python=${Python:?}
+export WORKSPACE=${WORKSPACE:?}
+
+BREW_CONFLICTING="json-c"
+# FIXME: this does not install the Python 3 version of boost-python
+BREW_NEED_LATEST="boost boost-python cmake cppcheck dcmtk icu4c jsoncpp lcov log4cpp pkg-config python${Python}"
+PIP_PACKAGES="cpp-coveralls nose"
+
+brew install jq
+
+for formula in ${BREW_CONFLICTING}; do
+  json=$(brew info --json=v1 ${formula})
+
+  if [ $(echo ${json} | jq ".[].installed|length") -gt 0 ]; then
+    brew unlink ${formula}
+  fi
+done
+
+for formula in ${BREW_NEED_LATEST}; do
+  json=$(brew info --json=v1 ${formula})
+
+  if [ $(echo ${json} | jq ".[].installed|length") -eq 0 ]; then
+    brew install ${formula}
+  else
+    installed=$(echo ${json} | jq ".[].installed[-1].version")
+    available=$(echo $json | jq ".[].versions.stable")
+    if [ "${available}" != "${installed}" ]; then
+      brew upgrade ${formula}
+    fi
+  fi
+done
+
+pip${Python} install -U ${PIP_PACKAGES}

@@ -1,0 +1,10 @@
+#!/bin/sh
+
+set -ev
+
+export Python=${Python:?}
+export WORKSPACE=${WORKSPACE:?}
+
+cd build
+
+../tests/run --no-network --nose ~/Library/Python/${Python}*/bin/nosetests

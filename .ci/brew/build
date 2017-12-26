@@ -1,0 +1,19 @@
+#!/bin/sh
+
+set -ev
+
+export Python=${Python:?}
+export WORKSPACE=${WORKSPACE:?}
+
+mkdir build
+mkdir install
+cd build
+
+export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/usr/local/opt/icu4c/lib/pkgconfig
+
+cmake \
+  -D CMAKE_INSTALL_PREFIX="${WORKSPACE}/install" \
+  -D PYTHON_LIBRARY=/usr/local/Frameworks/Python.framework/Versions/2.7/lib/libpython2.7.dylib \
+  ${CMAKE_OPTIONS} \
+  ..
+make ${MAKE_OPTIONS} install
