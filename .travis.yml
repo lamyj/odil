@@ -12,7 +12,7 @@ matrix:
 install:
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo -E sh ./.ci/deb/install; fi
   - if [ "$TRAVIS_OS_NAME" = "osx" ]; then ./.ci/brew/install; fi
-  - if [ "${CC}" = "gcc" ]; then pip${Python} install --user cpp-coveralls; fi
+  - if [ "${CC}" = "gcc" ]; then pip${Python} install -U --user cpp-coveralls; fi
   - if [ "${CC}" = "gcc" ]; then export PATH=$(python -c 'import site; print(site.getuserbase())')/bin:${PATH}; fi
 script:
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then ./.ci/deb/build; fi

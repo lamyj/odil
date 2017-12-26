@@ -26,4 +26,4 @@ for formula in ${BREW_NEED_LATEST}; do
   fi
 done
 
-pip${Python} install -U ${PIP_PACKAGES}
+pip${Python} install --user -U ${PIP_PACKAGES}
