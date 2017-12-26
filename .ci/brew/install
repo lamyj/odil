@@ -22,6 +22,9 @@ done
 
 for formula in ${BREW_NEED_LATEST}; do
   json=$(brew info --json=v1 ${formula})
+  echo ${formula}
+  echo ${json}
+  echo -n ${json} | od -c -tx1
 
   if [ $(echo ${json} | jq -r ".[].installed|length") -eq 0 ]; then
     brew install ${formula}
