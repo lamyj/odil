@@ -30,6 +30,49 @@ namespace odil
 namespace dul
 {
 
+enum class Signal
+{
+    // Transport-related signals
+    TransportConnected,
+    TransportClosed,
+    TransportAccepted,
+    TransportError,
+    Accepted,
+    // Signals emitted when a PDU is received
+    AAssociateRQ,
+    AAssociateAC,
+    AAssociateRJ,
+    PDataTF,
+    AReleaseRQ,
+    AReleaseRP,
+    AAbort,
+};
+
+template<Signal S>
+struct SignalTraits;
+
+#define ODIL_SIGNAL_TRAITS(S, T) \
+    template<> \
+    struct SignalTraits<Signal::S> \
+    { \
+        typedef boost::signals2::signal<T> Type; \
+    };
+
+ODIL_SIGNAL_TRAITS(TransportConnected, void(boost::system::error_code));
+ODIL_SIGNAL_TRAITS(TransportClosed, void(boost::system::error_code));
+ODIL_SIGNAL_TRAITS(TransportAccepted, void(boost::system::error_code));
+ODIL_SIGNAL_TRAITS(TransportError, void(boost::system::error_code));
+ODIL_SIGNAL_TRAITS(Accepted, void());
+ODIL_SIGNAL_TRAITS(AAssociateRQ, std::shared_ptr<pdu::Object>(std::shared_ptr<pdu::AAssociateRQ>));
+ODIL_SIGNAL_TRAITS(AAssociateAC, void(std::shared_ptr<pdu::AAssociateAC>));
+ODIL_SIGNAL_TRAITS(AAssociateRJ, void(std::shared_ptr<pdu::AAssociateRJ>));
+ODIL_SIGNAL_TRAITS(PDataTF, void(std::shared_ptr<pdu::PDataTF>));
+ODIL_SIGNAL_TRAITS(AReleaseRQ, void(std::shared_ptr<pdu::AReleaseRQ>));
+ODIL_SIGNAL_TRAITS(AReleaseRP, void(std::shared_ptr<pdu::AReleaseRP>));
+ODIL_SIGNAL_TRAITS(AAbort, void(std::shared_ptr<pdu::AAbort>));
+
+#undef ODIL_SIGNAL_TRAITS
+
 /**
  * @brief DICOM Upper Layer connection.
  *
@@ -38,11 +81,13 @@ namespace dul
 class Connection
 {
 public:
+    boost::asio::io_context & io_context;
+    boost::asio::ip::tcp::socket & socket;
     boost::posix_time::time_duration artim_timeout;
 
     Connection(
         boost::asio::io_context & io_context,
-        boost::asio::ip::tcp::endpoint const & endpoint,
+        boost::asio::ip::tcp::socket & socket,
         boost::posix_time::time_duration artim_timeout=boost::posix_time::seconds(30));
 
     ~Connection() = default;
@@ -52,9 +97,9 @@ public:
     Connection & operator=(Connection const &) = delete;
     Connection & operator=(Connection &&) = delete;
 
-    boost::asio::ip::tcp::socket & get_socket();
-
-    void async_send(std::shared_ptr<pdu::AAssociateRQ> pdu);
+    void async_send(
+        boost::asio::ip::tcp::endpoint const & endpoint,
+        std::shared_ptr<pdu::AAssociateRQ> pdu);
     void async_send(std::shared_ptr<pdu::AAssociateAC> pdu);
     void async_send(std::shared_ptr<pdu::AAssociateRJ> pdu);
     void async_send(std::shared_ptr<pdu::PDataTF> pdu);
@@ -64,31 +109,12 @@ public:
 
     void async_receive();
 
+    /// @brief Handler for the TCP Transport Connection Indication
     void tcp_accepted(boost::system::error_code const & error);
 
-    /**
-     * @addtogroup dul_indications DICOM Upper Layer indications
-     * @{
-     */
-
-    // Transport-related indications
-    boost::signals2::signal<void(boost::system::error_code)> transport_error;
-
-    // Generic indications
-    boost::signals2::signal<void()> accepted;
-
-    // PDU-related indications
-    boost::signals2::signal<void(std::shared_ptr<pdu::AAssociateAC>)> a_associate_ac;
-    boost::signals2::signal<void(std::shared_ptr<pdu::AAssociateRJ>)> a_associate_rj;
-    boost::signals2::signal<
-            std::shared_ptr<pdu::Object>(std::shared_ptr<pdu::AAssociateRQ>)
-        > a_associate_rq;
-    boost::signals2::signal<void(std::shared_ptr<pdu::PDataTF>)> p_data;
-    boost::signals2::signal<void(std::shared_ptr<pdu::AReleaseRQ>)> a_release_rq;
-    boost::signals2::signal<void(std::shared_ptr<pdu::AReleaseRP>)> a_release_rp;
-    boost::signals2::signal<void(std::shared_ptr<pdu::AAbort>)> a_abort;
-
-    /// @}
+    /// @brief Connect a slot to one of the signals.
+    template<Signal S>
+    boost::signals2::connection connect(typename SignalTraits<S>::Type::slot_type slot);
 
 private:
     enum class ReceiveStage
@@ -99,12 +125,28 @@ private:
         Complete
     };
 
-    boost::asio::io_context & _io_context;
-    boost::asio::ip::tcp::endpoint _endpoint;
-    boost::asio::ip::tcp::socket _socket;
     std::atomic_int _state;
     std::string _incoming;
     boost::asio::deadline_timer _artim_timer;
+    bool _is_requestor;
+
+#define ODIL_SIGNAL(S) \
+    typename SignalTraits<Signal::S>::Type _##S
+
+    ODIL_SIGNAL(TransportConnected);
+    ODIL_SIGNAL(TransportClosed);
+    ODIL_SIGNAL(TransportAccepted);
+    ODIL_SIGNAL(TransportError);
+    ODIL_SIGNAL(Accepted);
+    ODIL_SIGNAL(AAssociateRQ);
+    ODIL_SIGNAL(AAssociateAC);
+    ODIL_SIGNAL(AAssociateRJ);
+    ODIL_SIGNAL(PDataTF);
+    ODIL_SIGNAL(AReleaseRQ);
+    ODIL_SIGNAL(AReleaseRP);
+    ODIL_SIGNAL(AAbort);
+
+#undef ODIL_SIGNAL
 
     /// @addtogroup dul_handlers boost::asio handlers
     /// @{
@@ -145,7 +187,9 @@ private:
      * @{
      */
 
-    void AE_1(std::shared_ptr<pdu::AAssociateRQ> pdu);
+    void AE_1(
+        boost::asio::ip::tcp::endpoint const & endpoint,
+        std::shared_ptr<pdu::AAssociateRQ> pdu);
     void AE_2(std::shared_ptr<pdu::AAssociateRQ> pdu);
     void AE_3(std::shared_ptr<pdu::AAssociateAC> pdu);
     void AE_4(std::shared_ptr<pdu::AAssociateRJ> pdu);
@@ -184,6 +228,27 @@ private:
     void _start_artim_timer();
     void _stop_artim_timer();
 };
+
+#define ODIL_CONNECT(S) \
+template<> \
+boost::signals2::connection \
+Connection \
+::connect<Signal::S>(typename SignalTraits<Signal::S>::Type::slot_type slot)
+
+ODIL_CONNECT(TransportConnected);
+ODIL_CONNECT(TransportClosed);
+ODIL_CONNECT(TransportAccepted);
+ODIL_CONNECT(TransportError);
+ODIL_CONNECT(Accepted);
+ODIL_CONNECT(AAssociateRQ);
+ODIL_CONNECT(AAssociateAC);
+ODIL_CONNECT(AAssociateRJ);
+ODIL_CONNECT(PDataTF);
+ODIL_CONNECT(AReleaseRQ);
+ODIL_CONNECT(AReleaseRP);
+ODIL_CONNECT(AAbort);
+
+#undef ODIL_CONNECT
 
 }
 

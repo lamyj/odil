@@ -34,32 +34,30 @@ namespace dul
 
 Connection
 ::Connection(
-    boost::asio::io_context & io_context,
-    boost::asio::ip::tcp::endpoint const & endpoint,
+    boost::asio::io_context & io_context, boost::asio::ip::tcp::socket & socket,
     boost::posix_time::time_duration artim_timeout)
-: artim_timeout(artim_timeout), _io_context(io_context), _endpoint(endpoint),
-    _socket(_io_context), _state(1), _incoming(6, '\0'),
-    _artim_timer(_io_context)
+: io_context(io_context), socket(socket), artim_timeout(artim_timeout),
+     _state(1), _incoming(6, '\0'), _artim_timer(io_context),
+    _is_requestor(false)
 {
-    // Nothing else.
-}
-
-boost::asio::ip::tcp::socket &
-Connection
-::get_socket()
-{
-    return this->_socket;
+    this->connect<Signal::AReleaseRQ>(
+        [this](std::shared_ptr<pdu::AReleaseRQ> /* pdu */) {
+            this->async_send(std::make_shared<pdu::AReleaseRP>());
+        }
+    );
 }
 
 void
 Connection
-::async_send(std::shared_ptr<pdu::AAssociateRQ> pdu)
+::async_send(
+    boost::asio::ip::tcp::endpoint const & endpoint,
+    std::shared_ptr<pdu::AAssociateRQ> pdu)
 {
     ODIL_LOG(DEBUG, dul) << "Sending A-ASSOCIATE-RQ";
 
     if(this->_state == 1)
     {
-        this->AE_1(pdu);
+        this->AE_1(endpoint, pdu);
     }
     else
     {
@@ -222,6 +220,31 @@ Connection
     }
 }
 
+#define ODIL_SIGNAL_CONNECT(S) \
+template<> \
+boost::signals2::connection \
+Connection \
+::connect<Signal::S>( \
+    typename SignalTraits<Signal::S>::Type::slot_type slot) \
+{ \
+    return this->_##S.connect(slot); \
+}
+
+ODIL_SIGNAL_CONNECT(TransportConnected)
+ODIL_SIGNAL_CONNECT(TransportClosed)
+ODIL_SIGNAL_CONNECT(TransportAccepted)
+ODIL_SIGNAL_CONNECT(TransportError)
+ODIL_SIGNAL_CONNECT(Accepted)
+ODIL_SIGNAL_CONNECT(AAssociateRQ)
+ODIL_SIGNAL_CONNECT(AAssociateAC)
+ODIL_SIGNAL_CONNECT(AAssociateRJ)
+ODIL_SIGNAL_CONNECT(PDataTF)
+ODIL_SIGNAL_CONNECT(AReleaseRQ)
+ODIL_SIGNAL_CONNECT(AReleaseRP)
+ODIL_SIGNAL_CONNECT(AAbort)
+
+#undef ODIL_SIGNAL_CONNECT
+
 void
 Connection
 ::_connect_handler(
@@ -232,7 +255,7 @@ Connection
     {
         ODIL_LOG(DEBUG, dul) << "Transport error in _connect_handler";
         boost::asio::post(
-            this->_io_context, [=]() { this->transport_error(error); });
+            this->io_context, [=]() { this->_TransportError(error); });
     }
     else
     {
@@ -252,7 +275,7 @@ Connection
     {
         ODIL_LOG(DEBUG, dul) << "Transport error in _sent_handler";
         boost::asio::post(
-            this->_io_context, [=]() { this->transport_error(error); });
+            this->io_context, [=]() { this->_TransportError(error); });
     }
 }
 
@@ -271,12 +294,12 @@ Connection
     else if(error)
     {
         boost::asio::post(
-            this->_io_context, [=]() { this->transport_error(error); });
+            this->io_context, [=]() { this->_TransportError(error); });
     }
     else if(stage == ReceiveStage::Type)
     {
         boost::asio::async_read(
-            this->_socket, boost::asio::buffer(this->_incoming, 2),
+            this->socket, boost::asio::buffer(this->_incoming, 2),
             boost::bind(
                 &Connection::_receive_handler, this,
                 boost::asio::placeholders::error, ReceiveStage::Length));
@@ -284,7 +307,7 @@ Connection
     else if(stage == ReceiveStage::Length)
     {
         boost::asio::async_read(
-            this->_socket, boost::asio::buffer(&this->_incoming[0]+2, 4),
+            this->socket, boost::asio::buffer(&this->_incoming[0]+2, 4),
             boost::bind(
                 &Connection::_receive_handler, this,
                 boost::asio::placeholders::error, ReceiveStage::Data));
@@ -295,7 +318,7 @@ Connection
             *reinterpret_cast<uint32_t*>(&this->_incoming[0]+2));
         this->_incoming.resize(6+length);
         boost::asio::async_read(
-            this->_socket, boost::asio::buffer(&this->_incoming[0]+6, length),
+            this->socket, boost::asio::buffer(&this->_incoming[0]+6, length),
             boost::bind(
                 &Connection::_receive_handler, this,
                 boost::asio::placeholders::error, ReceiveStage::Complete));
@@ -372,7 +395,7 @@ Connection
 
     if(this->_state == 2) { this->AA_1(); }
     else if(this->_state == 3) { this->AA_8(); }
-    else if(this->_state == 5)  { this->AE_3(pdu); }
+    else if(this->_state == 5)  { this->_is_requestor = true; this->AE_3(pdu); }
     else if(this->_state >= 6 && this->_state <= 12) { this->AA_8(); }
     else if(this->_state == 13) { this->AA_6(); }
     else
@@ -567,13 +590,15 @@ Connection
 
 void
 Connection
-::AE_1(std::shared_ptr<pdu::AAssociateRQ> pdu)
+::AE_1(
+    boost::asio::ip::tcp::endpoint const & endpoint,
+    std::shared_ptr<pdu::AAssociateRQ> pdu)
 {
     ODIL_LOG(DEBUG, dul) << "AE-1";
 
     this->_state = 4;
-    this->_socket.async_connect(
-        this->_endpoint,
+    this->socket.async_connect(
+        endpoint,
         boost::bind(
             &Connection::_connect_handler, this,
             boost::asio::placeholders::error, pdu));
@@ -596,7 +621,7 @@ Connection
     ODIL_LOG(DEBUG, dul) << "AE-3";
 
     this->_state = 6;
-    boost::asio::post(this->_io_context, [=]() { this->a_associate_ac(pdu); });
+    boost::asio::post(this->io_context, [=]() { this->_AAssociateAC(pdu); });
 }
 
 void
@@ -606,8 +631,8 @@ Connection
     ODIL_LOG(DEBUG, dul) << "AE-4";
 
     this->_state = 1;
-    boost::asio::post(this->_io_context, [=]() { this->a_associate_rj(pdu); });
-    this->_socket.close();
+    boost::asio::post(this->io_context, [=]() { this->_AAssociateRJ(pdu); });
+    this->socket.close();
 }
 
 void
@@ -617,7 +642,7 @@ Connection
     ODIL_LOG(DEBUG, dul) << "AE-5";
 
     this->_state = 2;
-    boost::asio::post(this->_io_context, [=]() { this->accepted(); });
+    boost::asio::post(this->io_context, [=]() { this->_Accepted(); });
     this->_start_artim_timer();
 }
 
@@ -629,7 +654,7 @@ Connection
 
     this->_stop_artim_timer();
 
-    boost::optional<std::shared_ptr<pdu::Object>> signal_result = this->a_associate_rq(pdu);
+    boost::optional<std::shared_ptr<pdu::Object>> signal_result = this->_AAssociateRQ(pdu);
     if(!signal_result || signal_result.get() == nullptr)
     {
         throw Exception("No response provided");
@@ -645,9 +670,10 @@ Connection
     }
     else if(type == 0x03)
     {
-        this->_state = 13;
+        // WARNING: standard says to send RJ and switch to state 13. However,
+        // this is AE-8, which needs to happen in state 3.
+        this->_state = 3;
         this->async_send(std::dynamic_pointer_cast<pdu::AAssociateRJ>(response));
-        this->_start_artim_timer();
     }
     else
     {
@@ -694,7 +720,7 @@ Connection
     ODIL_LOG(DEBUG, dul) << "DT-2";
 
     this->_state = 6;
-    boost::asio::post(this->_io_context, [=]() { this->p_data(pdu); });
+    boost::asio::post(this->io_context, [=]() { this->_PDataTF(pdu); });
 }
 
 void
@@ -714,7 +740,7 @@ Connection
     ODIL_LOG(DEBUG, dul) << "AR-2";
 
     this->_state = 8;
-    boost::asio::post(this->_io_context, [=]() { this->a_release_rq(pdu); });
+    boost::asio::post(this->io_context, [=]() { this->_AReleaseRQ(pdu); });
 }
 
 void
@@ -724,8 +750,8 @@ Connection
     ODIL_LOG(DEBUG, dul) << "AR-3";
 
     this->_state = 1;
-    boost::asio::post(this->_io_context, [=]() { this->a_release_rp(pdu); });
-    this->_socket.close();
+    boost::asio::post(this->io_context, [=]() { this->_AReleaseRP(pdu); });
+    this->socket.close();
 }
 
 void
@@ -756,7 +782,7 @@ Connection
     ODIL_LOG(DEBUG, dul) << "AR-6";
 
     this->_state = 7;
-    boost::asio::post(this->_io_context, [=]() { this->p_data(pdu); });
+    boost::asio::post(this->io_context, [=]() { this->_PDataTF(pdu); });
 }
 
 void
@@ -775,16 +801,8 @@ Connection
 {
     ODIL_LOG(DEBUG, dul) << "AR-8";
 
-    if(!this->_endpoint.address().is_unspecified())
-    {
-        this->_state = 9;
-    }
-    else
-    {
-        this->_state = 10;
-    }
-
-    boost::asio::post(this->_io_context, [=]() { this->a_release_rq(pdu); });
+    this->_state = this->_is_requestor ? 9 : 10;
+    boost::asio::post(this->io_context, [=]() { this->_AReleaseRQ(pdu); });
 }
 
 void
@@ -804,7 +822,7 @@ Connection
     ODIL_LOG(DEBUG, dul) << "AR-10";
 
     this->_state = 12;
-    boost::asio::post(this->_io_context, [=]() { this->a_release_rp(pdu); });
+    boost::asio::post(this->io_context, [=]() { this->_AReleaseRP(pdu); });
 }
 
 void
@@ -826,7 +844,7 @@ Connection
 
     this->_state = 1;
     this->_stop_artim_timer();
-    this->_socket.close();
+    this->socket.close();
 }
 
 void
@@ -837,8 +855,8 @@ Connection
 
     this->_state = 1;
     // a_abort is a generic handler (A-ABORT and A-P-ABORT)
-    this->a_abort(pdu);
-    this->_socket.close();
+    this->_AAbort(pdu);
+    this->socket.close();
 }
 
 void
@@ -849,8 +867,8 @@ Connection
 
     this->_state = 1;
     boost::asio::post(
-        this->_io_context,
-        [=]() { this->a_abort(std::make_shared<pdu::AAbort>(2, 0)); });
+        this->io_context,
+        [=]() { this->_AAbort(std::make_shared<pdu::AAbort>(2, 0)); });
 }
 
 void
@@ -892,7 +910,7 @@ Connection
     this->_state = 13;
     auto pdu = std::make_shared<pdu::AAbort>(2, 2);
     this->_async_send(pdu);
-    boost::asio::post(this->_io_context, [=]() { this->a_abort(pdu); });
+    boost::asio::post(this->io_context, [=]() { this->_AAbort(pdu); });
     this->_start_artim_timer();
 }
 
@@ -903,7 +921,7 @@ Connection
     std::ostringstream stream;
     stream << pdu->get_item();
     boost::asio::async_write(
-        this->_socket, boost::asio::buffer(stream.str()),
+        this->socket, boost::asio::buffer(stream.str()),
         boost::bind(
             &Connection::_sent_handler, this, boost::asio::placeholders::error));
 }
