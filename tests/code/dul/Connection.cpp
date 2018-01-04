@@ -20,10 +20,11 @@ struct OdilStatus
 {
     bool accepted;
     bool rejected;
+    bool aborted;
     std::shared_ptr<odil::dul::Object> pdu;
 
     OdilStatus()
-    : accepted(false), rejected(false), pdu()
+    : accepted(false), rejected(false), aborted(false), pdu()
     {
         // Nothing else
     }
@@ -73,6 +74,11 @@ struct Fixture
         this->connection.connect<odil::dul::Signal::AAssociateRJ>(
             [&](std::shared_ptr<odil::dul::AAssociateRJ> pdu) {
                 this->odil_status.rejected = true;
+                this->odil_status.pdu = pdu;
+            });
+        this->connection.connect<odil::dul::Signal::AAbort>(
+            [&](std::shared_ptr<odil::dul::AAbort> pdu) {
+                this->odil_status.aborted = true;
                 this->odil_status.pdu = pdu;
             });
 
@@ -168,14 +174,16 @@ struct Fixture
             network, &association, ASC_DEFAULTMAXPDU);
         if(!condition.good())
         {
-            throw std::runtime_error("Could not receive association");
+            throw std::runtime_error(
+                std::string("Could not receive association: ")+
+                condition.text());
         }
 
         condition = handler(association);
         if(!condition.good())
         {
-            std::cout << condition.text() << std::endl;
-            throw std::runtime_error("Error in handler");
+            throw std::runtime_error(
+                std::string("Error in handler: ")+condition.text());
         }
 
         ASC_dropNetwork(&network);
@@ -225,6 +233,7 @@ BOOST_FIXTURE_TEST_CASE(RequestorAccepted, Fixture)
 
     BOOST_REQUIRE(this->odil_status.accepted);
     BOOST_REQUIRE(!this->odil_status.rejected);
+    BOOST_REQUIRE(!this->odil_status.aborted);
     auto acception = std::dynamic_pointer_cast<odil::dul::AAssociateAC>(
         this->odil_status.pdu);
     odil::AssociationParameters const acceptation_parameters(
@@ -271,11 +280,44 @@ BOOST_FIXTURE_TEST_CASE(RequestorRejected, Fixture)
 
     BOOST_REQUIRE(!this->odil_status.accepted);
     BOOST_REQUIRE(this->odil_status.rejected);
+    BOOST_REQUIRE(!this->odil_status.aborted);
     auto rejection = std::dynamic_pointer_cast<odil::dul::AAssociateRJ>(
         this->odil_status.pdu);
     BOOST_REQUIRE_EQUAL(rejection->get_result(), 2);
     BOOST_REQUIRE_EQUAL(rejection->get_source(), 1);
     BOOST_REQUIRE_EQUAL(rejection->get_reason(), 3);
+}
+
+BOOST_FIXTURE_TEST_CASE(RequestorAborted, Fixture)
+{
+    auto const port = Fixture::random_distribution(Fixture::random_generator);
+
+    std::thread acceptor(
+        [&](){
+            this->dcmtk_accept(
+                port,
+                [](T_ASC_Association * association){
+                    T_ASC_RejectParameters rejection;
+                    rejection.result = ASC_RESULT_REJECTEDTRANSIENT;
+                    rejection.source = ASC_SOURCE_SERVICEUSER;
+                    rejection.reason = ASC_REASON_SU_CALLINGAETITLENOTRECOGNIZED;
+                    return ASC_abortAssociation(association);
+                });
+        }
+    );
+
+    this->odil_request(port, "LOCAL", "REMOTE");
+    this->service.run();
+
+    acceptor.join();
+
+    BOOST_REQUIRE(!this->odil_status.accepted);
+    BOOST_REQUIRE(!this->odil_status.rejected);
+    BOOST_REQUIRE(this->odil_status.aborted);
+    auto rejection = std::dynamic_pointer_cast<odil::dul::AAbort>(
+        this->odil_status.pdu);
+    BOOST_REQUIRE_EQUAL(rejection->get_source(), 0);
+    BOOST_REQUIRE_EQUAL(rejection->get_reason(), 0);
 }
 
 BOOST_FIXTURE_TEST_CASE(AcceptorAccept, Fixture)
@@ -358,4 +400,32 @@ BOOST_FIXTURE_TEST_CASE(AcceptorReject, Fixture)
     BOOST_REQUIRE_EQUAL(rejection.result & 0xff, 1);
     BOOST_REQUIRE_EQUAL(rejection.source & 0xff, 3);
     BOOST_REQUIRE_EQUAL(rejection.reason & 0xff, 0);
+}
+
+BOOST_FIXTURE_TEST_CASE(AcceptorAbort, Fixture)
+{
+    bool associate_request_received = false;
+    this->connection.connect<odil::dul::Signal::AAssociateRQ>(
+        [&](std::shared_ptr<odil::dul::AAssociateRQ> /* pdu */) {
+            associate_request_received = true;
+            return std::make_shared<odil::dul::AAbort>(0, 0);
+        });
+
+    auto const port = Fixture::random_distribution(Fixture::random_generator);
+
+    this->odil_accept(port);
+
+    std::thread requestor(
+        [&]() {
+            this->dcmtk_status = this->dcmtk_request(
+                "localhost", "localhost:"+std::to_string(port),
+                "LOCAL", "REMOTE");
+        }
+    );
+
+    service.run();
+    requestor.join();
+
+    BOOST_REQUIRE(associate_request_received);
+    BOOST_REQUIRE(this->dcmtk_status.request == DUL_PEERABORTEDASSOCIATION);
 }

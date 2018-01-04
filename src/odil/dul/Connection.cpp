@@ -675,6 +675,12 @@ Connection
         this->_state = 3;
         this->async_send(std::dynamic_pointer_cast<AAssociateRJ>(response));
     }
+    else if(type == AAbort::type)
+    {
+        // WARNING: not sure this is correct
+        this->_state = 3;
+        this->async_send(std::dynamic_pointer_cast<AAbort>(response));
+    }
     else
     {
         throw Exception(
