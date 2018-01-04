@@ -13,7 +13,7 @@
 #include <string>
 
 #include "odil/Exception.h"
-#include "odil/dul/Object.h"
+#include "odil/dul/SubItem.h"
 
 namespace odil
 {
@@ -23,10 +23,8 @@ namespace dul
 
 ImplementationVersionName
 ::ImplementationVersionName(std::string const & implementation_version_name)
+: SubItem(type)
 {
-    this->_item.add("Item-type", this->type);
-    this->_item.add("Reserved", uint8_t(0));
-    this->_item.add("Item-length", uint16_t(0));
     this->_item.add("Implementation-version-name", std::string());
 
     this->set_implementation_version_name(implementation_version_name);
@@ -34,18 +32,11 @@ ImplementationVersionName
 
 ImplementationVersionName
 ::ImplementationVersionName(std::istream & stream)
+: SubItem(type, stream)
 {
-    this->_item.read(stream, "Item-type", Item::Field::Type::unsigned_int_8);
-    if(this->_item.as_unsigned_int_8("Item-type") != this->type)
-    {
-        throw Exception("Invalid item type");
-    }
-
-    this->_item.read(stream, "Reserved", Item::Field::Type::unsigned_int_8);
-    this->_item.read(stream, "Item-length", Item::Field::Type::unsigned_int_16);
     this->_item.read(
         stream, "Implementation-version-name", Item::Field::Type::string,
-        this->_item.as_unsigned_int_16("Item-length"));
+        this->get_sub_item_length());
 }
 
 std::string
@@ -64,7 +55,7 @@ ImplementationVersionName
         throw Exception("Invalid implementation version name");
     }
     this->_item.as_string("Implementation-version-name") = value;
-    this->_item.as_unsigned_int_16("Item-length") = this->_compute_length();
+    this->_set_sub_item_length(this->_compute_length());
 }
 
 }

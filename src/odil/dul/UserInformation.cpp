@@ -19,7 +19,7 @@
 #include "odil/dul/ImplementationClassUID.h"
 #include "odil/dul/ImplementationVersionName.h"
 #include "odil/dul/MaximumLength.h"
-#include "odil/dul/Object.h"
+#include "odil/dul/SubItem.h"
 #include "odil/dul/RoleSelection.h"
 #include "odil/dul/SOPClassCommonExtendedNegotiation.h"
 #include "odil/dul/SOPClassExtendedNegotiation.h"
@@ -34,29 +34,19 @@ namespace dul
 
 UserInformation
 ::UserInformation()
+: SubItem(type)
 {
-    this->_item.add("Item-type", uint8_t(0x50));
-    this->_item.add("Reserved", uint8_t(0));
-    this->_item.add("Item-length", uint16_t(4));
     this->_item.add("User-data", std::vector<Item>());
 }
 
 UserInformation
 ::UserInformation(std::istream & stream)
+: SubItem(type, stream)
 {
-    this->_item.read(stream, "Item-type", Item::Field::Type::unsigned_int_8);
-    if(this->_item.as_unsigned_int_8("Item-type") != 0x50)
-    {
-        throw Exception("Invalid item type");
-    }
-
-    this->_item.read(stream, "Reserved", Item::Field::Type::unsigned_int_8);
-    this->_item.read(stream, "Item-length", Item::Field::Type::unsigned_int_16);
-
     this->_item.add("User-data", std::vector<Item>());
 
     auto const begin = stream.tellg();
-    auto const item_length = this->_item.as_unsigned_int_16("Item-length");
+    auto const item_length = this->get_sub_item_length();
 
     // Store sub-items so that all sub-items of a given type are adjacent, and
     // that their type is in growing order.
@@ -75,39 +65,39 @@ UserInformation
     while(stream.tellg()-begin < item_length)
     {
         uint8_t const type = stream.peek();
-        if(type == 0x51)
+        if(type == MaximumLength::type)
         {
             maximum_length.emplace_back(stream);
         }
-        else if(type == 0x52)
+        else if(type == ImplementationClassUID::type)
         {
             implementation_class_uid.emplace_back(stream);
         }
-        else if(type == 0x53)
+        else if(type == AsynchronousOperationsWindow::type)
         {
             asynchronous_operation_window.emplace_back(stream);
         }
-        else if(type == 0x54)
+        else if(type == RoleSelection::type)
         {
             role_selection.emplace_back(stream);
         }
-        else if(type == 0x55)
+        else if(type == ImplementationVersionName::type)
         {
             implementation_version_name.emplace_back(stream);
         }
-        else if(type == 0x56)
+        else if(type == SOPClassExtendedNegotiation::type)
         {
             sop_class_extended_negotiation.emplace_back(stream);
         }
-        else if(type == 0x57)
+        else if(type == SOPClassCommonExtendedNegotiation::type)
         {
             sop_class_common_extended_negotiation.emplace_back(stream);
         }
-        else if(type == 0x58)
+        else if(type == UserIdentityRQ::type)
         {
             user_identity_rq.emplace_back(stream);
         }
-        else if(type == 0x59)
+        else if(type == UserIdentityAC::type)
         {
             user_identity_ac.emplace_back(stream);
         }

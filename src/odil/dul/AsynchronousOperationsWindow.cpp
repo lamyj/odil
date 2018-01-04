@@ -12,7 +12,7 @@
 #include <istream>
 
 #include "odil/Exception.h"
-#include "odil/dul/Object.h"
+#include "odil/dul/SubItem.h"
 
 namespace odil
 {
@@ -24,10 +24,10 @@ AsynchronousOperationsWindow
 ::AsynchronousOperationsWindow(
     uint16_t maximum_number_operations_invoked,
     uint16_t maximum_number_operations_performed)
+: SubItem(type)
 {
-    this->_item.add("Item-type", this->type);
-    this->_item.add("Reserved", uint8_t(0));
-    this->_item.add("Item-length", uint16_t(4));
+    this->_set_sub_item_length(4);
+
     this->_item.add("Maximum-number-operations-invoked", uint16_t(0));
     this->_item.add("Maximum-number-operations-performed", uint16_t(0));
 
@@ -37,15 +37,8 @@ AsynchronousOperationsWindow
 
 AsynchronousOperationsWindow
 ::AsynchronousOperationsWindow(std::istream & stream)
+: SubItem(type, stream)
 {
-    this->_item.read(stream, "Item-type", Item::Field::Type::unsigned_int_8);
-    if(this->_item.as_unsigned_int_8("Item-type") != this->type)
-    {
-        throw Exception("Invalid item type");
-    }
-
-    this->_item.read(stream, "Reserved", Item::Field::Type::unsigned_int_8);
-    this->_item.read(stream, "Item-length", Item::Field::Type::unsigned_int_16);
     this->_item.read(
         stream, "Maximum-number-operations-invoked", 
         Item::Field::Type::unsigned_int_16);

@@ -14,7 +14,7 @@
 #include <vector>
 
 #include "odil/Exception.h"
-#include "odil/dul/Object.h"
+#include "odil/dul/SubItem.h"
 #include "odil/dul/Item.h"
 
 namespace odil
@@ -24,23 +24,22 @@ namespace dul
 {
 
 PresentationContext
-::PresentationContext()
+::PresentationContext(uint8_t type)
+: SubItem(type)
 {
-    // Nothing to do.
+    this->_item.add("Presentation-context-id", uint8_t(0));
+    this->_item.add("Reserved-2", uint8_t(0));
+    this->_item.add("Result/Reason", uint8_t(0));
+    this->_item.add("Reserved-3", uint8_t(0));
+
+    this->_item.add("Abstract/Transfer Syntax Sub-Items", std::vector<Item>());
 }
 
 PresentationContext
-::PresentationContext(std::istream & stream)
+::PresentationContext(uint8_t type, std::istream & stream)
+: SubItem(type, stream)
 {
-    this->_item.read(stream, "Item-type", Item::Field::Type::unsigned_int_8);
-    if(this->get_item_type() != 0x20 && this->get_item_type() != 0x21)
-    {
-        throw Exception("Invalid item type");
-    }
-
-    this->_item.read(stream, "Reserved-1", Item::Field::Type::unsigned_int_8);
-    this->_item.read(stream, "Item-length", Item::Field::Type::unsigned_int_16);
-    auto const item_length = this->_item.as_unsigned_int_16("Item-length");
+    auto const item_length = this->get_sub_item_length();
 
     auto const begin = stream.tellg();
 
@@ -144,21 +143,6 @@ PresentationContext
     return item;
 }
 
-void
-PresentationContext
-::_add_fields()
-{
-    this->_item.add("Item-type", uint8_t(0x0));
-    this->_item.add("Reserved-1", uint8_t(0));
-    this->_item.add("Item-length", uint16_t(0));
-    this->_item.add("Presentation-context-id", uint8_t(0));
-    this->_item.add("Reserved-2", uint8_t(0));
-    this->_item.add("Result/Reason", uint8_t(0));
-    this->_item.add("Reserved-3", uint8_t(0));
-
-    this->_item.add("Abstract/Transfer Syntax Sub-Items", std::vector<Item>());
-}
-
 std::vector<std::string>
 PresentationContext
 ::_get_syntaxes(std::string const & type) const
@@ -210,7 +194,7 @@ PresentationContext
         [this](std::string const & name)
         { return PresentationContext::_make_string_item("Transfer", name); });
 
-    this->_item.as_unsigned_int_16("Item-length") = this->_compute_length();
+    this->_set_sub_item_length(this->_compute_length());
 }
 
 }

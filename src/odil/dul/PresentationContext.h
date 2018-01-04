@@ -15,7 +15,7 @@
 #include <vector>
 
 #include "odil/odil.h"
-#include "odil/dul/Object.h"
+#include "odil/dul/SubItem.h"
 
 namespace odil
 {
@@ -27,14 +27,14 @@ namespace dul
  * @brief Presentation Context item, either for a A-ASSOCIATE-RQ PDU (PS 3.8,
  * 9.3.2.2) or for a A-ASSOCIATE-AC PDU (PS 3.8, 9.3.3.2).
  */
-class ODIL_API PresentationContext: public Object
+class ODIL_API PresentationContext: public SubItem
 {
 public:
     /// @brief Constructor
-    PresentationContext();
+    PresentationContext(uint8_t type);
 
     /// @brief Read from a stream.
-    PresentationContext(std::istream & stream);
+    PresentationContext(uint8_t type, std::istream & stream);
 
     /// @brief Destructor, make the class pure virtual.
     virtual ~PresentationContext() =0;
@@ -52,9 +52,6 @@ protected:
     /// @brief Create an Abstract Syntax or Transfer Syntax sub-item.
     static Item _make_string_item(
         std::string const & type, std::string const & value);
-
-    /// @brief Add common fields.
-    void _add_fields();
 
     /// @brief Return the Abstract or Transfer syntaxes.
     std::vector<std::string> _get_syntaxes(std::string const & type) const;

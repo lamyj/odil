@@ -14,7 +14,7 @@
 #include <vector>
 
 #include "odil/Exception.h"
-#include "odil/dul/Object.h"
+#include "odil/dul/SubItem.h"
 
 namespace odil
 {
@@ -26,10 +26,8 @@ SOPClassCommonExtendedNegotiation
 ::SOPClassCommonExtendedNegotiation(
     std::string const & sop_class_uid, std::string const & service_class_uid,
     std::vector<std::string> const & related_general_sop_class_uids)
+: SubItem(type)
 {
-    this->_item.add("Item-type", this->type);
-    this->_item.add("Sub-item-version", uint8_t(0));
-    this->_item.add("Item-length", uint16_t(0));
     this->_item.add("SOP-class-uid-length", uint16_t(0));
     this->_item.add("SOP-class-uid", std::string());
     this->_item.add("Service-class-uid-length", uint16_t(0));
@@ -46,17 +44,8 @@ SOPClassCommonExtendedNegotiation
 
 SOPClassCommonExtendedNegotiation
 ::SOPClassCommonExtendedNegotiation(std::istream & stream)
+: SubItem(type, stream)
 {
-    this->_item.read(stream, "Item-type", Item::Field::Type::unsigned_int_8);
-    if(this->_item.as_unsigned_int_8("Item-type") != this->type)
-    {
-        throw Exception("Invalid item type");
-    }
-
-    this->_item.read(
-        stream, "Sub-item-version", Item::Field::Type::unsigned_int_8);
-    this->_item.read(stream, "Item-length", Item::Field::Type::unsigned_int_16);
-
     this->_item.read(
         stream, "SOP-class-uid-length", Item::Field::Type::unsigned_int_16);
     this->_item.read(
@@ -116,7 +105,7 @@ SOPClassCommonExtendedNegotiation
 {
     this->_item.as_unsigned_int_16("SOP-class-uid-length") = value.size();
     this->_item.as_string("SOP-class-uid") = value;
-    this->_item.as_unsigned_int_16("Item-length") = this->_compute_length();
+    this->_set_sub_item_length(this->_compute_length());
 }
 
 std::string const &
@@ -132,7 +121,7 @@ SOPClassCommonExtendedNegotiation
 {
     this->_item.as_unsigned_int_16("Service-class-uid-length") = value.size();
     this->_item.as_string("Service-class-uid") = value;
-    this->_item.as_unsigned_int_16("Item-length") = this->_compute_length();
+    this->_set_sub_item_length(this->_compute_length());
 }
 
 std::vector<std::string>
@@ -182,7 +171,7 @@ SOPClassCommonExtendedNegotiation
         "Related-general-sop-class-identification-length") = size;
     this->_item.as_items(
         "Related-general-sop-class-identification") = sub_items;
-    this->_item.as_unsigned_int_16("Item-length") = this->_compute_length();
+    this->_set_sub_item_length(this->_compute_length());
 }
 
 }

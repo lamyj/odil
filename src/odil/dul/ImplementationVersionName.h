@@ -14,7 +14,7 @@
 #include <string>
 
 #include "odil/odil.h"
-#include "odil/dul/Object.h"
+#include "odil/dul/SubItem.h"
 
 namespace odil
 {
@@ -23,7 +23,7 @@ namespace dul
 {
 
 /// @brief Implementation Version Name Sub-Item (PS 3.7, D.3.3.2.3 and D.3.3.2.4).
-class ODIL_API ImplementationVersionName: public Object
+class ODIL_API ImplementationVersionName: public SubItem
 {
 public:
     /// @brief Item type.

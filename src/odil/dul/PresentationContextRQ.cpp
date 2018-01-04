@@ -29,10 +29,8 @@ PresentationContextRQ
 ::PresentationContextRQ(
     uint8_t id, std::string const & abstract_syntax,
     std::vector<std::string> const & transfer_syntaxes)
+: PresentationContext(type)
 {
-    this->_add_fields();
-
-    this->_item.as_unsigned_int_8("Item-type") = 0x20;
     this->set_id(id);
     this->set_abstract_syntax(abstract_syntax);
     this->set_transfer_syntaxes(transfer_syntaxes);
@@ -40,12 +38,9 @@ PresentationContextRQ
 
 PresentationContextRQ
 ::PresentationContextRQ(std::istream & stream)
-: PresentationContext(stream)
+: PresentationContext(type, stream)
 {
-    if(this->get_item_type() != 0x20)
-    {
-        throw Exception("Invalid item type");
-    }
+    // Nothing else
 }
 
 PresentationContextRQ

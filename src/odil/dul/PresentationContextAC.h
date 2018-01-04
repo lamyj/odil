@@ -26,6 +26,9 @@ namespace dul
 class ODIL_API PresentationContextAC: public PresentationContext
 {
 public:
+    /// @brief Item type.
+    static uint8_t const type=0x21;
+
     /// @brief Constructor.
     PresentationContextAC(
         uint8_t id, std::string const & transfer_syntax, uint8_t result_reason);

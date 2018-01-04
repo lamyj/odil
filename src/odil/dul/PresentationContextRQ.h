@@ -27,6 +27,9 @@ namespace dul
 class ODIL_API PresentationContextRQ: public PresentationContext
 {
 public:
+    /// @brief Item type.
+    static uint8_t const type=0x20;
+
     /// @brief Constructor.
     PresentationContextRQ(
         uint8_t id, std::string const & abstract_syntax,

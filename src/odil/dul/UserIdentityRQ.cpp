@@ -13,7 +13,7 @@
 #include <string>
 
 #include "odil/Exception.h"
-#include "odil/dul/Object.h"
+#include "odil/dul/SubItem.h"
 
 namespace odil
 {
@@ -23,10 +23,8 @@ namespace dul
 
 UserIdentityRQ
 ::UserIdentityRQ()
+: SubItem(type)
 {
-    this->_item.add("Item-type", uint8_t(0x58));
-    this->_item.add("Reserved", uint8_t(0));
-    this->_item.add("Item-length", uint16_t(0));
     this->_item.add("User-Identity-Type", uint8_t(1));
     this->_item.add("Positive-response-requested", uint8_t(0));
     this->_item.add("Primary-field-length", uint16_t(0));
@@ -39,15 +37,8 @@ UserIdentityRQ
 
 UserIdentityRQ
 ::UserIdentityRQ(std::istream & stream)
+: SubItem(type, stream)
 {
-    this->_item.read(stream, "Item-type", Item::Field::Type::unsigned_int_8);
-    if(this->_item.as_unsigned_int_8("Item-type") != 0x58)
-    {
-        throw Exception("Invalid item type");
-    }
-
-    this->_item.read(stream, "Reserved", Item::Field::Type::unsigned_int_8);
-    this->_item.read(stream, "Item-length", Item::Field::Type::unsigned_int_16);
     this->_item.read(
         stream, "User-Identity-Type", Item::Field::Type::unsigned_int_8);
     this->_item.read(
@@ -108,7 +99,7 @@ UserIdentityRQ
 {
     this->_item.as_unsigned_int_16("Primary-field-length") = value.size();
     this->_item.as_string("Primary-field") = value;
-    this->_item.as_unsigned_int_16("Item-length") = this->_compute_length();
+    this->_set_sub_item_length(this->_compute_length());
 }
 
 std::string const &
@@ -124,7 +115,7 @@ UserIdentityRQ
 {
     this->_item.as_unsigned_int_16("Secondary-field-length") = value.size();
     this->_item.as_string("Secondary-field") = value;
-    this->_item.as_unsigned_int_16("Item-length") = this->_compute_length();
+    this->_set_sub_item_length(this->_compute_length());
 }
 
 void

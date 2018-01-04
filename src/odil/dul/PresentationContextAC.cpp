@@ -24,9 +24,8 @@ namespace dul
 PresentationContextAC
 ::PresentationContextAC(
     uint8_t id, std::string const & transfer_syntax, uint8_t result_reason)
+: PresentationContext(type)
 {
-    this->_add_fields();
-    this->_item.as_unsigned_int_8("Item-type") = 0x21;
     this->set_id(id);
     this->set_transfer_syntax(transfer_syntax);
     this->set_result_reason(result_reason);
@@ -34,12 +33,9 @@ PresentationContextAC
 
 PresentationContextAC
 ::PresentationContextAC(std::istream & stream)
-: PresentationContext(stream)
+: PresentationContext(type, stream)
 {
-    if(this->get_item_type() != 0x21)
-    {
-        throw Exception("Invalid item type");
-    }
+    // Nothing else.
 }
 
 PresentationContextAC

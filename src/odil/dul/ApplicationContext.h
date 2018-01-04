@@ -13,7 +13,7 @@
 #include <string>
 
 #include "odil/odil.h"
-#include "odil/dul/Object.h"
+#include "odil/dul/SubItem.h"
 
 namespace odil
 {
@@ -24,9 +24,12 @@ namespace dul
 /**
  * @brief Application Context item, (PS 3.8, 9.3.2.1).
  */
-class ODIL_API ApplicationContext: public Object
+class ODIL_API ApplicationContext: public SubItem
 {
 public:
+    /// @brief Item type.
+    static uint8_t const type=0x10;
+
     /// @brief Create an Application Context.
     ApplicationContext(std::string const & name);
 

@@ -15,7 +15,7 @@
 
 #include "odil/odil.h"
 #include "odil/dul/MaximumLength.h"
-#include "odil/dul/Object.h"
+#include "odil/dul/SubItem.h"
 #include "odil/dul/UserIdentityAC.h"
 #include "odil/dul/UserIdentityRQ.h"
 
@@ -26,9 +26,12 @@ namespace dul
 {
 
 /// @brief User Information Item Structure (PS 3.8, 9.3.2.3 and 9.3.3.3).
-class ODIL_API UserInformation: public Object
+class ODIL_API UserInformation: public SubItem
 {
 public:
+    /// @brief Item type.
+    static uint8_t const type=0x50;
+
     /// @brief Create a User Information item with no sub-items.
     UserInformation();
 

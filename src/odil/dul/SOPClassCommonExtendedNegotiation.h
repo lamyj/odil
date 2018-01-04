@@ -14,7 +14,7 @@
 #include <vector>
 
 #include "odil/odil.h"
-#include "odil/dul/Object.h"
+#include "odil/dul/SubItem.h"
 
 namespace odil
 {
@@ -23,7 +23,7 @@ namespace dul
 {
 
 /// @brief SOP Class Common Extended Negotiation sub-item (PS 3.7, D.3.3.6).
-class ODIL_API SOPClassCommonExtendedNegotiation: public Object
+class ODIL_API SOPClassCommonExtendedNegotiation: public SubItem
 {
 public:
     /// @brief Item type.

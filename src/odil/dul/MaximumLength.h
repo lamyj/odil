@@ -13,7 +13,7 @@
 #include <istream>
 
 #include "odil/odil.h"
-#include "odil/dul/Object.h"
+#include "odil/dul/SubItem.h"
 
 namespace odil
 {
@@ -22,7 +22,7 @@ namespace dul
 {
 
 /// @brief Maximum Length Sub-Item Structure (PS 3.8, D.1).
-class ODIL_API MaximumLength: public Object
+class ODIL_API MaximumLength: public SubItem
 {
 public:
     /// @brief Item type.

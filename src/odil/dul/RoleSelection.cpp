@@ -14,7 +14,7 @@
 
 #include "odil/Exception.h"
 #include "odil/dul/Item.h"
-#include "odil/dul/Object.h"
+#include "odil/dul/SubItem.h"
 
 namespace odil
 {
@@ -26,10 +26,8 @@ RoleSelection
 ::RoleSelection(
     std::string const & sop_class_uid,
     bool scu_role_support, bool scp_role_support)
+: SubItem(type)
 {
-    this->_item.add("Item-type", this->type);
-    this->_item.add("Reserved", uint8_t(0));
-    this->_item.add("Item-length", uint16_t(0));
     this->_item.add("UID-length", uint16_t(0));
     this->_item.add("SOP-class-uid", std::string());
     this->_item.add("SCU-role", uint8_t(0));
@@ -42,15 +40,8 @@ RoleSelection
 
 RoleSelection
 ::RoleSelection(std::istream & stream)
+: SubItem(type, stream)
 {
-    this->_item.read(stream, "Item-type", Item::Field::Type::unsigned_int_8);
-    if(this->_item.as_unsigned_int_8("Item-type") != this->type)
-    {
-        throw Exception("Invalid item type");
-    }
-
-    this->_item.read(stream, "Reserved", Item::Field::Type::unsigned_int_8);
-    this->_item.read(stream, "Item-length", Item::Field::Type::unsigned_int_16);
     this->_item.read(stream, "UID-length", Item::Field::Type::unsigned_int_16);
     this->_item.read(
         stream, "SOP-class-uid", Item::Field::Type::string,
@@ -72,7 +63,7 @@ RoleSelection
 {
     this->_item.as_string("SOP-class-uid") = value;
     this->_item.as_unsigned_int_16("UID-length") = value.size();
-    this->_item.as_unsigned_int_16("Item-length") = this->_compute_length();
+    this->_set_sub_item_length(this->_compute_length());
 }
 
 bool

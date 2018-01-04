@@ -49,7 +49,7 @@ AAssociateAC
     std::vector<PresentationContextAC> result;
     for(auto const & item: this->_item.as_items("Variable-items"))
     {
-        if(item.as_unsigned_int_8("Item-type") == 0x21)
+        if(item.as_unsigned_int_8("Item-type") == PresentationContextAC::type)
         {
             std::stringstream stream;
             stream << item;
@@ -70,7 +70,7 @@ AAssociateAC
     std::copy_if(
         old_items.begin(), old_items.end(), std::back_inserter(new_items),
         [](Item const & item)  {
-            return item.as_unsigned_int_8("Item-type") == 0x10; });
+            return item.as_unsigned_int_8("Item-type") == ApplicationContext::type; });
 
     std::transform(
         value.begin(), value.end(), std::back_inserter(new_items),
@@ -79,7 +79,7 @@ AAssociateAC
     std::copy_if(
         old_items.begin(), old_items.end(), std::back_inserter(new_items),
         [](Item const & item) {
-            return item.as_unsigned_int_8("Item-type") == 0x50; });
+            return item.as_unsigned_int_8("Item-type") == UserInformation::type; });
 
     this->_item.as_items("Variable-items") = new_items;
     this->_set_pdu_length(this->_compute_length());

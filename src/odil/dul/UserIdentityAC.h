@@ -13,7 +13,7 @@
 #include <string>
 
 #include "odil/odil.h"
-#include "odil/dul/Object.h"
+#include "odil/dul/SubItem.h"
 
 namespace odil
 {
@@ -22,7 +22,7 @@ namespace dul
 {
 
 /// @brief User Identity Sub-Item Structure (A-ASSOCIATE-AC) (PS 3.7, D.3.3.7.2).
-class ODIL_API UserIdentityAC: public Object
+class ODIL_API UserIdentityAC: public SubItem
 {
 public:
     /// @brief Item type.

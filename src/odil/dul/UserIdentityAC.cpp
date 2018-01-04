@@ -13,7 +13,7 @@
 #include <string>
 
 #include "odil/Exception.h"
-#include "odil/dul/Object.h"
+#include "odil/dul/SubItem.h"
 
 namespace odil
 {
@@ -23,11 +23,8 @@ namespace dul
 
 UserIdentityAC
 ::UserIdentityAC(std::string const & server_response)
+: SubItem(type)
 {
-    this->_item.add("Item-type", uint8_t(0x59));
-    this->_item.add("Reserved", uint8_t(0));
-    this->_item.add("Item-length", uint16_t(0));
-
     this->_item.add("Server-response-length", uint16_t(0));
     this->_item.add("Server-response", std::string(""));
 
@@ -36,15 +33,8 @@ UserIdentityAC
 
 UserIdentityAC
 ::UserIdentityAC(std::istream & stream)
+: SubItem(type, stream)
 {
-    this->_item.read(stream, "Item-type", Item::Field::Type::unsigned_int_8);
-    if(this->_item.as_unsigned_int_8("Item-type") != 0x59)
-    {
-        throw Exception("Invalid item type");
-    }
-
-    this->_item.read(stream, "Reserved", Item::Field::Type::unsigned_int_8);
-    this->_item.read(stream, "Item-length", Item::Field::Type::unsigned_int_16);
     this->_item.read(
         stream, "Server-response-length", Item::Field::Type::unsigned_int_16);
     this->_item.read(
@@ -66,8 +56,7 @@ UserIdentityAC
     this->_item.as_unsigned_int_16("Server-response-length") = value.size();
     this->_item.as_string("Server-response") = value;
 
-    this->_item.as_unsigned_int_16("Item-length") =
-        2+this->get_server_response().size();
+    this->_set_sub_item_length(this->_compute_length());
 }
 
 }

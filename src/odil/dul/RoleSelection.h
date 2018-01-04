@@ -14,7 +14,7 @@
 #include <string>
 
 #include "odil/odil.h"
-#include "odil/dul/Object.h"
+#include "odil/dul/SubItem.h"
 
 namespace odil
 {
@@ -23,7 +23,7 @@ namespace dul
 {
 
 /// @brief SCU/SCP Role Selection Sub-Item (PS 3.7, D.3.3.4.1 and D.3.3.4.2).
-class ODIL_API RoleSelection: public Object
+class ODIL_API RoleSelection: public SubItem
 {
 public:
     /// @brief Item type.

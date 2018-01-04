@@ -15,7 +15,7 @@
 #include <vector>
 
 #include "odil/Exception.h"
-#include "odil/dul/Object.h"
+#include "odil/dul/SubItem.h"
 
 namespace odil
 {
@@ -27,10 +27,8 @@ SOPClassExtendedNegotiation
 ::SOPClassExtendedNegotiation(
     std::string const & sop_class_uid,
     std::vector<uint8_t> const & service_class_application_information)
+: SubItem(type)
 {
-    this->_item.add("Item-type", this->type);
-    this->_item.add("Reserved", uint8_t(0));
-    this->_item.add("Item-length", uint16_t(0));
     this->_item.add("SOP-class-uid-length", uint16_t(0));
     this->_item.add("SOP-class-uid", std::string());
     this->_item.add("Service-class-application-information", std::string());
@@ -42,16 +40,8 @@ SOPClassExtendedNegotiation
 
 SOPClassExtendedNegotiation
 ::SOPClassExtendedNegotiation(std::istream & stream)
+: SubItem(type, stream)
 {
-    this->_item.read(stream, "Item-type", Item::Field::Type::unsigned_int_8);
-    if(this->_item.as_unsigned_int_8("Item-type") != this->type)
-    {
-        throw Exception("Invalid item type");
-    }
-
-    this->_item.read(stream, "Reserved", Item::Field::Type::unsigned_int_8);
-    this->_item.read(stream, "Item-length", Item::Field::Type::unsigned_int_16);
-
     this->_item.read(
         stream, "SOP-class-uid-length", Item::Field::Type::unsigned_int_16);
     this->_item.read(
@@ -61,7 +51,7 @@ SOPClassExtendedNegotiation
     this->_item.read(
         stream, "Service-class-application-information",
         Item::Field::Type::string,
-        this->_item.as_unsigned_int_16("Item-length")
+        this->get_sub_item_length()
             -this->_item.as_unsigned_int_16("SOP-class-uid-length")
             -2);
 }
@@ -90,7 +80,7 @@ SOPClassExtendedNegotiation
 {
     this->_item.as_unsigned_int_16("SOP-class-uid-length") = value.size();
     this->_item.as_string("SOP-class-uid") = value;
-    this->_item.as_unsigned_int_16("Item-length") = this->_compute_length();
+    this->_set_sub_item_length(this->_compute_length());
 }
 
 std::vector<uint8_t>
@@ -112,7 +102,7 @@ SOPClassExtendedNegotiation
     std::copy(value.begin(), value.end(), string.begin());
 
     this->_item.as_string("Service-class-application-information") = string;
-    this->_item.as_unsigned_int_16("Item-length") = this->_compute_length();
+    this->_set_sub_item_length(this->_compute_length());
 }
 
 }

@@ -64,19 +64,19 @@ AAssociate
     {
         auto const type = stream.peek();
         Item sub_item;
-        if(type == 0x10)
+        if(type == ApplicationContext::type)
         {
             sub_item = ApplicationContext(stream).get_item();
         }
-        else if(type == 0x20)
+        else if(type == PresentationContextRQ::type)
         {
             sub_item = PresentationContextRQ(stream).get_item();
         }
-        else if(type == 0x21)
+        else if(type == PresentationContextAC::type)
         {
             sub_item = PresentationContextAC(stream).get_item();
         }
-        else if(type == 0x50)
+        else if(type == UserInformation::type)
         {
             sub_item = UserInformation(stream).get_item();
         }
@@ -147,7 +147,7 @@ AAssociate
     auto const it = std::find_if(
         sub_items.begin(), sub_items.end(),
         [](Item const & x) {
-            return x.as_unsigned_int_8("Item-type") == 0x10; });
+            return x.as_unsigned_int_8("Item-type") == ApplicationContext::type; });
     if(it == sub_items.end())
     {
         throw Exception("No Application Context");
@@ -170,12 +170,12 @@ AAssociate
     std::copy_if(
         old_items.begin(), old_items.end(), std::back_inserter(new_items),
         [](Item const & item) {
-            return item.as_unsigned_int_8("Item-type") == 0x21; });
+            return item.as_unsigned_int_8("Item-type") == PresentationContextAC::type; });
 
     std::copy_if(
         old_items.begin(), old_items.end(), std::back_inserter(new_items),
         [](Item const & item) {
-            return item.as_unsigned_int_8("Item-type") == 0x50; });
+            return item.as_unsigned_int_8("Item-type") == UserInformation::type; });
 
     this->_item.as_items("Variable-items") = new_items;
 
@@ -190,7 +190,7 @@ AAssociate
     auto const it = std::find_if(
         sub_items.begin(), sub_items.end(),
         [](Item const & x) {
-            return x.as_unsigned_int_8("Item-type") == 0x50; });
+            return x.as_unsigned_int_8("Item-type") == UserInformation::type; });
     if(it == sub_items.end())
     {
         throw Exception("No User Information");
@@ -211,14 +211,14 @@ AAssociate
     std::copy_if(
         old_items.begin(), old_items.end(), std::back_inserter(new_items),
         [](Item const & item) {
-            return item.as_unsigned_int_8("Item-type") == 0x10; });
+            return item.as_unsigned_int_8("Item-type") == ApplicationContext::type; });
 
     std::copy_if(
         old_items.begin(), old_items.end(), std::back_inserter(new_items),
         [](Item const & item) {
             return (
-                item.as_unsigned_int_8("Item-type") == 0x20 ||
-                item.as_unsigned_int_8("Item-type") == 0x21); });
+                item.as_unsigned_int_8("Item-type") == PresentationContextRQ::type ||
+                item.as_unsigned_int_8("Item-type") == PresentationContextAC::type); });
 
     new_items.push_back(value.get_item());
 
