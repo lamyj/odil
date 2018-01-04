@@ -6,19 +6,19 @@
  * for details.
  ************************************************************************/
 
-#include "odil/pdu/ImplementationClassUID.h"
+#include "odil/dul/ImplementationClassUID.h"
 
 #include <cstdint>
 #include <istream>
 #include <string>
 
 #include "odil/Exception.h"
-#include "odil/pdu/Object.h"
+#include "odil/dul/Object.h"
 
 namespace odil
 {
 
-namespace pdu
+namespace dul
 {
 
 ImplementationClassUID

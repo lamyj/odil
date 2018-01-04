@@ -14,12 +14,12 @@
 #include <string>
 
 #include "odil/odil.h"
-#include "odil/pdu/Object.h"
+#include "odil/dul/Object.h"
 
 namespace odil
 {
 
-namespace pdu
+namespace dul
 {
 
 /// @brief Implementation Class UID Sub-Item (PS 3.7, D.3.3.2.1 and D.3.3.2.2).

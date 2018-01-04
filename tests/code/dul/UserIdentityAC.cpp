@@ -5,17 +5,17 @@
 #include <string>
 
 #include "odil/Exception.h"
-#include "odil/pdu/UserIdentityAC.h"
+#include "odil/dul/UserIdentityAC.h"
 
 BOOST_AUTO_TEST_CASE(ConstructorDefault)
 {
-    odil::pdu::UserIdentityAC const user_identity;
+    odil::dul::UserIdentityAC const user_identity;
     BOOST_REQUIRE_EQUAL(user_identity.get_server_response(), "");
 }
 
 BOOST_AUTO_TEST_CASE(ConstructorString)
 {
-    odil::pdu::UserIdentityAC const user_identity("foo");
+    odil::dul::UserIdentityAC const user_identity("foo");
     BOOST_REQUIRE_EQUAL(user_identity.get_server_response(), "foo");
 }
 
@@ -28,21 +28,21 @@ BOOST_AUTO_TEST_CASE(FromStream)
     );
     std::istringstream stream(data);
 
-    odil::pdu::UserIdentityAC const user_identity(stream);
+    odil::dul::UserIdentityAC const user_identity(stream);
 
     BOOST_REQUIRE_EQUAL(user_identity.get_server_response(), "foo");
 }
 
 BOOST_AUTO_TEST_CASE(Type)
 {
-    odil::pdu::UserIdentityAC user_identity;
+    odil::dul::UserIdentityAC user_identity;
     user_identity.set_server_response("foo");
     BOOST_REQUIRE_EQUAL(user_identity.get_server_response(), "foo");
 }
 
 BOOST_AUTO_TEST_CASE(Write)
 {
-    odil::pdu::UserIdentityAC user_identity;
+    odil::dul::UserIdentityAC user_identity;
     user_identity.set_server_response("foo");
 
     std::ostringstream data;

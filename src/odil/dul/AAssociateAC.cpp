@@ -6,20 +6,20 @@
  * for details.
  ************************************************************************/
 
-#include "odil/pdu/AAssociateAC.h"
+#include "odil/dul/AAssociateAC.h"
 
 #include <algorithm>
 #include <sstream>
 #include <vector>
 
 #include "odil/Exception.h"
-#include "odil/pdu/AAssociate.h"
-#include "odil/pdu/PresentationContextAC.h"
+#include "odil/dul/AAssociate.h"
+#include "odil/dul/PresentationContextAC.h"
 
 namespace odil
 {
 
-namespace pdu
+namespace dul
 {
 
 AAssociateAC

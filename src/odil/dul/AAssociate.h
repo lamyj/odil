@@ -14,14 +14,14 @@
 #include <string>
 
 #include "odil/odil.h"
-#include "odil/pdu/ApplicationContext.h"
-#include "odil/pdu/Object.h"
-#include "odil/pdu/UserInformation.h"
+#include "odil/dul/ApplicationContext.h"
+#include "odil/dul/Object.h"
+#include "odil/dul/UserInformation.h"
 
 namespace odil
 {
 
-namespace pdu
+namespace dul
 {
 
 /// @brief A-ASSOCIATE-RQ and A-ASSOCIATE-AC PDU, cf. PS 3.8, 9.3.2 and 9.3.3.

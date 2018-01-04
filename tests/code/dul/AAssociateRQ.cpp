@@ -6,11 +6,11 @@
 #include <string>
 #include <vector>
 
-#include "odil/pdu/AAssociateRQ.h"
-#include "odil/pdu/ApplicationContext.h"
-#include "odil/pdu/PresentationContextRQ.h"
-#include "odil/pdu/UserIdentityRQ.h"
-#include "odil/pdu/UserInformation.h"
+#include "odil/dul/AAssociateRQ.h"
+#include "odil/dul/ApplicationContext.h"
+#include "odil/dul/PresentationContextRQ.h"
+#include "odil/dul/UserIdentityRQ.h"
+#include "odil/dul/UserInformation.h"
 #include "odil/Exception.h"
 
 struct Fixture
@@ -19,34 +19,34 @@ public:
     static std::string const read_data;
     static std::string const write_data;
 
-    odil::pdu::ApplicationContext application_context;
-    std::vector<odil::pdu::PresentationContextRQ> presentation_contexts;
-    odil::pdu::UserInformation user_information;
+    odil::dul::ApplicationContext application_context;
+    std::vector<odil::dul::PresentationContextRQ> presentation_contexts;
+    odil::dul::UserInformation user_information;
 
     Fixture()
     : application_context("foo")
     {
-        odil::pdu::PresentationContextRQ pc1(3, "abstract_syntax", {"ts1", "ts2"});
+        odil::dul::PresentationContextRQ pc1(3, "abstract_syntax", {"ts1", "ts2"});
         this->presentation_contexts = {pc1};
 
-        this->user_information.set_sub_items<odil::pdu::MaximumLength>(
+        this->user_information.set_sub_items<odil::dul::MaximumLength>(
             { { 0x12345678 } });
-        odil::pdu::UserIdentityRQ user_identity;
+        odil::dul::UserIdentityRQ user_identity;
         user_identity.set_username_and_passcode("foo", "bar");
         user_identity.set_positive_response_requested(true);
-        this->user_information.set_sub_items<odil::pdu::UserIdentityRQ>(
+        this->user_information.set_sub_items<odil::dul::UserIdentityRQ>(
             { user_identity });
     }
 
     void check_application_context(
-        odil::pdu::ApplicationContext const & context) const
+        odil::dul::ApplicationContext const & context) const
     {
         BOOST_REQUIRE_EQUAL(
             context.get_name(), this->application_context.get_name());
     }
 
     void check_presentation_contexts(
-        std::vector<odil::pdu::PresentationContextRQ> const & contexts)
+        std::vector<odil::dul::PresentationContextRQ> const & contexts)
     {
         BOOST_REQUIRE_EQUAL(contexts.size(), presentation_contexts.size());
         for(int i=0; i<contexts.size(); ++i)
@@ -64,27 +64,27 @@ public:
     }
 
     void check_user_information(
-        odil::pdu::UserInformation const & user_information) const
+        odil::dul::UserInformation const & user_information) const
     {
         BOOST_REQUIRE(
-            !user_information.get_sub_items<odil::pdu::MaximumLength>().empty());
+            !user_information.get_sub_items<odil::dul::MaximumLength>().empty());
         BOOST_REQUIRE_EQUAL(
-            user_information.get_sub_items<odil::pdu::MaximumLength>()[0].get_maximum_length(),
+            user_information.get_sub_items<odil::dul::MaximumLength>()[0].get_maximum_length(),
             0x12345678);
 
         BOOST_REQUIRE(
-            !user_information.get_sub_items<odil::pdu::UserIdentityRQ>().empty());
+            !user_information.get_sub_items<odil::dul::UserIdentityRQ>().empty());
         BOOST_REQUIRE_EQUAL(
-            user_information.get_sub_items<odil::pdu::UserIdentityRQ>()[0].get_type(),
+            user_information.get_sub_items<odil::dul::UserIdentityRQ>()[0].get_type(),
             2);
         BOOST_REQUIRE_EQUAL(
-            user_information.get_sub_items<odil::pdu::UserIdentityRQ>()[0].get_positive_response_requested(),
+            user_information.get_sub_items<odil::dul::UserIdentityRQ>()[0].get_positive_response_requested(),
             true);
         BOOST_REQUIRE_EQUAL(
-            user_information.get_sub_items<odil::pdu::UserIdentityRQ>()[0].get_primary_field(),
+            user_information.get_sub_items<odil::dul::UserIdentityRQ>()[0].get_primary_field(),
             "foo");
         BOOST_REQUIRE_EQUAL(
-            user_information.get_sub_items<odil::pdu::UserIdentityRQ>()[0].get_secondary_field(),
+            user_information.get_sub_items<odil::dul::UserIdentityRQ>()[0].get_secondary_field(),
             "bar");
     }
 };
@@ -175,7 +175,7 @@ Fixture
 
 BOOST_AUTO_TEST_CASE(Constructor)
 {
-    odil::pdu::AAssociateRQ const pdu;
+    odil::dul::AAssociateRQ const pdu;
 
     BOOST_REQUIRE_EQUAL(pdu.get_called_ae_title(), "");
     BOOST_REQUIRE_EQUAL(pdu.get_calling_ae_title(), "");
@@ -188,7 +188,7 @@ BOOST_AUTO_TEST_CASE(Constructor)
 BOOST_FIXTURE_TEST_CASE(ConstructorStream, Fixture)
 {
     std::istringstream stream(read_data);
-    odil::pdu::AAssociateRQ const pdu(stream);
+    odil::dul::AAssociateRQ const pdu(stream);
 
     BOOST_REQUIRE_EQUAL(pdu.get_called_ae_title(), "CALLED_AE");
     BOOST_REQUIRE_EQUAL(pdu.get_calling_ae_title(), "CALLING_AE");
@@ -200,7 +200,7 @@ BOOST_FIXTURE_TEST_CASE(ConstructorStream, Fixture)
 
 BOOST_AUTO_TEST_CASE(ProtocolVersion)
 {
-    odil::pdu::AAssociateRQ pdu;
+    odil::dul::AAssociateRQ pdu;
     BOOST_REQUIRE_EQUAL(pdu.get_protocol_version(), 0);
     pdu.set_protocol_version(2);
     BOOST_REQUIRE_EQUAL(pdu.get_protocol_version(), 2);
@@ -208,7 +208,7 @@ BOOST_AUTO_TEST_CASE(ProtocolVersion)
 
 BOOST_AUTO_TEST_CASE(CalledAETitle)
 {
-    odil::pdu::AAssociateRQ pdu;
+    odil::dul::AAssociateRQ pdu;
     BOOST_REQUIRE_EQUAL(pdu.get_called_ae_title(), "");
     pdu.set_called_ae_title("called");
     BOOST_REQUIRE_EQUAL(pdu.get_called_ae_title(), "called");
@@ -216,7 +216,7 @@ BOOST_AUTO_TEST_CASE(CalledAETitle)
 
 BOOST_AUTO_TEST_CASE(CallingAETitle)
 {
-    odil::pdu::AAssociateRQ pdu;
+    odil::dul::AAssociateRQ pdu;
     BOOST_REQUIRE_EQUAL(pdu.get_calling_ae_title(), "");
     pdu.set_calling_ae_title("calling");
     BOOST_REQUIRE_EQUAL(pdu.get_calling_ae_title(), "calling");
@@ -224,7 +224,7 @@ BOOST_AUTO_TEST_CASE(CallingAETitle)
 
 BOOST_FIXTURE_TEST_CASE(ApplicationContext, Fixture)
 {
-    odil::pdu::AAssociateRQ pdu;
+    odil::dul::AAssociateRQ pdu;
     BOOST_REQUIRE_THROW(pdu.get_application_context(), odil::Exception);
     pdu.set_application_context(application_context);
     this->check_application_context(pdu.get_application_context());
@@ -232,7 +232,7 @@ BOOST_FIXTURE_TEST_CASE(ApplicationContext, Fixture)
 
 BOOST_FIXTURE_TEST_CASE(PresentationContexts, Fixture)
 {
-    odil::pdu::AAssociateRQ pdu;
+    odil::dul::AAssociateRQ pdu;
     BOOST_REQUIRE(pdu.get_presentation_contexts().empty());
     pdu.set_presentation_contexts(presentation_contexts);
     this->check_presentation_contexts(pdu.get_presentation_contexts());
@@ -240,7 +240,7 @@ BOOST_FIXTURE_TEST_CASE(PresentationContexts, Fixture)
 
 BOOST_FIXTURE_TEST_CASE(UserInformation, Fixture)
 {
-    odil::pdu::AAssociateRQ pdu;
+    odil::dul::AAssociateRQ pdu;
     BOOST_REQUIRE_THROW(pdu.get_user_information(), odil::Exception);
     pdu.set_user_information(user_information);
     this->check_user_information(pdu.get_user_information());
@@ -248,7 +248,7 @@ BOOST_FIXTURE_TEST_CASE(UserInformation, Fixture)
 
 BOOST_FIXTURE_TEST_CASE(Write, Fixture)
 {
-    odil::pdu::AAssociateRQ pdu;
+    odil::dul::AAssociateRQ pdu;
     pdu.set_protocol_version(1);
     pdu.set_called_ae_title("CALLED_AE");
     pdu.set_calling_ae_title("CALLING_AE");
@@ -265,26 +265,26 @@ BOOST_FIXTURE_TEST_CASE(Write, Fixture)
 
 BOOST_AUTO_TEST_CASE(CalledAETitleEmpty)
 {
-    odil::pdu::AAssociateRQ pdu;
+    odil::dul::AAssociateRQ pdu;
     BOOST_REQUIRE_THROW(pdu.set_called_ae_title(""), odil::Exception);
 }
 
 BOOST_AUTO_TEST_CASE(CalledAETitleTooLong)
 {
-    odil::pdu::AAssociateRQ pdu;
+    odil::dul::AAssociateRQ pdu;
     BOOST_REQUIRE_THROW(
         pdu.set_called_ae_title("123456789abcdef01"), odil::Exception);
 }
 
 BOOST_AUTO_TEST_CASE(CallingAETitleEmpty)
 {
-    odil::pdu::AAssociateRQ pdu;
+    odil::dul::AAssociateRQ pdu;
     BOOST_REQUIRE_THROW(pdu.set_calling_ae_title(""), odil::Exception);
 }
 
 BOOST_AUTO_TEST_CASE(CallingAETitleTooLong)
 {
-    odil::pdu::AAssociateRQ pdu;
+    odil::dul::AAssociateRQ pdu;
     BOOST_REQUIRE_THROW(
         pdu.set_calling_ae_title("123456789abcdef01"), odil::Exception);
 }

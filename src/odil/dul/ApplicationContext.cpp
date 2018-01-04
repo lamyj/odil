@@ -6,19 +6,19 @@
  * for details.
  ************************************************************************/
 
-#include "odil/pdu/ApplicationContext.h"
+#include "odil/dul/ApplicationContext.h"
 
 #include <cstdint>
 #include <istream>
 #include <string>
 
 #include "odil/Exception.h"
-#include "odil/pdu/Object.h"
+#include "odil/dul/Object.h"
 
 namespace odil
 {
 
-namespace pdu
+namespace dul
 {
 
 ApplicationContext

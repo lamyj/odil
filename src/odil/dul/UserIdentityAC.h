@@ -13,12 +13,12 @@
 #include <string>
 
 #include "odil/odil.h"
-#include "odil/pdu/Object.h"
+#include "odil/dul/Object.h"
 
 namespace odil
 {
 
-namespace pdu
+namespace dul
 {
 
 /// @brief User Identity Sub-Item Structure (A-ASSOCIATE-AC) (PS 3.7, D.3.3.7.2).

@@ -12,13 +12,13 @@
 #include <vector>
 
 #include "odil/odil.h"
-#include "odil/pdu/AAssociate.h"
-#include "odil/pdu/PresentationContextAC.h"
+#include "odil/dul/AAssociate.h"
+#include "odil/dul/PresentationContextAC.h"
 
 namespace odil
 {
 
-namespace pdu
+namespace dul
 {
 
 /// @brief A-ASSOCIATE-AC PDU, cf. PS 3.8, 9.3.3.

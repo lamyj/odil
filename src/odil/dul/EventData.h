@@ -15,7 +15,7 @@
 #include "odil/AssociationParameters.h"
 #include "odil/dul/Transport.h"
 #include "odil/odil.h"
-#include "odil/pdu/Object.h"
+#include "odil/dul/Object.h"
 
 namespace odil
 {
@@ -28,7 +28,7 @@ class ODIL_API EventData
 {
 public:
     Transport::Socket::endpoint_type peer_endpoint;
-    std::shared_ptr<pdu::Object> pdu;
+    std::shared_ptr<Object> pdu;
     AssociationParameters association_parameters;
     std::shared_ptr<AssociationRejected> reject;
 };

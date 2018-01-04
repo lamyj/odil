@@ -14,15 +14,15 @@
 #include <vector>
 
 #include "odil/odil.h"
-#include "odil/pdu/MaximumLength.h"
-#include "odil/pdu/Object.h"
-#include "odil/pdu/UserIdentityAC.h"
-#include "odil/pdu/UserIdentityRQ.h"
+#include "odil/dul/MaximumLength.h"
+#include "odil/dul/Object.h"
+#include "odil/dul/UserIdentityAC.h"
+#include "odil/dul/UserIdentityRQ.h"
 
 namespace odil
 {
 
-namespace pdu
+namespace dul
 {
 
 /// @brief User Information Item Structure (PS 3.8, 9.3.2.3 and 9.3.3.3).
@@ -62,6 +62,6 @@ private:
 
 }
 
-#include "odil/pdu/UserInformation.txx"
+#include "odil/dul/UserInformation.txx"
 
 #endif // _7449339a_913f_4545_9846_311f055632c1

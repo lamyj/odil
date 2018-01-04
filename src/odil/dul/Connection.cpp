@@ -18,13 +18,13 @@
 
 #include "odil/endian.h"
 #include "odil/logging.h"
-#include "odil/pdu/AAbort.h"
-#include "odil/pdu/AAssociateAC.h"
-#include "odil/pdu/AAssociateRJ.h"
-#include "odil/pdu/AAssociateRQ.h"
-#include "odil/pdu/AReleaseRP.h"
-#include "odil/pdu/AReleaseRQ.h"
-#include "odil/pdu/PDataTF.h"
+#include "odil/dul/AAbort.h"
+#include "odil/dul/AAssociateAC.h"
+#include "odil/dul/AAssociateRJ.h"
+#include "odil/dul/AAssociateRQ.h"
+#include "odil/dul/AReleaseRP.h"
+#include "odil/dul/AReleaseRQ.h"
+#include "odil/dul/PDataTF.h"
 
 namespace odil
 {
@@ -41,8 +41,8 @@ Connection
     _is_requestor(false)
 {
     this->connect<Signal::AReleaseRQ>(
-        [this](std::shared_ptr<pdu::AReleaseRQ> /* pdu */) {
-            this->async_send(std::make_shared<pdu::AReleaseRP>());
+        [this](std::shared_ptr<AReleaseRQ> /* pdu */) {
+            this->async_send(std::make_shared<AReleaseRP>());
         }
     );
 }
@@ -51,7 +51,7 @@ void
 Connection
 ::async_send(
     boost::asio::ip::tcp::endpoint const & endpoint,
-    std::shared_ptr<pdu::AAssociateRQ> pdu)
+    std::shared_ptr<AAssociateRQ> pdu)
 {
     ODIL_LOG(DEBUG, dul) << "Sending A-ASSOCIATE-RQ";
 
@@ -68,7 +68,7 @@ Connection
 
 void
 Connection
-::async_send(std::shared_ptr<pdu::AAssociateAC> pdu)
+::async_send(std::shared_ptr<AAssociateAC> pdu)
 {
     ODIL_LOG(DEBUG, dul) << "Sending A-ASSOCIATE-AC";
 
@@ -85,7 +85,7 @@ Connection
 
 void
 Connection
-::async_send(std::shared_ptr<pdu::AAssociateRJ> pdu)
+::async_send(std::shared_ptr<AAssociateRJ> pdu)
 {
     ODIL_LOG(DEBUG, dul) << "Sending A-ASSOCIATE-RJ";
 
@@ -102,7 +102,7 @@ Connection
 
 void
 Connection
-::async_send(std::shared_ptr<pdu::PDataTF> pdu)
+::async_send(std::shared_ptr<PDataTF> pdu)
 {
     ODIL_LOG(DEBUG, dul) << "Sending P-DATA-TF";
 
@@ -123,7 +123,7 @@ Connection
 
 void
 Connection
-::async_send(std::shared_ptr<pdu::AReleaseRQ> pdu)
+::async_send(std::shared_ptr<AReleaseRQ> pdu)
 {
     ODIL_LOG(DEBUG, dul) << "Sending A-RELEASE-RQ";
 
@@ -140,7 +140,7 @@ Connection
 
 void
 Connection
-::async_send(std::shared_ptr<pdu::AReleaseRP> pdu)
+::async_send(std::shared_ptr<AReleaseRP> pdu)
 {
     ODIL_LOG(DEBUG, dul) << "Sending A-RELEASE-RP";
 
@@ -165,7 +165,7 @@ Connection
 
 void
 Connection
-::async_send(std::shared_ptr<pdu::AAbort> pdu)
+::async_send(std::shared_ptr<AAbort> pdu)
 {
     ODIL_LOG(DEBUG, dul) << "Sending A-ABORT";
 
@@ -249,7 +249,7 @@ void
 Connection
 ::_connect_handler(
     boost::system::error_code const & error,
-    std::shared_ptr<pdu::AAssociateRQ> associate_rq)
+    std::shared_ptr<AAssociateRQ> associate_rq)
 {
     if(error)
     {
@@ -330,31 +330,31 @@ Connection
 
         if(type == 0x01)
         {
-            this->_received(std::make_shared<pdu::AAssociateRQ>(stream));
+            this->_received(std::make_shared<AAssociateRQ>(stream));
         }
         else if(type == 0x02)
         {
-            this->_received(std::make_shared<pdu::AAssociateAC>(stream));
+            this->_received(std::make_shared<AAssociateAC>(stream));
         }
         else if(type == 0x03)
         {
-            this->_received(std::make_shared<pdu::AAssociateRJ>(stream));
+            this->_received(std::make_shared<AAssociateRJ>(stream));
         }
         else if(type == 0x04)
         {
-            this->_received(std::make_shared<pdu::PDataTF>(stream));
+            this->_received(std::make_shared<PDataTF>(stream));
         }
         else if(type == 0x05)
         {
-            this->_received(std::make_shared<pdu::AReleaseRQ>(stream));
+            this->_received(std::make_shared<AReleaseRQ>(stream));
         }
         else if(type == 0x06)
         {
-            this->_received(std::make_shared<pdu::AReleaseRP>(stream));
+            this->_received(std::make_shared<AReleaseRP>(stream));
         }
         else if(type == 0x07)
         {
-            this->_received(std::make_shared<pdu::AAbort>(stream));
+            this->_received(std::make_shared<AAbort>(stream));
         }
         else
         {
@@ -370,7 +370,7 @@ Connection
 
 void
 Connection
-::_transport_connected(std::shared_ptr<pdu::AAssociateRQ> associate_rq)
+::_transport_connected(std::shared_ptr<AAssociateRQ> associate_rq)
 {
     ODIL_LOG(DEBUG, dul) << "Transport connection confirmation";
 
@@ -389,7 +389,7 @@ Connection
 
 void
 Connection
-::_received(std::shared_ptr<pdu::AAssociateAC> pdu)
+::_received(std::shared_ptr<AAssociateAC> pdu)
 {
     ODIL_LOG(DEBUG, dul) << "Received A-ASSOCIATE-AC";
 
@@ -408,7 +408,7 @@ Connection
 
 void
 Connection
-::_received(std::shared_ptr<pdu::AAssociateRJ> pdu)
+::_received(std::shared_ptr<AAssociateRJ> pdu)
 {
     ODIL_LOG(DEBUG, dul) << "Received A-ASSOCIATE-RJ";
 
@@ -427,7 +427,7 @@ Connection
 
 void
 Connection
-::_received(std::shared_ptr<pdu::AAssociateRQ> pdu)
+::_received(std::shared_ptr<AAssociateRQ> pdu)
 {
     ODIL_LOG(DEBUG, dul) << "Received A-ASSOCIATE-RQ";
 
@@ -445,7 +445,7 @@ Connection
 
 void
 Connection
-::_received(std::shared_ptr<pdu::PDataTF> pdu)
+::_received(std::shared_ptr<PDataTF> pdu)
 {
     ODIL_LOG(DEBUG, dul) << "Received P-DATA-TF";
 
@@ -466,7 +466,7 @@ Connection
 
 void
 Connection
-::_received(std::shared_ptr<pdu::AReleaseRQ> pdu)
+::_received(std::shared_ptr<AReleaseRQ> pdu)
 {
     ODIL_LOG(DEBUG, dul) << "Received A-RELEASE-RQ";
 
@@ -487,7 +487,7 @@ Connection
 
 void
 Connection
-::_received(std::shared_ptr<pdu::AReleaseRP> pdu)
+::_received(std::shared_ptr<AReleaseRP> pdu)
 {
     ODIL_LOG(DEBUG, dul) << "Received A-RELEASE-RP";
 
@@ -510,7 +510,7 @@ Connection
 
 void
 Connection
-::_received(std::shared_ptr<pdu::AAbort> pdu)
+::_received(std::shared_ptr<AAbort> pdu)
 {
     ODIL_LOG(DEBUG, dul) << "Received A-ABORT";
 
@@ -592,7 +592,7 @@ void
 Connection
 ::AE_1(
     boost::asio::ip::tcp::endpoint const & endpoint,
-    std::shared_ptr<pdu::AAssociateRQ> pdu)
+    std::shared_ptr<AAssociateRQ> pdu)
 {
     ODIL_LOG(DEBUG, dul) << "AE-1";
 
@@ -606,7 +606,7 @@ Connection
 
 void
 Connection
-::AE_2(std::shared_ptr<pdu::AAssociateRQ> associate_rq)
+::AE_2(std::shared_ptr<AAssociateRQ> associate_rq)
 {
     ODIL_LOG(DEBUG, dul) << "AE-2";
 
@@ -616,7 +616,7 @@ Connection
 
 void
 Connection
-::AE_3(std::shared_ptr<pdu::AAssociateAC> pdu)
+::AE_3(std::shared_ptr<AAssociateAC> pdu)
 {
     ODIL_LOG(DEBUG, dul) << "AE-3";
 
@@ -626,7 +626,7 @@ Connection
 
 void
 Connection
-::AE_4(std::shared_ptr<pdu::AAssociateRJ> pdu)
+::AE_4(std::shared_ptr<AAssociateRJ> pdu)
 {
     ODIL_LOG(DEBUG, dul) << "AE-4";
 
@@ -648,32 +648,32 @@ Connection
 
 void
 Connection
-::AE_6(std::shared_ptr<pdu::AAssociateRQ> pdu)
+::AE_6(std::shared_ptr<AAssociateRQ> pdu)
 {
     ODIL_LOG(DEBUG, dul) << "AE-6";
 
     this->_stop_artim_timer();
 
-    boost::optional<std::shared_ptr<pdu::Object>> signal_result = this->_AAssociateRQ(pdu);
+    boost::optional<std::shared_ptr<Object>> signal_result = this->_AAssociateRQ(pdu);
     if(!signal_result || signal_result.get() == nullptr)
     {
         throw Exception("No response provided");
     }
 
-    std::shared_ptr<pdu::Object> response = signal_result.get();
+    std::shared_ptr<Object> response = signal_result.get();
     auto const type = response->get_item().as_unsigned_int_8("PDU-type");
     if(type == 0x02)
     {
 
         this->_state = 3;
-        this->async_send(std::dynamic_pointer_cast<pdu::AAssociateAC>(response));
+        this->async_send(std::dynamic_pointer_cast<AAssociateAC>(response));
     }
     else if(type == 0x03)
     {
         // WARNING: standard says to send RJ and switch to state 13. However,
         // this is AE-8, which needs to happen in state 3.
         this->_state = 3;
-        this->async_send(std::dynamic_pointer_cast<pdu::AAssociateRJ>(response));
+        this->async_send(std::dynamic_pointer_cast<AAssociateRJ>(response));
     }
     else
     {
@@ -684,7 +684,7 @@ Connection
 
 void
 Connection
-::AE_7(std::shared_ptr<pdu::AAssociateAC> pdu)
+::AE_7(std::shared_ptr<AAssociateAC> pdu)
 {
     ODIL_LOG(DEBUG, dul) << "AE-7";
 
@@ -694,7 +694,7 @@ Connection
 
 void
 Connection
-::AE_8(std::shared_ptr<pdu::AAssociateRJ> pdu)
+::AE_8(std::shared_ptr<AAssociateRJ> pdu)
 {
     ODIL_LOG(DEBUG, dul) << "AE-8";
 
@@ -705,7 +705,7 @@ Connection
 
 void
 Connection
-::DT_1(std::shared_ptr<pdu::PDataTF> pdu)
+::DT_1(std::shared_ptr<PDataTF> pdu)
 {
     ODIL_LOG(DEBUG, dul) << "DT-1";
 
@@ -715,7 +715,7 @@ Connection
 
 void
 Connection
-::DT_2(std::shared_ptr<pdu::PDataTF> pdu)
+::DT_2(std::shared_ptr<PDataTF> pdu)
 {
     ODIL_LOG(DEBUG, dul) << "DT-2";
 
@@ -725,7 +725,7 @@ Connection
 
 void
 Connection
-::AR_1(std::shared_ptr<pdu::AReleaseRQ> pdu)
+::AR_1(std::shared_ptr<AReleaseRQ> pdu)
 {
     ODIL_LOG(DEBUG, dul) << "AR-1";
 
@@ -735,7 +735,7 @@ Connection
 
 void
 Connection
-::AR_2(std::shared_ptr<pdu::AReleaseRQ> pdu)
+::AR_2(std::shared_ptr<AReleaseRQ> pdu)
 {
     ODIL_LOG(DEBUG, dul) << "AR-2";
 
@@ -745,7 +745,7 @@ Connection
 
 void
 Connection
-::AR_3(std::shared_ptr<pdu::AReleaseRP> pdu)
+::AR_3(std::shared_ptr<AReleaseRP> pdu)
 {
     ODIL_LOG(DEBUG, dul) << "AR-3";
 
@@ -756,7 +756,7 @@ Connection
 
 void
 Connection
-::AR_4(std::shared_ptr<pdu::AReleaseRP> pdu)
+::AR_4(std::shared_ptr<AReleaseRP> pdu)
 {
     ODIL_LOG(DEBUG, dul) << "AR-4";
 
@@ -777,7 +777,7 @@ Connection
 
 void
 Connection
-::AR_6(std::shared_ptr<pdu::PDataTF> pdu)
+::AR_6(std::shared_ptr<PDataTF> pdu)
 {
     ODIL_LOG(DEBUG, dul) << "AR-6";
 
@@ -787,7 +787,7 @@ Connection
 
 void
 Connection
-::AR_7(std::shared_ptr<pdu::PDataTF> pdu)
+::AR_7(std::shared_ptr<PDataTF> pdu)
 {
     ODIL_LOG(DEBUG, dul) << "AR-7";
 
@@ -797,7 +797,7 @@ Connection
 
 void
 Connection
-::AR_8(std::shared_ptr<pdu::AReleaseRQ> pdu)
+::AR_8(std::shared_ptr<AReleaseRQ> pdu)
 {
     ODIL_LOG(DEBUG, dul) << "AR-8";
 
@@ -807,7 +807,7 @@ Connection
 
 void
 Connection
-::AR_9(std::shared_ptr<pdu::AReleaseRP> pdu)
+::AR_9(std::shared_ptr<AReleaseRP> pdu)
 {
     ODIL_LOG(DEBUG, dul) << "AR-9";
 
@@ -817,7 +817,7 @@ Connection
 
 void
 Connection
-::AR_10(std::shared_ptr<pdu::AReleaseRP> pdu)
+::AR_10(std::shared_ptr<AReleaseRP> pdu)
 {
     ODIL_LOG(DEBUG, dul) << "AR-10";
 
@@ -827,7 +827,7 @@ Connection
 
 void
 Connection
-::AA_1(std::shared_ptr<pdu::AAbort> pdu)
+::AA_1(std::shared_ptr<AAbort> pdu)
 {
     ODIL_LOG(DEBUG, dul) << "AA-1";
 
@@ -849,7 +849,7 @@ Connection
 
 void
 Connection
-::AA_3(std::shared_ptr<pdu::AAbort> pdu)
+::AA_3(std::shared_ptr<AAbort> pdu)
 {
     ODIL_LOG(DEBUG, dul) << "AA-3";
 
@@ -868,7 +868,7 @@ Connection
     this->_state = 1;
     boost::asio::post(
         this->io_context,
-        [=]() { this->_AAbort(std::make_shared<pdu::AAbort>(2, 0)); });
+        [=]() { this->_AAbort(std::make_shared<AAbort>(2, 0)); });
 }
 
 void
@@ -898,7 +898,7 @@ Connection
     ODIL_LOG(DEBUG, dul) << "AA-7";
 
     this->_state = 13;
-    this->_async_send(std::make_shared<pdu::AAbort>(1, 0));
+    this->_async_send(std::make_shared<AAbort>(1, 0));
 }
 
 void
@@ -908,7 +908,7 @@ Connection
     ODIL_LOG(DEBUG, dul) << "AA-8";
 
     this->_state = 13;
-    auto pdu = std::make_shared<pdu::AAbort>(2, 2);
+    auto pdu = std::make_shared<AAbort>(2, 2);
     this->_async_send(pdu);
     boost::asio::post(this->io_context, [=]() { this->_AAbort(pdu); });
     this->_start_artim_timer();
@@ -916,7 +916,7 @@ Connection
 
 void
 Connection
-::_async_send(std::shared_ptr<pdu::Object> pdu)
+::_async_send(std::shared_ptr<Object> pdu)
 {
     std::ostringstream stream;
     stream << pdu->get_item();

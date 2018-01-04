@@ -5,11 +5,11 @@
 #include <string>
 
 #include "odil/Exception.h"
-#include "odil/pdu/SOPClassExtendedNegotiation.h"
+#include "odil/dul/SOPClassExtendedNegotiation.h"
 
 BOOST_AUTO_TEST_CASE(Constructor)
 {
-    odil::pdu::SOPClassExtendedNegotiation const item(
+    odil::dul::SOPClassExtendedNegotiation const item(
         "sop_class", {'\x01', '\x02', '\x03', '\x04'});
     BOOST_REQUIRE_EQUAL(item.get_sop_class_uid(), "sop_class");
     BOOST_REQUIRE(
@@ -27,7 +27,7 @@ BOOST_AUTO_TEST_CASE(FromStream)
     );
     std::istringstream stream(data);
 
-    odil::pdu::SOPClassExtendedNegotiation const item(stream);
+    odil::dul::SOPClassExtendedNegotiation const item(stream);
 
     BOOST_REQUIRE_EQUAL(item.get_sop_class_uid(), "sop_class");
     BOOST_REQUIRE(
@@ -37,7 +37,7 @@ BOOST_AUTO_TEST_CASE(FromStream)
 
 BOOST_AUTO_TEST_CASE(SOPClassUID)
 {
-    odil::pdu::SOPClassExtendedNegotiation item(
+    odil::dul::SOPClassExtendedNegotiation item(
         "sop_class", {'\x01', '\x02', '\x03', '\x04'});
     item.set_sop_class_uid("bar");
     BOOST_REQUIRE_EQUAL(item.get_sop_class_uid(), "bar");
@@ -45,7 +45,7 @@ BOOST_AUTO_TEST_CASE(SOPClassUID)
 
 BOOST_AUTO_TEST_CASE(ServiceClassApplicationInformation)
 {
-    odil::pdu::SOPClassExtendedNegotiation item(
+    odil::dul::SOPClassExtendedNegotiation item(
         "sop_class", {'\x01', '\x02', '\x03', '\x04'});
     item.set_service_class_application_information({'\x05', '\x06'});
     BOOST_REQUIRE(
@@ -55,7 +55,7 @@ BOOST_AUTO_TEST_CASE(ServiceClassApplicationInformation)
 
 BOOST_AUTO_TEST_CASE(Write)
 {
-    odil::pdu::SOPClassExtendedNegotiation const item(
+    odil::dul::SOPClassExtendedNegotiation const item(
         "sop_class", {'\x01', '\x02', '\x03', '\x04'});
     std::ostringstream data;
     data << item;

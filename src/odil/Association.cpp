@@ -20,19 +20,19 @@
 #include "odil/uid.h"
 #include "odil/dul/StateMachine.h"
 #include "odil/message/Message.h"
-#include "odil/pdu/AAbort.h"
-#include "odil/pdu/AAssociate.h"
-#include "odil/pdu/AAssociateRJ.h"
-#include "odil/pdu/AReleaseRP.h"
-#include "odil/pdu/AReleaseRQ.h"
-#include "odil/pdu/ImplementationClassUID.h"
-#include "odil/pdu/ImplementationVersionName.h"
-#include "odil/pdu/PDataTF.h"
-#include "odil/pdu/PresentationContextAC.h"
-#include "odil/pdu/PresentationContextRQ.h"
-#include "odil/pdu/RoleSelection.h"
-#include "odil/pdu/UserIdentityRQ.h"
-#include "odil/pdu/UserInformation.h"
+#include "odil/dul/AAbort.h"
+#include "odil/dul/AAssociate.h"
+#include "odil/dul/AAssociateRJ.h"
+#include "odil/dul/AReleaseRP.h"
+#include "odil/dul/AReleaseRQ.h"
+#include "odil/dul/ImplementationClassUID.h"
+#include "odil/dul/ImplementationVersionName.h"
+#include "odil/dul/PDataTF.h"
+#include "odil/dul/PresentationContextAC.h"
+#include "odil/dul/PresentationContextRQ.h"
+#include "odil/dul/RoleSelection.h"
+#include "odil/dul/UserIdentityRQ.h"
+#include "odil/dul/UserInformation.h"
 #include "odil/Reader.h"
 #include "odil/Writer.h"
 
@@ -212,7 +212,7 @@ Association
     data.peer_endpoint.port(this->_peer_port);
 
     auto const request =
-        std::make_shared<pdu::AAssociateRQ>(
+        std::make_shared<dul::AAssociateRQ>(
             this->_association_parameters.as_a_associate_rq());
 
     data.pdu = request;
@@ -226,8 +226,8 @@ Association
     }
     else
     {
-        auto const acceptation = std::dynamic_pointer_cast<pdu::AAssociateAC>(data.pdu);
-        auto const rejection = std::dynamic_pointer_cast<pdu::AAssociateRJ>(data.pdu);
+        auto const acceptation = std::dynamic_pointer_cast<dul::AAssociateAC>(data.pdu);
+        auto const rejection = std::dynamic_pointer_cast<dul::AAssociateRJ>(data.pdu);
         if(acceptation != nullptr)
         {
             this->_negotiated_parameters = AssociationParameters(
@@ -291,7 +291,7 @@ Association
     }
     else
     {
-        auto const & request = std::dynamic_pointer_cast<pdu::AAssociateRQ>(data.pdu);
+        auto const & request = std::dynamic_pointer_cast<dul::AAssociateRQ>(data.pdu);
         if(request == nullptr)
         {
             throw Exception("Invalid response");
@@ -319,7 +319,7 @@ Association
                 {pc.id, pc.transfer_syntaxes[0]};
         }
 
-        data.pdu = std::make_shared<pdu::AAssociateAC>(
+        data.pdu = std::make_shared<dul::AAssociateAC>(
             this->_negotiated_parameters.as_a_associate_ac());
         this->_state_machine.send_pdu(data);
     }
@@ -334,13 +334,13 @@ Association
         throw Exception("Not associated");
     }
 
-    auto pdu = std::make_shared<pdu::AReleaseRQ>();
+    auto pdu = std::make_shared<dul::AReleaseRQ>();
     dul::EventData data;
     data.pdu = pdu;
     this->_state_machine.send_pdu(data);
     this->_state_machine.receive_pdu(data);
 
-    auto const reply = std::dynamic_pointer_cast<pdu::AReleaseRP>(data.pdu);
+    auto const reply = std::dynamic_pointer_cast<dul::AReleaseRP>(data.pdu);
     if(reply == nullptr)
     {
         // Invalid response, accept it nevertheless.
@@ -356,7 +356,7 @@ Association
         throw Exception("Not associated");
     }
 
-    auto pdu = std::make_shared<pdu::AAbort>(source, reason);
+    auto pdu = std::make_shared<dul::AAbort>(source, reason);
     dul::EventData data;
     data.pdu = pdu;
     this->_state_machine.send_pdu(data);
@@ -381,21 +381,21 @@ Association
         data.pdu = nullptr;
         this->_state_machine.receive_pdu(data);
 
-        auto const a_release_rq = std::dynamic_pointer_cast<pdu::AReleaseRQ>(data.pdu);
+        auto const a_release_rq = std::dynamic_pointer_cast<dul::AReleaseRQ>(data.pdu);
         if(a_release_rq != nullptr)
         {
-            data.pdu = std::make_shared<pdu::AReleaseRP>();
+            data.pdu = std::make_shared<dul::AReleaseRP>();
             this->_state_machine.send_pdu(data);
             throw AssociationReleased();
         }
 
-        auto const a_abort = std::dynamic_pointer_cast<pdu::AAbort>(data.pdu);
+        auto const a_abort = std::dynamic_pointer_cast<dul::AAbort>(data.pdu);
         if(a_abort != nullptr)
         {
             throw AssociationAborted(a_abort->get_source(), a_abort->get_reason());
         }
 
-        auto const p_data_tf = std::dynamic_pointer_cast<pdu::PDataTF>(data.pdu);
+        auto const p_data_tf = std::dynamic_pointer_cast<dul::PDataTF>(data.pdu);
 
         if(p_data_tf == nullptr)
         {
@@ -472,7 +472,7 @@ Association
     auto const & transfer_syntax = transfer_syntax_it->second.second;
     auto const & id = transfer_syntax_it->second.first;
 
-    std::vector<pdu::PDataTF::PresentationDataValueItem> pdv_items;
+    std::vector<dul::PDataTF::PresentationDataValueItem> pdv_items;
 
     std::ostringstream command_stream;
     Writer command_writer(
@@ -499,7 +499,7 @@ Association
             pdv_items.emplace_back(transfer_syntax_it->second.first, 2, data_buffer);
 
             dul::EventData data;
-            data.pdu = std::make_shared<pdu::PDataTF>(pdv_items);
+            data.pdu = std::make_shared<dul::PDataTF>(pdv_items);
             this->_state_machine.send_pdu(data);
         }
         else // We have to fragment into multiple PDUs
@@ -515,7 +515,7 @@ Association
                 offset += available;
             }
 
-            auto pdu = std::make_shared<pdu::PDataTF>(pdv_items);
+            auto pdu = std::make_shared<dul::PDataTF>(pdv_items);
             dul::EventData data;
             data.pdu = pdu;
             this->_state_machine.send_pdu(data);
@@ -535,7 +535,7 @@ Association
     else
     {
         dul::EventData data;
-        data.pdu = std::make_shared<pdu::PDataTF>(pdv_items);
+        data.pdu = std::make_shared<dul::PDataTF>(pdv_items);
         this->_state_machine.send_pdu(data);
     }
 }

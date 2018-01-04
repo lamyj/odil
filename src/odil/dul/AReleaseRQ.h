@@ -12,12 +12,12 @@
 #include <istream>
 
 #include "odil/odil.h"
-#include "odil/pdu/Object.h"
+#include "odil/dul/Object.h"
 
 namespace odil
 {
 
-namespace pdu
+namespace dul
 {
 
 /// @brief A-RELEASE-RQ PDU, cf. PS 3.8, 9.3.6.

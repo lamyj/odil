@@ -23,12 +23,12 @@
 #include "odil/Exception.h"
 #include "odil/dul/EventData.h"
 #include "odil/dul/Transport.h"
-#include "odil/pdu/AAbort.h"
-#include "odil/pdu/AAssociate.h"
-#include "odil/pdu/AAssociateRJ.h"
-#include "odil/pdu/AReleaseRP.h"
-#include "odil/pdu/AReleaseRQ.h"
-#include "odil/pdu/PDataTF.h"
+#include "odil/dul/AAbort.h"
+#include "odil/dul/AAssociate.h"
+#include "odil/dul/AAssociateRJ.h"
+#include "odil/dul/AReleaseRP.h"
+#include "odil/dul/AReleaseRQ.h"
+#include "odil/dul/PDataTF.h"
 
 namespace odil
 {
@@ -216,37 +216,37 @@ StateMachine
     Event event = Event::None;
     if(type == 0x01)
     {
-        data.pdu = std::make_shared<pdu::AAssociateRQ>(stream);
+        data.pdu = std::make_shared<AAssociateRQ>(stream);
         event = Event::AAssociateRQRemote;
     }
     else if(type == 0x02)
     {
-        data.pdu = std::make_shared<pdu::AAssociateAC>(stream);
+        data.pdu = std::make_shared<AAssociateAC>(stream);
         event = Event::AAssociateACRemote;
     }
     else if(type == 0x03)
     {
-        data.pdu = std::make_shared<pdu::AAssociateRJ>(stream);
+        data.pdu = std::make_shared<AAssociateRJ>(stream);
         event = Event::AAssociateRJRemote;
     }
     else if(type == 0x04)
     {
-        data.pdu = std::make_shared<pdu::PDataTF>(stream);
+        data.pdu = std::make_shared<PDataTF>(stream);
         event = Event::PDataTFRemote;
     }
     else if(type == 0x05)
     {
-        data.pdu = std::make_shared<pdu::AReleaseRQ>(stream);
+        data.pdu = std::make_shared<AReleaseRQ>(stream);
         event = Event::AReleaseRQRemote;
     }
     else if(type == 0x06)
     {
-        data.pdu = std::make_shared<pdu::AReleaseRP>(stream);
+        data.pdu = std::make_shared<AReleaseRP>(stream);
         event = Event::AReleaseRPRemote;
     }
     else if(type == 0x07)
     {
-        data.pdu = std::make_shared<pdu::AAbort>(stream);
+        data.pdu = std::make_shared<AAbort>(stream);
         event = Event::AAbortRemote;
     }
     else
@@ -488,7 +488,7 @@ StateMachine
             try
             {
                 AssociationParameters const input_parameters(
-                    *std::dynamic_pointer_cast<pdu::AAssociateRQ>(data.pdu));
+                    *std::dynamic_pointer_cast<AAssociateRQ>(data.pdu));
                 data.association_parameters =
                     state_machine.get_association_acceptor()(input_parameters);
             }
@@ -572,7 +572,7 @@ StateMachine
 
     if(data.reject)
     {
-        data.pdu = std::make_shared<pdu::AAssociateRJ>(
+        data.pdu = std::make_shared<AAssociateRJ>(
             data.reject->get_result(), data.reject->get_source(),
             data.reject->get_reason());
         this->_send_pdu(data, 0x03);
@@ -697,13 +697,13 @@ void
 StateMachine
 ::AA_1(EventData & data)
 {
-    if(std::dynamic_pointer_cast<pdu::AAbort>(data.pdu))
+    if(std::dynamic_pointer_cast<AAbort>(data.pdu))
     {
         this->_send_pdu(data, 0x07);
     }
     else
     {
-        data.pdu = std::make_shared<pdu::AAbort>(1, 2);
+        data.pdu = std::make_shared<AAbort>(1, 2);
         this->send_pdu(data);
     }
 
@@ -760,7 +760,7 @@ void
 StateMachine
 ::AA_8(EventData & data)
 {
-    data.pdu = std::make_shared<pdu::AAbort>(2, 2);
+    data.pdu = std::make_shared<AAbort>(2, 2);
     this->_send_pdu(data, 0x07);
     // Notification is implicit
     this->start_timer(data);

@@ -15,12 +15,12 @@
 #include <vector>
 
 #include "odil/odil.h"
-#include "odil/pdu/Object.h"
+#include "odil/dul/Object.h"
 
 namespace odil
 {
 
-namespace pdu
+namespace dul
 {
 
 /**

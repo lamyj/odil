@@ -9,7 +9,7 @@
 #ifndef _bb325c55_d983_41e3_b6c4_e3b957baedba
 #define _bb325c55_d983_41e3_b6c4_e3b957baedba
 
-#include "odil/pdu/UserInformation.h"
+#include "odil/dul/UserInformation.h"
 
 #include <algorithm>
 #include <initializer_list>
@@ -19,16 +19,16 @@
 #include <vector>
 
 #include "odil/Exception.h"
-#include "odil/pdu/Item.h"
-#include "odil/pdu/MaximumLength.h"
-#include "odil/pdu/Object.h"
-#include "odil/pdu/UserIdentityAC.h"
-#include "odil/pdu/UserIdentityRQ.h"
+#include "odil/dul/Item.h"
+#include "odil/dul/MaximumLength.h"
+#include "odil/dul/Object.h"
+#include "odil/dul/UserIdentityAC.h"
+#include "odil/dul/UserIdentityRQ.h"
 
 namespace odil
 {
 
-namespace pdu
+namespace dul
 {
 
 template<typename TObject>

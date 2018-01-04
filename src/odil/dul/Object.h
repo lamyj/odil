@@ -12,12 +12,12 @@
 #include <ostream>
 
 #include "odil/odil.h"
-#include "odil/pdu/Item.h"
+#include "odil/dul/Item.h"
 
 namespace odil
 {
 
-namespace pdu
+namespace dul
 {
 
 /**

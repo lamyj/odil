@@ -6,19 +6,19 @@
  * for details.
  ************************************************************************/
 
-#include "odil/pdu/PresentationContextAC.h"
+#include "odil/dul/PresentationContextAC.h"
 
 #include <cstdint>
 #include <istream>
 #include <string>
 
 #include "odil/Exception.h"
-#include "odil/pdu/PresentationContext.h"
+#include "odil/dul/PresentationContext.h"
 
 namespace odil
 {
 
-namespace pdu
+namespace dul
 {
 
 PresentationContextAC

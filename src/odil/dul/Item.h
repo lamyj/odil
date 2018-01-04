@@ -21,7 +21,7 @@
 namespace odil
 {
 
-namespace pdu
+namespace dul
 {
 
 /// @brief A sequence of fields forming a full PDU or a part of it.

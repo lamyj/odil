@@ -6,20 +6,20 @@
  * for details.
  ************************************************************************/
 
-#include "odil/pdu/AAssociateRQ.h"
+#include "odil/dul/AAssociateRQ.h"
 
 #include <algorithm>
 #include <sstream>
 #include <vector>
 
 #include "odil/Exception.h"
-#include "odil/pdu/AAssociate.h"
-#include "odil/pdu/PresentationContextRQ.h"
+#include "odil/dul/AAssociate.h"
+#include "odil/dul/PresentationContextRQ.h"
 
 namespace odil
 {
 
-namespace pdu
+namespace dul
 {
 
 AAssociateRQ

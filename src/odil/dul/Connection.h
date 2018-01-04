@@ -16,13 +16,13 @@
 #include <boost/signals2.hpp>
 #include <boost/system/error_code.hpp>
 
-#include "odil/pdu/AAbort.h"
-#include "odil/pdu/AAssociateAC.h"
-#include "odil/pdu/AAssociateRJ.h"
-#include "odil/pdu/AAssociateRQ.h"
-#include "odil/pdu/AReleaseRP.h"
-#include "odil/pdu/AReleaseRQ.h"
-#include "odil/pdu/PDataTF.h"
+#include "odil/dul/AAbort.h"
+#include "odil/dul/AAssociateAC.h"
+#include "odil/dul/AAssociateRJ.h"
+#include "odil/dul/AAssociateRQ.h"
+#include "odil/dul/AReleaseRP.h"
+#include "odil/dul/AReleaseRQ.h"
+#include "odil/dul/PDataTF.h"
 
 namespace odil
 {
@@ -63,13 +63,13 @@ ODIL_SIGNAL_TRAITS(TransportClosed, void(boost::system::error_code));
 ODIL_SIGNAL_TRAITS(TransportAccepted, void(boost::system::error_code));
 ODIL_SIGNAL_TRAITS(TransportError, void(boost::system::error_code));
 ODIL_SIGNAL_TRAITS(Accepted, void());
-ODIL_SIGNAL_TRAITS(AAssociateRQ, std::shared_ptr<pdu::Object>(std::shared_ptr<pdu::AAssociateRQ>));
-ODIL_SIGNAL_TRAITS(AAssociateAC, void(std::shared_ptr<pdu::AAssociateAC>));
-ODIL_SIGNAL_TRAITS(AAssociateRJ, void(std::shared_ptr<pdu::AAssociateRJ>));
-ODIL_SIGNAL_TRAITS(PDataTF, void(std::shared_ptr<pdu::PDataTF>));
-ODIL_SIGNAL_TRAITS(AReleaseRQ, void(std::shared_ptr<pdu::AReleaseRQ>));
-ODIL_SIGNAL_TRAITS(AReleaseRP, void(std::shared_ptr<pdu::AReleaseRP>));
-ODIL_SIGNAL_TRAITS(AAbort, void(std::shared_ptr<pdu::AAbort>));
+ODIL_SIGNAL_TRAITS(AAssociateRQ, std::shared_ptr<Object>(std::shared_ptr<AAssociateRQ>));
+ODIL_SIGNAL_TRAITS(AAssociateAC, void(std::shared_ptr<AAssociateAC>));
+ODIL_SIGNAL_TRAITS(AAssociateRJ, void(std::shared_ptr<AAssociateRJ>));
+ODIL_SIGNAL_TRAITS(PDataTF, void(std::shared_ptr<PDataTF>));
+ODIL_SIGNAL_TRAITS(AReleaseRQ, void(std::shared_ptr<AReleaseRQ>));
+ODIL_SIGNAL_TRAITS(AReleaseRP, void(std::shared_ptr<AReleaseRP>));
+ODIL_SIGNAL_TRAITS(AAbort, void(std::shared_ptr<AAbort>));
 
 #undef ODIL_SIGNAL_TRAITS
 
@@ -99,13 +99,13 @@ public:
 
     void async_send(
         boost::asio::ip::tcp::endpoint const & endpoint,
-        std::shared_ptr<pdu::AAssociateRQ> pdu);
-    void async_send(std::shared_ptr<pdu::AAssociateAC> pdu);
-    void async_send(std::shared_ptr<pdu::AAssociateRJ> pdu);
-    void async_send(std::shared_ptr<pdu::PDataTF> pdu);
-    void async_send(std::shared_ptr<pdu::AReleaseRQ> pdu);
-    void async_send(std::shared_ptr<pdu::AReleaseRP> pdu);
-    void async_send(std::shared_ptr<pdu::AAbort> pdu);
+        std::shared_ptr<AAssociateRQ> pdu);
+    void async_send(std::shared_ptr<AAssociateAC> pdu);
+    void async_send(std::shared_ptr<AAssociateRJ> pdu);
+    void async_send(std::shared_ptr<PDataTF> pdu);
+    void async_send(std::shared_ptr<AReleaseRQ> pdu);
+    void async_send(std::shared_ptr<AReleaseRP> pdu);
+    void async_send(std::shared_ptr<AAbort> pdu);
 
     void async_receive();
 
@@ -153,7 +153,7 @@ private:
 
     void _connect_handler(
         boost::system::error_code const & error,
-        std::shared_ptr<pdu::AAssociateRQ> associate_rq);
+        std::shared_ptr<AAssociateRQ> associate_rq);
 
     void _sent_handler(boost::system::error_code const & error);
 
@@ -166,14 +166,14 @@ private:
     /// @addtogroup dul_events DICOM Upper Layer events
     /// @{
 
-    void _transport_connected(std::shared_ptr<pdu::AAssociateRQ> pdu);
-    void _received(std::shared_ptr<pdu::AAssociateAC> pdu);
-    void _received(std::shared_ptr<pdu::AAssociateRJ> pdu);
-    void _received(std::shared_ptr<pdu::AAssociateRQ> pdu);
-    void _received(std::shared_ptr<pdu::PDataTF> pdu);
-    void _received(std::shared_ptr<pdu::AReleaseRQ> pdu);
-    void _received(std::shared_ptr<pdu::AReleaseRP> pdu);
-    void _received(std::shared_ptr<pdu::AAbort> pdu);
+    void _transport_connected(std::shared_ptr<AAssociateRQ> pdu);
+    void _received(std::shared_ptr<AAssociateAC> pdu);
+    void _received(std::shared_ptr<AAssociateRJ> pdu);
+    void _received(std::shared_ptr<AAssociateRQ> pdu);
+    void _received(std::shared_ptr<PDataTF> pdu);
+    void _received(std::shared_ptr<AReleaseRQ> pdu);
+    void _received(std::shared_ptr<AReleaseRP> pdu);
+    void _received(std::shared_ptr<AAbort> pdu);
     void _transport_closed();
     void _artim_expired(boost::system::error_code const & error);
     void _invalid_pdu();
@@ -189,32 +189,32 @@ private:
 
     void AE_1(
         boost::asio::ip::tcp::endpoint const & endpoint,
-        std::shared_ptr<pdu::AAssociateRQ> pdu);
-    void AE_2(std::shared_ptr<pdu::AAssociateRQ> pdu);
-    void AE_3(std::shared_ptr<pdu::AAssociateAC> pdu);
-    void AE_4(std::shared_ptr<pdu::AAssociateRJ> pdu);
+        std::shared_ptr<AAssociateRQ> pdu);
+    void AE_2(std::shared_ptr<AAssociateRQ> pdu);
+    void AE_3(std::shared_ptr<AAssociateAC> pdu);
+    void AE_4(std::shared_ptr<AAssociateRJ> pdu);
     void AE_5();
-    void AE_6(std::shared_ptr<pdu::AAssociateRQ> pdu);
-    void AE_7(std::shared_ptr<pdu::AAssociateAC> pdu);
-    void AE_8(std::shared_ptr<pdu::AAssociateRJ> pdu);
+    void AE_6(std::shared_ptr<AAssociateRQ> pdu);
+    void AE_7(std::shared_ptr<AAssociateAC> pdu);
+    void AE_8(std::shared_ptr<AAssociateRJ> pdu);
 
-    void DT_1(std::shared_ptr<pdu::PDataTF> pdu);
-    void DT_2(std::shared_ptr<pdu::PDataTF> pdu);
+    void DT_1(std::shared_ptr<PDataTF> pdu);
+    void DT_2(std::shared_ptr<PDataTF> pdu);
 
-    void AR_1(std::shared_ptr<pdu::AReleaseRQ> pdu);
-    void AR_2(std::shared_ptr<pdu::AReleaseRQ> pdu);
-    void AR_3(std::shared_ptr<pdu::AReleaseRP> pdu);
-    void AR_4(std::shared_ptr<pdu::AReleaseRP> pdu);
+    void AR_1(std::shared_ptr<AReleaseRQ> pdu);
+    void AR_2(std::shared_ptr<AReleaseRQ> pdu);
+    void AR_3(std::shared_ptr<AReleaseRP> pdu);
+    void AR_4(std::shared_ptr<AReleaseRP> pdu);
     void AR_5();
-    void AR_6(std::shared_ptr<pdu::PDataTF> pdu);
-    void AR_7(std::shared_ptr<pdu::PDataTF> pdu);
-    void AR_8(std::shared_ptr<pdu::AReleaseRQ> pdu);
-    void AR_9(std::shared_ptr<pdu::AReleaseRP> pdu);
-    void AR_10(std::shared_ptr<pdu::AReleaseRP> pdu);
+    void AR_6(std::shared_ptr<PDataTF> pdu);
+    void AR_7(std::shared_ptr<PDataTF> pdu);
+    void AR_8(std::shared_ptr<AReleaseRQ> pdu);
+    void AR_9(std::shared_ptr<AReleaseRP> pdu);
+    void AR_10(std::shared_ptr<AReleaseRP> pdu);
 
-    void AA_1(std::shared_ptr<pdu::AAbort> pdu=std::make_shared<pdu::AAbort>(0, 0));
+    void AA_1(std::shared_ptr<AAbort> pdu=std::make_shared<AAbort>(0, 0));
     void AA_2();
-    void AA_3(std::shared_ptr<pdu::AAbort> pdu);
+    void AA_3(std::shared_ptr<AAbort> pdu);
     void AA_4();
     void AA_5();
     void AA_6();
@@ -223,7 +223,7 @@ private:
 
     /// @}
 
-    void _async_send(std::shared_ptr<pdu::Object> pdu);
+    void _async_send(std::shared_ptr<Object> pdu);
 
     void _start_artim_timer();
     void _stop_artim_timer();

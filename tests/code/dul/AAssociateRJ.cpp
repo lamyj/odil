@@ -3,7 +3,7 @@
 
 #include <sstream>
 
-#include "odil/pdu/AAssociateRJ.h"
+#include "odil/dul/AAssociateRJ.h"
 #include "odil/Exception.h"
 
 std::string const data = {
@@ -15,7 +15,7 @@ std::string const data = {
 
 BOOST_AUTO_TEST_CASE(ConstructorFields)
 {
-    odil::pdu::AAssociateRJ const pdu(1, 2, 3);
+    odil::dul::AAssociateRJ const pdu(1, 2, 3);
     BOOST_REQUIRE_EQUAL(pdu.get_result(), 1);
     BOOST_REQUIRE_EQUAL(pdu.get_source(), 2);
     BOOST_REQUIRE_EQUAL(pdu.get_reason(), 3);
@@ -24,7 +24,7 @@ BOOST_AUTO_TEST_CASE(ConstructorFields)
 BOOST_AUTO_TEST_CASE(ConstructorStream)
 {
     std::istringstream stream(data);
-    odil::pdu::AAssociateRJ const pdu(stream);
+    odil::dul::AAssociateRJ const pdu(stream);
     BOOST_REQUIRE_EQUAL(pdu.get_result(), 1);
     BOOST_REQUIRE_EQUAL(pdu.get_source(), 2);
     BOOST_REQUIRE_EQUAL(pdu.get_reason(), 3);
@@ -32,7 +32,7 @@ BOOST_AUTO_TEST_CASE(ConstructorStream)
 
 BOOST_AUTO_TEST_CASE(Write)
 {
-    odil::pdu::AAssociateRJ const pdu(1, 2, 3);
+    odil::dul::AAssociateRJ const pdu(1, 2, 3);
     std::ostringstream stream;
     stream << pdu;
 
@@ -41,19 +41,19 @@ BOOST_AUTO_TEST_CASE(Write)
 
 BOOST_AUTO_TEST_CASE(WrongResult)
 {
-    odil::pdu::AAssociateRJ pdu(1, 2, 3);
+    odil::dul::AAssociateRJ pdu(1, 2, 3);
     BOOST_REQUIRE_THROW(pdu.set_result(4), odil::Exception);
 }
 
 
 BOOST_AUTO_TEST_CASE(WrongSource)
 {
-    odil::pdu::AAssociateRJ pdu(1, 2, 3);
+    odil::dul::AAssociateRJ pdu(1, 2, 3);
     BOOST_REQUIRE_THROW(pdu.set_source(4), odil::Exception);
 }
 
 BOOST_AUTO_TEST_CASE(WrongReason)
 {
-    odil::pdu::AAssociateRJ pdu(1, 2, 3);
+    odil::dul::AAssociateRJ pdu(1, 2, 3);
     BOOST_REQUIRE_THROW(pdu.set_reason(25), odil::Exception);
 }

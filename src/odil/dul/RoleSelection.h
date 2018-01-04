@@ -14,12 +14,12 @@
 #include <string>
 
 #include "odil/odil.h"
-#include "odil/pdu/Object.h"
+#include "odil/dul/Object.h"
 
 namespace odil
 {
 
-namespace pdu
+namespace dul
 {
 
 /// @brief SCU/SCP Role Selection Sub-Item (PS 3.7, D.3.3.4.1 and D.3.3.4.2).

@@ -14,10 +14,10 @@
 #include <vector>
 
 #include "odil/odil.h"
-#include "odil/pdu/AAssociateAC.h"
-#include "odil/pdu/AAssociateRQ.h"
-#include "odil/pdu/SOPClassCommonExtendedNegotiation.h"
-#include "odil/pdu/SOPClassExtendedNegotiation.h"
+#include "odil/dul/AAssociateAC.h"
+#include "odil/dul/AAssociateRQ.h"
+#include "odil/dul/SOPClassCommonExtendedNegotiation.h"
+#include "odil/dul/SOPClassExtendedNegotiation.h"
 
 namespace odil
 {
@@ -107,11 +107,11 @@ public:
     AssociationParameters();
 
     /// @brief Constructor from an A-ASSOCIATE-RQ PDU.
-    AssociationParameters(pdu::AAssociateRQ const & pdu);
+    AssociationParameters(dul::AAssociateRQ const & pdu);
 
     /// @brief Constructor from an A-ASSOCIATE-RQ PDU.
     AssociationParameters(
-        pdu::AAssociateAC const & pdu, AssociationParameters const & request);
+        dul::AAssociateAC const & pdu, AssociationParameters const & request);
 
     /// @brief Return the called AE title, default to empty.
     std::string const & get_called_ae_title() const;
@@ -193,7 +193,7 @@ public:
     AssociationParameters & set_maximum_number_operations_performed(uint16_t value);
     
     /// @brief Return the list of SOP Class Extended Negotiation items.
-    std::vector<pdu::SOPClassExtendedNegotiation>
+    std::vector<dul::SOPClassExtendedNegotiation>
     get_sop_class_extended_negotiation() const;
 
     /**
@@ -201,10 +201,10 @@ public:
      * to an empty list.
      */
     void set_sop_class_extended_negotiation(
-        std::vector<pdu::SOPClassExtendedNegotiation> const & value);
+        std::vector<dul::SOPClassExtendedNegotiation> const & value);
 
     /// @brief Return the list of SOP Class Extended Negotiation items.
-    std::vector<pdu::SOPClassCommonExtendedNegotiation>
+    std::vector<dul::SOPClassCommonExtendedNegotiation>
         get_sop_class_common_extended_negotiation() const;
     
     /**
@@ -212,13 +212,13 @@ public:
      * to an empty list.
      */
     void set_sop_class_common_extended_negotiation(
-        std::vector<pdu::SOPClassCommonExtendedNegotiation> const & value);
+        std::vector<dul::SOPClassCommonExtendedNegotiation> const & value);
 
     /// @brief Create an A-ASSOCIATE-RQ PDU.
-    pdu::AAssociateRQ as_a_associate_rq() const;
+    dul::AAssociateRQ as_a_associate_rq() const;
 
     /// @brief Create an A-ASSOCIATE-AC PDU.
-    pdu::AAssociateAC as_a_associate_ac() const;
+    dul::AAssociateAC as_a_associate_ac() const;
 
     /// @brief Member-wise equality.
     bool operator==(AssociationParameters const & other) const;
@@ -231,9 +231,9 @@ private:
     uint32_t _maximum_length;
     uint16_t _maximum_number_operations_invoked;
     uint16_t _maximum_number_operations_performed;
-    std::vector<pdu::SOPClassExtendedNegotiation>
+    std::vector<dul::SOPClassExtendedNegotiation>
         _sop_class_extended_negotiation;
-    std::vector<pdu::SOPClassCommonExtendedNegotiation> 
+    std::vector<dul::SOPClassCommonExtendedNegotiation> 
         _sop_class_common_extended_negotiation;
 
     /// @brief Set the user identity.

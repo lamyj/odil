@@ -6,7 +6,7 @@
 #include <vector>
 
 #include "odil/Exception.h"
-#include "odil/pdu/PresentationContextAC.h"
+#include "odil/dul/PresentationContextAC.h"
 
 std::string const data(
     "\x21\x00\x00\x17"
@@ -17,7 +17,7 @@ std::string const data(
 
 BOOST_AUTO_TEST_CASE(Constructor)
 {
-    odil::pdu::PresentationContextAC const context(1, "transfer_syntax", 2);
+    odil::dul::PresentationContextAC const context(1, "transfer_syntax", 2);
 
     BOOST_REQUIRE_EQUAL(context.get_item_type(), 0x21);
     BOOST_REQUIRE_EQUAL(context.get_id(), 0x1);
@@ -27,21 +27,21 @@ BOOST_AUTO_TEST_CASE(Constructor)
 
 BOOST_AUTO_TEST_CASE(Id)
 {
-    odil::pdu::PresentationContextAC context(1, "transfer_syntax", 1);
+    odil::dul::PresentationContextAC context(1, "transfer_syntax", 1);
     context.set_id(123);
     BOOST_REQUIRE_EQUAL(context.get_id(), 123);
 }
 
 BOOST_AUTO_TEST_CASE(TransferSyntax)
 {
-    odil::pdu::PresentationContextAC context(1, "transfer_syntax", 1);
+    odil::dul::PresentationContextAC context(1, "transfer_syntax", 1);
     context.set_transfer_syntax("foo");
     BOOST_REQUIRE_EQUAL(context.get_transfer_syntax(), "foo");
 }
 
 BOOST_AUTO_TEST_CASE(Write)
 {
-    odil::pdu::PresentationContextAC context(3, "transfer_syntax", 1);
+    odil::dul::PresentationContextAC context(3, "transfer_syntax", 1);
 
     std::ostringstream stream;
     stream << context;
@@ -53,7 +53,7 @@ BOOST_AUTO_TEST_CASE(Read)
 {
     std::istringstream stream(data);
 
-    odil::pdu::PresentationContextAC const context(stream);
+    odil::dul::PresentationContextAC const context(stream);
 
     BOOST_REQUIRE_EQUAL(context.get_item_type(), 0x21);
     BOOST_REQUIRE_EQUAL(context.get_id(), 3);

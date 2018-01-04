@@ -6,7 +6,7 @@
  * for details.
  ************************************************************************/
 
-#include "odil/pdu/SOPClassCommonExtendedNegotiation.h"
+#include "odil/dul/SOPClassCommonExtendedNegotiation.h"
 
 #include <algorithm>
 #include <istream>
@@ -14,12 +14,12 @@
 #include <vector>
 
 #include "odil/Exception.h"
-#include "odil/pdu/Object.h"
+#include "odil/dul/Object.h"
 
 namespace odil
 {
 
-namespace pdu
+namespace dul
 {
 
 SOPClassCommonExtendedNegotiation

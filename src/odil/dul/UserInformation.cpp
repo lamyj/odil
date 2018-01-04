@@ -6,7 +6,7 @@
  * for details.
  ************************************************************************/
 
-#include "odil/pdu/UserInformation.h"
+#include "odil/dul/UserInformation.h"
 
 #include <algorithm>
 #include <istream>
@@ -15,21 +15,21 @@
 #include "odil/endian.h"
 #include "odil/Exception.h"
 #include "odil/logging.h"
-#include "odil/pdu/AsynchronousOperationsWindow.h"
-#include "odil/pdu/ImplementationClassUID.h"
-#include "odil/pdu/ImplementationVersionName.h"
-#include "odil/pdu/MaximumLength.h"
-#include "odil/pdu/Object.h"
-#include "odil/pdu/RoleSelection.h"
-#include "odil/pdu/SOPClassCommonExtendedNegotiation.h"
-#include "odil/pdu/SOPClassExtendedNegotiation.h"
-#include "odil/pdu/UserIdentityAC.h"
-#include "odil/pdu/UserIdentityRQ.h"
+#include "odil/dul/AsynchronousOperationsWindow.h"
+#include "odil/dul/ImplementationClassUID.h"
+#include "odil/dul/ImplementationVersionName.h"
+#include "odil/dul/MaximumLength.h"
+#include "odil/dul/Object.h"
+#include "odil/dul/RoleSelection.h"
+#include "odil/dul/SOPClassCommonExtendedNegotiation.h"
+#include "odil/dul/SOPClassExtendedNegotiation.h"
+#include "odil/dul/UserIdentityAC.h"
+#include "odil/dul/UserIdentityRQ.h"
 
 namespace odil
 {
 
-namespace pdu
+namespace dul
 {
 
 UserInformation

@@ -6,7 +6,7 @@
  * for details.
  ************************************************************************/
 
-#include "odil/pdu/PresentationContext.h"
+#include "odil/dul/PresentationContext.h"
 
 #include <algorithm>
 #include <cstdint>
@@ -14,13 +14,13 @@
 #include <vector>
 
 #include "odil/Exception.h"
-#include "odil/pdu/Object.h"
-#include "odil/pdu/Item.h"
+#include "odil/dul/Object.h"
+#include "odil/dul/Item.h"
 
 namespace odil
 {
 
-namespace pdu
+namespace dul
 {
 
 PresentationContext

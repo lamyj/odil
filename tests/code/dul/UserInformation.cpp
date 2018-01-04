@@ -4,19 +4,19 @@
 #include <sstream>
 
 #include "odil/Exception.h"
-#include "odil/pdu/ImplementationClassUID.h"
-#include "odil/pdu/ImplementationVersionName.h"
-#include "odil/pdu/MaximumLength.h"
-#include "odil/pdu/RoleSelection.h"
-#include "odil/pdu/UserInformation.h"
-#include "odil/pdu/UserIdentityAC.h"
-#include "odil/pdu/UserIdentityRQ.h"
+#include "odil/dul/ImplementationClassUID.h"
+#include "odil/dul/ImplementationVersionName.h"
+#include "odil/dul/MaximumLength.h"
+#include "odil/dul/RoleSelection.h"
+#include "odil/dul/UserInformation.h"
+#include "odil/dul/UserIdentityAC.h"
+#include "odil/dul/UserIdentityRQ.h"
 
 BOOST_AUTO_TEST_CASE(ConstructorDefault)
 {
-    odil::pdu::UserInformation const item;
-    BOOST_REQUIRE(item.get_sub_items<odil::pdu::MaximumLength>().empty());
-    BOOST_REQUIRE(item.get_sub_items<odil::pdu::UserIdentityRQ>().empty());
+    odil::dul::UserInformation const item;
+    BOOST_REQUIRE(item.get_sub_items<odil::dul::MaximumLength>().empty());
+    BOOST_REQUIRE(item.get_sub_items<odil::dul::UserIdentityRQ>().empty());
 }
 
 BOOST_AUTO_TEST_CASE(ConstructorStreamMaximumLength)
@@ -29,9 +29,9 @@ BOOST_AUTO_TEST_CASE(ConstructorStreamMaximumLength)
     );
     std::istringstream stream(data);
 
-    odil::pdu::UserInformation const item(stream);
+    odil::dul::UserInformation const item(stream);
     BOOST_REQUIRE_EQUAL(
-        item.get_sub_items<odil::pdu::MaximumLength>().size(), 1);
+        item.get_sub_items<odil::dul::MaximumLength>().size(), 1);
 }
 
 BOOST_AUTO_TEST_CASE(ConstructorStreamImplementationClassUID)
@@ -43,9 +43,9 @@ BOOST_AUTO_TEST_CASE(ConstructorStreamImplementationClassUID)
     );
     std::istringstream stream(data);
 
-    odil::pdu::UserInformation const item(stream);
+    odil::dul::UserInformation const item(stream);
     BOOST_REQUIRE_EQUAL(
-        item.get_sub_items<odil::pdu::ImplementationClassUID>().size(), 1);
+        item.get_sub_items<odil::dul::ImplementationClassUID>().size(), 1);
 }
 
 BOOST_AUTO_TEST_CASE(ConstructorStreamRoleSelection)
@@ -59,9 +59,9 @@ BOOST_AUTO_TEST_CASE(ConstructorStreamRoleSelection)
     );
     std::istringstream stream(data);
 
-    odil::pdu::UserInformation const item(stream);
+    odil::dul::UserInformation const item(stream);
     BOOST_REQUIRE_EQUAL(
-        item.get_sub_items<odil::pdu::RoleSelection>().size(), 1);
+        item.get_sub_items<odil::dul::RoleSelection>().size(), 1);
 }
 
 BOOST_AUTO_TEST_CASE(ConstructorStreamImplementationVersionName)
@@ -73,9 +73,9 @@ BOOST_AUTO_TEST_CASE(ConstructorStreamImplementationVersionName)
     );
     std::istringstream stream(data);
 
-    odil::pdu::UserInformation const item(stream);
+    odil::dul::UserInformation const item(stream);
     BOOST_REQUIRE_EQUAL(
-        item.get_sub_items<odil::pdu::ImplementationVersionName>().size(), 1);
+        item.get_sub_items<odil::dul::ImplementationVersionName>().size(), 1);
 }
 
 BOOST_AUTO_TEST_CASE(ConstructorStreamUserIdentityRQ)
@@ -91,9 +91,9 @@ BOOST_AUTO_TEST_CASE(ConstructorStreamUserIdentityRQ)
     );
     std::istringstream stream(data);
 
-    odil::pdu::UserInformation const item(stream);
+    odil::dul::UserInformation const item(stream);
     BOOST_REQUIRE_EQUAL(
-        item.get_sub_items<odil::pdu::UserIdentityRQ>().size(), 1);
+        item.get_sub_items<odil::dul::UserIdentityRQ>().size(), 1);
 
 }
 
@@ -108,41 +108,41 @@ BOOST_AUTO_TEST_CASE(ConstructorStreamUserIdentityAC)
     );
     std::istringstream stream(data);
 
-    odil::pdu::UserInformation const item(stream);
+    odil::dul::UserInformation const item(stream);
     BOOST_REQUIRE_EQUAL(
-        item.get_sub_items<odil::pdu::UserIdentityAC>().size(), 1);
+        item.get_sub_items<odil::dul::UserIdentityAC>().size(), 1);
 }
 
 BOOST_AUTO_TEST_CASE(SetSubItems)
 {
-    odil::pdu::UserInformation item;
-    BOOST_REQUIRE(item.get_sub_items<odil::pdu::MaximumLength>().empty());
+    odil::dul::UserInformation item;
+    BOOST_REQUIRE(item.get_sub_items<odil::dul::MaximumLength>().empty());
 
-    item.set_sub_items<odil::pdu::MaximumLength>({{0x12345678}});
+    item.set_sub_items<odil::dul::MaximumLength>({{0x12345678}});
 
     BOOST_REQUIRE_EQUAL(
-        item.get_sub_items<odil::pdu::MaximumLength>().size(), 1);
+        item.get_sub_items<odil::dul::MaximumLength>().size(), 1);
 }
 
 BOOST_AUTO_TEST_CASE(DeleteSubItems)
 {
-    odil::pdu::UserInformation item;
-    BOOST_REQUIRE(item.get_sub_items<odil::pdu::MaximumLength>().empty());
+    odil::dul::UserInformation item;
+    BOOST_REQUIRE(item.get_sub_items<odil::dul::MaximumLength>().empty());
 
-    item.set_sub_items<odil::pdu::MaximumLength>({{0x12345678}});
+    item.set_sub_items<odil::dul::MaximumLength>({{0x12345678}});
 
     BOOST_REQUIRE_EQUAL(
-        item.get_sub_items<odil::pdu::MaximumLength>().size(), 1);
+        item.get_sub_items<odil::dul::MaximumLength>().size(), 1);
 
-    item.delete_sub_items<odil::pdu::MaximumLength>();
+    item.delete_sub_items<odil::dul::MaximumLength>();
 
-    BOOST_REQUIRE(item.get_sub_items<odil::pdu::MaximumLength>().empty());
+    BOOST_REQUIRE(item.get_sub_items<odil::dul::MaximumLength>().empty());
 }
 
 BOOST_AUTO_TEST_CASE(Write)
 {
-    odil::pdu::UserInformation item;
-    item.set_sub_items<odil::pdu::MaximumLength>({{0x12345678}});
+    odil::dul::UserInformation item;
+    item.set_sub_items<odil::dul::MaximumLength>({{0x12345678}});
 
     std::ostringstream data;
     data << item;

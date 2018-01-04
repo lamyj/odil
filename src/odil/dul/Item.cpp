@@ -6,7 +6,7 @@
  * for details.
  ************************************************************************/
 
-#include "odil/pdu/Item.h"
+#include "odil/dul/Item.h"
 
 #include <algorithm>
 #include <cstdint>
@@ -22,7 +22,7 @@
 namespace odil
 {
 
-namespace pdu
+namespace dul
 {
 
 Item::Field

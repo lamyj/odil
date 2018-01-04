@@ -13,12 +13,12 @@
 #include <istream>
 
 #include "odil/odil.h"
-#include "odil/pdu/Object.h"
+#include "odil/dul/Object.h"
 
 namespace odil
 {
 
-namespace pdu
+namespace dul
 {
 
 /// @brief Maximum Length Sub-Item Structure (PS 3.8, D.1).

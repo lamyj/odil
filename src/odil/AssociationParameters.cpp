@@ -14,18 +14,18 @@
 #include <string>
 #include <vector>
 
-#include "odil/pdu/AAssociateAC.h"
-#include "odil/pdu/AAssociateRQ.h"
+#include "odil/dul/AAssociateAC.h"
+#include "odil/dul/AAssociateRQ.h"
 #include "odil/Exception.h"
 #include "odil/uid.h"
-#include "odil/pdu/AsynchronousOperationsWindow.h"
-#include "odil/pdu/ImplementationClassUID.h"
-#include "odil/pdu/ImplementationVersionName.h"
-#include "odil/pdu/PresentationContextAC.h"
-#include "odil/pdu/PresentationContextRQ.h"
-#include "odil/pdu/RoleSelection.h"
-#include "odil/pdu/SOPClassExtendedNegotiation.h"
-#include "odil/pdu/SOPClassCommonExtendedNegotiation.h"
+#include "odil/dul/AsynchronousOperationsWindow.h"
+#include "odil/dul/ImplementationClassUID.h"
+#include "odil/dul/ImplementationVersionName.h"
+#include "odil/dul/PresentationContextAC.h"
+#include "odil/dul/PresentationContextRQ.h"
+#include "odil/dul/RoleSelection.h"
+#include "odil/dul/SOPClassExtendedNegotiation.h"
+#include "odil/dul/SOPClassCommonExtendedNegotiation.h"
 
 namespace odil
 {
@@ -113,7 +113,7 @@ AssociationParameters
 }
 
 AssociationParameters
-::AssociationParameters(pdu::AAssociateRQ const & pdu)
+::AssociationParameters(dul::AAssociateRQ const & pdu)
 : _called_ae_title(""), _calling_ae_title(""), _presentation_contexts(),
   _user_identity({UserIdentity::Type::None, "", ""}), _maximum_length(16384),
   _maximum_number_operations_invoked(1), _maximum_number_operations_performed(1),
@@ -128,7 +128,7 @@ AssociationParameters
     auto const & pcs_pdu = pdu.get_presentation_contexts();
 
     std::map<std::string, std::pair<bool, bool>> roles_map;
-    auto const roles = user_information.get_sub_items<pdu::RoleSelection>();
+    auto const roles = user_information.get_sub_items<dul::RoleSelection>();
     for(auto const & role: roles)
     {
         roles_map[role.get_sop_class_uid()] =
@@ -152,7 +152,7 @@ AssociationParameters
 
     // User identity
     auto const user_identity =
-        user_information.get_sub_items<pdu::UserIdentityRQ>();
+        user_information.get_sub_items<dul::UserIdentityRQ>();
     if(!user_identity.empty())
     {
         if(user_identity[0].get_type() == 1)
@@ -180,7 +180,7 @@ AssociationParameters
 
     // Maximum length
     auto const maximum_length =
-        user_information.get_sub_items<pdu::MaximumLength>();
+        user_information.get_sub_items<dul::MaximumLength>();
     if(!maximum_length.empty())
     {
         this->set_maximum_length(maximum_length[0].get_maximum_length());
@@ -188,7 +188,7 @@ AssociationParameters
 
     // Maximum number of operations performed/invoked
     auto const asynchronous_operations_window =
-        user_information.get_sub_items<pdu::AsynchronousOperationsWindow>();
+        user_information.get_sub_items<dul::AsynchronousOperationsWindow>();
     if(!asynchronous_operations_window.empty())
     {
         this->_maximum_number_operations_invoked =
@@ -198,12 +198,12 @@ AssociationParameters
     }
     
     this->_sop_class_common_extended_negotiation =
-        user_information.get_sub_items<pdu::SOPClassCommonExtendedNegotiation>();
+        user_information.get_sub_items<dul::SOPClassCommonExtendedNegotiation>();
 }
 
 AssociationParameters
 ::AssociationParameters(
-    pdu::AAssociateAC const & pdu, AssociationParameters const & request)
+    dul::AAssociateAC const & pdu, AssociationParameters const & request)
 : _called_ae_title(""), _calling_ae_title(""), _presentation_contexts(),
   _user_identity({UserIdentity::Type::None, "", ""}), _maximum_length(16384),
   _maximum_number_operations_invoked(1), _maximum_number_operations_performed(1),
@@ -226,7 +226,7 @@ AssociationParameters
     auto const & pcs_pdu = pdu.get_presentation_contexts();
 
     std::map<std::string, std::pair<bool, bool>> roles_map;
-    auto const roles = user_information.get_sub_items<pdu::RoleSelection>();
+    auto const roles = user_information.get_sub_items<dul::RoleSelection>();
     for(auto const & role: roles)
     {
         roles_map[role.get_sop_class_uid()] =
@@ -254,7 +254,7 @@ AssociationParameters
 
     // User identity
     auto const user_identity =
-        user_information.get_sub_items<pdu::UserIdentityAC>();
+        user_information.get_sub_items<dul::UserIdentityAC>();
     if(!user_identity.empty())
     {
         auto const type = request.get_user_identity().type;
@@ -272,7 +272,7 @@ AssociationParameters
 
     // Maximum length
     auto const maximum_length =
-        user_information.get_sub_items<pdu::MaximumLength>();
+        user_information.get_sub_items<dul::MaximumLength>();
     if(!maximum_length.empty())
     {
         this->set_maximum_length(maximum_length[0].get_maximum_length());
@@ -280,7 +280,7 @@ AssociationParameters
 
     // Maximum number of operations performed/invoked
     auto const asynchronous_operations_window =
-        user_information.get_sub_items<pdu::AsynchronousOperationsWindow>();
+        user_information.get_sub_items<dul::AsynchronousOperationsWindow>();
     if(!asynchronous_operations_window.empty())
     {
         this->_maximum_number_operations_invoked =
@@ -452,7 +452,7 @@ AssociationParameters
     return *this;
 }
 
-std::vector<pdu::SOPClassExtendedNegotiation>
+std::vector<dul::SOPClassExtendedNegotiation>
 AssociationParameters
 ::get_sop_class_extended_negotiation() const
 {
@@ -462,12 +462,12 @@ AssociationParameters
 void
 AssociationParameters
 ::set_sop_class_extended_negotiation(
-    std::vector<pdu::SOPClassExtendedNegotiation> const & value)
+    std::vector<dul::SOPClassExtendedNegotiation> const & value)
 {
     this->_sop_class_extended_negotiation = value;
 }
 
-std::vector<pdu::SOPClassCommonExtendedNegotiation>
+std::vector<dul::SOPClassCommonExtendedNegotiation>
 AssociationParameters
 ::get_sop_class_common_extended_negotiation() const
 {
@@ -477,16 +477,16 @@ AssociationParameters
 void 
 AssociationParameters
 ::set_sop_class_common_extended_negotiation(
-    std::vector<pdu::SOPClassCommonExtendedNegotiation> const & value)
+    std::vector<dul::SOPClassCommonExtendedNegotiation> const & value)
 {
     this->_sop_class_common_extended_negotiation = value;
 }
 
-pdu::AAssociateRQ
+dul::AAssociateRQ
 AssociationParameters
 ::as_a_associate_rq() const
 {
-    pdu::AAssociateRQ pdu;
+    dul::AAssociateRQ pdu;
     pdu.set_protocol_version(1);
     pdu.set_application_context(std::string("1.2.840.10008.3.1.1.1"));
     pdu.set_called_ae_title(this->get_called_ae_title());
@@ -496,12 +496,12 @@ AssociationParameters
     {
         auto const & source = this->get_presentation_contexts();
 
-        std::vector<pdu::PresentationContextRQ> destination;
+        std::vector<dul::PresentationContextRQ> destination;
         destination.reserve(source.size());
 
         for(auto const & source_pc: source)
         {
-            pdu::PresentationContextRQ const pc(
+            dul::PresentationContextRQ const pc(
                 source_pc.id, source_pc.abstract_syntax,
                 source_pc.transfer_syntaxes);
             destination.push_back(pc);
@@ -510,36 +510,36 @@ AssociationParameters
         pdu.set_presentation_contexts(destination);
     }
 
-    pdu::UserInformation user_information;
+    dul::UserInformation user_information;
 
-    user_information.set_sub_items<pdu::MaximumLength>(
+    user_information.set_sub_items<dul::MaximumLength>(
         {this->get_maximum_length()});
 
-    user_information.set_sub_items<pdu::ImplementationClassUID>(
+    user_information.set_sub_items<dul::ImplementationClassUID>(
         {implementation_class_uid});
 
     if(this->_maximum_number_operations_invoked != 1 ||
         this->_maximum_number_operations_performed != 1)
     {
-        user_information.set_sub_items<pdu::AsynchronousOperationsWindow>({{
+        user_information.set_sub_items<dul::AsynchronousOperationsWindow>({{
             this->_maximum_number_operations_invoked,
             this->_maximum_number_operations_performed
         }});
     }
 
-    user_information.set_sub_items<pdu::SOPClassExtendedNegotiation>(
+    user_information.set_sub_items<dul::SOPClassExtendedNegotiation>(
         this->_sop_class_extended_negotiation);
     
-    user_information.set_sub_items<pdu::SOPClassCommonExtendedNegotiation>(
+    user_information.set_sub_items<dul::SOPClassCommonExtendedNegotiation>(
         this->_sop_class_common_extended_negotiation);
 
-    user_information.set_sub_items<pdu::ImplementationVersionName>(
+    user_information.set_sub_items<dul::ImplementationVersionName>(
         {implementation_version_name});
 
-    std::vector<pdu::RoleSelection> roles;
+    std::vector<dul::RoleSelection> roles;
     for(auto const & presentation_context: this->get_presentation_contexts())
     {
-        pdu::RoleSelection const role(
+        dul::RoleSelection const role(
             presentation_context.abstract_syntax,
             presentation_context.scu_role_support,
             presentation_context.scp_role_support);
@@ -550,7 +550,7 @@ AssociationParameters
     auto const & user_identity = this->get_user_identity();
     if(user_identity.type != AssociationParameters::UserIdentity::Type::None)
     {
-        pdu::UserIdentityRQ sub_item;
+        dul::UserIdentityRQ sub_item;
         sub_item.set_type(static_cast<int>(user_identity.type));
         sub_item.set_primary_field(user_identity.primary_field);
         sub_item.set_secondary_field(user_identity.secondary_field);
@@ -558,7 +558,7 @@ AssociationParameters
         // TODO
         sub_item.set_positive_response_requested(true);
 
-        user_information.set_sub_items<pdu::UserIdentityRQ>({sub_item});
+        user_information.set_sub_items<dul::UserIdentityRQ>({sub_item});
     }
 
     pdu.set_user_information(user_information);
@@ -566,11 +566,11 @@ AssociationParameters
     return pdu;
 }
 
-pdu::AAssociateAC
+dul::AAssociateAC
 AssociationParameters
 ::as_a_associate_ac() const
 {
-    pdu::AAssociateAC pdu;
+    dul::AAssociateAC pdu;
     pdu.set_protocol_version(1);
     pdu.set_application_context(std::string("1.2.840.10008.3.1.1.1"));
     pdu.set_called_ae_title(this->get_called_ae_title());
@@ -580,12 +580,12 @@ AssociationParameters
     {
         auto const & source = this->get_presentation_contexts();
 
-        std::vector<pdu::PresentationContextAC> destination;
+        std::vector<dul::PresentationContextAC> destination;
         destination.reserve(source.size());
 
         for(auto const & source_pc: source)
         {
-            pdu::PresentationContextAC const pc(
+            dul::PresentationContextAC const pc(
                 source_pc.id, source_pc.transfer_syntaxes[0],
                 static_cast<uint8_t>(source_pc.result));
             destination.push_back(pc);
@@ -594,35 +594,35 @@ AssociationParameters
         pdu.set_presentation_contexts(destination);
     }
 
-    pdu::UserInformation user_information;
+    dul::UserInformation user_information;
 
-    user_information.set_sub_items<pdu::MaximumLength>(
+    user_information.set_sub_items<dul::MaximumLength>(
         {this->get_maximum_length()});
 
-    user_information.set_sub_items<pdu::ImplementationClassUID>(
+    user_information.set_sub_items<dul::ImplementationClassUID>(
         {implementation_class_uid});
 
     if(this->_maximum_number_operations_invoked != 1 ||
         this->_maximum_number_operations_performed != 1)
     {
-        user_information.set_sub_items<pdu::AsynchronousOperationsWindow>({{
+        user_information.set_sub_items<dul::AsynchronousOperationsWindow>({{
             this->_maximum_number_operations_invoked,
             this->_maximum_number_operations_performed
         }});
     }
     
-    user_information.set_sub_items<pdu::SOPClassExtendedNegotiation>(
+    user_information.set_sub_items<dul::SOPClassExtendedNegotiation>(
         this->_sop_class_extended_negotiation);
 
     // No SOPClassCommonExtendedNegotiation in AC
 
-    user_information.set_sub_items<pdu::ImplementationVersionName>(
+    user_information.set_sub_items<dul::ImplementationVersionName>(
         {implementation_version_name});
 
-    std::vector<pdu::RoleSelection> roles;
+    std::vector<dul::RoleSelection> roles;
     for(auto const & presentation_context: this->get_presentation_contexts())
     {
-        pdu::RoleSelection const role(
+        dul::RoleSelection const role(
             presentation_context.abstract_syntax,
             presentation_context.scu_role_support,
             presentation_context.scp_role_support);

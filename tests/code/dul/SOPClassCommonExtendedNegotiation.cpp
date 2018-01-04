@@ -5,11 +5,11 @@
 #include <string>
 
 #include "odil/Exception.h"
-#include "odil/pdu/SOPClassCommonExtendedNegotiation.h"
+#include "odil/dul/SOPClassCommonExtendedNegotiation.h"
 
 BOOST_AUTO_TEST_CASE(Constructor)
 {
-    odil::pdu::SOPClassCommonExtendedNegotiation const item(
+    odil::dul::SOPClassCommonExtendedNegotiation const item(
         "sop_class", "service_class", {"foo", "bar"});
     BOOST_REQUIRE_EQUAL(item.get_sop_class_uid(), "sop_class");
     BOOST_REQUIRE_EQUAL(item.get_service_class_uid(), "service_class");
@@ -31,7 +31,7 @@ BOOST_AUTO_TEST_CASE(FromStream)
     );
     std::istringstream stream(data);
 
-    odil::pdu::SOPClassCommonExtendedNegotiation const item(stream);
+    odil::dul::SOPClassCommonExtendedNegotiation const item(stream);
 
     BOOST_REQUIRE_EQUAL(item.get_sop_class_uid(), "sop_class");
     BOOST_REQUIRE_EQUAL(item.get_service_class_uid(), "service_class");
@@ -42,7 +42,7 @@ BOOST_AUTO_TEST_CASE(FromStream)
 
 BOOST_AUTO_TEST_CASE(SOPClassUID)
 {
-    odil::pdu::SOPClassCommonExtendedNegotiation item(
+    odil::dul::SOPClassCommonExtendedNegotiation item(
         "sop_class", "service_class", {"foo", "bar"});
     item.set_sop_class_uid("bar");
     BOOST_REQUIRE_EQUAL(item.get_sop_class_uid(), "bar");
@@ -50,7 +50,7 @@ BOOST_AUTO_TEST_CASE(SOPClassUID)
 
 BOOST_AUTO_TEST_CASE(ServiceClassUID)
 {
-    odil::pdu::SOPClassCommonExtendedNegotiation item(
+    odil::dul::SOPClassCommonExtendedNegotiation item(
         "sop_class", "service_class", {"foo", "bar"});
     item.set_service_class_uid("bar");
     BOOST_REQUIRE_EQUAL(item.get_service_class_uid(), "bar");
@@ -58,7 +58,7 @@ BOOST_AUTO_TEST_CASE(ServiceClassUID)
 
 BOOST_AUTO_TEST_CASE(RelatedClasses)
 {
-    odil::pdu::SOPClassCommonExtendedNegotiation item(
+    odil::dul::SOPClassCommonExtendedNegotiation item(
         "sop_class", "service_class", {"foo", "bar"});
     item.set_related_general_sop_class_uids({"plip", "plop", "plup"});
     BOOST_REQUIRE(
@@ -68,7 +68,7 @@ BOOST_AUTO_TEST_CASE(RelatedClasses)
 
 BOOST_AUTO_TEST_CASE(Write)
 {
-    odil::pdu::SOPClassCommonExtendedNegotiation const item(
+    odil::dul::SOPClassCommonExtendedNegotiation const item(
         "sop_class", "service_class", {"foo", "bar"});
     std::ostringstream data;
     data << item;

@@ -9,7 +9,7 @@
 #ifndef _952c6d4c_b331_4033_8476_5b0e75022b68
 #define _952c6d4c_b331_4033_8476_5b0e75022b68
 
-#include "odil/pdu/PresentationContextRQ.h"
+#include "odil/dul/PresentationContextRQ.h"
 
 #include <cstdint>
 #include <istream>
@@ -17,12 +17,12 @@
 #include <vector>
 
 #include "odil/Exception.h"
-#include "odil/pdu/PresentationContext.h"
+#include "odil/dul/PresentationContext.h"
 
 namespace odil
 {
 
-namespace pdu
+namespace dul
 {
 
 PresentationContextRQ

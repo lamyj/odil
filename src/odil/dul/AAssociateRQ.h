@@ -12,13 +12,13 @@
 #include <vector>
 
 #include "odil/odil.h"
-#include "odil/pdu/AAssociate.h"
-#include "odil/pdu/PresentationContextRQ.h"
+#include "odil/dul/AAssociate.h"
+#include "odil/dul/PresentationContextRQ.h"
 
 namespace odil
 {
 
-namespace pdu
+namespace dul
 {
 
 /// @brief A-ASSOCIATE-RQ, cf. PS 3.8, 9.3.2

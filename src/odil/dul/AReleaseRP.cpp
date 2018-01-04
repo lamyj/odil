@@ -6,18 +6,18 @@
  * for details.
  ************************************************************************/
 
-#include "odil/pdu/AReleaseRP.h"
+#include "odil/dul/AReleaseRP.h"
 
 #include <cstdint>
 #include <istream>
 
 #include "odil/Exception.h"
-#include "odil/pdu/Object.h"
+#include "odil/dul/Object.h"
 
 namespace odil
 {
 
-namespace pdu
+namespace dul
 {
 
 AReleaseRP

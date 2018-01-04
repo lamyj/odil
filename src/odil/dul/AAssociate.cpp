@@ -6,7 +6,7 @@
  * for details.
  ************************************************************************/
 
-#include "odil/pdu/AAssociate.h"
+#include "odil/dul/AAssociate.h"
 
 #include <algorithm>
 #include <cstdint>
@@ -16,17 +16,17 @@
 #include <vector>
 
 #include "odil/Exception.h"
-#include "odil/pdu/ApplicationContext.h"
-#include "odil/pdu/Item.h"
-#include "odil/pdu/Object.h"
-#include "odil/pdu/PresentationContextAC.h"
-#include "odil/pdu/PresentationContextRQ.h"
-#include "odil/pdu/UserInformation.h"
+#include "odil/dul/ApplicationContext.h"
+#include "odil/dul/Item.h"
+#include "odil/dul/Object.h"
+#include "odil/dul/PresentationContextAC.h"
+#include "odil/dul/PresentationContextRQ.h"
+#include "odil/dul/UserInformation.h"
 
 namespace odil
 {
 
-namespace pdu
+namespace dul
 {
 
 AAssociate

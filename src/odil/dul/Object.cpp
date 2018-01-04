@@ -6,18 +6,18 @@
  * for details.
  ************************************************************************/
 
-#include "odil/pdu/Object.h"
+#include "odil/dul/Object.h"
 
 #include <iterator>
 #include <ostream>
 
 #include "odil/Exception.h"
-#include "odil/pdu/Item.h"
+#include "odil/dul/Item.h"
 
 namespace odil
 {
 
-namespace pdu
+namespace dul
 {
 
 Object

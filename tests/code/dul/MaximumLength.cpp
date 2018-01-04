@@ -5,17 +5,17 @@
 #include <string>
 
 #include "odil/Exception.h"
-#include "odil/pdu/MaximumLength.h"
+#include "odil/dul/MaximumLength.h"
 
 BOOST_AUTO_TEST_CASE(ConstructorDefault)
 {
-    odil::pdu::MaximumLength const maximum_length;
+    odil::dul::MaximumLength const maximum_length;
     BOOST_REQUIRE_EQUAL(maximum_length.get_maximum_length(), 0);
 }
 
 BOOST_AUTO_TEST_CASE(ConstructorInt)
 {
-    odil::pdu::MaximumLength const maximum_length(123);
+    odil::dul::MaximumLength const maximum_length(123);
     BOOST_REQUIRE_EQUAL(maximum_length.get_maximum_length(), 123);
 }
 
@@ -28,21 +28,21 @@ BOOST_AUTO_TEST_CASE(FromStream)
     );
     std::istringstream stream(data);
 
-    odil::pdu::MaximumLength const maximum_length(stream);
+    odil::dul::MaximumLength const maximum_length(stream);
 
     BOOST_REQUIRE_EQUAL(maximum_length.get_maximum_length(), 0x12345678);
 }
 
 BOOST_AUTO_TEST_CASE(MaximumLength)
 {
-    odil::pdu::MaximumLength maximum_length;
+    odil::dul::MaximumLength maximum_length;
     maximum_length.set_maximum_length(123);
     BOOST_REQUIRE_EQUAL(maximum_length.get_maximum_length(), 123);
 }
 
 BOOST_AUTO_TEST_CASE(Write)
 {
-    odil::pdu::MaximumLength const maximum_length(0x12345678);
+    odil::dul::MaximumLength const maximum_length(0x12345678);
     std::ostringstream data;
     data << maximum_length;
 

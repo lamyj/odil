@@ -19,7 +19,7 @@ struct OdilStatus
 {
     bool accepted;
     bool rejected;
-    std::shared_ptr<odil::pdu::Object> pdu;
+    std::shared_ptr<odil::dul::Object> pdu;
 
     OdilStatus()
     : accepted(false), rejected(false), pdu()
@@ -58,14 +58,14 @@ struct Fixture
         std::string const & called_ae_title)
     {
         this->connection.connect<odil::dul::Signal::AAssociateAC>(
-            [&](std::shared_ptr<odil::pdu::AAssociateAC> pdu) {
+            [&](std::shared_ptr<odil::dul::AAssociateAC> pdu) {
                 this->odil_status.accepted = true;
                 this->odil_status.pdu = pdu;
                 this->connection.async_send(
-                    std::make_shared<odil::pdu::AReleaseRQ>());
+                    std::make_shared<odil::dul::AReleaseRQ>());
             });
         this->connection.connect<odil::dul::Signal::AAssociateRJ>(
-            [&](std::shared_ptr<odil::pdu::AAssociateRJ> pdu) {
+            [&](std::shared_ptr<odil::dul::AAssociateRJ> pdu) {
                 this->odil_status.rejected = true;
                 this->odil_status.pdu = pdu;
             });
@@ -86,7 +86,7 @@ struct Fixture
 
         this->connection.async_send(
             this->endpoint,
-            std::make_shared<odil::pdu::AAssociateRQ>(
+            std::make_shared<odil::dul::AAssociateRQ>(
                 association_parameters.as_a_associate_rq()));
     }
 
@@ -211,7 +211,7 @@ BOOST_FIXTURE_TEST_CASE(RequestorAccepted, Fixture)
 
     BOOST_REQUIRE(this->odil_status.accepted);
     BOOST_REQUIRE(!this->odil_status.rejected);
-    auto acception = std::dynamic_pointer_cast<odil::pdu::AAssociateAC>(
+    auto acception = std::dynamic_pointer_cast<odil::dul::AAssociateAC>(
         this->odil_status.pdu);
     odil::AssociationParameters const acceptation_parameters(
         *acception, this->association_parameters);
@@ -254,7 +254,7 @@ BOOST_FIXTURE_TEST_CASE(RequestorRejected, Fixture)
 
     BOOST_REQUIRE(!this->odil_status.accepted);
     BOOST_REQUIRE(this->odil_status.rejected);
-    auto rejection = std::dynamic_pointer_cast<odil::pdu::AAssociateRJ>(
+    auto rejection = std::dynamic_pointer_cast<odil::dul::AAssociateRJ>(
         this->odil_status.pdu);
     BOOST_REQUIRE_EQUAL(rejection->get_result(), 2);
     BOOST_REQUIRE_EQUAL(rejection->get_source(), 1);
@@ -265,7 +265,7 @@ BOOST_FIXTURE_TEST_CASE(AcceptorAccept, Fixture)
 {
     bool associate_request_received = false;
     this->connection.connect<odil::dul::Signal::AAssociateRQ>(
-        [&](std::shared_ptr<odil::pdu::AAssociateRQ> /* pdu */) {
+        [&](std::shared_ptr<odil::dul::AAssociateRQ> /* pdu */) {
             associate_request_received = true;
 
             auto const association_parameters = odil::AssociationParameters()
@@ -278,13 +278,13 @@ BOOST_FIXTURE_TEST_CASE(AcceptorAccept, Fixture)
                         true, false
                     }
                 });
-            return std::make_shared<odil::pdu::AAssociateAC>(
+            return std::make_shared<odil::dul::AAssociateAC>(
                 association_parameters.as_a_associate_ac());
         });
 
     bool release_request_received = false;
     this->connection.connect<odil::dul::Signal::AReleaseRQ>(
-        [&](std::shared_ptr<odil::pdu::AReleaseRQ> /* pdu */) {
+        [&](std::shared_ptr<odil::dul::AReleaseRQ> /* pdu */) {
             release_request_received = true;
         });
 
@@ -309,9 +309,9 @@ BOOST_FIXTURE_TEST_CASE(AcceptorReject, Fixture)
 {
     bool associate_request_received = false;
     this->connection.connect<odil::dul::Signal::AAssociateRQ>(
-        [&](std::shared_ptr<odil::pdu::AAssociateRQ> /* pdu */) {
+        [&](std::shared_ptr<odil::dul::AAssociateRQ> /* pdu */) {
             associate_request_received = true;
-            return std::make_shared<odil::pdu::AAssociateRJ>(1, 3, 0);
+            return std::make_shared<odil::dul::AAssociateRJ>(1, 3, 0);
         });
 
     this->odil_accept();

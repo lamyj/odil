@@ -14,12 +14,12 @@
 #include <vector>
 
 #include "odil/odil.h"
-#include "odil/pdu/Object.h"
+#include "odil/dul/Object.h"
 
 namespace odil
 {
 
-namespace pdu
+namespace dul
 {
 
 /// @brief P-DATA-TF PDU, cf. PS 3.8, 9.3.5.

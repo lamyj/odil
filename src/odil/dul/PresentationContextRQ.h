@@ -15,12 +15,12 @@
 #include <vector>
 
 #include "odil/odil.h"
-#include "odil/pdu/PresentationContext.h"
+#include "odil/dul/PresentationContext.h"
 
 namespace odil
 {
 
-namespace pdu
+namespace dul
 {
 
 /// @brief Presentation Context item for a A-ASSOCIATE-RQ PDU (PS 3.8, 9.3.2.2).

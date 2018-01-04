@@ -10,12 +10,12 @@
 #define _3980566c_9185_40a2_8e7d_6286c2cd1959
 
 #include "odil/odil.h"
-#include "odil/pdu/Object.h"
+#include "odil/dul/Object.h"
 
 namespace odil
 {
 
-namespace pdu
+namespace dul
 {
 
 /// @brief A-ASSOCIATE-RJ PDU, cf. PS 3.8, 9.3.4.
