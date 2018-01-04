@@ -2,6 +2,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include <cstdlib>
+#include <random>
 #include <thread>
 
 #include <boost/asio.hpp>
@@ -37,6 +38,10 @@ struct DCMTKStatus
 
 struct Fixture
 {
+    static std::random_device random_device;
+    static std::mt19937 random_generator;
+    static std::uniform_int_distribution<> random_distribution;
+
     boost::asio::io_service service;
     boost::asio::ip::tcp::socket socket;
     odil::dul::Connection connection;
@@ -54,6 +59,7 @@ struct Fixture
     }
 
     void odil_request(
+        int port,
         std::string const & calling_ae_title,
         std::string const & called_ae_title)
     {
@@ -71,7 +77,7 @@ struct Fixture
             });
 
         this->endpoint = boost::asio::ip::tcp::endpoint(
-            boost::asio::ip::make_address_v4("127.0.0.1"), 11112);
+            boost::asio::ip::make_address_v4("127.0.0.1"), port);
 
         this->association_parameters = odil::AssociationParameters()
             .set_calling_ae_title(calling_ae_title)
@@ -128,10 +134,10 @@ struct Fixture
         return status;
     }
 
-    void odil_accept()
+    void odil_accept(int port)
     {
         this->endpoint = boost::asio::ip::tcp::endpoint(
-            boost::asio::ip::tcp::v4(), 11112);
+            boost::asio::ip::tcp::v4(), port);
 
         this->acceptor = std::make_shared<boost::asio::ip::tcp::acceptor>(
             this->service, this->endpoint);
@@ -143,6 +149,7 @@ struct Fixture
     }
 
     void dcmtk_accept(
+        int port,
         std::function<OFCondition(T_ASC_Association *association)> handler)
     {
         DCMTKStatus status;
@@ -150,7 +157,7 @@ struct Fixture
         OFCondition condition;
 
         T_ASC_Network * network;
-        condition = ASC_initializeNetwork(NET_ACCEPTOR, 11112, 5, &network);
+        condition = ASC_initializeNetwork(NET_ACCEPTOR, port, 5, &network);
         if(!condition.good())
         {
             throw std::runtime_error("Could not initialize network");
@@ -175,11 +182,18 @@ struct Fixture
     }
 };
 
+std::random_device Fixture::random_device{};
+std::mt19937 Fixture::random_generator{Fixture::random_device()};
+std::uniform_int_distribution<> Fixture::random_distribution{49152, 65535};
+
 BOOST_FIXTURE_TEST_CASE(RequestorAccepted, Fixture)
 {
+    auto const port = Fixture::random_distribution(Fixture::random_generator);
+
     std::thread acceptor(
-        [this](){
+        [&](){
             this->dcmtk_accept(
+                port,
                 [](T_ASC_Association * association){
                     auto const pc_count = ASC_countPresentationContexts(
                         association->params);
@@ -204,7 +218,7 @@ BOOST_FIXTURE_TEST_CASE(RequestorAccepted, Fixture)
         }
     );
 
-    this->odil_request("LOCAL", "REMOTE");
+    this->odil_request(port, "LOCAL", "REMOTE");
     this->service.run();
 
     acceptor.join();
@@ -234,9 +248,12 @@ BOOST_FIXTURE_TEST_CASE(RequestorAccepted, Fixture)
 
 BOOST_FIXTURE_TEST_CASE(RequestorRejected, Fixture)
 {
+    auto const port = Fixture::random_distribution(Fixture::random_generator);
+
     std::thread acceptor(
-        [this](){
+        [&](){
             this->dcmtk_accept(
+                port,
                 [](T_ASC_Association * association){
                     T_ASC_RejectParameters rejection;
                     rejection.result = ASC_RESULT_REJECTEDTRANSIENT;
@@ -247,7 +264,7 @@ BOOST_FIXTURE_TEST_CASE(RequestorRejected, Fixture)
         }
     );
 
-    this->odil_request("LOCAL", "REMOTE");
+    this->odil_request(port, "LOCAL", "REMOTE");
     this->service.run();
 
     acceptor.join();
@@ -288,12 +305,15 @@ BOOST_FIXTURE_TEST_CASE(AcceptorAccept, Fixture)
             release_request_received = true;
         });
 
-    this->odil_accept();
+    auto const port = Fixture::random_distribution(Fixture::random_generator);
+
+    this->odil_accept(port);
 
     std::thread requestor(
         [&]() {
             this->dcmtk_status = this->dcmtk_request(
-                "localhost", "localhost:11112", "LOCAL", "REMOTE");
+                "localhost", "localhost:"+std::to_string(port),
+                "LOCAL", "REMOTE");
         }
     );
 
@@ -314,12 +334,15 @@ BOOST_FIXTURE_TEST_CASE(AcceptorReject, Fixture)
             return std::make_shared<odil::dul::AAssociateRJ>(1, 3, 0);
         });
 
-    this->odil_accept();
+    auto const port = Fixture::random_distribution(Fixture::random_generator);
+
+    this->odil_accept(port);
 
     std::thread requestor(
         [&]() {
             this->dcmtk_status = this->dcmtk_request(
-                "localhost", "localhost:11112", "LOCAL", "REMOTE");
+                "localhost", "localhost:"+std::to_string(port),
+                "LOCAL", "REMOTE");
         }
     );
 
