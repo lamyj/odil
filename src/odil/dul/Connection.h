@@ -16,6 +16,7 @@
 #include <boost/signals2.hpp>
 #include <boost/system/error_code.hpp>
 
+#include "odil/odil.h"
 #include "odil/dul/AAbort.h"
 #include "odil/dul/AAssociateAC.h"
 #include "odil/dul/AAssociateRJ.h"
@@ -78,7 +79,7 @@ ODIL_SIGNAL_TRAITS(AAbort, void(std::shared_ptr<AAbort>));
  *
  * This class asynchronously sends and receives PDUs.
  */
-class Connection
+class ODIL_API Connection
 {
 public:
     boost::asio::io_context & io_context;
