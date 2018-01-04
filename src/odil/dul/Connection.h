@@ -64,7 +64,7 @@ ODIL_SIGNAL_TRAITS(TransportClosed, void(boost::system::error_code));
 ODIL_SIGNAL_TRAITS(TransportAccepted, void(boost::system::error_code));
 ODIL_SIGNAL_TRAITS(TransportError, void(boost::system::error_code));
 ODIL_SIGNAL_TRAITS(Accepted, void());
-ODIL_SIGNAL_TRAITS(AAssociateRQ, std::shared_ptr<Object>(std::shared_ptr<AAssociateRQ>));
+ODIL_SIGNAL_TRAITS(AAssociateRQ, std::shared_ptr<PDU>(std::shared_ptr<AAssociateRQ>));
 ODIL_SIGNAL_TRAITS(AAssociateAC, void(std::shared_ptr<AAssociateAC>));
 ODIL_SIGNAL_TRAITS(AAssociateRJ, void(std::shared_ptr<AAssociateRJ>));
 ODIL_SIGNAL_TRAITS(PDataTF, void(std::shared_ptr<PDataTF>));
@@ -224,7 +224,7 @@ private:
 
     /// @}
 
-    void _async_send(std::shared_ptr<Object> pdu);
+    void _async_send(std::shared_ptr<PDU> pdu);
 
     void _start_artim_timer();
     void _stop_artim_timer();

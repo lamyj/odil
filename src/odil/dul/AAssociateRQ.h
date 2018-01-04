@@ -25,6 +25,9 @@ namespace dul
 class ODIL_API AAssociateRQ: public AAssociate
 {
 public:
+    /// @brief PDU type.
+    static uint8_t const type=0x01;
+
     /// @brief Constructor.
     AAssociateRQ();
 

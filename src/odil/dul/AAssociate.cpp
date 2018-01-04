@@ -30,11 +30,9 @@ namespace dul
 {
 
 AAssociate
-::AAssociate()
+::AAssociate(uint8_t type)
+: PDU(type)
 {
-    this->_item.add("PDU-type", uint8_t(0));
-    this->_item.add("Reserved-1", uint8_t(0));
-    this->_item.add("PDU-length", uint32_t(0));
     this->_item.add("Protocol-version", uint16_t(0));
     this->_item.add("Reserved-2", uint16_t(0));
     this->_item.add("Called-AE-title", std::string());
@@ -46,18 +44,9 @@ AAssociate
 }
 
 AAssociate
-::AAssociate(std::istream & stream)
+::AAssociate(uint8_t type, std::istream & stream)
+:PDU(type, stream)
 {
-    this->_item.read(stream, "PDU-type", Item::Field::Type::unsigned_int_8);
-    auto const type = this->_item.as_unsigned_int_8("PDU-type");
-    if(type != 0x01 && type != 0x02)
-    {
-        throw Exception("Invalid PDU type");
-    }
-
-    this->_item.read(stream, "Reserved-1", Item::Field::Type::unsigned_int_8);
-    this->_item.read(stream, "PDU-length", Item::Field::Type::unsigned_int_32);
-
     auto const begin = stream.tellg();
 
     this->_item.read(
@@ -67,7 +56,7 @@ AAssociate
     this->_item.read(stream, "Calling-AE-title", Item::Field::Type::string, 16);
     this->_item.read(stream, "Reserved-3", Item::Field::Type::string, 32);
 
-    auto const length = this->_item.as_unsigned_int_32("PDU-length");
+    auto const length = this->get_pdu_length();
 
     this->_item.add("Variable-items", std::vector<Item>());
     auto & variable_items = this->_item.as_items("Variable-items");
@@ -99,7 +88,7 @@ AAssociate
         variable_items.push_back(sub_item);
     }
 
-    this->_item.as_unsigned_int_32("PDU-length") = this->_compute_length();
+    this->_set_pdu_length(this->_compute_length());
 }
 
 AAssociate
@@ -190,7 +179,7 @@ AAssociate
 
     this->_item.as_items("Variable-items") = new_items;
 
-    this->_item.as_unsigned_int_32("PDU-length") = this->_compute_length();
+    this->_set_pdu_length(this->_compute_length());
 }
 
 UserInformation
@@ -235,7 +224,7 @@ AAssociate
 
     this->_item.as_items("Variable-items") = new_items;
 
-    this->_item.as_unsigned_int_32("PDU-length") = this->_compute_length();
+    this->_set_pdu_length(this->_compute_length());
 }
 
 std::string

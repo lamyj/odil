@@ -24,19 +24,16 @@ namespace dul
 
 AAssociateRQ
 ::AAssociateRQ()
-: AAssociate()
+: AAssociate(type)
 {
-    this->_item.as_unsigned_int_8("PDU-type") = 0x01;
+    // Nothing else
 }
 
 AAssociateRQ
 ::AAssociateRQ(std::istream & stream)
-: AAssociate(stream)
+: AAssociate(type, stream)
 {
-    if(this->_item.as_unsigned_int_8("PDU-type") != 0x01)
-    {
-        throw Exception("Invalid PDU type");
-    }
+    // Nothing else
 }
 
 AAssociateRQ
@@ -85,7 +82,7 @@ AAssociateRQ
             return item.as_unsigned_int_8("Item-type") == 0x50; });
 
     this->_item.as_items("Variable-items") = new_items;
-    this->_item.as_unsigned_int_32("PDU-length") = this->_compute_length();
+    this->_set_pdu_length(this->_compute_length());
 }
 
 }

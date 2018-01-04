@@ -25,6 +25,9 @@ namespace dul
 class ODIL_API AAssociateAC: public AAssociate
 {
 public:
+    /// @brief PDU type.
+    static uint8_t const type=0x02;
+
     /// @brief Constructor.
     AAssociateAC();
 

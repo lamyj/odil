@@ -15,7 +15,7 @@
 
 #include "odil/odil.h"
 #include "odil/dul/ApplicationContext.h"
-#include "odil/dul/Object.h"
+#include "odil/dul/PDU.h"
 #include "odil/dul/UserInformation.h"
 
 namespace odil
@@ -25,14 +25,14 @@ namespace dul
 {
 
 /// @brief A-ASSOCIATE-RQ and A-ASSOCIATE-AC PDU, cf. PS 3.8, 9.3.2 and 9.3.3.
-class ODIL_API AAssociate: public Object
+class ODIL_API AAssociate: public PDU
 {
 public:
     /// @brief Constructor.
-    AAssociate();
+    AAssociate(uint8_t type);
 
     /// @brief Constructor for binary data.
-    AAssociate(std::istream & stream);
+    AAssociate(uint8_t type, std::istream & stream);
 
     /// @brief Destructor.
     virtual ~AAssociate() =0;

@@ -328,31 +328,31 @@ Connection
         uint8_t const type = *reinterpret_cast<uint8_t*>(&this->_incoming[0]);
         std::istringstream stream(this->_incoming);
 
-        if(type == 0x01)
+        if(type == AAssociateRQ::type)
         {
             this->_received(std::make_shared<AAssociateRQ>(stream));
         }
-        else if(type == 0x02)
+        else if(type == AAssociateAC::type)
         {
             this->_received(std::make_shared<AAssociateAC>(stream));
         }
-        else if(type == 0x03)
+        else if(type == AAssociateRJ::type)
         {
             this->_received(std::make_shared<AAssociateRJ>(stream));
         }
-        else if(type == 0x04)
+        else if(type == PDataTF::type)
         {
             this->_received(std::make_shared<PDataTF>(stream));
         }
-        else if(type == 0x05)
+        else if(type == AReleaseRQ::type)
         {
             this->_received(std::make_shared<AReleaseRQ>(stream));
         }
-        else if(type == 0x06)
+        else if(type == AReleaseRP::type)
         {
             this->_received(std::make_shared<AReleaseRP>(stream));
         }
-        else if(type == 0x07)
+        else if(type == AAbort::type)
         {
             this->_received(std::make_shared<AAbort>(stream));
         }
@@ -654,21 +654,21 @@ Connection
 
     this->_stop_artim_timer();
 
-    boost::optional<std::shared_ptr<Object>> signal_result = this->_AAssociateRQ(pdu);
+    boost::optional<std::shared_ptr<PDU>> signal_result = this->_AAssociateRQ(pdu);
     if(!signal_result || signal_result.get() == nullptr)
     {
         throw Exception("No response provided");
     }
 
-    std::shared_ptr<Object> response = signal_result.get();
-    auto const type = response->get_item().as_unsigned_int_8("PDU-type");
-    if(type == 0x02)
+    std::shared_ptr<PDU> response = signal_result.get();
+    auto const type = response->get_pdu_type();
+    if(type == AAssociateAC::type)
     {
 
         this->_state = 3;
         this->async_send(std::dynamic_pointer_cast<AAssociateAC>(response));
     }
-    else if(type == 0x03)
+    else if(type == AAssociateRJ::type)
     {
         // WARNING: standard says to send RJ and switch to state 13. However,
         // this is AE-8, which needs to happen in state 3.
@@ -916,10 +916,10 @@ Connection
 
 void
 Connection
-::_async_send(std::shared_ptr<Object> pdu)
+::_async_send(std::shared_ptr<PDU> pdu)
 {
     std::ostringstream stream;
-    stream << pdu->get_item();
+    stream << *pdu;
     boost::asio::async_write(
         this->socket, boost::asio::buffer(stream.str()),
         boost::bind(

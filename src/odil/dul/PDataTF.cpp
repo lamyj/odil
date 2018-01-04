@@ -115,10 +115,8 @@ PDataTF::PresentationDataValueItem
 
 PDataTF
 ::PDataTF(std::vector<PresentationDataValueItem> const & pdv_items)
+: PDU(type)
 {
-    this->_item.add("PDU-type", uint8_t(0x04));
-    this->_item.add("Reserved-1", uint8_t(0));
-    this->_item.add("PDU-length", uint32_t(4));
     this->_item.add("Presentation-data-value-Items", std::vector<Item>());
 
     this->set_pdv_items(pdv_items);
@@ -126,17 +124,9 @@ PDataTF
 
 PDataTF
 ::PDataTF(std::istream & stream)
+: PDU(type, stream)
 {
-    this->_item.read(stream, "PDU-type", Item::Field::Type::unsigned_int_8);
-    if(this->_item.as_unsigned_int_8("PDU-type") != 0x04)
-    {
-        throw Exception("Invalid PDU type");
-    }
-
-    this->_item.read(stream, "Reserved-1", Item::Field::Type::unsigned_int_8);
-    this->_item.read(stream, "PDU-length", Item::Field::Type::unsigned_int_32);
-
-    auto const pdu_length = this->_item.as_unsigned_int_32("PDU-length");
+    auto const pdu_length = this->get_pdu_length();
     auto const begin = stream.tellg();
 
     std::vector<PresentationDataValueItem> pdv_items;
@@ -178,7 +168,7 @@ PDataTF
         pdv_items.begin(), pdv_items.end(), items.begin(),
         [](PresentationDataValueItem const& x){ return x.get_item(); });
 
-    this->_item.as_unsigned_int_32("PDU-length") = this->_compute_length();
+    this->_set_pdu_length(this->_compute_length());
 }
 
 }

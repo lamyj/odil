@@ -14,7 +14,7 @@
 #include <vector>
 
 #include "odil/odil.h"
-#include "odil/dul/Object.h"
+#include "odil/dul/PDU.h"
 
 namespace odil
 {
@@ -23,7 +23,7 @@ namespace dul
 {
 
 /// @brief P-DATA-TF PDU, cf. PS 3.8, 9.3.5.
-class ODIL_API PDataTF: public Object
+class ODIL_API PDataTF: public PDU
 {
 public:
     class ODIL_API PresentationDataValueItem: public Object
@@ -47,6 +47,9 @@ public:
         std::string const & get_fragment() const;
         void set_fragment(std::string const & fragment);
     };
+
+    /// @brief PDU type.
+    static uint8_t const type=0x04;
 
     /// @brief Constructor.
     PDataTF(std::vector<PresentationDataValueItem> const & pdv_items);

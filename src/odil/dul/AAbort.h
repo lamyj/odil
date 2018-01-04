@@ -12,7 +12,7 @@
 #include <istream>
 
 #include "odil/odil.h"
-#include "odil/dul/Object.h"
+#include "odil/dul/PDU.h"
 
 namespace odil
 {
@@ -21,9 +21,12 @@ namespace dul
 {
 
 /// @brief A-ABORT PDU, cf. PS 3.8, 9.3.8.
-class ODIL_API AAbort: public Object
+class ODIL_API AAbort: public PDU
 {
 public:
+    /// @brief PDU type.
+    static uint8_t const type=0x07;
+
     /// @brief Constructor.
     AAbort(unsigned char source, unsigned char reason);
 

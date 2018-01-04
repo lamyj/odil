@@ -10,7 +10,7 @@
 #define _3980566c_9185_40a2_8e7d_6286c2cd1959
 
 #include "odil/odil.h"
-#include "odil/dul/Object.h"
+#include "odil/dul/PDU.h"
 
 namespace odil
 {
@@ -19,9 +19,12 @@ namespace dul
 {
 
 /// @brief A-ASSOCIATE-RJ PDU, cf. PS 3.8, 9.3.4.
-class ODIL_API AAssociateRJ: public Object
+class ODIL_API AAssociateRJ: public PDU
 {
 public:
+    /// @brief PDU type.
+    static uint8_t const type=0x03;
+
     /// @brief Constructor.
     AAssociateRJ(
         unsigned char result, unsigned char source, unsigned char reason);
