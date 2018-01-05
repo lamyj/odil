@@ -56,7 +56,7 @@ struct Fixture
         this->connection.connect<odil::dul::Signal::AAbort>(pdu_received);
 
         this->endpoint = boost::asio::ip::tcp::endpoint(
-            boost::asio::ip::make_address_v4("127.0.0.1"), port);
+            boost::asio::ip::address_v4::from_string("127.0.0.1"), port);
 
         this->connection.async_send(
             this->endpoint,
@@ -224,7 +224,7 @@ BOOST_FIXTURE_TEST_CASE(RequestorAcceptedSync, Fixture)
     );
 
     this->endpoint = boost::asio::ip::tcp::endpoint(
-        boost::asio::ip::make_address_v4("127.0.0.1"), port);
+        boost::asio::ip::address_v4::from_string("127.0.0.1"), port);
 
     auto response = this->connection.send(
         this->endpoint,

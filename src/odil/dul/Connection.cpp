@@ -37,7 +37,7 @@ Connection
     boost::asio::ip::tcp::socket & socket,
     boost::posix_time::time_duration artim_timeout)
 : socket(socket), artim_timeout(artim_timeout),
-     _state(1), _incoming(6, '\0'), _artim_timer(socket.get_io_context()),
+     _state(1), _incoming(6, '\0'), _artim_timer(socket.get_io_service()),
     _is_requestor(false)
 {
     this->connect<Signal::AReleaseRQ>(
@@ -89,7 +89,7 @@ Connection
     this->async_send(endpoint, pdu);
     while(!response_pdu && !transport_error)
     {
-        this->socket.get_io_context().run_one();
+        this->socket.get_io_service().run_one();
     }
 
     if(response_pdu)
@@ -202,7 +202,7 @@ Connection
     this->async_send(pdu);
     while(!response_pdu && !transport_error)
     {
-        this->socket.get_io_context().run_one();
+        this->socket.get_io_service().run_one();
     }
 
     if(response_pdu)
@@ -340,8 +340,7 @@ Connection
     if(error)
     {
         ODIL_LOG(DEBUG, dul) << "Transport error in _connect_handler";
-        boost::asio::post(
-            this->socket.get_io_context(),
+        this->socket.get_io_service().post(
             [=]() { this->_TransportError(error); });
     }
     else
@@ -361,8 +360,7 @@ Connection
     else if(error)
     {
         ODIL_LOG(DEBUG, dul) << "Transport error in _sent_handler";
-        boost::asio::post(
-            this->socket.get_io_context(),
+        this->socket.get_io_service().post(
             [=]() { this->_TransportError(error); });
     }
 }
@@ -381,14 +379,13 @@ Connection
     }
     else if(error)
     {
-        boost::asio::post(
-            this->socket.get_io_context(),
+        this->socket.get_io_service().post(
             [=]() { this->_TransportError(error); });
     }
     else if(stage == ReceiveStage::Type)
     {
         boost::asio::async_read(
-            this->socket, boost::asio::buffer(this->_incoming, 2),
+            this->socket, boost::asio::buffer(&this->_incoming[0], 2),
             boost::bind(
                 &Connection::_receive_handler, this,
                 boost::asio::placeholders::error, ReceiveStage::Length));
@@ -710,8 +707,7 @@ Connection
     ODIL_LOG(DEBUG, dul) << "AE-3";
 
     this->_state = 6;
-    boost::asio::post(
-        this->socket.get_io_context(), [=]() { this->_AAssociateAC(pdu); });
+    this->socket.get_io_service().post([=]() { this->_AAssociateAC(pdu); });
 }
 
 void
@@ -721,8 +717,7 @@ Connection
     ODIL_LOG(DEBUG, dul) << "AE-4";
 
     this->_state = 1;
-    boost::asio::post(
-        this->socket.get_io_context(), [=]() { this->_AAssociateRJ(pdu); });
+    this->socket.get_io_service().post([=]() { this->_AAssociateRJ(pdu); });
     this->socket.close();
 }
 
@@ -733,8 +728,7 @@ Connection
     ODIL_LOG(DEBUG, dul) << "AE-5";
 
     this->_state = 2;
-    boost::asio::post(
-        this->socket.get_io_context(), [=]() { this->_Accepted(); });
+    this->socket.get_io_service().post([=]() { this->_Accepted(); });
     this->_start_artim_timer();
 }
 
@@ -818,8 +812,7 @@ Connection
     ODIL_LOG(DEBUG, dul) << "DT-2";
 
     this->_state = 6;
-    boost::asio::post(
-        this->socket.get_io_context(), [=]() { this->_PDataTF(pdu); });
+    this->socket.get_io_service().post([=]() { this->_PDataTF(pdu); });
 }
 
 void
@@ -839,8 +832,7 @@ Connection
     ODIL_LOG(DEBUG, dul) << "AR-2";
 
     this->_state = 8;
-    boost::asio::post(
-        this->socket.get_io_context(), [=]() { this->_AReleaseRQ(pdu); });
+    this->socket.get_io_service().post([=]() { this->_AReleaseRQ(pdu); });
 }
 
 void
@@ -850,8 +842,7 @@ Connection
     ODIL_LOG(DEBUG, dul) << "AR-3";
 
     this->_state = 1;
-    boost::asio::post(
-        this->socket.get_io_context(), [=]() { this->_AReleaseRP(pdu); });
+    this->socket.get_io_service().post([=]() { this->_AReleaseRP(pdu); });
     this->socket.close();
 }
 
@@ -883,8 +874,7 @@ Connection
     ODIL_LOG(DEBUG, dul) << "AR-6";
 
     this->_state = 7;
-    boost::asio::post(
-        this->socket.get_io_context(), [=]() { this->_PDataTF(pdu); });
+    this->socket.get_io_service().post([=]() { this->_PDataTF(pdu); });
 }
 
 void
@@ -904,8 +894,7 @@ Connection
     ODIL_LOG(DEBUG, dul) << "AR-8";
 
     this->_state = this->_is_requestor ? 9 : 10;
-    boost::asio::post(
-        this->socket.get_io_context(), [=]() { this->_AReleaseRQ(pdu); });
+    this->socket.get_io_service().post([=]() { this->_AReleaseRQ(pdu); });
 }
 
 void
@@ -925,8 +914,7 @@ Connection
     ODIL_LOG(DEBUG, dul) << "AR-10";
 
     this->_state = 12;
-    boost::asio::post(
-        this->socket.get_io_context(), [=]() { this->_AReleaseRP(pdu); });
+    this->socket.get_io_service().post([=]() { this->_AReleaseRP(pdu); });
 }
 
 void
@@ -970,8 +958,7 @@ Connection
     ODIL_LOG(DEBUG, dul) << "AA-4";
 
     this->_state = 1;
-    boost::asio::post(
-        this->socket.get_io_context(),
+    this->socket.get_io_service().post(
         [=]() { this->_AAbort(std::make_shared<AAbort>(2, 0)); });
 }
 
@@ -1014,8 +1001,7 @@ Connection
     this->_state = 13;
     auto pdu = std::make_shared<AAbort>(2, 2);
     this->_async_send(pdu);
-    boost::asio::post(
-        this->socket.get_io_context(), [=]() { this->_AAbort(pdu); });
+    this->socket.get_io_service().post([=]() { this->_AAbort(pdu); });
     this->_start_artim_timer();
 }
 
