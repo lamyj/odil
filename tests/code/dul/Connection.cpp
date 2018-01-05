@@ -16,17 +16,6 @@
 
 #include <log4cpp/Category.hh>
 
-struct OdilStatus
-{
-    std::shared_ptr<odil::dul::Object> pdu;
-
-    OdilStatus()
-    : pdu()
-    {
-        // Nothing else
-    }
-};
-
 struct DCMTKStatus
 {
     OFCondition request;
@@ -46,12 +35,12 @@ struct Fixture
     boost::asio::ip::tcp::endpoint endpoint;
     std::shared_ptr<boost::asio::ip::tcp::acceptor> acceptor;
     odil::AssociationParameters association_parameters;
-    OdilStatus odil_status;
+    std::shared_ptr<odil::dul::Object> received_pdu;
     DCMTKStatus dcmtk_status;
 
     Fixture()
     : service(), socket(service), connection(socket), endpoint(),
-        acceptor(), association_parameters(), odil_status(), dcmtk_status()
+        acceptor(), association_parameters(), received_pdu(), dcmtk_status()
     {
         this->association_parameters = odil::AssociationParameters()
             .set_calling_ae_title("xxx").set_called_ae_title("yyy")
@@ -61,7 +50,7 @@ struct Fixture
     void odil_request(int port)
     {
         auto const pdu_received = [&](std::shared_ptr<odil::dul::PDU> pdu) {
-            this->odil_status.pdu = pdu; };
+            this->received_pdu = pdu; };
         this->connection.connect<odil::dul::Signal::AAssociateAC>(pdu_received);
         this->connection.connect<odil::dul::Signal::AAssociateRJ>(pdu_received);
         this->connection.connect<odil::dul::Signal::AAbort>(pdu_received);
@@ -197,7 +186,7 @@ BOOST_FIXTURE_TEST_CASE(RequestorAccepted, Fixture)
     acceptor.join();
 
     auto acception = std::dynamic_pointer_cast<odil::dul::AAssociateAC>(
-        this->odil_status.pdu);
+        this->received_pdu);
     BOOST_REQUIRE(acception);
 }
 
@@ -225,7 +214,7 @@ BOOST_FIXTURE_TEST_CASE(RequestorRejected, Fixture)
     acceptor.join();
 
     auto rejection = std::dynamic_pointer_cast<odil::dul::AAssociateRJ>(
-        this->odil_status.pdu);
+        this->received_pdu);
     BOOST_REQUIRE(rejection);
 }
 
@@ -253,7 +242,7 @@ BOOST_FIXTURE_TEST_CASE(RequestorAborted, Fixture)
     acceptor.join();
 
     auto rejection = std::dynamic_pointer_cast<odil::dul::AAbort>(
-        this->odil_status.pdu);
+        this->received_pdu);
     BOOST_REQUIRE(rejection);
 }
 
