@@ -50,7 +50,7 @@ struct Fixture
     DCMTKStatus dcmtk_status;
 
     Fixture()
-    : service(), socket(service), connection(service, socket), endpoint(),
+    : service(), socket(service), connection(socket), endpoint(),
         acceptor(), association_parameters(), odil_status(), dcmtk_status()
     {
         // Nothing else

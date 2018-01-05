@@ -78,16 +78,16 @@ ODIL_SIGNAL_TRAITS(AAbort, void(std::shared_ptr<AAbort>));
  * @brief DICOM Upper Layer connection.
  *
  * This class asynchronously sends and receives PDUs.
+ *
+ * @warning The io_context from the socket will be used to dispatch every action
  */
 class ODIL_API Connection
 {
 public:
-    boost::asio::io_context & io_context;
     boost::asio::ip::tcp::socket & socket;
     boost::posix_time::time_duration artim_timeout;
 
     Connection(
-        boost::asio::io_context & io_context,
         boost::asio::ip::tcp::socket & socket,
         boost::posix_time::time_duration artim_timeout=boost::posix_time::seconds(30));
 
