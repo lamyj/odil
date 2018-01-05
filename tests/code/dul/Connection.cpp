@@ -190,6 +190,60 @@ BOOST_FIXTURE_TEST_CASE(RequestorAccepted, Fixture)
     BOOST_REQUIRE(acception);
 }
 
+BOOST_FIXTURE_TEST_CASE(RequestorAcceptedSync, Fixture)
+{
+    log4cpp::Category::getInstance("odil.dul").setPriority(log4cpp::Priority::DEBUG);
+    auto const port = Fixture::random_distribution(Fixture::random_generator);
+
+    std::thread acceptor(
+        [&](){
+            this->dcmtk_accept(
+                port,
+                [](T_ASC_Association * association){
+                    auto const pc_count = ASC_countPresentationContexts(
+                        association->params);
+                    for(int i=0; i<pc_count; ++i)
+                    {
+                        T_ASC_PresentationContext pc;
+                        ASC_getPresentationContext(
+                            association->params, i, &pc);
+                        ASC_acceptPresentationContext(
+                            association->params, pc.presentationContextID,
+                            pc.proposedTransferSyntaxes[0]);
+                    }
+                    ASC_acknowledgeAssociation(association);
+
+                    T_ASC_PresentationContextID presID;
+                    T_DIMSE_Message message;
+                    DIMSE_receiveCommand(
+                        association, DIMSE_BLOCKING, 0, &presID, &message,
+                        NULL);
+                    return ASC_acknowledgeRelease(association);
+                });
+        }
+    );
+
+    this->endpoint = boost::asio::ip::tcp::endpoint(
+        boost::asio::ip::make_address_v4("127.0.0.1"), port);
+
+    auto response = this->connection.send(
+        this->endpoint,
+        std::make_shared<odil::dul::AAssociateRQ>(
+            this->association_parameters.as_a_associate_rq()));
+    BOOST_REQUIRE(
+        response.first
+        && response.first->get_pdu_type() == odil::dul::AAssociateAC::type);
+    BOOST_REQUIRE(!response.second);
+
+    response = this->connection.send(std::make_shared<odil::dul::AReleaseRQ>());
+    BOOST_REQUIRE(
+        response.first
+        && response.first->get_pdu_type() == odil::dul::AReleaseRP::type);
+    BOOST_REQUIRE(!response.second);
+
+    acceptor.join();
+}
+
 BOOST_FIXTURE_TEST_CASE(RequestorRejected, Fixture)
 {
     auto const port = Fixture::random_distribution(Fixture::random_generator);

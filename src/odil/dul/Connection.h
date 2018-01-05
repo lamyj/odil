@@ -98,13 +98,40 @@ public:
     Connection & operator=(Connection const &) = delete;
     Connection & operator=(Connection &&) = delete;
 
+    /// @brief Asynchronously send an A-ASSOCIATE-RQ PDU to the given peer.
     void async_send(
         boost::asio::ip::tcp::endpoint const & endpoint,
         std::shared_ptr<AAssociateRQ> pdu);
+
+    /**
+     * @brief Synchronously send an A-ASSOCIATE-RQ PDU to the given peer.
+     *
+     * This function will return when
+     * - The PDU has been sent correctly and a response has been received
+     * - OR an error occured
+     */
+    std::pair<std::shared_ptr<PDU>, boost::system::error_code>
+    send(
+        boost::asio::ip::tcp::endpoint const & endpoint,
+        std::shared_ptr<AAssociateRQ> pdu);
+
     void async_send(std::shared_ptr<AAssociateAC> pdu);
     void async_send(std::shared_ptr<AAssociateRJ> pdu);
     void async_send(std::shared_ptr<PDataTF> pdu);
+
+    /// @brief Asynchronously send an A-RELEASE-RQ PDU to the given peer.
     void async_send(std::shared_ptr<AReleaseRQ> pdu);
+
+    /**
+     * @brief Synchronously send an A-RELEASE-RQ PDU.
+     *
+     * This function will return when
+     * - The PDU has been sent correctly and a response has been received
+     * - OR an error occured
+     */
+    std::pair<std::shared_ptr<PDU>, boost::system::error_code>
+    send(std::shared_ptr<AReleaseRQ> pdu);
+
     void async_send(std::shared_ptr<AReleaseRP> pdu);
     void async_send(std::shared_ptr<AAbort> pdu);
 

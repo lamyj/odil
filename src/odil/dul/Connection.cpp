@@ -53,7 +53,7 @@ Connection
     boost::asio::ip::tcp::endpoint const & endpoint,
     std::shared_ptr<AAssociateRQ> pdu)
 {
-    ODIL_LOG(DEBUG, dul) << "Sending A-ASSOCIATE-RQ";
+    ODIL_LOG(DEBUG, dul) << "Sending A-ASSOCIATE-RQ asynchronously";
 
     if(this->_state == 1)
     {
@@ -64,6 +64,51 @@ Connection
         throw Exception(
             "Cannot send AAssociateRQ in state "+std::to_string(this->_state));
     }
+}
+
+std::pair<std::shared_ptr<PDU>, boost::system::error_code>
+Connection
+::send(
+    boost::asio::ip::tcp::endpoint const & endpoint,
+    std::shared_ptr<AAssociateRQ> pdu)
+{
+    ODIL_LOG(DEBUG, dul) << "Sending A-ASSOCIATE-RQ synchronously";
+
+    std::shared_ptr<PDU> response_pdu = nullptr;
+    boost::system::error_code transport_error;
+
+    auto const pdu_received = [&](std::shared_ptr<PDU> pdu) { response_pdu = pdu; };
+
+    std::vector<boost::signals2::connection> connections;
+    connections.push_back(this->connect<Signal::AAssociateAC>(pdu_received));
+    connections.push_back(this->connect<Signal::AAssociateRJ>(pdu_received));
+    connections.push_back(this->connect<Signal::AAbort>(pdu_received));
+    connections.push_back(this->_TransportError.connect(
+        [&](boost::system::error_code const & error) { transport_error = error; }));
+
+    this->async_send(endpoint, pdu);
+    while(!response_pdu && !transport_error)
+    {
+        this->socket.get_io_context().run_one();
+    }
+
+    if(response_pdu)
+    {
+        ODIL_LOG(DEBUG, dul)
+            << "PDU received, type "
+            << std::to_string(response_pdu->get_pdu_type());
+    }
+    else
+    {
+        ODIL_LOG(DEBUG, dul) << "Transport error";
+    }
+
+    for(auto const & connection: connections)
+    {
+        connection.disconnect();
+    }
+
+    return std::make_pair(response_pdu, transport_error);
 }
 
 void
@@ -125,7 +170,7 @@ void
 Connection
 ::async_send(std::shared_ptr<AReleaseRQ> pdu)
 {
-    ODIL_LOG(DEBUG, dul) << "Sending A-RELEASE-RQ";
+    ODIL_LOG(DEBUG, dul) << "Sending A-RELEASE-RQ asynchronously";
 
     if(this->_state == 6)
     {
@@ -136,6 +181,47 @@ Connection
         throw Exception(
             "Cannot send AReleaseRQ in state "+std::to_string(this->_state));
     }
+}
+
+std::pair<std::shared_ptr<PDU>, boost::system::error_code>
+Connection
+::send(std::shared_ptr<AReleaseRQ> pdu)
+{
+    ODIL_LOG(DEBUG, dul) << "Sending A-RELEASE-RQ synchronously";
+
+    std::shared_ptr<PDU> response_pdu = nullptr;
+    boost::system::error_code transport_error;
+
+    auto const pdu_received = [&](std::shared_ptr<PDU> pdu) { response_pdu = pdu; };
+
+    std::vector<boost::signals2::connection> connections;
+    connections.push_back(this->connect<Signal::AReleaseRP>(pdu_received));
+    connections.push_back(this->_TransportError.connect(
+        [&](boost::system::error_code const & error) { transport_error = error; }));
+
+    this->async_send(pdu);
+    while(!response_pdu && !transport_error)
+    {
+        this->socket.get_io_context().run_one();
+    }
+
+    if(response_pdu)
+    {
+        ODIL_LOG(DEBUG, dul)
+            << "PDU received, type "
+            << std::to_string(response_pdu->get_pdu_type());
+    }
+    else
+    {
+        ODIL_LOG(DEBUG, dul) << "Transport error";
+    }
+
+    for(auto const & connection: connections)
+    {
+        connection.disconnect();
+    }
+
+    return std::make_pair(response_pdu, transport_error);
 }
 
 void
