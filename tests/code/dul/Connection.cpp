@@ -53,13 +53,12 @@ struct Fixture
     : service(), socket(service), connection(socket), endpoint(),
         acceptor(), association_parameters(), odil_status(), dcmtk_status()
     {
-        // Nothing else
+        this->association_parameters = odil::AssociationParameters()
+            .set_calling_ae_title("xxx").set_called_ae_title("yyy")
+            .set_presentation_contexts({ { 1, "foo", { "bar" }, true, false } });
     }
 
-    void odil_request(
-        int port,
-        std::string const & calling_ae_title,
-        std::string const & called_ae_title)
+    void odil_request(int port)
     {
         auto const pdu_received = [&](std::shared_ptr<odil::dul::PDU> pdu) {
             this->odil_status.pdu = pdu; };
@@ -70,27 +69,13 @@ struct Fixture
         this->endpoint = boost::asio::ip::tcp::endpoint(
             boost::asio::ip::make_address_v4("127.0.0.1"), port);
 
-        this->association_parameters = odil::AssociationParameters()
-            .set_calling_ae_title(calling_ae_title)
-            .set_called_ae_title(called_ae_title)
-            .set_presentation_contexts({
-                {
-                    1, odil::registry::VerificationSOPClass,
-                    { odil::registry::ImplicitVRLittleEndian },
-                    true, false
-                }
-            });
-
         this->connection.async_send(
             this->endpoint,
             std::make_shared<odil::dul::AAssociateRQ>(
-                association_parameters.as_a_associate_rq()));
+                this->association_parameters.as_a_associate_rq()));
     }
 
-    DCMTKStatus dcmtk_request(
-        std::string const & calling_address, std::string const & called_address,
-        std::string const & calling_ae_title,
-        std::string const & called_ae_title)
+    DCMTKStatus dcmtk_request(int port)
     {
         DCMTKStatus status;
 
@@ -98,12 +83,11 @@ struct Fixture
         ASC_initializeNetwork(NET_REQUESTOR, 0, 5, &network);
 
         ASC_createAssociationParameters(&status.parameters, ASC_DEFAULTMAXPDU);
-        ASC_setAPTitles(
-            status.parameters, calling_ae_title.c_str(),
-            called_ae_title.c_str(), NULL);
+        ASC_setAPTitles(status.parameters, "xxx", "yyy", NULL);
 
+        auto const peer_address = "localhost:"+std::to_string(port);
         ASC_setPresentationAddresses(
-            status.parameters, calling_address.c_str(), called_address.c_str());
+            status.parameters, "localhost", peer_address.c_str());
 
         char const * ts[] = { UID_LittleEndianImplicitTransferSyntax };
         ASC_addPresentationContext(
@@ -203,7 +187,7 @@ BOOST_FIXTURE_TEST_CASE(RequestorAccepted, Fixture)
         }
     );
 
-    this->odil_request(port, "LOCAL", "REMOTE");
+    this->odil_request(port);
     this->connection.connect<odil::dul::Signal::AAssociateAC>(
         [&](std::shared_ptr<odil::dul::AAssociateAC>) {
             this->connection.async_send(std::make_shared<odil::dul::AReleaseRQ>());
@@ -235,7 +219,7 @@ BOOST_FIXTURE_TEST_CASE(RequestorRejected, Fixture)
         }
     );
 
-    this->odil_request(port, "LOCAL", "REMOTE");
+    this->odil_request(port);
     this->service.run();
 
     acceptor.join();
@@ -263,7 +247,7 @@ BOOST_FIXTURE_TEST_CASE(RequestorAborted, Fixture)
         }
     );
 
-    this->odil_request(port, "LOCAL", "REMOTE");
+    this->odil_request(port);
     this->service.run();
 
     acceptor.join();
@@ -280,18 +264,8 @@ BOOST_FIXTURE_TEST_CASE(AcceptorAccept, Fixture)
         [&](std::shared_ptr<odil::dul::AAssociateRQ> /* pdu */) {
             associate_request_received = true;
 
-            auto const association_parameters = odil::AssociationParameters()
-                .set_calling_ae_title("LOCAL")
-                .set_called_ae_title("REMOTE")
-                .set_presentation_contexts({
-                    {
-                        1, odil::registry::VerificationSOPClass,
-                        { odil::registry::ImplicitVRLittleEndian },
-                        true, false
-                    }
-                });
             return std::make_shared<odil::dul::AAssociateAC>(
-                association_parameters.as_a_associate_ac());
+                this->association_parameters.as_a_associate_ac());
         });
 
     bool release_request_received = false;
@@ -305,11 +279,7 @@ BOOST_FIXTURE_TEST_CASE(AcceptorAccept, Fixture)
     this->odil_accept(port);
 
     std::thread requestor(
-        [&]() {
-            this->dcmtk_status = this->dcmtk_request(
-                "localhost", "localhost:"+std::to_string(port),
-                "LOCAL", "REMOTE");
-        }
+        [&]() { this->dcmtk_status = this->dcmtk_request(port); }
     );
 
     this->service.run();
@@ -334,11 +304,7 @@ BOOST_FIXTURE_TEST_CASE(AcceptorReject, Fixture)
     this->odil_accept(port);
 
     std::thread requestor(
-        [&]() {
-            this->dcmtk_status = this->dcmtk_request(
-                "localhost", "localhost:"+std::to_string(port),
-                "LOCAL", "REMOTE");
-        }
+        [&]() { this->dcmtk_status = this->dcmtk_request(port); }
     );
 
     service.run();
@@ -369,11 +335,7 @@ BOOST_FIXTURE_TEST_CASE(AcceptorAbort, Fixture)
     this->odil_accept(port);
 
     std::thread requestor(
-        [&]() {
-            this->dcmtk_status = this->dcmtk_request(
-                "localhost", "localhost:"+std::to_string(port),
-                "LOCAL", "REMOTE");
-        }
+        [&]() { this->dcmtk_status = this->dcmtk_request(port); }
     );
 
     service.run();
