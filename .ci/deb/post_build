@@ -15,8 +15,8 @@ if [ ! -d "${WORKSPACE}/generatedJUnitFiles" ]; then
   mkdir "${WORKSPACE}/generatedJUnitFiles"
 fi
 
-sudo wget -O /usr/local/bin/lcov_cobertura https://raw.github.com/eriwen/lcov-to-cobertura-xml/master/lcov_cobertura/lcov_cobertura.py
-sudo chmod a+x /usr/local/bin/lcov_cobertura
+wget -O lcov_cobertura https://raw.github.com/eriwen/lcov-to-cobertura-xml/master/lcov_cobertura/lcov_cobertura.py
+chmod a+x lcov_cobertura
 
 if [ "${Python}" = "2" ]
 then
@@ -42,7 +42,7 @@ if [ "${Distribution}" != "ubuntu/precise" -a "${Distribution}" != "debian/wheez
 else
   touch ${DIRECTORY}/filtered.info
 fi
-/usr/local/bin/lcov_cobertura ${DIRECTORY}/filtered.info -b "${WORKSPACE}"
+./lcov_cobertura ${DIRECTORY}/filtered.info -b "${WORKSPACE}"
 rm -rf ${DIRECTORY}
 
 cppcheck -q --xml --xml-version=2 --enable=all \
