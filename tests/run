@@ -28,7 +28,7 @@ def main():
 
     if arguments.no_network:
         excluded_cpp = [
-            "Association", "Network", "ServiceRole", "SCP", "SCU", "Transport"]
+            "Association", "dul_Connection", "SCP", "SCU", "Transport"]
         excluded_python = ["scu", "scp"]
 
         arguments.exclude_regex = "{}{}{}".format(
