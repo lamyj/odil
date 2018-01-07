@@ -72,7 +72,7 @@ endif()
 file(GLOB_RECURSE ci_resources .ci/*)
 add_custom_target(
     CIIntegration ${CMAKE_COMMAND} -E echo "CI Integration"
-    SOURCES appveyor.yml .gitlab-ci.yml .travis.yml ${ci_resources})
+    SOURCES appveyor.yml .travis.yml ${ci_resources})
 set_target_properties(CIIntegration PROPERTIES FOLDER "Utils")
 
 add_custom_target(
