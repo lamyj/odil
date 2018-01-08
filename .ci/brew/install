@@ -1,29 +1,51 @@
-#!/bin/sh
+#!/usr/bin/env python
 
-set -ev
+from __future__ import print_function
 
-export Python=${Python:?}
-export WORKSPACE=${WORKSPACE:?}
+import json
+import os
+import subprocess
+import sys
 
-BREW_CONFLICTING="json-c"
-# FIXME: this does not install the Python 3 version of boost-python
-BREW_NEED_LATEST="boost boost-python cmake cppcheck dcmtk icu4c jsoncpp lcov log4cpp pkg-config python${Python}"
-PIP_PACKAGES="cpp-coveralls nose"
+brew_conflicting = ["json-c"]
+brew_required = [
+    "boost", "boost-python", "cmake", "cppcheck", "dcmtk", "icu4c", "jsoncpp",
+    "lcov", "log4cpp", "pkg-config", "python"+os.environ["Python"]
+]
 
-brew install jq
+pip_required = ["cpp-coveralls", "nose"]
 
-for formula in ${BREW_CONFLICTING}; do
-  if ! (brew info ${formula} | grep -q "Not installed"); then
-    brew unlink ${formula}
-  fi
-done
+for formula in brew_conflicting:
+    info = json.loads(
+        subprocess.check_output(["brew", "info", "--json=v1", formula]))
+    if len(info) > 1:
+        print("Too many formulas matching {}".format(formula))
+        sys.exit(1)
+    elif len(info) == 0:
+        continue
+    installed = (len(info[0]["installed"]) != 0)
+    if installed:
+        print("Removing conflicting formula: {}".format(formula))
+        subprocess.check_call(["brew", "unlink", formula])
 
-for formula in ${BREW_NEED_LATEST}; do
-  if (brew outdated | grep -q ${formula}); then
-    brew upgrade ${formula}
-  else
-    brew install ${formula}
-  fi
-done
+for formula in brew_required:
+    info = json.loads(
+        subprocess.check_output(["brew", "info", "--json=v1", formula]))
+    if len(info) > 1:
+        print("Too many formulas matching {}".format(formula))
+        sys.exit(1)
+    elif len(info) == 0:
+        print("No formula matching {}".format(formula))
+        sys.exit(1)
+    
+    action = None
+    if len(info[0]["installed"]) == 0:
+        action = "install"
+    elif info[0]["installed"][-1]["version"] != info[0]["versions"]["stable"]:
+        action = "upgrade"
+    
+    if action is not None:
+        subprocess.check_call(["brew", action, formula])
 
-pip${Python} install --user -U ${PIP_PACKAGES}
+subprocess.check_call(
+    ["pip"+os.environ["Python"], "install", "--user", "-U"]+pip_required)
