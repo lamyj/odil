@@ -215,9 +215,10 @@ BOOST_FIXTURE_TEST_CASE(RequestorAcceptedSync, Fixture)
 
                     T_ASC_PresentationContextID presID;
                     T_DIMSE_Message message;
-                    DIMSE_receiveCommand(
+                    auto condition = DIMSE_receiveCommand(
                         association, DIMSE_BLOCKING, 0, &presID, &message,
                         NULL);
+                    BOOST_REQUIRE(condition == DUL_PEERREQUESTEDRELEASE);
                     return ASC_acknowledgeRelease(association);
                 });
         }
@@ -226,20 +227,20 @@ BOOST_FIXTURE_TEST_CASE(RequestorAcceptedSync, Fixture)
     this->endpoint = boost::asio::ip::tcp::endpoint(
         boost::asio::ip::address_v4::from_string("127.0.0.1"), port);
 
-    auto response = this->connection.send(
+    auto status = this->connection.send(
         this->endpoint,
         std::make_shared<odil::dul::AAssociateRQ>(
             this->association_parameters.as_a_associate_rq()));
     BOOST_REQUIRE(
-        response.first
-        && response.first->get_pdu_type() == odil::dul::AAssociateAC::type);
-    BOOST_REQUIRE(!response.second);
+        status.pdu
+        && status.pdu->get_pdu_type() == odil::dul::AAssociateAC::type);
+    BOOST_REQUIRE(!status.error_code);
 
-    response = this->connection.send(std::make_shared<odil::dul::AReleaseRQ>());
+    status = this->connection.send(std::make_shared<odil::dul::AReleaseRQ>());
     BOOST_REQUIRE(
-        response.first
-        && response.first->get_pdu_type() == odil::dul::AReleaseRP::type);
-    BOOST_REQUIRE(!response.second);
+        status.pdu
+        && status.pdu->get_pdu_type() == odil::dul::AReleaseRP::type);
+    BOOST_REQUIRE(!status.error_code);
 
     acceptor.join();
 }

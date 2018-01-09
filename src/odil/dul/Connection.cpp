@@ -66,7 +66,7 @@ Connection
     }
 }
 
-std::pair<std::shared_ptr<PDU>, boost::system::error_code>
+Connection::SynchronousStatus
 Connection
 ::send(
     boost::asio::ip::tcp::endpoint const & endpoint,
@@ -74,33 +74,24 @@ Connection
 {
     ODIL_LOG(DEBUG, dul) << "Sending A-ASSOCIATE-RQ synchronously";
 
-    std::shared_ptr<PDU> response_pdu = nullptr;
-    boost::system::error_code transport_error;
+    SynchronousStatus status;
 
-    auto const pdu_received = [&](std::shared_ptr<PDU> pdu) { response_pdu = pdu; };
+    auto const on_pdu = [&](std::shared_ptr<PDU> pdu) { status.pdu = pdu; };
+    auto connections = this->connect<
+        Signal::AAssociateAC, Signal::AAssociateRJ, Signal::AAbort>(on_pdu);
 
-    std::vector<boost::signals2::connection> connections;
-    connections.push_back(this->connect<Signal::AAssociateAC>(pdu_received));
-    connections.push_back(this->connect<Signal::AAssociateRJ>(pdu_received));
-    connections.push_back(this->connect<Signal::AAbort>(pdu_received));
-    connections.push_back(this->_TransportError.connect(
-        [&](boost::system::error_code const & error) { transport_error = error; }));
+    auto const on_error = [&](boost::system::error_code error) {
+        status.error_code = error; };
+    auto error_connections = this->connect<
+        Signal::TransportClosed, Signal::TransportError>(on_error);
+    std::for_each(
+        error_connections.begin(), error_connections.end(),
+        [&](boost::signals2::connection c) { connections.emplace_back(c); });
 
     this->async_send(endpoint, pdu);
-    while(!response_pdu && !transport_error)
+    while(!status.pdu && !status.error_code)
     {
         this->socket.get_io_service().run_one();
-    }
-
-    if(response_pdu)
-    {
-        ODIL_LOG(DEBUG, dul)
-            << "PDU received, type "
-            << std::to_string(response_pdu->get_pdu_type());
-    }
-    else
-    {
-        ODIL_LOG(DEBUG, dul) << "Transport error";
     }
 
     for(auto const & connection: connections)
@@ -108,7 +99,7 @@ Connection
         connection.disconnect();
     }
 
-    return std::make_pair(response_pdu, transport_error);
+    return status;
 }
 
 void
@@ -183,37 +174,32 @@ Connection
     }
 }
 
-std::pair<std::shared_ptr<PDU>, boost::system::error_code>
+Connection::SynchronousStatus
 Connection
 ::send(std::shared_ptr<AReleaseRQ> pdu)
 {
     ODIL_LOG(DEBUG, dul) << "Sending A-RELEASE-RQ synchronously";
 
-    std::shared_ptr<PDU> response_pdu = nullptr;
-    boost::system::error_code transport_error;
+    SynchronousStatus status;
 
-    auto const pdu_received = [&](std::shared_ptr<PDU> pdu) { response_pdu = pdu; };
+    auto const on_pdu = [&](std::shared_ptr<PDU> pdu) { status.pdu = pdu; };
+    auto connections = this->connect<
+            Signal::PDataTF, Signal::AReleaseRQ, Signal::AReleaseRP,
+            Signal::AAbort
+        >(on_pdu);
 
-    std::vector<boost::signals2::connection> connections;
-    connections.push_back(this->connect<Signal::AReleaseRP>(pdu_received));
-    connections.push_back(this->_TransportError.connect(
-        [&](boost::system::error_code const & error) { transport_error = error; }));
+    auto const on_error = [&](boost::system::error_code error) {
+        status.error_code = error; };
+    auto error_connections = this->connect<
+        Signal::TransportClosed, Signal::TransportError>(on_error);
+    std::for_each(
+        error_connections.begin(), error_connections.end(),
+        [&](boost::signals2::connection c) { connections.emplace_back(c); });
 
     this->async_send(pdu);
-    while(!response_pdu && !transport_error)
+    while(!status.pdu && !status.error_code)
     {
         this->socket.get_io_service().run_one();
-    }
-
-    if(response_pdu)
-    {
-        ODIL_LOG(DEBUG, dul)
-            << "PDU received, type "
-            << std::to_string(response_pdu->get_pdu_type());
-    }
-    else
-    {
-        ODIL_LOG(DEBUG, dul) << "Transport error";
     }
 
     for(auto const & connection: connections)
@@ -221,7 +207,7 @@ Connection
         connection.disconnect();
     }
 
-    return std::make_pair(response_pdu, transport_error);
+    return status;
 }
 
 void

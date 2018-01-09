@@ -11,6 +11,7 @@
 
 #include <atomic>
 #include <string>
+#include <type_traits>
 
 #include <boost/asio.hpp>
 #include <boost/signals2.hpp>
@@ -77,13 +78,26 @@ ODIL_SIGNAL_TRAITS(AAbort, void(std::shared_ptr<AAbort>));
 /**
  * @brief DICOM Upper Layer connection.
  *
- * This class asynchronously sends and receives PDUs.
+ * This class asynchronously or synchronously sends and receives PDUs.
+ *
+ * Asynchronous operations will return immediately and will send a signal when
+ * completed.
+ *
+ * Synchronous operations will block until completed, and will return the
+ * response PDU (if any) or the error_code (if any).
  *
  * @warning The io_context from the socket will be used to dispatch every action
  */
 class ODIL_API Connection
 {
 public:
+    /// @brief Status for a synchronous operation.
+    struct SynchronousStatus
+    {
+        std::shared_ptr<PDU> pdu;
+        boost::system::error_code error_code;
+    };
+
     boost::asio::ip::tcp::socket & socket;
     boost::posix_time::time_duration artim_timeout;
 
@@ -110,7 +124,7 @@ public:
      * - The PDU has been sent correctly and a response has been received
      * - OR an error occured
      */
-    std::pair<std::shared_ptr<PDU>, boost::system::error_code>
+    SynchronousStatus
     send(
         boost::asio::ip::tcp::endpoint const & endpoint,
         std::shared_ptr<AAssociateRQ> pdu);
@@ -129,8 +143,7 @@ public:
      * - The PDU has been sent correctly and a response has been received
      * - OR an error occured
      */
-    std::pair<std::shared_ptr<PDU>, boost::system::error_code>
-    send(std::shared_ptr<AReleaseRQ> pdu);
+    SynchronousStatus send(std::shared_ptr<AReleaseRQ> pdu);
 
     void async_send(std::shared_ptr<AReleaseRP> pdu);
     void async_send(std::shared_ptr<AAbort> pdu);
@@ -142,7 +155,31 @@ public:
 
     /// @brief Connect a slot to one of the signals.
     template<Signal S>
-    boost::signals2::connection connect(typename SignalTraits<S>::Type::slot_type slot);
+    boost::signals2::connection connect(
+        typename SignalTraits<S>::Type::slot_type slot);
+
+    /// @brief Connect a slot to multiple signals.
+    template<Signal Head, Signal ... Tail, typename Slot>
+    typename std::enable_if<
+        sizeof...(Tail) == 0,
+        std::vector<boost::signals2::connection>>::type
+    connect(Slot const & slot, bool /* dummy */)
+    {
+        auto const connection = this->connect<Head>(slot);
+        return { connection };
+    }
+
+    /// @brief Connect a slot to multiple signals.
+    template<Signal Head, Signal ... Tail, typename Slot>
+    typename std::enable_if<
+        sizeof...(Tail) != 0,
+        std::vector<boost::signals2::connection>>::type
+    connect(Slot const & slot, bool dummy=true)
+    {
+        auto connections = this->connect<Tail...>(slot, dummy);
+        connections.insert(connections.begin(), this->connect<Head>(slot));
+        return connections;
+    }
 
 private:
     enum class ReceiveStage
