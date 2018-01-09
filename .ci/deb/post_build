@@ -7,6 +7,8 @@ export Distribution=${Distribution:?}
 export Python=${Python:?}
 export WORKSPACE=${WORKSPACE:?}
 
+cd ${WORKSPACE}
+
 rm -rf generatedJUnitFiles/CTest/*
 cd build
 rm -rf Testing/*
@@ -42,6 +44,7 @@ if [ "${Distribution}" != "ubuntu/precise" -a "${Distribution}" != "debian/wheez
 else
   touch ${DIRECTORY}/filtered.info
 fi
+cp ${DIRECTORY}/filtered.info "${WORKSPACE}/coverage.info"
 ./lcov_cobertura ${DIRECTORY}/filtered.info -b "${WORKSPACE}"
 rm -rf ${DIRECTORY}
 
