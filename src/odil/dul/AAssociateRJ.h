@@ -9,6 +9,8 @@
 #ifndef _3980566c_9185_40a2_8e7d_6286c2cd1959
 #define _3980566c_9185_40a2_8e7d_6286c2cd1959
 
+#include <memory>
+
 #include "odil/odil.h"
 #include "odil/dul/PDU.h"
 
@@ -22,6 +24,8 @@ namespace dul
 class ODIL_API AAssociateRJ: public PDU
 {
 public:
+    typedef std::shared_ptr<AAssociateRJ> Pointer;
+
     /// @brief PDU type.
     static uint8_t const type=0x03;
 

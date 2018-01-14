@@ -36,57 +36,248 @@ Connection
 ::Connection(
     boost::asio::ip::tcp::socket & socket,
     boost::posix_time::time_duration artim_timeout)
-: socket(socket), artim_timeout(artim_timeout),
-     _state(1), _incoming(6, '\0'), _artim_timer(socket.get_io_service()),
-    _is_requestor(false)
+: transport_connection(), transport_error(),transport_closed(),
+    a_associate(), a_release(), a_abort(), a_p_abort(), p_data(),
+    socket(socket), artim_timeout(artim_timeout), acceptor(),
+    _state(1), _incoming(6, '\0'), _artim_timer(socket.get_io_service()),
+    _is_requestor(false), _peer(), _association_request(nullptr)
 {
-    this->connect<Signal::AReleaseRQ>(
-        [this](std::shared_ptr<AReleaseRQ> /* pdu */) {
-            this->async_send(std::make_shared<AReleaseRP>());
+    // Transport services
+    this->transport_connection.request.connect([&]() {
+        this->socket.async_connect(
+            this->_peer,
+            [&](boost::system::error_code const & error) {
+                this->transport_connection.confirmation(error); });
+    });
+    this->transport_connection.confirmation.connect(
+        [&](boost::system::error_code error) {
+            if(error)
+            {
+                this->transport_error.indication(error);
+            }
+            else
+            {
+                ODIL_LOG(DEBUG, dul) << "Received transport connection confirmation";
+                if(this->_state == 4)
+                {
+                    // Socket is opened, we can start receiving PDUs.
+                    this->_receive_handler();
+                    this->AE_2(this->_association_request);
+                }
+                else
+                {
+                    throw Exception(
+                        "Cannot send AAssociateRQ in state "
+                        +std::to_string(this->_state));
+                }
+            }
+    });
+    this->transport_closed.indication.connect([&]() {
+        ODIL_LOG(DEBUG, dul) << "Transport connection closed";
+
+        if(this->_state == 2) { this->AA_5(); }
+        else if(this->_state >= 3 && this->_state <= 12) { this->AA_4(); }
+        else if(this->_state == 13) { this->AR_5(); }
+        else
+        {
+            throw Exception(
+                "Transport closed indication cannot be received in state "
+                +std::to_string(this->_state));
         }
-    );
+    });
+
+    // A-ASSOCIATE service
+    this->a_associate.request.connect([&](AAssociateRQ::Pointer pdu) {
+        ODIL_LOG(DEBUG, dul) << "Received A-ASSOCIATE request";
+
+        if(this->_state == 1) { this->AE_1(pdu); }
+        else
+        {
+            throw Exception(
+                "Cannot send AAssociateRQ in state "+std::to_string(this->_state));
+        }
+    });
+    this->a_associate.response.connect([&](PDU::Pointer pdu) {
+        ODIL_LOG(DEBUG, dul) << "Received A-ASSOCIATE response";
+        if(pdu->get_pdu_type() == AAssociateAC::type)
+        {
+            if(this->_state == 3)
+            {
+                this->AE_7(std::dynamic_pointer_cast<AAssociateAC>(pdu));
+            }
+            else
+            {
+                throw Exception(
+                    "Cannot send AAssociateAC in state "+std::to_string(this->_state));
+            }
+        }
+        else if(pdu->get_pdu_type() == AAssociateRJ::type)
+        {
+            if(this->_state == 3)
+            {
+                this->AE_8(std::dynamic_pointer_cast<AAssociateRJ>(pdu));
+            }
+            else
+            {
+                throw Exception(
+                    "Cannot send AAssociateRJ in state "+std::to_string(this->_state));
+            }
+        }
+        else
+        {
+            throw Exception(
+                "A-ASSOCIATE response must be either "
+                "A-ASSOCIATE-AC or A-ASSOCIATE-RJ");
+        }
+    });
+
+    // A-RELEASE service
+    this->a_release.request.connect([&](AReleaseRQ::Pointer pdu) {
+        ODIL_LOG(DEBUG, dul) << "Received A-RELEASE request";
+        if(this->_state == 6)
+        {
+            this->AR_1(pdu);
+        }
+        else
+        {
+            throw Exception(
+                "Cannot send AReleaseRQ in state "+std::to_string(this->_state));
+        }
+    });
+    this->a_release.indication.connect([&](AReleaseRQ::Pointer /* pdu */) {
+        ODIL_LOG(DEBUG, dul) << "Received A-RELEASE indication";
+        this->async_send(std::make_shared<AReleaseRP>());
+    });
+    this->a_release.response.connect([&](AReleaseRP::Pointer pdu) {
+        ODIL_LOG(DEBUG, dul) << "Received A-RELEASE response";
+        if(this->_state == 8)
+        {
+            this->AR_4(pdu);
+        }
+        else if(this->_state == 9)
+        {
+            this->AR_9(pdu);
+        }
+        else if(this->_state == 12)
+        {
+            this->AR_4(pdu);
+        }
+        else
+        {
+            throw Exception(
+                "Cannot send AReleaseRP in state "+std::to_string(this->_state));
+        }
+    });
+
+    // A-ABORT service
+    this->a_abort.request.connect([&](AAbort::Pointer pdu) {
+        ODIL_LOG(DEBUG, dul) << "Received A-ABORT request";
+        if(this->_state == 3)
+        {
+            this->AA_1(pdu);
+        }
+        else if(this->_state == 4)
+        {
+            this->AA_2();
+        }
+        else if(this->_state >= 5 && this->_state <= 12)
+        {
+            this->AA_1(pdu);
+        }
+        else
+        {
+            throw Exception(
+                "Cannot send AAssociateAC in state "+std::to_string(this->_state));
+        }
+    });
+
+    // P-DATA service
+    this->p_data.request.connect([&](PDataTF::Pointer pdu) {
+        ODIL_LOG(DEBUG, dul) << "Received P-DATA request";
+        if(this->_state == 6)
+        {
+            this->DT_1(pdu);
+        }
+        else if(this->_state == 8)
+        {
+            this->AR_7(pdu);
+        }
+        else
+        {
+            throw Exception(
+                "Cannot send PDataTF in state "+std::to_string(this->_state));
+        }
+    });
 }
 
 void
 Connection
-::async_send(
-    boost::asio::ip::tcp::endpoint const & endpoint,
-    std::shared_ptr<AAssociateRQ> pdu)
+::async_send(boost::asio::ip::tcp::endpoint peer, AAssociateRQ::Pointer pdu)
 {
-    ODIL_LOG(DEBUG, dul) << "Sending A-ASSOCIATE-RQ asynchronously";
+    // Save peer for later (transport_connection.request)
+    this->_peer = peer;
+    this->a_associate.request(pdu);
+}
 
-    if(this->_state == 1)
+void
+Connection
+::async_send(PDU::Pointer pdu)
+{
+    if(pdu->get_pdu_type() == AAssociateAC::type)
     {
-        this->AE_1(endpoint, pdu);
+        this->a_associate.response(pdu);
+    }
+    else if(pdu->get_pdu_type() == AAssociateRJ::type)
+    {
+        this->a_associate.response(pdu);
+    }
+    else if(pdu->get_pdu_type() == AReleaseRQ::type)
+    {
+        this->a_release.request(std::dynamic_pointer_cast<AReleaseRQ>(pdu));
+    }
+    else if(pdu->get_pdu_type() == AReleaseRP::type)
+    {
+        this->a_release.response(std::dynamic_pointer_cast<AReleaseRP>(pdu));
+    }
+    else if(pdu->get_pdu_type() == AAbort::type)
+    {
+        this->a_abort.request(std::dynamic_pointer_cast<AAbort>(pdu));
+    }
+    // NOTE: there will never be an A-P-ABORT request here, since these will be
+    // issued by the transport. cf. PS3.8, 7.4
+    else if(pdu->get_pdu_type() == PDataTF::type)
+    {
+        this->p_data.request(std::dynamic_pointer_cast<PDataTF>(pdu));
     }
     else
     {
         throw Exception(
-            "Cannot send AAssociateRQ in state "+std::to_string(this->_state));
+            "Invalid PDU type in async_send(peer): "
+            +std::to_string(pdu->get_pdu_type()));
     }
 }
 
 Connection::SynchronousStatus
 Connection
 ::send(
-    boost::asio::ip::tcp::endpoint const & endpoint,
-    std::shared_ptr<AAssociateRQ> pdu)
+    boost::asio::ip::tcp::endpoint const & endpoint, AAssociateRQ::Pointer pdu)
 {
     ODIL_LOG(DEBUG, dul) << "Sending A-ASSOCIATE-RQ synchronously";
 
     SynchronousStatus status;
 
-    auto const on_pdu = [&](std::shared_ptr<PDU> pdu) { status.pdu = pdu; };
-    auto connections = this->connect<
-        Signal::AAssociateAC, Signal::AAssociateRJ, Signal::AAbort>(on_pdu);
+    std::vector<boost::signals2::connection> connections;
 
-    auto const on_error = [&](boost::system::error_code error) {
-        status.error_code = error; };
-    auto error_connections = this->connect<
-        Signal::TransportClosed, Signal::TransportError>(on_error);
-    std::for_each(
-        error_connections.begin(), error_connections.end(),
-        [&](boost::signals2::connection c) { connections.emplace_back(c); });
+    auto const on_pdu = [&](PDU::Pointer pdu) { status.pdu = pdu; };
+    connections.emplace_back(this->a_associate.confirmation.connect(on_pdu));
+
+    auto const on_error =
+        [&](boost::system::error_code error=boost::system::error_code()) {
+            status.error_code = error; };
+    connections.emplace_back(
+        this->transport_error.indication.connect(on_error));
+    connections.emplace_back(
+        this->transport_closed.indication.connect(on_error));
 
     this->async_send(endpoint, pdu);
     while(!status.pdu && !status.error_code)
@@ -102,99 +293,29 @@ Connection
     return status;
 }
 
-void
-Connection
-::async_send(std::shared_ptr<AAssociateAC> pdu)
-{
-    ODIL_LOG(DEBUG, dul) << "Sending A-ASSOCIATE-AC";
-
-    if(this->_state == 3)
-    {
-        this->AE_7(pdu);
-    }
-    else
-    {
-        throw Exception(
-            "Cannot send AAssociateAC in state "+std::to_string(this->_state));
-    }
-}
-
-void
-Connection
-::async_send(std::shared_ptr<AAssociateRJ> pdu)
-{
-    ODIL_LOG(DEBUG, dul) << "Sending A-ASSOCIATE-RJ";
-
-    if(this->_state == 3)
-    {
-        this->AE_8(pdu);
-    }
-    else
-    {
-        throw Exception(
-            "Cannot send AAssociateRJ in state "+std::to_string(this->_state));
-    }
-}
-
-void
-Connection
-::async_send(std::shared_ptr<PDataTF> pdu)
-{
-    ODIL_LOG(DEBUG, dul) << "Sending P-DATA-TF";
-
-    if(this->_state == 6)
-    {
-        this->DT_1(pdu);
-    }
-    else if(this->_state == 8)
-    {
-        this->AR_7(pdu);
-    }
-    else
-    {
-        throw Exception(
-            "Cannot send PDataTF in state "+std::to_string(this->_state));
-    }
-}
-
-void
-Connection
-::async_send(std::shared_ptr<AReleaseRQ> pdu)
-{
-    ODIL_LOG(DEBUG, dul) << "Sending A-RELEASE-RQ asynchronously";
-
-    if(this->_state == 6)
-    {
-        this->AR_1(pdu);
-    }
-    else
-    {
-        throw Exception(
-            "Cannot send AReleaseRQ in state "+std::to_string(this->_state));
-    }
-}
-
 Connection::SynchronousStatus
 Connection
-::send(std::shared_ptr<AReleaseRQ> pdu)
+::send(AReleaseRQ::Pointer pdu)
 {
     ODIL_LOG(DEBUG, dul) << "Sending A-RELEASE-RQ synchronously";
 
     SynchronousStatus status;
 
-    auto const on_pdu = [&](std::shared_ptr<PDU> pdu) { status.pdu = pdu; };
-    auto connections = this->connect<
-            Signal::PDataTF, Signal::AReleaseRQ, Signal::AReleaseRP,
-            Signal::AAbort
-        >(on_pdu);
+    std::vector<boost::signals2::connection> connections;
 
-    auto const on_error = [&](boost::system::error_code error) {
-        status.error_code = error; };
-    auto error_connections = this->connect<
-        Signal::TransportClosed, Signal::TransportError>(on_error);
-    std::for_each(
-        error_connections.begin(), error_connections.end(),
-        [&](boost::signals2::connection c) { connections.emplace_back(c); });
+    auto const on_pdu = [&](PDU::Pointer pdu) { status.pdu = pdu; };
+    connections.emplace_back(this->p_data.indication.connect(on_pdu));
+    connections.emplace_back(this->a_release.indication.connect(on_pdu));
+    connections.emplace_back(this->a_release.confirmation.connect(on_pdu));
+    connections.emplace_back(this->a_abort.indication.connect(on_pdu));
+
+    auto const on_error =
+        [&](boost::system::error_code error=boost::system::error_code()) {
+            status.error_code = error; };
+    connections.emplace_back(
+        this->transport_error.indication.connect(on_error));
+    connections.emplace_back(
+        this->transport_closed.indication.connect(on_error));
 
     this->async_send(pdu);
     while(!status.pdu && !status.error_code)
@@ -212,63 +333,6 @@ Connection
 
 void
 Connection
-::async_send(std::shared_ptr<AReleaseRP> pdu)
-{
-    ODIL_LOG(DEBUG, dul) << "Sending A-RELEASE-RP";
-
-    if(this->_state == 8)
-    {
-        this->AR_4(pdu);
-    }
-    else if(this->_state == 9)
-    {
-        this->AR_9(pdu);
-    }
-    else if(this->_state == 12)
-    {
-        this->AR_4(pdu);
-    }
-    else
-    {
-        throw Exception(
-            "Cannot send AReleaseRP in state "+std::to_string(this->_state));
-    }
-}
-
-void
-Connection
-::async_send(std::shared_ptr<AAbort> pdu)
-{
-    ODIL_LOG(DEBUG, dul) << "Sending A-ABORT";
-
-    if(this->_state == 3)
-    {
-        this->AA_1(pdu);
-    }
-    else if(this->_state == 4)
-    {
-        this->AA_2();
-    }
-    else if(this->_state >= 5 && this->_state <= 12)
-    {
-        this->AA_1(pdu);
-    }
-    else
-    {
-        throw Exception(
-            "Cannot send AAssociateAC in state "+std::to_string(this->_state));
-    }
-}
-
-void
-Connection
-::async_receive()
-{
-    this->_receive_handler();
-}
-
-void
-Connection
 ::tcp_accepted(boost::system::error_code const & error)
 {
     ODIL_LOG(DEBUG, dul) << "Transport connection indication";
@@ -281,7 +345,7 @@ Connection
     if(this->_state == 1)
     {
         // Socket is opened, we can start receiving PDUs.
-        this->async_receive();
+        this->_receive_handler();
         this->AE_5();
     }
     else
@@ -292,62 +356,19 @@ Connection
     }
 }
 
-#define ODIL_SIGNAL_CONNECT(S) \
-template<> \
-boost::signals2::connection \
-Connection \
-::connect<Signal::S>( \
-    typename SignalTraits<Signal::S>::Type::slot_type slot) \
-{ \
-    return this->_##S.connect(slot); \
-}
-
-ODIL_SIGNAL_CONNECT(TransportConnected)
-ODIL_SIGNAL_CONNECT(TransportClosed)
-ODIL_SIGNAL_CONNECT(TransportAccepted)
-ODIL_SIGNAL_CONNECT(TransportError)
-ODIL_SIGNAL_CONNECT(Accepted)
-ODIL_SIGNAL_CONNECT(AAssociateRQ)
-ODIL_SIGNAL_CONNECT(AAssociateAC)
-ODIL_SIGNAL_CONNECT(AAssociateRJ)
-ODIL_SIGNAL_CONNECT(PDataTF)
-ODIL_SIGNAL_CONNECT(AReleaseRQ)
-ODIL_SIGNAL_CONNECT(AReleaseRP)
-ODIL_SIGNAL_CONNECT(AAbort)
-
-#undef ODIL_SIGNAL_CONNECT
-
-void
-Connection
-::_connect_handler(
-    boost::system::error_code const & error,
-    std::shared_ptr<AAssociateRQ> associate_rq)
-{
-    if(error)
-    {
-        ODIL_LOG(DEBUG, dul) << "Transport error in _connect_handler";
-        this->socket.get_io_service().post(
-            [=]() { this->_TransportError(error); });
-    }
-    else
-    {
-        this->_transport_connected(associate_rq);
-    }
-}
-
 void
 Connection
 ::_sent_handler(boost::system::error_code const & error)
 {
     if(error == boost::asio::error::eof)
     {
-        this->_transport_closed();
+        this->socket.get_io_service().post(
+            [=]() { this->transport_closed.indication(); });
     }
     else if(error)
     {
-        ODIL_LOG(DEBUG, dul) << "Transport error in _sent_handler";
         this->socket.get_io_service().post(
-            [=]() { this->_TransportError(error); });
+            [=]() { this->transport_error.indication(error); });
     }
 }
 
@@ -357,7 +378,7 @@ Connection
 {
     if(error == boost::asio::error::eof)
     {
-        this->_transport_closed();
+        this->transport_closed.indication();
     }
     else if(error == boost::asio::error::bad_descriptor)
     {
@@ -366,7 +387,7 @@ Connection
     else if(error)
     {
         this->socket.get_io_service().post(
-            [=]() { this->_TransportError(error); });
+            [=]() { this->transport_error.indication(error); });
     }
     else if(stage == ReceiveStage::Type)
     {
@@ -432,7 +453,7 @@ Connection
         {
             throw Exception("Unknown PDU type: "+std::to_string(type));
         }
-        this->async_receive();
+        this->_receive_handler();
     }
     else
     {
@@ -442,26 +463,7 @@ Connection
 
 void
 Connection
-::_transport_connected(std::shared_ptr<AAssociateRQ> associate_rq)
-{
-    ODIL_LOG(DEBUG, dul) << "Transport connection confirmation";
-
-    if(this->_state == 4)
-    {
-        // Socket is opened, we can start receiving PDUs.
-        this->async_receive();
-        this->AE_2(associate_rq);
-    }
-    else
-    {
-        throw Exception(
-            "No connection must happen in state "+std::to_string(this->_state));
-    }
-}
-
-void
-Connection
-::_received(std::shared_ptr<AAssociateAC> pdu)
+::_received(AAssociateAC::Pointer pdu)
 {
     ODIL_LOG(DEBUG, dul) << "Received A-ASSOCIATE-AC";
 
@@ -480,7 +482,7 @@ Connection
 
 void
 Connection
-::_received(std::shared_ptr<AAssociateRJ> pdu)
+::_received(AAssociateRJ::Pointer pdu)
 {
     ODIL_LOG(DEBUG, dul) << "Received A-ASSOCIATE-RJ";
 
@@ -499,10 +501,9 @@ Connection
 
 void
 Connection
-::_received(std::shared_ptr<AAssociateRQ> pdu)
+::_received(AAssociateRQ::Pointer pdu)
 {
     ODIL_LOG(DEBUG, dul) << "Received A-ASSOCIATE-RQ";
-
     if(this->_state == 2) { this->AE_6(pdu); }
     else if(this->_state == 3) { this->AA_8(); }
     else if(this->_state >= 5 && this->_state <= 12) { this->AA_8(); }
@@ -517,7 +518,7 @@ Connection
 
 void
 Connection
-::_received(std::shared_ptr<PDataTF> pdu)
+::_received(PDataTF::Pointer pdu)
 {
     ODIL_LOG(DEBUG, dul) << "Received P-DATA-TF";
 
@@ -538,7 +539,7 @@ Connection
 
 void
 Connection
-::_received(std::shared_ptr<AReleaseRQ> pdu)
+::_received(AReleaseRQ::Pointer pdu)
 {
     ODIL_LOG(DEBUG, dul) << "Received A-RELEASE-RQ";
 
@@ -559,7 +560,7 @@ Connection
 
 void
 Connection
-::_received(std::shared_ptr<AReleaseRP> pdu)
+::_received(AReleaseRP::Pointer pdu)
 {
     ODIL_LOG(DEBUG, dul) << "Received A-RELEASE-RP";
 
@@ -582,7 +583,7 @@ Connection
 
 void
 Connection
-::_received(std::shared_ptr<AAbort> pdu)
+::_received(AAbort::Pointer pdu)
 {
     ODIL_LOG(DEBUG, dul) << "Received A-ABORT";
 
@@ -594,23 +595,6 @@ Connection
     {
         throw Exception(
             "AAbort cannot be received in state "
-            +std::to_string(this->_state));
-    }
-}
-
-void
-Connection
-::_transport_closed()
-{
-    ODIL_LOG(DEBUG, dul) << "Transport connection closed";
-
-    if(this->_state == 2) { this->AA_5(); }
-    else if(this->_state >= 3 && this->_state <= 12) { this->AA_4(); }
-    else if(this->_state == 13) { this->AR_5(); }
-    else
-    {
-        throw Exception(
-            "Transport closed indication cannot be received in state "
             +std::to_string(this->_state));
     }
 }
@@ -662,339 +646,9 @@ Connection
 
 void
 Connection
-::AE_1(
-    boost::asio::ip::tcp::endpoint const & endpoint,
-    std::shared_ptr<AAssociateRQ> pdu)
+::_async_send(PDU::Pointer pdu)
 {
-    ODIL_LOG(DEBUG, dul) << "AE-1";
-
-    this->_state = 4;
-    this->socket.async_connect(
-        endpoint,
-        boost::bind(
-            &Connection::_connect_handler, this,
-            boost::asio::placeholders::error, pdu));
-}
-
-void
-Connection
-::AE_2(std::shared_ptr<AAssociateRQ> associate_rq)
-{
-    ODIL_LOG(DEBUG, dul) << "AE-2";
-
-    this->_state = 5;
-    this->_async_send(associate_rq);
-}
-
-void
-Connection
-::AE_3(std::shared_ptr<AAssociateAC> pdu)
-{
-    ODIL_LOG(DEBUG, dul) << "AE-3";
-
-    this->_state = 6;
-    this->socket.get_io_service().post([=]() { this->_AAssociateAC(pdu); });
-}
-
-void
-Connection
-::AE_4(std::shared_ptr<AAssociateRJ> pdu)
-{
-    ODIL_LOG(DEBUG, dul) << "AE-4";
-
-    this->_state = 1;
-    this->socket.get_io_service().post([=]() { this->_AAssociateRJ(pdu); });
-    this->socket.close();
-}
-
-void
-Connection
-::AE_5()
-{
-    ODIL_LOG(DEBUG, dul) << "AE-5";
-
-    this->_state = 2;
-    this->socket.get_io_service().post([=]() { this->_Accepted(); });
-    this->_start_artim_timer();
-}
-
-void
-Connection
-::AE_6(std::shared_ptr<AAssociateRQ> pdu)
-{
-    ODIL_LOG(DEBUG, dul) << "AE-6";
-
-    this->_stop_artim_timer();
-
-    boost::optional<std::shared_ptr<PDU>> signal_result = this->_AAssociateRQ(pdu);
-    if(!signal_result || signal_result.get() == nullptr)
-    {
-        throw Exception("No response provided");
-    }
-
-    std::shared_ptr<PDU> response = signal_result.get();
-    auto const type = response->get_pdu_type();
-    if(type == AAssociateAC::type)
-    {
-
-        this->_state = 3;
-        this->async_send(std::dynamic_pointer_cast<AAssociateAC>(response));
-    }
-    else if(type == AAssociateRJ::type)
-    {
-        // WARNING: standard says to send RJ and switch to state 13. However,
-        // this is AE-8, which needs to happen in state 3.
-        this->_state = 3;
-        this->async_send(std::dynamic_pointer_cast<AAssociateRJ>(response));
-    }
-    else if(type == AAbort::type)
-    {
-        // WARNING: not sure this is correct
-        this->_state = 3;
-        this->async_send(std::dynamic_pointer_cast<AAbort>(response));
-    }
-    else
-    {
-        throw Exception(
-            "Invalid association response type: "+std::to_string(type));
-    }
-}
-
-void
-Connection
-::AE_7(std::shared_ptr<AAssociateAC> pdu)
-{
-    ODIL_LOG(DEBUG, dul) << "AE-7";
-
-    this->_state = 6;
-    this->_async_send(pdu);
-}
-
-void
-Connection
-::AE_8(std::shared_ptr<AAssociateRJ> pdu)
-{
-    ODIL_LOG(DEBUG, dul) << "AE-8";
-
-    this->_state = 13;
-    this->_async_send(pdu);
-    this->_start_artim_timer();
-}
-
-void
-Connection
-::DT_1(std::shared_ptr<PDataTF> pdu)
-{
-    ODIL_LOG(DEBUG, dul) << "DT-1";
-
-    this->_state = 6;
-    this->_async_send(pdu);
-}
-
-void
-Connection
-::DT_2(std::shared_ptr<PDataTF> pdu)
-{
-    ODIL_LOG(DEBUG, dul) << "DT-2";
-
-    this->_state = 6;
-    this->socket.get_io_service().post([=]() { this->_PDataTF(pdu); });
-}
-
-void
-Connection
-::AR_1(std::shared_ptr<AReleaseRQ> pdu)
-{
-    ODIL_LOG(DEBUG, dul) << "AR-1";
-
-    this->_state = 7;
-    this->_async_send(pdu);
-}
-
-void
-Connection
-::AR_2(std::shared_ptr<AReleaseRQ> pdu)
-{
-    ODIL_LOG(DEBUG, dul) << "AR-2";
-
-    this->_state = 8;
-    this->socket.get_io_service().post([=]() { this->_AReleaseRQ(pdu); });
-}
-
-void
-Connection
-::AR_3(std::shared_ptr<AReleaseRP> pdu)
-{
-    ODIL_LOG(DEBUG, dul) << "AR-3";
-
-    this->_state = 1;
-    this->socket.get_io_service().post([=]() { this->_AReleaseRP(pdu); });
-    this->socket.close();
-}
-
-void
-Connection
-::AR_4(std::shared_ptr<AReleaseRP> pdu)
-{
-    ODIL_LOG(DEBUG, dul) << "AR-4";
-
-    this->_state = 13;
-    this->_async_send(pdu);
-    this->_start_artim_timer();
-}
-
-void
-Connection
-::AR_5()
-{
-    ODIL_LOG(DEBUG, dul) << "AR-5";
-
-    this->_state = 1;
-    this->_stop_artim_timer();
-}
-
-void
-Connection
-::AR_6(std::shared_ptr<PDataTF> pdu)
-{
-    ODIL_LOG(DEBUG, dul) << "AR-6";
-
-    this->_state = 7;
-    this->socket.get_io_service().post([=]() { this->_PDataTF(pdu); });
-}
-
-void
-Connection
-::AR_7(std::shared_ptr<PDataTF> pdu)
-{
-    ODIL_LOG(DEBUG, dul) << "AR-7";
-
-    this->_state = 8;
-    this->_async_send(pdu);
-}
-
-void
-Connection
-::AR_8(std::shared_ptr<AReleaseRQ> pdu)
-{
-    ODIL_LOG(DEBUG, dul) << "AR-8";
-
-    this->_state = this->_is_requestor ? 9 : 10;
-    this->socket.get_io_service().post([=]() { this->_AReleaseRQ(pdu); });
-}
-
-void
-Connection
-::AR_9(std::shared_ptr<AReleaseRP> pdu)
-{
-    ODIL_LOG(DEBUG, dul) << "AR-9";
-
-    this->_state = 11;
-    this->_async_send(pdu);
-}
-
-void
-Connection
-::AR_10(std::shared_ptr<AReleaseRP> pdu)
-{
-    ODIL_LOG(DEBUG, dul) << "AR-10";
-
-    this->_state = 12;
-    this->socket.get_io_service().post([=]() { this->_AReleaseRP(pdu); });
-}
-
-void
-Connection
-::AA_1(std::shared_ptr<AAbort> pdu)
-{
-    ODIL_LOG(DEBUG, dul) << "AA-1";
-
-    this->_state = 13;
-    this->_async_send(pdu);
-    this->_start_artim_timer();
-}
-
-void
-Connection
-::AA_2()
-{
-    ODIL_LOG(DEBUG, dul) << "AA-2";
-
-    this->_state = 1;
-    this->_stop_artim_timer();
-    this->socket.close();
-}
-
-void
-Connection
-::AA_3(std::shared_ptr<AAbort> pdu)
-{
-    ODIL_LOG(DEBUG, dul) << "AA-3";
-
-    this->_state = 1;
-    // a_abort is a generic handler (A-ABORT and A-P-ABORT)
-    this->_AAbort(pdu);
-    this->socket.close();
-}
-
-void
-Connection
-::AA_4()
-{
-    ODIL_LOG(DEBUG, dul) << "AA-4";
-
-    this->_state = 1;
-    this->socket.get_io_service().post(
-        [=]() { this->_AAbort(std::make_shared<AAbort>(2, 0)); });
-}
-
-void
-Connection
-::AA_5()
-{
-    ODIL_LOG(DEBUG, dul) << "AA-5";
-
-    this->_state = 1;
-    this->_stop_artim_timer();
-}
-
-void
-Connection
-::AA_6()
-{
-    ODIL_LOG(DEBUG, dul) << "AA-6";
-
-    // Ignore PDU
-    this->_state = 13;
-}
-
-void
-Connection
-::AA_7()
-{
-    ODIL_LOG(DEBUG, dul) << "AA-7";
-
-    this->_state = 13;
-    this->_async_send(std::make_shared<AAbort>(1, 0));
-}
-
-void
-Connection
-::AA_8()
-{
-    ODIL_LOG(DEBUG, dul) << "AA-8";
-
-    this->_state = 13;
-    auto pdu = std::make_shared<AAbort>(2, 2);
-    this->_async_send(pdu);
-    this->socket.get_io_service().post([=]() { this->_AAbort(pdu); });
-    this->_start_artim_timer();
-}
-
-void
-Connection
-::_async_send(std::shared_ptr<PDU> pdu)
-{
+    ODIL_LOG(DEBUG, dul) << "Sending PDU of type " << std::to_string(pdu->get_pdu_type());
     std::ostringstream stream;
     stream << *pdu;
     boost::asio::async_write(

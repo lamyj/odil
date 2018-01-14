@@ -11,6 +11,7 @@
 
 #include <cstdint>
 #include <istream>
+#include <memory>
 
 #include "odil/odil.h"
 #include "odil/dul/Object.h"
@@ -25,6 +26,8 @@ namespace dul
 class PDU: public Object
 {
 public:
+    typedef std::shared_ptr<PDU> Pointer;
+
     PDU(uint8_t type);
     PDU(uint8_t type, std::istream & stream);
 

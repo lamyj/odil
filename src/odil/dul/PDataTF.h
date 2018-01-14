@@ -11,6 +11,7 @@
 
 #include <cstdint>
 #include <istream>
+#include <memory>
 #include <vector>
 
 #include "odil/odil.h"
@@ -47,6 +48,8 @@ public:
         std::string const & get_fragment() const;
         void set_fragment(std::string const & fragment);
     };
+
+    typedef std::shared_ptr<PDataTF> Pointer;
 
     /// @brief PDU type.
     static uint8_t const type=0x04;

@@ -35,7 +35,7 @@ struct Fixture
     boost::asio::ip::tcp::endpoint endpoint;
     std::shared_ptr<boost::asio::ip::tcp::acceptor> acceptor;
     odil::AssociationParameters association_parameters;
-    std::shared_ptr<odil::dul::Object> received_pdu;
+    odil::dul::PDU::Pointer received_pdu;
     DCMTKStatus dcmtk_status;
 
     Fixture()
@@ -49,11 +49,10 @@ struct Fixture
 
     void odil_request(int port)
     {
-        auto const pdu_received = [&](std::shared_ptr<odil::dul::PDU> pdu) {
+        auto const on_pdu = [&](odil::dul::PDU::Pointer pdu) {
             this->received_pdu = pdu; };
-        this->connection.connect<odil::dul::Signal::AAssociateAC>(pdu_received);
-        this->connection.connect<odil::dul::Signal::AAssociateRJ>(pdu_received);
-        this->connection.connect<odil::dul::Signal::AAbort>(pdu_received);
+        this->connection.a_associate.confirmation.connect(on_pdu);
+        this->connection.a_abort.indication.connect(on_pdu);
 
         this->endpoint = boost::asio::ip::tcp::endpoint(
             boost::asio::ip::address_v4::from_string("127.0.0.1"), port);
@@ -177,8 +176,8 @@ BOOST_FIXTURE_TEST_CASE(RequestorAccepted, Fixture)
     );
 
     this->odil_request(port);
-    this->connection.connect<odil::dul::Signal::AAssociateAC>(
-        [&](std::shared_ptr<odil::dul::AAssociateAC>) {
+    this->connection.a_associate.confirmation.connect(
+        [&](odil::dul::PDU::Pointer) {
             this->connection.async_send(std::make_shared<odil::dul::AReleaseRQ>());
         });
     this->service.run();
@@ -304,17 +303,16 @@ BOOST_FIXTURE_TEST_CASE(RequestorAborted, Fixture)
 BOOST_FIXTURE_TEST_CASE(AcceptorAccept, Fixture)
 {
     bool associate_request_received = false;
-    this->connection.connect<odil::dul::Signal::AAssociateRQ>(
-        [&](std::shared_ptr<odil::dul::AAssociateRQ> /* pdu */) {
-            associate_request_received = true;
+    this->connection.acceptor = [&](odil::dul::AAssociateRQ::Pointer) {
+        associate_request_received = true;
 
-            return std::make_shared<odil::dul::AAssociateAC>(
-                this->association_parameters.as_a_associate_ac());
-        });
+        return std::make_shared<odil::dul::AAssociateAC>(
+            this->association_parameters.as_a_associate_ac());
+    };
 
     bool release_request_received = false;
-    this->connection.connect<odil::dul::Signal::AReleaseRQ>(
-        [&](std::shared_ptr<odil::dul::AReleaseRQ> /* pdu */) {
+    this->connection.a_release.indication.connect(
+        [&](odil::dul::AReleaseRQ::Pointer /* pdu */) {
             release_request_received = true;
         });
 
@@ -337,11 +335,10 @@ BOOST_FIXTURE_TEST_CASE(AcceptorAccept, Fixture)
 BOOST_FIXTURE_TEST_CASE(AcceptorReject, Fixture)
 {
     bool associate_request_received = false;
-    this->connection.connect<odil::dul::Signal::AAssociateRQ>(
-        [&](std::shared_ptr<odil::dul::AAssociateRQ> /* pdu */) {
-            associate_request_received = true;
-            return std::make_shared<odil::dul::AAssociateRJ>(1, 3, 0);
-        });
+    this->connection.acceptor = [&](odil::dul::AAssociateRQ::Pointer) {
+        associate_request_received = true;
+        return std::make_shared<odil::dul::AAssociateRJ>(1, 3, 0);
+    };
 
     auto const port = Fixture::random_distribution(Fixture::random_generator);
 
@@ -368,11 +365,10 @@ BOOST_FIXTURE_TEST_CASE(AcceptorReject, Fixture)
 BOOST_FIXTURE_TEST_CASE(AcceptorAbort, Fixture)
 {
     bool associate_request_received = false;
-    this->connection.connect<odil::dul::Signal::AAssociateRQ>(
-        [&](std::shared_ptr<odil::dul::AAssociateRQ> /* pdu */) {
+    this->connection.acceptor = [&](odil::dul::AAssociateRQ::Pointer) {
             associate_request_received = true;
             return std::make_shared<odil::dul::AAbort>(0, 0);
-        });
+        };
 
     auto const port = Fixture::random_distribution(Fixture::random_generator);
 

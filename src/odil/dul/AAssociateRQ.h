@@ -9,6 +9,7 @@
 #ifndef _22fc6fe5_f7d1_461b_932f_cedfcae13897
 #define _22fc6fe5_f7d1_461b_932f_cedfcae13897
 
+#include <memory>
 #include <vector>
 
 #include "odil/odil.h"
@@ -25,6 +26,8 @@ namespace dul
 class ODIL_API AAssociateRQ: public AAssociate
 {
 public:
+    typedef std::shared_ptr<AAssociateRQ> Pointer;
+
     /// @brief PDU type.
     static uint8_t const type=0x01;
 

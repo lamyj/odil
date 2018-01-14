@@ -10,6 +10,7 @@
 #define _536f93f0_914e_40ff_8917_36644acbc4b1
 
 #include <istream>
+#include <memory>
 
 #include "odil/odil.h"
 #include "odil/dul/PDU.h"
@@ -24,6 +25,8 @@ namespace dul
 class ODIL_API AAbort: public PDU
 {
 public:
+    typedef std::shared_ptr<AAbort> Pointer;
+
     /// @brief PDU type.
     static uint8_t const type=0x07;
 

@@ -10,6 +10,7 @@
 #define _87f54a57_5741_4fde_871b_ea9c774795ad
 
 #include <istream>
+#include <memory>
 
 #include "odil/odil.h"
 #include "odil/dul/PDU.h"
@@ -24,6 +25,8 @@ namespace dul
 class ODIL_API AReleaseRQ: public PDU
 {
 public:
+    typedef std::shared_ptr<AReleaseRQ> Pointer;
+
     /// @brief PDU type.
     static uint8_t const type=0x05;
 
