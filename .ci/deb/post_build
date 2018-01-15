@@ -44,7 +44,7 @@ if [ "${Distribution}" != "ubuntu/precise" -a "${Distribution}" != "debian/wheez
 else
   touch ${DIRECTORY}/filtered.info
 fi
-cp ${DIRECTORY}/filtered.info "${WORKSPACE}/coverage.info"
+cp ${DIRECTORY}/filtered.info "${WORKSPACE}/build/coverage.info"
 ./lcov_cobertura ${DIRECTORY}/filtered.info -b "${WORKSPACE}"
 rm -rf ${DIRECTORY}
 
