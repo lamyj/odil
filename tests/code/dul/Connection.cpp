@@ -106,9 +106,10 @@ struct Fixture
             this->service, this->endpoint);
         this->acceptor->async_accept(
             this->connection.socket,
-            boost::bind(
-                &odil::dul::Connection::tcp_accepted,
-                &connection, boost::asio::placeholders::error));
+            [&](boost::system::error_code error) {
+                this->connection.transport_connection.indication(error);
+            }
+        );
     }
 
     void dcmtk_accept(

@@ -49,6 +49,29 @@ Connection
             [&](boost::system::error_code const & error) {
                 this->transport_connection.confirmation(error); });
     });
+    this->transport_connection.indication.connect(
+        [&](boost::system::error_code error) {
+            ODIL_LOG(DEBUG, dul) << "Transport connection indication";
+
+            if(error)
+            {
+                throw Exception("Error during accepting: "+error.message());
+            }
+
+            if(this->_state == 1)
+            {
+                // Socket is opened, we can start receiving PDUs.
+                this->_receive_handler();
+                this->AE_5();
+            }
+            else
+            {
+                throw Exception(
+                    "Connection cannot be accepted in state "
+                    +std::to_string(this->_state));
+            }
+        }
+    );
     this->transport_connection.confirmation.connect(
         [&](boost::system::error_code error) {
             if(error)
@@ -329,31 +352,6 @@ Connection
     }
 
     return status;
-}
-
-void
-Connection
-::tcp_accepted(boost::system::error_code const & error)
-{
-    ODIL_LOG(DEBUG, dul) << "Transport connection indication";
-
-    if(error)
-    {
-        throw Exception("Error during accepting: "+error.message());
-    }
-
-    if(this->_state == 1)
-    {
-        // Socket is opened, we can start receiving PDUs.
-        this->_receive_handler();
-        this->AE_5();
-    }
-    else
-    {
-        throw Exception(
-            "Connection cannot be accepted in state "
-            +std::to_string(this->_state));
-    }
 }
 
 void

@@ -164,9 +164,6 @@ public:
      */
     SynchronousStatus send(AReleaseRQ::Pointer pdu);
 
-    /// @brief Handler for the TCP Transport Connection Indication
-    void tcp_accepted(boost::system::error_code const & error);
-
 private:
     /// @brief Reception stage of a PDU
     enum class ReceiveStage
