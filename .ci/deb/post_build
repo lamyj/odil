@@ -38,9 +38,9 @@ fi
 
 DIRECTORY=`mktemp -d`
 if [ "${Distribution}" != "ubuntu/precise" -a "${Distribution}" != "debian/wheezy" ]; then
-  lcov --capture --directory "${WORKSPACE}" --output-file ${DIRECTORY}/test.info
-  lcov --remove ${DIRECTORY}/test.info -o ${DIRECTORY}/filtered.info \
-    '/usr/*' 'src/appli/*' 'tests/*' 'build/*'
+  lcov --quiet --capture --directory "${WORKSPACE}" --output-file ${DIRECTORY}/test.info
+  lcov --quiet --remove ${DIRECTORY}/test.info -o ${DIRECTORY}/filtered.info \
+    '/usr/*' '*/src/appli/*' '*/tests/*' '*/build/*'
 else
   touch ${DIRECTORY}/filtered.info
 fi
