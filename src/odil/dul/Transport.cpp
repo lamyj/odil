@@ -15,6 +15,7 @@
 #include <boost/date_time.hpp>
 
 #include "odil/Exception.h"
+#include "odil/logging.h"
 
 namespace odil
 {
@@ -157,7 +158,19 @@ Transport
     }
     if(this->is_open())
     {
-        this->_socket->shutdown(boost::asio::ip::tcp::socket::shutdown_both);
+        try
+        {
+            this->_socket->shutdown(boost::asio::ip::tcp::socket::shutdown_both);
+        }
+        // Only used to prevent uncatchable error on WIN32 platforms and in wrappers.
+        catch(std::exception & e)
+        {
+            ODIL_LOG(WARN) << "Could not shut down transport: " << e.what();
+        }
+        catch(...)
+        {
+            ODIL_LOG(WARN) << "Could not shut down transport (unknown exception)";
+        }
         this->_socket->close();
         this->_socket = nullptr;
     }
