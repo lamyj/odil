@@ -20,4 +20,4 @@ script:
 after_success:
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then ./.ci/deb/post_build; fi
   - if [ "$TRAVIS_OS_NAME" = "osx" ]; then ./.ci/brew/post_build; fi
-  - if [ "${CC}" = "gcc" ]; then coveralls --exclude examples --exclude tests --exclude-pattern '.*CMake[^/]+\.c(?:pp)?' --exclude-pattern "/usr/.*" --root=${WORKSPACE} --build-root ${WORKSPACE}/build > /dev/null; fi
+  - if [ "${CC}" = "gcc" ]; then coveralls -n -l build/coverage.info; fi

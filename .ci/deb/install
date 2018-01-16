@@ -7,8 +7,6 @@ export Distribution=${Distribution:?}
 export Python=${Python:?}
 export WORKSPACE=${WORKSPACE:?}
 
-APT_GET="sudo apt-get -qq -y"
-
 if [ "${Python}" = "2" ]
 then
   PYTHON_PREFIX="python"
@@ -27,12 +25,12 @@ PACKAGES="${PACKAGES} libboost-python-dev ${PYTHON_PREFIX}-dev"
 # Dependencies of unit tests
 PACKAGES="${PACKAGES} dcmtk libboost-test-dev ${PYTHON_PREFIX}-nose"
 # Coverage and static analysis
-PACKAGES="${PACKAGES} cppcheck lcov"
+PACKAGES="${PACKAGES} cppcheck lcov wget"
 
 if [ "${Distribution}" = "ubuntu/precise" ]
 then
   PACKAGES="${PACKAGES} libwrap0-dev"
 fi
 
-${APT_GET} update
-${APT_GET} install ${PACKAGES}
+apt-get -y update
+apt-get -y install ${PACKAGES}
