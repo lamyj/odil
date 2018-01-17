@@ -75,9 +75,10 @@ add_custom_target(
     SOURCES appveyor.yml .travis.yml ${ci_resources})
 set_target_properties(CIIntegration PROPERTIES FOLDER "Utils")
 
+file(GLOB_RECURSE documentation documentation/*)
 add_custom_target(
     Documentation ${CMAKE_COMMAND} -E echo "Documentation"
-    SOURCES Doxyfile LICENSE.txt README.md)
+    SOURCES Doxyfile LICENSE.txt README.md ${documentation})
 set_target_properties(Documentation PROPERTIES FOLDER "Utils")
 
 add_custom_target(
