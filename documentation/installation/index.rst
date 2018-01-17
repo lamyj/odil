@@ -7,9 +7,8 @@ Installation
   
   linux
   mac
-  windows
 
-This section describes how to build and deploy Odil on different operating systems (:doc:`Linux <linux>`, :doc:`macOS <mac>`, :doc:`Windows <Windows>`)
+This section describes how to build and deploy Odil on different operating systems (:doc:`Linux <linux>`, :doc:`macOS <mac>`)
 
 The core of Odil depends on:
 
