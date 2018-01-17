@@ -42,13 +42,13 @@ Only elements in the data set (i.e. where the group is higher than *0008*) are d
 .. code-block:: console
 
   $ odil print -H file.dcm
-  File Meta Information Version          0002,0001 OB (binary, 1 item, 2 bytes)
-  Media Storage SOP Class UID            0002,0002 UI ['1.2.840.10008.5.1.4.1.1.4']
+  File Meta Information Version  0002,0001 OB (binary, 1 item, 2 bytes)
+  Media Storage SOP Class UID    0002,0002 UI ['1.2.840.10008.5.1.4.1.1.4']
   ...
-  Transfer Syntax UID                    0002,0010 UI ['1.2.840.10008.1.2.1']
+  Transfer Syntax UID            0002,0010 UI ['1.2.840.10008.1.2.1']
   ...
 
-  Specific Character Set                 0008,0005 CS ['ISO_IR 100']
+  Specific Character Set         0008,0005 CS ['ISO_IR 100']
   ...
 
 Displaying multiple files
@@ -60,9 +60,9 @@ Multiple files may be specified, in which case their respective contents will be
 
   $ odil print file1.dcm file2.dcm ... fileN.dcm
   ...
-  SOP Instance UID                       0008,0018 UI ['1.3.12.2.1107.5.2.30.25842.2010043012502698066635105']
+  SOP Instance UID  0008,0018 UI ['1.3.12.2.1107.5.2.30.25842.35105']
   ...
-  SOP Instance UID                       0008,0018 UI ['1.3.12.2.1107.5.2.30.25842.2010043012503754015735125']
+  SOP Instance UID  0008,0018 UI ['1.3.12.2.1107.5.2.30.25842.35125']
   ...
-  SOP Instance UID                       0008,0018 UI ['1.3.12.2.1107.5.2.30.25842.201004301250299272835109']
+  SOP Instance UID  0008,0018 UI ['1.3.12.2.1107.5.2.30.25842.35109']
   ...
