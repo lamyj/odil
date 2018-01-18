@@ -1,7 +1,7 @@
 Convert a binary DICOM file
 ===========================
 
-Binary DICOM files can be converted to their JSON or XML representation or recoded using another transfer syntax using ``odil transcode``.
+Binary DICOM files can be converted to their `JSON`_ or `XML`_ representation or recoded using another `transfer syntax`_ using ``odil transcode``.
 
 Convert to JSON
 ---------------
@@ -54,10 +54,15 @@ Similarly, specify ``-f xml`` to convert to XML, with optional pretty-printing w
 Change the transfer syntax
 --------------------------
 
-The transfer syntax of a file can also be changed through the ``-t`` flag with either a transfer syntax UID or a transfer syntax name:
+The transfer syntax of a file can also be changed through the ``-t`` flag with a `transfer syntax name`_:
 
 .. code-block:: console
 
   $ odil transcode -t ExplicitVRLittleEndian input.dcm output.dcm
   $ odil print -H -u output.dcm | grep "Transfer Syntax"
   Transfer Syntax UID  0002,0010 UI ['Explicit VR Little Endian']
+
+.. _JSON: http://dicom.nema.org/medical/dicom/current/output/chtml/part18/chapter_F.html
+.. _transfer syntax: http://dicom.nema.org/medical/dicom/current/output/chtml/part05/chapter_10.html
+.. _transfer syntax name: http://dicom.nema.org/medical/dicom/current/output/chtml/part06/chapter_A.html
+.. _XML: http://dicom.nema.org/medical/dicom/current/output/chtml/part19/chapter_A.html#sect_A.1

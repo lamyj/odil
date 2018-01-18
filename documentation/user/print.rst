@@ -1,7 +1,7 @@
 Displaying the content of a DICOM file
 ======================================
 
-The command ``odil print`` displays the content of a DICOM file. For each element, it will display its name, its tag, its VR (value representation, i.e. type) and its value. 
+The command ``odil print`` displays the content of a `DICOM file`_. For each element, it will display its `name`_ and its `tag`_, its `VR`_ (value representation, i.e. type), and its value. 
 
 .. code-block:: console
 
@@ -24,7 +24,7 @@ Note that for unknown elements (like the private element *0019,1008* in the abov
 Displaying the name of UIDs
 ---------------------------
 
-By default, the UIDs (like the value of *SOP Class UID*) are displayed as their value (*1.2.840.10008.5.1.4.1.1.4*) and not as their name (*MR Image Storage*). This behavior can be changed with the ``-u`` option:
+By default, the `UIDs`_ (like the value of *SOP Class UID*) are displayed as their value (*1.2.840.10008.5.1.4.1.1.4*) and not as their name (*MR Image Storage*). This behavior can be changed with the ``-u`` option:
 
 .. code-block:: console
 
@@ -34,10 +34,12 @@ By default, the UIDs (like the value of *SOP Class UID*) are displayed as their 
   SOP Class UID             0008,0016 UI ['MR Image Storage']
   ...
 
-Displaying the header
----------------------
+The name will only be displayed for `registered UIDs`_.
 
-Only elements in the data set (i.e. where the group is higher than *0008*) are displayed by default. To display the header of the file, use the `-H` flag:
+Displaying the meta information
+-------------------------------
+
+Only elements in the data set (i.e. where the group is higher than *0008*) are displayed by default. To display the `meta information`_ or *header* of the file, use the `-H` flag:
 
 .. code-block:: console
 
@@ -66,3 +68,11 @@ Multiple files may be specified, in which case their respective contents will be
   ...
   SOP Instance UID  0008,0018 UI ['1.3.12.2.1107.5.2.30.25842.35109']
   ...
+
+.. _DICOM file: http://dicom.nema.org/medical/dicom/current/output/chtml/part10/chapter_7.html
+.. _meta information: http://dicom.nema.org/medical/dicom/current/output/chtml/part10/chapter_7.html#sect_7.1
+.. _name: http://dicom.nema.org/medical/dicom/current/output/chtml/part06/chapter_6.html
+.. _registered UIDs: http://dicom.nema.org/medical/dicom/current/output/chtml/part06/chapter_A.html
+.. _tag: http://dicom.nema.org/medical/dicom/current/output/chtml/part06/chapter_5.html
+.. _UIDs: http://dicom.nema.org/medical/dicom/current/output/chtml/part05/chapter_9.html
+.. _VR: http://dicom.nema.org/medical/dicom/current/output/chtml/part05/sect_6.2.html
