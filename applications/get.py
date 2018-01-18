@@ -87,17 +87,20 @@ def get(
     get_pc = odil.AssociationParameters.PresentationContext(
         1, get_syntax, transfer_syntaxes, True, False)
     
-    # Negotiate ALL storage syntaxes. Is there a better way to do this?
-    storage_uids = [
-        entry.key() for entry in odil.registry.uids_dictionary
-        if entry.data().name.endswith("Storage")
-    ]
-    if len(storage_uids) > 126:
+    abstract_syntaxes = find_abstract_syntaxes(
+        host, port, calling_ae_title, called_ae_title, level, keys)
+    if not abstract_syntaxes:
+        # Negotiate ALL storage syntaxes. Is there a better way to do this?
+        abstract_syntaxes = [
+            entry.key() for entry in odil.registry.uids_dictionary
+            if entry.data().name.endswith("Storage")
+        ]
+    if len(abstract_syntaxes) > 126:
         raise Exception("Too many storage syntaxes")
     storage_pcs = [
         odil.AssociationParameters.PresentationContext(
             2*(i+1)+1, uid, transfer_syntaxes, False, True)
-        for i, uid in enumerate(storage_uids)
+        for i, uid in enumerate(abstract_syntaxes)
     ]
     
     association = odil.Association()
@@ -229,6 +232,63 @@ def get(
         create_dicomdir(
             [os.path.join(directory, x) for x in callback.files],
             directory, patient_key, study_key, series_key, image_key)
+
+def find_abstract_syntaxes(
+        host, port, calling_ae_title, called_ae_title, level, keys):
+    """ Return the abstract syntaxes corresponding to the query, based on 
+        SOP Classes in Study.
+    """
+    
+    query = odil.DataSet()
+    for key in keys:
+        key, value = key.split("=", 1)
+        value = value.split("\\")
+        
+        if key in ["QueryRetrieveLevel", "SOPClassesInStudy"]:
+            continue
+        
+        tag = getattr(odil.registry, key)
+        
+        vr = odil.registry.public_dictionary[tag].vr
+        if vr in ["DS", "FL", "FD"]:
+            value = [float(x) for x in value]
+        elif vr in ["IS", "SL", "SS", "UL", "US"]:
+            value = [int(x) for x in value]
+        
+        query.add(tag, value)
+    query.add("QueryRetrieveLevel", ["STUDY"])
+    query.add("SOPClassesInStudy")
+    
+    find_syntax = getattr(
+        odil.registry,
+        "{}RootQueryRetrieveInformationModelFIND".format(level.capitalize()))
+    
+    transfer_syntaxes = [
+        odil.registry.ImplicitVRLittleEndian,
+        odil.registry.ExplicitVRLittleEndian
+    ]
+    
+    find_pc = odil.AssociationParameters.PresentationContext(
+        1, find_syntax, transfer_syntaxes, True, False)
+    
+    association = odil.Association()
+    association.set_peer_host(host)
+    association.set_peer_port(port)
+    association.update_parameters()\
+        .set_calling_ae_title(calling_ae_title)\
+        .set_called_ae_title(called_ae_title) \
+        .set_presentation_contexts([find_pc])
+    association.associate()
+    logging.info("Association established")
+    
+    find = odil.FindSCU(association)
+    find.set_affected_sop_class(find_syntax)
+    data_sets = find.find(query)
+    sop_classes = set()
+    for data_set in data_sets:
+        if "SOPClassesInStudy" in data_set:
+            sop_classes.update(data_set.as_string("SOPClassesInStudy"))
+    return sop_classes
 
 def to_iso_9660(value):
     value = value[:8].upper()
