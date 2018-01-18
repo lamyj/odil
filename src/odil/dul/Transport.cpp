@@ -165,11 +165,11 @@ Transport
         // Only used to prevent uncatchable error on WIN32 platforms and in wrappers.
         catch(std::exception & e)
         {
-            ODIL_LOG(WARN) << "Could not shut down transport: " << e.what();
+            ODIL_LOG(DEBUG) << "Could not shut down transport: " << e.what();
         }
         catch(...)
         {
-            ODIL_LOG(WARN) << "Could not shut down transport (unknown exception)";
+            ODIL_LOG(DEBUG) << "Could not shut down transport (unknown exception)";
         }
         this->_socket->close();
         this->_socket = nullptr;
