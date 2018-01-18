@@ -21,7 +21,25 @@
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
 
+import glob
+import os
+import shutil
+import subprocess
+
 import sphinx_rtd_theme
+
+# Make sure Doxygen is up-to-date
+if os.environ.get("READTHEDOCS", None) == "True":
+    if not os.path.isdir(os.path.join("_build", "doxygen")):
+        os.makedirs(os.path.join("_build", "doxygen"))
+    subprocess.check_call(["doxygen", "Doxyfile"])
+    
+    if os.path.isdir(os.path.join("_build", "html", "_static", "doxygen")):
+        shutil.rmtree(os.path.join("_build", "html", "_static", "doxygen"))
+    os.makedirs(os.path.join("_build", "html", "_static", "doxygen"))
+        
+    for entry in glob.glob(os.path.join("_build", "doxygen", "html", "*")):
+        shutil.move(entry, os.path.join("_build", "html", "_static", "doxygen"))
 
 # -- General configuration ------------------------------------------------
 

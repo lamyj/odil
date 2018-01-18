@@ -34,6 +34,7 @@ Table of contents
   
   installation/index
   user/index
+  developer/index
 
 .. _CeCILL-B license: http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
 .. _DCMTK: http://dicom.offis.de/dcmtk.php.en

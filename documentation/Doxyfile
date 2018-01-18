@@ -1,0 +1,27 @@
+PROJECT_NAME           = Odil
+PROJECT_BRIEF          = "A C++11 library for the DICOM standard"
+OUTPUT_DIRECTORY       = ./_build/doxygen
+EXTRACT_ALL            = YES
+QUIET                  = YES
+
+INPUT                  = ../src
+FILE_PATTERNS          = *.h
+RECURSIVE              = YES
+
+ENABLE_PREPROCESSING   = YES
+MACRO_EXPANSION        = YES
+EXPAND_ONLY_PREDEF     = YES
+PREDEFINED             = "ODIL_API=''"
+EXPAND_AS_DEFINED      = ODIL_VALUE_CONSTRUCTORS \
+                         ODIL_MESSAGE_MANDATORY_FIELD_STRING_MACRO \
+                         ODIL_MESSAGE_MANDATORY_FIELD_INTEGER_MACRO
+
+GENERATE_HTML          = YES
+GENERATE_LATEX         = NO
+GENERATE_RTF           = NO
+GENERATE_MAN           = NO
+GENERATE_DOCBOOK       = NO
+GENERATE_AUTOGEN_DEF   = NO
+GENERATE_PERLMOD       = NO
+
+GENERATE_XML           = NO
