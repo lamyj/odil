@@ -32,7 +32,6 @@ def store(host, port, calling_ae_title, called_ae_title, filenames):
             filename, halt_condition=lambda tag: tag>odil.registry.SOPClassUID)
         sop_classes.update(data_set.as_string("SOPClassUID"))
 
-    print(sop_classes)
     presentation_contexts = [
         odil.AssociationParameters.PresentationContext(
             2*i+1, sop_class, transfer_syntaxes, True, False)
@@ -51,9 +50,7 @@ def store(host, port, calling_ae_title, called_ae_title, filenames):
     
     negotiated_parameters = association.get_negotiated_parameters()
     negotiated_pc = negotiated_parameters.get_presentation_contexts()
-    for pc in negotiated_pc:
-        print(pc.abstract_syntax, " ", pc.transfer_syntaxes[0])
-    
+
     store = odil.StoreSCU(association)
     
     for filename in filenames:
