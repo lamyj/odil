@@ -6,6 +6,8 @@
  * for details.
  ************************************************************************/
 
+#include <Python.h>
+
 #include <string>
 #include <map>
 

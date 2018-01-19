@@ -6,6 +6,8 @@
  * for details.
  ************************************************************************/
 
+#include <Python.h>
+
 #include "odil/StoreSCP.h"
 
 #include <boost/python.hpp>

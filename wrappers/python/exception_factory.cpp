@@ -6,6 +6,8 @@
  * for details.
  ************************************************************************/
 
+#include <Python.h>
+
 #include "exception_factory.h"
 
 #include <string>

@@ -6,6 +6,8 @@
  * for details.
  ************************************************************************/
 
+#include <Python.h>
+
 #include "value_constructor.h"
 
 #include <boost/python.hpp>

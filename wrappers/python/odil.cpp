@@ -6,6 +6,8 @@
  * for details.
  ************************************************************************/
 
+#include <Python.h>
+
 #include <boost/python.hpp>
 
 void wrap_std_map();

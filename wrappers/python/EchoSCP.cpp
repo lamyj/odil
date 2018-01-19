@@ -6,6 +6,8 @@
  * for details.
  ************************************************************************/
 
+#include <Python.h>
+
 #include "odil/EchoSCP.h"
 
 #include <boost/python.hpp>

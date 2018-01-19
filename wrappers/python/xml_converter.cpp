@@ -6,6 +6,8 @@
  * for details.
  ************************************************************************/
 
+#include <Python.h>
+
 #include <boost/property_tree/xml_parser.hpp>
 #include <boost/python.hpp>
 #include <boost/version.hpp>

@@ -6,6 +6,8 @@
  * for details.
  ************************************************************************/
 
+#include <Python.h>
+
 #ifndef _99998287_59bb_4f7c_aadc_fe5ecb87f8c2
 #define _99998287_59bb_4f7c_aadc_fe5ecb87f8c2
 

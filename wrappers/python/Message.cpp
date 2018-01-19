@@ -6,6 +6,8 @@
  * for details.
  ************************************************************************/
 
+#include <Python.h>
+
 #include "odil/DataSet.h"
 #include "odil/message/Message.h"
 

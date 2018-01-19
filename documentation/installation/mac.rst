@@ -25,11 +25,9 @@ From the source directory, create a ``build`` directory, configure and run the b
   mkdir build
   cd build
   
-  export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/usr/local/opt/icu4c/lib/pkgconfig
+  export PKG_CONFIG_PATH=/usr/local/opt/icu4c/lib/pkgconfig
 
-  cmake 
-    -D PYTHON_LIBRARY=/usr/local/Frameworks/Python.framework/Versions/2.7/lib/libpython2.7.dylib \
-    ..
+  cmake ..
   make
 
 The compilation can take advantage of a multi-core CPU either by using `make`_ with the ``-jN`` flag (where ``N`` is the number of concurrent tasks, i.e. the number of cores) or by using `Ninja`_.
