@@ -16,7 +16,7 @@ def main():
         "echo", "find", "get", "store"
     ]
     for module in modules:
-        sub_parser = getattr(cli, module).add_subparser(subparsers)
+        sub_parser = getattr(odil.cli, module).add_subparser(subparsers)
         sub_parser.add_argument(
             "--verbosity", "-v",
             choices=["warning", "info", "debug"], default="warning")

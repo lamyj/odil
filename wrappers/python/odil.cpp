@@ -69,7 +69,7 @@ void wrap_webservices();
 
 void wrap_iostream();
 
-BOOST_PYTHON_MODULE(odil)
+BOOST_PYTHON_MODULE(_odil)
 {
     wrap_std_map();
     wrap_std_vector();
