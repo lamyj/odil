@@ -54,6 +54,10 @@ endif()
 set_target_properties(libodil PROPERTIES
     VERSION ${odil_VERSION}
     SOVERSION ${odil_MAJOR_VERSION})
+if(APPLE)
+    set_target_properties(
+        libodil PROPERTIES INSTALL_NAME_DIR ${CMAKE_INSTALL_PREFIX}/lib)
+endif()
 
 install(
     DIRECTORY odil/ DESTINATION include/odil

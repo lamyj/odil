@@ -61,8 +61,6 @@ def main():
     environment["ODIL_PEER_AET"] = "REMOTE"
     environment["PATH"] = os.pathsep.join(
         [os.path.abspath("tests/tools"), environment["PATH"]])
-    environment["PYTHONPATH"] = os.pathsep.join(
-        [os.path.abspath("wrappers/python"), environment.get("PYTHONPATH", "")])
 
     source_directory = None
     with open("CMakeCache.txt") as fd:

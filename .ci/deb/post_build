@@ -34,6 +34,7 @@ then
   2to3 -w ../tests/wrappers/test_vr.py
 fi
 
+export PYTHONPATH=${WORKSPACE}/install
 "${WORKSPACE}/tests/run" --no-network --nose ${NOSE}
 
 DIRECTORY=`mktemp -d`

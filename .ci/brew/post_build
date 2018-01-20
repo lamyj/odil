@@ -7,4 +7,5 @@ export WORKSPACE=${WORKSPACE:?}
 
 cd build
 
+export PYTHONPATH=${WORKSPACE}/install
 ../tests/run --no-network --nose ~/Library/Python/${Python}*/bin/nosetests
