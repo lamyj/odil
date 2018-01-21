@@ -34,7 +34,18 @@ then
   2to3 -w ../tests/wrappers/test_vr.py
 fi
 
-export PYTHONPATH=${WORKSPACE}/install
+if [ "${Python}" = "2" ]
+then
+  PYTHON_VERSION="$(pyversions -dv)"
+elif [ "${Python}" = "3" ]
+then
+  PYTHON_VERSION="$(py3versions -dv)"
+else
+  PYTHON_VERSION="UNKOWN"
+fi
+
+export LD_LIBRARY_PATH=${WORKSPACE}/install/lib
+export PYTHONPATH=${WORKSPACE}/install/lib/python${PYTHON_VERSION}/site-packages/
 "${WORKSPACE}/tests/run" --no-network --nose ${NOSE}
 
 DIRECTORY=`mktemp -d`
