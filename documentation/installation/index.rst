@@ -52,6 +52,16 @@ You can also clone the `Git repository`_. Note that the latest Git version may n
   cd odil
   git checkout v0.9.0
 
+Building the Python wrappers
+----------------------------
+
+When building the Python wrappers, the Python interpreter and libraries default to whatever version is invoked when running ``python`` from a terminal. On a system that has multiple versions of Python and multiple versions of Boost.Python, the required versions should be explicitely specified to avoid version mismatch at link-time, which yield errors at run-time. The following CMake options control this behavior:
+
+- ``PYTHON_EXECUTABLE``: the Python interpreter that will be used when calling the main command-line application, ``odil``
+- ``PYTHON_INCLUDE_DIR``: the directory containing the development headers of Python
+- ``PYTHON_LIBRARY``: path to the Python library, static or shared
+- ``Boost_PYTHON_LIBRARY_DEBUG`` and ``Boost_PYTHON_LIBRARY_RELEASE``: path to the Boost.Python library
+
 .. _Asio: http://www.boost.org/doc/libs/release/libs/asio/
 .. _Boost: http://www.boost.org/
 .. _Boost.Python: http://www.boost.org/doc/libs/release/libs/python/

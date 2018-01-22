@@ -8,6 +8,8 @@ INPUT                  = ../src
 FILE_PATTERNS          = *.h
 RECURSIVE              = YES
 
+CASE_SENSE_NAMES       = YES
+
 ENABLE_PREPROCESSING   = YES
 MACRO_EXPANSION        = YES
 EXPAND_ONLY_PREDEF     = YES
@@ -24,5 +26,4 @@ GENERATE_MAN           = NO
 GENERATE_DOCBOOK       = NO
 GENERATE_AUTOGEN_DEF   = NO
 GENERATE_PERLMOD       = NO
-
 GENERATE_XML           = NO
