@@ -32,8 +32,8 @@ Adding an element is done through the ``add()`` member function. All public tags
 
 ::
   
-  #include <iostream>
   #include <odil/DataSet.h>
+  #include <odil/registry.h>
   #include <odil/Tag.h>
 
   int main()
@@ -67,11 +67,11 @@ Access to already-inserted elements is done through one of the ``as_XXX(tag)`` f
       data_set.as_string("PatientName") = {"Bloggs^Jane"};
       
       std::cout << "PatientName " 
-          << (data_set.is_string("PatientName")?"contains":"does not contain")
+          << (data_set.is_string("PatientName")?"contains ":"does not contain ")
           << "strings" << "\n";
       
       std::cout << "PatientID is " 
-          << (data_set.has("PatientName")?"present":"missing") << "\n";  
+          << (data_set.has("PatientID")?"present":"missing") << "\n";  
   }
 
 Note that the value of an element is *always an array* even if it is empty or contains only one element. The number of items in an element can be obtained with the ``size(tag)`` member function:
@@ -80,6 +80,7 @@ Note that the value of an element is *always an array* even if it is empty or co
   
   #include <iostream>
   #include <odil/DataSet.h>
+  
   int main()
   {
       odil::DataSet data_set;
@@ -91,8 +92,6 @@ Note that the value of an element is *always an array* even if it is empty or co
           << "Size of PatientName: " << data_set.size("PatientName") 
           << ", empty: " << data_set.empty("PatientName")
           << "\n";
-      
-      std::cout << data_set.size("PatientName") << "\n";
   }
 
 .. _data set: http://dicom.nema.org/medical/dicom/current/output/chtml/part05/chapter_7.html

@@ -9,5 +9,6 @@ The full Doxygen reference is also `available`_.
   :maxdepth: 2
   
   data_sets
+  io
 
 .. _available: ../../_static/doxygen/index.html
