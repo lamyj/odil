@@ -22,21 +22,48 @@ namespace
 boost::shared_ptr<odil::AssociationParameters::PresentationContext>
 presentation_context_constructor(
     uint8_t id, std::string const & abstract_syntax,
-    boost::python::list const & transfer_syntaxes,
+    boost::python::object const & transfer_syntaxes,
     bool scu_role_support, bool scp_role_support)
 {
-    std::vector<std::string> transfer_syntaxes_cpp(boost::python::len(transfer_syntaxes));
-    for(int i = 0; i<boost::python::len(transfer_syntaxes); ++i)
+    using namespace boost::python;
+    using namespace odil;
+
+    std::vector<std::string> transfer_syntaxes_cpp(len(transfer_syntaxes));
+    for(int i = 0; i<len(transfer_syntaxes); ++i)
     {
-        transfer_syntaxes_cpp[i] = boost::python::extract<std::string>(transfer_syntaxes[i]);
+        transfer_syntaxes_cpp[i] = extract<std::string>(transfer_syntaxes[i]);
     }
-    auto presentation_context = new odil::AssociationParameters::PresentationContext({
+    auto presentation_context = new AssociationParameters::PresentationContext{
         id, abstract_syntax, transfer_syntaxes_cpp,
         scu_role_support, scp_role_support
-    });
+    };
     // Old versions of Boost.Python (Debian 7, Ubuntu 12.04) do not like 
     // std::shared_ptr
-    return boost::shared_ptr<odil::AssociationParameters::PresentationContext>(
+    return boost::shared_ptr<AssociationParameters::PresentationContext>(
+        presentation_context);
+}
+
+boost::shared_ptr<odil::AssociationParameters::PresentationContext>
+presentation_context_simplified_constructor(
+    std::string const & abstract_syntax,
+    boost::python::object const & transfer_syntaxes,
+    bool scu_role_support, bool scp_role_support)
+{
+    using namespace boost::python;
+    using namespace odil;
+
+    std::vector<std::string> transfer_syntaxes_cpp(len(transfer_syntaxes));
+    for(int i = 0; i<len(transfer_syntaxes); ++i)
+    {
+        transfer_syntaxes_cpp[i] = extract<std::string>(transfer_syntaxes[i]);
+    }
+    auto presentation_context = new AssociationParameters::PresentationContext{
+        abstract_syntax, transfer_syntaxes_cpp,
+        scu_role_support, scp_role_support
+    };
+    // Old versions of Boost.Python (Debian 7, Ubuntu 12.04) do not like
+    // std::shared_ptr
+    return boost::shared_ptr<AssociationParameters::PresentationContext>(
         presentation_context);
 }
 
@@ -158,6 +185,9 @@ void wrap_AssociationParameters()
             .def(
                 "__init__", 
                 make_constructor(&presentation_context_constructor))
+            .def(
+                "__init__",
+                make_constructor(&presentation_context_simplified_constructor))
             .def_readwrite(
                 "id",
                 &AssociationParameters::PresentationContext::id

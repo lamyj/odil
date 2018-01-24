@@ -102,7 +102,6 @@ public:
             {
                 odil::AssociationParameters::PresentationContext
                     presentation_context = {
-                        static_cast<uint8_t>(1+2*presentation_contexts.size()),
                         uid.first,
                         { odil::registry::ImplicitVRLittleEndian },
                         true, false
