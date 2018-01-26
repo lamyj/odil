@@ -10,5 +10,9 @@ The full Doxygen reference is also `available`_.
   
   data_sets
   io
+  association
+  services-scu
+  services-scp
+  webservices
 
 .. _available: ../../_static/doxygen/index.html
