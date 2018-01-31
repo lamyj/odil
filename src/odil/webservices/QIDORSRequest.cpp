@@ -9,19 +9,21 @@
 
 #include "odil/webservices/QIDORSRequest.h"
 
+#include <queue>
+#include <string>
+#include <sstream>
+
 #include <boost/lexical_cast.hpp>
 #include <boost/fusion/include/std_pair.hpp>
 #include <boost/spirit/include/phoenix_core.hpp>
 #include <boost/spirit/include/phoenix_operator.hpp>
 #include <boost/spirit/include/phoenix_stl.hpp>
 #include <boost/spirit/include/qi.hpp>
-#include <string>
-#include <sstream>
-
 
 #include "odil/webservices/ItemWithParameters.h"
 #include "odil/VR.h"
 #include "odil/json_converter.h"
+
 namespace odil
 {
 
@@ -528,146 +530,117 @@ QIDORSRequest
     }
 }
 
-
 URL
 QIDORSRequest
-::_generate_url(URL const & base_url, Selector const & selector, DataSet const & query_data_set,
-                  bool fuzzymatching, int limit, int offset, bool numerical_tags)
+::_generate_url(
+    URL const & base_url, Selector const & selector,
+    DataSet const & query_data_set,
+    bool fuzzymatching, int limit, int offset, bool numerical_tags)
 {
-    auto path = base_url.path + selector.get_path(false);
-    std::stringstream ss_query, includefield_ss_query;
+    // Breadth-first walk of the query data set to generate the query terms
+    // (e.g. PatientName=Doe) and the include fields
+    std::queue<std::pair<odil::DataSet const, std::string>> queue;
+    queue.emplace(std::make_pair(std::cref(query_data_set), ""));
 
-    // ----- QUERY + INCLUDEFIELD
+    std::vector<std::string> terms;
+    std::vector<std::string> include_fields;
 
-    typedef std::tuple<odil::Element const *, odil::Tag const *, std::string> leaf;
-
-        // loop vars
-    odil::Tag const * current_tag;
-    odil::Element const * current_element;
-    odil::DataSet const * current_ds;
-
-    std::vector<leaf> leaves;
-    std::list< std::pair < odil::DataSet const * , std::string > > data_sets; // str for the root and pointer to the root element
-    data_sets.push_back(std::make_pair(&query_data_set, std::string("")));
-    std::list< std::pair < odil::DataSet const *, std::string > >::iterator it;
-
-        // loop
-    while (!data_sets.empty())
+    while(!queue.empty())
     {
-        it = data_sets.begin();
-        current_ds = (*it).first;
-        std::stringstream current_ds_sstr;
-        current_ds_sstr << (*it).second;
+        auto const & front = queue.front();
 
-        for (auto const & tag_elem : * current_ds)
+        auto const & parent_data_set = front.first;
+        auto const & parent_path = front.second;
+
+        for(auto const & item: parent_data_set)
         {
-            std::stringstream current_sstr; // copy of the root string where the leaf element will be append
-            current_sstr << current_ds_sstr.str();
-            current_tag = &tag_elem.first;
-            current_element = &tag_elem.second;
-            if (current_element->is_data_set())
+            auto const & tag = item.first;
+            auto const & element = item.second;
+
+            std::string child_path = parent_path;
+            child_path += (child_path.empty() ? "" : ".");
+            child_path += QIDORSRequest::_tag_to_string(tag, numerical_tags);
+
+            if(element.is_data_set())
             {
-                if (current_sstr.str().size() > 0)
-                {
-                    current_sstr << ".";
-                }
-                current_sstr << QIDORSRequest::_tag_to_string(*current_tag, numerical_tags);
-                data_sets.push_back(std::make_pair(&current_element->as_data_set()[0],
-                                    current_sstr.str()));
+                queue.emplace(
+                    std::make_pair(
+                        std::cref(element.as_data_set()[0]), child_path));
             }
             else
             {
-                if (current_sstr.str().size() > 0)
+                if(element.empty())
                 {
-                    current_sstr << ".";
+                    include_fields.push_back(child_path);
                 }
-                current_sstr << QIDORSRequest::_tag_to_string(*current_tag, numerical_tags);
-                leaves.push_back(std::make_tuple(current_element, current_tag, current_sstr.str()));
+                else
+                {
+                    std::ostringstream term_stream;
+                    term_stream << child_path << "=";
+                    if(element.is_int())
+                    {
+                        term_stream << element.as_int()[0];
+                    }
+                    else if(element.is_real())
+                    {
+                        term_stream << element.as_real()[0];
+                    }
+                    else if(element.is_string())
+                    {
+                        term_stream << element.as_string()[0];
+                    }
+                    else
+                    {
+                        throw Exception(
+                            "Query element cannot have VR "
+                            + as_string(element.vr));
+                    }
+                    terms.push_back(term_stream.str());
+                }
             }
         }
-        data_sets.pop_front();
+        queue.pop();
     }
 
-        // query writing
-    unsigned int leaves_size = leaves.size(), leaves_count = 0;
-    std::stringstream* current_ss;
-
-    for (auto const it : leaves)
+    // Build the query string: search terms (with value), include fields
+    // (without value), fuzzy matching, limit and offset
+    std::ostringstream query_string_stream;
+    for(auto const & term: terms)
     {
-        odil::Element const * elem;
-        odil::Tag const * tag;
-        std::string elem_str;
-        std::tie(elem, tag, elem_str) = it;
-
-        if (elem->empty()) // includefield
-        {
-             includefield_ss_query << "includefield=" << elem_str;
-             current_ss = &includefield_ss_query;
-        }
-        else if (elem->size() == 1)
-        {
-            ss_query << elem_str << "=";
-            if (elem->is_int())
-            {
-                ss_query << boost::lexical_cast<std::string>(elem->as_int()[0]);
-            }
-            else if (elem->is_real())
-            {
-                ss_query << boost::lexical_cast<std::string>(elem->as_real()[0]);
-            }
-            else if (elem->is_string())
-            {
-                ss_query << elem->as_string()[0];
-            }
-            else
-            {
-                throw Exception("Invalid query tag (" +
-                                QIDORSRequest::_tag_to_string(*tag, numerical_tags) +")");
-            }
-            current_ss = &ss_query;
-        }
-        else
-        {
-            throw Exception("Query doesn't allow the use of multidimensional element ("+
-                            QIDORSRequest::_tag_to_string(*tag, numerical_tags) +")");
-        }
-        if (leaves_count ++ < leaves_size -1)
-        {
-            *current_ss << "&";
-        }
+        query_string_stream
+            << (query_string_stream.tellp()>0 ? "&" : "")
+            << term;
     }
 
-        // append includefield at the end of the query string
-    ss_query << includefield_ss_query.str() ;
-
-    // ----- FUZZYMATCHING
-
-    ss_query << "&fuzzymatching=";
-    if(fuzzymatching)
+    for(auto const & field: include_fields)
     {
-        ss_query << "true";
-    }
-    else
-    {
-        ss_query << "false";
+        query_string_stream
+            << (query_string_stream.tellp()>0 ? "&" : "")
+            << "includefield=" << field;
     }
 
+    query_string_stream
+        << (query_string_stream.tellp()>0 ? "&" : "")
+        << "fuzzymatching=" << std::boolalpha << fuzzymatching;
 
-    // ----- LIMIT & OFFSET
-
-    if (limit != -1)
+    if(limit != -1)
     {
-        ss_query << "&limit=" << limit;
-        if (offset != 0)
+        query_string_stream
+            << (query_string_stream.tellp()>0 ? "&" : "")
+            << "limit=" << limit;
+        if(offset != 0)
         {
-            ss_query << "&offset=" << offset;
+            query_string_stream
+                << (query_string_stream.tellp()>0 ? "&" : "")
+                << "offset=" << offset;
         }
     }
-
-    std::string query = ss_query.str();
 
     return {
-        base_url.scheme, base_url.authority, path, query, ""
+        base_url.scheme, base_url.authority,
+        // Frames are never included in QIDO
+        base_url.path + selector.get_path(false),
+        query_string_stream.str(), ""
     };
 }
 
