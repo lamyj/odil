@@ -33,7 +33,6 @@ void wrap_MoveSCU();
 void wrap_NCreateSCP();
 void wrap_NSetSCP();
 void wrap_NSetSCU();
-void wrap_read();
 void wrap_Reader();
 void wrap_SCPDispatcher();
 void wrap_StoreSCU();
@@ -45,7 +44,6 @@ void wrap_UIDsDictionary();
 void wrap_Value();
 void wrap_VR();
 void wrap_VRFinder();
-void wrap_write();
 void wrap_Writer();
 void wrap_xml_converter();
 
@@ -114,9 +112,6 @@ BOOST_PYTHON_MODULE(_odil)
     wrap_Reader();
     wrap_Writer();
     wrap_registry();
-
-    wrap_read();
-    wrap_write();
 
     wrap_Message();
     wrap_CommandTypeEnum();

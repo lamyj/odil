@@ -30,19 +30,19 @@ int main()
         .set_called_ae_title("AWSPIXELMEDPUB")
         .set_presentation_contexts({
             {
-                1, odil::registry::StudyRootQueryRetrieveInformationModelFIND,
+                odil::registry::StudyRootQueryRetrieveInformationModelFIND,
                 { odil::registry::ImplicitVRLittleEndian }, true, false
             },
             {
-                3, odil::registry::StudyRootQueryRetrieveInformationModelGET,
+                odil::registry::StudyRootQueryRetrieveInformationModelGET,
                 { odil::registry::ImplicitVRLittleEndian }, true, false
             },
             {
-                5, odil::registry::MRImageStorage,
+                odil::registry::MRImageStorage,
                 { odil::registry::ImplicitVRLittleEndian }, false, true
             },
             {
-                7, odil::registry::VerificationSOPClass,
+                odil::registry::VerificationSOPClass,
                 { odil::registry::ImplicitVRLittleEndian }, true, false
             }
         });

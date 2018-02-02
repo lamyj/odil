@@ -71,7 +71,7 @@ class TestFindSCP(unittest.TestCase):
             return []
         
         files = sorted(glob.glob("rsp*"))
-        data_sets = [odil.read(x)[1] for x in files]
+        data_sets = [odil.Reader.read_file(odil.iostream(open(x)))[1] for x in files]
         for file_ in files:
             os.remove(file_)
         

@@ -31,7 +31,8 @@ def main():
     convert(**arguments.__dict__)
 
 def convert(input, output, transfer_syntax, item_length, use_group_length):
-    header, data_set = odil.read(input)
+    with odil.open(input) as stream:
+        header, data_set = odil.Reader.read_file(stream)
 
     to_remove = [
         "FileMetaInformationVersion",

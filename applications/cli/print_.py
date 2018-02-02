@@ -21,7 +21,8 @@ def add_subparser(subparsers):
 def print_(inputs, print_header, decode_uids):
     for input in inputs:
         logging.info("Printing {}".format(input))
-        header, data_set = odil.read(input)
+        with odil.open(input) as stream:
+            header, data_set = odil.Reader.read_file(stream)
 
         max_length = find_max_name_length(data_set)
         if print_header:

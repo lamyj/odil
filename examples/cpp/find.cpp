@@ -28,11 +28,11 @@ int main()
         .set_called_ae_title("AWSPIXELMEDPUB")
         .set_presentation_contexts({
             {
-                1, odil::registry::StudyRootQueryRetrieveInformationModelFIND,
+                odil::registry::StudyRootQueryRetrieveInformationModelFIND,
                 { odil::registry::ExplicitVRLittleEndian }, true, false
             },
             {
-                3, odil::registry::VerificationSOPClass,
+                odil::registry::VerificationSOPClass,
                 { odil::registry::ExplicitVRLittleEndian }, true, false
             }
         });

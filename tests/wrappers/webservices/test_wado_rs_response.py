@@ -110,7 +110,8 @@ class WADORSResponse(unittest.TestCase):
                 stream = io.FileIO(file[1], 'w')
                 stream.write(part.get_payload())
                 stream.close()
-                ds = odil.read(file[1])[1]
+                with odil.open(file[1]) as stream:
+                    ds = odil.Reader.read_file(stream)[1]
                 self.assertEqual(self.data_sets[i], ds)
                 i = i+1
         self.assertEqual(i, len(self.data_sets))

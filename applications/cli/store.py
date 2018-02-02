@@ -28,8 +28,10 @@ def store(host, port, calling_ae_title, called_ae_title, filenames):
     # read the whole data set for this
     sop_classes = set()
     for filename in filenames:
-        _, data_set = odil.read(
-            filename, halt_condition=lambda tag: tag>odil.registry.SOPClassUID)
+        with odil.open(filename) as stream:
+            _, data_set = odil.Reader.read_file(
+                stream,
+                halt_condition=lambda tag: tag>odil.registry.SOPClassUID)
         sop_classes.update(data_set.as_string("SOPClassUID"))
 
     presentation_contexts = [
@@ -54,7 +56,8 @@ def store(host, port, calling_ae_title, called_ae_title, filenames):
     store = odil.StoreSCU(association)
     
     for filename in filenames:
-        _, data_set = odil.read(filename)
+        with odil.open(filename) as stream:
+            _, data_set = odil.Reader.read_file(stream)
         
         try:
             store.set_affected_sop_class(data_set)

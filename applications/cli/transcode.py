@@ -45,17 +45,20 @@ def transcode(input, output, format, transfer_syntax, pretty_print):
     globals()["as_{}".format(format)](input, output, **kwargs)
 
 def as_binary(input, output, transfer_syntax):
-    _, data_set = odil.read(input)
+    with odil.open(input) as stream:
+        _, data_set = odil.Reader.read_file(stream)
     odil.write(data_set, output, transfer_syntax=transfer_syntax)
 
 def as_json(input, output, pretty_print):
-    _, data_set = odil.read(input)
+    with odil.open(input) as stream:
+        _, data_set = odil.Reader.read_file(stream)
     with open(output, "w") as fd:
         json = odil.as_json(data_set, pretty_print)
         fd.write(json)
 
 def as_xml(input, output, pretty_print):
-    _, data_set = odil.read(input)
+    with odil.open(input) as stream:
+        _, data_set = odil.Reader.read_file(stream)
     with open(output, "w") as fd:
         xml = odil.as_xml(data_set, pretty_print)
         fd.write(xml)
