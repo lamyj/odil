@@ -71,11 +71,11 @@ public:
      * copying a std::initializer_list does not copy the underlying objects.
      */
 
-    ODIL_VALUE_CONSTRUCTORS(Integers);
-    ODIL_VALUE_CONSTRUCTORS(Reals);
-    ODIL_VALUE_CONSTRUCTORS(Strings);
-    ODIL_VALUE_CONSTRUCTORS(DataSets);
-    ODIL_VALUE_CONSTRUCTORS(Binary);
+    ODIL_VALUE_CONSTRUCTORS(Integers)
+    ODIL_VALUE_CONSTRUCTORS(Reals)
+    ODIL_VALUE_CONSTRUCTORS(Strings)
+    ODIL_VALUE_CONSTRUCTORS(DataSets)
+    ODIL_VALUE_CONSTRUCTORS(Binary)
 #undef ODIL_VALUE_CONSTRUCTORS
 
     Value(std::initializer_list<int> const & value);

@@ -210,6 +210,12 @@ public:
     /// @brief Difference test.
     bool operator!=(DataSet const & other) const;
 
+    /**
+     * @brief Clear the data set (data_set.empty() will be true). All iterators
+     * and all references to elements will be invalidated.
+     */
+    void clear();
+
     /// @brief Clear the element (data_set.empty(tag) will be true).
     void clear(Tag const & tag);
 

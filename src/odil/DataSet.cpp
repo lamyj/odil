@@ -426,6 +426,13 @@ DataSet
 
 void
 DataSet
+::clear()
+{
+    this->_elements.clear();
+}
+
+void
+DataSet
 ::clear(Tag const & tag)
 {
     ElementMap::iterator const it = this->_elements.find(tag);

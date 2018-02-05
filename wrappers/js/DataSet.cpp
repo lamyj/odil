@@ -96,7 +96,8 @@ void wrap_DataSet()
         .function("get_tags", &get_tags)
         .function("equal", &DataSet::operator==)
         .function("notEqual", &DataSet::operator!=)
-        .function("clear", &DataSet::clear)
+        .function(
+            "clear_tag", select_overload<void(Tag const &)>(&DataSet::clear))
         .function("get_transfer_syntax", &DataSet::get_transfer_syntax)
         .function("set_transfer_syntax", &DataSet::set_transfer_syntax)
     ;
