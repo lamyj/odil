@@ -3,7 +3,7 @@ Python API
 
 .. highlight:: python
 
-The Python API tries to mimic the C++ API as much as possible: most classes and other constructs keep the same name and semantics. However, when C++ and Python differ too much, new Python functions or classes are defined. 
+The Python API tries to mimic the :doc:`C++ API <../cpp/index>` as much as possible: most classes and other constructs keep the same name and semantics. However, when C++ and Python differ too much, new Python functions or classes are defined. 
 
 Basic operations
 ----------------
