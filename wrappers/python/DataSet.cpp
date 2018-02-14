@@ -176,6 +176,12 @@ boost::python::list items(odil::DataSet const & data_set)
     return result;
 }
 
+odil::Element & set_item(
+    odil::DataSet & data_set, odil::Tag const & tag, odil::Element const & value) 
+{
+    return data_set[tag] = value;
+}
+
 }
 
 BOOST_PYTHON_FUNCTION_OVERLOADS(add_overloads, add, 2, 4);
@@ -206,7 +212,10 @@ void wrap_DataSet()
                 &DataSet::size))
         .def(
             "__getitem__",
-            static_cast<Element & (DataSet::*)(Tag const&)>(&DataSet::operator[]),
+            static_cast<Element const & (DataSet::*)(Tag const&) const>(&DataSet::operator[]),
+            return_value_policy<reference_existing_object>())
+        .def(
+            "__setitem__", &set_item,
             return_value_policy<reference_existing_object>())
         .def("is_int", &DataSet::is_int)
         .def(
