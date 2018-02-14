@@ -52,15 +52,10 @@ class Generator(odil.MoveSCP.DataSetGenerator):
         move_association.set_peer_host(self._association.get_peer_host())
         move_association.set_peer_port(11114)
         
-        presentation_contexts = []
-        for entry in odil.registry.uids_dictionary:
-            if entry.data().name[-7:] == "Storage":
-                presentation_context = odil.AssociationParameters.PresentationContext(
-                    1+2*len(presentation_contexts),
-                    entry.key(),
-                    [odil.registry.ImplicitVRLittleEndian],
-                    True, False)
-                presentation_contexts.append(presentation_context)
+        presentation_contexts = [
+            odil.AssociationParameters.PresentationContext(
+                1, odil.registry.RawDataStorage,
+                [odil.registry.ImplicitVRLittleEndian], True, False)]
         
         move_association.update_parameters()\
             .set_calling_ae_title(
