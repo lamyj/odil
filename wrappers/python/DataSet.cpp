@@ -22,14 +22,23 @@ namespace
 
 void add(
     odil::DataSet & data_set, odil::Tag const & tag,
-    boost::python::object value_python, odil::VR vr=odil::VR::UNKNOWN)
+    boost::python::object value_python=boost::python::object(), 
+    odil::VR vr=odil::VR::UNKNOWN)
 {
-    auto const value_cpp = value_constructor(value_python);
     if(vr == odil::VR::UNKNOWN)
     {
         vr = as_vr(tag);
     }
-    data_set.add(tag, odil::Element(*value_cpp, vr));
+    
+    if(!value_python.is_none())
+    {
+        auto const value_cpp = value_constructor(value_python);
+        data_set.add(tag, odil::Element(*value_cpp, vr));
+    }
+    else
+    {
+        data_set.add(tag, vr);
+    }
 }
 
 void set(
@@ -169,9 +178,7 @@ boost::python::list items(odil::DataSet const & data_set)
 
 }
 
-BOOST_PYTHON_FUNCTION_OVERLOADS(add_overloads, add, 3, 4);
-BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(
-    add_overloads_member, odil::DataSet::add, 1, 2);
+BOOST_PYTHON_FUNCTION_OVERLOADS(add_overloads, add, 2, 4);
 
 void wrap_DataSet()
 {
@@ -182,10 +189,6 @@ void wrap_DataSet()
     class_<DataSet>("DataSet")
         .def(init<>())
         .def(init<std::string>())
-        .def(
-            "add",
-            static_cast<void (DataSet::*)(Tag const &, VR)>(&DataSet::add),
-            add_overloads_member())
         .def("add", add, add_overloads())
         .def("remove", &DataSet::remove)
         .def("has", &DataSet::has)
