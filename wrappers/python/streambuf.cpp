@@ -45,14 +45,16 @@ streambuf
     this->setp(nullptr, nullptr);
 }
 
+// Python objects do not differentiate between input and output sequence: the
+// "which" parameter is unused.
 std::streambuf::pos_type
 streambuf
 ::seekoff(
     std::streambuf::off_type off, std::ios_base::seekdir dir,
-    std::ios_base::openmode which)
+    std::ios_base::openmode /* which */)
 {
     std::streambuf::off_type adjusted_offset;
-    if(dir == std::ios_base::cur)
+    if(dir == std::ios_base::cur && this->_current != std::string::npos)
     {
         // We need to adjust the offset since the position of the Python
         // file-like object is at the end of the buffer.
@@ -62,7 +64,10 @@ streambuf
     }
     else
     {
-        // Either beg or end, the semantics don't change
+        // Either
+        // - beg or end,
+        // - or at the end of buffer (_current == std::string::npos)
+        // In those cases, the semantics don't change
         adjusted_offset = off;
     }
 
@@ -96,7 +101,7 @@ std::streambuf::pos_type
 streambuf
 ::seekpos(std::streambuf::pos_type pos, std::ios_base::openmode which)
 {
-    return this->seekoff(pos, std::ios_base::beg);
+    return this->seekoff(pos, std::ios_base::beg, which);
 }
 
 int
