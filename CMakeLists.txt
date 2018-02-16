@@ -51,7 +51,6 @@ if(WIN32)
 endif()
 
 add_subdirectory("src")
-add_subdirectory("applications")
 
 if(BUILD_EXAMPLES)
     add_subdirectory("examples")
@@ -63,6 +62,7 @@ endif()
 
 if(BUILD_PYTHON_WRAPPERS)
     add_subdirectory("wrappers/python")
+    add_subdirectory("applications")
 endif()
 
 if(BUILD_JAVASCRIPT_WRAPPERS)
