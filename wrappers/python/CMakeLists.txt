@@ -42,11 +42,10 @@ set_target_properties(pyodil-pure PROPERTIES FOLDER "Wrappers")
 
 execute_process(
     COMMAND ${PYTHON_EXECUTABLE}
-      -c "from distutils import sysconfig; print( sysconfig.get_python_lib( plat_specific=True, prefix='${CMAKE_INSTALL_PREFIX}' ) )"
+      -c "from distutils.sysconfig import *; print(get_python_lib(True, prefix=''))"
     OUTPUT_VARIABLE PYTHON_SITE_PACKAGES
     OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-message("PYTHON_SITE_PACKAGES: '${PYTHON_SITE_PACKAGES}'")
-#install(DIRECTORY DESTINATION "${PYTHON_SITE_PACKAGES}")
+install(DIRECTORY DESTINATION "${PYTHON_SITE_PACKAGES}")
 install(TARGETS pyodil DESTINATION "${PYTHON_SITE_PACKAGES}/odil")
 install(FILES ${Python_Files} DESTINATION "${PYTHON_SITE_PACKAGES}/odil")

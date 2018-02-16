@@ -7,7 +7,7 @@ set_target_properties(PythonFiles PROPERTIES FOLDER "Examples")
 if(BUILD_PYTHON_WRAPPERS)
     execute_process(
         COMMAND ${PYTHON_EXECUTABLE}
-          -c "from distutils import sysconfig; print( sysconfig.get_python_lib( plat_specific=True, prefix='${CMAKE_INSTALL_PREFIX}' ) )"
+          -c "from distutils.sysconfig import *; print(get_python_lib(True, prefix=''))"
         OUTPUT_VARIABLE PYTHON_SITE_PACKAGES
         OUTPUT_STRIP_TRAILING_WHITESPACE)
 
