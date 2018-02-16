@@ -17,5 +17,5 @@ else
   PYTHON_VERSION="UNKOWN"
 fi
 
-export PYTHONPATH=${WORKSPACE}/install/lib/python${PYTHON_VERSION}/site-packages/
+export PYTHONPATH=${WORKSPACE}/install/$(python${Python} -c "from distutils.sysconfig import *; print(get_python_lib(True, prefix=''))")
 ../tests/run --no-network --nose ~/Library/Python/${Python}*/bin/nosetests

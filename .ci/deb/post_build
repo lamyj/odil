@@ -45,7 +45,7 @@ else
 fi
 
 export LD_LIBRARY_PATH=${WORKSPACE}/install/lib
-export PYTHONPATH=${WORKSPACE}/install/lib/python${PYTHON_VERSION}/site-packages/
+export PYTHONPATH=${WORKSPACE}/install/$(python${Python} -c "from distutils.sysconfig import *; print(get_python_lib(True, prefix=''))")
 "${WORKSPACE}/tests/run" --no-network --nose ${NOSE}
 
 DIRECTORY=`mktemp -d`
