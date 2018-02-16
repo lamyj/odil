@@ -16,5 +16,4 @@ cmake \
   -D PYTHON_LIBRARY=/usr/local/Frameworks/Python.framework/Versions/2.7/lib/libpython2.7.dylib \
   ${CMAKE_OPTIONS} \
   ..
-cat applications/cmake_install.cmake
 make ${MAKE_OPTIONS} install
