@@ -4,7 +4,7 @@ import logging
 
 import odil
 
-from print_ import find_max_name_length, print_data_set
+from .print_ import find_max_name_length, print_data_set
 
 def add_subparser(subparsers):
     parser = subparsers.add_parser(

@@ -6,8 +6,8 @@ import re
 
 import odil
 
-from print_ import find_max_name_length, print_data_set
-from dicomdir import create_dicomdir
+from .print_ import find_max_name_length, print_data_set
+from .dicomdir import create_dicomdir
 
 def add_subparser(subparsers):
     parser = subparsers.add_parser(
