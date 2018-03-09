@@ -194,7 +194,7 @@ QIDORSResponse
     }
     else
     {
-        throw Exception("Uknown representation");
+        throw Exception("Unknown representation");
     }
 }
 
