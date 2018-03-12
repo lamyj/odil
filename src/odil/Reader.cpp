@@ -9,6 +9,7 @@
 #include "odil/Reader.h"
 
 #include <algorithm>
+#include <cmath>
 #include <cstdint>
 #include <functional>
 #include <istream>
@@ -21,6 +22,7 @@
 #include "odil/Element.h"
 #include "odil/endian.h"
 #include "odil/Exception.h"
+#include "odil/logging.h"
 #include "odil/registry.h"
 #include "odil/Tag.h"
 #include "odil/Value.h"
@@ -323,7 +325,21 @@ Reader::Visitor
             value.resize(strings.size());
             std::transform(
                 strings.begin(), strings.end(), value.begin(),
-                [](std::string const & s) { return std::stoll(s); });
+                [](std::string const & s)
+                {
+                    long long value = 0;
+                    try
+                    {
+                        value = std::stoll(s);
+                    }
+                    catch(std::invalid_argument const &)
+                    {
+                        ODIL_LOG(ERROR)
+                            << "Cannot convert \"" << s << "\" to IS, "
+                            << "setting to 0";
+                    }
+                    return static_cast<Value::Integer>(value);
+                });
         }
     }
     else
@@ -388,7 +404,18 @@ Reader::Visitor
                 strings.begin(), strings.end(), value.begin(),
                 [](std::string const & s)
                 {
-                    return static_cast<Value::Real>(std::stold(s));
+                    long double value = 0;
+                    try
+                    {
+                        value = std::stold(s);
+                    }
+                    catch(std::invalid_argument const &)
+                    {
+                        ODIL_LOG(ERROR)
+                            << "Cannot convert \"" << s << "\" to DS, "
+                            << "setting to 0";
+                    }
+                    return static_cast<Value::Real>(value);
                 }
             );
         }
