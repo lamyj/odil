@@ -34,6 +34,7 @@
 #include "odil/pdu/UserIdentityRQ.h"
 #include "odil/pdu/UserInformation.h"
 #include "odil/Reader.h"
+#include "odil/StringStream.h"
 #include "odil/Writer.h"
 
 namespace odil
@@ -474,22 +475,26 @@ Association
 
     std::vector<pdu::PDataTF::PresentationDataValueItem> pdv_items;
 
-    std::ostringstream command_stream;
+    std::string command_buffer;
+    command_buffer.reserve(this->_negotiated_parameters.get_maximum_length());
+    StringStream command_stream(command_buffer);
     Writer command_writer(
         command_stream, registry::ImplicitVRLittleEndian, // implicit vr for command
         Writer::ItemEncoding::ExplicitLength, true); // true for Command
     command_writer.write_data_set(message.get_command_set());
-    auto const command_buffer = command_stream.str();
+    command_stream.flush();
     pdv_items.emplace_back(id, 3, command_buffer);
 
     if (message.has_data_set())
     {
-        std::ostringstream data_stream;
+        std::string data_buffer;
+        data_buffer.reserve(this->_negotiated_parameters.get_maximum_length());
+        StringStream data_stream(data_buffer);
         Writer data_writer(
             data_stream, transfer_syntax,
             Writer::ItemEncoding::ExplicitLength, false);
         data_writer.write_data_set(message.get_data_set());
-        auto const data_buffer = data_stream.str();
+        data_stream.flush();
 
         auto const max_length = this->_negotiated_parameters.get_maximum_length();
         auto current_length = command_buffer.size() + 12; // 12 is the size of all that is added on top of the fragment
