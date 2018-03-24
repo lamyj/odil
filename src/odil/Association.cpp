@@ -374,7 +374,9 @@ Association
     bool data_set_received=false;
 
     DataSet command_set;
-    std::stringstream command_stream, data_stream;
+
+    std::string command_buffer;
+    std::string data_buffer;
 
     while(!done)
     {
@@ -406,19 +408,20 @@ Association
         for(auto const & pdv: p_data_tf->get_pdv_items())
         {
             presentation_context_id = pdv.get_presentation_context_id();
-            bool & received =
+
+            // Check if this is the last command or data PDV
+            auto & received =
                 pdv.is_command()?command_set_received:data_set_received;
             received |= pdv.is_last_fragment();
 
-            auto const & fragment_data = pdv.get_fragment();
-
-            std::stringstream  & stream =
-                pdv.is_command()?command_stream:data_stream;
-            stream.write(&fragment_data[0], fragment_data.size());
+            // Accumulate incoming PDVs in command or data buffer
+            auto & buffer = (pdv.is_command()?command_buffer:data_buffer);
+            buffer.append(pdv.get_fragment());
 
             if(command_set_received && command_set.empty())
             {
-                Reader reader(command_stream, registry::ImplicitVRLittleEndian);
+                IStringStream istream(&command_buffer[0], command_buffer.size());
+                Reader reader(istream, registry::ImplicitVRLittleEndian);
                 command_set = reader.read_data_set();
                 auto const value =
                     command_set.as_int(registry::CommandDataSetType, 0);
@@ -442,7 +445,8 @@ Association
             throw Exception("No such Presentation Context ID");
         }
 
-        Reader reader(data_stream, transfer_syntax_it->second);
+        IStringStream istream(&data_buffer[0], data_buffer.size());
+        Reader reader(istream, transfer_syntax_it->second);
         auto data_set = reader.read_data_set();
 
         return message::Message(std::move(command_set), std::move(data_set));
@@ -476,8 +480,7 @@ Association
     std::vector<pdu::PDataTF::PresentationDataValueItem> pdv_items;
 
     std::string command_buffer;
-    command_buffer.reserve(this->_negotiated_parameters.get_maximum_length());
-    StringStream command_stream(command_buffer);
+    OStringStream command_stream(command_buffer);
     Writer command_writer(
         command_stream, registry::ImplicitVRLittleEndian, // implicit vr for command
         Writer::ItemEncoding::ExplicitLength, true); // true for Command
@@ -488,8 +491,7 @@ Association
     if (message.has_data_set())
     {
         std::string data_buffer;
-        data_buffer.reserve(this->_negotiated_parameters.get_maximum_length());
-        StringStream data_stream(data_buffer);
+        OStringStream data_stream(data_buffer);
         Writer data_writer(
             data_stream, transfer_syntax,
             Writer::ItemEncoding::ExplicitLength, false);

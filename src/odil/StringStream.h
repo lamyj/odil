@@ -11,11 +11,16 @@
 
 #include <string>
 
+#include <boost/iostreams/device/array.hpp>
 #include <boost/iostreams/stream.hpp>
 #include <boost/iostreams/device/back_inserter.hpp>
 
+/// @brief Source stringstream which does not copy its buffer.
+typedef boost::iostreams::stream<boost::iostreams::array_source> IStringStream;
+
+/// @brief Sink stringstream which does not copy its buffer.
 typedef boost::iostreams::stream<
         boost::iostreams::back_insert_device<std::string>
-    > StringStream;
+    > OStringStream;
 
 #endif // _dadc5c51_56d9_417e_9a96_100ed2838c2a
