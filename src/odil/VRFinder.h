@@ -31,7 +31,7 @@ public:
      * Finder functions must raise an exception if they are not applicable.
      */
     typedef
-        std::function<VR(Tag const &, DataSet const &, std::string const &)>
+        std::function<VR(Tag const &, std::shared_ptr<DataSet const>, std::string const &)>
         Finder;
 
     /// @brief Default finder functions.
@@ -50,29 +50,29 @@ public:
      * The user-defined finders are tried first, then the default_finders.
      */
     VR operator()(
-        Tag const & tag, DataSet const & data_set,
+        Tag const & tag, std::shared_ptr<DataSet const> data_set,
         std::string const & transfer_syntax) const;
 
     /// @brief Return the VR from the public dictionary.
     static VR public_dictionary(
-        Tag const & tag, DataSet const &, std::string const &);
+        Tag const & tag, std::shared_ptr<DataSet const>, std::string const &);
 
     /// @brief Return the VR of group-length (gggg,0000) elements.
     static VR group_length(
-        Tag const & tag, DataSet const &, std::string const &);
+        Tag const & tag, std::shared_ptr<DataSet const>, std::string const &);
 
     /// @brief Return a default VR (UN) for private tags.
     static VR private_tag(
-        Tag const & tag, DataSet const &, std::string const &);
+        Tag const & tag, std::shared_ptr<DataSet const>, std::string const &);
 
     /// @brief Return the VR of elements defined in PS3.5, A.1 (c).
     static VR implicit_vr_little_endian(
-        Tag const & tag, DataSet const & data_set,
+        Tag const & tag, std::shared_ptr<DataSet const> data_set,
         std::string const & transfer_syntax);
     
     /// @brief Return the VR of elements defined in PS3.5, A.2 (c).
     static VR explicit_vr_little_endian(
-        Tag const & tag, DataSet const & data_set,
+        Tag const & tag, std::shared_ptr<DataSet const> data_set,
         std::string const & transfer_syntax);
 
 private:

@@ -170,11 +170,12 @@ public:
      * Throw an AssociationReleased or AssociationAborted if the peer released
      * or aborted the association.
      */
-    message::Message receive_message();
+    std::shared_ptr<message::Message> receive_message();
 
     /// @brief Send a DIMSE message.
     void send_message(
-        message::Message const & message, std::string const & abstract_syntax);
+        std::shared_ptr<message::Message const> message,
+        std::string const & abstract_syntax);
 
     /// @brief Return the next available message id.
     uint16_t next_message_id();

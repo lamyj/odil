@@ -29,16 +29,15 @@ public:
      * @brief Callback called when a request is received, shall throw an
      * SCP::Exception on error.
      */
-    typedef std::function<Value::Integer(message::CEchoRequest const &)> Callback;
+    typedef std::function<
+            Value::Integer(std::shared_ptr<message::CEchoRequest const>)
+        > Callback;
 
     /// @brief Constructor.
     EchoSCP(Association & association);
 
     /// @brief Constructor.
     EchoSCP(Association & association, Callback const & callback);
-
-    /// @brief Destructor.
-    virtual ~EchoSCP();
 
     /// @brief Return the callback.
     Callback const & get_callback() const;
@@ -47,14 +46,10 @@ public:
     void set_callback(Callback const & callback);
 
     /// @brief Process a C-Echo request.
-    virtual void operator()(message::Message const & message);
-
-    /// @brief Process a C-Echo request.
-    virtual void operator()(message::Message && message);
-
+    virtual void operator()(std::shared_ptr<message::Message const> message);
 private:
     Callback _callback;
-    void operator()(message::CEchoRequest const & request);
+    void operator()(std::shared_ptr<message::CEchoRequest const> request);
 };
 
 }

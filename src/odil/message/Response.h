@@ -78,10 +78,7 @@ public:
      *
      * Raise an exception is either of those elements is missing.
      */
-    Response(Message const & message);
-
-    /// @brief Destructor.
-    virtual ~Response();
+    Response(std::shared_ptr<Message const> message);
 
     ODIL_MESSAGE_MANDATORY_FIELD_INTEGER_MACRO(
         message_id_being_responded_to, registry::MessageIDBeingRespondedTo)
@@ -108,7 +105,7 @@ public:
     bool is_failure() const;
 
     /// @brief Set the status fields (cf. PS.37, C)
-    void set_status_fields(DataSet const & status_fields);
+    void set_status_fields(std::shared_ptr<DataSet const> status_fields);
 };
 
 }

@@ -39,12 +39,9 @@ public:
      *
      * Raise an exception if the Message does not contain a N-Set-RSP.
      */
-    NSetResponse(Message const & message);
+    NSetResponse(std::shared_ptr<Message const> message);
 
-    /// @brief Destructor.
-    virtual ~NSetResponse();
-    
-    ODIL_MESSAGE_MANDATORY_FIELD_INTEGER_MACRO( status, registry::Status )
+    ODIL_MESSAGE_MANDATORY_FIELD_INTEGER_MACRO(status, registry::Status)
 
     ODIL_MESSAGE_OPTIONAL_FIELD_STRING_MACRO(
         affected_sop_class_uid, registry::AffectedSOPClassUID)

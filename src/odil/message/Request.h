@@ -33,11 +33,8 @@ public:
      *
      * Raise an exception is either of this element is missing.
      */
-    Request(Message const & message);
+    Request(std::shared_ptr<Message const> message);
 
-    /// @brief Destructor.
-    virtual ~Request();
-    
     ODIL_MESSAGE_MANDATORY_FIELD_INTEGER_MACRO(
         message_id, registry::MessageID)
 };

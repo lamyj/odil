@@ -25,27 +25,18 @@ public:
     /// @brief Constructor.
     StoreSCU(Association & association);
 
-    /// @brief Destructor.
-    virtual ~StoreSCU();
-    
     /// @brief Set the affected SOP class based on the dataset.
-    void set_affected_sop_class(DataSet const & dataset);
+    void set_affected_sop_class(std::shared_ptr<DataSet const> dataset);
 
 	using SCU::set_affected_sop_class;
     
     /// @brief Perform the C-STORE.
     void store(
-        DataSet const & dataset,
-        Value::String const & move_originator_ae_title = "",
-        Value::Integer move_originator_message_id = -1) const;
-
-    /// @brief Perform the C-STORE.
-    void store(
-        DataSet && dataset,
+        std::shared_ptr<DataSet const> dataset,
         Value::String const & move_originator_ae_title = "",
         Value::Integer move_originator_message_id = -1) const;
 private:
-    void _store(message::CStoreRequest const & request) const;
+    void _store(std::shared_ptr<message::CStoreRequest const> request) const;
 };
 
 }

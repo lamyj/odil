@@ -34,18 +34,7 @@ public:
     CStoreRequest(
         Value::Integer message_id, Value::String const & affected_sop_class_uid,
         Value::String const & affected_sop_instance_uid,
-        Value::Integer priority, DataSet const & dataset,
-        Value::String const & move_originator_ae_title = "",
-        Value::Integer move_originator_message_id = -1);
-
-    /**
-     * @brief Create an store request with given Message ID,
-     * affected SOP class UID, priority, and data set.
-     */
-    CStoreRequest(
-        Value::Integer message_id, Value::String const & affected_sop_class_uid,
-        Value::String const & affected_sop_instance_uid,
-        Value::Integer priority, DataSet && dataset,
+        Value::Integer priority, std::shared_ptr<DataSet> dataset,
         Value::String const & move_originator_ae_title = "",
         Value::Integer move_originator_message_id = -1);
 
@@ -54,18 +43,8 @@ public:
      *
      * Raise an exception if the Message does not contain a C-STORE-RQ.
      */
-    CStoreRequest(Message const & message);
+    CStoreRequest(std::shared_ptr<Message> message);
 
-    /**
-     * @brief Create a C-STORE-RQ from a generic Message.
-     *
-     * Raise an exception if the Message does not contain a C-STORE-RQ.
-     */
-    CStoreRequest(Message && message);
-
-    /// @brief Destructor.
-    virtual ~CStoreRequest();
-    
     ODIL_MESSAGE_MANDATORY_FIELD_STRING_MACRO(
         affected_sop_class_uid, registry::AffectedSOPClassUID)
     ODIL_MESSAGE_MANDATORY_FIELD_STRING_MACRO(
@@ -81,10 +60,10 @@ private:
     void _create(
         Value::String const & affected_sop_class_uid,
         Value::String const & affected_sop_instance_uid,
-        Value::Integer priority, DataSet const & dataset,
+        Value::Integer priority, std::shared_ptr<DataSet const> dataset,
         Value::String const & move_originator_ae_title,
         Value::Integer move_originator_message_id);
-    void _parse(Message const & message);
+    void _parse(std::shared_ptr<Message const> message);
 };
 
 }

@@ -36,17 +36,11 @@ FindSCP
     this->set_generator(generator);
 }
 
-FindSCP
-::~FindSCP()
-{
-    // Nothing to do.
-}
-
-SCP::DataSetGenerator const &
+std::shared_ptr<SCP::DataSetGenerator const>
 FindSCP
 ::get_generator() const
 {
-    return *this->_generator;
+    return this->_generator;
 }
 
 void
@@ -58,26 +52,18 @@ FindSCP
 
 void
 FindSCP
-::operator()(message::Message const & message)
+::operator()(std::shared_ptr<message::Message const> message)
 {
-    message::CFindRequest const request(message);
+    auto request = std::dynamic_pointer_cast<message::CFindRequest const>(message);
     this->operator()(request);
 }
 
 void
 FindSCP
-::operator()(message::Message && message)
-{
-    message::CFindRequest request(std::move(message));
-    this->operator()(request);
-}
-
-void
-FindSCP
-::operator()(message::CFindRequest const & request)
+::operator()(std::shared_ptr<message::CFindRequest const> request)
 {
     Value::Integer final_status = message::CFindResponse::Success;
-    DataSet status_fields;
+    auto status_fields = std::make_shared<DataSet>();
 
     try
     {
@@ -85,11 +71,11 @@ FindSCP
         while(!this->_generator->done())
         {
             auto data_set = this->_generator->get();
-            message::CFindResponse const response(
-                request.get_message_id(), message::CFindResponse::Pending,
-                std::move(data_set));
+            auto response = std::make_shared<message::CFindResponse>(
+                request->get_message_id(), message::CFindResponse::Pending,
+                data_set);
             this->_association.send_message(
-                response, request.get_affected_sop_class_uid());
+                response, request->get_affected_sop_class_uid());
             this->_generator->next();
         }
     }
@@ -100,14 +86,15 @@ FindSCP
     }
     catch(odil::Exception const & e)
     {
-        status_fields.add(registry::ErrorComment, {e.what()});
+        status_fields->add(registry::ErrorComment, {e.what()});
         final_status = message::CFindResponse::UnableToProcess;
     }
 
-    message::CFindResponse response(request.get_message_id(), final_status);
-    response.set_status_fields(status_fields);
+    auto response = std::make_shared<message::CFindResponse>(
+        request->get_message_id(), final_status);
+    response->set_status_fields(status_fields);
     this->_association.send_message(
-        response, request.get_affected_sop_class_uid());
+        response, request->get_affected_sop_class_uid());
 }
 
 }

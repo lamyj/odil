@@ -97,34 +97,34 @@ BasicDirectoryCreator
         auto const meta_info_and_data_set = Reader::read_file(stream);
         auto const & data_set = meta_info_and_data_set.second;
 
-        auto const & patient_id = data_set.as_string(
+        auto const & patient_id = data_set->as_string(
             registry::PatientID)[0];
         auto & patient = this->_find_record(patients, patient_id);
-        if(patient.data_set.empty())
+        if(patient.data_set->empty())
         {
             this->_fill_record(data_set, patient, "PATIENT");
         }
 
-        auto const & study_instance_uid = data_set.as_string(
+        auto const & study_instance_uid = data_set->as_string(
             registry::StudyInstanceUID)[0];
         auto & study = this->_find_record(patient.children, study_instance_uid);
-        if(study.data_set.empty())
+        if(study.data_set->empty())
         {
             this->_fill_record(data_set, study, "STUDY");
         }
 
-        auto const & series_instance_uid = data_set.as_string(
+        auto const & series_instance_uid = data_set->as_string(
             registry::SeriesInstanceUID)[0];
         auto & series = this->_find_record(study.children, series_instance_uid);
-        if(series.data_set.empty())
+        if(series.data_set->empty())
         {
             this->_fill_record(data_set, series, "SERIES");
         }
 
-        auto const & sop_instance_uid = data_set.as_string(
+        auto const & sop_instance_uid = data_set->as_string(
             registry::SOPInstanceUID)[0];
         auto & image = this->_find_record(series.children, sop_instance_uid);
-        if(image.data_set.empty())
+        if(image.data_set->empty())
         {
             this->_fill_record(data_set, image, "IMAGE");
 
@@ -148,18 +148,18 @@ BasicDirectoryCreator
             }
 
             // Required if the Directory Record references a SOP Instance (PS3.3 F.3.2.2)
-            image.data_set.add(registry::ReferencedFileID, file_id);
-            image.data_set.add(
+            image.data_set->add(registry::ReferencedFileID, file_id);
+            image.data_set->add(
                 registry::ReferencedSOPClassUIDInFile,
-                data_set[registry::SOPClassUID]);
-            image.data_set.add(
+                (*data_set)[registry::SOPClassUID]);
+            image.data_set->add(
                 registry::ReferencedSOPInstanceUIDInFile,
-                data_set[registry::SOPInstanceUID]);
+                (*data_set)[registry::SOPInstanceUID]);
 
             auto const & meta_info = meta_info_and_data_set.first;
-            image.data_set.add(
+            image.data_set->add(
                 registry::ReferencedTransferSyntaxUIDInFile,
-                meta_info[registry::TransferSyntaxUID]);
+                (*meta_info)[registry::TransferSyntaxUID]);
         }
     }
 
@@ -173,7 +173,7 @@ BasicDirectoryCreator
     auto iterator = records.find(key);
     if(iterator == records.end())
     {
-        iterator = records.insert({key, Record::Pointer(new Record())}).first;
+        iterator = records.insert({key, std::make_shared<Record>()}).first;
     }
     return *(iterator->second);
 }
@@ -181,12 +181,13 @@ BasicDirectoryCreator
 void
 BasicDirectoryCreator
 ::_fill_record(
-    DataSet const & data_set, Record & record, std::string const & type) const
+    std::shared_ptr<DataSet const> data_set, Record & record,
+    std::string const & type) const
 {
-    record.data_set.add(registry::DirectoryRecordType, {type});
-    record.data_set.add(registry::OffsetOfTheNextDirectoryRecord, {0});
-    record.data_set.add(registry::RecordInUseFlag, {0xffff});
-    record.data_set.add(
+    record.data_set->add(registry::DirectoryRecordType, {type});
+    record.data_set->add(registry::OffsetOfTheNextDirectoryRecord, {0});
+    record.data_set->add(registry::RecordInUseFlag, {0xffff});
+    record.data_set->add(
         registry::OffsetOfReferencedLowerLevelDirectoryEntity, {0});
 
     this->_update_record(data_set, record, this->default_record_keys.at(type));
@@ -201,7 +202,7 @@ BasicDirectoryCreator
 void
 BasicDirectoryCreator
 ::_update_record(
-    DataSet const & data_set, Record & record,
+    std::shared_ptr<DataSet const> data_set, Record & record,
     std::vector<RecordKey> const & keys) const
 {
     for(auto const & key: keys)
@@ -209,9 +210,9 @@ BasicDirectoryCreator
         auto const & tag = key.first;
         auto const & type = key.second;
 
-        if(data_set.has(tag))
+        if(data_set->has(tag))
         {
-            record.data_set.add(tag, data_set[tag]);
+            record.data_set->add(tag, (*data_set)[tag]);
         }
         else
         {
@@ -221,7 +222,7 @@ BasicDirectoryCreator
             }
             else if(type == 2)
             {
-                record.data_set.add(tag);
+                record.data_set->add(tag);
             }
             // Otherwise do nothing.
         }
@@ -362,40 +363,40 @@ BasicDirectoryCreator
     LinearizedTree const & linearized_tree,
     std::vector<std::streampos> const & relative_offsets) const
 {
-    DataSet meta_information;
-    meta_information.add(
+    auto meta_information = std::make_shared<DataSet>();
+    meta_information->add(
         registry::FileMetaInformationVersion, Value::Binary({{0x00, 0x01}}));
-    meta_information.add(
+    meta_information->add(
         registry::MediaStorageSOPClassUID,
         { registry::MediaStorageDirectoryStorage });
-    meta_information.add(
+    meta_information->add(
         registry::MediaStorageSOPInstanceUID, { generate_uid() });
-    meta_information.add(
+    meta_information->add(
         registry::TransferSyntaxUID, { registry::ExplicitVRLittleEndian });
-    meta_information.add(
+    meta_information->add(
         registry::ImplementationClassUID, { implementation_class_uid });
-    meta_information.add(
+    meta_information->add(
         registry::ImplementationVersionName, { implementation_version_name });
 
-    DataSet basic_directory;
+    auto basic_directory = std::make_shared<DataSet>();
 
     // File-Set Identification Module (PS3.3 F.3.2.1)
-    basic_directory.add(registry::FileSetID, { "" });
+    basic_directory->add(registry::FileSetID, { "" });
     // Don't include user comments yet.
     // registry::FileSetDescriptorFileID;
     // registry::SpecificCharacterSetOfFileSetDescriptorFile;
     // Directory Information Module (PS3.3 F.3.2.2)
-    basic_directory.add(
+    basic_directory->add(
         registry::OffsetOfTheFirstDirectoryRecordOfTheRootDirectoryEntity,
         { 0 });
-    basic_directory.add(
+    basic_directory->add(
         registry::OffsetOfTheLastDirectoryRecordOfTheRootDirectoryEntity,
         { 0 });
-    basic_directory.add(registry::FileSetConsistencyFlag, { 0 });
+    basic_directory->add(registry::FileSetConsistencyFlag, { 0 });
 
     std::ostringstream buffer;
     Writer buffer_writer(
-        buffer, meta_information.as_string(registry::TransferSyntaxUID)[0],
+        buffer, meta_information->as_string(registry::TransferSyntaxUID)[0],
         this->item_encoding);
     buffer_writer.write_data_set(meta_information);
     buffer_writer.write_data_set(basic_directory);
@@ -407,7 +408,7 @@ BasicDirectoryCreator
         relative_offsets.begin(), relative_offsets.end(), absolute_offsets.begin(),
         [&](std::streampos offset) { return offset+start_of_directory_records; });
 
-    basic_directory.as_int(
+    basic_directory->as_int(
         registry::OffsetOfTheFirstDirectoryRecordOfTheRootDirectoryEntity)[0] =
             *(absolute_offsets.begin());
 
@@ -416,7 +417,7 @@ BasicDirectoryCreator
     {
         last_top_level = linearized_tree.sibling[last_top_level];
     }
-    basic_directory.as_int(
+    basic_directory->as_int(
         registry::OffsetOfTheLastDirectoryRecordOfTheRootDirectoryEntity)[0] =
             absolute_offsets[last_top_level];
 
@@ -429,7 +430,7 @@ BasicDirectoryCreator
         auto const sibling = linearized_tree.sibling[record_index];
         if(sibling != -1)
         {
-            item.as_int(
+            item->as_int(
                 registry::OffsetOfTheNextDirectoryRecord)[0] =
                     absolute_offsets[sibling];
         }
@@ -437,14 +438,14 @@ BasicDirectoryCreator
         auto const child = linearized_tree.child[record_index];
         if(child != -1)
         {
-            item.as_int(
+            item->as_int(
                 registry::OffsetOfReferencedLowerLevelDirectoryEntity)[0] =
                     absolute_offsets[child];
         }
 
         record_sequence.push_back(item);
     }
-    basic_directory.add(registry::DirectoryRecordSequence, record_sequence);
+    basic_directory->add(registry::DirectoryRecordSequence, record_sequence);
 
     boost::filesystem::ofstream file(
         boost::filesystem::path(root)/"DICOMDIR",

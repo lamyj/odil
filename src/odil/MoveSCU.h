@@ -28,7 +28,7 @@ class ODIL_API MoveSCU: public SCU
 {
 public:
     /// @brief Callback called when a C-STORE request is received.
-    typedef std::function<void(DataSet &&)> StoreCallback;
+    typedef std::function<void(std::shared_ptr<DataSet>)> StoreCallback;
 
     /**
      * @brief Typedef to keep compatibility with previous versions.
@@ -37,13 +37,12 @@ public:
     typedef StoreCallback Callback;
 
     /// @brief Callback called when a C-MOVE response is received.
-    typedef std::function<void(message::CMoveResponse &&)> MoveCallback;
+    typedef std::function<
+            void(std::shared_ptr<message::CMoveResponse>)
+        > MoveCallback;
     
     /// @brief Constructor.
     MoveSCU(Association & association);
-    
-    /// @brief Destructor.
-    virtual ~MoveSCU();
     
     /// @brief Return the AE title of the destination, defaults to "".
     std::string const & get_move_destination() const;
@@ -57,44 +56,33 @@ public:
     void set_incoming_port(uint16_t port);
     
     /// @brief Perform the C-MOVE using callbacks.
-    void move(DataSet const & query, StoreCallback store_callback) const;
-
-    /// @brief Perform the C-MOVE using callbacks.
-    void move(DataSet && query, StoreCallback store_callback) const;
-        
-    /// @brief Perform the C-MOVE using callbacks.
-    void move(DataSet const & query, MoveCallback move_callback) const;
-
-    /// @brief Perform the C-MOVE using callbacks.
-    void move(DataSet && query, MoveCallback move_callback) const;
+    void move(
+        std::shared_ptr<DataSet const> query,
+        StoreCallback store_callback) const;
 
     /// @brief Perform the C-MOVE using callbacks.
     void move(
-        DataSet const & query, StoreCallback store_callback,
+        std::shared_ptr<DataSet const> query,
         MoveCallback move_callback) const;
 
     /// @brief Perform the C-MOVE using callbacks.
     void move(
-        DataSet && query, StoreCallback store_callback,
+        std::shared_ptr<DataSet const> query, StoreCallback store_callback,
         MoveCallback move_callback) const;
-    
-    /**
-     * @brief Return a list of datasets matching the query.
-     */
-    std::vector<DataSet> move(DataSet const & query) const;
 
     /**
      * @brief Return a list of datasets matching the query.
      */
-    std::vector<DataSet> move(DataSet && query) const;
+    std::vector<std::shared_ptr<DataSet>> move(
+        std::shared_ptr<DataSet const> query) const;
 
 private:
     std::string _move_destination;
     uint16_t _incoming_port;
 
     void _move(
-        message::CMoveRequest const & request, StoreCallback store_callback,
-        MoveCallback move_callback) const;
+        std::shared_ptr<message::CMoveRequest const> request,
+        StoreCallback store_callback, MoveCallback move_callback) const;
     
     void _dispatch(
         Association & store_association, StoreCallback store_callback,

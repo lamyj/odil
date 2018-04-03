@@ -25,34 +25,24 @@ class ODIL_API FindSCU: public SCU
 {
 public:
     /// @brief Callback called when a response is received.
-    typedef std::function<void(DataSet &&)> Callback;
+    typedef std::function<void(std::shared_ptr<DataSet>)> Callback;
 
     /// @brief Constructor.
     FindSCU(Association & association);
     
-    /// @brief Destructor.
-    virtual ~FindSCU();
-    
     /// @brief Perform the C-FIND using an optional callback.
-    void find(DataSet const & query, Callback callback) const;
-
-    /// @brief Perform the C-FIND using an optional callback.
-    void find(DataSet && query, Callback callback) const;
-    
-    /**
-     * @brief Return a list of datasets matching the query. The user is 
-     * responsible for the de-allocation of the matches.
-     */
-    std::vector<DataSet> find(DataSet const & query) const;
+    void find(std::shared_ptr<DataSet const> query, Callback callback) const;
 
     /**
-     * @brief Return a list of datasets matching the query. The user is
-     * responsible for the de-allocation of the matches.
+     * @brief Return a list of datasets matching the query.
      */
-    std::vector<DataSet> find(DataSet && query) const;
+    std::vector<std::shared_ptr<DataSet>> find(
+        std::shared_ptr<DataSet const> query) const;
 
 private:
-    void _find(message::CFindRequest const & request, Callback callback) const;
+    void _find(
+        std::shared_ptr<message::CFindRequest const> request,
+        Callback callback) const;
 };
 
 }

@@ -28,23 +28,17 @@ CEchoRequest
 }
 
 CEchoRequest
-::CEchoRequest(Message const & message)
+::CEchoRequest(std::shared_ptr<Message const> message)
 : Request(message)
 {
-    if(message.get_command_field() != Command::C_ECHO_RQ)
+    if(!message || message->get_command_field() != Command::C_ECHO_RQ)
     {
         throw Exception("Message is not a C-ECHO-RQ");
     }
-    this->set_command_field(message.get_command_field());
+    this->set_command_field(message->get_command_field());
 
     this->set_affected_sop_class_uid(
-        message.get_command_set().as_string(registry::AffectedSOPClassUID, 0));
-}
-
-CEchoRequest
-::~CEchoRequest()
-{
-    // Nothing to do.
+        message->get_command_set()->as_string(registry::AffectedSOPClassUID, 0));
 }
 
 }

@@ -363,7 +363,7 @@ Association
     this->_state_machine.send_pdu(data);
 }
 
-message::Message
+std::shared_ptr<message::Message>
 Association
 ::receive_message()
 {
@@ -373,7 +373,7 @@ Association
     bool has_data_set=true;
     bool data_set_received=false;
 
-    DataSet command_set;
+    std::shared_ptr<DataSet> command_set;
 
     std::string command_buffer;
     std::string data_buffer;
@@ -418,13 +418,13 @@ Association
             auto & buffer = (pdv.is_command()?command_buffer:data_buffer);
             buffer.append(pdv.get_fragment());
 
-            if(command_set_received && command_set.empty())
+            if(command_set_received && !command_set)
             {
                 IStringStream istream(&command_buffer[0], command_buffer.size());
                 Reader reader(istream, registry::ImplicitVRLittleEndian);
                 command_set = reader.read_data_set();
                 auto const value =
-                    command_set.as_int(registry::CommandDataSetType, 0);
+                    command_set->as_int(registry::CommandDataSetType, 0);
 
                 if(value == message::Message::DataSetType::ABSENT)
                 {
@@ -436,6 +436,7 @@ Association
         done = command_set_received && (!has_data_set || data_set_received);
     }
 
+    std::shared_ptr<DataSet> data_set;
     if(has_data_set)
     {
         auto const transfer_syntax_it =
@@ -447,20 +448,16 @@ Association
 
         IStringStream istream(&data_buffer[0], data_buffer.size());
         Reader reader(istream, transfer_syntax_it->second);
-        auto data_set = reader.read_data_set();
-
-        return message::Message(std::move(command_set), std::move(data_set));
+        data_set = reader.read_data_set();
     }
-    else
-    {
-        return message::Message(std::move(command_set));
-    }
+    return std::make_shared<message::Message>(command_set, data_set);
 }
 
 void
 Association
 ::send_message(
-    message::Message const & message, std::string const & abstract_syntax)
+    std::shared_ptr<message::Message const> message,
+    std::string const & abstract_syntax)
 {
     if(!this->is_associated())
     {
@@ -484,18 +481,18 @@ Association
     Writer command_writer(
         command_stream, registry::ImplicitVRLittleEndian, // implicit vr for command
         Writer::ItemEncoding::ExplicitLength, true); // true for Command
-    command_writer.write_data_set(message.get_command_set());
+    command_writer.write_data_set(message->get_command_set());
     command_stream.flush();
     pdv_items.emplace_back(id, 3, command_buffer);
 
-    if (message.has_data_set())
+    if (message->has_data_set())
     {
         std::string data_buffer;
         OStringStream data_stream(data_buffer);
         Writer data_writer(
             data_stream, transfer_syntax,
             Writer::ItemEncoding::ExplicitLength, false);
-        data_writer.write_data_set(message.get_data_set());
+        data_writer.write_data_set(message->get_data_set());
         data_stream.flush();
 
         auto const max_length = this->_negotiated_parameters.get_maximum_length();

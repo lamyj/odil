@@ -34,31 +34,21 @@ public:
     };
 
     /// @brief Constructor.
-    GetSCP(Association & association);
-
-    /// @brief Constructor.
     GetSCP(
         Association & association,
-        std::shared_ptr<DataSetGenerator> const & generator);
-
-    /// @brief Destructor.
-    virtual ~GetSCP();
+        std::shared_ptr<DataSetGenerator> const & generator={});
 
     /// @brief Return the generator.
-    DataSetGenerator const & get_generator() const;
+    std::shared_ptr<DataSetGenerator const> get_generator() const;
 
     /// @brief Set the generator.
     void set_generator(std::shared_ptr<DataSetGenerator> const & generator);
 
     /// @brief Process a C-Get request.
-    virtual void operator()(message::Message const & message);
-
-    /// @brief Process a C-Get request.
-    virtual void operator()(message::Message && message);
-
+    virtual void operator()(std::shared_ptr<message::Message const> message);
 private:
     std::shared_ptr<DataSetGenerator> _generator;
-    void operator()(message::CGetRequest const & request);
+    void operator()(std::shared_ptr<message::CGetRequest const> request);
 };
 
 }

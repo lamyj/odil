@@ -218,7 +218,7 @@ struct ToXMLVisitor
 };
 
 boost::property_tree::ptree as_xml(
-    DataSet const & data_set,
+    std::shared_ptr<DataSet const> data_set,
     BulkDataCreator const & bulk_data_creator)
 {
     ToXMLVisitor visitor;
@@ -226,7 +226,7 @@ boost::property_tree::ptree as_xml(
 
     // XML dataset element
     boost::property_tree::ptree nativedicommodel;
-    for(auto const & it: data_set)
+    for(auto const & it: *data_set)
     {
         auto const & tag = it.first;
         auto const & element = it.second;
@@ -362,12 +362,12 @@ void parse_person_name(
 }
 
 void parse_attributes(
-    boost::property_tree::ptree const & xml, DataSet & data_set);
+    boost::property_tree::ptree const & xml, std::shared_ptr<DataSet> data_set);
 
 void parse_item(
     boost::property_tree::ptree const & xml, Element & element)
 {
-    DataSet data_set;
+    auto data_set = std::make_shared<DataSet>();
     parse_attributes(xml, data_set);
     auto const number = xml.get<unsigned int>("<xmlattr>.number");
     element.as_data_set()[number-1] = data_set;
@@ -386,7 +386,7 @@ void parse_inline_binary(
 }
 
 void parse_attributes(
-    boost::property_tree::ptree const & xml, DataSet & data_set)
+    boost::property_tree::ptree const & xml, std::shared_ptr<DataSet> data_set)
 {
     auto const attributes = xml.equal_range("DicomAttribute");
     for(auto attribute = attributes.first; attribute != attributes.second; ++attribute)
@@ -510,18 +510,18 @@ void parse_attributes(
             parser(it->second, element);
         }
 
-        data_set.add(tag, element);
+        data_set->add(tag, element);
     }
 }
 
-DataSet as_dataset(boost::property_tree::ptree const & xml)
+std::shared_ptr<DataSet> as_dataset(boost::property_tree::ptree const & xml)
 {
     if(xml.size() < 1 || xml.front().first != "NativeDicomModel")
     {
         throw Exception("Missing root node NativeDicomModel");
     }
 
-    DataSet data_set;
+    auto data_set = std::make_shared<DataSet>();
 
     auto const & root = xml.get_child("NativeDicomModel");
     parse_attributes(root, data_set);

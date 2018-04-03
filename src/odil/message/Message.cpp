@@ -20,62 +20,19 @@ namespace message
 {
 
 Message
-::Message()
-{
-    this->_command_set.add(registry::CommandDataSetType, { DataSetType::ABSENT });
-}
-
-Message
-::Message(DataSet const & command_set)
+::Message(std::shared_ptr<DataSet> command_set, std::shared_ptr<DataSet> data_set)
 : _command_set(command_set)
 {
-    if(!this->_command_set.has(registry::CommandDataSetType))
+    if(!this->_command_set->has(registry::CommandDataSetType))
     {
-        this->_command_set.add(registry::CommandDataSetType, VR::US);
+        this->_command_set->add(registry::CommandDataSetType, VR::US);
     }
-    this->_command_set.as_int(registry::CommandDataSetType) = { DataSetType::ABSENT };
-}
-
-Message
-::Message(DataSet && command_set)
-: _command_set(std::move(command_set))
-{
-    if(!this->_command_set.has(registry::CommandDataSetType))
-    {
-        this->_command_set.add(registry::CommandDataSetType, VR::US);
-    }
-    this->_command_set.as_int(registry::CommandDataSetType) = { DataSetType::ABSENT };
-}
-
-Message
-::Message(DataSet const & command_set, DataSet const & data_set)
-: _command_set(command_set)
-{
-    if(!this->_command_set.has(registry::CommandDataSetType))
-    {
-        this->_command_set.add(registry::CommandDataSetType, VR::US);
-    }
+    this->_command_set->as_int(registry::CommandDataSetType) = {
+        DataSetType::ABSENT };
     this->set_data_set(data_set);
 }
 
-Message
-::Message(DataSet && command_set, DataSet && data_set)
-: _command_set(std::move(command_set))
-{
-    if(!this->_command_set.has(registry::CommandDataSetType))
-    {
-        this->_command_set.add(registry::CommandDataSetType, VR::US);
-    }
-    this->set_data_set(std::move(data_set));
-}
-
-Message
-::~Message()
-{
-    // Nothing to do.
-}
-
-DataSet const &
+std::shared_ptr<DataSet const>
 Message
 ::get_command_set() const
 {
@@ -86,10 +43,12 @@ bool
 Message
 ::has_data_set() const
 {
-    return (this->_command_set.as_int(registry::CommandDataSetType, 0) == DataSetType::PRESENT);
+    return (
+        this->_command_set->as_int(registry::CommandDataSetType, 0)
+            == DataSetType::PRESENT);
 }
 
-DataSet const &
+std::shared_ptr<DataSet const>
 Message
 ::get_data_set() const
 {
@@ -100,7 +59,7 @@ Message
     return this->_data_set;
 }
 
-DataSet &
+std::shared_ptr<DataSet>
 Message
 ::get_data_set()
 {
@@ -113,26 +72,19 @@ Message
 
 void
 Message
-::set_data_set(DataSet const & data_set)
+::set_data_set(std::shared_ptr<DataSet> data_set)
 {
     this->_data_set = data_set;
-    this->_command_set.as_int(registry::CommandDataSetType) = { DataSetType::PRESENT };
-}
-
-void
-Message
-::set_data_set(DataSet && data_set)
-{
-    this->_data_set = std::move(data_set);
-    this->_command_set.as_int(registry::CommandDataSetType) = { DataSetType::PRESENT };
+    this->_command_set->as_int(registry::CommandDataSetType) = {
+        (this->_data_set && !data_set->empty())
+            ?DataSetType::PRESENT:DataSetType::ABSENT };
 }
 
 void
 Message
 ::delete_data_set()
 {
-    this->_command_set.as_int(registry::CommandDataSetType) = { DataSetType::ABSENT };
-    this->_data_set = DataSet();
+    this->set_data_set(nullptr);
 }
 
 }

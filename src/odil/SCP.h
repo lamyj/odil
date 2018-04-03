@@ -36,7 +36,8 @@ public:
         virtual ~DataSetGenerator() =0;
 
         /// @brief Initialize the generator.
-        virtual void initialize(message::Request const & request) =0;
+        virtual void initialize(
+            std::shared_ptr<message::Request const> request) =0;
 
         /// @brief Test whether all elements have been generated.
         virtual bool done() const =0;
@@ -45,7 +46,7 @@ public:
         virtual void next() =0;
 
         /// @brief Return the current element.
-        virtual DataSet get() const =0;
+        virtual std::shared_ptr<DataSet> get() const =0;
     };
 
     class Exception: public odil::Exception
@@ -55,12 +56,12 @@ public:
         Value::Integer status;
 
         /// @brief Status detail fields (e.g. offending element).
-        DataSet status_fields;
+        std::shared_ptr<DataSet> status_fields;
 
         /// @brief Constructor.
         Exception(
             std::string const & message,
-            Value::Integer status, DataSet const & status_fields=DataSet());
+            Value::Integer status, std::shared_ptr<DataSet> status_fields={});
 
         /// @brief Destructor.
         virtual ~Exception() noexcept;
@@ -70,16 +71,13 @@ public:
     SCP(Association & association);
 
     /// @brief Destructor
-    virtual ~SCP();
+    virtual ~SCP() = default;
 
     /// @brief Receive and process a message.
     void receive_and_process();
 
     /// @brief Process a message.
-    virtual void operator()(message::Message const & message) =0;
-
-    /// @brief Process a message.
-    virtual void operator()(message::Message && message) =0;
+    virtual void operator()(std::shared_ptr<message::Message const> message) =0;
 protected:
     /// @brief Association with peer.
     Association & _association;

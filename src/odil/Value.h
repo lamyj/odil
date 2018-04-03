@@ -57,7 +57,7 @@ public:
     typedef std::vector<String> Strings;
 
     /// @brief Data sets container.
-    typedef std::vector<DataSet> DataSets;
+    typedef std::vector<std::shared_ptr<DataSet>> DataSets;
 
     /// @brief Binary data container.
     typedef std::vector<std::vector<uint8_t>> Binary;

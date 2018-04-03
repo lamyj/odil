@@ -26,16 +26,11 @@ Request
 }
 
 Request
-::Request(Message const & message)
+::Request(std::shared_ptr<Message const> message)
 : Message()
 {
-    this->set_message_id(message.get_command_set().as_int(registry::MessageID, 0));
-}
-
-Request
-::~Request()
-{
-    // Nothing to do.
+    this->set_message_id(
+        message->get_command_set()->as_int(registry::MessageID, 0));
 }
 
 }

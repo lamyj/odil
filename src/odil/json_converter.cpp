@@ -80,7 +80,7 @@ public:
 
         if(vr == VR::PN)
         {
-            for(auto const item: value)
+            for(auto const & item: value)
             {
                 result["Value"].append(this->_convert_pn(item));
             }
@@ -125,7 +125,8 @@ public:
 
         std::string encoded;
         encoded.reserve(value[0].size()*4/3);
-        base64::encode(value[0].begin(), value[0].end(), std::back_inserter(encoded));
+        base64::encode(
+            value[0].begin(), value[0].end(), std::back_inserter(encoded));
         result["InlineBinary"] = encoded;
 
         return result;
@@ -193,14 +194,14 @@ private:
 };
 
 Json::Value as_json(
-    DataSet const & data_set,
+    std::shared_ptr<DataSet const> data_set,
     odil::Value::Strings const & specific_character_set)
 {
     auto current_specific_char_set = specific_character_set;
 
     Json::Value json;
 
-    for(auto const & it: data_set)
+    for(auto const & it: *data_set)
     {
         auto const & tag = it.first;
         if(tag.element == 0)
@@ -228,9 +229,9 @@ Json::Value as_json(
     return json;
 }
 
-DataSet as_dataset(Json::Value const & json)
+std::shared_ptr<DataSet> as_dataset(Json::Value const & json)
 {
-    DataSet data_set;
+    std::shared_ptr<DataSet> data_set;
 
     for(Json::Value::const_iterator it=json.begin(); it != json.end(); ++it)
     {
@@ -314,7 +315,7 @@ DataSet as_dataset(Json::Value const & json)
             throw Exception("Unknown VR: "+as_string(vr));
         }
 
-        data_set.add(tag, element);
+        data_set->add(tag, element);
     }
 
     return data_set;

@@ -55,21 +55,16 @@ Response
 }
 
 Response
-::Response(Message const & message)
+::Response(std::shared_ptr<Message const> message)
 : Message()
 {
     this->set_message_id_being_responded_to(
-        message.get_command_set().as_int(
+        message->get_command_set()->as_int(
             registry::MessageIDBeingRespondedTo, 0));
 
-    this->set_status(message.get_command_set().as_int(registry::Status, 0));
+    this->set_status(message->get_command_set()->as_int(registry::Status, 0));
 }
 
-Response
-::~Response()
-{
-    // Nothing to do.
-}
 
 bool
 Response
@@ -94,17 +89,21 @@ Response
 
 void
 Response
-::set_status_fields(DataSet const & status_fields)
+::set_status_fields(std::shared_ptr<DataSet const> status_fields)
 {
-    for(auto const & tag_and_element: status_fields)
+    if(!status_fields)
     {
-        if(this->_command_set.has(tag_and_element.first))
+        return;
+    }
+    for(auto const & tag_and_element: *status_fields)
+    {
+        if(this->_command_set->has(tag_and_element.first))
         {
-            this->_command_set[tag_and_element.first] = tag_and_element.second;
+            (*this->_command_set)[tag_and_element.first] = tag_and_element.second;
         }
         else
         {
-            this->_command_set.add(tag_and_element.first, tag_and_element.second);
+            this->_command_set->add(tag_and_element.first, tag_and_element.second);
         }
     }
 }

@@ -40,17 +40,11 @@ MoveSCP
     this->set_generator(generator);
 }
 
-MoveSCP
-::~MoveSCP()
-{
-    // Nothing to do.
-}
-
-MoveSCP::DataSetGenerator const &
+std::shared_ptr<MoveSCP::DataSetGenerator const>
 MoveSCP
 ::get_generator() const
 {
-    return *this->_generator;
+    return this->_generator;
 }
 
 void
@@ -62,23 +56,15 @@ MoveSCP
 
 void
 MoveSCP
-::operator()(message::Message const & message)
+::operator()(std::shared_ptr<message::Message const> message)
 {
-    message::CMoveRequest const request(message);
+    auto request = std::make_shared<message::CMoveRequest const>(message);
     this->operator()(request);
 }
 
 void
 MoveSCP
-::operator()(message::Message && message)
-{
-    message::CMoveRequest const request(std::move(message));
-    this->operator()(request);
-}
-
-void
-MoveSCP
-::operator()(message::CMoveRequest const & request)
+::operator()(std::shared_ptr<message::CMoveRequest const> request)
 {
     Association move_association;
     try
@@ -87,11 +73,11 @@ MoveSCP
     }
     catch(odil::Exception const &)
     {
-        message::CMoveResponse response(
-            request.get_message_id(),
+        auto response = std::make_shared<message::CMoveResponse>(
+            request->get_message_id(),
             message::CMoveResponse::RefusedMoveDestinationUnknown);
         this->_association.send_message(
-            response, request.get_affected_sop_class_uid());
+            response, request->get_affected_sop_class_uid());
         return;
     }
 
@@ -99,14 +85,15 @@ MoveSCP
     StoreSCU store_scu(move_association);
 
     Value::Integer final_status = message::CMoveResponse::Success;
-    DataSet status_fields;
+    std::shared_ptr<DataSet> status_fields;
     unsigned int remaining_sub_operations = 0;
     unsigned int completed_sub_operations=0;
     unsigned int failed_sub_operations=0;
     unsigned int warning_sub_operations=0;
 
-    auto const& move_originator_aet = this->_association.get_negotiated_parameters().get_calling_ae_title();
-    auto move_originator_message_id = request.get_message_id();
+    auto const & move_originator_aet =
+        this->_association.get_negotiated_parameters().get_calling_ae_title();
+    auto const & move_originator_message_id = request->get_message_id();
 
     try
     {
@@ -115,26 +102,25 @@ MoveSCP
 
         while(!this->_generator->done())
         {
-            message::CMoveResponse response(
-                request.get_message_id(), message::CMoveResponse::Pending);
-            response.set_number_of_remaining_sub_operations(
+            auto response = std::make_shared<message::CMoveResponse>(
+                request->get_message_id(), message::CMoveResponse::Pending);
+            response->set_number_of_remaining_sub_operations(
                 remaining_sub_operations);
-            response.set_number_of_completed_sub_operations(
+            response->set_number_of_completed_sub_operations(
                 completed_sub_operations);
-            response.set_number_of_failed_sub_operations(
+            response->set_number_of_failed_sub_operations(
                 failed_sub_operations);
-            response.set_number_of_warning_sub_operations(
+            response->set_number_of_warning_sub_operations(
                 warning_sub_operations);
             this->_association.send_message(
-                response, request.get_affected_sop_class_uid());
+                response, request->get_affected_sop_class_uid());
 
             auto data_set = this->_generator->get();
             store_scu.set_affected_sop_class(data_set);
             try
             {
                 store_scu.store(
-                    std::move(data_set), move_originator_aet,
-                    move_originator_message_id);
+                    data_set, move_originator_aet, move_originator_message_id);
 
                 --remaining_sub_operations;
                 ++completed_sub_operations;
@@ -155,18 +141,19 @@ MoveSCP
     }
     catch(odil::Exception const & e)
     {
-        status_fields.add(registry::ErrorComment, {e.what()});
+        status_fields->add(registry::ErrorComment, {e.what()});
         final_status = message::CMoveResponse::UnableToProcess;
     }
 
-    message::CMoveResponse response(request.get_message_id(), final_status);
-    response.set_status_fields(status_fields);
-    response.set_number_of_remaining_sub_operations(remaining_sub_operations);
-    response.set_number_of_completed_sub_operations(completed_sub_operations);
-    response.set_number_of_failed_sub_operations(failed_sub_operations);
-    response.set_number_of_warning_sub_operations(warning_sub_operations);
+    auto response = std::make_shared<message::CMoveResponse>(
+        request->get_message_id(), final_status);
+    response->set_status_fields(status_fields);
+    response->set_number_of_remaining_sub_operations(remaining_sub_operations);
+    response->set_number_of_completed_sub_operations(completed_sub_operations);
+    response->set_number_of_failed_sub_operations(failed_sub_operations);
+    response->set_number_of_warning_sub_operations(warning_sub_operations);
     this->_association.send_message(
-        response, request.get_affected_sop_class_uid());
+        response, request->get_affected_sop_class_uid());
 }
 
 }

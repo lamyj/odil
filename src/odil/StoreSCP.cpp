@@ -36,12 +36,6 @@ StoreSCP
     this->set_callback(callback);
 }
 
-StoreSCP
-::~StoreSCP()
-{
-    // Nothing to do.
-}
-
 StoreSCP::Callback const &
 StoreSCP
 ::get_callback() const
@@ -58,30 +52,14 @@ StoreSCP
 
 void
 StoreSCP
-::operator()(message::Message const & message)
-{
-    message::CStoreRequest request(message);
-    this->operator()(request);
-}
-
-void
-StoreSCP
-::operator()(message::Message && message)
-{
-    message::CStoreRequest request(std::move(message));
-    this->operator()(request);
-}
-
-void
-StoreSCP
-::operator()(message::CStoreRequest & request)
+::operator()(std::shared_ptr<message::CStoreRequest> request)
 {
     Value::Integer status=message::CStoreResponse::Success;
-    DataSet status_fields;
+    std::shared_ptr<DataSet> status_fields;
 
     try
     {
-        status = this->_callback(std::move(request));
+        status = this->_callback(request);
     }
     catch(SCP::Exception const & e)
     {
@@ -93,10 +71,19 @@ StoreSCP
         status = message::CStoreResponse::ProcessingFailure;
     }
 
-    message::CStoreResponse response(request.get_message_id(), status);
-    response.set_status_fields(status_fields);
+    auto response = std::make_shared<message::CStoreResponse>(
+        request->get_message_id(), status);
+    response->set_status_fields(status_fields);
     this->_association.send_message(
-        response, request.get_affected_sop_class_uid());
+        response, request->get_affected_sop_class_uid());
+}
+
+void
+StoreSCP
+::operator()(std::shared_ptr<message::Message const> message)
+{
+    auto request = std::make_shared<message::CStoreRequest>(message);
+    this->operator()(request);
 }
 
 }

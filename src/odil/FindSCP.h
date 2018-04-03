@@ -33,25 +33,19 @@ public:
         Association & association,
         std::shared_ptr<DataSetGenerator> const & generator);
 
-    /// @brief Destructor.
-    virtual ~FindSCP();
-
     /// @brief Return the generator.
-    DataSetGenerator const & get_generator() const;
+    std::shared_ptr<DataSetGenerator const> get_generator() const;
 
     /// @brief Set the generator.
     void set_generator(std::shared_ptr<DataSetGenerator> const & generator);
 
     /// @brief Process a C-Find request.
-    virtual void operator()(message::Message const & message);
-
-    /// @brief Process a C-Find request.
-    virtual void operator()(message::Message && message);
+    virtual void operator()(std::shared_ptr<message::Message const> message);
 
 private:
     std::shared_ptr<DataSetGenerator> _generator;
 
-    void operator()(message::CFindRequest const & request);
+    void operator()(std::shared_ptr<message::CFindRequest const> request);
 };
 
 }

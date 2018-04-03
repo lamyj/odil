@@ -22,16 +22,19 @@ namespace odil
 {
 
 typedef
-    std::function<std::pair<std::string, std::string>(DataSet const &, Tag const &)>
+    std::function<
+        std::pair<std::string, std::string>(
+            std::shared_ptr<DataSet const>, Tag const &)
+    >
     BulkDataCreator;
 
 /// @brief Convert a data set to its XML representation.
 ODIL_API boost::property_tree::ptree as_xml(
-    DataSet const & data_set,
+    std::shared_ptr<DataSet const> data_set,
     BulkDataCreator const & bulk_data_creator=BulkDataCreator());
 
 /// @brief Create a data set from its XML representation.
-ODIL_API DataSet as_dataset(boost::property_tree::ptree const & xml);
+ODIL_API std::shared_ptr<DataSet> as_dataset(boost::property_tree::ptree const & xml);
 
 } // namespace odil
 
