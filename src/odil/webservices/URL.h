@@ -10,6 +10,8 @@
 #define _37346dec_0ab4_46d2_a54f_e349e79cd27d
 
 #include <string>
+#include <utility>
+#include <vector>
 
 #include "odil/odil.h"
 
@@ -33,6 +35,10 @@ struct ODIL_API URL
 
     /// @brief Recompose the components.
     operator std::string() const;
+
+    /// @brief Parse attribute-value pairs in query string
+    std::vector<std::pair<std::string, std::string>>
+    parse_query(std::string const & separator="&") const;
 
     /// @brief Parse an URL into its five components.
     static URL parse(std::string const & string);
