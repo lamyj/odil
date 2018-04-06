@@ -89,7 +89,7 @@ public:
     /// @brief Write a file (meta-information and data set).
     static void write_file(
         std::shared_ptr<DataSet const> data_set, std::ostream & stream,
-        std::shared_ptr<DataSet> meta_information={},
+        std::shared_ptr<DataSet const> meta_information={},
         std::string const & transfer_syntax = registry::ExplicitVRLittleEndian,
         ItemEncoding item_encoding=ItemEncoding::ExplicitLength,
         bool use_group_length=false);

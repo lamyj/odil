@@ -223,7 +223,16 @@ Value
     }
     else if(this->_type == Value::Type::DataSets)
     {
-        return *(this->_data_sets) == *(other._data_sets);
+        return (
+            this->_data_sets->size() == other._data_sets->size()
+            && std::equal(
+                this->_data_sets->begin(), this->_data_sets->end(),
+                other._data_sets->begin(),
+                [](std::shared_ptr<DataSet const> x, std::shared_ptr<DataSet const> y) {
+                    return *x == *y;
+                }
+            )
+        );
     }
     else if(this->_type == Value::Type::Binary)
     {

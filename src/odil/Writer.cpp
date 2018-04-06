@@ -219,12 +219,14 @@ void
 Writer
 ::write_file(
     std::shared_ptr<DataSet const> data_set , std::ostream & stream,
-    std::shared_ptr<odil::DataSet> meta_information,
+    std::shared_ptr<odil::DataSet const> meta_information,
     std::string const & transfer_syntax, ItemEncoding item_encoding,
     bool use_group_length)
 {
     // Build File Meta Information, PS3.10, 7.1
-    std::shared_ptr<DataSet> meta_info = meta_information;
+    std::shared_ptr<DataSet> meta_info =
+        meta_information?std::make_shared<DataSet>(*meta_information)
+        :std::make_shared<DataSet>();
     meta_info->add(
         registry::FileMetaInformationVersion, Value::Binary({{0x00, 0x01}}));
 

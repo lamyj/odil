@@ -309,11 +309,11 @@ BOOST_AUTO_TEST_CASE(String)
 
 BOOST_AUTO_TEST_CASE(DataSets)
 {
-    odil::DataSet data_set_1;
-    data_set_1.add("PatientID", {"DJ1234"});
+    auto data_set_1 = std::make_shared<odil::DataSet>();
+    data_set_1->add("PatientID", {"DJ1234"});
 
-    odil::DataSet data_set_2;
-    data_set_2.add("EchoTime", {100});
+    auto data_set_2 = std::make_shared<odil::DataSet>();
+    data_set_2->add("EchoTime", {100});
 
     odil::DataSet data_set;
     data_set.add(

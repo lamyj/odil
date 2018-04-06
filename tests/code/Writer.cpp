@@ -31,7 +31,7 @@ BOOST_AUTO_TEST_CASE(ConstructorTransferSyntax)
 }
 
 void do_test(
-    odil::DataSet const & odil_data_set, std::string transfer_syntax,
+    std::shared_ptr<odil::DataSet const> odil_data_set, std::string transfer_syntax,
     odil::Writer::ItemEncoding item_encoding, bool use_group_length)
 {
     // Write input data set
@@ -55,10 +55,10 @@ void do_test(
     dcmtk_data_set.transferEnd();
 
     auto const other_odil_dataset = odil::dcmtk::convert(&dcmtk_data_set);
-    BOOST_REQUIRE(odil_data_set == other_odil_dataset);
+    BOOST_REQUIRE(*odil_data_set == *other_odil_dataset);
 }
 
-void do_test(odil::DataSet const & odil_data_set)
+void do_test(std::shared_ptr<odil::DataSet const> odil_data_set)
 {
     std::vector<std::string> const transfer_syntaxes =
         {
@@ -90,8 +90,8 @@ void do_test(odil::DataSet const & odil_data_set)
 BOOST_AUTO_TEST_CASE(AT)
 {
     odil::Element odil_element({"00100020", "0008103e"}, odil::VR::AT);
-    odil::DataSet odil_data_set;
-    odil_data_set.add(odil::registry::SelectorATValue, odil_element);
+    auto odil_data_set = std::make_shared<odil::DataSet>();
+    odil_data_set->add(odil::registry::SelectorATValue, odil_element);
 
     do_test(odil_data_set);
 }
@@ -99,8 +99,8 @@ BOOST_AUTO_TEST_CASE(AT)
 BOOST_AUTO_TEST_CASE(CS)
 {
     odil::Element odil_element({"ABC", "DEF"}, odil::VR::CS);
-    odil::DataSet odil_data_set;
-    odil_data_set.add(odil::registry::SelectorCSValue, odil_element);
+    auto odil_data_set = std::make_shared<odil::DataSet>();
+    odil_data_set->add(odil::registry::SelectorCSValue, odil_element);
 
     do_test(odil_data_set);
 }
@@ -108,8 +108,8 @@ BOOST_AUTO_TEST_CASE(CS)
 BOOST_AUTO_TEST_CASE(DS)
 {
     odil::Element odil_element({24.5282145946261, -4.56}, odil::VR::DS);
-    odil::DataSet odil_data_set;
-    odil_data_set.add(odil::registry::SelectorDSValue, odil_element);
+    auto odil_data_set = std::make_shared<odil::DataSet>();
+    odil_data_set->add(odil::registry::SelectorDSValue, odil_element);
 
     do_test(odil_data_set);
 }
@@ -117,8 +117,8 @@ BOOST_AUTO_TEST_CASE(DS)
 BOOST_AUTO_TEST_CASE(FD)
 {
     odil::Element odil_element({1.23, -4.56}, odil::VR::FD);
-    odil::DataSet odil_data_set;
-    odil_data_set.add(odil::registry::SelectorFDValue, odil_element);
+    auto odil_data_set = std::make_shared<odil::DataSet>();
+    odil_data_set->add(odil::registry::SelectorFDValue, odil_element);
 
     do_test(odil_data_set);
 }
@@ -126,8 +126,8 @@ BOOST_AUTO_TEST_CASE(FD)
 BOOST_AUTO_TEST_CASE(FL)
 {
     odil::Element odil_element({0.5, -0.125}, odil::VR::FL);
-    odil::DataSet odil_data_set;
-    odil_data_set.add(odil::registry::SelectorFLValue, odil_element);
+    auto odil_data_set = std::make_shared<odil::DataSet>();
+    odil_data_set->add(odil::registry::SelectorFLValue, odil_element);
 
     do_test(odil_data_set);
 }
@@ -135,8 +135,8 @@ BOOST_AUTO_TEST_CASE(FL)
 BOOST_AUTO_TEST_CASE(IS)
 {
     odil::Element odil_element({123, -456}, odil::VR::IS);
-    odil::DataSet odil_data_set;
-    odil_data_set.add(odil::registry::SelectorISValue, odil_element);
+    auto odil_data_set = std::make_shared<odil::DataSet>();
+    odil_data_set->add(odil::registry::SelectorISValue, odil_element);
 
     do_test(odil_data_set);
 }
@@ -146,8 +146,8 @@ BOOST_AUTO_TEST_CASE(OB)
     odil::Element odil_element(
         odil::Value::Binary({{0x01, 0x02, 0x03, 0x04}}),
         odil::VR::OB);
-    odil::DataSet odil_data_set;
-    odil_data_set.add(odil::registry::EncapsulatedDocument, odil_element);
+    auto odil_data_set = std::make_shared<odil::DataSet>();
+    odil_data_set->add(odil::registry::EncapsulatedDocument, odil_element);
 
     do_test(odil_data_set);
 }
@@ -157,8 +157,8 @@ BOOST_AUTO_TEST_CASE(OF)
     odil::Element odil_element(
         odil::Value::Binary({{0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08}}),
         odil::VR::OF);
-    odil::DataSet odil_data_set;
-    odil_data_set.add(odil::registry::VectorGridData, odil_element);
+    auto odil_data_set = std::make_shared<odil::DataSet>();
+    odil_data_set->add(odil::registry::VectorGridData, odil_element);
 
     do_test(odil_data_set);
 }
@@ -168,8 +168,8 @@ BOOST_AUTO_TEST_CASE(OW)
     odil::Element odil_element(
         odil::Value::Binary({{0x01, 0x02, 0x03, 0x04}}),
         odil::VR::OW);
-    odil::DataSet odil_data_set;
-    odil_data_set.add(odil::registry::RedPaletteColorLookupTableData, odil_element);
+    auto odil_data_set = std::make_shared<odil::DataSet>();
+    odil_data_set->add(odil::registry::RedPaletteColorLookupTableData, odil_element);
 
     do_test(odil_data_set);
 }
@@ -177,25 +177,25 @@ BOOST_AUTO_TEST_CASE(OW)
 BOOST_AUTO_TEST_CASE(SL)
 {
     odil::Element odil_element({12345678, -8765432}, odil::VR::SL);
-    odil::DataSet odil_data_set;
-    odil_data_set.add(odil::registry::SelectorSLValue, odil_element);
+    auto odil_data_set = std::make_shared<odil::DataSet>();
+    odil_data_set->add(odil::registry::SelectorSLValue, odil_element);
 
     do_test(odil_data_set);
 }
 
 BOOST_AUTO_TEST_CASE(SQ)
 {
-    odil::DataSet item1;
-    item1.add(
+    auto item1 = std::make_shared<odil::DataSet>();
+    item1->add(
         odil::registry::SelectorSLValue,
         odil::Element({12345678, -8765432}, odil::VR::SL));
-    odil::DataSet item2;
-    item2.add(
+    auto item2 = std::make_shared<odil::DataSet>();
+    item2->add(
         odil::registry::SelectorFDValue,
         odil::Element({1.23, -4.56}, odil::VR::FD));
 
-    odil::DataSet odil_data_set;
-    odil_data_set.add(odil::registry::FrameExtractionSequence,
+    auto odil_data_set = std::make_shared<odil::DataSet>();
+    odil_data_set->add(odil::registry::FrameExtractionSequence,
         odil::Element({item1, item2}, odil::VR::SQ));
 
     do_test(odil_data_set);
@@ -204,8 +204,8 @@ BOOST_AUTO_TEST_CASE(SQ)
 BOOST_AUTO_TEST_CASE(SS)
 {
     odil::Element odil_element({1234, -5678}, odil::VR::SS);
-    odil::DataSet odil_data_set;
-    odil_data_set.add(odil::registry::SelectorSSValue, odil_element);
+    auto odil_data_set = std::make_shared<odil::DataSet>();
+    odil_data_set->add(odil::registry::SelectorSSValue, odil_element);
 
     do_test(odil_data_set);
 }
@@ -213,9 +213,9 @@ BOOST_AUTO_TEST_CASE(SS)
 BOOST_AUTO_TEST_CASE(UI)
 {
     odil::Element odil_element({"1.2", "3.4"}, odil::VR::UI);
-    odil::DataSet odil_data_set;
+    auto odil_data_set = std::make_shared<odil::DataSet>();
     // SelectorUIValue is not in current DCMTK
-    odil_data_set.add(odil::registry::SOPInstanceUID, odil_element);
+    odil_data_set->add(odil::registry::SOPInstanceUID, odil_element);
 
     do_test(odil_data_set);
 }
@@ -223,8 +223,8 @@ BOOST_AUTO_TEST_CASE(UI)
 BOOST_AUTO_TEST_CASE(UL)
 {
     odil::Element odil_element({12345678, 8765432}, odil::VR::UL);
-    odil::DataSet odil_data_set;
-    odil_data_set.add(odil::registry::SelectorULValue, odil_element);
+    auto odil_data_set = std::make_shared<odil::DataSet>();
+    odil_data_set->add(odil::registry::SelectorULValue, odil_element);
 
     do_test(odil_data_set);
 }
@@ -232,21 +232,21 @@ BOOST_AUTO_TEST_CASE(UL)
 BOOST_AUTO_TEST_CASE(US)
 {
     odil::Element odil_element({1234, 5678}, odil::VR::US);
-    odil::DataSet odil_data_set;
-    odil_data_set.add(odil::registry::SelectorUSValue, odil_element);
+    auto odil_data_set = std::make_shared<odil::DataSet>();
+    odil_data_set->add(odil::registry::SelectorUSValue, odil_element);
 
     do_test(odil_data_set);
 }
 
 void do_file_test(
-    odil::DataSet const & odil_data_set, std::string transfer_syntax,
+    std::shared_ptr<odil::DataSet const> odil_data_set, std::string transfer_syntax,
     odil::Writer::ItemEncoding item_encoding, bool use_group_length)
 {
     // Write input data set
     std::stringstream stream;
 
     odil::Writer::write_file(
-        odil_data_set, stream, odil::DataSet(), transfer_syntax,
+        odil_data_set, stream, std::make_shared<odil::DataSet>(), transfer_syntax,
         item_encoding, use_group_length);
 
     // Store data in a DCMTK stream
@@ -267,22 +267,22 @@ void do_file_test(
     auto const odil_meta_information =
         odil::dcmtk::convert(dcmtk_meta_information);
     BOOST_REQUIRE(
-        odil_meta_information.as_string(odil::registry::TransferSyntaxUID) ==
+        odil_meta_information->as_string(odil::registry::TransferSyntaxUID) ==
             odil::Value::Strings({ transfer_syntax }));
 
     DcmDataset * dcmtk_data_set = format.getDataset();
     auto const other_odil_dataset = odil::dcmtk::convert(dcmtk_data_set);
-    BOOST_REQUIRE(odil_data_set == other_odil_dataset);
+    BOOST_REQUIRE(*odil_data_set == *other_odil_dataset);
 
     BOOST_REQUIRE(
-        odil_meta_information.as_string(odil::registry::MediaStorageSOPClassUID) ==
-            other_odil_dataset.as_string(odil::registry::SOPClassUID));
+        odil_meta_information->as_string(odil::registry::MediaStorageSOPClassUID) ==
+            other_odil_dataset->as_string(odil::registry::SOPClassUID));
     BOOST_REQUIRE(
-        odil_meta_information.as_string(odil::registry::MediaStorageSOPInstanceUID) ==
-            other_odil_dataset.as_string(odil::registry::SOPInstanceUID));
+        odil_meta_information->as_string(odil::registry::MediaStorageSOPInstanceUID) ==
+            other_odil_dataset->as_string(odil::registry::SOPInstanceUID));
 }
 
-void do_file_test(odil::DataSet const & odil_data_set)
+void do_file_test(std::shared_ptr<odil::DataSet const> odil_data_set)
 {
     std::vector<std::string> const transfer_syntaxes =
         {
@@ -313,23 +313,23 @@ void do_file_test(odil::DataSet const & odil_data_set)
 
 BOOST_AUTO_TEST_CASE(File)
 {
-    odil::DataSet item1;
-    item1.add(
+    auto item1 = std::make_shared<odil::DataSet>();
+    item1->add(
         odil::registry::SelectorSLValue,
         odil::Element({12345678, -8765432}, odil::VR::SL));
-    odil::DataSet item2;
-    item2.add(
+    auto item2 = std::make_shared<odil::DataSet>();
+    item2->add(
         odil::registry::SelectorFDValue,
         odil::Element({1.23, -4.56}, odil::VR::FD));
 
-    odil::DataSet odil_data_set;
-    odil_data_set.add(
+    auto odil_data_set = std::make_shared<odil::DataSet>();
+    odil_data_set->add(
         odil::registry::SOPClassUID,
         {odil::registry::RawDataStorage}, odil::VR::UI);
-    odil_data_set.add(
+    odil_data_set->add(
         odil::registry::SOPInstanceUID,
         {"1.2.3.4"}, odil::VR::UI);
-    odil_data_set.add(
+    odil_data_set->add(
         odil::registry::FrameExtractionSequence,
         odil::Element({item1, item2}, odil::VR::SQ));
 

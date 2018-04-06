@@ -62,7 +62,7 @@ BasicDirectoryCreator
     std::string const & root, std::vector<std::string> const & files,
     RecordKeyMap const & extra_record_keys, Writer::ItemEncoding item_encoding)
 : root(root), files(files), extra_record_keys(extra_record_keys),
-    item_encoding(item_encoding)
+  item_encoding(item_encoding)
 {
     // Nothing else.
 }
