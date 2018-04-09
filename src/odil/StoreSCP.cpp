@@ -80,7 +80,7 @@ StoreSCP
 
 void
 StoreSCP
-::operator()(std::shared_ptr<message::Message const> message)
+::operator()(std::shared_ptr<message::Message> message)
 {
     auto request = std::make_shared<message::CStoreRequest>(message);
     this->operator()(request);

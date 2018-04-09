@@ -15,6 +15,7 @@
 
 #include "odil/Association.h"
 #include "odil/Exception.h"
+#include "odil/logging.h"
 #include "odil/SCP.h"
 #include "odil/StoreSCU.h"
 #include "odil/message/CMoveRequest.h"
@@ -56,7 +57,7 @@ MoveSCP
 
 void
 MoveSCP
-::operator()(std::shared_ptr<message::Message const> message)
+::operator()(std::shared_ptr<message::Message> message)
 {
     auto request = std::make_shared<message::CMoveRequest const>(message);
     this->operator()(request);
@@ -71,8 +72,9 @@ MoveSCP
     {
         move_association = this->_generator->get_association(request);
     }
-    catch(odil::Exception const &)
+    catch(odil::Exception const & e)
     {
+        ODIL_LOG(ERROR) << "Cannot get move association: " << e.what();
         auto response = std::make_shared<message::CMoveResponse>(
             request->get_message_id(),
             message::CMoveResponse::RefusedMoveDestinationUnknown);

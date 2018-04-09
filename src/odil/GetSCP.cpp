@@ -46,7 +46,7 @@ GetSCP
 
 void
 GetSCP
-::operator()(std::shared_ptr<message::Message const> message)
+::operator()(std::shared_ptr<message::Message> message)
 {
     auto request = std::make_shared<message::CGetRequest const>(message);
     this->operator()(request);

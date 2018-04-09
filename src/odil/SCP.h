@@ -77,7 +77,7 @@ public:
     void receive_and_process();
 
     /// @brief Process a message.
-    virtual void operator()(std::shared_ptr<message::Message const> message) =0;
+    virtual void operator()(std::shared_ptr<message::Message> message) =0;
 protected:
     /// @brief Association with peer.
     Association & _association;

@@ -49,7 +49,7 @@ public:
     void operator()(std::shared_ptr<message::CStoreRequest> request);
 
     /// @brief Process a C-Store request.
-    virtual void operator()(std::shared_ptr<message::Message const> message);
+    virtual void operator()(std::shared_ptr<message::Message> message);
 private:
     Callback _callback;
 };

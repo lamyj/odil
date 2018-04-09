@@ -42,9 +42,8 @@ NSetSCU
 
 void 
 NSetSCU
-::set(std::shared_ptr<DataSet const> dataset) const
+::set(std::shared_ptr<DataSet> dataset) const
 {
-
     auto request = std::make_shared<message::NSetRequest const>(
         this->_association.next_message_id(),
         this->_affected_sop_class,
@@ -53,7 +52,7 @@ NSetSCU
 
     this->_association.send_message(request, this->_affected_sop_class);
     
-    auto response = std::dynamic_pointer_cast<message::NSetResponse const>(
+    auto response = std::make_shared<message::NSetResponse const>(
         this->_association.receive_message());
 
     if(response->get_message_id_being_responded_to() != request->get_message_id())

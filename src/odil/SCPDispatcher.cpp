@@ -70,8 +70,8 @@ SCPDispatcher
         throw Exception(error_message.str());
     }
 
-    auto scp = *(it->second);
-    scp(message);
+    auto scp = it->second;
+    (*scp)(message);
 }
 
 }

@@ -28,7 +28,7 @@ public:
     void set_affected_sop_class(std::shared_ptr<DataSet const> dataset);
 
     /// @brief Perform the N-SET.
-    void set(std::shared_ptr<DataSet const> dataset) const;
+    void set(std::shared_ptr<DataSet> dataset) const;
 };
 
 }
