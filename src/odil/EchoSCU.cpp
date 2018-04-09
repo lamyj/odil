@@ -34,8 +34,8 @@ EchoSCU
         message_id, registry::VerificationSOPClass);
     this->_association.send_message(
         request, request->get_affected_sop_class_uid());
-    
-    auto response = std::dynamic_pointer_cast<message::CEchoResponse>(
+
+    auto response = std::make_shared<message::CEchoResponse>(
         this->_association.receive_message());
     if(response->get_message_id_being_responded_to() != message_id)
     {

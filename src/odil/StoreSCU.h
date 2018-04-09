@@ -32,7 +32,7 @@ public:
     
     /// @brief Perform the C-STORE.
     void store(
-        std::shared_ptr<DataSet const> dataset,
+        std::shared_ptr<DataSet> dataset,
         Value::String const & move_originator_ae_title = "",
         Value::Integer move_originator_message_id = -1) const;
 private:

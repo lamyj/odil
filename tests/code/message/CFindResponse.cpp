@@ -10,24 +10,26 @@
 
 struct Fixture: public MessageFixtureBase<odil::message::CFindResponse>
 {
-    odil::DataSet command_set;
-    odil::DataSet data_set;
+    std::shared_ptr<odil::DataSet> command_set;
+    std::shared_ptr<odil::DataSet> data_set;
 
     Fixture()
+    : command_set(std::make_shared<odil::DataSet>()),
+      data_set(std::make_shared<odil::DataSet>())
     {
-        command_set.add(
+        command_set->add(
             "CommandField", {odil::message::Message::Command::C_FIND_RSP});
-        command_set.add("MessageIDBeingRespondedTo", {1234});
-        command_set.add("Status", {odil::message::Response::Success});
+        command_set->add("MessageIDBeingRespondedTo", {1234});
+        command_set->add("Status", {odil::message::Response::Success});
 
-        command_set.add("MessageID", {5678});
-        command_set.add("AffectedSOPClassUID",
+        command_set->add("MessageID", {5678});
+        command_set->add("AffectedSOPClassUID",
             {odil::registry::StudyRootQueryRetrieveInformationModelFIND});
 
-        data_set.add("PatientName", {"Doe^John"});
-        data_set.add("PatientID", {"DJ123"});
-        data_set.add("StudyDescription", {"Brain"});
-        data_set.add("StudyInstanceUID", {"1.2.3"});
+        data_set->add("PatientName", {"Doe^John"});
+        data_set->add("PatientID", {"DJ123"});
+        data_set->add("StudyDescription", {"Brain"});
+        data_set->add("StudyInstanceUID", {"1.2.3"});
     }
 
     virtual void check(odil::message::CFindResponse const & message)
@@ -48,7 +50,7 @@ struct Fixture: public MessageFixtureBase<odil::message::CFindResponse>
             odil::registry::StudyRootQueryRetrieveInformationModelFIND);
 
         BOOST_CHECK(message.has_data_set());
-        BOOST_CHECK(message.get_data_set() == this->data_set);
+        BOOST_CHECK(*message.get_data_set() == *this->data_set);
     }
 };
 
@@ -69,7 +71,7 @@ BOOST_FIXTURE_TEST_CASE(MessageConstructor, Fixture)
 
 BOOST_FIXTURE_TEST_CASE(MessageConstructorWrongCommandField, Fixture)
 {
-    this->command_set.as_int("CommandField") = {
+    this->command_set->as_int("CommandField") = {
         odil::message::Message::Command::C_ECHO_RQ};
     this->check_message_constructor_throw(this->command_set, this->data_set);
 }

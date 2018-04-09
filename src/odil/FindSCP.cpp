@@ -52,9 +52,9 @@ FindSCP
 
 void
 FindSCP
-::operator()(std::shared_ptr<message::Message const> message)
+::operator()(std::shared_ptr<message::Message> message)
 {
-    auto request = std::dynamic_pointer_cast<message::CFindRequest const>(message);
+    auto request = std::make_shared<message::CFindRequest const>(message);
     this->operator()(request);
 }
 

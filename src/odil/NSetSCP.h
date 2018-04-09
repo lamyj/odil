@@ -46,7 +46,7 @@ public:
     void set_callback(Callback const & callback);
 
     /// @brief Process a N-Set request.
-    virtual void operator()(std::shared_ptr<message::Message const> message);
+    virtual void operator()(std::shared_ptr<message::Message> message);
 private:
     Callback _callback;
     void operator()(std::shared_ptr<message::NSetRequest const> message);

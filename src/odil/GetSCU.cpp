@@ -18,7 +18,7 @@
 #include "odil/logging.h"
 #include "odil/StoreSCP.h"
 #include "odil/message/CGetRequest.h"
-#include "odil/message/CGetresponse->h"
+#include "odil/message/CGetresponse.h"
 #include "odil/message/CStoreRequest.h"
 
 namespace odil
@@ -34,7 +34,7 @@ GetSCU
 void
 GetSCU
 ::get(
-    std::shared_ptr<DataSet const> query, StoreCallback store_callback,
+    std::shared_ptr<DataSet> query, StoreCallback store_callback,
     GetCallback get_callback) const
 {
     // Send the request
@@ -46,7 +46,7 @@ GetSCU
 
 std::vector<std::shared_ptr<DataSet>>
 GetSCU
-::get(std::shared_ptr<DataSet const> query) const
+::get(std::shared_ptr<DataSet> query) const
 {
     std::vector<std::shared_ptr<DataSet>> result;
     auto callback = [&result](std::shared_ptr<DataSet> data_set) {
@@ -69,13 +69,12 @@ GetSCU
     bool done = false;
     while(!done)
     {
-        auto message = std::dynamic_pointer_cast<message::Message>(
-            this->_association.receive_message());
+        auto message = this->_association.receive_message();
 
         if(message->get_command_field() == message::Message::Command::C_GET_RSP)
         {
             done = this->_handle_get_response(
-                std::dynamic_pointer_cast<message::CGetResponse>(message),
+                std::make_shared<message::CGetResponse>(message),
                 get_callback);
         }
         else if(message->get_command_field() == message::Message::Command::C_STORE_RQ)
@@ -83,7 +82,7 @@ GetSCU
             try
             {
                 this->_handle_store_request(
-                    std::dynamic_pointer_cast<message::CStoreRequest>(message),
+                    std::make_shared<message::CStoreRequest>(message),
                     store_callback);
             }
             catch(...)

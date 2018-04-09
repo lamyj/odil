@@ -46,14 +46,14 @@ public:
 
     /// @brief Perform the C-GET using callbacks.
     void get(
-        std::shared_ptr<DataSet const> query, StoreCallback store_callback,
+        std::shared_ptr<DataSet> query, StoreCallback store_callback,
         GetCallback get_callback=GetCallback()) const;
 
     /**
      * @brief Return a list of datasets matching the query.
      */
     std::vector<std::shared_ptr<DataSet>> get(
-        std::shared_ptr<DataSet const> query) const;
+        std::shared_ptr<DataSet> query) const;
 
 private:
     void _get(

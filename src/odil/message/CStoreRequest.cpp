@@ -61,7 +61,7 @@ CStoreRequest
     if(move_originator_message_id >= 0)
         this->set_move_originator_message_id(move_originator_message_id);
 
-    if(dataset->empty())
+    if(!dataset || dataset->empty())
     {
         throw Exception("Data set is required");
     }

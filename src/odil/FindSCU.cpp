@@ -32,7 +32,7 @@ FindSCU
 
 void
 FindSCU
-::find(std::shared_ptr<DataSet const> query, Callback callback) const
+::find(std::shared_ptr<DataSet> query, Callback callback) const
 {
     auto request = std::make_shared<message::CFindRequest>(
         this->_association.next_message_id(),
@@ -47,11 +47,11 @@ void _accumulate(
     data_sets.push_back(data_set);
 }
 
-std::vector<std::shared_ptr<DataSet>>
+Value::DataSets
 FindSCU
-::find(std::shared_ptr<DataSet const> query) const
+::find(std::shared_ptr<DataSet> query) const
 {
-    std::vector<std::shared_ptr<DataSet>> result;
+    Value::DataSets result;
     auto callback = [&result](std::shared_ptr<DataSet> dataset) {
         result.push_back(dataset);
     };
@@ -73,7 +73,7 @@ FindSCU
     while(!done)
     {
         // FIXME: include progress callback
-        auto response = std::dynamic_pointer_cast<message::CFindResponse>(
+        auto response = std::make_shared<message::CFindResponse>(
             this->_association.receive_message());
 
         if(response->get_message_id_being_responded_to() != request->get_message_id())

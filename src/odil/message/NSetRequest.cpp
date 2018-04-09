@@ -31,7 +31,7 @@ NSetRequest
     this->set_requested_sop_class_uid(requested_sop_class_uid);
     this->set_requested_sop_instance_uid(requested_sop_instance_uid);
 
-    if(dataset->empty())
+    if(!dataset || dataset->empty())
     {
         throw Exception("Data set is required");
     }

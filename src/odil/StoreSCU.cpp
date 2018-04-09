@@ -60,7 +60,7 @@ StoreSCU
 void 
 StoreSCU
 ::store(
-    std::shared_ptr<DataSet const> dataset,
+    std::shared_ptr<DataSet> dataset,
     Value::String const & move_originator_ae_title ,
     Value::Integer move_originator_message_id ) const
 {
@@ -80,7 +80,7 @@ StoreSCU
 {
     this->_association.send_message(request, this->_affected_sop_class);
     
-    auto response = std::dynamic_pointer_cast<message::CStoreResponse const>(
+    auto response = std::make_shared<message::CStoreResponse const>(
         this->_association.receive_message());
 
     if(response->get_message_id_being_responded_to() != request->get_message_id())

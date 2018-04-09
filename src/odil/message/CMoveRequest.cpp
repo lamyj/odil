@@ -50,7 +50,7 @@ CMoveRequest
     this->set_affected_sop_class_uid(affected_sop_class_uid);
     this->set_priority(priority);
     this->set_move_destination(move_destination);
-    if(dataset->empty())
+    if(!dataset || dataset->empty())
     {
         throw Exception("Data set is required");
     }

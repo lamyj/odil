@@ -62,14 +62,14 @@ MoveSCU
 
 void
 MoveSCU
-::move(std::shared_ptr<DataSet const> query, StoreCallback store_callback) const
+::move(std::shared_ptr<DataSet> query, StoreCallback store_callback) const
 {
     this->move(query, store_callback, MoveCallback());
 }
 
 void
 MoveSCU
-::move(std::shared_ptr<DataSet const> query, MoveCallback move_callback) const
+::move(std::shared_ptr<DataSet> query, MoveCallback move_callback) const
 {
     this->move(query, StoreCallback(), move_callback);
 }
@@ -77,7 +77,7 @@ MoveSCU
 void
 MoveSCU
 ::move(
-    std::shared_ptr<DataSet const> query, StoreCallback store_callback,
+    std::shared_ptr<DataSet> query, StoreCallback store_callback,
     MoveCallback move_callback) const
 {
     // Send the request
@@ -137,7 +137,7 @@ MoveSCU
 
 std::vector<std::shared_ptr<DataSet>>
 MoveSCU
-::move(std::shared_ptr<DataSet const> query) const
+::move(std::shared_ptr<DataSet> query) const
 {
     std::vector<std::shared_ptr<DataSet>> result;
     auto callback = [&result](std::shared_ptr<DataSet> data_set) {
@@ -177,7 +177,7 @@ bool
 MoveSCU
 ::_handle_main_association(MoveCallback callback) const
 {
-    auto response = std::dynamic_pointer_cast<message::CMoveResponse>(
+    auto response = std::make_shared<message::CMoveResponse>(
         this->_association.receive_message());
     if(message::Response::is_warning(response->get_status()))
     {

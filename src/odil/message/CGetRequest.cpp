@@ -49,7 +49,7 @@ CGetRequest
     this->set_command_field(Command::C_GET_RQ);
     this->set_affected_sop_class_uid(affected_sop_class_uid);
     this->set_priority(priority);
-    if(dataset->empty())
+    if(!dataset || dataset->empty())
     {
         throw Exception("Data set is required");
     }

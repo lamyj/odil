@@ -40,7 +40,7 @@ public:
     void set_generator(std::shared_ptr<DataSetGenerator> const & generator);
 
     /// @brief Process a C-Find request.
-    virtual void operator()(std::shared_ptr<message::Message const> message);
+    virtual void operator()(std::shared_ptr<message::Message> message);
 
 private:
     std::shared_ptr<DataSetGenerator> _generator;

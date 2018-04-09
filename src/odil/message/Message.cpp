@@ -76,8 +76,7 @@ Message
 {
     this->_data_set = data_set;
     this->_command_set->as_int(registry::CommandDataSetType) = {
-        (this->_data_set && !data_set->empty())
-            ?DataSetType::PRESENT:DataSetType::ABSENT };
+        this->_data_set?DataSetType::PRESENT:DataSetType::ABSENT };
 }
 
 void

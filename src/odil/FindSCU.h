@@ -31,13 +31,12 @@ public:
     FindSCU(Association & association);
     
     /// @brief Perform the C-FIND using an optional callback.
-    void find(std::shared_ptr<DataSet const> query, Callback callback) const;
+    void find(std::shared_ptr<DataSet> query, Callback callback) const;
 
     /**
      * @brief Return a list of datasets matching the query.
      */
-    std::vector<std::shared_ptr<DataSet>> find(
-        std::shared_ptr<DataSet const> query) const;
+    Value::DataSets find(std::shared_ptr<DataSet> query) const;
 
 private:
     void _find(

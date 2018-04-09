@@ -10,27 +10,29 @@
 
 struct Fixture: public MessageFixtureBase<odil::message::CStoreRequest>
 {
-    odil::DataSet command_set;
-    odil::DataSet data_set;
+    std::shared_ptr<odil::DataSet> command_set;
+    std::shared_ptr<odil::DataSet> data_set;
 
     Fixture()
+    : command_set(std::make_shared<odil::DataSet>()),
+      data_set(std::make_shared<odil::DataSet>())
     {
-        this->command_set.add(
+        this->command_set->add(
             "CommandField", {odil::message::Message::Command::C_STORE_RQ});
-        this->command_set.add("MessageID", {1234});
-        this->command_set.add(
+        this->command_set->add("MessageID", {1234});
+        this->command_set->add(
             "AffectedSOPClassUID", {odil::registry::MRImageStorage});
-        this->command_set.add("AffectedSOPInstanceUID", {"1.2.3.4"});
-        this->command_set.add(
+        this->command_set->add("AffectedSOPInstanceUID", {"1.2.3.4"});
+        this->command_set->add(
             "Priority", {odil::message::Message::Priority::MEDIUM});
 
-        this->command_set.add("MoveOriginatorApplicationEntityTitle", {"origin"});
-        this->command_set.add("MoveOriginatorMessageID", {5678});
+        this->command_set->add("MoveOriginatorApplicationEntityTitle", {"origin"});
+        this->command_set->add("MoveOriginatorMessageID", {5678});
 
-        this->data_set.add("PatientName", {"Doe^John"});
-        this->data_set.add("PatientID", {"DJ123"});
-        this->data_set.add("StudyDescription", {"Brain"});
-        this->data_set.add("StudyInstanceUID", {"1.2.3"});
+        this->data_set->add("PatientName", {"Doe^John"});
+        this->data_set->add("PatientID", {"DJ123"});
+        this->data_set->add("StudyDescription", {"Brain"});
+        this->data_set->add("StudyInstanceUID", {"1.2.3"});
     }
 
     void check(odil::message::CStoreRequest const & message)
@@ -51,7 +53,7 @@ struct Fixture: public MessageFixtureBase<odil::message::CStoreRequest>
         BOOST_CHECK_EQUAL(message.get_move_originator_message_id(), 5678);
 
         BOOST_CHECK(message.has_data_set());
-        BOOST_CHECK(message.get_data_set() == this->data_set);
+        BOOST_CHECK(*message.get_data_set() == *this->data_set);
     }
 };
 
@@ -74,19 +76,19 @@ BOOST_FIXTURE_TEST_CASE(MessageConstructor, Fixture)
 
 BOOST_FIXTURE_TEST_CASE(MessageConstructorWrongCommandField, Fixture)
 {
-    this->command_set.as_int("CommandField") = {
+    this->command_set->as_int("CommandField") = {
         odil::message::Message::Command::C_ECHO_RSP};
     this->check_message_constructor_throw(this->command_set, this->data_set);
 }
 
 BOOST_FIXTURE_TEST_CASE(MessageConstructorMissingAffectSOPClass, Fixture)
 {
-    this->command_set.remove("AffectedSOPClassUID");
+    this->command_set->remove("AffectedSOPClassUID");
     this->check_message_constructor_throw(this->command_set, this->data_set);
 }
 
 BOOST_FIXTURE_TEST_CASE(MessageConstructorMissingAffectSOPInstance, Fixture)
 {
-    this->command_set.remove("AffectedSOPInstanceUID");
+    this->command_set->remove("AffectedSOPInstanceUID");
     this->check_message_constructor_throw(this->command_set, this->data_set);
 }

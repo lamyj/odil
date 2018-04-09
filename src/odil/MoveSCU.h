@@ -57,24 +57,22 @@ public:
     
     /// @brief Perform the C-MOVE using callbacks.
     void move(
-        std::shared_ptr<DataSet const> query,
-        StoreCallback store_callback) const;
+        std::shared_ptr<DataSet> query, StoreCallback store_callback) const;
 
     /// @brief Perform the C-MOVE using callbacks.
     void move(
-        std::shared_ptr<DataSet const> query,
-        MoveCallback move_callback) const;
+        std::shared_ptr<DataSet> query, MoveCallback move_callback) const;
 
     /// @brief Perform the C-MOVE using callbacks.
     void move(
-        std::shared_ptr<DataSet const> query, StoreCallback store_callback,
+        std::shared_ptr<DataSet> query, StoreCallback store_callback,
         MoveCallback move_callback) const;
 
     /**
      * @brief Return a list of datasets matching the query.
      */
     std::vector<std::shared_ptr<DataSet>> move(
-        std::shared_ptr<DataSet const> query) const;
+        std::shared_ptr<DataSet> query) const;
 
 private:
     std::string _move_destination;

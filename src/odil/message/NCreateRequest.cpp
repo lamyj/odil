@@ -27,7 +27,7 @@ NCreateRequest
     this->set_command_field(Command::N_CREATE_RQ);
     this->set_affected_sop_class_uid(affected_sop_class_uid);
 
-    if(dataset->empty())
+    if(!dataset || dataset->empty())
     {
         throw Exception("Data set is required");
     }
