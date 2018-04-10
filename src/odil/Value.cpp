@@ -258,5 +258,24 @@ Value
     apply_visitor(ClearValue(), *this);
 }
 
+bool operator==(Value::DataSets const & left, Value::DataSets const & right)
+{
+    return (
+        left.size() == right.size()
+        && std::equal(
+            left.begin(), left.end(), right.begin(),
+            [](std::shared_ptr<DataSet const> x, std::shared_ptr<DataSet const> y) {
+                return (
+                    (x && y && *x == *y)
+                    || (!x && !y));
+            })
+    );
+}
+
+bool operator!=(Value::DataSets const & left, Value::DataSets const & right)
+{
+    return !(left == right);
+}
+
 }
 

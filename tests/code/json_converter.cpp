@@ -309,14 +309,9 @@ BOOST_AUTO_TEST_CASE(AsDataSetDataSets)
     auto item = std::make_shared<odil::DataSet>();
     item->add(0xbeeff00d,
         odil::Element(odil::Value::Integers({1,2}), odil::VR::SS));
-    odil::Value::DataSets const expected_data_sets{{item}};
+
     BOOST_REQUIRE(
-        std::equal(
-            data_set->as_data_set("deadbeef") .begin(), data_set->as_data_set("deadbeef") .end(),
-            expected_data_sets.begin(),
-            [](std::shared_ptr<odil::DataSet const> x, std::shared_ptr<odil::DataSet const> y) {
-                return *x == *y;
-            }));
+        data_set->as_data_set("deadbeef") == odil::Value::DataSets{{item}});
 }
 
 

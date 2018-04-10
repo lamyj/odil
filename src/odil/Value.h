@@ -193,6 +193,17 @@ private:
 };
 
 /**
+ * @brief Equality test.
+ *
+ * This will have priority over the standard operator of std::vector since the
+ * latter is templated (cf. 23.3.6.1) and the former is not.
+*/
+bool operator==(Value::DataSets const & left, Value::DataSets const & right);
+
+/// @brief Difference test.
+bool operator!=(Value::DataSets const & left, Value::DataSets const & right);
+
+/**
  * @brief Visitor of values.
  */
 template<typename TVisitor>
