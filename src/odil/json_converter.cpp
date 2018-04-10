@@ -29,7 +29,7 @@ class ToJSONVisitor
 public:
     typedef Json::Value result_type;
 
-    ToJSONVisitor(odil::Value::Strings const & specific_char_set)
+    ToJSONVisitor(Value::Strings const & specific_char_set)
     : _specific_character_set(specific_char_set)
     {
         // Nothing else.
@@ -131,14 +131,15 @@ public:
 
         return result;
     }
+
 private:
-    odil::Value::Strings _specific_character_set;
+    Value::Strings _specific_character_set;
 
     std::string _convert_string(VR const vr, Value::String const & value) const
     {
         if(
             vr != VR::LO && vr != VR::LT &&
-            vr != VR::PN && vr != odil::VR::SH &&
+            vr != VR::PN && vr != VR::SH &&
             vr != VR::ST && vr != VR::UT)
         {
             // Nothing to do
@@ -148,7 +149,7 @@ private:
         return as_utf8(value, this->_specific_character_set, vr==VR::PN);
     }
 
-    Json::Value _convert_pn(odil::Value::String const & value) const
+    Json::Value _convert_pn(Value::String const & value) const
     {
         static auto const fields = { "Alphabetic", "Ideographic", "Phonetic" };
 
@@ -159,7 +160,7 @@ private:
         std::string::size_type begin=0;
         while(begin != std::string::npos)
         {
-            std::string::size_type const end = value.find("=", begin);
+            auto const end = value.find("=", begin);
 
             std::string::size_type size = 0;
             if(end != std::string::npos)
@@ -172,7 +173,7 @@ private:
             }
 
             auto const component = value.substr(begin, size);
-            json[*fields_it] = this->_convert_string(odil::VR::PN, component);
+            json[*fields_it] = this->_convert_string(VR::PN, component);
 
             if(end != std::string::npos)
             {
@@ -195,11 +196,15 @@ private:
 
 Json::Value as_json(
     std::shared_ptr<DataSet const> data_set,
-    odil::Value::Strings const & specific_character_set)
+    Value::Strings const & specific_character_set)
 {
     auto current_specific_char_set = specific_character_set;
 
     Json::Value json;
+    if(!data_set)
+    {
+        return json;
+    }
 
     for(auto const & it: *data_set)
     {
@@ -231,18 +236,18 @@ Json::Value as_json(
 
 std::shared_ptr<DataSet> as_dataset(Json::Value const & json)
 {
-    std::shared_ptr<DataSet> data_set;
+    auto data_set = std::make_shared<DataSet>();
 
-    for(Json::Value::const_iterator it=json.begin(); it != json.end(); ++it)
+    for(auto it=json.begin(); it != json.end(); ++it)
     {
         Tag const tag(it.memberName());
 
-        Json::Value const & json_element = *it;
-        VR const vr = as_vr(json_element["vr"].asString());
+        auto const & json_element = *it;
+        auto const vr = as_vr(json_element["vr"].asString());
 
         Element element(vr);
 
-        if(odil::is_string(vr) && vr != odil::VR::PN)
+        if(is_string(vr) && vr != VR::PN)
         {
             auto const & json_value = json_element["Value"];
             for(auto const & json_item: json_value)

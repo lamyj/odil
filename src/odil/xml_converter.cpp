@@ -226,40 +226,43 @@ boost::property_tree::ptree as_xml(
 
     // XML dataset element
     boost::property_tree::ptree nativedicommodel;
-    for(auto const & it: *data_set)
+    if(data_set)
     {
-        auto const & tag = it.first;
-        auto const & element = it.second;
+        for(auto const & it: *data_set)
+        {
+            auto const & tag = it.first;
+            auto const & element = it.second;
 
-        boost::property_tree::ptree dicomattribute;
+            boost::property_tree::ptree dicomattribute;
 
-        auto const bulk_data_info =
-            bulk_data_creator?bulk_data_creator(data_set, tag)
-            :std::make_pair(std::string(), std::string());
-        if(!bulk_data_info.first.empty())
-        {
-            boost::property_tree::ptree bulk_data_element;
-            bulk_data_element.put(
-                "<xmlattr>."+bulk_data_info.first, bulk_data_info.second);
-            dicomattribute.add_child("BulkData", bulk_data_element);
-            dicomattribute.put("<xmlattr>.vr", as_string(element.vr));
+            auto const bulk_data_info =
+                bulk_data_creator?bulk_data_creator(data_set, tag)
+                :std::make_pair(std::string(), std::string());
+            if(!bulk_data_info.first.empty())
+            {
+                boost::property_tree::ptree bulk_data_element;
+                bulk_data_element.put(
+                    "<xmlattr>."+bulk_data_info.first, bulk_data_info.second);
+                dicomattribute.add_child("BulkData", bulk_data_element);
+                dicomattribute.put("<xmlattr>.vr", as_string(element.vr));
+            }
+            else
+            {
+                dicomattribute = apply_visitor(visitor, element);
+            }
+            // Add Mandatory attribute Tag
+            dicomattribute.put("<xmlattr>.tag",  std::string(tag));
+            // Add Optional attribute Keyword
+            auto const dictionary_it = registry::public_dictionary.find(tag);
+            if(dictionary_it != registry::public_dictionary.end())
+            {
+                dicomattribute.put(
+                    "<xmlattr>.keyword", dictionary_it->second.keyword);
+            }
+            // Add Optional attribute PrivateCreator
+            //dicomattribute.put("<xmlattr>.privateCreator", todo);
+            nativedicommodel.add_child("DicomAttribute", dicomattribute);
         }
-        else
-        {
-            dicomattribute = apply_visitor(visitor, element);
-        }
-        // Add Mandatory attribute Tag
-        dicomattribute.put("<xmlattr>.tag",  std::string(tag));
-        // Add Optional attribute Keyword
-        auto const dictionary_it = registry::public_dictionary.find(tag);
-        if(dictionary_it != registry::public_dictionary.end())
-        {
-            dicomattribute.put(
-                "<xmlattr>.keyword", dictionary_it->second.keyword);
-        }
-        // Add Optional attribute PrivateCreator
-        //dicomattribute.put("<xmlattr>.privateCreator", todo);
-        nativedicommodel.add_child("DicomAttribute", dicomattribute);
     }
 
     // root element
@@ -329,8 +332,9 @@ void parse_person_name(
         {
             std::vector<std::string> name;
 
-            std::vector<std::string> const components = {
-                "FamilyName", "GivenName", "MiddleName", "NamePrefix", "NameSuffix"};
+            static auto const components = {
+                "FamilyName", "GivenName", "MiddleName", "NamePrefix",
+                "NameSuffix"};
             for(auto const & component: components)
             {
                 auto const & component_it = representation_it->second.find(component);
@@ -364,8 +368,7 @@ void parse_person_name(
 void parse_attributes(
     boost::property_tree::ptree const & xml, std::shared_ptr<DataSet> data_set);
 
-void parse_item(
-    boost::property_tree::ptree const & xml, Element & element)
+void parse_item(boost::property_tree::ptree const & xml, Element & element)
 {
     auto data_set = std::make_shared<DataSet>();
     parse_attributes(xml, data_set);
@@ -379,9 +382,7 @@ void parse_inline_binary(
     auto const & encoded = xml.get_value<std::string>();
     Value::Binary::value_type decoded;
     decoded.reserve(encoded.size()*3/4);
-    base64::decode(
-        encoded.begin(), encoded.end(),
-        std::back_inserter(decoded));
+    base64::decode(encoded.begin(), encoded.end(), std::back_inserter(decoded));
     element.as_binary() = { decoded };
 }
 
@@ -394,7 +395,7 @@ void parse_attributes(
         auto const & children = attribute->second;
 
         Tag const tag(children.get<std::string>("<xmlattr>.tag"));
-        VR const vr = as_vr(children.get<std::string>("<xmlattr>.vr"));
+        auto const vr = as_vr(children.get<std::string>("<xmlattr>.vr"));
 
         Element element(VR::UN);
 
@@ -478,7 +479,9 @@ void parse_attributes(
             parser = [](boost::property_tree::ptree const &, Element &) {};
         }
 
-        auto const size = range.first==children.not_found()?0
+        auto const size =
+            range.first==children.not_found()
+            ?0
             :std::distance(range.first, range.second);
         if(element.is_int())
         {

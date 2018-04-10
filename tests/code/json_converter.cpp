@@ -16,7 +16,7 @@
 
 BOOST_AUTO_TEST_CASE(AsJSONEmptyDataSet)
 {
-    odil::DataSet data_set;
+    auto data_set = std::make_shared<odil::DataSet>();
     auto const json = odil::as_json(data_set);
     BOOST_REQUIRE(json.empty());
 }
@@ -52,8 +52,8 @@ void check_json_string(Json::Value const & object, std::string const & expected_
 
 BOOST_AUTO_TEST_CASE(AsJSONEmptyElement)
 {
-    odil::DataSet data_set;
-    data_set.add(0xdeadbeef, odil::VR::SS);
+    auto data_set = std::make_shared<odil::DataSet>();
+    data_set->add(0xdeadbeef, odil::VR::SS);
     auto const json = odil::as_json(data_set);
     check_json_object(json, {"deadbeef"});
     check_json_object(json["deadbeef"], {"vr"});
@@ -62,34 +62,34 @@ BOOST_AUTO_TEST_CASE(AsJSONEmptyElement)
 
 BOOST_AUTO_TEST_CASE(AsJSONIntegers)
 {
-    odil::DataSet data_set;
-    data_set.add(0xdeadbeef,
+    auto data_set = std::make_shared<odil::DataSet>();
+    data_set->add(0xdeadbeef,
         odil::Element(odil::Value::Integers({1, 2}), odil::VR::SS));
     auto const json = odil::as_json(data_set);
     check_json_object(json, {"deadbeef"});
     check_json_object(json["deadbeef"], {"vr", "Value"});
     check_json_string(json["deadbeef"]["vr"], "SS");
     check_json_array(json["deadbeef"]["Value"],
-        &Json::Value::isInt, &Json::Value::asInt, data_set.as_int(0xdeadbeef));
+        &Json::Value::isInt, &Json::Value::asInt, data_set->as_int(0xdeadbeef));
 }
 
 BOOST_AUTO_TEST_CASE(AsJSONReals)
 {
-    odil::DataSet data_set;
-    data_set.add(0xdeadbeef,
+    auto data_set = std::make_shared<odil::DataSet>();
+    data_set->add(0xdeadbeef,
         odil::Element(odil::Value::Reals({1.2, 3.4}), odil::VR::FL));
     auto const json = odil::as_json(data_set);
     check_json_object(json, {"deadbeef"});
     check_json_object(json["deadbeef"], {"vr", "Value"});
     check_json_string(json["deadbeef"]["vr"], "FL");
     check_json_array(json["deadbeef"]["Value"],
-        &Json::Value::isDouble, &Json::Value::asDouble, data_set.as_real(0xdeadbeef));
+        &Json::Value::isDouble, &Json::Value::asDouble, data_set->as_real(0xdeadbeef));
 }
 
 BOOST_AUTO_TEST_CASE(AsJSONStrings)
 {
-    odil::DataSet data_set;
-    data_set.add(0xdeadbeef,
+    auto data_set = std::make_shared<odil::DataSet>();
+    data_set->add(0xdeadbeef,
         odil::Element(
             odil::Value::Strings({"FOO", "BAR"}),
             odil::VR::CS));
@@ -98,16 +98,16 @@ BOOST_AUTO_TEST_CASE(AsJSONStrings)
     check_json_object(json["deadbeef"], {"vr", "Value"});
     check_json_string(json["deadbeef"]["vr"], "CS");
     check_json_array(json["deadbeef"]["Value"],
-        &Json::Value::isString, &Json::Value::asString, data_set.as_string(0xdeadbeef));
+        &Json::Value::isString, &Json::Value::asString, data_set->as_string(0xdeadbeef));
 }
 
 BOOST_AUTO_TEST_CASE(AsJSONStringsUnicode)
 {
-    odil::DataSet data_set;
-    data_set.add(
+    auto data_set = std::make_shared<odil::DataSet>();
+    data_set->add(
         odil::registry::SpecificCharacterSet,
         odil::Value::Strings({"ISO_IR 100"}), odil::VR::LO);
-    data_set.add(
+    data_set->add(
         0xdeadbeef, odil::Value::Strings({"J\xe9r\xf4me"}), odil::VR::LO);
     auto const json = odil::as_json(data_set);
 
@@ -122,8 +122,8 @@ BOOST_AUTO_TEST_CASE(AsJSONStringsUnicode)
 
 BOOST_AUTO_TEST_CASE(AsJSONPersonName)
 {
-    odil::DataSet data_set;
-    data_set.add(0xdeadbeef,
+    auto data_set = std::make_shared<odil::DataSet>();
+    data_set->add(0xdeadbeef,
         odil::Element(
             odil::Value::Strings({"Alpha^Betic=Ideo^Graphic=Pho^Netic"}),
             odil::VR::PN));
@@ -143,11 +143,11 @@ BOOST_AUTO_TEST_CASE(AsJSONPersonName)
 
 BOOST_AUTO_TEST_CASE(AsJSONPersonNameUnicode)
 {
-    odil::DataSet data_set;
-    data_set.add(
+    auto data_set = std::make_shared<odil::DataSet>();
+    data_set->add(
         odil::registry::SpecificCharacterSet,
         odil::Value::Strings({"ISO_IR 100"}), odil::VR::LO);
-    data_set.add(
+    data_set->add(
         0xdeadbeef, odil::Value::Strings({"Buc^J\xe9r\xf4me"}), odil::VR::PN);
     auto const json = odil::as_json(data_set);
     check_json_object(
@@ -165,11 +165,11 @@ BOOST_AUTO_TEST_CASE(AsJSONPersonNameUnicode)
 
 BOOST_AUTO_TEST_CASE(AsJSONDataSets)
 {
-    odil::DataSet item;
-    item.add(0xbeeff00d,
+    auto item = std::make_shared<odil::DataSet>();
+    item->add(0xbeeff00d,
         odil::Element(odil::Value::Integers({1,2}), odil::VR::SS));
-    odil::DataSet data_set;
-    data_set.add(0xdeadbeef,
+    auto data_set = std::make_shared<odil::DataSet>();
+    data_set->add(0xdeadbeef,
         odil::Element(
             odil::Value::DataSets({item}),
             odil::VR::SQ));
@@ -187,13 +187,13 @@ BOOST_AUTO_TEST_CASE(AsJSONDataSets)
     check_json_object(json["deadbeef"]["Value"][0]["beeff00d"], {"vr", "Value"});
     check_json_string(json["deadbeef"]["Value"][0]["beeff00d"]["vr"], "SS");
     check_json_array(json["deadbeef"]["Value"][0]["beeff00d"]["Value"],
-        &Json::Value::isInt, &Json::Value::asInt, item.as_int(0xbeeff00d));
+        &Json::Value::isInt, &Json::Value::asInt, item->as_int(0xbeeff00d));
 }
 
 BOOST_AUTO_TEST_CASE(AsJSONBinary)
 {
-    odil::DataSet data_set;
-    data_set.add(0xdeadbeef,
+    auto data_set = std::make_shared<odil::DataSet>();
+    data_set->add(0xdeadbeef,
         odil::Element(
             odil::Value::Binary({{0x1, 0x2, 0x3, 0x4, 0x5}}),
             odil::VR::OB));
@@ -208,9 +208,9 @@ BOOST_AUTO_TEST_CASE(AsJSONBinary)
 
 BOOST_AUTO_TEST_CASE(AsJSONGroupLength)
 {
-    odil::DataSet data_set;
-    data_set.add(0x00100000, {1234}, odil::VR::UL);
-    data_set.add(odil::registry::PatientID, {"DJ0001"});
+    auto data_set = std::make_shared<odil::DataSet>();
+    data_set->add(0x00100000, {1234}, odil::VR::UL);
+    data_set->add(odil::registry::PatientID, {"DJ0001"});
     auto const json = odil::as_json(data_set);
     check_json_object(json, {"00100020"});
 }
@@ -222,8 +222,8 @@ BOOST_AUTO_TEST_CASE(AsDataSetEmpty)
     Json::Value json;
     data >> json;
 
-    odil::DataSet const data_set = odil::as_dataset(json);
-    BOOST_REQUIRE(data_set.empty());
+    auto const data_set = odil::as_dataset(json);
+    BOOST_REQUIRE(data_set->empty());
 }
 
 BOOST_AUTO_TEST_CASE(AsDataSetIntegers)
@@ -233,12 +233,12 @@ BOOST_AUTO_TEST_CASE(AsDataSetIntegers)
     Json::Value json;
     data >> json;
 
-    odil::DataSet const data_set = odil::as_dataset(json);
-    BOOST_REQUIRE_EQUAL(data_set.size(), 1);
-    BOOST_REQUIRE(data_set.has("deadbeef"));
-    BOOST_REQUIRE(data_set.get_vr("deadbeef") == odil::VR::SS);
-    BOOST_REQUIRE(data_set.is_int("deadbeef"));
-    BOOST_REQUIRE(data_set.as_int("deadbeef") == odil::Value::Integers({1, 2}));
+    auto const data_set = odil::as_dataset(json);
+    BOOST_REQUIRE_EQUAL(data_set->size(), 1);
+    BOOST_REQUIRE(data_set->has("deadbeef"));
+    BOOST_REQUIRE(data_set->get_vr("deadbeef") == odil::VR::SS);
+    BOOST_REQUIRE(data_set->is_int("deadbeef"));
+    BOOST_REQUIRE(data_set->as_int("deadbeef") == odil::Value::Integers({1, 2}));
 }
 
 BOOST_AUTO_TEST_CASE(AsDataSetReals)
@@ -248,12 +248,12 @@ BOOST_AUTO_TEST_CASE(AsDataSetReals)
     Json::Value json;
     data >> json;
 
-    odil::DataSet const data_set = odil::as_dataset(json);
-    BOOST_REQUIRE_EQUAL(data_set.size(), 1);
-    BOOST_REQUIRE(data_set.has("deadbeef"));
-    BOOST_REQUIRE(data_set.get_vr("deadbeef") == odil::VR::FL);
-    BOOST_REQUIRE(data_set.is_real("deadbeef"));
-    BOOST_REQUIRE(data_set.as_real("deadbeef") == odil::Value::Reals({1.2, 3.4}));
+    auto const data_set = odil::as_dataset(json);
+    BOOST_REQUIRE_EQUAL(data_set->size(), 1);
+    BOOST_REQUIRE(data_set->has("deadbeef"));
+    BOOST_REQUIRE(data_set->get_vr("deadbeef") == odil::VR::FL);
+    BOOST_REQUIRE(data_set->is_real("deadbeef"));
+    BOOST_REQUIRE(data_set->as_real("deadbeef") == odil::Value::Reals({1.2, 3.4}));
 }
 
 BOOST_AUTO_TEST_CASE(AsDataSetStrings)
@@ -263,12 +263,12 @@ BOOST_AUTO_TEST_CASE(AsDataSetStrings)
     Json::Value json;
     data >> json;
 
-    odil::DataSet const data_set = odil::as_dataset(json);
-    BOOST_REQUIRE_EQUAL(data_set.size(), 1);
-    BOOST_REQUIRE(data_set.has("deadbeef"));
-    BOOST_REQUIRE(data_set.get_vr("deadbeef") == odil::VR::CS);
-    BOOST_REQUIRE(data_set.is_string("deadbeef"));
-    BOOST_REQUIRE(data_set.as_string("deadbeef") == odil::Value::Strings({"FOO", "BAR"}));
+    auto const data_set = odil::as_dataset(json);
+    BOOST_REQUIRE_EQUAL(data_set->size(), 1);
+    BOOST_REQUIRE(data_set->has("deadbeef"));
+    BOOST_REQUIRE(data_set->get_vr("deadbeef") == odil::VR::CS);
+    BOOST_REQUIRE(data_set->is_string("deadbeef"));
+    BOOST_REQUIRE(data_set->as_string("deadbeef") == odil::Value::Strings({"FOO", "BAR"}));
 }
 
 BOOST_AUTO_TEST_CASE(AsDataSetPersonName)
@@ -282,12 +282,12 @@ BOOST_AUTO_TEST_CASE(AsDataSetPersonName)
     Json::Value json;
     data >> json;
 
-    odil::DataSet const data_set = odil::as_dataset(json);
-    BOOST_REQUIRE_EQUAL(data_set.size(), 1);
-    BOOST_REQUIRE(data_set.has("deadbeef"));
-    BOOST_REQUIRE(data_set.get_vr("deadbeef") == odil::VR::PN);
-    BOOST_REQUIRE(data_set.is_string("deadbeef"));
-    BOOST_REQUIRE(data_set.as_string("deadbeef") == odil::Value::Strings(
+    auto const data_set = odil::as_dataset(json);
+    BOOST_REQUIRE_EQUAL(data_set->size(), 1);
+    BOOST_REQUIRE(data_set->has("deadbeef"));
+    BOOST_REQUIRE(data_set->get_vr("deadbeef") == odil::VR::PN);
+    BOOST_REQUIRE(data_set->is_string("deadbeef"));
+    BOOST_REQUIRE(data_set->as_string("deadbeef") == odil::Value::Strings(
         {"Alpha^Betic=Ideo^Graphic=Pho^Netic"}));
 }
 
@@ -300,16 +300,23 @@ BOOST_AUTO_TEST_CASE(AsDataSetDataSets)
     Json::Value json;
     data >> json;
 
-    odil::DataSet const data_set = odil::as_dataset(json);
-    BOOST_REQUIRE_EQUAL(data_set.size(), 1);
-    BOOST_REQUIRE(data_set.has("deadbeef"));
-    BOOST_REQUIRE(data_set.get_vr("deadbeef") == odil::VR::SQ);
-    BOOST_REQUIRE(data_set.is_data_set("deadbeef"));
+    auto const data_set = odil::as_dataset(json);
+    BOOST_REQUIRE_EQUAL(data_set->size(), 1);
+    BOOST_REQUIRE(data_set->has("deadbeef"));
+    BOOST_REQUIRE(data_set->get_vr("deadbeef") == odil::VR::SQ);
+    BOOST_REQUIRE(data_set->is_data_set("deadbeef"));
 
-    odil::DataSet item;
-    item.add(0xbeeff00d,
+    auto item = std::make_shared<odil::DataSet>();
+    item->add(0xbeeff00d,
         odil::Element(odil::Value::Integers({1,2}), odil::VR::SS));
-    BOOST_REQUIRE(data_set.as_data_set("deadbeef") == odil::Value::DataSets({item}));
+    odil::Value::DataSets const expected_data_sets{{item}};
+    BOOST_REQUIRE(
+        std::equal(
+            data_set->as_data_set("deadbeef") .begin(), data_set->as_data_set("deadbeef") .end(),
+            expected_data_sets.begin(),
+            [](std::shared_ptr<odil::DataSet const> x, std::shared_ptr<odil::DataSet const> y) {
+                return *x == *y;
+            }));
 }
 
 
@@ -320,11 +327,11 @@ BOOST_AUTO_TEST_CASE(AsDataSetBinary)
     Json::Value json;
     data >> json;
 
-    odil::DataSet const data_set = odil::as_dataset(json);
-    BOOST_REQUIRE_EQUAL(data_set.size(), 1);
-    BOOST_REQUIRE(data_set.has("deadbeef"));
-    BOOST_REQUIRE(data_set.get_vr("deadbeef") == odil::VR::OB);
-    BOOST_REQUIRE(data_set.is_binary("deadbeef"));
-    BOOST_REQUIRE(data_set.as_binary("deadbeef") == odil::Value::Binary(
+    auto const data_set = odil::as_dataset(json);
+    BOOST_REQUIRE_EQUAL(data_set->size(), 1);
+    BOOST_REQUIRE(data_set->has("deadbeef"));
+    BOOST_REQUIRE(data_set->get_vr("deadbeef") == odil::VR::OB);
+    BOOST_REQUIRE(data_set->is_binary("deadbeef"));
+    BOOST_REQUIRE(data_set->as_binary("deadbeef") == odil::Value::Binary(
         {{0x1, 0x2, 0x3, 0x4, 0x5}}));
 }

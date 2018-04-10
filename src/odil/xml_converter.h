@@ -31,7 +31,7 @@ typedef
 /// @brief Convert a data set to its XML representation.
 ODIL_API boost::property_tree::ptree as_xml(
     std::shared_ptr<DataSet const> data_set,
-    BulkDataCreator const & bulk_data_creator=BulkDataCreator());
+    BulkDataCreator const & bulk_data_creator={});
 
 /// @brief Create a data set from its XML representation.
 ODIL_API std::shared_ptr<DataSet> as_dataset(boost::property_tree::ptree const & xml);
