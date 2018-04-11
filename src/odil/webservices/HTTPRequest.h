@@ -32,12 +32,15 @@ public:
      * "HTTP/1.0".
      */
     HTTPRequest(
-        std::string const & method="", URL const & target=URL(),
+        std::string const & method="", URL const & target={},
         std::string const & http_version="HTTP/1.0",
-        Headers const & headers=Headers(), std::string const & body="");
+        Headers const & headers={}, std::string const & body="");
 
-    /// @brief Destructor.
-    virtual ~HTTPRequest();
+    HTTPRequest(HTTPRequest const &) = default;
+    HTTPRequest(HTTPRequest &&) = default;
+    HTTPRequest & operator=(HTTPRequest const &) = default;
+    HTTPRequest & operator=(HTTPRequest &&) = default;
+    virtual ~HTTPRequest() = default;
 
     /// @brief Return the method.
     std::string const & get_method() const;

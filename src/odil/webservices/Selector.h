@@ -70,13 +70,13 @@ public:
     std::vector<int> const & get_frames() const;
 
     /// @brief set the wanted study
-    Selector& set_study(std::string const & study);
+    Selector & set_study(std::string const & study);
     /// @brief set the wanted series
-    Selector& set_series(std::string const & series);
+    Selector & set_series(std::string const & series);
     /// @brief set the wanted instance
-    Selector& set_instance(std::string const & instance);
+    Selector & set_instance(std::string const & instance);
     /// @brief set the wanted frames
-    Selector& set_frames(std::vector<int> const & frames);
+    Selector & set_frames(std::vector<int> const & frames);
 
 private:
     std::string _study;

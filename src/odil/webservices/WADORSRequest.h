@@ -80,7 +80,6 @@ public:
     /// @brief Return the selector.
     Selector const & get_selector() const;
 
-
     /// @brief Return the URL.
     URL const & get_url() const;
 
@@ -120,9 +119,6 @@ private:
     std::string _media_type;
     Representation _representation;
     Type _type;
-
-    /// @brief Split an URL in a pair of base_url and request selector.
-    static std::pair<URL, Selector> _split_full_url(URL const & url);
 
     /// @brief Return if the given selector is valid or not
     static bool _is_selector_valid(Selector const & selector);

@@ -35,9 +35,8 @@ public:
 
     QIDORSResponse(QIDORSResponse const &) = default;
     QIDORSResponse(QIDORSResponse &&) = default;
+    QIDORSResponse & operator=(QIDORSResponse const &) = default;
     QIDORSResponse & operator=(QIDORSResponse &&) = default;
-
-    /// @brief Destructor.
     ~QIDORSResponse() = default;
 
     /// @brief Equality operator.
@@ -47,19 +46,19 @@ public:
     bool operator!=(QIDORSResponse const & other) const;
 
     /// @brief Get the response items
-    std::vector<DataSet> const & get_data_sets() const;
+    Value::DataSets const & get_data_sets() const;
 
     /// @brief Modify the response items
-    std::vector<DataSet> & get_data_sets();
+    Value::DataSets & get_data_sets();
 
     /// @brief Set the response items
-    void  set_data_sets(std::vector<DataSet> const& data_sets);
+    void set_data_sets(Value::DataSets const & data_sets);
 
     /// @brief Return the representation
-    odil::webservices::Representation const & get_representation() const;
+    Representation const & get_representation() const;
 
     /// @brief Set the representation
-    void set_representation(odil::webservices::Representation const & representation);
+    void set_representation(Representation const & representation);
 
     /// @brief Return the media type
     std::string const & get_media_type() const;
@@ -68,8 +67,8 @@ public:
     HTTPResponse get_http_response() const;
 
 private:
-    std::vector<DataSet> _data_sets;
-    odil::webservices::Representation _representation;
+    Value::DataSets _data_sets;
+    Representation _representation;
     std::string _media_type;
 };
 

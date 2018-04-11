@@ -84,16 +84,17 @@ URL
     typedef std::string::const_iterator Iterator;
     typedef std::vector<std::pair<std::string, std::string>> PairContainer;
 
-    qi::rule<Iterator, std::string()> elem = +~qi::char_("="+separator);
+    qi::rule<Iterator, std::string()> name = +~qi::char_("="+separator);
+    qi::rule<Iterator, std::string()> value = +~qi::char_(separator);
     qi::rule<Iterator, PairContainer()> retrieve_key_val =
-            (elem  >> qi::omit["="] >> elem) % separator;
+            (name  >> qi::omit["="] >> value)%separator;
 
     auto iterator = this->query.begin();
     PairContainer pair_container;
     auto const parsed = qi::phrase_parse(
         iterator, this->query.end(), retrieve_key_val, qi::ascii::space,
         pair_container);
-    if(!parsed || iterator != this->query.end())
+    if(!this->query.empty() && (!parsed || iterator != this->query.end()))
     {
         throw Exception("Could not parse query string");
     }

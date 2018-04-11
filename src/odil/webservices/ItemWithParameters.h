@@ -39,14 +39,14 @@ struct ODIL_API ItemWithParameters
 
     ItemWithParameters(
         std::string const & name="",
-        std::map<std::string, std::string> const & name_parameters=std::map<std::string, std::string>(),
-        std::map<std::string, std::string> const & extension_parameters=std::map<std::string, std::string>());
+        std::map<std::string, std::string> const & name_parameters={},
+        std::map<std::string, std::string> const & extension_parameters={});
 
-    ~ItemWithParameters() =default;
-    ItemWithParameters(ItemWithParameters const &) =default;
-    ItemWithParameters(ItemWithParameters &&) =default;
-    ItemWithParameters & operator=(ItemWithParameters const &) =default;
-    ItemWithParameters & operator=(ItemWithParameters &&) =default;
+    ItemWithParameters(ItemWithParameters const &) = default;
+    ItemWithParameters(ItemWithParameters &&) = default;
+    ItemWithParameters & operator=(ItemWithParameters const &) = default;
+    ItemWithParameters & operator=(ItemWithParameters &&) = default;
+    ~ItemWithParameters() = default;
 
     operator std::string() const;
 };

@@ -20,28 +20,34 @@
 
 struct Fixture
 {
-    odil::DataSet data_set;
+    std::shared_ptr<odil::DataSet> data_set;
 
     Fixture()
     {
-        odil::DataSet data_set_1;
-        data_set_1.add("RetrieveURL", {"http://example.com/dicom/studies/7.8.9"});
-        data_set_1.add("FailedSOPSequence", {odil::DataSet()}, odil::VR::SQ);
-        odil::DataSet referenceSOPSequence;
-        odil::DataSet referenceSOPSequence_item1; // first instance that was correctly stored
-        referenceSOPSequence_item1.add("ReferencedSOPClassUID", {odil::registry::MRImageStorage});
-        referenceSOPSequence_item1.add("ReferencedSOPInstanceUID", {"1.2.3.6.1"});
-        referenceSOPSequence_item1.add("RetrieveURL",
+        this->data_set = std::make_shared<odil::DataSet>();
+        this->data_set->add(
+            "RetrieveURL", {"http://example.com/dicom/studies/7.8.9"});
+        this->data_set->add(
+            "FailedSOPSequence", {std::make_shared<odil::DataSet>()});
+
+        auto referenceSOPSequence_item1 = std::make_shared<odil::DataSet>();
+        referenceSOPSequence_item1->add(
+            "ReferencedSOPClassUID", {odil::registry::MRImageStorage});
+        referenceSOPSequence_item1->add("ReferencedSOPInstanceUID", {"1.2.3.6.1"});
+        referenceSOPSequence_item1->add("RetrieveURL",
             {"http://example.com/dicom/studies/7.8.9/series/4.5/instances/1.2.3.6.1"});
-        odil::DataSet referenceSOPSequence_item2; // second instance that was correctly stored
-        referenceSOPSequence_item2.add("ReferencedSOPClassUID", {odil::registry::RawDataStorage});
-        referenceSOPSequence_item2.add("ReferencedSOPInstanceUID", {"1.2.3.6.2"});
-        referenceSOPSequence_item2.add("RetrieveURL",
+
+        auto referenceSOPSequence_item2 = std::make_shared<odil::DataSet>();
+        referenceSOPSequence_item2->add(
+            "ReferencedSOPClassUID", {odil::registry::RawDataStorage});
+        referenceSOPSequence_item2->add(
+            "ReferencedSOPInstanceUID", {"1.2.3.6.2"});
+        referenceSOPSequence_item2->add("RetrieveURL",
             {"http://example.com/dicom/studies/7.8.9/series/4.5/instances/1.2.3.6.2"});
 
-        data_set_1.add("ReferencedSOPSequence", {referenceSOPSequence_item1, referenceSOPSequence_item2});
-
-        data_set = data_set_1;
+        this->data_set->add(
+            "ReferencedSOPSequence",
+            {referenceSOPSequence_item1, referenceSOPSequence_item2});
     }
 };
 
@@ -49,7 +55,7 @@ struct Fixture
 BOOST_AUTO_TEST_CASE(Constructor)
 {
     odil::webservices::STOWRSResponse const response;
-    BOOST_REQUIRE(response.get_store_instance_responses().empty());
+    BOOST_REQUIRE(response.get_store_instance_responses()->empty());
 }
 
 BOOST_FIXTURE_TEST_CASE(RespondDICOM_XML, Fixture)
@@ -68,7 +74,7 @@ BOOST_FIXTURE_TEST_CASE(RespondDICOM_XML, Fixture)
     std::stringstream stream(http.get_body());
     boost::property_tree::ptree xml;
     boost::property_tree::read_xml(stream, xml);
-    BOOST_REQUIRE(data_set == odil::as_dataset(xml));
+    BOOST_REQUIRE(*data_set == *odil::as_dataset(xml));
 }
 
 BOOST_FIXTURE_TEST_CASE(RespondDICOM_JSON, Fixture)
@@ -89,7 +95,7 @@ BOOST_FIXTURE_TEST_CASE(RespondDICOM_JSON, Fixture)
     stream >> array;
     BOOST_REQUIRE(array.isArray());
 
-    BOOST_REQUIRE(data_set == odil::as_dataset(array[0]));
+    BOOST_REQUIRE(*data_set == *odil::as_dataset(array[0]));
 }
 
 BOOST_FIXTURE_TEST_CASE(Equality, Fixture)
@@ -143,7 +149,8 @@ BOOST_FIXTURE_TEST_CASE(Difference, Fixture)
     http_response_2.set_header("Content-Type", "application/dicom+xml");
     http_response_2.set_status(400);
     http_response_2.set_reason("Bad Request");
-    odil::DataSet ds;
+
+    auto ds = std::make_shared<odil::DataSet>();
     auto const xml_2 = as_xml(ds);
     std::ostringstream body_2;
 #if BOOST_VERSION >= 105600

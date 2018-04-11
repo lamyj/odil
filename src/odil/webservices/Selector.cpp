@@ -109,10 +109,7 @@ Selector
     {
         throw Exception("Could not parse path");
     }
-    else if(iterator != resource.end())
-    {
-        throw Exception("Path was only partially parsed");
-    }
+
     return std::make_pair(
         std::move(service), Selector(parsed_value.first, parsed_value.second));
 }
@@ -217,7 +214,7 @@ Selector
 
 Selector &
 Selector
-::set_frames(std::vector<int> const &frames)
+::set_frames(std::vector<int> const & frames)
 {
     this->_frames = frames;
     return *this;

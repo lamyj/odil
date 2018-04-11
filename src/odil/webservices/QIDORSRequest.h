@@ -28,7 +28,6 @@ namespace odil
 namespace webservices
 {
 
-
 /// @brief QIDO-RS request generator and parser
 class ODIL_API QIDORSRequest
 {
@@ -38,9 +37,6 @@ public:
 
     /// @brief Constructor.
     QIDORSRequest(HTTPRequest const & request);
-
-    /// @brief Destructor.
-    ~QIDORSRequest() = default;
 
     /// @brief Equality operator.
     bool operator==(QIDORSRequest const & other) const;
@@ -67,10 +63,10 @@ public:
     Selector const & get_selector() const;
 
     /// @brief Return the dataSet containing the wanted attribute values.
-    DataSet const & get_query_data_set() const;
+    std::shared_ptr<DataSet const> get_query_data_set() const;
 
     /// @brief Return the wanted fields.
-    std::set< std::vector < odil::Tag> > const & get_includefields() const;
+    std::set<std::vector<odil::Tag>> const & get_includefields() const;
 
     /// @brief Return whether fuzzymatching is wanted or not.
     bool get_fuzzymatching() const;
@@ -86,26 +82,26 @@ public:
 
     /// @brief Prepare a qido request
     void request_datasets(
-            Representation representation, Selector const & selector,
-            DataSet const & query, bool fuzzymatching = false,
-            int limit = -1, int offset = 0, bool numerical_tags = false);
-
+        Representation representation, Selector const & selector,
+        std::shared_ptr<DataSet> query, bool fuzzymatching=false,
+        int limit=-1, int offset=0, bool numerical_tags=false);
 
 private:
     URL _base_url;
-
-    // media_type accepted :
-    //     -multipart/related; type="application/dicom+xml"
-    //     -application/dicom+json (default)
     std::string _media_type;
     Representation _representation;
     URL _url;
     Selector _selector;
-    DataSet _query_data_set;
+    std::shared_ptr<DataSet> _query_data_set;
 
     bool _fuzzymatching;
-    int _limit; // maximum number of results the origin server shall return.
-    int _offset; // number of results the origin server shall skip before the first returned result.
+    /// @brief Maximum number of results the origin server shall return.
+    int _limit;
+    /**
+     * @brief Number of results the origin server shall skip before the first
+     * returned result.
+     */
+    int _offset;
 
     /// @brief Return if the selector is valid or not
     static bool _is_selector_valid (Selector const & selector);
@@ -114,13 +110,10 @@ private:
     static std::string _tag_to_string(odil::Tag const & tag, bool numerical_tag);
 
     /// @brief Split an URL into a tuple
-    static std::tuple<URL, URL, Selector, DataSet, bool, int /*offset*/, int /*limit*/ >
-        _split_full_url(URL const & url);
+    void _from_url(URL const & url);
 
     /// @brief Generate a generic URL from class information
-    static URL _generate_url(URL const & base_url, Selector const & selector, DataSet const & query,
-                             bool fuzzymatching = false, int limit = -1,
-                             int offset = 0, bool numerical_tags = false);
+    URL _generate_url(bool numerical_tags=false);
 
 };
 
