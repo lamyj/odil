@@ -18,7 +18,7 @@
 #include "odil/logging.h"
 #include "odil/StoreSCP.h"
 #include "odil/message/CGetRequest.h"
-#include "odil/message/CGetresponse.h"
+#include "odil/message/CGetResponse.h"
 #include "odil/message/CStoreRequest.h"
 
 namespace odil
