@@ -64,9 +64,9 @@ struct Printer
         this->stream << this->indent << "(binary)";
     }
 
-    void operator()(odil::DataSet const & data_set) const
+    void operator()(std::shared_ptr<odil::DataSet> const & data_set) const
     {
-        for(auto const & item: data_set)
+        for(auto const & item: *data_set)
         {
             this->stream << this->indent << item.first << " " << as_string(item.second.vr) << " ";
             odil::apply_visitor(*this, item.second.get_value());
@@ -88,11 +88,11 @@ int main ()
     odil::webservices::QIDORSRequest qido_request(root);
 
     //-------------------- Query DataSet creation
-    odil::DataSet query_ds;
-    query_ds.add(odil::Tag("PatientName"), {"KNI*"}); // Only to test the regex
+    auto query_ds = std::make_shared<odil::DataSet>();
+    query_ds->add(odil::Tag("PatientName"), {"KNI*"}); // Only to test the regex
     //-------------------- Wanted included fields
-    query_ds.add(odil::Tag("00200035"));
-    query_ds.add(odil::Tag("00200030"));
+    query_ds->add(odil::Tag("00200035"));
+    query_ds->add(odil::Tag("00200030"));
 
     //-------------------- Selector creation
     odil::webservices::Selector selector;
