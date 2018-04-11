@@ -43,8 +43,7 @@ void wrap_webservices_QIDORSRequest()
             "get_selector", &QIDORSRequest::get_selector,
             return_value_policy<copy_const_reference>())
         .def(
-            "get_query_data_set", &QIDORSRequest::get_query_data_set,
-            return_value_policy<copy_const_reference>())
+            "get_query_data_set", &QIDORSRequest::get_query_data_set)
         .def(
             "get_fuzzymatching", &QIDORSRequest::get_fuzzymatching)
         .def(

@@ -56,9 +56,11 @@ create_Writer_2(
 }
 
 void write_file(
-    odil::DataSet const & data_set, odil::wrappers::python::iostream & stream,
-    odil::DataSet const & meta_information, std::string const & transfer_syntax,
-    int item_encoding, bool use_group_length)
+    std::shared_ptr<odil::DataSet const> data_set,
+    odil::wrappers::python::iostream & stream,
+    std::shared_ptr<odil::DataSet const> meta_information,
+    std::string const & transfer_syntax, int item_encoding,
+    bool use_group_length)
 {
     odil::Writer::write_file(
         data_set, stream, meta_information, transfer_syntax,

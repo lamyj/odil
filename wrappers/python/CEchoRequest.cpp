@@ -20,7 +20,7 @@ void wrap_CEchoRequest()
 
     class_<CEchoRequest, bases<Request>>(
             "CEchoRequest", init<Value::Integer, Value::String const &>())
-        .def(init<Message const &>())
+        .def(init<std::shared_ptr<Message const>>())
         .def(
             "get_affected_sop_class_uid",
             &CEchoRequest::get_affected_sop_class_uid,

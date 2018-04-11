@@ -20,7 +20,7 @@ void wrap_CEchoResponse()
 
     class_<CEchoResponse, bases<Response>>(
             "CEchoResponse", init<Value::Integer,Value::Integer, Value::String const &>())
-        .def(init<Message const &>())
+        .def(init<std::shared_ptr<Message>>())
         .def(
             "get_affected_sop_class_uid",
             &CEchoResponse::get_affected_sop_class_uid,

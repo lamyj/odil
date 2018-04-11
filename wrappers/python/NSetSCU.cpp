@@ -26,7 +26,8 @@ void wrap_NSetSCU()
         )
         .def(
             "set_affected_sop_class",
-            static_cast<void(NSetSCU::*)(DataSet const &)>(&NSetSCU::set_affected_sop_class)
+            static_cast<void(NSetSCU::*)(std::shared_ptr<DataSet const>)>(
+                &NSetSCU::set_affected_sop_class)
         )
         .def(
             "set",

@@ -18,11 +18,11 @@ namespace
 void 
 find_with_python_callback(
     odil::FindSCU const & scu, 
-    odil::DataSet const & query, boost::python::object const & f)
+    std::shared_ptr<odil::DataSet> query, boost::python::object const & f)
 {
     scu.find(
         query, 
-        [f](odil::DataSet const & data_set) 
+        [f](std::shared_ptr<odil::DataSet> data_set)
         { 
             boost::python::call<void>(f.ptr(), data_set); 
         }
@@ -44,7 +44,7 @@ void wrap_FindSCU()
         .def(
             "find", 
             static_cast<
-                std::vector<DataSet> (FindSCU::*)(DataSet const &) const
+                Value::DataSets (FindSCU::*)(std::shared_ptr<DataSet>) const
             >(&FindSCU::find)
         )
         .def("set_affected_sop_class", &FindSCU::set_affected_sop_class)

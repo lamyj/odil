@@ -21,7 +21,7 @@ void wrap_CStoreResponse()
     class_<CStoreResponse, bases<Response>>(
                 "CStoreResponse",
                 init< Value::Integer, Value::Integer>())
-            .def(init<Message>())
+            .def(init<std::shared_ptr<Message>>())
             .def(
                 "has_message_id",
                 &CStoreResponse::has_message_id)

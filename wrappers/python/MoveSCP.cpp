@@ -41,7 +41,7 @@ public:
     }
     
     virtual odil::Association 
-        get_association(odil::message::CMoveRequest const & request) const
+    get_association(std::shared_ptr<odil::message::CMoveRequest const> request) const
     {
         return this->get_override("get_association")(request);
     }
@@ -67,7 +67,7 @@ void wrap_MoveSCP()
         .def(
             "__call__",
             static_cast<
-                void (MoveSCP::*)(message::Message const &)
+                void (MoveSCP::*)(std::shared_ptr<message::Message>)
             >(&MoveSCP::operator())
         )
     ;

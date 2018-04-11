@@ -19,7 +19,7 @@ void
 set_callback(odil::NCreateSCP & scp, boost::python::object const & f)
 {
     scp.set_callback(
-        [f](odil::message::NCreateRequest const & message) 
+        [f](std::shared_ptr<odil::message::NCreateRequest const> message)
         { 
             return boost::python::call<odil::Value::Integer>(f.ptr(), message);
         }
@@ -38,7 +38,7 @@ void wrap_NCreateSCP()
         .def(
             "__call__",
             static_cast<
-                void (NCreateSCP::*)(message::Message const &)
+                void (NCreateSCP::*)(std::shared_ptr<message::Message>)
             >(&NCreateSCP::operator())
         )
     ;

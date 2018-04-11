@@ -20,8 +20,8 @@ void wrap_CGetResponse()
 
     class_<CGetResponse, bases<Response>>(
             "CGetResponse", init<Value::Integer, Value::Integer>())
-        .def(init<Value::Integer, Value::Integer, DataSet const &>())
-        .def(init<Message>())
+        .def(init<Value::Integer, Value::Integer, std::shared_ptr<DataSet>>())
+        .def(init<std::shared_ptr<Message>>())
         .def("has_message_id", &CGetResponse::has_message_id)
         .def(
             "get_message_id", &CGetResponse::get_message_id,

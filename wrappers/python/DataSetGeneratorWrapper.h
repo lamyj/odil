@@ -28,7 +28,7 @@ public:
         // Nothing to do.
     }
 
-    virtual void initialize(odil::message::Request const & request)
+    virtual void initialize(std::shared_ptr<odil::message::Request const> request)
     {
         this->get_override("initialize")(request);
     }
@@ -43,7 +43,7 @@ public:
         this->get_override("next")();
     }
 
-    virtual odil::DataSet get() const
+    virtual std::shared_ptr<odil::DataSet> get() const
     {
         return this->get_override("get")();
     }

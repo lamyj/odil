@@ -19,7 +19,7 @@ void wrap_Request()
     using namespace odil::message;
 
     class_<Request, bases<Message>>("Request", init<Value::Integer>())
-        .def(init<Message const &>())
+        .def(init<std::shared_ptr<Message>>())
         .def(
             "get_message_id", &Request::get_message_id,
             return_value_policy<copy_const_reference>())

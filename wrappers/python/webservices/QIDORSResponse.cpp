@@ -24,7 +24,7 @@ set_data_sets(odil::webservices::QIDORSResponse& self,
     odil::Value::DataSets odil_ds;
     for(int i = 0; i < boost::python::len(data_sets) ; ++i)
     {
-        odil_ds.push_back(boost::python::extract<odil::DataSet>(data_sets[i]));
+        odil_ds.push_back(boost::python::extract<std::shared_ptr<odil::DataSet>>(data_sets[i]));
     }
     self.set_data_sets(odil_ds);
 }

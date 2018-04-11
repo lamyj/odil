@@ -20,7 +20,7 @@ void wrap_Response()
 
     class_<Response, bases<Message>>(
             "Response", init<Value::Integer, Value::Integer>())
-        .def(init<Message const &>())
+        .def(init<std::shared_ptr<Message>>())
         .def(
             "get_message_id_being_responded_to",
             &Response::get_message_id_being_responded_to,

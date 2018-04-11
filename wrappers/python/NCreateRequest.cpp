@@ -22,9 +22,9 @@ void wrap_NCreateRequest()
             "NCreateRequest",
             init<
                 Value::Integer, Value::String const &,
-                DataSet const &
+                std::shared_ptr<DataSet>
             >())
-        .def(init<Message>())
+        .def(init<std::shared_ptr<Message>>())
         .def(
             "get_affected_sop_class_uid",
             &NCreateRequest::get_affected_sop_class_uid,

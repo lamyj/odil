@@ -22,9 +22,9 @@ void wrap_NSetRequest()
             "NSetRequest",
             init<
                 Value::Integer, Value::String const &, Value::String const &,
-                DataSet const &
+                std::shared_ptr<DataSet>
             >())
-        .def(init<Message>())
+        .def(init<std::shared_ptr<Message>>())
         .def(
             "get_requested_sop_class_uid",
             &NSetRequest::get_requested_sop_class_uid,

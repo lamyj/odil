@@ -43,7 +43,7 @@ void wrap_FindSCP()
         .def(
             "__call__",
             static_cast<
-                void (FindSCP::*)(message::Message const &)
+                void (FindSCP::*)(std::shared_ptr<message::Message>)
             >(&FindSCP::operator())
         )
     ;

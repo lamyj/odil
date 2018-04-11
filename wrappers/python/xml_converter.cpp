@@ -18,7 +18,7 @@
 namespace
 {
 
-std::string as_xml(odil::DataSet const & data_set, bool pretty_print)
+std::string as_xml(std::shared_ptr<odil::DataSet const> data_set, bool pretty_print)
 {
     auto const xml = odil::as_xml(data_set);
     std::ostringstream stream;

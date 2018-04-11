@@ -19,7 +19,7 @@ void
 set_callback(odil::EchoSCP& scp, boost::python::object const& f)
 {
     scp.set_callback(
-        [f](odil::message::CEchoRequest const& message)
+        [f](std::shared_ptr<odil::message::CEchoRequest const> message)
         {
             return boost::python::call<odil::Value::Integer>(f.ptr(), message);
         }
@@ -44,7 +44,7 @@ void wrap_EchoSCP()
         .def(
             "__call__",
             static_cast<
-                void (EchoSCP::*)(message::Message const &)
+                void (EchoSCP::*)(std::shared_ptr<message::Message>)
             >(&EchoSCP::operator())
         )
     ;

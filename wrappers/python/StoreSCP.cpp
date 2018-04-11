@@ -21,7 +21,7 @@ void
 set_callback(odil::StoreSCP& scp, boost::python::object const& f)
 {
     scp.set_callback(
-        [f](odil::message::CStoreRequest const& message)
+        [f](std::shared_ptr<odil::message::CStoreRequest> message)
         {
             return boost::python::call<odil::Value::Integer>(f.ptr(), message);
         }
@@ -36,14 +36,13 @@ void wrap_StoreSCP()
     using namespace std;
     using namespace odil;
 
-//    class_<StoreSCP, bases<SCP>>("StoreSCP", init<Association &>())
     class_<StoreSCP>("StoreSCP", init<Association&>())
     .def(init<Association&, StoreSCP::Callback& >())
     .def("set_callback", &set_callback)
     .def(
         "__call__",
         static_cast<
-            void (StoreSCP::*)(message::Message const &)
+            void (StoreSCP::*)(std::shared_ptr<message::Message>)
         >(&StoreSCP::operator())
     )
     ;

@@ -60,7 +60,7 @@ void wrap_GetSCP()
         .def(
             "__call__",
             static_cast<
-                void (GetSCP::*)(message::Message const &)
+                void (GetSCP::*)(std::shared_ptr<message::Message>)
             >(&GetSCP::operator())
         )
     ;

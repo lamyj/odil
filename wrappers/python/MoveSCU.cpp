@@ -19,14 +19,14 @@ namespace
 void
 move_with_python_callback(
     odil::MoveSCU const & scu,
-    odil::DataSet const & query,
+    std::shared_ptr<odil::DataSet> query,
     boost::python::object const & store_callback,
     boost::python::object const & move_callback)
 {
     odil::MoveSCU::StoreCallback store_callback_cpp;
     if(!store_callback.is_none())
     {
-        store_callback_cpp = [store_callback](odil::DataSet const & data_set)
+        store_callback_cpp = [store_callback](std::shared_ptr<odil::DataSet> data_set)
         {
             boost::python::call<void>(store_callback.ptr(), data_set);
         };
@@ -35,7 +35,7 @@ move_with_python_callback(
     odil::MoveSCU::MoveCallback move_callback_cpp;
     if(!move_callback.is_none())
     {
-        move_callback_cpp = [move_callback](odil::message::CMoveResponse const & message)
+        move_callback_cpp = [move_callback](std::shared_ptr<odil::message::CMoveResponse> message)
         {
             boost::python::call<void>(move_callback.ptr(), message);
         };
@@ -80,7 +80,7 @@ void wrap_MoveSCU()
         .def(
             "move",
             static_cast<
-                std::vector<DataSet> (MoveSCU::*)(DataSet const &) const
+                Value::DataSets (MoveSCU::*)(std::shared_ptr<DataSet>) const
             >(&MoveSCU::move)
         )
         .def("set_affected_sop_class", &MoveSCU::set_affected_sop_class)

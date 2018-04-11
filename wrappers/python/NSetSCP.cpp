@@ -19,7 +19,7 @@ void
 set_callback( odil::NSetSCP& scp, boost::python::object const& f)
 {
     scp.set_callback(
-        [f](odil::message::NSetRequest const& message)
+        [f](std::shared_ptr<odil::message::NSetRequest const> message)
         {
             return boost::python::call<odil::Value::Integer>(f.ptr(), message);
         }
@@ -38,7 +38,7 @@ void wrap_NSetSCP()
         .def(
             "__call__",
             static_cast<
-                void (NSetSCP::*)(message::Message const &)
+                void (NSetSCP::*)(std::shared_ptr<message::Message>)
             >(&NSetSCP::operator())
         )
     ;

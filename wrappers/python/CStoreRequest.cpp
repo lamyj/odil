@@ -22,9 +22,9 @@ void wrap_CStoreRequest()
             "CStoreRequest",
             init<
                 Value::Integer, Value::String const &, Value::String const &,
-                Value::Integer, DataSet const &
+                Value::Integer, std::shared_ptr<DataSet>
             >())
-        .def(init<Message>())
+        .def(init<std::shared_ptr<Message>>())
         .def(
             "get_affected_sop_class_uid",
             &CStoreRequest::get_affected_sop_class_uid,

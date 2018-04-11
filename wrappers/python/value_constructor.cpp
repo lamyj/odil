@@ -105,7 +105,7 @@ value_constructor(boost::python::object const & source)
             boost::python::object DataSetType = odil_module.attr("DataSet");
             if(PyObject_IsInstance(first_ptr, DataSetType.ptr()))
             {
-                boost::python::stl_input_iterator<odil::DataSet> 
+                boost::python::stl_input_iterator<std::shared_ptr<odil::DataSet>>
                     begin(source), end;
                 result = new odil::Value(odil::Value::DataSets(begin, end));
             }

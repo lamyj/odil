@@ -25,8 +25,7 @@ wrap_webservices_STOWRSResponse()
         .def(self == self)
         .def(self != self)
         .def("set_store_instance_responses", &STOWRSResponse::set_store_instance_responses)
-        .def("get_store_instance_responses", &STOWRSResponse::get_store_instance_responses,
-             return_value_policy<copy_const_reference>())
+        .def("get_store_instance_responses", &STOWRSResponse::get_store_instance_responses)
         .def("get_media_type", &STOWRSResponse::get_media_type,
              return_value_policy<copy_const_reference>())
         .def("set_representation", &STOWRSResponse::set_representation)

@@ -22,7 +22,7 @@ void wrap_StoreSCU()
 
     typedef
         void (StoreSCU::*StoreFunction)(
-            DataSet const &, Value::String const &, Value::Integer) const;
+            std::shared_ptr<DataSet>, Value::String const &, Value::Integer) const;
 
     class_<StoreSCU>("StoreSCU", init<Association &>())
         .def(
@@ -32,7 +32,8 @@ void wrap_StoreSCU()
         )
         .def(
             "set_affected_sop_class",
-            static_cast<void(StoreSCU::*)(DataSet const &)>(&StoreSCU::set_affected_sop_class)
+            static_cast<void(StoreSCU::*)(std::shared_ptr<DataSet const>)>(
+                &StoreSCU::set_affected_sop_class)
         )
         .def(
             "store",

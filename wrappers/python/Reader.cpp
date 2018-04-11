@@ -50,7 +50,7 @@ wrap_halt_condition(boost::python::object const & halt_condition)
     return halt_condition_cpp;
 }
 
-odil::DataSet
+std::shared_ptr<odil::DataSet>
 read_data_set(
     odil::Reader const & reader, boost::python::object const & halt_condition)
 {

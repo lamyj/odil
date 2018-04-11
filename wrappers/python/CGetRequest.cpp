@@ -22,9 +22,9 @@ void wrap_CGetRequest()
             "CGetRequest",
             init<
                 Value::Integer, Value::String const &, Value::Integer,
-                DataSet const &
+                std::shared_ptr<DataSet>
             >())
-        .def(init<Message>())
+        .def(init<std::shared_ptr<Message>>())
         .def(
             "get_affected_sop_class_uid",
             &CGetRequest::get_affected_sop_class_uid,

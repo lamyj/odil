@@ -34,10 +34,10 @@ request_dicom(odil::webservices::STOWRSRequest& self,
                       odil::webservices::Representation representation
                       )
 {
-    std::vector<odil::DataSet> cpp_val;
-    for (int i = 0; i < boost::python::len(data_sets); ++i)
+    odil::Value::DataSets cpp_val;
+    for(int i = 0; i < boost::python::len(data_sets); ++i)
     {
-        cpp_val.push_back(boost::python::extract<odil::DataSet>(data_sets[i]));
+        cpp_val.push_back(boost::python::extract<std::shared_ptr<odil::DataSet>>(data_sets[i]));
     }
     self.request_dicom(cpp_val, selector, representation);
 }

@@ -20,16 +20,13 @@ void wrap_Message()
     using namespace odil::message;
 
     class_<Message>("Message", init<>())
-    .def(init<DataSet const&>())
-    .def(init<DataSet const&, DataSet const&>())
-    .def(
-        "get_command_set", &Message::get_command_set,
-        return_value_policy<copy_const_reference>())
+    .def(init<std::shared_ptr<DataSet>>())
+    .def(init<std::shared_ptr<DataSet>, std::shared_ptr<DataSet>>())
+    .def("get_command_set", &Message::get_command_set)
     .def("has_data_set", &Message::has_data_set)
     .def(
         "get_data_set",
-        static_cast<DataSet const & (Message::*)() const>(&Message::get_data_set),
-        return_value_policy<copy_const_reference>())
+        static_cast<std::shared_ptr<DataSet const> (Message::*)() const>(&Message::get_data_set))
     .def(
         "get_command_field", &Message::get_command_field,
         return_value_policy<copy_const_reference>())
