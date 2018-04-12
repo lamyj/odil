@@ -114,7 +114,9 @@ class TestMoveSCP(unittest.TestCase):
             return []
         
         files = sorted(glob.glob("RAW*"))
-        data_sets = [odil.Reader.read_file(odil.iostream(open(x)))[1] for x in files]
+        data_sets = [
+            odil.Reader.read_file(odil.iostream(open(x, "rb")))[1]
+            for x in files]
         for file_ in files:
             os.remove(file_)
         

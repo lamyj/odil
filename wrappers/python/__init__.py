@@ -6,7 +6,7 @@ from ._odil import *
 _open = open
 
 @contextlib.contextmanager
-def open(path, mode="r"):
+def open(path, mode="rb"):
     fd = _open(path, mode)
     stream = iostream(fd)
     yield stream
@@ -23,7 +23,7 @@ def write(
         item_encoding=Writer.ItemEncoding.ExplicitLength,
         use_group_length=False):
     warnings.warn("odil.write is deprecated. Use odil.open instead")
-    with open(path, "w") as stream:
+    with open(path, "wb") as stream:
         Writer.write_file(
             data_set, stream, meta_information, transfer_syntax, item_encoding,
             use_group_length)
