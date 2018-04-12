@@ -235,7 +235,7 @@ add_qido_element(
             Tag const tag(*it);
             if(!current_ds->has(tag))
             {
-                current_ds->add(tag, {std::make_shared<odil::DataSet>()});
+                current_ds->add(tag, {std::make_shared<DataSet>()});
             }
             current_ds = current_ds->as_data_set(tag)[0];
         }
@@ -475,7 +475,7 @@ QIDORSRequest
 {
     // Breadth-first walk of the query data set to generate the query terms
     // (e.g. PatientName=Doe) and the include fields
-    std::queue<std::pair<std::shared_ptr<odil::DataSet const>, std::string>> queue;
+    std::queue<std::pair<std::shared_ptr<DataSet const>, std::string>> queue;
     queue.emplace(std::make_pair(this->_query_data_set, ""));
 
     std::vector<std::string> terms;

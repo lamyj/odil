@@ -180,12 +180,12 @@ VRFinder
             tag == registry::LargestPixelValueInSeries ||
             tag == registry::PixelPaddingValue)
         {
-            if(!data_set->has(odil::registry::PixelRepresentation))
+            if(!data_set->has(registry::PixelRepresentation))
             {
                 throw Exception("Cannot find VR without PixelRepresentation");
             }
             auto const & pixel_representation = 
-                data_set->as_int(odil::registry::PixelRepresentation)[0];
+                data_set->as_int(registry::PixelRepresentation)[0];
             return (pixel_representation==0)?(VR::US):(VR::SS);
         }
         else
@@ -212,12 +212,12 @@ VRFinder
         // PS3.5, A.1 (c)
         if(tag == registry::PixelData)
         {
-            if(!data_set->has(odil::registry::BitsAllocated))
+            if(!data_set->has(registry::BitsAllocated))
             {
                 throw Exception("Cannot find VR without BitsAllocated");
             }
             auto const & bits_allocated = 
-                data_set->as_int(odil::registry::BitsAllocated)[0];
+                data_set->as_int(registry::BitsAllocated)[0];
             return (bits_allocated<=8)?(VR::OB):(VR::OW);
         }
         else if((tag.group>>8) == 0x60 && tag.element == 0x3000)
@@ -261,12 +261,12 @@ VRFinder
             tag == registry::LargestPixelValueInSeries ||
             tag == registry::PixelPaddingValue)
         {
-            if(!data_set->has(odil::registry::PixelRepresentation))
+            if(!data_set->has(registry::PixelRepresentation))
             {
                 throw Exception("Cannot find VR without PixelRepresentation");
             }
             auto const & pixel_representation = 
-                data_set->as_int(odil::registry::PixelRepresentation)[0];
+                data_set->as_int(registry::PixelRepresentation)[0];
             return (pixel_representation==0)?(VR::US):(VR::SS);
         }
         else

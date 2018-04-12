@@ -27,7 +27,7 @@ NSetRequest
     std::shared_ptr<DataSet> dataset)
 : Request(message_id)
 {
-    this->set_command_field( ::odil::message::Message::Command::N_SET_RQ);
+    this->set_command_field(Message::Command::N_SET_RQ);
     this->set_requested_sop_class_uid(requested_sop_class_uid);
     this->set_requested_sop_instance_uid(requested_sop_instance_uid);
 

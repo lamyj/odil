@@ -21,7 +21,7 @@ namespace odil
 /// @brief Convert a data set to its JSON representation.
 ODIL_API Json::Value as_json(
     std::shared_ptr<DataSet const> data_set,
-    odil::Value::Strings const & specific_character_set={});
+    Value::Strings const & specific_character_set={});
 
 /// @brief Create a data set from its JSON representation.
 ODIL_API std::shared_ptr<DataSet> as_dataset(Json::Value const & json);

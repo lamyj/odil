@@ -91,9 +91,9 @@ public:
     ODIL_MESSAGE_OPTIONAL_FIELD_INTEGER_MACRO(
         error_id, registry::ErrorID)
     ODIL_MESSAGE_OPTIONAL_FIELD_STRING_MACRO(
-        affected_sop_instance_uid, odil::registry::AffectedSOPInstanceUID)
+        affected_sop_instance_uid, registry::AffectedSOPInstanceUID)
     ODIL_MESSAGE_OPTIONAL_FIELD_STRING_MACRO(
-        attribute_identifier_list, odil::registry::AttributeIdentifierList)
+        attribute_identifier_list, registry::AttributeIdentifierList)
 
     /// @brief Test whether the status class is pending.
     bool is_pending() const;

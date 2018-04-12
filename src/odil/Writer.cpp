@@ -219,7 +219,7 @@ void
 Writer
 ::write_file(
     std::shared_ptr<DataSet const> data_set , std::ostream & stream,
-    std::shared_ptr<odil::DataSet const> meta_information,
+    std::shared_ptr<DataSet const> meta_information,
     std::string const & transfer_syntax, ItemEncoding item_encoding,
     bool use_group_length)
 {

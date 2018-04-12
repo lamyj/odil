@@ -66,7 +66,7 @@ public:
     std::shared_ptr<DataSet const> get_query_data_set() const;
 
     /// @brief Return the wanted fields.
-    std::set<std::vector<odil::Tag>> const & get_includefields() const;
+    std::set<std::vector<Tag>> const & get_includefields() const;
 
     /// @brief Return whether fuzzymatching is wanted or not.
     bool get_fuzzymatching() const;
@@ -107,7 +107,7 @@ private:
     static bool _is_selector_valid (Selector const & selector);
 
     /// @brief Return the tag as a numerical string or as a "string"
-    static std::string _tag_to_string(odil::Tag const & tag, bool numerical_tag);
+    static std::string _tag_to_string(Tag const & tag, bool numerical_tag);
 
     /// @brief Split an URL into a tuple
     void _from_url(URL const & url);

@@ -26,7 +26,7 @@ SCP::Exception
 ::Exception(
     std::string const & message,
     Value::Integer status, std::shared_ptr<DataSet> status_fields)
-: ::odil::Exception(message), status(status), status_fields(status_fields)
+: odil::Exception(message), status(status), status_fields(status_fields)
 {
     // Nothing else.
 }

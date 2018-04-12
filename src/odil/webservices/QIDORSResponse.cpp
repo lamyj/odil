@@ -157,7 +157,7 @@ QIDORSResponse
     this->_data_sets = data_sets;
 }
 
-odil::webservices::Representation const &
+Representation const &
 QIDORSResponse
 ::get_representation() const
 {

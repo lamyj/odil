@@ -340,7 +340,7 @@ STOWRSRequest
             {
                 std::string buffer;
                 OStringStream stream(buffer);
-                odil::Writer::write_file(data_set, stream);
+                Writer::write_file(data_set, stream);
                 stream.flush();
 
                 return Message(
@@ -567,7 +567,7 @@ STOWRSRequest
             // 2. Get Transfer Syntax from dataSet
             std::string const & transfer_syntax =
                     data_set->get_transfer_syntax().empty()
-                        ?odil::registry::ExplicitVRLittleEndian
+                        ?registry::ExplicitVRLittleEndian
                         :data_set->get_transfer_syntax();
 
             // 3. Create a new BulkData
@@ -612,7 +612,7 @@ STOWRSRequest
     {
         auto & tag = it.first;
         auto & element = it.second;
-        if(element.vr == odil::VR::UR)
+        if(element.vr == VR::UR)
         {
             auto const bulk_map_it = bulk_map.find(element.as_string()[0]);
             if(bulk_map_it != bulk_map.end())
@@ -621,10 +621,10 @@ STOWRSRequest
                     data_set->get_transfer_syntax().empty()
                     ?registry::ExplicitVRLittleEndian
                     :data_set->get_transfer_syntax();
-                odil::VRFinder vr_finder;
+                VRFinder vr_finder;
                 auto const vr = vr_finder(tag, data_set, transfer_syntax);
 
-                data_set->add(tag, odil::Value::Binary({bulk_map_it->second}), vr);
+                data_set->add(tag, Value::Binary({bulk_map_it->second}), vr);
             }
             else
             {

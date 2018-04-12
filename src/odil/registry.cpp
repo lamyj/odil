@@ -13409,10 +13409,10 @@ UIDsDictionary create_uids_dictionary()
     return uids_dictionary;
 }
 
-}
+ElementsDictionary public_dictionary=create_public_dictionary();
+std::map<std::string, Tag> public_tags=create_public_tags();
+UIDsDictionary uids_dictionary=create_uids_dictionary();
 
 }
 
-odil::ElementsDictionary odil::registry::public_dictionary=odil::registry::create_public_dictionary();
-std::map<std::string, odil::Tag> odil::registry::public_tags=odil::registry::create_public_tags();
-odil::UIDsDictionary odil::registry::uids_dictionary=odil::registry::create_uids_dictionary();
+}

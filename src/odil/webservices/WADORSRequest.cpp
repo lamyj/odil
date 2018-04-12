@@ -277,7 +277,7 @@ WADORSRequest
     return this->_type;
 }
 
-odil::webservices::Selector const &
+Selector const &
 WADORSRequest
 ::get_selector() const
 {

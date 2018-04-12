@@ -216,11 +216,11 @@ MoveSCU
         StoreSCP scp(association, store_callback);
         scp.receive_and_process();
     }
-    catch(odil::AssociationReleased const &)
+    catch(AssociationReleased const &)
     {
         result = true;
     }
-    catch(odil::AssociationAborted const & e)
+    catch(AssociationAborted const & e)
     {
         result = true;
     }
