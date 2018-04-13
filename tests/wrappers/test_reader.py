@@ -9,7 +9,8 @@ class TestReader(unittest.TestCase):
         stream = odil.iostream(BytesIO())
         reader = odil.Reader(stream, odil.registry.ImplicitVRLittleEndian)
         self.assertEqual(
-            reader.transfer_syntax, odil.registry.ImplicitVRLittleEndian)
+            reader.transfer_syntax.encode(),
+            odil.registry.ImplicitVRLittleEndian)
         self.assertEqual(reader.byte_ordering, odil.ByteOrdering.LittleEndian)
         self.assertFalse(reader.explicit_vr)
         self.assertFalse(reader.keep_group_length)
@@ -19,7 +20,8 @@ class TestReader(unittest.TestCase):
         reader = odil.Reader(
             stream, odil.registry.ExplicitVRBigEndian_Retired, True)
         self.assertEqual(
-            reader.transfer_syntax, odil.registry.ExplicitVRBigEndian_Retired)
+            reader.transfer_syntax.encode(),
+            odil.registry.ExplicitVRBigEndian_Retired)
         self.assertEqual(reader.byte_ordering, odil.ByteOrdering.BigEndian)
         self.assertTrue(reader.explicit_vr)
         self.assertTrue(reader.keep_group_length)
@@ -33,8 +35,8 @@ class TestReader(unittest.TestCase):
         reader = odil.Reader(stream, odil.registry.ExplicitVRLittleEndian)
         data_set = reader.read_data_set()
         self.assertEqual(data_set.size(), 2)
-        self.assertSequenceEqual(data_set.as_string("PatientName"), ["Foo^Bar"])
-        self.assertSequenceEqual(data_set.as_string("PatientID"), ["FOO"])
+        self.assertSequenceEqual(data_set.as_string("PatientName"), [b"Foo^Bar"])
+        self.assertSequenceEqual(data_set.as_string("PatientID"), [b"FOO"])
 
     def test_read_data_set_halt_condition(self):
         string_io = BytesIO(
@@ -45,7 +47,7 @@ class TestReader(unittest.TestCase):
         reader = odil.Reader(stream, odil.registry.ExplicitVRLittleEndian)
         data_set = reader.read_data_set(lambda x: x==odil.registry.PatientID)
         self.assertEqual(data_set.size(), 1)
-        self.assertSequenceEqual(data_set.as_string("PatientName"), ["Foo^Bar"])
+        self.assertSequenceEqual(data_set.as_string("PatientName"), [b"Foo^Bar"])
 
     def test_read_tag(self):
         string_io = BytesIO(b"\x10\x00\x20\x00")
@@ -65,7 +67,7 @@ class TestReader(unittest.TestCase):
         reader = odil.Reader(stream, odil.registry.ExplicitVRLittleEndian)
         self.assertEqual(
             reader.read_element(odil.registry.PatientName),
-            odil.Element(["Foo^Bar"], odil.VR.PN))
+            odil.Element([b"Foo^Bar"], odil.VR.PN))
 
     def test_read_file(self):
         data = (
@@ -84,7 +86,7 @@ class TestReader(unittest.TestCase):
             [odil.registry.ExplicitVRLittleEndian])
 
         self.assertEqual(len(data_set), 1)
-        self.assertSequenceEqual(data_set.as_string("PatientName"), ["Foo^Bar"])
+        self.assertSequenceEqual(data_set.as_string("PatientName"), [b"Foo^Bar"])
 
 if __name__ == "__main__":
     unittest.main()

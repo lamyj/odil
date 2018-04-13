@@ -127,7 +127,7 @@ class TestElement(unittest.TestCase):
 
     def test_strings(self):
         self._test(
-            odil.Value.Strings(), ["foo", "bar"], ["plip", "plop"],
+            odil.Value.Strings(), [b"foo", b"bar"], [b"plip", b"plop"],
             odil.VR.CS, odil.VR.UT,
             odil.Element.is_string, odil.Element.as_string)
         

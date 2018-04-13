@@ -38,7 +38,13 @@ void wrap_registry()
 
     for(auto const & entry: registry::uids_dictionary)
     {
-        registry_scope.attr(entry.second.keyword.c_str()) = entry.first;
+        auto bytes =
+#if PY_VERSION_HEX >= 0x03000000
+            PyBytes_FromStringAndSize(&entry.first[0], entry.first.size());
+#else
+            PyString_FromStringAndSize(&entry.first[0], entry.first.size());
+#endif
+        registry_scope.attr(entry.second.keyword.c_str()) = object(handle<>(bytes));
     }
 
     registry_scope.attr("public_dictionary") = registry::public_dictionary;

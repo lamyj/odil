@@ -73,7 +73,7 @@ value_constructor(boost::python::object const & source)
             result = new odil::Value(odil::Value::Reals(begin, end));
         }
 #ifdef IS_PY3K
-        else if(PyUnicode_Check(first_ptr))
+        else if(PyUnicode_Check(first_ptr) || PyBytes_Check(first_ptr))
 #else
         else if(PyString_Check(first_ptr))
 #endif

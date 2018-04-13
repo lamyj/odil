@@ -35,7 +35,9 @@ class TestStoreSCU(PeerFixtureBase):
     def test_affected_sop_class_uid(self):
         store = odil.StoreSCU(self.association)
         store.set_affected_sop_class(self.data_set)
-        self.assertEqual(store.get_affected_sop_class(), odil.registry.RawDataStorage)
+        self.assertEqual(
+            store.get_affected_sop_class().encode(),
+            odil.registry.RawDataStorage)
     
     def test_store(self):
         store = odil.StoreSCU(self.association)

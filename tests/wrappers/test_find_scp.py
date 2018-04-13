@@ -51,12 +51,12 @@ class TestFindSCP(unittest.TestCase):
         self.assertEqual(len(data_sets[0]), 2)
         
         self.assertSequenceEqual(
-            data_sets[0].as_string("PatientName"), ["Hello^World"])
-        self.assertSequenceEqual(data_sets[0].as_string("PatientID"), ["1234"])
+            data_sets[0].as_string("PatientName"), [b"Hello^World"])
+        self.assertSequenceEqual(data_sets[0].as_string("PatientID"), [b"1234"])
         
         self.assertSequenceEqual(
-            data_sets[1].as_string("PatientName"), ["Doe^John"])
-        self.assertSequenceEqual(data_sets[1].as_string("PatientID"), ["5678"])
+            data_sets[1].as_string("PatientName"), [b"Doe^John"])
+        self.assertSequenceEqual(data_sets[1].as_string("PatientID"), [b"5678"])
     
     def run_client(self):
         command = [

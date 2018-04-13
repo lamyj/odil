@@ -52,6 +52,69 @@ as_memory_view(odil::Value::Binary::value_type const & binary_item)
 
 }
 
+/// @brief Convert to a byte string (str for Python 2, bytes for Python 3).
+boost::python::object
+as_bytes(odil::Value::Strings::value_type const & string)
+{
+    auto bytes =
+#if PY_VERSION_HEX >= 0x03000000
+        PyBytes_FromStringAndSize(&string[0], string.size());
+#else
+        PyString_FromStringAndSize(&string[0], string.size());
+#endif
+
+    return boost::python::object(boost::python::handle<>(bytes));
+}
+
+/// @brief Access Value::Strings items as byte strings
+class StringsIndexingSuite:
+    public boost::python::vector_indexing_suite<odil::Value::Strings>
+{
+public:
+    typedef odil::Value::Strings Container;
+
+    static boost::python::object
+    get_item(Container const & container, Container::size_type i)
+    {
+        auto const & item = container[i];
+        return as_bytes(item);
+    }
+};
+
+/// @brief Iterate over Value::Strings as byte strings
+class StringsIterator
+{
+public:
+    StringsIterator(odil::Value::Strings const & strings)
+    : strings(strings), iterator(strings.begin())
+    {
+        // Nothing else
+    }
+
+    boost::python::object next()
+    {
+        if(this->iterator != this->strings.end())
+        {
+            auto const & item = *this->iterator;
+            ++this->iterator;
+            return as_bytes(item);
+        }
+        else
+        {
+            boost::python::objects::stop_iteration_error();
+        }
+    }
+private:
+    odil::Value::Strings const & strings;
+    odil::Value::Strings::const_iterator iterator;
+};
+
+/// @brief Return an iterator to the Value::Strings object.
+StringsIterator Strings__iter__(odil::Value::Strings const & strings)
+{
+    return StringsIterator(strings);
+}
+
 void wrap_Value()
 {
     using namespace boost::python;
@@ -110,11 +173,26 @@ void wrap_Value()
         .def(vector_indexing_suite<Value::Reals>())
     ;
 
-    class_<Value::Strings>("Strings")
-        .def(init<>())
-        .def("__init__", make_constructor(create_value<Value::Strings>))
-        .def(vector_indexing_suite<Value::Strings>())
-    ;
+    {
+        scope strings_scope = class_<Value::Strings>("Strings")
+            .def(init<>())
+            .def("__init__", make_constructor(create_value<Value::Strings>))
+            .def(
+                vector_indexing_suite<
+                    Value::Strings, false, StringsIndexingSuite>())
+            .def("__iter__", Strings__iter__)
+        ;
+
+        class_<StringsIterator>("Iterator", init<Value::Strings>())
+            .def(
+#if PY_VERSION_HEX >= 0x03000000
+                "__next__",
+#else
+                "next",
+#endif
+                &StringsIterator::next)
+        ;
+    }
 
     class_<Value::DataSets>("DataSets")
         .def(init<>())
