@@ -12,12 +12,25 @@
 
 #include "odil/VRFinder.h"
 
+namespace
+{
+
+odil::VR VRFinder_call(
+    odil::VRFinder const & self,
+    odil::Tag const & tag, std::shared_ptr<odil::DataSet> data_set,
+    std::string const & transfer_syntax)
+{
+    return self(tag, data_set, transfer_syntax);
+}
+
+}
+
 void wrap_VRFinder()
 {
     using namespace boost::python;
     using namespace odil;
     
     class_<VRFinder>("VRFinder", init<>())
-        .def("__call__", &VRFinder::operator())
+        .def("__call__", VRFinder_call)
     ;
 }

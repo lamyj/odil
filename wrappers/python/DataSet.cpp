@@ -20,6 +20,30 @@
 namespace
 {
 
+std::shared_ptr<odil::DataSet>
+constructor()
+{
+    return std::make_shared<odil::DataSet>();
+}
+
+std::shared_ptr<odil::DataSet>
+constructor_string(std::string const & s)
+{
+    return std::make_shared<odil::DataSet>(s);
+}
+
+bool equal(
+    std::shared_ptr<odil::DataSet> left, std::shared_ptr<odil::DataSet> right)
+{
+    return *left == *right;
+}
+
+bool different(
+    std::shared_ptr<odil::DataSet> left, std::shared_ptr<odil::DataSet> right)
+{
+    return !equal(left, right);
+}
+
 void add(
     odil::DataSet & data_set, odil::Tag const & tag,
     boost::python::object value_python=boost::python::object(), 
@@ -191,10 +215,9 @@ void wrap_DataSet()
     using namespace boost::python;
     using namespace odil;
 
-
-    class_<DataSet>("DataSet")
-        .def(init<>())
-        .def(init<std::string>())
+    class_<DataSet, std::shared_ptr<DataSet>>("DataSet", no_init)
+        .def("__init__", make_constructor(constructor))
+        .def("__init__", make_constructor(constructor_string))
         .def("add", add, add_overloads())
         .def("remove", &DataSet::remove)
         .def("has", &DataSet::has)
@@ -256,8 +279,8 @@ void wrap_DataSet()
         .def("__iter__", range(&begin, &end))
         .def("values", &values)
         .def("items", &items)
-        .def(self == self)
-        .def(self != self)
+        .def("__eq__", equal)
+        .def("__ne__", different)
         .def(
             "__len__",
             static_cast<std::size_t (DataSet::*)() const>(&DataSet::size))

@@ -56,9 +56,9 @@ create_Writer_2(
 }
 
 void write_file(
-    std::shared_ptr<odil::DataSet const> data_set,
+    std::shared_ptr<odil::DataSet> data_set,
     odil::wrappers::python::iostream & stream,
-    std::shared_ptr<odil::DataSet const> meta_information,
+    std::shared_ptr<odil::DataSet> meta_information,
     std::string const & transfer_syntax, int item_encoding,
     bool use_group_length)
 {
@@ -66,6 +66,12 @@ void write_file(
         data_set, stream, meta_information, transfer_syntax,
         static_cast<odil::Writer::ItemEncoding>(item_encoding),
         use_group_length);
+}
+
+void write_data_set(
+    odil::Writer const & writer, std::shared_ptr<odil::DataSet> data_set)
+{
+    writer.write_data_set(data_set);
 }
 
 }
@@ -92,14 +98,14 @@ void wrap_Writer()
                 arg("stream"), arg("transfer_syntax"),
                 arg("item_encoding")=static_cast<int>(Writer::ItemEncoding::ExplicitLength),
                 arg("use_group_length")=false)))
-        .def("write_data_set", &Writer::write_data_set)
+        .def("write_data_set", write_data_set)
         .def("write_tag", &Writer::write_tag)
         .def("write_element", &Writer::write_element)
         .def(
             "write_file", write_file,
             (
                 arg("data_set"), arg("stream"),
-                arg("meta_information")=DataSet(),
+                arg("meta_information")=std::make_shared<DataSet>(),
                 arg("transfer_syntax")=registry::ExplicitVRLittleEndian,
                 arg("item_encoding")=static_cast<int>(Writer::ItemEncoding::ExplicitLength),
                 arg("use_group_length")=false))

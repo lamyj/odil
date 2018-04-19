@@ -20,7 +20,7 @@
 namespace
 {
 
-std::string as_json(std::shared_ptr<odil::DataSet const> data_set, bool pretty_print)
+std::string as_json(std::shared_ptr<odil::DataSet> data_set, bool pretty_print)
 {
     auto const json = odil::as_json(data_set);
 

@@ -57,6 +57,14 @@ read_data_set(
     return reader.read_data_set(wrap_halt_condition(halt_condition));
 }
 
+odil::Element
+read_element(
+    odil::Reader const & reader,
+    odil::Tag const & tag, std::shared_ptr<odil::DataSet> data_set)
+{
+    return reader.read_element(tag, data_set);
+}
+
 boost::python::tuple
 read_file(
     odil::wrappers::python::iostream & stream, bool keep_group_length,
@@ -90,8 +98,9 @@ void wrap_Reader()
         .def("read_tag", &Reader::read_tag)
         .def("read_length", &Reader::read_length)
         .def(
-            "read_element", &Reader::read_element, (
-                arg("tag")=Tag(0xffff, 0xffff), arg("data_set")=DataSet()
+            "read_element", read_element, (
+                arg("tag")=Tag(0xffff, 0xffff),
+                arg("data_set")=std::make_shared<DataSet>()
         ))
         .def(
             "read_file", read_file, (

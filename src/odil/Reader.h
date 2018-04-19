@@ -85,7 +85,7 @@ public:
      */
     Element read_element(
         Tag const & tag=Tag(0xffff,0xffff),
-    std::shared_ptr<DataSet const> data_set={}) const;
+        std::shared_ptr<DataSet const> data_set=std::make_shared<DataSet>()) const;
 
     /// @brief Return the meta-data header and data set stored in the stream.
     static std::pair<std::shared_ptr<DataSet>, std::shared_ptr<DataSet>>
