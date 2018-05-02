@@ -23,7 +23,7 @@ PACKAGES="${PACKAGES} libdcmtk2-dev libicu-dev libjsoncpp-dev liblog4cpp5-dev zl
 # Dependencies of Python wrappers
 PACKAGES="${PACKAGES} libboost-python-dev ${PYTHON_PREFIX}-dev"
 # Dependencies of unit tests
-PACKAGES="${PACKAGES} dcmtk libboost-test-dev ${PYTHON_PREFIX}-nose"
+PACKAGES="${PACKAGES} dcmtk libboost-test-dev ${PYTHON_PREFIX}-pip ${PYTHON_PREFIX}-nose"
 # Coverage and static analysis
 PACKAGES="${PACKAGES} cppcheck lcov wget"
 
