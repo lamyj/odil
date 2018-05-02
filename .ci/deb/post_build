@@ -60,7 +60,7 @@ cp ${DIRECTORY}/filtered.info "${WORKSPACE}/build/coverage.info"
 ./lcov_cobertura ${DIRECTORY}/filtered.info -b "${WORKSPACE}"
 rm -rf ${DIRECTORY}
 
-cppcheck -q --xml --xml-version=2 --enable=all \
-  -i "${WORKSPACE}/tests/tools" \
-  "${WORKSPACE}/src/" "${WORKSPACE}/tests/" "${WORKSPACE}/wrappers/" \
-  2> ${WORKSPACE}/build/cppcheck.xml
+#cppcheck -q --xml --xml-version=2 --enable=all \
+#  -i "${WORKSPACE}/tests/tools" \
+#  "${WORKSPACE}/src/" "${WORKSPACE}/tests/" "${WORKSPACE}/wrappers/" \
+#  2> ${WORKSPACE}/build/cppcheck.xml
