@@ -5,10 +5,10 @@ matrix:
       sudo: required
       dist: trusty
       compiler: gcc
-      env: Architecture=amd64 Distribution=ubuntu/trusty Python=2 WORKSPACE=${TRAVIS_BUILD_DIR} CMAKE_OPTIONS="-D CMAKE_CXX_FLAGS=--coverage" MAKE_OPTIONS="-j$(nproc)"
+      env: Architecture=amd64 Distribution=ubuntu/trusty Python=3 WORKSPACE=${TRAVIS_BUILD_DIR} CMAKE_OPTIONS="-D CMAKE_CXX_FLAGS=--coverage" MAKE_OPTIONS="-j$(nproc)"
     - os: osx
       compiler: clang
-      env: Python=2 WORKSPACE=${TRAVIS_BUILD_DIR} MAKE_OPTIONS="-j$(sysctl -n hw.ncpu)"
+      env: Python=3 WORKSPACE=${TRAVIS_BUILD_DIR} MAKE_OPTIONS="-j$(sysctl -n hw.ncpu)"
 install:
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo -E sh ./.ci/deb/install; fi
   - if [ "$TRAVIS_OS_NAME" = "osx" ]; then ./.ci/brew/install; fi

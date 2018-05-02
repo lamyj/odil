@@ -7,5 +7,10 @@ export WORKSPACE=${WORKSPACE:?}
 
 cd build
 
-export PYTHONPATH=${WORKSPACE}/install/$(python${Python} -c "from distutils.sysconfig import *; print(get_python_lib(True, prefix=''))")
-../tests/run --no-network --nose ~/Library/Python/${Python}*/bin/nosetests
+PYTHON_EXECUTABLE="/usr/local/bin/python${Python}"
+PYTHON_VERSION="$(${PYTHON_EXECUTABLE} -c 'import sys;print(sys.version[:3])')"
+LOCAL_PYTHON_PREFIX="$(${PYTHON_EXECUTABLE} -c 'from distutils.sysconfig import *; print(get_python_lib(True, prefix=str()))')"
+
+export PYTHONPATH=${WORKSPACE}/install/${LOCAL_PYTHON_PREFIX}
+export PATH=~/Library/Python/${PYTHON_VERSION}/bin:${PATH}
+../tests/run --no-network --nose nosetests-${PYTHON_VERSION}

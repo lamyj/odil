@@ -52,7 +52,7 @@ float get_tcp_timeout(odil::Association const& association)
 void set_tcp_timeout(odil::Association& association, float seconds)
 {
     association.set_tcp_timeout(
-        boost::posix_time::microseconds(seconds*1000000.));
+        boost::posix_time::microseconds(int(seconds*1000000.)));
 }
 
 }

@@ -9,8 +9,8 @@ import sys
 
 brew_conflicting = ["json-c"]
 brew_required = [
-    "boost", "boost-python", "cmake", "cppcheck", "dcmtk", "icu4c", "jsoncpp",
-    "lcov", "log4cpp", "pkg-config", "python"+os.environ["Python"]
+    "boost", "boost-python", "boost-python3", "cmake", "cppcheck", "dcmtk",
+    "icu4c", "jsoncpp", "lcov", "log4cpp", "pkg-config", "python", "python@2"
 ]
 
 pip_required = ["cpp-coveralls", "nose"]
