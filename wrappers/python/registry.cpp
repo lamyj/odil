@@ -6,41 +6,33 @@
  * for details.
  ************************************************************************/
 
-#include <Python.h>
+#include <pybind11/pybind11.h>
 
-#include <boost/python.hpp>
+#include "odil/registry.h"
 
-#include <odil/registry.h>
+#include "opaque_types.h"
+#include "type_casters.h"
 
-namespace
+void wrap_registry(pybind11::module & m)
 {
-
-class Dummy 
-{
-};
-
-}
-
-void wrap_registry()
-{
-    using namespace boost::python;
+    using namespace pybind11;
     using namespace odil;
 
-    scope registry_scope = class_<Dummy>("registry");
+    auto registry_ = m.def_submodule("registry");
 
     for(auto const & entry: registry::public_dictionary)
     {
         if(entry.first.get_type() == ElementsDictionaryKey::Type::Tag)
         {
-            registry_scope.attr(entry.second.keyword.c_str()) = entry.first.get_tag();
+            registry_.attr(entry.second.keyword.c_str()) = entry.first.get_tag();
         }
     }
 
     for(auto const & entry: registry::uids_dictionary)
     {
-        registry_scope.attr(entry.second.keyword.c_str()) = entry.first;
+        registry_.attr(entry.second.keyword.c_str()) = entry.first;
     }
 
-    registry_scope.attr("public_dictionary") = registry::public_dictionary;
-    registry_scope.attr("uids_dictionary") = registry::uids_dictionary;
+    registry_.attr("public_dictionary") = registry::public_dictionary;
+    registry_.attr("uids_dictionary") = registry::uids_dictionary;
 }

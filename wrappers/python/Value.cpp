@@ -6,38 +6,22 @@
  * for details.
  ************************************************************************/
 
-#include <Python.h>
+#include <algorithm>
 
-#include <boost/python.hpp>
-#include <boost/python/suite/indexing/vector_indexing_suite.hpp>
-#include <boost/shared_ptr.hpp>
+#include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
+#include <pybind11/stl_bind.h>
 
 #include "odil/DataSet.h"
 #include "odil/Value.h"
 
-#include "value_constructor.h"
+#include "opaque_types.h"
+#include "type_casters.h"
 
 namespace
 {
 
-template<typename T, typename python_type=typename T::value_type>
-boost::shared_ptr<T> create_value(boost::python::object const & sequence)
-{
-    typedef typename T::value_type value_type;
-
-    std::vector<value_type> values(boost::python::len(sequence));
-    for(long i=0; i<boost::python::len(sequence); ++i)
-    {
-        boost::python::object item = sequence[i];
-        values[i] = boost::python::extract<python_type>(item);
-    }
-
-    // Old versions of Boost.Python (Debian 7, Ubuntu 12.04) do not like 
-    // std::shared_ptr
-    return boost::shared_ptr<T>(new T(values));
-}
-
-boost::python::object
+pybind11::object
 as_memory_view(odil::Value::Binary::value_type const & binary_item)
 {
     Py_buffer buffer;
@@ -47,50 +31,55 @@ as_memory_view(odil::Value::Binary::value_type const & binary_item)
         binary_item.size(), 1, PyBUF_SIMPLE);
     PyObject * memory_view = PyMemoryView_FromBuffer(&buffer);
 
-    return boost::python::object(boost::python::handle<>(memory_view));
+    return pybind11::reinterpret_steal<pybind11::object>(memory_view);
 }
 
 }
 
-void wrap_Value()
+void wrap_Value(pybind11::module & m)
 {
-    using namespace boost::python;
+    using namespace pybind11;
     using namespace odil;
 
-    typedef Value::Integers & (Value::*AsIntegers)();
-    typedef Value::Reals & (Value::*AsReals)();
-    typedef Value::Strings & (Value::*AsStrings)();
-    typedef Value::DataSets & (Value::*AsDataSets)();
-    typedef Value::Binary & (Value::*AsBinary)();
-
-    // Define scope to enclose Integers, Reals, etc. in Value
-    scope value_scope = class_<Value>("Value", no_init)
-        .def("__init__", make_constructor(value_constructor))
-        .add_property("type", &Value::get_type)
+    class_<Value> value(m, "Value");
+    value
+        .def(init<Value::Integers>())
+        .def(init<Value::Reals>())
+        .def(init<Value::Strings>())
+        .def(init<Value::DataSets>())
+        .def(init<Value::Binary>())
+        // Explicit constructor since Value::XXX are opaque
+        // WARNING: define *after* other constructors for correct priority
+        .def(
+            init([](iterable & source) {
+                return convert_iterable<Value>(source);
+            }))
+        .def("get_type", &Value::get_type)
         .def("empty", &Value::empty)
         .def("size", &Value::size)
         .def(
-            "as_integers", AsIntegers(&Value::as_integers), 
-            return_value_policy<reference_existing_object>())
+            "as_integers", (Value::Integers & (Value::*)()) &Value::as_integers,
+            return_value_policy::reference_internal)
         .def(
-            "as_reals", AsReals(&Value::as_reals), 
-            return_value_policy<reference_existing_object>())
+            "as_reals", (Value::Reals & (Value::*)()) &Value::as_reals,
+            return_value_policy::reference_internal)
         .def(
-            "as_strings", AsStrings(&Value::as_strings), 
-            return_value_policy<reference_existing_object>())
+            "as_strings", (Value::Strings & (Value::*)()) &Value::as_strings,
+            return_value_policy::reference_internal)
         .def(
-            "as_data_sets", AsDataSets(&Value::as_data_sets), 
-            return_value_policy<reference_existing_object>())
+            "as_data_sets", (Value::DataSets & (Value::*)()) &Value::as_data_sets,
+            return_value_policy::reference_internal)
         .def(
-            "as_binary", AsBinary(&Value::as_binary), 
-            return_value_policy<reference_existing_object>())
+            "as_binary", (Value::Binary & (Value::*)()) &Value::as_binary,
+            return_value_policy::reference_internal)
         .def(self == self)
         .def(self != self)
         .def("clear", &Value::clear)
         .def("__len__", &Value::size)
+        .def_property_readonly("type", &Value::get_type)
     ;
-    
-    enum_<Value::Type>("Type")
+
+    enum_<Value::Type>(value, "Type")
         .value("Integers", Value::Type::Integers)
         .value("Reals", Value::Type::Reals)
         .value("Strings", Value::Type::Strings)
@@ -98,42 +87,11 @@ void wrap_Value()
         .value("Binary", Value::Type::Binary)
     ;
 
-    class_<Value::Integers>("Integers")
-        .def(init<>())
-        .def("__init__", make_constructor(create_value<Value::Integers>))
-        .def(vector_indexing_suite<Value::Integers>())
-    ;
-
-    class_<Value::Reals>("Reals")
-        .def(init<>())
-        .def("__init__", make_constructor(create_value<Value::Reals>))
-        .def(vector_indexing_suite<Value::Reals>())
-    ;
-
-    class_<Value::Strings>("Strings")
-        .def(init<>())
-        .def("__init__", make_constructor(create_value<Value::Strings>))
-        .def(vector_indexing_suite<Value::Strings>())
-    ;
-
-    class_<Value::DataSets>("DataSets")
-        .def(init<>())
-        .def("__init__", make_constructor(create_value<Value::DataSets>))
-        .def(vector_indexing_suite<Value::DataSets>())
-    ;
-
-    class_<Value::Binary::value_type>("BinaryItem")
-        .def(init<>())
-        .def(
-            "__init__",
-            make_constructor(create_value<Value::Binary::value_type, char>))
-        .def(vector_indexing_suite<Value::Binary::value_type>())
-        .def("get_memory_view", as_memory_view)
-    ;
-
-    class_<Value::Binary>("Binary")
-        .def(init<>())
-        .def("__init__", make_constructor(create_value<Value::Binary>))
-        .def(vector_indexing_suite<Value::Binary>())
-    ;
+    bind_vector<Value::Integers>(value, "Integers");
+    bind_vector<Value::Reals>(value, "Reals");
+    bind_vector<Value::Strings>(value, "Strings");
+    bind_vector<Value::DataSets>(value, "DataSets");
+    bind_vector<Value::Binary::value_type>(value, "BinaryItem")
+        .def("get_memory_view", as_memory_view);
+    bind_vector<Value::Binary>(value, "Binary");
 }

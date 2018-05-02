@@ -6,108 +6,54 @@
  * for details.
  ************************************************************************/
 
-#include <Python.h>
-
 #ifndef _99998287_59bb_4f7c_aadc_fe5ecb87f8c2
 #define _99998287_59bb_4f7c_aadc_fe5ecb87f8c2
 
-#include <boost/python.hpp>
+#include <pybind11/pybind11.h>
+#include <pybind11/functional.h>
 
 #include <odil/Reader.h>
 
+#include "opaque_types.h"
+#include "type_casters.h"
+
 #include "streambuf.h"
 
-namespace
+void wrap_Reader(pybind11::module & m)
 {
-
-boost::shared_ptr<odil::Reader>
-constructor(
-    odil::wrappers::python::iostream & stream,
-    std::string const & transfer_syntax, bool keep_group_length)
-{
-    odil::Reader * reader = new odil::Reader(
-        stream, transfer_syntax, keep_group_length);
-
-    // Old versions of Boost.Python (Debian 7, Ubuntu 12.04) do not like
-    // std::shared_ptr
-    return boost::shared_ptr<odil::Reader>(reader);
-}
-
-std::function<bool(odil::Tag const &)>
-wrap_halt_condition(boost::python::object const & halt_condition)
-{
-    std::function<bool(odil::Tag const &)> halt_condition_cpp =
-        [](odil::Tag const &) { return false;};
-    if(halt_condition)
-    {
-        halt_condition_cpp =
-            [halt_condition](odil::Tag const & tag) -> bool
-            {
-                return boost::python::extract<bool>(halt_condition(tag));
-            };
-    }
-
-    return halt_condition_cpp;
-}
-
-std::shared_ptr<odil::DataSet>
-read_data_set(
-    odil::Reader const & reader, boost::python::object const & halt_condition)
-{
-    return reader.read_data_set(wrap_halt_condition(halt_condition));
-}
-
-odil::Element
-read_element(
-    odil::Reader const & reader,
-    odil::Tag const & tag, std::shared_ptr<odil::DataSet> data_set)
-{
-    return reader.read_element(tag, data_set);
-}
-
-boost::python::tuple
-read_file(
-    odil::wrappers::python::iostream & stream, bool keep_group_length,
-    boost::python::object const & halt_condition)
-{
-    auto const header_and_data_set = odil::Reader::read_file(
-            stream, keep_group_length, wrap_halt_condition(halt_condition));
-
-    return boost::python::make_tuple(
-        header_and_data_set.first, header_and_data_set.second);
-}
-
-
-}
-
-void wrap_Reader()
-{
-    using namespace boost::python;
+    using namespace pybind11;
     using namespace odil;
 
-    class_<Reader>(
-            "Reader",
-            init<odil::wrappers::python::iostream &, std::string, bool>((
-                    arg("stream"), arg("transfer_syntax"),
-                    arg("keep_group_length")=false)))
+    std::function<bool(Tag const &)> default_halt_condition =
+        [](Tag const &)->bool { return false;};
+
+    class_<Reader>(m, "Reader")
+        .def(
+            init<odil::wrappers::python::iostream &, std::string const &, bool>(),
+            "stream"_a, "transfer_syntax"_a, "keep_group_length"_a=false)
         .def_readwrite("transfer_syntax", &Reader::transfer_syntax)
         .def_readwrite("byte_ordering", &Reader::byte_ordering)
         .def_readwrite("explicit_vr", &Reader::explicit_vr)
         .def_readwrite("keep_group_length", &Reader::keep_group_length)
-        .def("read_data_set", read_data_set, arg("halt_condition")=object())
+        .def(
+            "read_data_set", &Reader::read_data_set,
+            "halt_condition"_a=default_halt_condition)
         .def("read_tag", &Reader::read_tag)
         .def("read_length", &Reader::read_length)
         .def(
-            "read_element", read_element, (
-                arg("tag")=Tag(0xffff, 0xffff),
-                arg("data_set")=std::make_shared<DataSet>()
-        ))
-        .def(
-            "read_file", read_file, (
-                arg("stream"), arg("keep_group_length")=false,
-                arg("halt_condition")=object())
-        )
-        .staticmethod("read_file")
+            "read_element", &Reader::read_element,
+            "tag"_a=Tag(0xffff, 0xffff), "data_set"_a=std::make_shared<DataSet>())
+        .def_static(
+            "read_file",
+            [](
+                odil::wrappers::python::iostream & stream,
+                bool keep_group_length,
+                std::function<bool(Tag const &)> halt_condition)
+            {
+                return Reader::read_file(stream, keep_group_length, halt_condition);
+            },
+            "stream"_a, "keep_group_length"_a=false,
+            "halt_condition"_a=default_halt_condition)
     ;
 }
 

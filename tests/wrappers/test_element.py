@@ -47,7 +47,8 @@ class TestElement(unittest.TestCase):
     def _test_modify(self, contents, vr, accessor):
         value = odil.Element([contents[0]], vr)
         if isinstance(contents[0], bytearray):
-            accessor(value).append(odil.Value.BinaryItem("".join(chr(x) for x in contents[1])))
+            accessor(value).append(odil.Value.BinaryItem(
+                b"".join(chr(x).encode() for x in contents[1])))
         else:
             accessor(value).append(contents[1])
         

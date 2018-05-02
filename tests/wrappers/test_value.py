@@ -42,7 +42,8 @@ class TestValue(unittest.TestCase):
     def _test_modify(self, contents, accessor):
         value = odil.Value([contents[0]])
         if isinstance(contents[0], bytearray):
-            accessor(value).append(odil.Value.BinaryItem("".join(chr(x) for x in contents[1])))
+            accessor(value).append(odil.Value.BinaryItem(
+                b"".join(chr(x).encode() for x in contents[1])))
         else:
             accessor(value).append(contents[1])
         
@@ -168,12 +169,12 @@ class TestValueBinary(unittest.TestCase):
         self.assertEqual([x for x in data], [])
 
     def test_sequence_constructor(self):
-        items = [odil.Value.BinaryItem("\x01\x02\x03")]
+        items = [odil.Value.BinaryItem(b"\x01\x02\x03")]
         data = odil.Value.Binary(items)
         self.assertEqual([x for x in data[0]], [x for x in items[0]])
 
     def test_buffer(self):
-        item = odil.Value.BinaryItem("\x01\x02\x03")
+        item = odil.Value.BinaryItem(b"\x01\x02\x03")
         memory_view = item.get_memory_view()
         self.assertTrue(isinstance(memory_view, memoryview))
 

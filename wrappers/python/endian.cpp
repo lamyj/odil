@@ -6,18 +6,19 @@
  * for details.
  ************************************************************************/
 
-#include <Python.h>
-
-#include <boost/python.hpp>
+#include <pybind11/pybind11.h>
 
 #include <odil/endian.h>
 
-void wrap_endian()
+#include "opaque_types.h"
+#include "type_casters.h"
+
+void wrap_endian(pybind11::module & m)
 {
-    using namespace boost::python;
+    using namespace pybind11;
     using namespace odil;
 
-    enum_<ByteOrdering>("ByteOrdering")
+    enum_<ByteOrdering>(m, "ByteOrdering")
         .value("LittleEndian", ByteOrdering::LittleEndian)
         .value("BigEndian", ByteOrdering::BigEndian)
     ;

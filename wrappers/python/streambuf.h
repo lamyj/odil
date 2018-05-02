@@ -10,10 +10,11 @@
 #define _fc7ce52d_b32d_43c4_87fc_465b674e6726
 
 #include <ios>
+#include <iostream>
 #include <streambuf>
 #include <string>
 
-#include <boost/python.hpp>
+#include <pybind11/pybind11.h>
 
 namespace odil
 {
@@ -28,8 +29,7 @@ namespace python
 class streambuf : public std::streambuf
 {
 public:
-    streambuf(
-        boost::python::object object, std::string::size_type buffer_size=4096);
+    streambuf(pybind11::object object, std::string::size_type buffer_size=4096);
 
     ~streambuf() =default;
     streambuf(streambuf const &) =delete;
@@ -55,7 +55,7 @@ protected:
     int overflow(int ch=std::char_traits<char>::eof());
 
 private:
-    boost::python::object _object;
+    pybind11::object _object;
     std::string::size_type _buffer_size;
     std::string _buffer;
     std::string::size_type _current;
@@ -66,7 +66,7 @@ private:
 class iostream: public std::iostream
 {
 public:
-    iostream(boost::python::object file_like)
+    iostream(pybind11::object file_like)
     : std::iostream(nullptr), _streambuf(file_like)
     {
         this->rdbuf(&this->_streambuf);
