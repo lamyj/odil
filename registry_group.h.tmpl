@@ -6,37 +6,30 @@
  * for details.
  ************************************************************************/
 
-#ifndef _afc7b2d7_0869_4fea_9a9b_7fe6228baca9
-#define _afc7b2d7_0869_4fea_9a9b_7fe6228baca9
+#ifndef _afc7b2d7_0869_4fea_9a9b_7fe6228baca9_{{ group }}
+#define _afc7b2d7_0869_4fea_9a9b_7fe6228baca9_{{ group }}
 
 #include <map>
 #include <string>
 
 #include "odil/odil.h"
-#include "odil/ElementsDictionary.h"
 #include "odil/Tag.h"
-#include "odil/UIDsDictionary.h"
-
-{% for group in groups %}
-#include "odil/registry_{{ group }}.h"
-{% endfor %}
 
 namespace odil
 {
 
 namespace registry
 {
-
-{% for entry in uids %}
+{% for entry in elements_dictionary %}
+{% if entry[0] is string %}
 std::string const {{ entry[2] }}("{{ entry[0] }}");
+{% elif entry[0] is sequence %}
+Tag const {{ entry[2] }}({{ "0x%04x, 0x%04x"|format(*entry[0]) }});
+{% endif %}
 {% endfor %}
 
-extern ODIL_API ElementsDictionary public_dictionary;
-extern ODIL_API std::map<std::string, Tag> public_tags;
-extern ODIL_API UIDsDictionary uids_dictionary;
-extern ODIL_API bool const dummy;
 }
 
 }
 
-#endif // _afc7b2d7_0869_4fea_9a9b_7fe6228baca9
+#endif // _afc7b2d7_0869_4fea_9a9b_7fe6228baca9_{{ group }}

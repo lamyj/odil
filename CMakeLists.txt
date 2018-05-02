@@ -81,7 +81,8 @@ add_custom_target(
     SOURCES LICENSE.txt README.md ${documentation})
 set_target_properties(Documentation PROPERTIES FOLDER "Utils")
 
+file(GLOB_RECURSE registry_templates registry*.tmpl)
 add_custom_target(
     Registry ${CMAKE_COMMAND} -E echo "Registry"
-    SOURCES generate_registry registry.cpp.tmpl registry.h.tmpl)
+    SOURCES generate_registry ${registry_templates})
 set_target_properties(Registry PROPERTIES FOLDER "Utils")
