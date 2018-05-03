@@ -1,7 +1,7 @@
 Installation on Linux
 =====================
 
-Unofficial packages are provided for stable Debian Ubuntu versions. After following the `instructions to set up the unofficial repository`_, install the ``odil`` package with the usual tools provided by your distribution, for example ``sudo apt-get install odil``.
+Unofficial packages are provided for stable Debian and Ubuntu versions. After following the `instructions to set up the unofficial repository`_, install the ``odil`` package with the usual tools provided by your distribution, for example ``sudo apt-get install odil``.
 
 This will install the main command-line application as well as the C++ library and the Python wrappers.
 

@@ -1,7 +1,16 @@
 Installation on macOS
 =====================
 
-Using Odil on macOS requires compiling it from source. This documentation uses `Homebrew`_ to install dependencies.
+An `unofficial Homebrew formula`_ is provided for macOS. To use it, add a new tap to Homebrew, and install ``odil``:
+
+.. code-block:: bash
+  
+  brew tap lamyj/odil
+  brew install odil
+
+This will install the main command-line application as well as the C++ library and the Python wrappers.
+
+Odil may also be compiled from source. This documentation uses `Homebrew`_ to install dependencies.
 
 Install dependencies
 --------------------
@@ -65,3 +74,4 @@ If your install path is a standard system path (e.g. ``/usr/local``), no additio
 .. _Homebrew: https://brew.sh/
 .. _make: https://www.gnu.org/software/make/
 .. _Ninja: https://ninja-build.org/
+.. _unofficial Homebrew formula: https://github.com/lamyj/homebrew-odil
