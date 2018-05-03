@@ -20,7 +20,7 @@ parts of the DICOM standard. Included in Odil are:
 Odil builds and run on:
 
 - Linux (Debian 7, 8 and 9; Ubuntu 14.04, and 16.04). Official packages are available in `Debian`_ and `Ubuntu`_, as well as `unofficial backports`_.
-- macOS
+- macOS (a `Homebrew tap`_ is available)
 - Windows
 
 Odil is free software: you can redistribute and/or modify it under the terms of the `CeCILL-B license`_.
@@ -40,5 +40,6 @@ Table of contents
 .. _DCMTK: http://dicom.offis.de/dcmtk.php.en
 .. _Debian: https://packages.debian.org/search?keywords=odil&searchon=sourcenames&suite=all&section=all
 .. _DICOM: http://dicom.nema.org/
+.. _Homebrew tap: https://github.com/lamyj/homebrew-odil
 .. _Ubuntu: http://packages.ubuntu.com/search?keywords=odil&searchon=sourcenames&suite=all&section=all
 .. _unofficial backports: https://github.com/lamyj/packages/
