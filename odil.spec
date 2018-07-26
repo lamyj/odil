@@ -1,12 +1,10 @@
 Name: odil
 Summary: C++11 library for the DICOM standard (libraries)
-Version: 0.8.0
+Version: 0.9.2
 Release: 1%{?dist}
 License: CeCILL-B
 Source0: https://github.com/lamyj/odil/archive/v%{version}.tar.gz
 URL: https://github.com/lamyj/odil
-
-Patch1: odil-cli-import-path.patch
 
 BuildRequires: cmake
 BuildRequires: gcc-c++
@@ -25,6 +23,7 @@ BuildRequires: python2-devel
 # boost-python is only compiled for Python 2: skip Python 3-related packages
 
 BuildRequires: doxygen
+BuildRequires: graphviz
 BuildRequires: help2man
 
 %description
@@ -104,17 +103,22 @@ This package contains the command-line application.
 #----------------------------------------------------------------------------
 
 %prep
-%autosetup -p1
+%autosetup
 
 %build
+mkdir -p documentation/_build
+cd documentation
 doxygen
+find _build -name "*.md5" -delete
+cd ..
 sed -i 's/DESTINATION lib/DESTINATION %{_lib}/g' src/CMakeLists.txt
 mkdir build
 cd build
 %cmake \
   -DBUILD_EXAMPLES=OFF \
   -DBUILD_TESTING=OFF \
-  -DBUILD_WRAPPERS=ON \
+  -DBUILD_PYTHON_WRAPPERS=ON \
+  -DBUILD_JAVASCRIPT_WRAPPERS=OFF \
   -DWITH_DCMTK=OFF \
   ..
 %make_build
@@ -122,36 +126,32 @@ cd build
 
 %install
 cd build
-make install DESTDIR=%{buildroot}
+%make_install
 cd ..
-mkdir -p %{buildroot}%{_bindir} %{buildroot}/usr/share/%{name} %{buildroot}%{_mandir}/man1/
-install -m 644 applications/*py %{buildroot}/usr/share/%{name}
-install -m 755 applications/odil %{buildroot}%{_bindir}
+mkdir -p %{buildroot}%{_mandir}/man1/
 LD_LIBRARY_PATH=%{buildroot}%{_libdir} \
-  PYTHONPATH=%{buildroot}/usr/share/odil:%{buildroot}%{_libdir}/python2.7/site-packages/ \
+  PYTHONPATH=%{buildroot}%{_libdir}/python2.7/site-packages/ \
   help2man -o %{buildroot}%{_mandir}/man1/odil.1 --version-string=%{version} %{buildroot}%{_bindir}/odil
 
 %files
-%{_libdir}/*.so.*
-%doc README.md
+%{_libdir}/lib%{name}.so.*
 
 %files devel
 %{_includedir}/*
-%{_libdir}/*.so
-%doc README.md
+%{_libdir}/lib%{name}.so
 
 %files doc
-%doc doc/*
+%doc documentation/_build/doxygen
 %doc README.md
 
 %files -n python2-%{name}
-%{_libdir}/python2.7/site-packages/*
-%doc README.md
+%{_libdir}/python%{python2_version}/site-packages/%{name}/_%{name}.so
+%{_libdir}/python%{python2_version}/site-packages/%{name}/*.py
+%{_libdir}/python%{python2_version}/site-packages/%{name}/*.py?
 
 %files cli
 %{_bindir}/*
-/usr/share/%{name}
-%doc README.md
+%{_libdir}/python%{python2_version}/site-packages/%{name}/cli/*
 %{_mandir}/man1/*
 
 %post -p /sbin/ldconfig
@@ -159,5 +159,7 @@ LD_LIBRARY_PATH=%{buildroot}%{_libdir} \
 %postun -p /sbin/ldconfig
 
 %changelog
+* Thu Jul 26 2018 Julien Lamy <lamy@unistra.fr> 0.9.2-1
+- New upstream release
 * Fri Apr 21 2017 Julien Lamy <lamy@unistra.fr> 0.8.0-1
 - Initial release
