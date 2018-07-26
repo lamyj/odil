@@ -12,7 +12,7 @@ parts of the DICOM standard. Included in Odil are:
 
 Odil builds and run on:
 
-- Linux (Debian 7, 8 and 9; Ubuntu 14.04, and 16.04). Official packages are available ([Debian](https://packages.debian.org/search?keywords=odil&searchon=sourcenames&suite=all&section=all), [Ubuntu](http://packages.ubuntu.com/search?keywords=odil&searchon=sourcenames&suite=all&section=all)), as well as [unofficial backports](https://github.com/lamyj/packages).
+- Linux (Debian 8 and 9; Ubuntu 14.04, 16.04 and 18.04). Official packages are available ([Debian](https://packages.debian.org/search?keywords=odil&searchon=sourcenames&suite=all&section=all), [Ubuntu](http://packages.ubuntu.com/search?keywords=odil&searchon=sourcenames&suite=all&section=all)), as well as [unofficial backports](https://github.com/lamyj/packages).
 - macOS
 - Windows
 
