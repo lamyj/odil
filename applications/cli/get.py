@@ -1,4 +1,4 @@
-from __future__ import print_function
+from __future__ import print_function, unicode_literals
 import argparse
 import logging
 import os
@@ -129,6 +129,12 @@ def get(
             self._series_ids = {}
         
         def store(self, data_set):
+            specific_character_set = odil.Value.Strings()
+            if "SpecificCharacterSet" in data_set:
+                specific_character_set = data_set.as_string(
+                    "SpecificCharacterSet")
+            as_unicode = lambda x: odil.as_unicode(x, specific_character_set)
+            
             if layout == "flat":
                 directory = ""
             elif layout == "tree":
@@ -137,8 +143,8 @@ def get(
                 if "PatientName" in data_set and data_set.as_string("PatientName"):
                     patient_directory = data_set.as_string("PatientName")[0]
                 else:
-                    
                     patient_directory = data_set.as_string("PatientID")[0]
+                patient_directory = as_unicode(patient_directory)
                 
                 # Study directory: <StudyID>_<StudyDescription>, both parts are
                 # optional. If both tags are missing or empty, default to a 
@@ -157,7 +163,7 @@ def get(
                         self._study_ids.setdefault(
                             study_instance_uid, 1+len(self._study_ids)))
                     
-                study_directory = "_".join(study_directory)
+                study_directory = "_".join(as_unicode(x) for x in study_directory)
 
                 # Study directory: <SeriesNumber>_<SeriesDescription>, both 
                 # parts are optional. If both tags are missing or empty, default 
@@ -176,7 +182,7 @@ def get(
                         self._series_ids.setdefault(
                             series_instance_uid, 1+len(self._series_ids)))
                 
-                series_directory = "_".join(series_directory)
+                series_directory = "_".join(as_unicode(x) for x in series_directory)
 
                 if iso_9660:
                     patient_directory = to_iso_9660(patient_directory)
@@ -194,8 +200,8 @@ def get(
             if iso_9660:
                 filename = "IM{:06d}".format(1+self.stored[directory])
             else:
-                filename = data_set.as_string("SOPInstanceUID")[0]
 
+                filename = as_unicode(data_set.as_string("SOPInstanceUID")[0])
             odil.write(
                 data_set, os.path.join(self.directory, directory, filename))
 
