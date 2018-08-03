@@ -79,7 +79,7 @@ def find(host, port, calling_ae_title, called_ae_title, level, keys, decode_uids
         max_length = max(max_length, find_max_name_length(data_set))
 
     for data_set in data_sets:
-        print_data_set(data_set, decode_uids, "", max_length)
+        print_data_set(data_set, decode_uids, "", max_length, "")
         print()
 
     association.release()
