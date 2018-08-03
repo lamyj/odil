@@ -200,10 +200,10 @@ def get(
             if iso_9660:
                 filename = "IM{:06d}".format(1+self.stored[directory])
             else:
-
                 filename = as_unicode(data_set.as_string("SOPInstanceUID")[0])
-            odil.write(
-                data_set, os.path.join(self.directory, directory, filename))
+            
+            with odil.open(os.path.join(self.directory, directory, filename), "wb") as fd:
+                odil.Writer.write_file(data_set, fd)
 
             self.stored[directory] += 1
             self.files.append(os.path.join(directory, filename))

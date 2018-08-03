@@ -47,7 +47,8 @@ def transcode(input, output, format, transfer_syntax, pretty_print):
 def as_binary(input, output, transfer_syntax):
     with odil.open(input) as stream:
         _, data_set = odil.Reader.read_file(stream)
-    odil.write(data_set, output, transfer_syntax=transfer_syntax)
+    with odil.open(output, "wb") as fd:
+        odil.Writer.write_file(data_set, fd, transfer_syntax=transfer_syntax)
 
 def as_json(input, output, pretty_print):
     with odil.open(input) as stream:
