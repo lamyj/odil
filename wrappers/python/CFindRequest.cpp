@@ -6,21 +6,18 @@
  * for details.
  ************************************************************************/
 
-#include <Python.h>
-
-#include <boost/python.hpp>
+#include <pybind11/pybind11.h>
 
 #include "odil/message/CFindRequest.h"
 
-void wrap_CFindRequest()
+void wrap_CFindRequest(pybind11::module & m)
 {
-    using namespace boost::python;
+    using namespace pybind11;
     using namespace odil;
     using namespace odil::message;
 
-    class_<CFindRequest, bases<Request>>(
-            "CFindRequest",
-            init<
+    class_<CFindRequest, Request>(m, "CFindRequest")
+        .def(init<
                 Value::Integer, Value::String const &, Value::Integer,
                 std::shared_ptr<DataSet>
             >())
@@ -28,13 +25,13 @@ void wrap_CFindRequest()
         .def(
             "get_affected_sop_class_uid",
             &CFindRequest::get_affected_sop_class_uid,
-            return_value_policy<copy_const_reference>())
+            return_value_policy::copy)
         .def(
             "set_affected_sop_class_uid",
             &CFindRequest::set_affected_sop_class_uid)
         .def(
             "get_priority", &CFindRequest::get_priority,
-            return_value_policy<copy_const_reference>())
+            return_value_policy::copy)
         .def("set_priority", &CFindRequest::set_priority)
     ;
 }

@@ -6,21 +6,18 @@
  * for details.
  ************************************************************************/
 
-#include <Python.h>
-
-#include <boost/python.hpp>
+#include <pybind11/pybind11.h>
 
 #include "odil/message/NSetRequest.h"
 
-void wrap_NSetRequest()
+void wrap_NSetRequest(pybind11::module & m)
 {
-    using namespace boost::python;
+    using namespace pybind11;
     using namespace odil;
     using namespace odil::message;
 
-    class_<NSetRequest, bases<Request>>(
-            "NSetRequest",
-            init<
+    class_<NSetRequest, Request>(m, "NSetRequest")
+        .def(init<
                 Value::Integer, Value::String const &, Value::String const &,
                 std::shared_ptr<DataSet>
             >())
@@ -28,14 +25,14 @@ void wrap_NSetRequest()
         .def(
             "get_requested_sop_class_uid",
             &NSetRequest::get_requested_sop_class_uid,
-            return_value_policy<copy_const_reference>())
+            return_value_policy::copy)
         .def(
             "set_requested_sop_class_uid",
             &NSetRequest::set_requested_sop_class_uid)
         .def(
             "get_requested_sop_instance_uid",
             &NSetRequest::get_requested_sop_instance_uid,
-            return_value_policy<copy_const_reference>())
+            return_value_policy::copy)
         .def(
             "set_requested_sop_instance_uid",
             &NSetRequest::set_requested_sop_instance_uid)
@@ -44,7 +41,7 @@ void wrap_NSetRequest()
         .def(
             "get_command_field",
             &NSetRequest::get_command_field,
-            return_value_policy<copy_const_reference>())
+            return_value_policy::copy)
         .def(
             "set_command_field",
             &NSetRequest::set_command_field)

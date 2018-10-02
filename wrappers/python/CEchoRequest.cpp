@@ -6,25 +6,23 @@
  * for details.
  ************************************************************************/
 
-#include <Python.h>
-
-#include <boost/python.hpp>
+#include <pybind11/pybind11.h>
 
 #include "odil/message/CEchoRequest.h"
 
-void wrap_CEchoRequest()
+void wrap_CEchoRequest(pybind11::module & m)
 {
-    using namespace boost::python;
+    using namespace pybind11;
     using namespace odil;
     using namespace odil::message;
 
-    class_<CEchoRequest, bases<Request>>(
-            "CEchoRequest", init<Value::Integer, Value::String const &>())
+    class_<CEchoRequest, Request>(m, "CEchoRequest")
+        .def(init<Value::Integer, Value::String const &>())
         .def(init<std::shared_ptr<Message const>>())
         .def(
             "get_affected_sop_class_uid",
             &CEchoRequest::get_affected_sop_class_uid,
-            return_value_policy<copy_const_reference>())
+            return_value_policy::copy)
         .def(
             "set_affected_sop_class_uid",
             &CEchoRequest::set_affected_sop_class_uid)

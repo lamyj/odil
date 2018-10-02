@@ -6,31 +6,29 @@
  * for details.
  ************************************************************************/
 
-#include <Python.h>
-
-#include <boost/python.hpp>
+#include <pybind11/pybind11.h>
 
 #include "odil/message/Response.h"
 
-void wrap_Response()
+void wrap_Response(pybind11::module & m)
 {
-    using namespace boost::python;
+    using namespace pybind11;
     using namespace odil;
     using namespace odil::message;
 
-    class_<Response, bases<Message>>(
-            "Response", init<Value::Integer, Value::Integer>())
+    class_<Response, Message>(m, "Response")
+        .def(init<Value::Integer, Value::Integer>())
         .def(init<std::shared_ptr<Message>>())
         .def(
             "get_message_id_being_responded_to",
-            &Response::get_message_id_being_responded_to,
-            return_value_policy<copy_const_reference>())
+            &Response::get_message_id_being_responded_to/*,
+            return_value_policy::copy*/)
         .def(
             "set_message_id_being_responded_to",
             &Response::set_message_id_being_responded_to)
         .def(
             "get_status", &Response::get_status,
-            return_value_policy<copy_const_reference>())
+            return_value_policy::copy)
         .def("set_status", &Response::set_status)
         .def(
             "is_pending",
@@ -44,36 +42,36 @@ void wrap_Response()
     ;
 }
 
-void wrap_ResponseStatus()
+void wrap_ResponseStatus(pybind11::module & m)
 {
-    using namespace boost::python;
+    using namespace pybind11;
     using namespace odil;
     using namespace odil::message;
 
-    enum_< Response::Status >("response_status")
-            .value("Success", Response::Status::Success )
-            .value("Cancel", Response::Status::Cancel )
-            .value("Pending", Response::Status::Pending )
-            .value("AttributeListError", Response::Status::AttributeListError )
-            .value("AttributeValueOutOfRange", Response::Status::AttributeValueOutOfRange )
-            .value("SOPClassNotSupported", Response::Status::SOPClassNotSupported )
-            .value("ClassInstanceConflict", Response::Status::ClassInstanceConflict )
-            .value("DuplicateSOPInstance", Response::Status::DuplicateSOPInstance )
-            .value("DuplicateInvocation", Response::Status::DuplicateInvocation )
-            .value("InvalidArgumentValue", Response::Status::InvalidArgumentValue )
-            .value("InvalidAttributeValue", Response::Status::InvalidAttributeValue )
-            .value("InvalidObjectInstance", Response::Status::InvalidObjectInstance )
-            .value("MissingAttribute", Response::Status::MissingAttribute )
-            .value("MissingAttributeValue", Response::Status::MissingAttributeValue )
-            .value("MistypedArgument", Response::Status::MistypedArgument )
-            .value("NoSuchArgument", Response::Status::NoSuchArgument )
-            .value("NoSuchAttribute", Response::Status::NoSuchAttribute )
-            .value("NoSuchEventType", Response::Status::NoSuchEventType )
-            .value("NoSuchSOPInstance", Response::Status::NoSuchSOPInstance )
-            .value("NoSuchSOPClass", Response::Status::NoSuchSOPClass )
-            .value("ProcessingFailure", Response::Status::ProcessingFailure )
-            .value("ResourceLimitation", Response::Status::ResourceLimitation )
-            .value("UnrecognizedOperation", Response::Status::UnrecognizedOperation )
+    enum_<Response::Status>(m, "ResponseStatus")
+            .value("Success", Response::Status::Success)
+            .value("Cancel", Response::Status::Cancel)
+            .value("Pending", Response::Status::Pending)
+            .value("AttributeListError", Response::Status::AttributeListError)
+            .value("AttributeValueOutOfRange", Response::Status::AttributeValueOutOfRange)
+            .value("SOPClassNotSupported", Response::Status::SOPClassNotSupported)
+            .value("ClassInstanceConflict", Response::Status::ClassInstanceConflict)
+            .value("DuplicateSOPInstance", Response::Status::DuplicateSOPInstance)
+            .value("DuplicateInvocation", Response::Status::DuplicateInvocation)
+            .value("InvalidArgumentValue", Response::Status::InvalidArgumentValue)
+            .value("InvalidAttributeValue", Response::Status::InvalidAttributeValue)
+            .value("InvalidObjectInstance", Response::Status::InvalidObjectInstance)
+            .value("MissingAttribute", Response::Status::MissingAttribute)
+            .value("MissingAttributeValue", Response::Status::MissingAttributeValue)
+            .value("MistypedArgument", Response::Status::MistypedArgument)
+            .value("NoSuchArgument", Response::Status::NoSuchArgument)
+            .value("NoSuchAttribute", Response::Status::NoSuchAttribute)
+            .value("NoSuchEventType", Response::Status::NoSuchEventType)
+            .value("NoSuchSOPInstance", Response::Status::NoSuchSOPInstance)
+            .value("NoSuchSOPClass", Response::Status::NoSuchSOPClass)
+            .value("ProcessingFailure", Response::Status::ProcessingFailure)
+            .value("ResourceLimitation", Response::Status::ResourceLimitation)
+            .value("UnrecognizedOperation", Response::Status::UnrecognizedOperation)
             .value("NoSuchActionType", Response::Status::NoSuchActionType)
     ;
 }

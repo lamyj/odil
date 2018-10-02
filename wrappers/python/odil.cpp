@@ -49,21 +49,21 @@ void wrap_VRFinder(pybind11::module &);
 void wrap_Writer(pybind11::module &);
 void wrap_xml_converter(pybind11::module &);
 
-//void wrap_Message();
-//void wrap_CommandTypeEnum();
-//void wrap_ResponseStatus();
-//void wrap_Request();
-//void wrap_Response();
-//void wrap_CEchoRequest();
-//void wrap_CFindRequest();
-//void wrap_CGetRequest();
-//void wrap_CGetResponse();
-//void wrap_CMoveRequest();
-//void wrap_CMoveResponse();
-//void wrap_CStoreRequest();
-//void wrap_CStoreResponse();
-//void wrap_NSetRequest();
-//void wrap_NCreateRequest();
+void wrap_Message(pybind11::module &);
+void wrap_CommandTypeEnum(pybind11::module &);
+void wrap_ResponseStatus(pybind11::module &);
+void wrap_Request(pybind11::module &);
+void wrap_Response(pybind11::module &);
+void wrap_CEchoRequest(pybind11::module &);
+void wrap_CFindRequest(pybind11::module &);
+void wrap_CGetRequest(pybind11::module &);
+void wrap_CGetResponse(pybind11::module &);
+void wrap_CMoveRequest(pybind11::module &);
+void wrap_CMoveResponse(pybind11::module &);
+void wrap_CStoreRequest(pybind11::module &);
+void wrap_CStoreResponse(pybind11::module &);
+void wrap_NSetRequest(pybind11::module &);
+void wrap_NCreateRequest(pybind11::module &);
 
 //void wrap_webservices();
 
@@ -122,21 +122,21 @@ PYBIND11_MODULE(_odil, _odil)
 //    wrap_StoreSCP();
 //    wrap_StoreSCU();
 
-//    wrap_Message();
-//    wrap_CommandTypeEnum();
-//    wrap_ResponseStatus();
-//    wrap_Request();
-//    wrap_Response();
-//    wrap_CEchoRequest();
-//    wrap_CFindRequest();
-//    wrap_CGetRequest();
-//    wrap_CGetResponse();
-//    wrap_CMoveRequest();
-//    wrap_CMoveResponse();
-//    wrap_CStoreRequest();
-//    wrap_CStoreResponse();
-//    wrap_NSetRequest();
-//    wrap_NCreateRequest();
+    wrap_Message(_odil);
+    wrap_CommandTypeEnum(_odil);
+    wrap_ResponseStatus(_odil);
+    wrap_Request(_odil);
+    wrap_Response(_odil);
+    wrap_CEchoRequest(_odil);
+    wrap_CFindRequest(_odil);
+    wrap_CGetRequest(_odil);
+    wrap_CGetResponse(_odil);
+    wrap_CMoveRequest(_odil);
+    wrap_CMoveResponse(_odil);
+    wrap_CStoreRequest(_odil);
+    wrap_CStoreResponse(_odil);
+    wrap_NSetRequest(_odil);
+    wrap_NCreateRequest(_odil);
 
 //    wrap_webservices();
 }

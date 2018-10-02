@@ -6,26 +6,24 @@
  * for details.
  ************************************************************************/
 
-#include <Python.h>
-
-#include <boost/python.hpp>
+#include <pybind11/pybind11.h>
 
 #include "odil/message/CMoveResponse.h"
 
-void wrap_CMoveResponse()
+void wrap_CMoveResponse(pybind11::module & m)
 {
-    using namespace boost::python;
+    using namespace pybind11;
     using namespace odil;
     using namespace odil::message;
 
-    class_<CMoveResponse, bases<Response>>(
-            "CMoveResponse", init<Value::Integer, Value::Integer>())
+    class_<CMoveResponse, Response>(m, "CMoveResponse")
+        .def(init<Value::Integer, Value::Integer>())
         .def(init<Value::Integer, Value::Integer, std::shared_ptr<DataSet>>())
         .def(init<std::shared_ptr<Message>>())
         .def("has_message_id", &CMoveResponse::has_message_id)
         .def(
             "get_message_id", &CMoveResponse::get_message_id,
-            return_value_policy<copy_const_reference>())
+            return_value_policy::copy)
         .def("set_message_id", &CMoveResponse::set_message_id)
         .def(
             "has_affected_sop_class_uid",
@@ -33,7 +31,7 @@ void wrap_CMoveResponse()
         .def(
             "get_affected_sop_class_uid",
             &CMoveResponse::get_affected_sop_class_uid,
-            return_value_policy<copy_const_reference>())
+            return_value_policy::copy)
         .def(
             "set_affected_sop_class_uid",
             &CMoveResponse::set_affected_sop_class_uid)
@@ -43,7 +41,7 @@ void wrap_CMoveResponse()
         .def(
             "get_number_of_remaining_sub_operations",
             &CMoveResponse::get_number_of_remaining_sub_operations,
-            return_value_policy<copy_const_reference>())
+            return_value_policy::copy)
         .def(
             "set_number_of_remaining_sub_operations",
             &CMoveResponse::set_number_of_remaining_sub_operations)
@@ -53,7 +51,7 @@ void wrap_CMoveResponse()
         .def(
             "get_number_of_completed_sub_operations",
             &CMoveResponse::get_number_of_completed_sub_operations,
-            return_value_policy<copy_const_reference>())
+            return_value_policy::copy)
         .def(
             "set_number_of_completed_sub_operations",
             &CMoveResponse::set_number_of_completed_sub_operations)
@@ -63,7 +61,7 @@ void wrap_CMoveResponse()
         .def(
             "get_number_of_failed_sub_operations",
             &CMoveResponse::get_number_of_failed_sub_operations,
-            return_value_policy<copy_const_reference>())
+            return_value_policy::copy)
         .def(
             "set_number_of_failed_sub_operations",
             &CMoveResponse::set_number_of_failed_sub_operations)
@@ -73,7 +71,7 @@ void wrap_CMoveResponse()
         .def(
             "get_number_of_warning_sub_operations",
             &CMoveResponse::get_number_of_warning_sub_operations,
-            return_value_policy<copy_const_reference>())
+            return_value_policy::copy)
         .def(
             "set_number_of_warning_sub_operations",
             &CMoveResponse::set_number_of_warning_sub_operations)

@@ -6,21 +6,18 @@
  * for details.
  ************************************************************************/
 
-#include <Python.h>
-
-#include <boost/python.hpp>
+#include <pybind11/pybind11.h>
 
 #include "odil/message/CStoreResponse.h"
 
-void wrap_CStoreResponse()
+void wrap_CStoreResponse(pybind11::module & m)
 {
-    using namespace boost::python;
+    using namespace pybind11;
     using namespace odil;
     using namespace odil::message;
 
-    class_<CStoreResponse, bases<Response>>(
-                "CStoreResponse",
-                init< Value::Integer, Value::Integer>())
+    class_<CStoreResponse, Response>(m, "CStoreResponse")
+            .def(init< Value::Integer, Value::Integer>())
             .def(init<std::shared_ptr<Message>>())
             .def(
                 "has_message_id",
@@ -28,7 +25,7 @@ void wrap_CStoreResponse()
             .def(
                 "get_message_id",
                 &CStoreResponse::get_message_id,
-                return_value_policy<copy_const_reference>())
+                return_value_policy::copy)
             .def(
                 "set_message_id",
                 &CStoreResponse::set_message_id)
@@ -38,7 +35,7 @@ void wrap_CStoreResponse()
             .def(
                 "get_affected_sop_class_uid",
                 &CStoreResponse::get_affected_sop_class_uid,
-                return_value_policy<copy_const_reference>())
+                return_value_policy::copy)
             .def(
                 "set_affected_sop_class_uid",
                 &CStoreResponse::set_affected_sop_class_uid)
@@ -48,7 +45,7 @@ void wrap_CStoreResponse()
             .def(
                 "get_affected_sop_instance_uid",
                 &CStoreResponse::get_affected_sop_instance_uid,
-                return_value_policy<copy_const_reference>())
+                return_value_policy::copy)
             .def(
                 "set_affected_sop_instance_uid",
                 &CStoreResponse::set_affected_sop_instance_uid)
