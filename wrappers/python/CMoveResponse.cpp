@@ -16,7 +16,7 @@ void wrap_CMoveResponse(pybind11::module & m)
     using namespace odil;
     using namespace odil::message;
 
-    class_<CMoveResponse, Response>(m, "CMoveResponse")
+    class_<CMoveResponse, std::shared_ptr<CMoveResponse>, Response>(m, "CMoveResponse")
         .def(init<Value::Integer, Value::Integer>())
         .def(init<Value::Integer, Value::Integer, std::shared_ptr<DataSet>>())
         .def(init<std::shared_ptr<Message>>())

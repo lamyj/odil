@@ -16,7 +16,7 @@ void wrap_NCreateRequest(pybind11::module & m)
     using namespace odil;
     using namespace odil::message;
 
-    class_<NCreateRequest, Request>(m, "NCreateRequest")
+    class_<NCreateRequest, std::shared_ptr<NCreateRequest>, Request>(m, "NCreateRequest")
         .def(init<
                 Value::Integer, Value::String const &,
                 std::shared_ptr<DataSet>

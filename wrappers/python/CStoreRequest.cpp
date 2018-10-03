@@ -16,7 +16,7 @@ void wrap_CStoreRequest(pybind11::module & m)
     using namespace odil;
     using namespace odil::message;
 
-    class_<CStoreRequest, Request>(m, "CStoreRequest")
+    class_<CStoreRequest, std::shared_ptr<CStoreRequest>, Request>(m, "CStoreRequest")
         .def(init<
                 Value::Integer, Value::String const &, Value::String const &,
                 Value::Integer, std::shared_ptr<DataSet>

@@ -16,7 +16,7 @@ void wrap_CEchoRequest(pybind11::module & m)
     using namespace odil;
     using namespace odil::message;
 
-    class_<CEchoRequest, Request>(m, "CEchoRequest")
+    class_<CEchoRequest, std::shared_ptr<CEchoRequest>, Request>(m, "CEchoRequest")
         .def(init<Value::Integer, Value::String const &>())
         .def(init<std::shared_ptr<Message const>>())
         .def(

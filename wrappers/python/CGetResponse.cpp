@@ -16,7 +16,7 @@ void wrap_CGetResponse(pybind11::module & m)
     using namespace odil;
     using namespace odil::message;
 
-    class_<CGetResponse, Response>(m, "CGetResponse")
+    class_<CGetResponse, std::shared_ptr<CGetResponse>, Response>(m, "CGetResponse")
         .def(init<Value::Integer, Value::Integer>())
         .def(init<Value::Integer, Value::Integer, std::shared_ptr<DataSet>>())
         .def(init<std::shared_ptr<Message>>())

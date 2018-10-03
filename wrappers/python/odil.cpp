@@ -122,21 +122,21 @@ PYBIND11_MODULE(_odil, _odil)
 //    wrap_StoreSCP();
 //    wrap_StoreSCU();
 
-    wrap_Message(_odil);
-    wrap_CommandTypeEnum(_odil);
-    wrap_ResponseStatus(_odil);
-    wrap_Request(_odil);
-    wrap_Response(_odil);
-    wrap_CEchoRequest(_odil);
-    wrap_CFindRequest(_odil);
-    wrap_CGetRequest(_odil);
-    wrap_CGetResponse(_odil);
-    wrap_CMoveRequest(_odil);
-    wrap_CMoveResponse(_odil);
-    wrap_CStoreRequest(_odil);
-    wrap_CStoreResponse(_odil);
-    wrap_NSetRequest(_odil);
-    wrap_NCreateRequest(_odil);
+    auto messages = _odil.def_submodule("messages");
+    wrap_Message(messages);
+    wrap_ResponseStatus(messages);
+    wrap_Request(messages);
+    wrap_Response(messages);
+    wrap_CEchoRequest(messages);
+    wrap_CFindRequest(messages);
+    wrap_CGetRequest(messages);
+    wrap_CGetResponse(messages);
+    wrap_CMoveRequest(messages);
+    wrap_CMoveResponse(messages);
+    wrap_CStoreRequest(messages);
+    wrap_CStoreResponse(messages);
+    wrap_NSetRequest(messages);
+    wrap_NCreateRequest(messages);
 
 //    wrap_webservices();
 }

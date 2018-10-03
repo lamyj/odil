@@ -19,7 +19,7 @@ void wrap_Message(pybind11::module & m)
     using namespace odil;
     using namespace odil::message;
 
-    class_<Message, std::shared_ptr<Message>>(m, "Message")
+    auto message_scope = class_<Message, std::shared_ptr<Message>>(m, "Message")
         .def(init<std::shared_ptr<DataSet>>())
         .def(init<std::shared_ptr<DataSet>, std::shared_ptr<DataSet>>())
         .def("get_command_set", &Message::get_command_set)
@@ -32,15 +32,8 @@ void wrap_Message(pybind11::module & m)
             return_value_policy::reference_internal)
         .def("set_command_field", &Message::set_command_field)
     ;
-}
 
-void wrap_CommandTypeEnum(pybind11::module & m)
-{
-    using namespace pybind11;
-    using namespace odil;
-    using namespace odil::message;
-
-    enum_<Message::Command::Type>(m, "MessageCommandType")
+    enum_<Message::Command::Type>(message_scope, "Command")
         .value("C_STORE_RQ", Message::Command::Type::C_STORE_RQ)
         .value("C_STORE_RSP", Message::Command::Type::C_STORE_RSP)
         .value("C_FIND_RQ", Message::Command::Type::C_FIND_RQ)

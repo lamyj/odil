@@ -16,7 +16,7 @@ void wrap_CFindRequest(pybind11::module & m)
     using namespace odil;
     using namespace odil::message;
 
-    class_<CFindRequest, Request>(m, "CFindRequest")
+    class_<CFindRequest, std::shared_ptr<CFindRequest>, Request>(m, "CFindRequest")
         .def(init<
                 Value::Integer, Value::String const &, Value::Integer,
                 std::shared_ptr<DataSet>

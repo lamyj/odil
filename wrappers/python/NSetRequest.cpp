@@ -16,7 +16,7 @@ void wrap_NSetRequest(pybind11::module & m)
     using namespace odil;
     using namespace odil::message;
 
-    class_<NSetRequest, Request>(m, "NSetRequest")
+    class_<NSetRequest, std::shared_ptr<NSetRequest>, Request>(m, "NSetRequest")
         .def(init<
                 Value::Integer, Value::String const &, Value::String const &,
                 std::shared_ptr<DataSet>

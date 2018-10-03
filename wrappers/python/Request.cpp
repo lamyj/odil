@@ -16,7 +16,7 @@ void wrap_Request(pybind11::module & m)
     using namespace odil;
     using namespace odil::message;
 
-    class_<Request, Message>(m, "Request")
+    class_<Request, std::shared_ptr<Request>, Message>(m, "Request")
         .def(init<Value::Integer>())
         .def(init<std::shared_ptr<Message>>())
         .def(

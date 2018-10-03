@@ -16,7 +16,7 @@ void wrap_Response(pybind11::module & m)
     using namespace odil;
     using namespace odil::message;
 
-    class_<Response, Message>(m, "Response")
+    class_<Response, std::shared_ptr<Response>, Message>(m, "Response")
         .def(init<Value::Integer, Value::Integer>())
         .def(init<std::shared_ptr<Message>>())
         .def(

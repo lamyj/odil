@@ -16,7 +16,7 @@ void wrap_CGetRequest(pybind11::module & m)
     using namespace odil;
     using namespace odil::message;
 
-    class_<CGetRequest, Request>(m, "CGetRequest")
+    class_<CGetRequest, std::shared_ptr<CGetRequest>, Request>(m, "CGetRequest")
         .def(init<
                 Value::Integer, Value::String const &, Value::Integer,
                 std::shared_ptr<DataSet>

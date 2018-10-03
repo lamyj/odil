@@ -16,7 +16,7 @@ void wrap_CStoreResponse(pybind11::module & m)
     using namespace odil;
     using namespace odil::message;
 
-    class_<CStoreResponse, Response>(m, "CStoreResponse")
+    class_<CStoreResponse, std::shared_ptr<CStoreResponse>, Response>(m, "CStoreResponse")
             .def(init< Value::Integer, Value::Integer>())
             .def(init<std::shared_ptr<Message>>())
             .def(

@@ -16,7 +16,7 @@ void wrap_CMoveRequest(pybind11::module & m)
     using namespace odil;
     using namespace odil::message;
 
-    class_<CMoveRequest, Request>(m, "CMoveRequest")
+    class_<CMoveRequest, std::shared_ptr<CMoveRequest>, Request>(m, "CMoveRequest")
         .def(init<
                 Value::Integer, Value::String const &, Value::Integer,
                 Value::String const &, std::shared_ptr<DataSet>
