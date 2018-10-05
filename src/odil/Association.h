@@ -205,11 +205,8 @@ private:
 class ODIL_API AssociationReleased: public Exception
 {
 public:
-    AssociationReleased()
-    : Exception("Association released")
-    {
-        // Nothing else.
-    }
+    AssociationReleased();
+    virtual ~AssociationReleased() noexcept;
 };
 
 /** 
@@ -225,12 +222,8 @@ public:
     /// @brief Reason of the error.
     uint8_t reason;
     
-    /// @brief Constructor.
-    AssociationAborted(unsigned char source, unsigned char reason)
-    : Exception("Association aborted"), source(source), reason(reason)
-    {
-        // Nothing else.
-    }
+    AssociationAborted(unsigned char source, unsigned char reason);
+    virtual ~AssociationAborted() noexcept;
 };
 
 }

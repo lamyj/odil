@@ -6,9 +6,7 @@
  * for details.
  ************************************************************************/
 
-#include <Python.h>
-
-#include <boost/python.hpp>
+#include <pybind11/pybind11.h>
 
 #include "odil/GetSCU.h"
 
@@ -19,15 +17,15 @@ void
 get_with_python_callback(
     odil::GetSCU const & scu, 
     std::shared_ptr<odil::DataSet> query,
-    boost::python::object const & store_callback,
-    boost::python::object const & get_callback)
+    pybind11::object const & store_callback,
+    pybind11::object const & get_callback)
 {
     odil::GetSCU::StoreCallback store_callback_cpp;
     if(!store_callback.is_none())
     {
         store_callback_cpp = [store_callback](std::shared_ptr<odil::DataSet> data_set)
         {
-            boost::python::call<void>(store_callback.ptr(), data_set);
+            store_callback(data_set);
         };
     }
 
@@ -36,7 +34,7 @@ get_with_python_callback(
     {
         get_callback_cpp = [get_callback](std::shared_ptr<odil::message::CGetResponse> message)
         {
-            boost::python::call<void>(get_callback.ptr(), message);
+            get_callback(message);
         };
     }
 
@@ -45,20 +43,19 @@ get_with_python_callback(
 
 }
 
-void wrap_GetSCU()
+void wrap_GetSCU(pybind11::module & m)
 {
-    using namespace boost::python;
+    using namespace pybind11;
+    using namespace pybind11::literals;
     using namespace odil;
 
-    class_<GetSCU>("GetSCU", init<Association &>())
+    class_<GetSCU>(m, "GetSCU")
+        .def(init<Association &>())
         .def(
-            "get",
-            &get_with_python_callback,
-            (
-                arg("scu"), arg("query"), arg("store_callback"),
-                arg("get_callback")=object()
-            )
-        )
+            // FIXME
+            "get", &get_with_python_callback,
+            "Perform the C-GET using callbacks",
+            "query"_a, "store_callback"_a, "get_callback"_a=none())
         .def(
             "get", 
             static_cast<

@@ -14,30 +14,30 @@
 //void wrap_std_map();
 //void wrap_std_vector();
 
-//void wrap_Association();
-//void wrap_AssociationParameters();
+void wrap_Association(pybind11::module &);
+void wrap_AssociationParameters(pybind11::module &);
 void wrap_BasicDirectoryCreator(pybind11::module &);
 void wrap_DataSet(pybind11::module &);
-//void wrap_EchoSCP();
-//void wrap_EchoSCU();
+void wrap_EchoSCP(pybind11::module &);
+void wrap_EchoSCU(pybind11::module &);
 void wrap_Element(pybind11::module &);
 void wrap_ElementsDictionary(pybind11::module &);
 void wrap_endian(pybind11::module &);
 void wrap_Exception(pybind11::module &);
 //void wrap_FindSCP();
-//void wrap_FindSCU();
+void wrap_FindSCU(pybind11::module &);
 //void wrap_GetSCP();
-//void wrap_GetSCU();
+void wrap_GetSCU(pybind11::module &);
 void wrap_json_converter(pybind11::module &);
 //void wrap_MoveSCP();
-//void wrap_MoveSCU();
+void wrap_MoveSCU(pybind11::module &);
 //void wrap_NCreateSCP();
 //void wrap_NSetSCP();
-//void wrap_NSetSCU();
+void wrap_NSetSCU(pybind11::module &);
 void wrap_Reader(pybind11::module &);
 void wrap_registry(pybind11::module &);
 //void wrap_SCPDispatcher();
-//void wrap_StoreSCU();
+void wrap_StoreSCU(pybind11::module &);
 //void wrap_StoreSCP();
 void wrap_Tag(pybind11::module &);
 void wrap_uid(pybind11::module &);
@@ -103,24 +103,24 @@ PYBIND11_MODULE(_odil, _odil)
     wrap_json_converter(_odil);
     wrap_xml_converter(_odil);
 
-//    wrap_Association();
-//    wrap_AssociationParameters();
-//    wrap_EchoSCP();
-//    wrap_EchoSCU();
+    wrap_Association(_odil);
+    wrap_AssociationParameters(_odil);
+    wrap_EchoSCP(_odil);
+    wrap_EchoSCU(_odil);
 
 //    wrap_FindSCP();
-//    wrap_FindSCU();
+    wrap_FindSCU(_odil);
 //    wrap_GetSCP();
-//    wrap_GetSCU();
+    wrap_GetSCU(_odil);
 
 //    wrap_MoveSCP();
-//    wrap_MoveSCU();
+    wrap_MoveSCU(_odil);
 //    wrap_NCreateSCP();
 //    wrap_NSetSCP();
-//    wrap_NSetSCU();
+    wrap_NSetSCU(_odil);
 //    wrap_SCPDispatcher();
 //    wrap_StoreSCP();
-//    wrap_StoreSCU();
+    wrap_StoreSCU(_odil);
 
     auto messages = _odil.def_submodule("messages");
     wrap_Message(messages);

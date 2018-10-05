@@ -6,71 +6,58 @@
  * for details.
  ************************************************************************/
 
-#include <Python.h>
-
 #include <memory>
 
-#include <boost/python.hpp>
-#include <boost/python/suite/indexing/vector_indexing_suite.hpp>
-#include <boost/shared_ptr.hpp>
+#include <pybind11/pybind11.h>
+#include <pybind11/operators.h>
 
 #include "odil/AssociationParameters.h"
 
 namespace
 {
 
-boost::shared_ptr<odil::AssociationParameters::PresentationContext>
+odil::AssociationParameters::PresentationContext
 presentation_context_constructor(
     uint8_t id, std::string const & abstract_syntax,
-    boost::python::object const & transfer_syntaxes,
+    pybind11::list transfer_syntaxes,
     bool scu_role_support, bool scp_role_support)
 {
-    using namespace boost::python;
-    using namespace odil;
 
     std::vector<std::string> transfer_syntaxes_cpp(len(transfer_syntaxes));
-    for(int i = 0; i<len(transfer_syntaxes); ++i)
-    {
-        transfer_syntaxes_cpp[i] = extract<std::string>(transfer_syntaxes[i]);
-    }
-    auto presentation_context = new AssociationParameters::PresentationContext{
+    std::transform(
+        transfer_syntaxes.begin(), transfer_syntaxes.end(),
+        transfer_syntaxes_cpp.begin(),
+        [](pybind11::handle const & item) {
+            return item.cast<std::string>();
+        });
+    return odil::AssociationParameters::PresentationContext(
         id, abstract_syntax, transfer_syntaxes_cpp,
-        scu_role_support, scp_role_support
-    };
-    // Old versions of Boost.Python (Debian 7, Ubuntu 12.04) do not like 
-    // std::shared_ptr
-    return boost::shared_ptr<AssociationParameters::PresentationContext>(
-        presentation_context);
+        scu_role_support, scp_role_support);
 }
 
-boost::shared_ptr<odil::AssociationParameters::PresentationContext>
+odil::AssociationParameters::PresentationContext
 presentation_context_simplified_constructor(
     std::string const & abstract_syntax,
-    boost::python::object const & transfer_syntaxes,
+    pybind11::list transfer_syntaxes,
     bool scu_role_support, bool scp_role_support)
 {
-    using namespace boost::python;
-    using namespace odil;
 
     std::vector<std::string> transfer_syntaxes_cpp(len(transfer_syntaxes));
-    for(int i = 0; i<len(transfer_syntaxes); ++i)
-    {
-        transfer_syntaxes_cpp[i] = extract<std::string>(transfer_syntaxes[i]);
-    }
-    auto presentation_context = new AssociationParameters::PresentationContext{
+    std::transform(
+        transfer_syntaxes.begin(), transfer_syntaxes.end(),
+        transfer_syntaxes_cpp.begin(),
+        [](pybind11::handle const & item) {
+            return item.cast<std::string>();
+        });
+    return odil::AssociationParameters::PresentationContext(
         abstract_syntax, transfer_syntaxes_cpp,
-        scu_role_support, scp_role_support
-    };
-    // Old versions of Boost.Python (Debian 7, Ubuntu 12.04) do not like
-    // std::shared_ptr
-    return boost::shared_ptr<AssociationParameters::PresentationContext>(
-        presentation_context);
+        scu_role_support, scp_role_support);
 }
 
-boost::python::list
+pybind11::list
 get_presentation_contexts(odil::AssociationParameters const & parameters)
 {
-    boost::python::list presentation_contexts_python;
+    pybind11::list presentation_contexts_python;
     for(auto const & presentation_context: parameters.get_presentation_contexts())
     {
         presentation_contexts_python.append(presentation_context);
@@ -82,17 +69,16 @@ get_presentation_contexts(odil::AssociationParameters const & parameters)
 odil::AssociationParameters &
 set_presentation_contexts(
     odil::AssociationParameters & parameters,
-    boost::python::list const & presentation_contexts)
+    pybind11::list const & presentation_contexts)
 {
     std::vector<odil::AssociationParameters::PresentationContext> 
         presentation_contexts_cpp;
-    presentation_contexts_cpp.reserve(boost::python::len(presentation_contexts));
-    for(int i = 0; i<boost::python::len(presentation_contexts); ++i)
+    presentation_contexts_cpp.reserve(pybind11::len(presentation_contexts));
+    for(size_t i = 0; i<pybind11::len(presentation_contexts); ++i)
     {
         presentation_contexts_cpp.push_back(
-            boost::python::extract<
-                odil::AssociationParameters::PresentationContext
-            >(presentation_contexts[i]));
+            presentation_contexts[i].cast<
+                odil::AssociationParameters::PresentationContext>());
     }
     parameters.set_presentation_contexts(presentation_contexts_cpp);
     
@@ -101,93 +87,101 @@ set_presentation_contexts(
 
 }
 
-void wrap_AssociationParameters()
+void wrap_AssociationParameters(pybind11::module & m)
 {
-    using namespace boost::python;
+    using namespace pybind11;
+    using namespace pybind11::literals;
     using namespace odil;
 
-    scope association_parameters_scope =
-        class_<AssociationParameters>("AssociationParameters", init<>())
-        // Construct from PDU
+    auto association_parameters_scope =
+        class_<AssociationParameters>(m, "AssociationParameters")
+        .def(init<>())
+        // TODO Construct from PDU
         .def(
             "get_called_ae_title",
             &AssociationParameters::get_called_ae_title,
-            return_value_policy<copy_const_reference>()
-        )
+            return_value_policy::copy)
         .def(
             "set_called_ae_title",
             &AssociationParameters::set_called_ae_title,
-            return_value_policy<reference_existing_object>()
-        )
+            return_value_policy::copy)
         .def(
             "get_calling_ae_title",
             &AssociationParameters::get_calling_ae_title,
-            return_value_policy<copy_const_reference>()
-        )
+            return_value_policy::copy)
         .def(
             "set_calling_ae_title",
             &AssociationParameters::set_calling_ae_title,
-            return_value_policy<reference_existing_object>()
-        )
+            return_value_policy::reference_internal)
+        .def("get_presentation_contexts", &get_presentation_contexts)
         .def(
-            "get_presentation_contexts",
-            &get_presentation_contexts
-        )
-        .def(
-            "set_presentation_contexts",
-            &set_presentation_contexts,
-            return_value_policy<reference_existing_object>()
-        )
+            "set_presentation_contexts", &set_presentation_contexts,
+            return_value_policy::reference_internal)
         .def(
             "get_user_identity", &AssociationParameters::get_user_identity,
-            return_value_policy<reference_existing_object>()
-        )
+            return_value_policy::reference_internal)
         .def(
             "set_user_identity_to_none",
             &AssociationParameters::set_user_identity_to_none,
-            return_value_policy<reference_existing_object>()
-        )
+            return_value_policy::reference_internal)
         .def(
             "set_user_identity_to_username",
             &AssociationParameters::set_user_identity_to_username,
-            return_value_policy<reference_existing_object>()
-        )
+            return_value_policy::reference_internal)
         .def(
             "set_user_identity_to_username_and_password",
             &AssociationParameters::set_user_identity_to_username_and_password,
-            return_value_policy<reference_existing_object>()
-        )
+            return_value_policy::reference_internal)
         .def(
             "set_user_identity_to_kerberos",
             &AssociationParameters::set_user_identity_to_kerberos,
-            return_value_policy<reference_existing_object>()
-        )
+            return_value_policy::reference_internal)
         .def(
             "set_user_identity_to_saml",
             &AssociationParameters::set_user_identity_to_saml,
-            return_value_policy<reference_existing_object>()
-        )
-        .def(
-            "get_maximum_length",
-            &AssociationParameters::get_maximum_length
-        )
+            return_value_policy::reference_internal)
+        .def("get_maximum_length", &AssociationParameters::get_maximum_length)
         .def(
             "set_maximum_length",
             &AssociationParameters::set_maximum_length,
-            return_value_policy<reference_existing_object>()
-        )
+            return_value_policy::reference_internal)
     ;
 
     {
-        scope presentation_context_scope =
+        auto presentation_context_scope =
             class_<AssociationParameters::PresentationContext>(
-                "PresentationContext", no_init)
-            .def(
-                "__init__", 
-                make_constructor(&presentation_context_constructor))
-            .def(
-                "__init__",
-                make_constructor(&presentation_context_simplified_constructor))
+                association_parameters_scope, "PresentationContext");
+
+        enum_<AssociationParameters::PresentationContext::Result>(
+                presentation_context_scope, "Result")
+            .value(
+                "Acceptance",
+                AssociationParameters::PresentationContext::Result::Acceptance
+            )
+            .value(
+                "UserRejection",
+                AssociationParameters::PresentationContext::Result::UserRejection
+            )
+            .value(
+                "NoReason",
+                AssociationParameters::PresentationContext::Result::NoReason
+            )
+            .value(
+                "AbstractSyntaxNotSupported",
+                AssociationParameters::PresentationContext::Result::AbstractSyntaxNotSupported
+            )
+            .value(
+                "TransferSyntaxesNotSupported",
+                AssociationParameters::PresentationContext::Result::TransferSyntaxesNotSupported
+            )
+        ;
+
+        // WARNING using STL conversion
+        // (https://pybind11.readthedocs.io/en/stable/advanced/cast/stl.html)
+        // conflicts with opaque types required to avoid copying data set values
+        presentation_context_scope
+            .def(init(&presentation_context_constructor))
+            .def(init(&presentation_context_simplified_constructor))
             .def_readwrite(
                 "id",
                 &AssociationParameters::PresentationContext::id
@@ -215,37 +209,16 @@ void wrap_AssociationParameters()
             .def(self == self)
         ;
 
-        enum_<AssociationParameters::PresentationContext::Result>("Result")
-            .value(
-                "Acceptance", 
-                AssociationParameters::PresentationContext::Result::Acceptance
-            )
-            .value(
-                "UserRejection", 
-                AssociationParameters::PresentationContext::Result::UserRejection
-            )
-            .value(
-                "NoReason", 
-                AssociationParameters::PresentationContext::Result::NoReason
-            )
-            .value(
-                "AbstractSyntaxNotSupported", 
-                AssociationParameters::PresentationContext::Result::AbstractSyntaxNotSupported
-            )
-            .value(
-                "TransferSyntaxesNotSupported", 
-                AssociationParameters::PresentationContext::Result::TransferSyntaxesNotSupported
-            )
-        ;
+
     }
 
     {
-        scope user_identity_scope = 
+        auto user_identity_scope =
             class_<AssociationParameters::UserIdentity>(
-                "UserIdentity", init<>())
+                association_parameters_scope, "UserIdentity")
+            .def(init<>())
             .def_readwrite(
-                "type", 
-                &AssociationParameters::UserIdentity::type
+                "type", &AssociationParameters::UserIdentity::type
             )
             .def_readwrite(
                 "primary_field", 
@@ -258,7 +231,7 @@ void wrap_AssociationParameters()
             .def(self == self)
         ;
 
-        enum_<AssociationParameters::UserIdentity::Type>("Type")
+        enum_<AssociationParameters::UserIdentity::Type>(user_identity_scope, "Type")
             .value("None", AssociationParameters::UserIdentity::Type::None)
             .value(
                 "Username", AssociationParameters::UserIdentity::Type::Username

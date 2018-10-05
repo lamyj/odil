@@ -553,4 +553,30 @@ Association
     return ++this->_next_message_id;
 }
 
+AssociationReleased
+::AssociationReleased()
+: Exception("Association released")
+{
+    // Nothing else.
+}
+
+AssociationReleased
+::~AssociationReleased() noexcept
+{
+    // Nothing to do.
+}
+
+AssociationAborted
+::AssociationAborted(unsigned char source, unsigned char reason)
+: Exception("Association aborted"), source(source), reason(reason)
+{
+    // Nothing else.
+}
+
+AssociationAborted
+::~AssociationAborted() noexcept
+{
+    // Nothing to do.
+}
+
 }

@@ -6,49 +6,38 @@
  * for details.
  ************************************************************************/
 
-#include <Python.h>
+#include <pybind11/pybind11.h>
+#include <pybind11/operators.h>
 
 #include "odil/EchoSCP.h"
-
-#include <boost/python.hpp>
 
 namespace
 {
 
 void
-set_callback(odil::EchoSCP& scp, boost::python::object const& f)
+set_callback(odil::EchoSCP& scp, pybind11::object const& f)
 {
     scp.set_callback(
         [f](std::shared_ptr<odil::message::CEchoRequest const> message)
         {
-            return boost::python::call<odil::Value::Integer>(f.ptr(), message);
-        }
-        );
+            return f(message).cast<int>();
+        });
 }
 
-std::shared_ptr<odil::EchoSCP>
-New_EchoSCP( odil::Association& a )
+}
+
+void wrap_EchoSCP(pybind11::module & m)
 {
-    return std::shared_ptr<odil::EchoSCP>( new odil::EchoSCP(a) );
-}
-
-}
-
-void wrap_EchoSCP()
-{
-    using namespace boost::python;
+    using namespace pybind11;
     using namespace odil;
 
-    class_<EchoSCP>("EchoSCP", init<Association&>())
+    class_<EchoSCP>(m, "EchoSCP")
+        .def(init<Association&>())
         .def("set_callback", &set_callback)
         .def(
             "__call__",
             static_cast<
                 void (EchoSCP::*)(std::shared_ptr<message::Message>)
-            >(&EchoSCP::operator())
-        )
+            >(&EchoSCP::operator()))
     ;
-
-
-    def("New_EchoSCP", &New_EchoSCP);
 }

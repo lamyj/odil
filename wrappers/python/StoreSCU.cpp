@@ -6,38 +6,33 @@
  * for details.
  ************************************************************************/
 
-#include <Python.h>
-
-#include <boost/python.hpp>
+#include <pybind11/pybind11.h>
 
 #include "odil/StoreSCU.h"
 
-BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(
-    store_overloads, odil::StoreSCU::store, 1, 3)
-
-void wrap_StoreSCU()
+void wrap_StoreSCU(pybind11::module & m)
 {
-    using namespace boost::python;
+    using namespace pybind11;
+    using namespace pybind11::literals;
     using namespace odil;
 
     typedef
         void (StoreSCU::*StoreFunction)(
             std::shared_ptr<DataSet>, Value::String const &, Value::Integer) const;
 
-    class_<StoreSCU>("StoreSCU", init<Association &>())
+    class_<StoreSCU>(m, "StoreSCU")
+        .def(init<Association &>())
         .def(
-            "get_affected_sop_class",
-            &StoreSCU::get_affected_sop_class,
-            return_value_policy<copy_const_reference>()
-        )
+            "get_affected_sop_class", &StoreSCU::get_affected_sop_class,
+            return_value_policy::copy)
         .def(
             "set_affected_sop_class",
             static_cast<void(StoreSCU::*)(std::shared_ptr<DataSet const>)>(
                 &StoreSCU::set_affected_sop_class)
         )
         .def(
-            "store",
-            static_cast<StoreFunction>(&odil::StoreSCU::store),
-            store_overloads())
+            "store", &odil::StoreSCU::store,
+            "dataset"_a, "move_originator_ae_title"_a="",
+            "move_originator_message_id"_a=-1)
     ;
 }
