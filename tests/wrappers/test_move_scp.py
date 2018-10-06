@@ -2,6 +2,7 @@ import glob
 import multiprocessing
 import os
 import subprocess
+import sys
 import time
 import unittest
 
@@ -114,15 +115,16 @@ class TestMoveSCP(unittest.TestCase):
             return []
         
         files = sorted(glob.glob("RAW*"))
-        data_sets = [odil.Reader.read_file(odil.iostream(open(x)))[1] for x in files]
+        data_sets = []
+        for file_ in files:
+            with odil.open(file_, "rb") as fd:
+                data_sets.append(odil.Reader.read_file(fd)[1])
         for file_ in files:
             os.remove(file_)
         
         return data_sets
 
     def run_server(self):
-        called = False
-
         association = odil.Association()
         association.set_tcp_timeout(1)
         association.receive_association("v4", 11113)
@@ -143,10 +145,10 @@ class TestMoveSCP(unittest.TestCase):
         except odil.AssociationAborted:
             pass
         
-        if called and termination_ok:
-            return 0
+        if termination_ok:
+            sys.exit(0)
         else:
-            return 1
+            sys.exit(1)
 
 if __name__ == "__main__":
     unittest.main()

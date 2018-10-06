@@ -6,45 +6,40 @@
  * for details.
  ************************************************************************/
 
-#include <Python.h>
-
-#include "odil/StoreSCP.h"
-
-#include <boost/python.hpp>
-
 #include <functional>
+#include <pybind11/pybind11.h>
+#include "odil/StoreSCP.h"
 
 namespace
 {
 using namespace std;
 void
-set_callback(odil::StoreSCP& scp, boost::python::object const& f)
+set_callback(odil::StoreSCP& scp, pybind11::object const& f)
 {
     scp.set_callback(
         [f](std::shared_ptr<odil::message::CStoreRequest> message)
         {
-            return boost::python::call<odil::Value::Integer>(f.ptr(), message);
-        }
-        );
+            auto result = f(message);
+            return result.cast<odil::Value::Integer>();
+        });
 }
 
 }
 
-void wrap_StoreSCP()
+void wrap_StoreSCP(pybind11::module & m)
 {
-    using namespace boost::python;
-    using namespace std;
+    using namespace pybind11;
     using namespace odil;
 
-    class_<StoreSCP>("StoreSCP", init<Association&>())
-    .def(init<Association&, StoreSCP::Callback& >())
+    class_<StoreSCP>(m, "StoreSCP")
+    .def(init<Association&>())
+    .def(init<Association&, StoreSCP::Callback&>())
     .def("set_callback", &set_callback)
     .def(
         "__call__",
         static_cast<
             void (StoreSCP::*)(std::shared_ptr<message::Message>)
-        >(&StoreSCP::operator())
-    )
+        >(&StoreSCP::operator()))
     ;
 
 }

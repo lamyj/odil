@@ -9,43 +9,46 @@
 #ifndef _8971f17b_e958_4aa3_9d36_640aaa018f56
 #define _8971f17b_e958_4aa3_9d36_640aaa018f56
 
-#include <boost/python.hpp>
+#include <pybind11/pybind11.h>
+
+#include "odil/DataSet.h"
 #include "odil/message/Request.h"
 
 template<typename TDataSetGenerator>
-class DataSetGeneratorWrapper:
-    public TDataSetGenerator, public boost::python::wrapper<TDataSetGenerator>
+class DataSetGeneratorWrapper: public TDataSetGenerator
 {
 public:
     DataSetGeneratorWrapper()
-    : TDataSetGenerator(), boost::python::wrapper<TDataSetGenerator>()
+    : TDataSetGenerator()
     {
         // Nothing else.
     }
 
-    virtual ~DataSetGeneratorWrapper()
+    virtual ~DataSetGeneratorWrapper() override
     {
         // Nothing to do.
     }
 
-    virtual void initialize(std::shared_ptr<odil::message::Request const> request)
+    virtual void initialize(
+        std::shared_ptr<odil::message::Request const> request) override
     {
-        this->get_override("initialize")(request);
+        PYBIND11_OVERLOAD_PURE(void, TDataSetGenerator, initialize, request);
     }
 
-    virtual bool done() const
+    virtual bool done() const override
     {
-        return this->get_override("done")();
+        PYBIND11_OVERLOAD_PURE(bool, TDataSetGenerator, done, );
     }
 
-    virtual void next()
+    virtual void next() override
     {
-        this->get_override("next")();
+        PYBIND11_OVERLOAD_PURE(void, TDataSetGenerator, next, );
     }
 
-    virtual std::shared_ptr<odil::DataSet> get() const
+    virtual std::shared_ptr<odil::DataSet> get() const override
     {
-        return this->get_override("get")();
+        PYBIND11_OVERLOAD_PURE(
+            std::shared_ptr<odil::DataSet>, TDataSetGenerator, get, );
     }
 };
 

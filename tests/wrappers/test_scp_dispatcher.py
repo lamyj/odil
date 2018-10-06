@@ -6,35 +6,22 @@ import unittest
 
 import odil
 
-class TestEchoSCP(unittest.TestCase):
-    def test_echo_scp_release(self):
+class TestSCPDispatcher(unittest.TestCase):
+    def test_echo(self):
         process = multiprocessing.Process(target=lambda: self.run_server(False))
         process.start()
         time.sleep(0.5)
-        client_code = self.run_client(False)
+        client_code = self.run_client()
         process.join(2)
         server_code = process.exitcode
-        
+
         self.assertEqual(client_code, 0)
         self.assertEqual(server_code, 0)
-    
-    def test_echo_scp_abort(self):
-        process = multiprocessing.Process(target=lambda: self.run_server(True))
-        process.start()
-        time.sleep(0.5)
-        client_code = self.run_client(True)
-        process.join(2)
-        server_code = process.exitcode
-        
-        self.assertEqual(client_code, 0)
-        self.assertEqual(server_code, 0)
-    
-    def run_client(self, use_abort):
+
+    def run_client(self):
         command = ["echoscu", "-q"]
-        if use_abort:
-            command.append("--abort")
         command.extend(["localhost", "11113"])
-        
+
         return subprocess.call(command)
 
     def run_server(self, use_abort):
@@ -50,20 +37,18 @@ class TestEchoSCP(unittest.TestCase):
         echo_scp = odil.EchoSCP(association)
         echo_scp.set_callback(echo_callback)
 
-        message = association.receive_message()
-        echo_scp(message)
-        
+        dispatcher = odil.SCPDispatcher(association)
+        dispatcher.set_echo_scp(echo_scp)
+
+        dispatcher.dispatch()
+
         termination_ok = False
 
         try:
             association.receive_message()
         except odil.AssociationReleased:
-            if not use_abort:
-                termination_ok = True
-        except odil.AssociationAborted:
-            if use_abort:
-                termination_ok = True
-        
+            termination_ok = True
+
         if called[0] and termination_ok:
             sys.exit(0)
         else:
