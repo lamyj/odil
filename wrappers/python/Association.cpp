@@ -11,7 +11,6 @@
 #include <pybind11/pybind11.h>
 
 #include "odil/Association.h"
-#include "exception_factory.h"
 
 namespace
 {
