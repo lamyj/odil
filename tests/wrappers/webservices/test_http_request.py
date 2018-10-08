@@ -9,7 +9,7 @@ class TestHTTPRequest(unittest.TestCase):
         self.assertEqual(str(request.get_target()), "")
         self.assertEqual(request.get_http_version(), "HTTP/1.0")
         self.assertEqual(dict(request.get_headers()), {})
-        self.assertEqual(request.get_body(), "")
+        self.assertEqual(request.get_body(), b"")
 
     def test_full_constructor(self):
         request = odil.webservices.HTTPRequest(
@@ -21,7 +21,7 @@ class TestHTTPRequest(unittest.TestCase):
             str(request.get_target()), "http://example.com/foo?bar=quux")
         self.assertEqual(request.get_http_version(), "HTTP/1.1")
         self.assertEqual(dict(request.get_headers()), {"foo":"bar"})
-        self.assertEqual(request.get_body(), "body")
+        self.assertEqual(request.get_body(), b"body")
 
     def test_method(self):
         request = odil.webservices.HTTPRequest()
@@ -48,7 +48,7 @@ class TestHTTPRequest(unittest.TestCase):
     def test_body(self):
         request = odil.webservices.HTTPRequest()
         request.set_body("body")
-        self.assertEqual(request.get_body(), "body")
+        self.assertEqual(request.get_body(), b"body")
 
 if __name__ == "__main__":
     unittest.main()

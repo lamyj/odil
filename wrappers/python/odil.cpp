@@ -49,9 +49,8 @@ void wrap_VRFinder(pybind11::module &);
 void wrap_Writer(pybind11::module &);
 void wrap_xml_converter(pybind11::module &);
 
-
-//void wrap_webservices();
 void wrap_messages(pybind11::module &);
+void wrap_webservices(pybind11::module &);
 
 void wrap_iostream(pybind11::module &);
 
@@ -108,6 +107,6 @@ PYBIND11_MODULE(_odil, _odil)
     wrap_StoreSCP(_odil);
     wrap_StoreSCU(_odil);
 
-//    wrap_webservices();
     wrap_messages(_odil);
+    wrap_webservices(_odil);
 }

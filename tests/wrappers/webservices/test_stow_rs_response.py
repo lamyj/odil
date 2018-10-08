@@ -37,18 +37,7 @@ class TestSTOWRSResponse(unittest.TestCase):
         self.assertEqual(response.get_representation(), odil.webservices.Utils.Representation.DICOM_XML)
         http = response.get_http_response()
 
-        # Convert http response into string
-
-        http_str = ""
-        h = []
-        for header in http.get_headers():
-            h.append(header.key())
-        for header in h:
-            http_str += header + ": " + http.get_header(header)
-        http_str += "\r\n" + http.get_body()
-
-
-        msg = email.message_from_string(http_str)
+        msg = self._http_message_to_email_message(http)
 
         for part in msg.walk():
             if part.get_content_type() == "application/dicom+xml":
@@ -62,16 +51,7 @@ class TestSTOWRSResponse(unittest.TestCase):
         self.assertEqual(response.get_representation(), odil.webservices.Utils.Representation.DICOM_JSON)
         http = response.get_http_response()
 
-        # Convert http response into string
-        http_str = ""
-        h = []
-        for header in http.get_headers():
-            h.append(header.key())
-        for header in h:
-            http_str += header + ": " + http.get_header(header)
-        http_str += "\r\n" + http.get_body()
-
-        msg = email.message_from_string(http_str)
+        msg = self._http_message_to_email_message(http)
         self.assertFalse(msg.is_multipart())
         self.assertTrue(msg.get_content_type(), "application/dicom+json")
         odil_json = [json.loads(odil.as_json(self.data_set))]
@@ -133,6 +113,15 @@ class TestSTOWRSResponse(unittest.TestCase):
     def tearDown(self):
         self.data_set = None
 
+    def _http_message_to_email_message(self, http_message):
+        message_bytes = [
+            name.encode()+b": "+value.encode()
+            for (name, value) in http_message.get_headers().items()]
+        message_bytes.append(http_message.get_body())
+        message_bytes = b"\r\n".join(message_bytes)
+
+        email_message = email.message_from_bytes(message_bytes)
+        return email_message
 
 if __name__ == "__main__":
     unittest.main()

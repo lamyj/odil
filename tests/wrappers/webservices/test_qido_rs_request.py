@@ -21,7 +21,7 @@ class TestQIDORSRequest(unittest.TestCase):
         self.assertEqual(request.get_representation(), odil.webservices.Utils.Representation.DICOM_JSON)
         self.assertEqual(request.get_url(), odil.webservices.URL())
         self.assertEqual(request.get_selector(), odil.webservices.Selector())
-        self.assertEqual(request.get_query_data_set(), odil.DataSet())
+        self.assertEqual(request.get_query_data_set(), None)
         self.assertFalse(request.get_fuzzymatching())
         self.assertEqual(request.get_limit(), -1)
         self.assertEqual(request.get_offset(), 0)

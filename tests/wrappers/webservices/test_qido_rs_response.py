@@ -26,7 +26,7 @@ class TestQIDORSResponse(unittest.TestCase):
     def test_data_sets(self):
         response = odil.webservices.QIDORSResponse()
         response.set_data_sets(self.data_sets)
-        self.assertEqual(response.get_data_sets(), self.data_sets)
+        self.assertSequenceEqual(response.get_data_sets(), self.data_sets)
 
     def test_Response_DicomJson(self):
         response = odil.webservices.QIDORSResponse()
@@ -49,16 +49,12 @@ class TestQIDORSResponse(unittest.TestCase):
         self.assertEqual(response.get_representation(), odil.webservices.Utils.Representation.DICOM_XML)
         http = response.get_http_response()
 
-        # Convert http response into string
-        http_str = ""
-        h = []
-        for header in http.get_headers():
-            h.append(header.key())
-        for header in h:
-            http_str += header + ": " + http.get_header(header)
-        http_str += "\r\n" + http.get_body()
-
-        msg = email.message_from_string(http_str)
+        message_bytes = [
+            name.encode()+b": "+value.encode()
+            for (name, value) in http.get_headers().items()]
+        message_bytes.append(http.get_body())
+        message_bytes = b"\r\n".join(message_bytes)
+        msg = email.message_from_bytes(message_bytes)
         self.assertTrue(msg.is_multipart())
 
         i = 0

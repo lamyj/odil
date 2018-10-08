@@ -9,7 +9,7 @@ class TestHTTPResponse(unittest.TestCase):
         self.assertEqual(response.get_status(), 0)
         self.assertEqual(response.get_reason(), "")
         self.assertEqual(dict(response.get_headers()), {})
-        self.assertEqual(response.get_body(), "")
+        self.assertEqual(response.get_body(), b"")
 
     def test_full_constructor(self):
         response = odil.webservices.HTTPResponse(
@@ -19,7 +19,7 @@ class TestHTTPResponse(unittest.TestCase):
         self.assertEqual(response.get_status(), 404)
         self.assertEqual(response.get_reason(), "not found")
         self.assertEqual(dict(response.get_headers()), {"foo":"bar"})
-        self.assertEqual(response.get_body(), "body")
+        self.assertEqual(response.get_body(), b"body")
 
     def test_http_version(self):
         response = odil.webservices.HTTPResponse()
@@ -44,7 +44,7 @@ class TestHTTPResponse(unittest.TestCase):
     def test_body(self):
         response = odil.webservices.HTTPResponse()
         response.set_body("body")
-        self.assertEqual(response.get_body(), "body")
+        self.assertEqual(response.get_body(), b"body")
 
 if __name__ == "__main__":
     unittest.main()

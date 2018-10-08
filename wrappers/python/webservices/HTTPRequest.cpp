@@ -6,35 +6,30 @@
  * for details.
  ************************************************************************/
 
-#include <Python.h>
-
-#include <boost/python.hpp>
+#include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
 
 #include "odil/webservices/HTTPRequest.h"
 
-void wrap_webservices_HTTPRequest()
+void wrap_webservices_HTTPRequest(pybind11::module & m)
 {
-    using namespace boost::python;
+    using namespace pybind11;
     using namespace odil::webservices;
 
-    class_<HTTPRequest, bases<Message>>(
-        "HTTPRequest",
-        init<std::string, URL, std::string, Message::Headers, std::string>((
+    class_<HTTPRequest, Message>(m, "HTTPRequest")
+        .def(
+            init<std::string, URL, std::string, Message::Headers, std::string>(),
+            "",
             arg("method")="", arg("target")=URL(),
             arg("http_version")="HTTP/1.0", arg("headers")=Message::Headers(),
-            arg("body")=""
-        )))
-        .def(
-            "get_method", &HTTPRequest::get_method,
-            return_value_policy<copy_const_reference>())
+            arg("body")="")
+        .def("get_method", &HTTPRequest::get_method, return_value_policy::copy)
         .def("set_method", &HTTPRequest::set_method)
-        .def(
-            "get_target", &HTTPRequest::get_target,
-            return_value_policy<copy_const_reference>())
+        .def( "get_target", &HTTPRequest::get_target, return_value_policy::copy)
         .def("set_target", &HTTPRequest::set_target)
         .def(
             "get_http_version", &HTTPRequest::get_http_version,
-            return_value_policy<copy_const_reference>())
+            return_value_policy::copy)
         .def("set_http_version", &HTTPRequest::set_http_version)
     ;
 }

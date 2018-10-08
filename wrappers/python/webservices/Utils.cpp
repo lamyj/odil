@@ -6,32 +6,25 @@
  * for details.
  ************************************************************************/
 
-#include <Python.h>
-
-#include <boost/python.hpp>
+#include <pybind11/pybind11.h>
 
 #include "odil/webservices/Utils.h"
 
-namespace
+void wrap_webservices_Utils(pybind11::module & m)
 {
-class wadors_namespace {};
-}
-
-void wrap_webservices_Utils()
-{
-    using namespace boost::python;
+    using namespace pybind11;
     using namespace odil::webservices;
 
-    scope wadors_scope = class_<wadors_namespace>("Utils");
+    auto utils = m.def_submodule("Utils");
 
-    enum_<Type>("Type")
-        .value("None", Type::None)
+    enum_<Type>(utils, "Type")
+        .value("None_", Type::None)
         .value("DICOM", Type::DICOM)
         .value("BulkData", Type::BulkData)
         .value("PixelData", Type::PixelData)
     ;
 
-    enum_<Representation>("Representation")
+    enum_<Representation>(utils, "Representation")
         .value("DICOM", Representation::DICOM)
         .value("DICOM_XML", Representation::DICOM_XML)
         .value("DICOM_JSON", Representation::DICOM_JSON)
