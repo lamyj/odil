@@ -26,18 +26,8 @@ list(SORT Header_Files)
 list(SORT Source_Files)
 list(SORT Python_Files)
 
-#python_add_module(pyodil SHARED ${Source_Files} ${Header_Files})
-pybind11_add_module(
-    pyodil
-    odil.cpp
-    opaque_types.h type_casters.h
-    BasicDirectoryCreator.cpp CEchoRequest.cpp CFindRequest.cpp CGetRequest.cpp
-    CGetResponse.cpp CMoveRequest.cpp CMoveResponse.cpp CStoreRequest.cpp
-    CStoreResponse.cpp DataSet.cpp Element.cpp ElementsDictionary.cpp endian.cpp
-    Exception.cpp json_converter.cpp Message.cpp NCreateRequest.cpp
-    NSetRequest.cpp Reader.cpp registry.cpp Request.cpp Response.cpp
-    streambuf.cpp streambuf.h Tag.cpp uid.cpp UIDsDictionary.cpp unicode.cpp
-    Value.cpp VR.cpp VRFinder.cpp Writer.cpp xml_converter.cpp)
+python_add_module(pyodil SHARED ${Source_Files} ${Header_Files})
+
 set_target_properties(pyodil PROPERTIES OUTPUT_NAME _odil FOLDER "Wrappers")
 if(APPLE)
     set_target_properties(pyodil PROPERTIES SUFFIX ".so")
