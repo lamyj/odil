@@ -9,6 +9,8 @@
 #ifndef _0dcf136c_4136_40c3_a036_2a74ca0c54d1
 #define _0dcf136c_4136_40c3_a036_2a74ca0c54d1
 
+#include <algorithm>
+
 #include "pybind11/pybind11.h"
 
 #include "odil/DataSet.h"
@@ -82,8 +84,6 @@ T convert_iterable(pybind11::iterable & source, Args && ... args)
     {
         /* ignore */
     }
-
-
 
     throw odil::Exception("Unknown value type");
 }
