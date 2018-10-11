@@ -2,10 +2,7 @@
 
 set -ev
 
-export Architecture=${Architecture:?}
-export Distribution=${Distribution:?}
 export Python=${Python:?}
-export WORKSPACE=${WORKSPACE:?}
 
 apt-get -y update
 apt-get -y --no-install-recommends install gnupg software-properties-common wget

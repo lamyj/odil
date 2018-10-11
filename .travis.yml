@@ -6,35 +6,36 @@ services:
 env:
   # Debian
   # TODO: CMAKE_OPTIONS: "-D CMAKE_CXX_FLAGS=--coverage"
-  - { distribution: debian, version: stretch, python: 3 }
-  - { distribution: debian, version: stretch, python: 2}
-  - { distribution: debian, version:  jessie, python: 3}
-  - { distribution: debian, version:  jessie, python: 2}
+  - { vendor: debian, version: stretch, python: 3 }
+  - { vendor: debian, version: stretch, python: 2 }
+  - { vendor: debian, version:  jessie, python: 3 }
+  - { vendor: debian, version:  jessie, python: 2 }
   # Ubuntu
-  - { distribution: ubuntu, version:  bionic, python: 3}
-  - { distribution: ubuntu, version:  bionic, python: 2}
-  - { distribution: ubuntu, version:  xenial, python: 3}
-  - { distribution: ubuntu, version:  xenial, python: 2}
+  - { vendor: ubuntu, version:  bionic, python: 3 }
+  - { vendor: ubuntu, version:  bionic, python: 2 }
+  - { vendor: ubuntu, version:  xenial, python: 3 }
+  - { vendor: ubuntu, version:  xenial, python: 2 }
+  - { vendor: ubuntu, version:  trusty, python: 3 }
+  - { vendor: ubuntu, version:  trusty, python: 2 }
 
 before_install:
   # TODO: -e CMAKE_OPTIONS=${CMAKE_OPTIONS}
   - |
     docker run -di \
-      -e Architecture=amd64 -e Distribution=${distribution}${version} \
       -e Python=${python} -e WORKSPACE=${TRAVIS_BUILD_DIR} \
       -e MAKE_OPTIONS="-j$(nproc)" \
       -v ${TRAVIS_BUILD_DIR}:${TRAVIS_BUILD_DIR} \
-      --name ${distribution}_${version} --rm \
-      ${distribution}:${version}
+      --name odil --rm \
+      ${vendor}:${version}
 
 install:
-  - docker exec ${distribution}_${version} ${TRAVIS_BUILD_DIR}/.ci/deb/install
-  #- docker exec ${distribution}_${version} pip${python} install -U --user cpp-coveralls
+  - docker exec odil ${TRAVIS_BUILD_DIR}/.ci/deb/install
+  #- docker exec odil pip${python} install -U --user cpp-coveralls
   # TODO: export PATH=$(python -c 'import site; print(site.getuserbase())')/bin:${PATH}
 
 script:
-  - docker exec ${distribution}_${version} ${TRAVIS_BUILD_DIR}/.ci/deb/build
+  - docker exec odil ${TRAVIS_BUILD_DIR}/.ci/deb/build
 
 after_success:
-  - docker exec ${distribution}_${version} ${TRAVIS_BUILD_DIR}/.ci/deb/post_build
-  #- docker exec ${distribution}_${version} coveralls -n -l build/coverage.info
+  - docker exec odil ${TRAVIS_BUILD_DIR}/.ci/deb/post_build
+  #- docker exec odil coveralls -n -l build/coverage.info
