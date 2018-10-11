@@ -4,14 +4,20 @@ services:
   - docker
 
 env:
-  - distribution: debian
-    version: stretch
-    python: 3
-  - distribution: debian
-    version: jessie
-    python: 2
+  # Debian
+  # TODO: CMAKE_OPTIONS: "-D CMAKE_CXX_FLAGS=--coverage"
+  - { distribution: debian, version: stretch, python: 3 }
+  - { distribution: debian, version: stretch, python: 2}
+  - { distribution: debian, version:  jessie, python: 3}
+  - { distribution: debian, version:  jessie, python: 2}
+  # Ubuntu
+  - { distribution: ubuntu, version:  bionic, python: 3}
+  - { distribution: ubuntu, version:  bionic, python: 2}
+  - { distribution: ubuntu, version:  xenial, python: 3}
+  - { distribution: ubuntu, version:  xenial, python: 2}
 
 before_install:
+  # TODO: -e CMAKE_OPTIONS=${CMAKE_OPTIONS}
   - |
     docker run -di \
       -e Architecture=amd64 -e Distribution=${distribution}${version} \
@@ -29,6 +35,6 @@ install:
 script:
   - docker exec ${distribution}_${version} ${TRAVIS_BUILD_DIR}/.ci/deb/build
 
-#after_success:
-  #- docker exec ${distribution}_${version} ${TRAVIS_BUILD_DIR}/.ci/deb/post_build
+after_success:
+  - docker exec ${distribution}_${version} ${TRAVIS_BUILD_DIR}/.ci/deb/post_build
   #- docker exec ${distribution}_${version} coveralls -n -l build/coverage.info

@@ -8,7 +8,7 @@ export Python=${Python:?}
 export WORKSPACE=${WORKSPACE:?}
 
 apt-get -y update
-apt-get -y --no-install-recommends install software-properties-common wget
+apt-get -y --no-install-recommends install gnupg software-properties-common wget
 wget -O - http://dl.bintray.com/lamyj/generic/gpg.key | apt-key add -
 add-apt-repository "deb http://dl.bintray.com/lamyj/generic/apt $(lsb_release -cs) main"
 
@@ -31,11 +31,6 @@ PACKAGES="${PACKAGES} pybind11-dev ${PYTHON_PREFIX}-pybind11 ${PYTHON_PREFIX}-de
 PACKAGES="${PACKAGES} dcmtk libboost-test-dev ${PYTHON_PREFIX}-nose"
 # Coverage and static analysis
 PACKAGES="${PACKAGES} cppcheck lcov wget"
-
-if [ "${Distribution}" = "ubuntu/precise" ]
-then
-  PACKAGES="${PACKAGES} libwrap0-dev"
-fi
 
 apt-get -y update
 apt-get -y --no-install-recommends install ${PACKAGES}

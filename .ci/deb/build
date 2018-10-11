@@ -17,14 +17,6 @@ else
   PYTHON_VERSION="UNKOWN"
 fi
 
-PYTHON_VERSION_NO_DOT=$(echo $PYTHON_VERSION | sed 's|\.||')
-
-if [ "${Distribution}" != "ubuntu/precise" -a "${Distribution}" != "debian/wheezy" ]; then
-  TRIPLET="$(dpkg-architecture -qDEB_HOST_MULTIARCH)"
-else
-  TRIPLET=""
-fi
-
 cd ${WORKSPACE}
 
 mkdir -p build
