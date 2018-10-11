@@ -1,23 +1,34 @@
-language: cpp
-matrix:
-  include:
-    - os: linux
-      sudo: required
-      dist: trusty
-      compiler: gcc
-      env: Architecture=amd64 Distribution=ubuntu/trusty Python=2 WORKSPACE=${TRAVIS_BUILD_DIR} CMAKE_OPTIONS="-D CMAKE_CXX_FLAGS=--coverage" MAKE_OPTIONS="-j$(nproc)"
-#    - os: osx
-#      compiler: clang
-#      env: Python=2 WORKSPACE=${TRAVIS_BUILD_DIR} MAKE_OPTIONS="-j$(sysctl -n hw.ncpu)"
+language: minimal
+sudo: required
+services:
+  - docker
+
+env:
+  - distribution: debian
+    version: stretch
+    python: 3
+  - distribution: debian
+    version: jessie
+    python: 2
+
+before_install:
+  - |
+    docker run -di \
+      -e Architecture=amd64 -e Distribution=${distribution}${version} \
+      -e Python=${python} -e WORKSPACE=${TRAVIS_BUILD_DIR} \
+      -e MAKE_OPTIONS="-j$(nproc)" \
+      -v ${TRAVIS_BUILD_DIR}:${TRAVIS_BUILD_DIR} \
+      --name ${distribution}_${version} --rm \
+      ${distribution}:${version}
+
 install:
-  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo -E sh ./.ci/deb/install; fi
-  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then ./.ci/brew/install; fi
-  - if [ "${CC}" = "gcc" ]; then pip${Python} install -U --user cpp-coveralls; fi
-  - if [ "${CC}" = "gcc" ]; then export PATH=$(python -c 'import site; print(site.getuserbase())')/bin:${PATH}; fi
+  - docker exec ${distribution}_${version} ${TRAVIS_BUILD_DIR}/.ci/deb/install
+  #- docker exec ${distribution}_${version} pip${python} install -U --user cpp-coveralls
+  # TODO: export PATH=$(python -c 'import site; print(site.getuserbase())')/bin:${PATH}
+
 script:
-  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then ./.ci/deb/build; fi
-  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then ./.ci/brew/build; fi
-after_success:
-  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then ./.ci/deb/post_build; fi
-  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then ./.ci/brew/post_build; fi
-  - if [ "${CC}" = "gcc" ]; then coveralls -n -l build/coverage.info; fi
+  - docker exec ${distribution}_${version} ${TRAVIS_BUILD_DIR}/.ci/deb/build
+
+#after_success:
+  #- docker exec ${distribution}_${version} ${TRAVIS_BUILD_DIR}/.ci/deb/post_build
+  #- docker exec ${distribution}_${version} coveralls -n -l build/coverage.info
