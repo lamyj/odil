@@ -25,8 +25,6 @@ else
   TRIPLET=""
 fi
 
-BOOST_PYTHON_LIBRARY=/usr/lib/${TRIPLET}/libboost_python-py${PYTHON_VERSION_NO_DOT}.so
-
 cd ${WORKSPACE}
 
 mkdir -p build
@@ -34,10 +32,7 @@ mkdir -p install
 cd build
 cmake \
   -D CMAKE_INSTALL_PREFIX="${WORKSPACE}/install" \
-  -D Python_ADDITIONAL_VERSIONS=${PYTHON_VERSION} \
   -D PYTHON_EXECUTABLE=/usr/bin/python${PYTHON_VERSION} \
-  -D Boost_PYTHON_LIBRARY_DEBUG=${BOOST_PYTHON_LIBRARY} \
-  -D Boost_PYTHON_LIBRARY_RELEASE=${BOOST_PYTHON_LIBRARY} \
   ${CMAKE_OPTIONS} \
   ..
 make ${MAKE_OPTIONS} install

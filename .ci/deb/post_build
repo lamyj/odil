@@ -46,7 +46,7 @@ fi
 
 export LD_LIBRARY_PATH=${WORKSPACE}/install/lib
 export PYTHONPATH=${WORKSPACE}/install/$(python${Python} -c "from distutils.sysconfig import *; print(get_python_lib(True, prefix=''))")
-"${WORKSPACE}/tests/run" --no-network --nose ${NOSE}
+"${WORKSPACE}/tests/run" --nose ${NOSE}
 
 DIRECTORY=`mktemp -d`
 if [ "${Distribution}" != "ubuntu/precise" -a "${Distribution}" != "debian/wheezy" ]; then

@@ -7,6 +7,11 @@ export Distribution=${Distribution:?}
 export Python=${Python:?}
 export WORKSPACE=${WORKSPACE:?}
 
+apt-get -y update
+apt-get -y --no-install-recommends install software-properties-common wget
+wget -O - http://dl.bintray.com/lamyj/generic/gpg.key | apt-key add -
+add-apt-repository "deb http://dl.bintray.com/lamyj/generic/apt $(lsb_release -cs) main"
+
 if [ "${Python}" = "2" ]
 then
   PYTHON_PREFIX="python"
@@ -21,7 +26,7 @@ PACKAGES="build-essential cmake pkg-config python-minimal"
 PACKAGES="${PACKAGES} libboost-dev libboost-date-time-dev libboost-filesystem-dev"
 PACKAGES="${PACKAGES} libdcmtk2-dev libicu-dev libjsoncpp-dev liblog4cpp5-dev zlib1g-dev"
 # Dependencies of Python wrappers
-PACKAGES="${PACKAGES} libboost-python-dev ${PYTHON_PREFIX}-dev"
+PACKAGES="${PACKAGES} pybind11-dev ${PYTHON_PREFIX}-pybind11 ${PYTHON_PREFIX}-dev"
 # Dependencies of unit tests
 PACKAGES="${PACKAGES} dcmtk libboost-test-dev ${PYTHON_PREFIX}-nose"
 # Coverage and static analysis
@@ -33,4 +38,4 @@ then
 fi
 
 apt-get -y update
-apt-get -y install ${PACKAGES}
+apt-get -y --no-install-recommends install ${PACKAGES}
