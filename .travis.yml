@@ -3,27 +3,41 @@ sudo: required
 services:
   - docker
 
-env:
-  # Debian
-  # TODO: CMAKE_OPTIONS: "-D CMAKE_CXX_FLAGS=--coverage"
-  - { vendor: debian, version: stretch, python: 3 }
-  - { vendor: debian, version: stretch, python: 2 }
-  - { vendor: debian, version:  jessie, python: 3 }
-  - { vendor: debian, version:  jessie, python: 2 }
-  # Ubuntu
-  - { vendor: ubuntu, version:  bionic, python: 3 }
-  - { vendor: ubuntu, version:  bionic, python: 2 }
-  - { vendor: ubuntu, version:  xenial, python: 3 }
-  - { vendor: ubuntu, version:  xenial, python: 2 }
-  - { vendor: ubuntu, version:  trusty, python: 3 }
-  - { vendor: ubuntu, version:  trusty, python: 2 }
+matrix:
+  include:
+    # Debian
+    - name: "Debian Stretch, Python 3"
+      env:
+        vendor: debian
+        version: stretch
+        python: 3
+        CMAKE_OPTIONS: "-D CMAKE_CXX_FLAGS=--coverage"
+    - name: "Debian Stretch, Python 2"
+      env: { vendor: debian, version: stretch, python: 2 }
+    - name: "Debian Jessie, Python 3"
+      env: { vendor: debian, version: jessie, python: 3 }
+    - name: "Debian Jessie, Python 2"
+      env: { vendor: debian, version: jessie, python: 2 }
+    # Ubuntu
+    - name: "Ubuntu Bionic, Python 3"
+      env: { vendor: ubuntu, version: bionic, python: 3 }
+    - name: "Ubuntu Bionic, Python 2"
+      env: { vendor: ubuntu, version: bionic, python: 2 }
+    - name: "Ubuntu Xenial, Python 3"
+      env: { vendor: ubuntu, version: xenial, python: 3 }
+    - name: "Ubuntu Xenial, Python 2"
+      env: { vendor: ubuntu, version: xenial, python: 2 }
+    - name: "Ubuntu Trusty, Python 3"
+      env: { vendor: ubuntu, version: trusty, python: 3 }
+    - name: "Ubuntu Trusty, Python 2"
+      env: { vendor: ubuntu, version: trusty, python: 2 }
 
 before_install:
-  # TODO: -e CMAKE_OPTIONS=${CMAKE_OPTIONS}
   - |
     docker run -di \
       -e Python=${python} -e WORKSPACE=${TRAVIS_BUILD_DIR} \
       -e MAKE_OPTIONS="-j$(nproc)" \
+      -e CMAKE_OPTIONS=${CMAKE_OPTIONS} \
       -v ${TRAVIS_BUILD_DIR}:${TRAVIS_BUILD_DIR} \
       --name odil --rm \
       ${vendor}:${version}
