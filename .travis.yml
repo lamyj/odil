@@ -37,7 +37,7 @@ before_install:
     docker run -di \
       -e Python=${python} -e WORKSPACE=${TRAVIS_BUILD_DIR} \
       -e MAKE_OPTIONS="-j$(nproc)" \
-      -e CMAKE_OPTIONS=${CMAKE_OPTIONS} \
+      -e CMAKE_OPTIONS="${CMAKE_OPTIONS}" \
       -v ${TRAVIS_BUILD_DIR}:${TRAVIS_BUILD_DIR} \
       --name odil --rm \
       ${vendor}:${version}
