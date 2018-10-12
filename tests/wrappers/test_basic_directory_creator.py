@@ -74,35 +74,35 @@ class TestBasicDirectoryCreator(unittest.TestCase):
 
         self._test_default_records(records)
         self.assertSequenceEqual(
-            records[2].as_string("SeriesDescription"), ["Series"])
+            records[2].as_string("SeriesDescription"), [b"Series"])
 
     def _test_default_records(self, records):
         self.assertEqual(len(records), 5)
 
         self.assertSequenceEqual(
-            records[0].as_string("DirectoryRecordType"), ["PATIENT"])
+            records[0].as_string("DirectoryRecordType"), [b"PATIENT"])
         self.assertSequenceEqual(
-            records[0].as_string("PatientID"), ["DJ123"])
+            records[0].as_string("PatientID"), [b"DJ123"])
 
         self.assertSequenceEqual(
-            records[1].as_string("DirectoryRecordType"), ["STUDY"])
+            records[1].as_string("DirectoryRecordType"), [b"STUDY"])
         self.assertSequenceEqual(
-            records[1].as_string("StudyInstanceUID"), ["1.2.3.4"])
+            records[1].as_string("StudyInstanceUID"), [b"1.2.3.4"])
         self.assertSequenceEqual(
-            records[1].as_string("StudyDescription"), ["Study"])
+            records[1].as_string("StudyDescription"), [b"Study"])
 
         self.assertSequenceEqual(
-            records[2].as_string("DirectoryRecordType"), ["SERIES"])
+            records[2].as_string("DirectoryRecordType"), [b"SERIES"])
         self.assertSequenceEqual(
-            records[2].as_string("SeriesInstanceUID"), ["1.2.3.4.1"])
+            records[2].as_string("SeriesInstanceUID"), [b"1.2.3.4.1"])
 
         self.assertSequenceEqual(
-            records[3].as_string("DirectoryRecordType"), ["IMAGE"])
+            records[3].as_string("DirectoryRecordType"), [b"IMAGE"])
         self.assertSequenceEqual(
             records[3].as_int("InstanceNumber"), [1])
 
         self.assertSequenceEqual(
-            records[4].as_string("DirectoryRecordType") , ["IMAGE"])
+            records[4].as_string("DirectoryRecordType") , [b"IMAGE"])
         self.assertSequenceEqual(
             records[4].as_int("InstanceNumber"), [2])
 

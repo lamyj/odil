@@ -89,7 +89,78 @@ void wrap_Value(pybind11::module & m)
 
     bind_vector<Value::Integers>(value, "Integers");
     bind_vector<Value::Reals>(value, "Reals");
-    bind_vector<Value::Strings>(value, "Strings");
+
+    // NOTE Using bind_vector brings back #63.
+    // Re-use the code of bind_vector and modify where needed.
+    {
+        using Vector = Value::Strings;
+        std::string const name = "Strings";
+
+        using Class_ = class_<Vector>;
+        Class_ cl(value, name.c_str(), module_local(true));
+        cl.def(init<>());
+
+        detail::vector_if_copy_constructible<Vector, Class_>(cl);
+        detail::vector_if_equal_operator<Vector, Class_>(cl);
+        detail::vector_if_insertion_operator<Vector, Class_>(cl);
+        detail::vector_modifiers<Vector, Class_>(cl);
+
+        // vector_accessor
+        using SizeType = typename Vector::size_type;
+        using ItType   = typename Vector::iterator;
+
+        cl.def("__getitem__",
+            [](Vector &v, SizeType i) {
+                if(i >= v.size())
+                {
+                    throw index_error();
+                }
+                return bytes(v[i]);
+            });
+
+        cl.def(
+            "__iter__",
+            [](Vector &v) {
+                typedef detail::iterator_state<
+                    ItType, ItType, false, return_value_policy::copy> state;
+
+                if (!detail::get_type_info(typeid(state), false))
+                {
+                    class_<state>(handle(), "iterator", pybind11::module_local())
+                        .def("__iter__", [](state &s) -> state& { return s; })
+                        .def("__next__", [](state &s) -> bytes {
+                            if (!s.first_or_done)
+                            {
+                                ++s.it;
+                            }
+                            else
+                            {
+                                s.first_or_done = false;
+                            }
+                            if (s.it == s.end)
+                            {
+                                s.first_or_done = true;
+                                throw stop_iteration();
+                            }
+                            return bytes(*s.it);
+                        })
+                    ;
+                }
+                return cast(state{v.begin(), v.end(), true});
+            }
+        );
+
+        // bind_vector
+        cl.def("__bool__",
+            [](const Vector &v) -> bool {
+                return !v.empty();
+            },
+            "Check whether the list is nonempty"
+        );
+
+        cl.def("__len__", &Vector::size);
+    }
+
     bind_vector<Value::DataSets>(value, "DataSets");
     bind_vector<Value::Binary::value_type>(value, "BinaryItem")
         .def("get_memory_view", as_memory_view);
