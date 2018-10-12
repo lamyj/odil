@@ -117,7 +117,7 @@ class TestPresentationContext(unittest.TestCase):
         self.assertEqual(presentation_context.id, 1)
         self.assertEqual(presentation_context.abstract_syntax, "foo")
         self.assertEqual(
-            [x for x in presentation_context.transfer_syntaxes], ["bar", "baz"])
+            [x for x in presentation_context.transfer_syntaxes], [b"bar", b"baz"])
         self.assertEqual(presentation_context.scu_role_support, False)
         self.assertEqual(presentation_context.scp_role_support, True)
 

@@ -30,7 +30,7 @@ void wrap_registry(pybind11::module & m)
 
     for(auto const & entry: registry::uids_dictionary)
     {
-        registry_.attr(entry.second.keyword.c_str()) = entry.first;
+        registry_.attr(entry.second.keyword.c_str()) = bytes(entry.first);
     }
 
     registry_.attr("public_dictionary") = registry::public_dictionary;

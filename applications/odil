@@ -23,17 +23,20 @@ def main():
 
     arguments = parser.parse_args()
 
-    verbosity = arguments.__dict__.pop("verbosity")
+    verbosity = arguments.__dict__.pop("verbosity", "warning")
     logging.getLogger().setLevel(verbosity.upper())
 
-    function = arguments.__dict__.pop("function")
-    try:
-        function(**arguments.__dict__)
-    except Exception as e:
-        if verbosity == "debug":
-            raise
-        else:
-            parser.error(e)
+    function = arguments.__dict__.pop("function", None)
+    if function is not None:
+        try:
+            function(**arguments.__dict__)
+        except Exception as e:
+            if verbosity == "debug":
+                raise
+            else:
+                parser.error(e)
+    else:
+        parser.error("Missing function")
 
 if __name__ == "__main__":
     sys.exit(main())

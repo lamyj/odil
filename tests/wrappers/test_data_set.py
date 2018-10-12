@@ -13,14 +13,14 @@ class TestDataSet(unittest.TestCase):
     def test_transfer_syntax_constructor(self):
         data_set = odil.DataSet(odil.registry.ExplicitVRLittleEndian)
         self.assertEqual(
-            data_set.get_transfer_syntax(),
+            data_set.get_transfer_syntax().encode(),
             odil.registry.ExplicitVRLittleEndian)
 
     def test_transfer_syntax(self):
         data_set = odil.DataSet()
         data_set.set_transfer_syntax(odil.registry.ExplicitVRLittleEndian)
         self.assertEqual(
-            data_set.get_transfer_syntax(),
+            data_set.get_transfer_syntax().encode(),
             odil.registry.ExplicitVRLittleEndian)
 
     def test_empty_element_tag(self):
@@ -144,7 +144,7 @@ class TestDataSet(unittest.TestCase):
 
     def test_string(self):
         self._test_element(
-            odil.registry.PatientID, odil.Value.Strings(), ["foo", "bar"], 
+            odil.registry.PatientID, odil.Value.Strings(), [b"foo", b"bar"],
             odil.VR.LT,
             odil.DataSet.is_string, odil.DataSet.as_string,
             odil.Element.is_string, odil.Element.as_string)
@@ -173,7 +173,7 @@ class TestDataSet(unittest.TestCase):
         data_set = odil.DataSet()
         data_set.add("PatientName", ["Doe^John"])
         self.assertSequenceEqual(
-            data_set["PatientName"].as_string(), ["Doe^John"])
+            data_set["PatientName"].as_string(), [b"Doe^John"])
         self.assertRaises(Exception, lambda x: data_set["PatientID"])
 
     def test_iter(self):
@@ -200,7 +200,7 @@ class TestDataSet(unittest.TestCase):
             [
                 [item for item in element.as_string()]
                 for element in data_set.values()],
-            [["Doe^John"], ["DJ123"]])
+            [[b"Doe^John"], [b"DJ123"]])
 
     def test_items(self):
         data_set = odil.DataSet()
@@ -210,7 +210,7 @@ class TestDataSet(unittest.TestCase):
             [
                 [tag.get_name(), [item for item in element.as_string()]]
                 for tag, element in data_set.items()],
-            [["PatientName", ["Doe^John"]], ["PatientID", ["DJ123"]]])
+            [["PatientName", [b"Doe^John"]], ["PatientID", [b"DJ123"]]])
 
 if __name__ == "__main__":
     unittest.main()

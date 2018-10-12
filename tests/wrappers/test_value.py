@@ -90,7 +90,7 @@ class TestValue(unittest.TestCase):
 
     def test_strings(self):
         self._test(
-            odil.Value.Strings(), ["foo", "bar"], ["plip", "plop"],
+            odil.Value.Strings(), [b"foo", b"bar"], [b"plip", b"plop"],
             odil.Value.Type.Strings, odil.Value.as_strings)
 
     # FIXME: strings in DICOM are byte-string, with some VR requiring 
@@ -148,7 +148,7 @@ class TestValueStrings(unittest.TestCase):
         self.assertEqual([x for x in data], [])
 
     def test_sequence_constructor(self):
-        items = ["foo", "bar"]
+        items = [b"foo", b"bar"]
         data = odil.Value.Strings(items)
         self.assertEqual([x for x in data], items)
 

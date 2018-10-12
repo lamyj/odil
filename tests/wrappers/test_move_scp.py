@@ -86,20 +86,20 @@ class TestMoveSCP(unittest.TestCase):
             [odil.registry.RawDataStorage])
         self.assertSequenceEqual(
             data_sets[0].as_string("SOPInstanceUID"), 
-            ["1.2.826.0.1.3680043.9.5560.3127449359877365688774406533090568532"])
+            [b"1.2.826.0.1.3680043.9.5560.3127449359877365688774406533090568532"])
         self.assertSequenceEqual(
-            data_sets[0].as_string("PatientName"), ["Hello^World"])
-        self.assertSequenceEqual(data_sets[0].as_string("PatientID"), ["1234"])
+            data_sets[0].as_string("PatientName"), [b"Hello^World"])
+        self.assertSequenceEqual(data_sets[0].as_string("PatientID"), [b"1234"])
         
         self.assertSequenceEqual(
             data_sets[1].as_string("SOPClassUID"), 
             [odil.registry.RawDataStorage])
         self.assertSequenceEqual(
             data_sets[1].as_string("SOPInstanceUID"), 
-            ["1.2.826.0.1.3680043.9.5560.3221615743193123463515381981101110692"])
+            [b"1.2.826.0.1.3680043.9.5560.3221615743193123463515381981101110692"])
         self.assertSequenceEqual(
-            data_sets[1].as_string("PatientName"), ["Doe^John"])
-        self.assertSequenceEqual(data_sets[1].as_string("PatientID"), ["5678"])
+            data_sets[1].as_string("PatientName"), [b"Doe^John"])
+        self.assertSequenceEqual(data_sets[1].as_string("PatientID"), [b"5678"])
     
     def run_client(self):
         command = [

@@ -29,16 +29,22 @@ def print_(inputs, print_header, decode_uids):
             max_length = max(max_length, find_max_name_length(header))
 
         if print_header:
-            print_data_set(header, decode_uids, "", max_length)
+            print_data_set(
+                header, decode_uids, "", max_length, odil.Value.Strings())
             print()
-        print_data_set(data_set, decode_uids, "", max_length)
+        print_data_set(
+            data_set, decode_uids, "", max_length, odil.Value.Strings())
 
-def print_data_set(data_set, decode_uids, padding, max_length):
+def print_data_set(
+        data_set, decode_uids, padding, max_length, specific_character_set):
     for tag, element in data_set.items():
         name = "{:04x},{:04x}".format(tag.group, tag.element)
         if tag in odil.registry.public_dictionary:
             entry = odil.registry.public_dictionary[tag]
             name = entry.name
+
+        if tag == odil.registry.SpecificCharacterSet:
+            specific_character_set = element.as_string()
 
         if element.is_data_set():
             value = "(sequence, {} item{})".format(
@@ -58,7 +64,9 @@ def print_data_set(data_set, decode_uids, padding, max_length):
             elif element.is_real():
                 getter = element.as_real
             elif element.is_string():
-                getter = element.as_string
+                getter = lambda: [
+                    odil.as_unicode(x, specific_character_set)
+                    for x in element.as_string()]
             value = [x for x in getter()]
 
             if decode_uids and element.vr == odil.VR.UI:
@@ -78,9 +86,13 @@ def print_data_set(data_set, decode_uids, padding, max_length):
             sequence = element.as_data_set()
             if sequence:
                 for item in sequence[:-1]:
-                    print_data_set(item, decode_uids, padding+"  ", max_length)
+                    print_data_set(
+                        item, decode_uids, padding+"  ", max_length,
+                        specific_character_set)
                     print()
-                print_data_set(sequence[-1], decode_uids, padding+"  ", max_length)
+                print_data_set(
+                    sequence[-1], decode_uids, padding+"  ", max_length,
+                    specific_character_set)
 
 def find_max_name_length(data_set, max_length=0, padding_length=0):
     for tag, element in data_set.items():

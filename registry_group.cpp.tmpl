@@ -1,0 +1,42 @@
+/*************************************************************************
+ * odil - Copyright (C) Universite de Strasbourg
+ * Distributed under the terms of the CeCILL-B license, as published by
+ * the CEA-CNRS-INRIA. Refer to the LICENSE file or to
+ * http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
+ * for details.
+ ************************************************************************/
+
+#include <map>
+#include <string>
+#include <tuple>
+
+#include "odil/ElementsDictionary.h"
+#include "odil/Tag.h"
+
+namespace odil
+{
+
+namespace registry
+{
+
+void update_{{ group }}(
+    ElementsDictionary & public_dictionary,
+    std::map<std::string, odil::Tag> & public_tags)
+{
+
+{% for entry in elements_dictionary %}
+    public_dictionary.emplace({%
+            if entry[0] is string
+        %}std::string("{{ entry[0] }}"){%
+            else %}Tag({{ "0x%04x, 0x%04x"|format(*entry[0]) }}){%
+            endif %}, ElementsDictionaryEntry("{{ entry[1] }}", "{{ entry[2] }}",  "{{ entry[3] }}", "{{ entry[4] }}"));
+{% endfor %}
+
+{% for entry in elements_dictionary %}{% if not entry[0] is string %}
+    public_tags.emplace("{{ entry[2] }}", Tag({{ "0x%04x, 0x%04x"|format(*entry[0]) }}));
+{% endif %}{% endfor %}
+}
+
+}
+
+}

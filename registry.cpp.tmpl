@@ -6,15 +6,13 @@
  * for details.
  ************************************************************************/
 
-#include <cstdint>
+#include "odil/registry.h"
+
 #include <map>
 #include <string>
 
-#include "odil/registry.h"
-
 #include "odil/ElementsDictionary.h"
 #include "odil/Tag.h"
-#include "odil/VR.h"
 #include "odil/UIDsDictionary.h"
 
 namespace odil
@@ -23,104 +21,39 @@ namespace odil
 namespace registry
 {
 
-struct RawElementsDictionaryEntry
-{
-    ElementsDictionaryKey key;
-    char const * name;
-    char const * keyword;
-    char const * vr;
-    char const * vm;
-};
-
-ElementsDictionary create_public_dictionary()
-{
-
-    RawElementsDictionaryEntry raw_entries[] = {
-{% for entry in elements_dictionary %}
-        { {% if entry[0] is string -%}
-            std::string("{{ entry[0] }}")
-          {% elif entry[0] is sequence -%}
-            Tag({{ "0x%04x, 0x%04x"|format(*entry[0]) }})
-          {%- endif %},
-          "{{ entry[1] }}", "{{ entry[2] }}",  "{{ entry[3] }}", "{{ entry[4] }}" },
+{% for group in groups %}
+void update_{{ group }}(ElementsDictionary &, std::map<std::string, odil::Tag> &);
 {% endfor %}
-    };
 
-    ElementsDictionary public_dictionary;
-
-    unsigned long const count = sizeof(raw_entries)/sizeof(RawElementsDictionaryEntry);
-    for(unsigned long i=0; i<count; ++i)
-    {
-        RawElementsDictionaryEntry const & raw_entry = raw_entries[i];
-        ElementsDictionaryEntry const entry(
-            raw_entry.name, raw_entry.keyword, raw_entry.vr, raw_entry.vm);
-        public_dictionary.insert(
-            std::pair<ElementsDictionaryKey, ElementsDictionaryEntry>(
-                raw_entry.key, entry));
-    }
-
-    return public_dictionary;
-}
-
-std::map<std::string, Tag> create_public_tags()
+void update_uids_dictionary(UIDsDictionary & uids_dictionary)
 {
-
-    RawElementsDictionaryEntry raw_entries[] = {
-{% for entry in elements_dictionary %}
-    {% if not entry[0] is string -%}
-        { Tag({{ "0x%04x, 0x%04x"|format(*entry[0]) }}),
-          "{{ entry[1] }}", "{{ entry[2] }}",  "{{ entry[3] }}", "{{ entry[4] }}" },
-    {%- endif %}
-{% endfor %}
-    };
-
-    std::map<std::string, Tag> public_tags;
-
-    unsigned long const count = sizeof(raw_entries)/sizeof(RawElementsDictionaryEntry);
-    for(unsigned long i=0; i<count; ++i)
-    {
-        RawElementsDictionaryEntry const & raw_entry = raw_entries[i];
-        public_tags.insert(std::make_pair(raw_entry.keyword, raw_entry.key.get_tag()));
-    }
-
-    return public_tags;
-}
-
-struct RawUIDsDictionaryEntry
-{
-    char const * uid;
-    char const * name;
-    char const * keyword;
-    char const * type;
-};
-
-UIDsDictionary create_uids_dictionary()
-{
-
-    RawUIDsDictionaryEntry raw_entries[] = {
 {% for entry in uids %}
-        { "{{ entry[0] }}", "{{ entry[1] }}", "{{ entry[2] }}",  "{{ entry[3] }}" },
+    uids_dictionary.emplace("{{ entry[0] }}", UIDsDictionaryEntry("{{ entry[1] }}", "{{ entry[2] }}",  "{{ entry[3] }}"));
 {% endfor %}
-    };
-
-    UIDsDictionary uids_dictionary;
-
-    unsigned long const count = sizeof(raw_entries)/sizeof(RawUIDsDictionaryEntry);
-    for(unsigned long i=0; i<count; ++i)
-    {
-        RawUIDsDictionaryEntry const & raw_entry = raw_entries[i];
-        UIDsDictionaryEntry const entry(
-            raw_entry.name, raw_entry.keyword, raw_entry.type);
-        uids_dictionary.insert(std::pair<std::string, UIDsDictionaryEntry>(raw_entry.uid, entry));
-    }
-
-    return uids_dictionary;
 }
 
-ElementsDictionary public_dictionary=create_public_dictionary();
-std::map<std::string, Tag> public_tags=create_public_tags();
-UIDsDictionary uids_dictionary=create_uids_dictionary();
+bool update(
+    odil::ElementsDictionary & public_dictionary,
+    std::map<std::string, odil::Tag> & public_tags,
+    odil::UIDsDictionary & uids_dictionary)
+{
+{% for group in groups %}
+    update_{{ group }}(public_dictionary, public_tags);
+{% endfor %}
+
+    update_uids_dictionary(uids_dictionary);
+
+    return true;
+}
 
 }
 
 }
+
+odil::ElementsDictionary odil::registry::public_dictionary = {};
+std::map<std::string, odil::Tag> odil::registry::public_tags = {};
+odil::UIDsDictionary odil::registry::uids_dictionary = {};
+bool const odil::registry::dummy = odil::registry::update(
+    odil::registry::public_dictionary,
+    odil::registry::public_tags,
+    odil::registry::uids_dictionary);
