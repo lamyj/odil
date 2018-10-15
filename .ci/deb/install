@@ -26,8 +26,6 @@ PACKAGES="${PACKAGES} libdcmtk2-dev libicu-dev libjsoncpp-dev liblog4cpp5-dev zl
 PACKAGES="${PACKAGES} pybind11-dev ${PYTHON_PREFIX}-pybind11 ${PYTHON_PREFIX}-dev"
 # Dependencies of unit tests
 PACKAGES="${PACKAGES} dcmtk libboost-test-dev ${PYTHON_PREFIX}-nose"
-# Coverage and static analysis
-PACKAGES="${PACKAGES} cppcheck lcov wget"
 
 apt-get -y update
 apt-get -y --no-install-recommends install ${PACKAGES}

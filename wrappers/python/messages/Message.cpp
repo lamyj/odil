@@ -11,8 +11,6 @@
 #include "odil/DataSet.h"
 #include "odil/message/Message.h"
 
-#include <boost/python.hpp>
-
 void wrap_Message(pybind11::module & m)
 {
     using namespace pybind11;

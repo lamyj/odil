@@ -5,6 +5,14 @@ set -ev
 export Python=${Python:?}
 export WORKSPACE=${WORKSPACE:?}
 
+if [ "${Python}" = "2" ]
+then
+  PYTHON_EXECUTABLE="/usr/local/opt/python@2/bin/python2.7"
+else
+  PYTHON_EXECUTABLE="/usr/local/bin/python3"
+fi
+
+
 mkdir build
 mkdir install
 cd build
@@ -13,9 +21,7 @@ export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/usr/local/opt/icu4c/lib/pkgconf
 
 cmake \
   -D CMAKE_INSTALL_PREFIX="${WORKSPACE}/install" \
-  -D PYTHON_EXECUTABLE=/usr/local/opt/python@2/bin/python2.7 \
-  -D PYTHON_INCLUDE_DIR=/usr/include/python2.7 \
-  -D PYTHON_LIBRARY=/usr/lib/libpython2.7.dylib \
+  -D PYTHON_EXECUTABLE=${PYTHON_EXECUTABLE} \
   ${CMAKE_OPTIONS} \
   ..
 make ${MAKE_OPTIONS} install
