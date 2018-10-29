@@ -40,9 +40,9 @@ The system-specific instructions will detail how to install using pre-compiled p
 
 .. code-block:: bash
 
-  wget https://github.com/lamyj/odil/archive/v0.9.2.tar.gz
-  tar -x -f v0.9.2.tar.gz
-  cd odil-0.9.2
+  wget https://github.com/lamyj/odil/archive/v0.10.0.tar.gz
+  tar -x -f v0.10.0.tar.gz
+  cd odil-0.10.0
 
 You can also clone the `Git repository`_. Note that the latest Git version may not always compile; should it happen, you can keep your clone but check out the latest tagged version:
 
@@ -50,7 +50,7 @@ You can also clone the `Git repository`_. Note that the latest Git version may n
   
   git clone https://github.com/lamyj/odil
   cd odil
-  git checkout v0.9.2
+  git checkout v0.10.0
 
 Building the Python wrappers
 ----------------------------
