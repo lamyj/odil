@@ -44,6 +44,7 @@ Tag const AttributeModificationDateTime(0x0400, 0x0562);
 Tag const ModifyingSystem(0x0400, 0x0563);
 Tag const SourceOfPreviousValues(0x0400, 0x0564);
 Tag const ReasonForTheAttributeModification(0x0400, 0x0565);
+Tag const InstanceOriginStatus(0x0400, 0x0600);
 
 }
 

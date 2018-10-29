@@ -40,6 +40,7 @@ Tag const ROIVolume(0x3006, 0x002c);
 Tag const RTRelatedROISequence(0x3006, 0x0030);
 Tag const RTROIRelationship(0x3006, 0x0033);
 Tag const ROIGenerationAlgorithm(0x3006, 0x0036);
+Tag const ROIDerivationAlgorithmIdentificationSequence(0x3006, 0x0037);
 Tag const ROIGenerationDescription(0x3006, 0x0038);
 Tag const ROIContourSequence(0x3006, 0x0039);
 Tag const ContourSequence(0x3006, 0x0040);

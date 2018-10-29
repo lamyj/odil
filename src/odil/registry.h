@@ -133,8 +133,8 @@ std::string const MPEG4AVCH264StereoHighProfileLevel42("1.2.840.10008.1.2.4.106"
 std::string const HEVCH265MainProfileLevel51("1.2.840.10008.1.2.4.107");
 std::string const HEVCH265Main10ProfileLevel51("1.2.840.10008.1.2.4.108");
 std::string const RLELossless("1.2.840.10008.1.2.5");
-std::string const RFC2557MIMEencapsulation("1.2.840.10008.1.2.6.1");
-std::string const XMLEncoding("1.2.840.10008.1.2.6.2");
+std::string const RFC2557MIMEencapsulation_Retired("1.2.840.10008.1.2.6.1");
+std::string const XMLEncoding_Retired("1.2.840.10008.1.2.6.2");
 std::string const MediaStorageDirectoryStorage("1.2.840.10008.1.3.10");
 std::string const TalairachBrainAtlasFrameofReference("1.2.840.10008.1.4.1.1");
 std::string const SPM2T1FrameofReference("1.2.840.10008.1.4.1.2");

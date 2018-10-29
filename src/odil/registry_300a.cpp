@@ -94,6 +94,7 @@ void update_300a(
     public_dictionary.emplace(Tag(0x300a, 0x0091), ElementsDictionaryEntry("Alternate Beam Dose", "AlternateBeamDose",  "DS", "1"));
     public_dictionary.emplace(Tag(0x300a, 0x0092), ElementsDictionaryEntry("Alternate Beam Dose Type", "AlternateBeamDoseType",  "CS", "1"));
     public_dictionary.emplace(Tag(0x300a, 0x0093), ElementsDictionaryEntry("Depth Value Averaging Flag", "DepthValueAveragingFlag",  "CS", "1"));
+    public_dictionary.emplace(Tag(0x300a, 0x0094), ElementsDictionaryEntry("Beam Dose Point Source to External Contour Distance", "BeamDosePointSourceToExternalContourDistance",  "DS", "1"));
     public_dictionary.emplace(Tag(0x300a, 0x00a0), ElementsDictionaryEntry("Number of Brachy Application Setups", "NumberOfBrachyApplicationSetups",  "IS", "1"));
     public_dictionary.emplace(Tag(0x300a, 0x00a2), ElementsDictionaryEntry("Brachy Application Setup Dose Specification Point", "BrachyApplicationSetupDoseSpecificationPoint",  "DS", "3"));
     public_dictionary.emplace(Tag(0x300a, 0x00a4), ElementsDictionaryEntry("Brachy Application Setup Dose", "BrachyApplicationSetupDose",  "DS", "1"));
@@ -494,6 +495,7 @@ void update_300a(
     public_tags.emplace("AlternateBeamDose", Tag(0x300a, 0x0091));
     public_tags.emplace("AlternateBeamDoseType", Tag(0x300a, 0x0092));
     public_tags.emplace("DepthValueAveragingFlag", Tag(0x300a, 0x0093));
+    public_tags.emplace("BeamDosePointSourceToExternalContourDistance", Tag(0x300a, 0x0094));
     public_tags.emplace("NumberOfBrachyApplicationSetups", Tag(0x300a, 0x00a0));
     public_tags.emplace("BrachyApplicationSetupDoseSpecificationPoint", Tag(0x300a, 0x00a2));
     public_tags.emplace("BrachyApplicationSetupDose", Tag(0x300a, 0x00a4));

@@ -48,6 +48,7 @@ void update_0400(
     public_dictionary.emplace(Tag(0x0400, 0x0563), ElementsDictionaryEntry("Modifying System", "ModifyingSystem",  "LO", "1"));
     public_dictionary.emplace(Tag(0x0400, 0x0564), ElementsDictionaryEntry("Source of Previous Values", "SourceOfPreviousValues",  "LO", "1"));
     public_dictionary.emplace(Tag(0x0400, 0x0565), ElementsDictionaryEntry("Reason for the Attribute Modification", "ReasonForTheAttributeModification",  "CS", "1"));
+    public_dictionary.emplace(Tag(0x0400, 0x0600), ElementsDictionaryEntry("Instance Origin Status", "InstanceOriginStatus",  "CS", "1"));
 
     public_tags.emplace("MACIDNumber", Tag(0x0400, 0x0005));
     public_tags.emplace("MACCalculationTransferSyntaxUID", Tag(0x0400, 0x0010));
@@ -73,6 +74,7 @@ void update_0400(
     public_tags.emplace("ModifyingSystem", Tag(0x0400, 0x0563));
     public_tags.emplace("SourceOfPreviousValues", Tag(0x0400, 0x0564));
     public_tags.emplace("ReasonForTheAttributeModification", Tag(0x0400, 0x0565));
+    public_tags.emplace("InstanceOriginStatus", Tag(0x0400, 0x0600));
 }
 
 }

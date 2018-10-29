@@ -44,6 +44,7 @@ void update_3006(
     public_dictionary.emplace(Tag(0x3006, 0x0030), ElementsDictionaryEntry("RT Related ROI Sequence", "RTRelatedROISequence",  "SQ", "1"));
     public_dictionary.emplace(Tag(0x3006, 0x0033), ElementsDictionaryEntry("RT ROI Relationship", "RTROIRelationship",  "CS", "1"));
     public_dictionary.emplace(Tag(0x3006, 0x0036), ElementsDictionaryEntry("ROI Generation Algorithm", "ROIGenerationAlgorithm",  "CS", "1"));
+    public_dictionary.emplace(Tag(0x3006, 0x0037), ElementsDictionaryEntry("ROI Derivation Algorithm Identification Sequence", "ROIDerivationAlgorithmIdentificationSequence",  "SQ", "1"));
     public_dictionary.emplace(Tag(0x3006, 0x0038), ElementsDictionaryEntry("ROI Generation Description", "ROIGenerationDescription",  "LO", "1"));
     public_dictionary.emplace(Tag(0x3006, 0x0039), ElementsDictionaryEntry("ROI Contour Sequence", "ROIContourSequence",  "SQ", "1"));
     public_dictionary.emplace(Tag(0x3006, 0x0040), ElementsDictionaryEntry("Contour Sequence", "ContourSequence",  "SQ", "1"));
@@ -96,6 +97,7 @@ void update_3006(
     public_tags.emplace("RTRelatedROISequence", Tag(0x3006, 0x0030));
     public_tags.emplace("RTROIRelationship", Tag(0x3006, 0x0033));
     public_tags.emplace("ROIGenerationAlgorithm", Tag(0x3006, 0x0036));
+    public_tags.emplace("ROIDerivationAlgorithmIdentificationSequence", Tag(0x3006, 0x0037));
     public_tags.emplace("ROIGenerationDescription", Tag(0x3006, 0x0038));
     public_tags.emplace("ROIContourSequence", Tag(0x3006, 0x0039));
     public_tags.emplace("ContourSequence", Tag(0x3006, 0x0040));

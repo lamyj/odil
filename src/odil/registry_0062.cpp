@@ -42,6 +42,7 @@ void update_0062(
     public_dictionary.emplace(Tag(0x0062, 0x0010), ElementsDictionaryEntry("Segmentation Fractional Type", "SegmentationFractionalType",  "CS", "1"));
     public_dictionary.emplace(Tag(0x0062, 0x0011), ElementsDictionaryEntry("Segmented Property Type Modifier Code Sequence", "SegmentedPropertyTypeModifierCodeSequence",  "SQ", "1"));
     public_dictionary.emplace(Tag(0x0062, 0x0012), ElementsDictionaryEntry("Used Segments Sequence", "UsedSegmentsSequence",  "SQ", "1"));
+    public_dictionary.emplace(Tag(0x0062, 0x0013), ElementsDictionaryEntry("Segments Overlap", "SegmentsOverlap",  "CS", "1"));
     public_dictionary.emplace(Tag(0x0062, 0x0020), ElementsDictionaryEntry("Tracking ID", "TrackingID",  "UT", "1"));
     public_dictionary.emplace(Tag(0x0062, 0x0021), ElementsDictionaryEntry("Tracking UID", "TrackingUID",  "UI", "1"));
 
@@ -63,6 +64,7 @@ void update_0062(
     public_tags.emplace("SegmentationFractionalType", Tag(0x0062, 0x0010));
     public_tags.emplace("SegmentedPropertyTypeModifierCodeSequence", Tag(0x0062, 0x0011));
     public_tags.emplace("UsedSegmentsSequence", Tag(0x0062, 0x0012));
+    public_tags.emplace("SegmentsOverlap", Tag(0x0062, 0x0013));
     public_tags.emplace("TrackingID", Tag(0x0062, 0x0020));
     public_tags.emplace("TrackingUID", Tag(0x0062, 0x0021));
 }

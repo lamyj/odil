@@ -38,6 +38,7 @@ Tag const SegmentedPropertyTypeCodeSequence(0x0062, 0x000f);
 Tag const SegmentationFractionalType(0x0062, 0x0010);
 Tag const SegmentedPropertyTypeModifierCodeSequence(0x0062, 0x0011);
 Tag const UsedSegmentsSequence(0x0062, 0x0012);
+Tag const SegmentsOverlap(0x0062, 0x0013);
 Tag const TrackingID(0x0062, 0x0020);
 Tag const TrackingUID(0x0062, 0x0021);
 

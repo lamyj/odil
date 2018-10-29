@@ -133,8 +133,8 @@ void update_uids_dictionary(UIDsDictionary & uids_dictionary)
     uids_dictionary.emplace("1.2.840.10008.1.2.4.107", UIDsDictionaryEntry("HEVC/H.265 Main Profile / Level 5.1", "HEVCH265MainProfileLevel51",  "Transfer Syntax"));
     uids_dictionary.emplace("1.2.840.10008.1.2.4.108", UIDsDictionaryEntry("HEVC/H.265 Main 10 Profile / Level 5.1", "HEVCH265Main10ProfileLevel51",  "Transfer Syntax"));
     uids_dictionary.emplace("1.2.840.10008.1.2.5", UIDsDictionaryEntry("RLE Lossless", "RLELossless",  "Transfer Syntax"));
-    uids_dictionary.emplace("1.2.840.10008.1.2.6.1", UIDsDictionaryEntry("RFC 2557 MIME encapsulation", "RFC2557MIMEencapsulation",  "Transfer Syntax"));
-    uids_dictionary.emplace("1.2.840.10008.1.2.6.2", UIDsDictionaryEntry("XML Encoding", "XMLEncoding",  "Transfer Syntax"));
+    uids_dictionary.emplace("1.2.840.10008.1.2.6.1", UIDsDictionaryEntry("RFC 2557 MIME encapsulation (Retired)", "RFC2557MIMEencapsulation_Retired",  "Transfer Syntax"));
+    uids_dictionary.emplace("1.2.840.10008.1.2.6.2", UIDsDictionaryEntry("XML Encoding (Retired)", "XMLEncoding_Retired",  "Transfer Syntax"));
     uids_dictionary.emplace("1.2.840.10008.1.3.10", UIDsDictionaryEntry("Media Storage Directory Storage", "MediaStorageDirectoryStorage",  "SOP Class"));
     uids_dictionary.emplace("1.2.840.10008.1.4.1.1", UIDsDictionaryEntry("Talairach Brain Atlas Frame of Reference", "TalairachBrainAtlasFrameofReference",  "Well-known frame of reference"));
     uids_dictionary.emplace("1.2.840.10008.1.4.1.2", UIDsDictionaryEntry("SPM2 T1 Frame of Reference", "SPM2T1FrameofReference",  "Well-known frame of reference"));

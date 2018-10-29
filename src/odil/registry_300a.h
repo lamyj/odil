@@ -90,6 +90,7 @@ Tag const BeamDoseType(0x300a, 0x0090);
 Tag const AlternateBeamDose(0x300a, 0x0091);
 Tag const AlternateBeamDoseType(0x300a, 0x0092);
 Tag const DepthValueAveragingFlag(0x300a, 0x0093);
+Tag const BeamDosePointSourceToExternalContourDistance(0x300a, 0x0094);
 Tag const NumberOfBrachyApplicationSetups(0x300a, 0x00a0);
 Tag const BrachyApplicationSetupDoseSpecificationPoint(0x300a, 0x00a2);
 Tag const BrachyApplicationSetupDose(0x300a, 0x00a4);
