@@ -1,5 +1,6 @@
 import multiprocessing
 import subprocess
+import sys
 import time
 import unittest
 
@@ -37,9 +38,9 @@ class TestEchoSCP(unittest.TestCase):
         return subprocess.call(command)
 
     def run_server(self, use_abort):
-        called = False
+        called = [False]
         def echo_callback(message):
-            called = True
+            called[0] = True
             return 0
 
         association = odil.Association()
@@ -63,10 +64,10 @@ class TestEchoSCP(unittest.TestCase):
             if use_abort:
                 termination_ok = True
         
-        if called and termination_ok:
-            return 0
+        if called[0] and termination_ok:
+            sys.exit(0)
         else:
-            return 1
+            sys.exit(1)
 
 if __name__ == "__main__":
     unittest.main()

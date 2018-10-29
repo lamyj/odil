@@ -5,19 +5,13 @@ set -ev
 export Python=${Python:?}
 export WORKSPACE=${WORKSPACE:?}
 
-PYTHON_EXECUTABLE="/usr/local/bin/python${Python}"
-PYTHON_PREFIX=$(${PYTHON_EXECUTABLE} -c 'import sys;print(sys.prefix)')
-PYTHON_VERSION="$(${PYTHON_EXECUTABLE} -c 'import sys;print(sys.version[:3])')"
-PYTHON_VERSION_NO_DOT=$(echo ${PYTHON_VERSION} | sed 's/\.//')
-PYTHON_INCLUDE_DIR=$(${PYTHON_EXECUTABLE} -c 'from distutils import sysconfig;print(sysconfig.get_python_inc(True))')
-PYTHON_LIBRARY=${PYTHON_PREFIX}/lib/libpython${PYTHON_VERSION}.dylib
-
 if [ "${Python}" = "2" ]
 then
-    Boost_PYTHON_LIBRARY=/usr/local/lib/libboost_python.dylib
+  PYTHON_EXECUTABLE="/usr/local/opt/python@2/bin/python2.7"
 else
-    Boost_PYTHON_LIBRARY=/usr/local/lib/libboost_python${PYTHON_VERSION_NO_DOT}.dylib
+  PYTHON_EXECUTABLE="/usr/local/bin/python3"
 fi
+
 
 mkdir build
 mkdir install
@@ -28,10 +22,6 @@ export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/usr/local/opt/icu4c/lib/pkgconf
 cmake \
   -D CMAKE_INSTALL_PREFIX="${WORKSPACE}/install" \
   -D PYTHON_EXECUTABLE=${PYTHON_EXECUTABLE} \
-  -D PYTHON_INCLUDE_DIR=${PYTHON_INCLUDE_DIR} \
-  -D PYTHON_LIBRARY=${PYTHON_LIBRARY} \
-  -D Boost_PYTHON_LIBRARY_DEBUG=${Boost_PYTHON_LIBRARY} \
-  -D Boost_PYTHON_LIBRARY_RELEASE=${Boost_PYTHON_LIBRARY} \
   ${CMAKE_OPTIONS} \
   ..
 make ${MAKE_OPTIONS} install

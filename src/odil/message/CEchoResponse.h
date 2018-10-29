@@ -37,11 +37,8 @@ public:
      *
      * Raise an exception if the Message does not contain a C-ECHO-RSP.
      */
-    CEchoResponse(Message const & message);
+    CEchoResponse(std::shared_ptr<Message const> message);
 
-    /// @brief Destructor.
-    virtual ~CEchoResponse();
-    
     ODIL_MESSAGE_MANDATORY_FIELD_STRING_MACRO(
         affected_sop_class_uid, registry::AffectedSOPClassUID)
 };

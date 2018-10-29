@@ -29,7 +29,7 @@ void run_server(Status * status, bool with_echo)
         association.receive_association(boost::asio::ip::tcp::v4(), 11113);
 
         auto echo_scp = std::make_shared<odil::EchoSCP>(association,
-            [&status](odil::message::CEchoRequest const &)
+            [&status](std::shared_ptr<odil::message::CEchoRequest const>)
             {
                 status->called = true;
                 return odil::message::Response::Success;

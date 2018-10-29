@@ -6,20 +6,14 @@
  * for details.
  ************************************************************************/
 
-#include <Python.h>
-
-#include "exception_factory.h"
+#include <boost/asio.hpp>
+#include <boost/date_time/posix_time/posix_time.hpp>
+#include <pybind11/pybind11.h>
 
 #include "odil/Association.h"
 
-#include <boost/asio.hpp>
-#include <boost/python.hpp>
-
 namespace
 {
-
-PyObject* wrapped_AssociationReleased;
-PyObject* wrapped_AssociationAborted;
 
 void receive_association(
     odil::Association& association, std::string protocol, unsigned short port)
@@ -34,91 +28,61 @@ void receive_association(
     }
 }
 
-void released_translator(odil::AssociationReleased const& e)
-{
-    PyErr_SetString(wrapped_AssociationReleased, e.what());
-}
-
-void aborted_translator(odil::AssociationAborted const& e)
-{
-    PyErr_SetString(wrapped_AssociationAborted, e.what());
-}
-
 float get_tcp_timeout(odil::Association const& association)
 {
-    return association.get_tcp_timeout().total_microseconds()/1000000.;
+    return association.get_tcp_timeout().total_microseconds()/1000000.f;
 }
 
 void set_tcp_timeout(odil::Association& association, float seconds)
 {
     association.set_tcp_timeout(
-        boost::posix_time::microseconds(int(seconds*1000000.)));
+        boost::posix_time::microseconds(int(seconds*1000000.f)));
 }
 
 }
 
-void wrap_Association()
+void wrap_Association(pybind11::module & m)
 {
-    using namespace boost::python;
+    using namespace pybind11;
     using namespace odil;
 
-    object wrapped_exception = scope().attr("Exception");
-
-    wrapped_AssociationReleased = exception_factory(
-        "AssociationReleased", wrapped_exception.ptr());
-    register_exception_translator<AssociationReleased>(released_translator);
-
-    wrapped_AssociationAborted = exception_factory(
-        "AssociationAborted", wrapped_exception.ptr());
-    register_exception_translator<AssociationAborted>(aborted_translator);
-
-    scope association_scope = class_<Association>("Association", init<>())
-                              .def("get_peer_host", &Association::get_peer_host,
-                                   return_value_policy<copy_const_reference>())
-                              .def("set_peer_host", &Association::set_peer_host)
-                              .def("get_peer_port", &Association::get_peer_port)
-                              .def("set_peer_port", &Association::set_peer_port)
-                              .def(
-        "get_parameters",
-        &Association::get_parameters,
-        return_value_policy<reference_existing_object>()
-        )
-                              .def(
-        "set_parameters",
-        &Association::set_parameters,
-        return_value_policy<reference_existing_object>()
-        )
-                              .def(
-        "update_parameters",
-        &Association::update_parameters,
-        return_value_policy<reference_existing_object>()
-        )
-                              .def(
-        "get_negotiated_parameters",
-        &Association::get_negotiated_parameters,
-        return_value_policy<reference_existing_object>()
-        )
-                              .def("get_tcp_timeout", &get_tcp_timeout)
-                              .def("set_tcp_timeout", &set_tcp_timeout)
-                              // Message timeout
-                              .def("is_associated", &Association::is_associated)
-                              .def("associate", &Association::associate)
-                              // Receive association
-                              .def("receive_association", &receive_association)
-                              //.def("reject", &Association::reject)
-                              .def("release", &Association::release)
-                              .def("abort", &Association::abort)
-                              // Receive message
-                              .def("receive_message", &Association::receive_message)
-                              // Send message
-                              .def("next_message_id", &Association::next_message_id)
-                              // Send message
-                              .def("send_message", &Association::send_message)
+    auto association_scope = class_<Association>(m, "Association")
+        .def(init<>())
+        .def("get_peer_host", &Association::get_peer_host)
+        .def("set_peer_host", &Association::set_peer_host)
+        .def("get_peer_port", &Association::get_peer_port)
+        .def("set_peer_port", &Association::set_peer_port)
+        .def(
+            "get_parameters", &Association::get_parameters,
+            return_value_policy::reference_internal)
+        .def("set_parameters", &Association::set_parameters)
+        .def(
+            "update_parameters", &Association::update_parameters,
+            return_value_policy::reference_internal)
+        .def(
+            "get_negotiated_parameters", &Association::get_negotiated_parameters,
+            return_value_policy::reference_internal)
+        .def("get_tcp_timeout", &get_tcp_timeout)
+        .def("set_tcp_timeout", &set_tcp_timeout)
+        .def("is_associated", &Association::is_associated)
+        .def("associate", &Association::associate)
+        .def("receive_association", &receive_association)
+        //.def("reject", &Association::reject)
+        .def("release", &Association::release)
+        .def("abort", &Association::abort)
+        .def("receive_message", &Association::receive_message)
+        .def("next_message_id", &Association::next_message_id)
+        .def("send_message", &Association::send_message)
     ;
 
-    enum_<Association::Result>("Result")
-    .value("Accepted", Association::Accepted)
-    .value("RejectedPermanent", Association::RejectedPermanent)
-    .value("RejectedTransient", Association::RejectedTransient)
+    enum_<Association::Result>(association_scope, "Result")
+        .value("Accepted", Association::Accepted)
+        .value("RejectedPermanent", Association::RejectedPermanent)
+        .value("RejectedTransient", Association::RejectedTransient)
     ;
+
+    register_exception<AssociationReleased>(
+        m, "AssociationReleased", m.attr("Exception").ptr());
+    register_exception<AssociationAborted>(
+        m, "AssociationAborted", m.attr("Exception").ptr());
 }

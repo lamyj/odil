@@ -50,20 +50,20 @@ BOOST_AUTO_TEST_CASE(Constructor)
 BOOST_AUTO_TEST_CASE(BasicDirectory)
 {
     {
-        odil::DataSet data_set;
-        data_set.add("PatientID", {"DJ123"});
-        data_set.add("StudyDate", {"19100110"});
-        data_set.add("StudyTime", {"1234"});
-        data_set.add("StudyDescription", {"Study"});
-        data_set.add("StudyInstanceUID", {"1.2.3.4"});
-        data_set.add("StudyID", {"FOO"});
-        data_set.add("Modality", {"OT"});
-        data_set.add("SeriesInstanceUID", {"1.2.3.4.1"});
-        data_set.add("SeriesNumber", {1});
-        data_set.add("SeriesDescription", {"Series"});
-        data_set.add("InstanceNumber", {1});
-        data_set.add("SOPInstanceUID", {"1.2.3.4.1.1"});
-        data_set.add("SOPClassUID", {odil::registry::RawDataStorage});
+        auto data_set = std::make_shared<odil::DataSet>();
+        data_set->add("PatientID", {"DJ123"});
+        data_set->add("StudyDate", {"19100110"});
+        data_set->add("StudyTime", {"1234"});
+        data_set->add("StudyDescription", {"Study"});
+        data_set->add("StudyInstanceUID", {"1.2.3.4"});
+        data_set->add("StudyID", {"FOO"});
+        data_set->add("Modality", {"OT"});
+        data_set->add("SeriesInstanceUID", {"1.2.3.4.1"});
+        data_set->add("SeriesNumber", {1});
+        data_set->add("SeriesDescription", {"Series"});
+        data_set->add("InstanceNumber", {1});
+        data_set->add("SOPInstanceUID", {"1.2.3.4.1.1"});
+        data_set->add("SOPClassUID", {odil::registry::RawDataStorage});
 
         std::ofstream stream(
             "a.dcm", std::ofstream::out | std::ofstream::binary);
@@ -71,20 +71,20 @@ BOOST_AUTO_TEST_CASE(BasicDirectory)
     }
 
     {
-        odil::DataSet data_set;
-        data_set.add("PatientID", {"DJ123"});
-        data_set.add("StudyDate", {"19100110"});
-        data_set.add("StudyTime", {"1234"});
-        data_set.add("StudyDescription", {"Study"});
-        data_set.add("StudyInstanceUID", {"1.2.3.4"});
-        data_set.add("StudyID", {"FOO"});
-        data_set.add("Modality", {"OT"});
-        data_set.add("SeriesInstanceUID", {"1.2.3.4.1"});
-        data_set.add("SeriesNumber", {1});
-        data_set.add("SeriesDescription", {"Series"});
-        data_set.add("InstanceNumber", {2});
-        data_set.add("SOPInstanceUID", {"1.2.3.4.1.2"});
-        data_set.add("SOPClassUID", {odil::registry::RawDataStorage});
+        auto data_set = std::make_shared<odil::DataSet>();
+        data_set->add("PatientID", {"DJ123"});
+        data_set->add("StudyDate", {"19100110"});
+        data_set->add("StudyTime", {"1234"});
+        data_set->add("StudyDescription", {"Study"});
+        data_set->add("StudyInstanceUID", {"1.2.3.4"});
+        data_set->add("StudyID", {"FOO"});
+        data_set->add("Modality", {"OT"});
+        data_set->add("SeriesInstanceUID", {"1.2.3.4.1"});
+        data_set->add("SeriesNumber", {1});
+        data_set->add("SeriesDescription", {"Series"});
+        data_set->add("InstanceNumber", {2});
+        data_set->add("SOPInstanceUID", {"1.2.3.4.1.2"});
+        data_set->add("SOPClassUID", {odil::registry::RawDataStorage});
 
         std::ofstream stream(
             "b.dcm", std::ofstream::out | std::ofstream::binary);
@@ -105,55 +105,55 @@ BOOST_AUTO_TEST_CASE(BasicDirectory)
     stream.close();
 
     BOOST_REQUIRE(
-        dicomdir_and_header.first.as_string("MediaStorageSOPClassUID") ==
+        dicomdir_and_header.first->as_string("MediaStorageSOPClassUID") ==
             odil::Value::Strings({odil::registry::MediaStorageDirectoryStorage}));
     BOOST_REQUIRE(
-        dicomdir_and_header.first.as_string("TransferSyntaxUID") ==
+        dicomdir_and_header.first->as_string("TransferSyntaxUID") ==
             odil::Value::Strings({odil::registry::ExplicitVRLittleEndian}));
 
     auto const & records =
-        dicomdir_and_header.second.as_data_set("DirectoryRecordSequence");
+        dicomdir_and_header.second->as_data_set("DirectoryRecordSequence");
     BOOST_REQUIRE_EQUAL(records.size(), 5);
 
     BOOST_REQUIRE(
-        records[0].as_string("DirectoryRecordType") ==
+        records[0]->as_string("DirectoryRecordType") ==
             odil::Value::Strings({"PATIENT"}));
     BOOST_REQUIRE(
-        records[0].as_string("PatientID") ==
+        records[0]->as_string("PatientID") ==
             odil::Value::Strings({"DJ123"}));
 
     BOOST_REQUIRE(
-        records[1].as_string("DirectoryRecordType") ==
+        records[1]->as_string("DirectoryRecordType") ==
             odil::Value::Strings({"STUDY"}));
     BOOST_REQUIRE(
-        records[1].as_string("StudyInstanceUID") ==
+        records[1]->as_string("StudyInstanceUID") ==
             odil::Value::Strings({"1.2.3.4"}));
     BOOST_REQUIRE(
-        records[1].as_string("StudyDescription") ==
+        records[1]->as_string("StudyDescription") ==
             odil::Value::Strings({"Study"}));
 
     BOOST_REQUIRE(
-        records[2].as_string("DirectoryRecordType") ==
+        records[2]->as_string("DirectoryRecordType") ==
             odil::Value::Strings({"SERIES"}));
     BOOST_REQUIRE(
-        records[2].as_string("SeriesInstanceUID") ==
+        records[2]->as_string("SeriesInstanceUID") ==
             odil::Value::Strings({"1.2.3.4.1"}));
     BOOST_REQUIRE(
-        records[2].as_string("SeriesDescription") ==
+        records[2]->as_string("SeriesDescription") ==
             odil::Value::Strings({"Series"}));
 
     BOOST_REQUIRE(
-        records[3].as_string("DirectoryRecordType") ==
+        records[3]->as_string("DirectoryRecordType") ==
             odil::Value::Strings({"IMAGE"}));
     BOOST_REQUIRE(
-        records[3].as_int("InstanceNumber") ==
+        records[3]->as_int("InstanceNumber") ==
             odil::Value::Integers({1}));
 
     BOOST_REQUIRE(
-        records[4].as_string("DirectoryRecordType") ==
+        records[4]->as_string("DirectoryRecordType") ==
             odil::Value::Strings({"IMAGE"}));
     BOOST_REQUIRE(
-        records[4].as_int("InstanceNumber") ==
+        records[4]->as_int("InstanceNumber") ==
             odil::Value::Integers({2}));
 
     boost::filesystem::remove("a.dcm");

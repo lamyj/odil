@@ -34,12 +34,6 @@ EchoSCP
     this->set_callback(callback);
 }
 
-EchoSCP
-::~EchoSCP()
-{
-    // Nothing to do.
-}
-
 EchoSCP::Callback const &
 EchoSCP::get_callback() const
 {
@@ -55,26 +49,18 @@ EchoSCP
 
 void
 EchoSCP
-::operator()(message::Message const & message)
+::operator()(std::shared_ptr<message::Message> message)
 {
-    message::CEchoRequest const request(message);
+    auto request = std::make_shared<message::CEchoRequest const>(message);
     this->operator()(request);
 }
 
 void
 EchoSCP
-::operator()(message::Message && message)
-{
-    message::CEchoRequest const request(std::move(message));
-    this->operator()(request);
-}
-
-void
-EchoSCP
-::operator()(message::CEchoRequest const & request)
+::operator()(std::shared_ptr<message::CEchoRequest const> request)
 {
     Value::Integer status=message::CEchoResponse::Success;
-    DataSet status_fields;
+    std::shared_ptr<DataSet> status_fields;
 
     try
     {
@@ -90,11 +76,11 @@ EchoSCP
         status = message::CEchoResponse::ProcessingFailure;
     }
 
-    message::CEchoResponse response(
-        request.get_message_id(), status, request.get_affected_sop_class_uid());
-    response.set_status_fields(status_fields);
+    auto response = std::make_shared<message::CEchoResponse>(
+        request->get_message_id(), status, request->get_affected_sop_class_uid());
+    response->set_status_fields(status_fields);
     this->_association.send_message(
-        response, request.get_affected_sop_class_uid());
+        response, request->get_affected_sop_class_uid());
 }
 
 }

@@ -6,9 +6,7 @@
  * for details.
  ************************************************************************/
 
-#include <Python.h>
-
-#include <boost/python.hpp>
+#include <pybind11/pybind11.h>
 
 #include "odil/NCreateSCP.h"
 
@@ -16,29 +14,30 @@ namespace
 {
 
 void 
-set_callback(odil::NCreateSCP & scp, boost::python::object const & f)
+set_callback(odil::NCreateSCP & scp, pybind11::object const & f)
 {
     scp.set_callback(
-        [f](odil::message::NCreateRequest const & message) 
+        [f](std::shared_ptr<odil::message::NCreateRequest const> message)
         { 
-            return boost::python::call<odil::Value::Integer>(f.ptr(), message);
+            return f(message).cast<odil::Value::Integer>();
         }
     );
 }
 
 }
 
-void wrap_NCreateSCP()
+void wrap_NCreateSCP(pybind11::module & m)
 {
-    using namespace boost::python;
+    using namespace pybind11;
     using namespace odil;
 
-    class_<NCreateSCP>("NCreateSCP", init<Association &>())
+    class_<NCreateSCP>(m, "NCreateSCP")
+        .def(init<Association &>())
         .def("set_callback", &set_callback)
         .def(
             "__call__",
             static_cast<
-                void (NCreateSCP::*)(message::Message const &)
+                void (NCreateSCP::*)(std::shared_ptr<message::Message>)
             >(&NCreateSCP::operator())
         )
     ;

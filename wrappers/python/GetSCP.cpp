@@ -6,11 +6,9 @@
  * for details.
  ************************************************************************/
 
-#include <Python.h>
-
 #include <memory>
 
-#include <boost/python.hpp>
+#include <pybind11/pybind11.h>
 
 #include "odil/message/CGetRequest.h"
 #include "odil/GetSCP.h"
@@ -30,41 +28,45 @@ public:
         // Nothing else
     }
     
-    virtual ~DataSetGeneratorWrapperGet()
+    virtual ~DataSetGeneratorWrapperGet() override
     {
         // Nothing to do.
     }
     
-    virtual unsigned int count() const
+    virtual unsigned int count() const override
     {
-        return this->get_override("count")();
+        PYBIND11_OVERLOAD_PURE(unsigned int, odil::GetSCP::DataSetGenerator, count, );
     }
 };
 
-void set_generator(odil::GetSCP & get_scp, DataSetGeneratorWrapperGet generator)
-{
-    auto cpp_generator = 
-        std::make_shared<DataSetGeneratorWrapperGet>(generator);
-    get_scp.set_generator(cpp_generator);
 }
 
-}
-
-void wrap_GetSCP()
+void wrap_GetSCP(pybind11::module & m)
 {
-    using namespace boost::python;
+    using namespace pybind11;
     using namespace odil;
     
-    scope get_scp_scope = class_<GetSCP>("GetSCP", init<Association &>())
-        .def("set_generator", &set_generator)
+    auto get_scp_scope = class_<GetSCP>(m, "GetSCP")
+        .def(init<Association &>())
+        .def("set_generator", &GetSCP::set_generator)
         .def(
             "__call__",
             static_cast<
-                void (GetSCP::*)(message::Message const &)
+                void (GetSCP::*)(std::shared_ptr<message::Message>)
             >(&GetSCP::operator())
         )
     ;
     
-    class_<DataSetGeneratorWrapperGet, boost::noncopyable>(
-        "DataSetGenerator", init<>());
+    class_<
+                GetSCP::DataSetGenerator,
+                DataSetGeneratorWrapperGet, // trampoline
+                std::shared_ptr<GetSCP::DataSetGenerator> // holder
+            >(get_scp_scope, "DataSetGenerator")
+        .def(init<>())
+        .def("initialize", &GetSCP::DataSetGenerator::initialize)
+        .def("done", &GetSCP::DataSetGenerator::done)
+        .def("next", &GetSCP::DataSetGenerator::next)
+        .def("get", &GetSCP::DataSetGenerator::get)
+        .def("count", &GetSCP::DataSetGenerator::count)
+    ;
 }

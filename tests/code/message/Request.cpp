@@ -14,9 +14,10 @@ BOOST_AUTO_TEST_CASE(Constructor)
 
 BOOST_AUTO_TEST_CASE(MessageConstructor)
 {
-    odil::DataSet command_set;
-    command_set.add("MessageID", {1234});
-    odil::message::Message const generic_message(command_set);
+    auto const command_set = std::make_shared<odil::DataSet>();
+    command_set->add("MessageID", {1234});
+    auto generic_message = std::make_shared<odil::message::Message const>(
+        command_set);
 
     odil::message::Request const message(generic_message);
 

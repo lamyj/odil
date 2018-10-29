@@ -57,7 +57,7 @@ public:
     typedef std::vector<String> Strings;
 
     /// @brief Data sets container.
-    typedef std::vector<DataSet> DataSets;
+    typedef std::vector<std::shared_ptr<DataSet>> DataSets;
 
     /// @brief Binary data container.
     typedef std::vector<std::vector<uint8_t>> Binary;
@@ -191,6 +191,17 @@ private:
 
     Type _type;
 };
+
+/**
+ * @brief Equality test.
+ *
+ * This will have priority over the standard operator of std::vector since the
+ * latter is templated (cf. 23.3.6.1) and the former is not.
+*/
+bool operator==(Value::DataSets const & left, Value::DataSets const & right);
+
+/// @brief Difference test.
+bool operator!=(Value::DataSets const & left, Value::DataSets const & right);
 
 /**
  * @brief Visitor of values.

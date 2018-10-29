@@ -6,9 +6,7 @@
  * for details.
  ************************************************************************/
 
-#include <Python.h>
-
-#include <boost/python.hpp>
+#include <pybind11/pybind11.h>
 
 #include "odil/FindSCU.h"
 
@@ -18,25 +16,26 @@ namespace
 void 
 find_with_python_callback(
     odil::FindSCU const & scu, 
-    odil::DataSet const & query, boost::python::object const & f)
+    std::shared_ptr<odil::DataSet> query, pybind11::object const & f)
 {
     scu.find(
         query, 
-        [f](odil::DataSet const & data_set) 
-        { 
-            boost::python::call<void>(f.ptr(), data_set); 
+        [f](std::shared_ptr<odil::DataSet> data_set)
+        {
+            f(data_set);
         }
     );
 }
 
 }
 
-void wrap_FindSCU()
+void wrap_FindSCU(pybind11::module & m)
 {
-    using namespace boost::python;
+    using namespace pybind11;
     using namespace odil;
 
-    class_<FindSCU>("FindSCU", init<Association &>())
+    class_<FindSCU>(m, "FindSCU")
+        .def(init<Association &>())
         .def(
             "find",
             &find_with_python_callback
@@ -44,7 +43,7 @@ void wrap_FindSCU()
         .def(
             "find", 
             static_cast<
-                std::vector<DataSet> (FindSCU::*)(DataSet const &) const
+                Value::DataSets (FindSCU::*)(std::shared_ptr<DataSet>) const
             >(&FindSCU::find)
         )
         .def("set_affected_sop_class", &FindSCU::set_affected_sop_class)

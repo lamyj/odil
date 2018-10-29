@@ -306,9 +306,9 @@ BOOST_AUTO_TEST_CASE(ATToDcmtkpp)
 
 BOOST_AUTO_TEST_CASE(SQFromDcmtkpp)
 {
-    odil::DataSet item;
-    item.add("PatientID");
-    item.as_string("PatientID").push_back("DJ1234");
+    auto item = std::make_shared<odil::DataSet>();
+    item->add("PatientID");
+    item->as_string("PatientID").push_back("DJ1234");
 
     odil::Element const source(
         odil::Value::DataSets({item}), odil::VR::SQ);
@@ -327,9 +327,9 @@ BOOST_AUTO_TEST_CASE(SQFromDcmtkpp)
     BOOST_CHECK_EQUAL(destination->getVM(), source.size());
     for(std::size_t i=0; i<source.size(); ++i)
     {
-        odil::DataSet const & source_item = source.as_data_set()[i];
+        auto const & source_item = source.as_data_set()[i];
         DcmItem * destination_item = dynamic_cast<DcmSequenceOfItems *>(destination)->getItem(i);
-        BOOST_CHECK(source_item == odil::dcmtk::convert(destination_item));
+        BOOST_CHECK(*source_item == *odil::dcmtk::convert(destination_item));
     }
 }
 
@@ -351,14 +351,14 @@ BOOST_AUTO_TEST_CASE(SQToDcmtkpp)
         DcmDataset * source_item = dynamic_cast<DcmDataset *>(item);
         BOOST_REQUIRE(source_item != NULL);
 
-        odil::DataSet const & destination_item = destination.as_data_set()[i];
-        BOOST_CHECK(odil::dcmtk::convert(source_item) == destination_item);
+        auto const & destination_item = destination.as_data_set()[i];
+        BOOST_CHECK(*odil::dcmtk::convert(source_item) == *destination_item);
     }
 }
 
 BOOST_AUTO_TEST_CASE(EmptyDataSetFromDcmtkpp)
 {
-    odil::DataSet empty;
+    auto empty = std::make_shared<odil::DataSet>();
     DcmItem * result = odil::dcmtk::convert(empty);
     BOOST_CHECK_EQUAL(result->card(), 0);
 }
@@ -366,8 +366,8 @@ BOOST_AUTO_TEST_CASE(EmptyDataSetFromDcmtkpp)
 BOOST_AUTO_TEST_CASE(EmptyDataSetFromDcmtk)
 {
     DcmDataset empty;
-    odil::DataSet const result = odil::dcmtk::convert(&empty);
-    BOOST_CHECK(result.empty());
+    auto const result = odil::dcmtk::convert(&empty);
+    BOOST_CHECK(result->empty());
 }
 
 BOOST_AUTO_TEST_CASE(DataSetFromDcmtkpp)
@@ -377,9 +377,9 @@ BOOST_AUTO_TEST_CASE(DataSetFromDcmtkpp)
     odil::Element const pixel_spacing_source(
         odil::Value::Reals({1.23, 4.56}), odil::VR::DS);
 
-    odil::DataSet source;
-    source.add(odil::Tag("PatientID"), patient_id_source);
-    source.add(odil::Tag("PixelSpacing"), pixel_spacing_source);
+    auto source = std::make_shared<odil::DataSet>();
+    source->add(odil::Tag("PatientID"), patient_id_source);
+    source->add(odil::Tag("PixelSpacing"), pixel_spacing_source);
 
     DcmItem * result = odil::dcmtk::convert(source);
     BOOST_CHECK_EQUAL(result->card(), 2);
@@ -412,12 +412,12 @@ BOOST_AUTO_TEST_CASE(DataSetFromDcmtk)
     source.insert(odil::dcmtk::convert(odil::Tag("PatientID"), patient_id_source));
     source.insert(odil::dcmtk::convert(odil::Tag("PixelSpacing"), pixel_spacing_source));
 
-    odil::DataSet const result = odil::dcmtk::convert(&source);
-    BOOST_CHECK_EQUAL(result.size(), 2);
+    auto const result = odil::dcmtk::convert(&source);
+    BOOST_CHECK_EQUAL(result->size(), 2);
     BOOST_CHECK(
-        result.as_string(odil::Tag("PatientID")) ==
+        result->as_string(odil::Tag("PatientID")) ==
             patient_id_source.as_string());
     BOOST_CHECK(
-        result.as_real(odil::Tag("PixelSpacing")) ==
+        result->as_real(odil::Tag("PixelSpacing")) ==
             pixel_spacing_source.as_real());
 }

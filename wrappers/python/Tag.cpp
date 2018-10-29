@@ -6,23 +6,21 @@
  * for details.
  ************************************************************************/
 
-#include <Python.h>
-
-#include <boost/python.hpp>
+#include <pybind11/pybind11.h>
+#include <pybind11/operators.h>
 
 #include "odil/Tag.h"
 
-uint32_t hash(odil::Tag const & tag)
-{
-    return ((tag.group<<16)+tag.element);
-}
+#include "opaque_types.h"
+#include "type_casters.h"
 
-void wrap_Tag()
+void wrap_Tag(pybind11::module & m)
 {
-    using namespace boost::python;
+    using namespace pybind11;
     using namespace odil;
 
-    class_<Tag>("Tag", init<uint16_t, uint16_t>())
+    class_<Tag>(m, "Tag")
+        .def(init<uint16_t, uint16_t>())
         .def(init<uint32_t>())
         .def(init<std::string>())
         .def_readwrite("group", &Tag::group)
@@ -36,7 +34,8 @@ void wrap_Tag()
         .def(self <= self)
         .def(self >= self)
         .def("__str__", &Tag::operator std::string)
-        .def("__hash__", &hash)
+        .def_property_readonly("name", &Tag::get_name)
+        .def("__hash__", [](Tag const & x) { return (x.group<<16)+x.element; })
     ;
     implicitly_convertible<std::string, Tag>();
 }

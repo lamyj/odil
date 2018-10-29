@@ -12,7 +12,7 @@ struct Fixture: public PeerFixtureBase
     static bool store_callback_called;
     static bool get_callback_called;
 
-    odil::DataSet query;
+    std::shared_ptr<odil::DataSet> query;
 
     Fixture()
     : PeerFixtureBase({
@@ -24,22 +24,23 @@ struct Fixture: public PeerFixtureBase
                 3, odil::registry::RawDataStorage,
                 { odil::registry::ImplicitVRLittleEndian }, false, true
             }
-        })
+        }),
+        query(std::make_shared<odil::DataSet>())
     {
         Fixture::store_callback_called = false;
         Fixture::get_callback_called = false;
 
-        this->query.add("QueryRetrieveLevel", {"PATIENT"});
-        this->query.add("PatientName", {"Doe^John"});
+        this->query->add("QueryRetrieveLevel", {"PATIENT"});
+        this->query->add("PatientName", {"Doe^John"});
     }
 
 
-    static void store_callback(odil::DataSet const &)
+    static void store_callback(std::shared_ptr<odil::DataSet const>)
     {
         Fixture::store_callback_called = true;
     }
 
-    static void get_callback(odil::message::CGetResponse const &)
+    static void get_callback(std::shared_ptr<odil::message::CGetResponse const>)
     {
         Fixture::get_callback_called = true;
     }
@@ -58,22 +59,7 @@ BOOST_FIXTURE_TEST_CASE(Get, Fixture)
 
     BOOST_REQUIRE_EQUAL(results.size(), 1);
     BOOST_CHECK(
-        results[0].as_string("SOPInstanceUID") ==
-            odil::Value::Strings(
-                {"2.25.95090344942250266709587559073467305647"}));
-}
-
-BOOST_FIXTURE_TEST_CASE(GetMove, Fixture)
-{
-    odil::GetSCU scu(this->association);
-
-    scu.set_affected_sop_class(
-        odil::registry::PatientRootQueryRetrieveInformationModelGET);
-    auto const results = scu.get(std::move(this->query));
-
-    BOOST_REQUIRE_EQUAL(results.size(), 1);
-    BOOST_CHECK(
-        results[0].as_string("SOPInstanceUID") ==
+        results[0]->as_string("SOPInstanceUID") ==
             odil::Value::Strings(
                 {"2.25.95090344942250266709587559073467305647"}));
 }
@@ -90,19 +76,6 @@ BOOST_FIXTURE_TEST_CASE(GetBothCallbacks, Fixture)
     BOOST_CHECK(Fixture::get_callback_called);
 }
 
-BOOST_FIXTURE_TEST_CASE(GetBothCallbacksMove, Fixture)
-{
-    odil::GetSCU scu(this->association);
-
-    scu.set_affected_sop_class(
-        odil::registry::PatientRootQueryRetrieveInformationModelGET);
-    scu.get(
-        std::move(this->query), Fixture::store_callback, Fixture::get_callback);
-
-    BOOST_CHECK(Fixture::store_callback_called);
-    BOOST_CHECK(Fixture::get_callback_called);
-}
-
 BOOST_FIXTURE_TEST_CASE(GetOnlyStoreCallback, Fixture)
 {
     odil::GetSCU scu(this->association);
@@ -110,18 +83,6 @@ BOOST_FIXTURE_TEST_CASE(GetOnlyStoreCallback, Fixture)
     scu.set_affected_sop_class(
         odil::registry::PatientRootQueryRetrieveInformationModelGET);
     scu.get(this->query, Fixture::store_callback);
-
-    BOOST_CHECK(Fixture::store_callback_called);
-    BOOST_CHECK(!Fixture::get_callback_called);
-}
-
-BOOST_FIXTURE_TEST_CASE(GetOnlyStoreCallbackMove, Fixture)
-{
-    odil::GetSCU scu(this->association);
-
-    scu.set_affected_sop_class(
-        odil::registry::PatientRootQueryRetrieveInformationModelGET);
-    scu.get(std::move(this->query), Fixture::store_callback);
 
     BOOST_CHECK(Fixture::store_callback_called);
     BOOST_CHECK(!Fixture::get_callback_called);

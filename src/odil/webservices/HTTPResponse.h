@@ -33,10 +33,13 @@ public:
     HTTPResponse(
         std::string const & http_version="",
         unsigned int status=0, std::string const & reason="",
-        Headers const & headers=Headers(), std::string const & body="");
+        Headers const & headers={}, std::string const & body="");
 
-    /// @brief Destructor.
-    virtual ~HTTPResponse();
+    HTTPResponse(HTTPResponse const &) = default;
+    HTTPResponse(HTTPResponse &&) = default;
+    HTTPResponse & operator=(HTTPResponse const &) = default;
+    HTTPResponse & operator=(HTTPResponse &&) = default;
+    virtual ~HTTPResponse() = default;
 
     /// @brief Return the HTTP version.
     std::string const & get_http_version() const;

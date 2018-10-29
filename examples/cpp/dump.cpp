@@ -46,14 +46,14 @@ struct Printer
         }
     }
 
-    void operator()(odil::Value::Binary const & value) const
+    void operator()(odil::Value::Binary const &) const
     {
         this->stream << this->indent << "(binary)";
     }
 
-    void operator()(odil::DataSet const & data_set) const
+    void operator()(std::shared_ptr<odil::DataSet> const & data_set) const
     {
-        for(auto const & item: data_set)
+        for(auto const & item: *data_set)
         {
             this->stream << this->indent << item.first << " " << as_string(item.second.vr) << " ";
             odil::apply_visitor(*this, item.second.get_value());
@@ -68,7 +68,7 @@ int main(int argc, char** argv)
     {
         std::ifstream stream(argv[i], std::ios::in | std::ios::binary);
 
-        std::pair<odil::DataSet, odil::DataSet> file;
+        std::pair<std::shared_ptr<odil::DataSet>, std::shared_ptr<odil::DataSet>> file;
         try
         {
             file = odil::Reader::read_file(stream);

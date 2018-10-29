@@ -14,20 +14,20 @@ BOOST_AUTO_TEST_CASE(DefaultConstructor)
 
 BOOST_AUTO_TEST_CASE(Constructor)
 {
-    odil::DataSet command_set;
-    command_set.add(
+    auto command_set = std::make_shared<odil::DataSet>();
+    command_set->add(
         "CommandField", {odil::message::Message::Command::C_ECHO_RQ});
 
-    odil::DataSet data_set;
+    auto data_set = std::make_shared<odil::DataSet>();
 
     odil::message::Message const message(command_set, data_set);
 
     BOOST_CHECK_EQUAL(
-        message.get_command_set().as_int("CommandField", 0),
+        message.get_command_set()->as_int("CommandField", 0),
         odil::message::Message::Command::C_ECHO_RQ);
 
     BOOST_CHECK(message.has_data_set());
-    BOOST_CHECK(message.get_data_set().empty());
+    BOOST_CHECK(message.get_data_set()->empty());
 
     BOOST_CHECK_EQUAL(
         message.get_command_field(),
@@ -40,7 +40,7 @@ BOOST_AUTO_TEST_CASE(CommandField)
     message.set_command_field(odil::message::Message::Command::C_FIND_RSP);
 
     BOOST_CHECK(
-        message.get_command_set().as_int("CommandField") ==
+        message.get_command_set()->as_int("CommandField") ==
             odil::Value::Integers(
                 {odil::message::Message::Command::C_FIND_RSP}));
     BOOST_CHECK_EQUAL(
@@ -50,8 +50,8 @@ BOOST_AUTO_TEST_CASE(CommandField)
 
 BOOST_AUTO_TEST_CASE(DeleteDataSet)
 {
-    odil::DataSet command_set;
-    odil::DataSet data_set;
+    auto command_set = std::make_shared<odil::DataSet>();
+    auto data_set = std::make_shared<odil::DataSet>();
 
     odil::message::Message message(command_set, data_set);
 

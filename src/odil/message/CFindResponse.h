@@ -48,39 +48,21 @@ public:
      */
     CFindResponse(
         Value::Integer message_id_being_responded_to, Value::Integer status,
-        DataSet const & dataset);
-
-    /**
-     * @brief Create an find response with given Message ID, status,
-     * and data set.
-     */
-    CFindResponse(
-        Value::Integer message_id_being_responded_to, Value::Integer status,
-        DataSet && dataset);
+        std::shared_ptr<DataSet> dataset);
 
     /**
      * @brief Create a C-FIND-RSP from a generic Message.
      *
      * Raise an exception if the Message does not contain a C-FIND-RSP.
      */
-    CFindResponse(Message const & message);
-
-    /**
-     * @brief Create a C-FIND-RSP from a generic Message.
-     *
-     * Raise an exception if the Message does not contain a C-FIND-RSP.
-     */
-    CFindResponse(Message && message);
-
-    /// @brief Destructor.
-    virtual ~CFindResponse();
+    CFindResponse(std::shared_ptr<Message> message);
 
     ODIL_MESSAGE_OPTIONAL_FIELD_INTEGER_MACRO(message_id, registry::MessageID)
     ODIL_MESSAGE_OPTIONAL_FIELD_STRING_MACRO(
         affected_sop_class_uid, registry::AffectedSOPClassUID)
 
 private:
-    void _parse(Message const & message);
+    void _parse(std::shared_ptr<Message const> message);
 };
 
 }

@@ -28,22 +28,16 @@ Cancellation
 }
 
 Cancellation
-::Cancellation(Message const & message)
+::Cancellation(std::shared_ptr<Message const> message)
 {
-    if(message.get_command_field() != Command::C_CANCEL_RQ)
+    if(!message || message->get_command_field() != Command::C_CANCEL_RQ)
     {
         throw Exception("Message is not a C-CANCEL-RQ");
     }
-    this->set_command_field(message.get_command_field());
+    this->set_command_field(message->get_command_field());
 
     this->set_message_id_being_responded_to(
-        message.get_command_set().as_int(registry::MessageIDBeingRespondedTo, 0));
-}
-
-Cancellation
-::~Cancellation()
-{
-    // Nothing to do.
+        message->get_command_set()->as_int(registry::MessageIDBeingRespondedTo, 0));
 }
 
 }

@@ -6,38 +6,22 @@
  * for details.
  ************************************************************************/
 
-#include <Python.h>
+#include <algorithm>
 
-#include <boost/python.hpp>
-#include <boost/python/suite/indexing/vector_indexing_suite.hpp>
-#include <boost/shared_ptr.hpp>
+#include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
+#include <pybind11/stl_bind.h>
 
 #include "odil/DataSet.h"
 #include "odil/Value.h"
 
-#include "value_constructor.h"
+#include "opaque_types.h"
+#include "type_casters.h"
 
 namespace
 {
 
-template<typename T, typename python_type=typename T::value_type>
-boost::shared_ptr<T> create_value(boost::python::object const & sequence)
-{
-    typedef typename T::value_type value_type;
-
-    std::vector<value_type> values(boost::python::len(sequence));
-    for(long i=0; i<boost::python::len(sequence); ++i)
-    {
-        boost::python::object item = sequence[i];
-        values[i] = boost::python::extract<python_type>(item);
-    }
-
-    // Old versions of Boost.Python (Debian 7, Ubuntu 12.04) do not like 
-    // std::shared_ptr
-    return boost::shared_ptr<T>(new T(values));
-}
-
-boost::python::object
+pybind11::object
 as_memory_view(odil::Value::Binary::value_type const & binary_item)
 {
     Py_buffer buffer;
@@ -47,113 +31,55 @@ as_memory_view(odil::Value::Binary::value_type const & binary_item)
         binary_item.size(), 1, PyBUF_SIMPLE);
     PyObject * memory_view = PyMemoryView_FromBuffer(&buffer);
 
-    return boost::python::object(boost::python::handle<>(memory_view));
+    return pybind11::reinterpret_steal<pybind11::object>(memory_view);
 }
 
 }
 
-/// @brief Convert to a byte string (str for Python 2, bytes for Python 3).
-boost::python::object
-as_bytes(odil::Value::Strings::value_type const & string)
+void wrap_Value(pybind11::module & m)
 {
-    auto bytes =
-#if PY_VERSION_HEX >= 0x03000000
-        PyBytes_FromStringAndSize(&string[0], string.size());
-#else
-        PyString_FromStringAndSize(&string[0], string.size());
-#endif
-
-    return boost::python::object(boost::python::handle<>(bytes));
-}
-
-/// @brief Access Value::Strings items as byte strings
-class StringsIndexingSuite:
-    public boost::python::vector_indexing_suite<odil::Value::Strings>
-{
-public:
-    typedef odil::Value::Strings Container;
-
-    static boost::python::object
-    get_item(Container const & container, Container::size_type i)
-    {
-        auto const & item = container[i];
-        return as_bytes(item);
-    }
-};
-
-/// @brief Iterate over Value::Strings as byte strings
-class StringsIterator
-{
-public:
-    StringsIterator(odil::Value::Strings const & strings)
-    : strings(strings), iterator(strings.begin())
-    {
-        // Nothing else
-    }
-
-    boost::python::object next()
-    {
-        if(this->iterator != this->strings.end())
-        {
-            auto const & item = *this->iterator;
-            ++this->iterator;
-            return as_bytes(item);
-        }
-        else
-        {
-            boost::python::objects::stop_iteration_error();
-        }
-    }
-private:
-    odil::Value::Strings const & strings;
-    odil::Value::Strings::const_iterator iterator;
-};
-
-/// @brief Return an iterator to the Value::Strings object.
-StringsIterator Strings__iter__(odil::Value::Strings const & strings)
-{
-    return StringsIterator(strings);
-}
-
-void wrap_Value()
-{
-    using namespace boost::python;
+    using namespace pybind11;
     using namespace odil;
 
-    typedef Value::Integers & (Value::*AsIntegers)();
-    typedef Value::Reals & (Value::*AsReals)();
-    typedef Value::Strings & (Value::*AsStrings)();
-    typedef Value::DataSets & (Value::*AsDataSets)();
-    typedef Value::Binary & (Value::*AsBinary)();
-
-    // Define scope to enclose Integers, Reals, etc. in Value
-    scope value_scope = class_<Value>("Value", no_init)
-        .def("__init__", make_constructor(value_constructor))
-        .add_property("type", &Value::get_type)
+    class_<Value> value(m, "Value");
+    value
+        .def(init<Value::Integers>())
+        .def(init<Value::Reals>())
+        .def(init<Value::Strings>())
+        .def(init<Value::DataSets>())
+        .def(init<Value::Binary>())
+        // Explicit constructor since Value::XXX are opaque
+        // WARNING: define *after* other constructors for correct priority
+        .def(
+            init([](iterable & source) {
+                return convert_iterable<Value>(source);
+            }))
+        .def("get_type", &Value::get_type)
         .def("empty", &Value::empty)
         .def("size", &Value::size)
         .def(
-            "as_integers", AsIntegers(&Value::as_integers), 
-            return_value_policy<reference_existing_object>())
+            "as_integers", (Value::Integers & (Value::*)()) &Value::as_integers,
+            return_value_policy::reference_internal)
         .def(
-            "as_reals", AsReals(&Value::as_reals), 
-            return_value_policy<reference_existing_object>())
+            "as_reals", (Value::Reals & (Value::*)()) &Value::as_reals,
+            return_value_policy::reference_internal)
         .def(
-            "as_strings", AsStrings(&Value::as_strings), 
-            return_value_policy<reference_existing_object>())
+            "as_strings", (Value::Strings & (Value::*)()) &Value::as_strings,
+            return_value_policy::reference_internal)
         .def(
-            "as_data_sets", AsDataSets(&Value::as_data_sets), 
-            return_value_policy<reference_existing_object>())
+            "as_data_sets", (Value::DataSets & (Value::*)()) &Value::as_data_sets,
+            return_value_policy::reference_internal)
         .def(
-            "as_binary", AsBinary(&Value::as_binary), 
-            return_value_policy<reference_existing_object>())
+            "as_binary", (Value::Binary & (Value::*)()) &Value::as_binary,
+            return_value_policy::reference_internal)
         .def(self == self)
         .def(self != self)
         .def("clear", &Value::clear)
         .def("__len__", &Value::size)
+        .def_property_readonly("type", &Value::get_type)
     ;
-    
-    enum_<Value::Type>("Type")
+
+    enum_<Value::Type>(value, "Type")
         .value("Integers", Value::Type::Integers)
         .value("Reals", Value::Type::Reals)
         .value("Strings", Value::Type::Strings)
@@ -161,57 +87,82 @@ void wrap_Value()
         .value("Binary", Value::Type::Binary)
     ;
 
-    class_<Value::Integers>("Integers")
-        .def(init<>())
-        .def("__init__", make_constructor(create_value<Value::Integers>))
-        .def(vector_indexing_suite<Value::Integers>())
-    ;
+    bind_vector<Value::Integers>(value, "Integers");
+    bind_vector<Value::Reals>(value, "Reals");
 
-    class_<Value::Reals>("Reals")
-        .def(init<>())
-        .def("__init__", make_constructor(create_value<Value::Reals>))
-        .def(vector_indexing_suite<Value::Reals>())
-    ;
-
+    // NOTE Using bind_vector brings back #63.
+    // Re-use the code of bind_vector and modify where needed.
     {
-        scope strings_scope = class_<Value::Strings>("Strings")
-            .def(init<>())
-            .def("__init__", make_constructor(create_value<Value::Strings>))
-            .def(
-                vector_indexing_suite<
-                    Value::Strings, false, StringsIndexingSuite>())
-            .def("__iter__", Strings__iter__)
-        ;
+        using Vector = Value::Strings;
+        std::string const name = "Strings";
 
-        class_<StringsIterator>("Iterator", init<Value::Strings>())
-            .def(
-#if PY_VERSION_HEX >= 0x03000000
-                "__next__",
-#else
-                "next",
-#endif
-                &StringsIterator::next)
-        ;
+        using Class_ = class_<Vector>;
+        Class_ cl(value, name.c_str(), module_local(true));
+        cl.def(init<>());
+
+        detail::vector_if_copy_constructible<Vector, Class_>(cl);
+        detail::vector_if_equal_operator<Vector, Class_>(cl);
+        detail::vector_if_insertion_operator<Vector, Class_>(cl);
+        detail::vector_modifiers<Vector, Class_>(cl);
+
+        // vector_accessor
+        using SizeType = typename Vector::size_type;
+        using ItType   = typename Vector::iterator;
+
+        cl.def("__getitem__",
+            [](Vector &v, SizeType i) {
+                if(i >= v.size())
+                {
+                    throw index_error();
+                }
+                return bytes(v[i]);
+            });
+
+        cl.def(
+            "__iter__",
+            [](Vector &v) {
+                typedef detail::iterator_state<
+                    ItType, ItType, false, return_value_policy::copy> state;
+
+                if (!detail::get_type_info(typeid(state), false))
+                {
+                    class_<state>(handle(), "iterator", pybind11::module_local())
+                        .def("__iter__", [](state &s) -> state& { return s; })
+                        .def("__next__", [](state &s) -> bytes {
+                            if (!s.first_or_done)
+                            {
+                                ++s.it;
+                            }
+                            else
+                            {
+                                s.first_or_done = false;
+                            }
+                            if (s.it == s.end)
+                            {
+                                s.first_or_done = true;
+                                throw stop_iteration();
+                            }
+                            return bytes(*s.it);
+                        })
+                    ;
+                }
+                return cast(state{v.begin(), v.end(), true});
+            }
+        );
+
+        // bind_vector
+        cl.def("__bool__",
+            [](const Vector &v) -> bool {
+                return !v.empty();
+            },
+            "Check whether the list is nonempty"
+        );
+
+        cl.def("__len__", &Vector::size);
     }
 
-    class_<Value::DataSets>("DataSets")
-        .def(init<>())
-        .def("__init__", make_constructor(create_value<Value::DataSets>))
-        .def(vector_indexing_suite<Value::DataSets>())
-    ;
-
-    class_<Value::Binary::value_type>("BinaryItem")
-        .def(init<>())
-        .def(
-            "__init__",
-            make_constructor(create_value<Value::Binary::value_type, char>))
-        .def(vector_indexing_suite<Value::Binary::value_type>())
-        .def("get_memory_view", as_memory_view)
-    ;
-
-    class_<Value::Binary>("Binary")
-        .def(init<>())
-        .def("__init__", make_constructor(create_value<Value::Binary>))
-        .def(vector_indexing_suite<Value::Binary>())
-    ;
+    bind_vector<Value::DataSets>(value, "DataSets");
+    bind_vector<Value::Binary::value_type>(value, "BinaryItem")
+        .def("get_memory_view", as_memory_view);
+    bind_vector<Value::Binary>(value, "Binary");
 }

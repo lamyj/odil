@@ -34,10 +34,13 @@ public:
      *
      * By default, headers and body will be empty.
      */
-    Message(Headers const & headers=Headers(), std::string const & body="");
+    Message(Headers const & headers={}, std::string const & body="");
 
-    /// @brief Destructor.
-    virtual ~Message();
+    Message(Message const &) = default;
+    Message(Message &&) = default;
+    Message & operator=(Message const &) = default;
+    Message & operator=(Message &&) = default;
+    virtual ~Message() = default;
 
     /// @brief Return the headers
     Headers const & get_headers() const;

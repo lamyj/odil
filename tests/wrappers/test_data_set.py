@@ -90,7 +90,7 @@ class TestDataSet(unittest.TestCase):
         data_set.add(tag, [contents[0]])
         if isinstance(contents[0], bytearray):
             accessor(data_set, tag).append(
-                odil.Value.BinaryItem("".join(chr(x) for x in contents[1])))
+                odil.Value.BinaryItem(contents[1]))
         else:
             accessor(data_set, tag).append(contents[1])
         self._test_sequences(accessor(data_set, tag), contents)

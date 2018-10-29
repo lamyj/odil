@@ -29,7 +29,7 @@ public:
      *
      * Raise an exception if the Message does not contain a N-Set-RQ.
      */
-    NSetRequest(Message const & message);
+    NSetRequest(std::shared_ptr<Message> message);
 
     /**
      * @brief Create an NSet request with given Message ID and
@@ -39,10 +39,7 @@ public:
         Value::Integer message_id,
         Value::String const & requested_sop_class_uid,
         Value::String const & requested_sop_instance_uid,
-        DataSet const & dataset);
-
-    /// @brief Destructor.
-    virtual ~NSetRequest();
+        std::shared_ptr<DataSet> dataset);
 
     ODIL_MESSAGE_MANDATORY_FIELD_STRING_MACRO(
         requested_sop_class_uid, registry::RequestedSOPClassUID)

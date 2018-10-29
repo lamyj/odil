@@ -6,31 +6,26 @@
  * for details.
  ************************************************************************/
 
-#include <Python.h>
-
-#include <boost/python.hpp>
+#include <pybind11/pybind11.h>
 
 #include "odil/NSetSCU.h"
 
 
-void wrap_NSetSCU()
+void wrap_NSetSCU(pybind11::module & m)
 {
-    using namespace boost::python;
+    using namespace pybind11;
     using namespace odil;
 
-    class_<NSetSCU>("NSetSCU", init<Association &>())
+    class_<NSetSCU>(m, "NSetSCU")
+        .def(init<Association &>())
         .def(
-            "get_affected_sop_class",
-            &NSetSCU::get_affected_sop_class,
-            return_value_policy<copy_const_reference>()
-        )
+            "get_affected_sop_class", &NSetSCU::get_affected_sop_class,
+            return_value_policy::copy)
         .def(
             "set_affected_sop_class",
-            static_cast<void(NSetSCU::*)(DataSet const &)>(&NSetSCU::set_affected_sop_class)
+            static_cast<void(NSetSCU::*)(std::shared_ptr<DataSet const>)>(
+                &NSetSCU::set_affected_sop_class)
         )
-        .def(
-            "set",
-            &NSetSCU::set
-        )
+        .def("set", &NSetSCU::set)
     ;
 }

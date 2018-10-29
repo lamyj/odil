@@ -55,7 +55,7 @@ struct Printer
         for(auto it=value.begin(); it!= value.end(); ++it)
         {
             Printer const printer(this->stream, this->indent+"  ");
-            printer(*it);
+            printer(std::const_pointer_cast<odil::DataSet const>(*it));
             if(it != last_it)
             {
                 this->stream << "----\n";
@@ -63,14 +63,14 @@ struct Printer
         }
     }
 
-    void operator()(odil::Value::Binary const & value) const
+    void operator()(odil::Value::Binary const &) const
     {
         this->stream << this->indent << "(binary)";
     }
 
-    void operator()(odil::DataSet const & data_set) const
+    void operator()(std::shared_ptr<odil::DataSet const> const & data_set) const
     {
-        for(auto const & item: data_set)
+        for(auto const & item: *data_set)
         {
             this->stream << this->indent << item.first << " " << as_string(item.second.vr) << " ";
             odil::apply_visitor(*this, item.second.get_value());
@@ -81,30 +81,30 @@ struct Printer
 
 struct Data
 {
-    std::vector<odil::DataSet> data_sets;
+    odil::Value::DataSets data_sets;
 
 
     Data()
     {
         //-------------------- DataSets Creation
-        odil::DataSet ds;
-        ds.add(odil::Tag("PatientName"), {"TOTO"});
-        ds.add(odil::Tag("PatientID"), {"TOTO"});
-        ds.add(odil::Tag("SOPClassUID"), {odil::registry::MRImageStorage});
-        ds.add(odil::Tag("SOPInstanceUID"), {"1.2.3.5"});
-        ds.add(odil::Tag("StudyInstanceUID"), {"1.3.46.670589.11.38235.5.0.4644.2013061709032540000"});
-        ds.add(odil::Tag("SeriesInstanceUID"), {"1.3.46.670589.11.38235.5.0.5964.2013061710064254405"});
-        ds.add(odil::Tag("Signature"), odil::Value::Binary({{0x01, 0x02}}));
-        ds.add(odil::Tag("TransferSyntaxUID"), {odil::registry::ExplicitVRLittleEndian});
+        auto ds = std::make_shared<odil::DataSet>();
+        ds->add(odil::Tag("PatientName"), {"TOTO"});
+        ds->add(odil::Tag("PatientID"), {"TOTO"});
+        ds->add(odil::Tag("SOPClassUID"), {odil::registry::MRImageStorage});
+        ds->add(odil::Tag("SOPInstanceUID"), {"1.2.3.5"});
+        ds->add(odil::Tag("StudyInstanceUID"), {"1.3.46.670589.11.38235.5.0.4644.2013061709032540000"});
+        ds->add(odil::Tag("SeriesInstanceUID"), {"1.3.46.670589.11.38235.5.0.5964.2013061710064254405"});
+        ds->add(odil::Tag("Signature"), odil::Value::Binary({{0x01, 0x02}}));
+        ds->add(odil::Tag("TransferSyntaxUID"), {odil::registry::ExplicitVRLittleEndian});
 
-        odil::DataSet ds_2;
-        ds_2.add(odil::Tag("PatientName"), {"JP"});
-        ds_2.add(odil::Tag("PatientID"), {"TUTU"});
-        ds_2.add(odil::Tag("SOPClassUID"), {odil::registry::MRImageStorage});
-        ds_2.add(odil::Tag("SOPInstanceUID"), {"1.2.3.6"});
-        ds_2.add(odil::Tag("StudyInstanceUID"), {"1.3.46.670589.11.38235.5.0.4644.2013061709032540000"});
-        ds_2.add(odil::Tag("SeriesInstanceUID"), {"1.3.46.670589.11.38235.5.0.5964.31"});
-        ds_2.add(odil::Tag("TransferSyntaxUID"), {odil::registry::ExplicitVRLittleEndian});
+        auto ds_2 = std::make_shared<odil::DataSet>();
+        ds_2->add(odil::Tag("PatientName"), {"JP"});
+        ds_2->add(odil::Tag("PatientID"), {"TUTU"});
+        ds_2->add(odil::Tag("SOPClassUID"), {odil::registry::MRImageStorage});
+        ds_2->add(odil::Tag("SOPInstanceUID"), {"1.2.3.6"});
+        ds_2->add(odil::Tag("StudyInstanceUID"), {"1.3.46.670589.11.38235.5.0.4644.2013061709032540000"});
+        ds_2->add(odil::Tag("SeriesInstanceUID"), {"1.3.46.670589.11.38235.5.0.5964.31"});
+        ds_2->add(odil::Tag("TransferSyntaxUID"), {odil::registry::ExplicitVRLittleEndian});
         this->data_sets = {ds, ds_2};
     }
 };
@@ -128,7 +128,7 @@ int main()
     odil::webservices::Selector selector;
     selector.set_study("1.3.46.670589.11.38235.5.0.4644.2013061709032540000");
 
-    stow_request.request_dicom(d.data_sets, selector, odil::webservices::Representation::DICOM_JSON);
+     stow_request.request_dicom(d.data_sets, selector, odil::webservices::Representation::DICOM_JSON);
 
     auto http_request = stow_request.get_http_request();
     // Explicitely use HTTP/1.0 to avoid chunked encoding
@@ -186,7 +186,7 @@ int main()
 
     odil::webservices::STOWRSResponse stow_response(http_response);
 
-    odil::DataSet data_set = stow_response.get_store_instance_responses();
+    auto const data_set = stow_response.get_store_instance_responses();
 
     Printer printer(std::cout);
     printer(data_set);

@@ -22,22 +22,22 @@
 
 struct Fixture
 {
-    std::vector<odil::DataSet> data_sets;
+    odil::Value::DataSets data_sets;
     std::vector<odil::webservices::BulkData> bulk_data;
 
     Fixture()
     {
-        odil::DataSet data_set_1;
-        data_set_1.add("SOPClassUID", {odil::registry::RawDataStorage});
-        data_set_1.add("SOPInstanceUID", {"1.2.3.4"});
-        data_set_1.add("PatientID", {"DJ1234"});
-        data_set_1.add("PixelSpacing", {1.5, 2.5});
+        auto data_set_1 = std::make_shared<odil::DataSet>();
+        data_set_1->add("SOPClassUID", {odil::registry::RawDataStorage});
+        data_set_1->add("SOPInstanceUID", {"1.2.3.4"});
+        data_set_1->add("PatientID", {"DJ1234"});
+        data_set_1->add("PixelSpacing", {1.5, 2.5});
 
-        odil::DataSet data_set_2;
-        data_set_2.add("SOPClassUID", {odil::registry::MRImageStorage});
-        data_set_2.add("SOPInstanceUID", {"1.2.3.5"});
-        data_set_2.add("PatientName", {"Doe^John"});
-        data_set_2.add("PatientAge", {"042Y"});
+        auto data_set_2 = std::make_shared<odil::DataSet>();
+        data_set_2->add("SOPClassUID", {odil::registry::MRImageStorage});
+        data_set_2->add("SOPInstanceUID", {"1.2.3.5"});
+        data_set_2->add("PatientName", {"Doe^John"});
+        data_set_2->add("PatientAge", {"042Y"});
 
         this->data_sets = { data_set_1, data_set_2 };
 
@@ -61,12 +61,14 @@ BOOST_AUTO_TEST_CASE(Constructor_HttpReq)
 {
     odil::webservices::HTTPResponse http_response;
     http_response.set_status(200);
-    http_response.set_header("Content-Type", "multipart/related;type=application/dicom+xml");
+    http_response.set_header(
+        "Content-Type", "multipart/related;type=application/dicom+xml");
     http_response.set_body("");
     odil::webservices::WADORSResponse response(http_response);
 
     BOOST_REQUIRE(response.is_partial() == false);
-    BOOST_REQUIRE(response.get_representation() == odil::webservices::Representation::DICOM_XML);
+    BOOST_REQUIRE(
+        response.get_representation() == odil::webservices::Representation::DICOM_XML);
     BOOST_REQUIRE(response.get_type() == odil::webservices::Type::DICOM);
 }
 
@@ -130,7 +132,7 @@ BOOST_FIXTURE_TEST_CASE(RespondPartial, Fixture)
 BOOST_FIXTURE_TEST_CASE(RespondDICOM, Fixture)
 {
     odil::webservices::WADORSResponse wado;
-    data_sets[0].set_transfer_syntax(odil::registry::ImplicitVRLittleEndian);
+    data_sets[0]->set_transfer_syntax(odil::registry::ImplicitVRLittleEndian);
     wado.set_data_sets(data_sets);
 
     wado.respond_dicom(odil::webservices::Representation::DICOM);
@@ -157,9 +159,9 @@ BOOST_FIXTURE_TEST_CASE(RespondDICOM, Fixture)
     {
         auto const & data_set = data_sets[i];
         auto const transfer_syntax =
-            data_set.get_transfer_syntax().empty()
+            data_set->get_transfer_syntax().empty()
                 ?odil::registry::ExplicitVRLittleEndian
-                :data_set.get_transfer_syntax();
+                :data_set->get_transfer_syntax();
 
         auto const & part = parts[i];
         auto const content_type = boost::lexical_cast<
@@ -183,7 +185,8 @@ BOOST_FIXTURE_TEST_CASE(RespondDICOM, Fixture)
 
         std::ostringstream stream(std::ios_base::out | std::ios_base::binary);
         odil::Writer::write_file(
-            data_set, stream, odil::DataSet(), transfer_syntax);
+            data_set, stream, std::make_shared<odil::DataSet>(),
+            transfer_syntax);
         BOOST_REQUIRE(stream.str() == part.get_body());
     }
 }
@@ -217,9 +220,9 @@ BOOST_FIXTURE_TEST_CASE(RespondDICOMXML, Fixture)
     {
         auto const & data_set = data_sets[i];
         auto const transfer_syntax =
-            data_set.get_transfer_syntax().empty()
+            data_set->get_transfer_syntax().empty()
                 ?odil::registry::ExplicitVRLittleEndian
-                :data_set.get_transfer_syntax();
+                :data_set->get_transfer_syntax();
 
         auto const & part = parts[i];
         auto const content_type = boost::lexical_cast<
@@ -231,7 +234,7 @@ BOOST_FIXTURE_TEST_CASE(RespondDICOMXML, Fixture)
         std::stringstream stream(part.get_body());
         boost::property_tree::ptree xml;
         boost::property_tree::read_xml(stream, xml);
-        BOOST_REQUIRE(data_set == odil::as_dataset(xml));
+        BOOST_REQUIRE(*data_set == *odil::as_dataset(xml));
     }
 }
 
@@ -258,10 +261,10 @@ BOOST_FIXTURE_TEST_CASE(RespondDICOMJSON, Fixture)
     stream >> array;
     BOOST_REQUIRE(array.isArray());
 
-    std::vector<odil::DataSet> response_data_sets;
+    odil::Value::DataSets response_data_sets;
     std::transform(
         array.begin(), array.end(), std::back_inserter(response_data_sets),
-        static_cast<odil::DataSet (*)(Json::Value const &)>(odil::as_dataset));
+        static_cast<std::shared_ptr<odil::DataSet> (*)(Json::Value const &)>(odil::as_dataset));
 
     BOOST_REQUIRE(response_data_sets == data_sets);
 }

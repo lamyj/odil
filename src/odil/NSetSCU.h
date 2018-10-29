@@ -24,16 +24,11 @@ public:
     /// @brief Constructor.
     NSetSCU(Association & association);
 
-    /// @brief Destructor.
-    virtual ~NSetSCU();
-    
     /// @brief Set the affected SOP class based on the dataset.
-    void set_affected_sop_class(DataSet const & dataset);
+    void set_affected_sop_class(std::shared_ptr<DataSet const> dataset);
 
-	using SCU::set_affected_sop_class;
-    
     /// @brief Perform the N-SET.
-    void set( DataSet const & dataset) const;
+    void set(std::shared_ptr<DataSet> dataset) const;
 };
 
 }

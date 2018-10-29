@@ -6,18 +6,20 @@
  * for details.
  ************************************************************************/
 
-#include <Python.h>
-
-#include <boost/python.hpp>
+#include <pybind11/pybind11.h>
 
 #include "odil/VRFinder.h"
 
-void wrap_VRFinder()
+#include "opaque_types.h"
+#include "type_casters.h"
+
+void wrap_VRFinder(pybind11::module & m)
 {
-    using namespace boost::python;
+    using namespace pybind11;
     using namespace odil;
     
-    class_<VRFinder>("VRFinder", init<>())
+    class_<VRFinder>(m, "VRFinder")
+        .def(init<>())
         .def("__call__", &VRFinder::operator())
     ;
 }

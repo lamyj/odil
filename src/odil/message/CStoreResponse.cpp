@@ -28,35 +28,29 @@ CStoreResponse
 }
 
 CStoreResponse
-::CStoreResponse(Message const & message)
+::CStoreResponse(std::shared_ptr<Message const> message)
 : Response(message)
 {
-    if(message.get_command_field() != Command::C_STORE_RSP)
+    if(!message || message->get_command_field() != Command::C_STORE_RSP)
     {
         throw Exception("Message is not a C-STORE-RSP");
     }
-    this->set_command_field(message.get_command_field());
+    this->set_command_field(message->get_command_field());
 
     ODIL_MESSAGE_SET_OPTIONAL_FIELD_MACRO(
-        message.get_command_set(), message_id, registry::MessageID, as_int)
+        message->get_command_set(), message_id, registry::MessageID, as_int)
     ODIL_MESSAGE_SET_OPTIONAL_FIELD_MACRO(
-        message.get_command_set(), affected_sop_class_uid,
+        message->get_command_set(), affected_sop_class_uid,
         registry::AffectedSOPClassUID, as_string)
     ODIL_MESSAGE_SET_OPTIONAL_FIELD_MACRO(
-        message.get_command_set(),
+        message->get_command_set(),
         affected_sop_instance_uid, registry::AffectedSOPInstanceUID, as_string)
 
-    if(message.has_data_set()  && !message.get_data_set().empty())
+    if(message->has_data_set()  && !message->get_data_set()->empty())
     {
         throw Exception("Data set must not be present");
     }
     this->delete_data_set();
-}
-
-CStoreResponse
-::~CStoreResponse()
-{
-    // Nothing to do.
 }
 
 }

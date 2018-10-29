@@ -9,43 +9,48 @@ import sys
 
 brew_conflicting = ["json-c"]
 brew_required = [
-    "boost", "boost-python", "boost-python3", "cmake", "cppcheck", "dcmtk",
-    "icu4c", "jsoncpp", "lcov", "log4cpp", "pkg-config", "python", "python@2"
+    "boost", "cmake", "dcmtk", "icu4c", "jsoncpp", "log4cpp", "pkg-config",
+    "pybind11"
 ]
+brew_required.append(
+    "python{}".format("@2" if os.environ["Python"] == 2 else ""))
 
-pip_required = ["cpp-coveralls", "nose"]
+pip_required = ["nose"]
 
-for formula in brew_conflicting:
-    info = json.loads(
-        subprocess.check_output(["brew", "info", "--json=v1", formula]))
+def get_formula_info(formula):
+    try:
+        info = json.loads(
+            subprocess.check_output(["brew", "info", "--json=v1", formula]))
+    except subprocess.CalledProcessError:
+        return None
+
     if len(info) > 1:
         print("Too many formulas matching {}".format(formula))
         sys.exit(1)
     elif len(info) == 0:
-        continue
-    installed = (len(info[0]["installed"]) != 0)
-    if installed:
+        return None
+    else:
+        return info[0]
+
+for formula in brew_conflicting:
+    info = get_formula_info(formula)
+    if info is not None and info["installed"]:
         print("Removing conflicting formula: {}".format(formula))
         subprocess.check_call(["brew", "unlink", formula])
 
 for formula in brew_required:
-    info = json.loads(
-        subprocess.check_output(["brew", "info", "--json=v1", formula]))
-    if len(info) > 1:
-        print("Too many formulas matching {}".format(formula))
-        sys.exit(1)
-    elif len(info) == 0:
-        print("No formula matching {}".format(formula))
-        sys.exit(1)
-    
+    info = get_formula_info(formula)
+    if info is None:
+        raise Exception("No such formula: {}".format(formula))
+
     action = None
-    if len(info[0]["installed"]) == 0:
+    if not info["installed"]:
         action = "install"
-    elif info[0]["installed"][-1]["version"] != info[0]["versions"]["stable"]:
+    elif not info["installed"][-1]["version"].startswith(info["versions"]["stable"]):
         action = "upgrade"
-    
+
     if action is not None:
         subprocess.check_call(["brew", action, formula])
 
 subprocess.check_call(
-    ["pip"+os.environ["Python"], "install", "--user", "-U"]+pip_required)
+    ["pip"+os.environ["Python"], "install", "-U"]+pip_required)

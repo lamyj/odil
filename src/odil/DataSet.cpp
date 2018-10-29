@@ -315,7 +315,7 @@ DataSet
     return (*this)[tag].as_data_set();
 }
 
-DataSet const &
+std::shared_ptr<DataSet> const &
 DataSet
 ::as_data_set(Tag const & tag, unsigned int position) const
 {

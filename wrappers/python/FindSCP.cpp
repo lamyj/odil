@@ -6,50 +6,37 @@
  * for details.
  ************************************************************************/
 
-#include <Python.h>
-
-#include <memory>
-
-#include <boost/python.hpp>
+#include <pybind11/pybind11.h>
 
 #include "odil/message/CFindRequest.h"
 #include "odil/FindSCP.h"
 
 #include "DataSetGeneratorWrapper.h"
 
-namespace
+void wrap_FindSCP(pybind11::module & m)
 {
-
-void set_generator(
-    odil::FindSCP & find_scp, 
-    DataSetGeneratorWrapper<odil::FindSCP::DataSetGenerator> generator)
-{
-    auto cpp_generator = 
-        std::make_shared<
-            DataSetGeneratorWrapper<odil::FindSCP::DataSetGenerator>
-        >(generator);
-    find_scp.set_generator(cpp_generator);
-}
-
-}
-
-void wrap_FindSCP()
-{
-    using namespace boost::python;
+    using namespace pybind11;
     using namespace odil;
     
-    scope find_scp_scope = class_<FindSCP>("FindSCP", init<Association &>())
-        .def("set_generator", &set_generator)
+    auto find_scp_scope = class_<FindSCP>(m, "FindSCP")
+        .def(init<Association &>())
+        .def("set_generator", &FindSCP::set_generator)
         .def(
             "__call__",
             static_cast<
-                void (FindSCP::*)(message::Message const &)
-            >(&FindSCP::operator())
-        )
+                void (FindSCP::*)(std::shared_ptr<message::Message>)
+            >(&FindSCP::operator()))
     ;
     
     class_<
-        DataSetGeneratorWrapper<FindSCP::DataSetGenerator>, 
-        boost::noncopyable
-    >("DataSetGenerator", init<>());
+                FindSCP::DataSetGenerator,
+                DataSetGeneratorWrapper<FindSCP::DataSetGenerator>, // trampoline
+                std::shared_ptr<FindSCP::DataSetGenerator> // holder
+            >(find_scp_scope, "DataSetGenerator")
+        .def(init<>())
+        .def("initialize", &FindSCP::DataSetGenerator::initialize)
+        .def("done", &FindSCP::DataSetGenerator::done)
+        .def("next", &FindSCP::DataSetGenerator::next)
+        .def("get", &FindSCP::DataSetGenerator::get)
+    ;
 }

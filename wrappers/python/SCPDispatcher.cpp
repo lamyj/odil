@@ -6,7 +6,7 @@
  * for details.
  ************************************************************************/
 
-#include <Python.h>
+#include <pybind11/pybind11.h>
 
 #include "odil/EchoSCP.h"
 #include "odil/NCreateSCP.h" 
@@ -15,37 +15,39 @@
 #include "odil/SCPDispatcher.h"
 #include "odil/StoreSCP.h"
 
-#include <boost/python.hpp>
-
 namespace
 {
-
-void dispatch_in_python( odil::SCPDispatcher& dispatcher)
-{
-    dispatcher.dispatch();
-}
 
 template<typename TSCP, odil::message::Message::Command::Type Command>
 void set_scp(odil::SCPDispatcher & dispatcher, TSCP scp)
 {
-    dispatcher.set_scp(Command, std::make_shared<TSCP>( scp ));
+    dispatcher.set_scp(Command, std::make_shared<TSCP>(scp));
 }
 
 }
 
-void wrap_SCPDispatcher()
+void wrap_SCPDispatcher(pybind11::module & m)
 {
-    using namespace boost::python;
+    using namespace pybind11;
     using namespace odil;
 
-    class_<SCPDispatcher >("SCPDispatcher", init<Association&>())
-    .def("set_scp", &SCPDispatcher::set_scp )
-    .def("dispatch", &dispatch_in_python )
-    .def("set_echo_scp", &set_scp<EchoSCP, message::Message::Command::Type::C_ECHO_RQ>)
-    .def("set_store_scp", &set_scp<StoreSCP, message::Message::Command::Type::C_STORE_RQ>)
-    .def("set_nset_scp", &set_scp<NSetSCP, message::Message::Command::Type::N_SET_RQ>)
-    .def("set_ncreate_scp", &set_scp<NCreateSCP, message::Message::Command::Type::N_CREATE_RQ>)
-    .def("has_scp", &SCPDispatcher::has_scp )
+    class_<SCPDispatcher >(m, "SCPDispatcher")
+        .def(init<Association&>())
+        .def("set_scp", &SCPDispatcher::set_scp)
+        .def("dispatch", &SCPDispatcher::dispatch)
+        .def(
+            "set_echo_scp",
+            &set_scp<EchoSCP, message::Message::Command::Type::C_ECHO_RQ>)
+        .def(
+            "set_store_scp",
+            &set_scp<StoreSCP, message::Message::Command::Type::C_STORE_RQ>)
+        .def(
+            "set_nset_scp",
+            &set_scp<NSetSCP, message::Message::Command::Type::N_SET_RQ>)
+        .def(
+            "set_ncreate_scp",
+            &set_scp<NCreateSCP, message::Message::Command::Type::N_CREATE_RQ>)
+        .def("has_scp", &SCPDispatcher::has_scp)
     ;
 }
 

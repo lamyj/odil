@@ -54,9 +54,9 @@ struct Printer
         this->stream << this->indent << "(binary)";
     }
 
-    void operator()(odil::DataSet const & data_set) const
+    void operator()(std::shared_ptr<odil::DataSet> const & data_set) const
     {
-        for(auto const & item: data_set)
+        for(auto const & item: *data_set)
         {
             this->stream << this->indent << item.first << " " << as_string(item.second.vr) << " ";
             odil::apply_visitor(*this, item.second.get_value());

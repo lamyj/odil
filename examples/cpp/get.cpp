@@ -6,16 +6,16 @@
 #include "odil/GetSCU.h"
 #include "odil/registry.h"
 
-void print_informations(odil::DataSet const & response)
+void print_informations(std::shared_ptr<odil::DataSet const> response)
 {
-    auto const name = response.has("PatientName")?
-        response.as_string("PatientName", 0):"(no name)";
-    auto const study = response.has("StudyDescription")?
-        response.as_string("StudyDescription", 0):"(no study description)";
-    auto const series = response.has("SeriesDescription")?
-        response.as_string("SeriesDescription", 0):"(no series description)";
-    auto const instance = response.has("InstanceNumber")?
-        response.as_int("InstanceNumber", 0):(-1);
+    auto const name = response->has("PatientName")?
+        response->as_string("PatientName", 0):"(no name)";
+    auto const study = response->has("StudyDescription")?
+        response->as_string("StudyDescription", 0):"(no study description)";
+    auto const series = response->has("SeriesDescription")?
+        response->as_string("SeriesDescription", 0):"(no series description)";
+    auto const instance = response->has("InstanceNumber")?
+        response->as_int("InstanceNumber", 0):(-1);
     std::cout
         << name << ": " << study << " / " << series << ": " << instance << "\n";
 }
@@ -53,24 +53,24 @@ int main()
     find_scu.set_affected_sop_class(
         odil::registry::StudyRootQueryRetrieveInformationModelFIND);
 
-    odil::DataSet query;
-    query.add("QueryRetrieveLevel", { "STUDY" });
-    query.add("StudyInstanceUID");
+    auto query = std::make_shared<odil::DataSet>();
+    query->add("QueryRetrieveLevel", { "STUDY" });
+    query->add("StudyInstanceUID");
 
     auto const studies = find_scu.find(query);
-    odil::DataSet series;
+    std::shared_ptr<odil::DataSet> series;
     for(auto const & study: studies)
     {
-        if(!study.has("StudyInstanceUID"))
+        if(!study->has("StudyInstanceUID"))
         {
             continue;
         }
 
-        query = odil::DataSet();
-        query.add("QueryRetrieveLevel", {"SERIES"});
-        query.add("Modality", {"MR"});
-        query.add("StudyInstanceUID", study.as_string("StudyInstanceUID"));
-        query.add("SeriesInstanceUID");
+        query->clear();
+        query->add("QueryRetrieveLevel", {"SERIES"});
+        query->add("Modality", {"MR"});
+        query->add("StudyInstanceUID", study->as_string("StudyInstanceUID"));
+        query->add("SeriesInstanceUID");
 
         auto const study_series = find_scu.find(query);
 
@@ -85,10 +85,10 @@ int main()
     get_scu.set_affected_sop_class(
         odil::registry::StudyRootQueryRetrieveInformationModelGET);
     
-    query = odil::DataSet();
-    query.add("QueryRetrieveLevel", { "SERIES" });
-    query.add("StudyInstanceUID", series["StudyInstanceUID"]);
-    query.add("SeriesInstanceUID", series["SeriesInstanceUID"]);
+    query->clear();
+    query->add("QueryRetrieveLevel", { "SERIES" });
+    query->add("StudyInstanceUID", (*series)["StudyInstanceUID"]);
+    query->add("SeriesInstanceUID", (*series)["SeriesInstanceUID"]);
 
     std::cout << "--------\n";
     std::cout << "Callback\n";

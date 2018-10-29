@@ -13,16 +13,11 @@
 #include <string>
 #include <sstream>
 
-#include <boost/lexical_cast.hpp>
-#include <boost/fusion/include/std_pair.hpp>
-#include <boost/spirit/include/phoenix_core.hpp>
-#include <boost/spirit/include/phoenix_operator.hpp>
-#include <boost/spirit/include/phoenix_stl.hpp>
 #include <boost/spirit/include/qi.hpp>
 
-#include "odil/webservices/ItemWithParameters.h"
+#include "odil/StringStream.h"
 #include "odil/VR.h"
-#include "odil/json_converter.h"
+#include "odil/webservices/ItemWithParameters.h"
 
 namespace odil
 {
@@ -32,38 +27,33 @@ namespace webservices
 
 QIDORSRequest
 ::QIDORSRequest(const URL &base_url)
-    : _base_url(base_url), _media_type(), _representation(Representation::DICOM_JSON),
-      _url(), _selector(), _query_data_set(),
-      _fuzzymatching(false), _limit(-1), _offset(0)
+: _base_url(base_url), _media_type(),
+  _representation(Representation::DICOM_JSON), _url(), _selector(),
+  _query_data_set(), _fuzzymatching(false), _limit(-1), _offset(0)
 {
     // Nothing else
 }
 
 QIDORSRequest
 ::QIDORSRequest(HTTPRequest const & request)
+: _base_url(), _media_type(), _representation(), _url(), _selector(),
+  _query_data_set(), _fuzzymatching(false), _limit(-1), _offset(0)
 {
-    // Build tmp URL from target and "Host" header
-    URL tmp_url = URL::parse(request.get_target());
     if(request.has_header("Host"))
     {
         this->_url.authority = request.get_header("Host");
     }
 
     // Find the media type.
-    if(!request.has_header("Accept"))
-    {
-        throw Exception("Cannot parse request: Accept header missing");
-    }
-    auto const header_accept = boost::lexical_cast<ItemWithParameters>(
-        request.get_header("Accept"));
+    auto const accept = as<ItemWithParameters>(request.get_header("Accept"));
 
     // if we have multipart/related, we will have then have application/dicom+xml
     // otherwise we will have application/dicom+json
-    if(header_accept.name == "multipart/related")
+    if(accept.name == "multipart/related")
     {
-        auto const it = header_accept.name_parameters.find("type");
+        auto const it = accept.name_parameters.find("type");
         // check if the type is not found
-        if(it == header_accept.name_parameters.end())
+        if(it == accept.name_parameters.end())
         {
             std::ostringstream message;
             message
@@ -72,7 +62,7 @@ QIDORSRequest
             throw Exception(message.str());
         }
         // check if type is different from the only available type
-        if (it->second != "application/dicom+xml")
+        if(it->second != "application/dicom+xml")
         {
             throw Exception("The only available type with multipart option is dicom+xml");
         }
@@ -81,22 +71,20 @@ QIDORSRequest
     }
     else
     {
-        if (header_accept.name != "application/dicom+json")
+        if(accept.name != "application/dicom+json")
         {
             throw Exception("The type cannot be different from dicom+json");
         }
-        this->_media_type = header_accept.name;
+        this->_media_type = accept.name;
         this->_representation = Representation::DICOM_JSON;
     }
 
-    std::tie(this->_base_url, this->_url, this->_selector, this->_query_data_set,
-             this->_fuzzymatching, this->_limit, this->_offset) =
-        QIDORSRequest::_split_full_url(tmp_url);
+    this->_from_url(request.get_target());
 }
 
 bool
 QIDORSRequest
-::operator ==(QIDORSRequest const & other) const
+::operator==(QIDORSRequest const & other) const
 {
     return(
         this->_base_url == other._base_url
@@ -104,7 +92,7 @@ QIDORSRequest
         && this->_representation == other._representation
         && this->_url == other._url
         && this->_selector == other._selector
-        && this->_query_data_set == other._query_data_set
+        && *this->_query_data_set == *other._query_data_set
         && this->_fuzzymatching == other._fuzzymatching
         && this->_limit == other._limit
         && this->_offset == other._offset
@@ -113,7 +101,7 @@ QIDORSRequest
 
 bool
 QIDORSRequest
-::operator !=(QIDORSRequest const & other) const
+::operator!=(QIDORSRequest const & other) const
 {
     return !(*this == other);
 }
@@ -160,7 +148,7 @@ QIDORSRequest
     return this->_selector;
 }
 
-DataSet const &
+std::shared_ptr<DataSet const>
 QIDORSRequest
 ::get_query_data_set() const
 {
@@ -188,257 +176,194 @@ QIDORSRequest
     return this->_offset;
 }
 
-std::tuple<URL, URL, Selector, DataSet, bool /*fuzzymatching*/, int /*offset*/, int /*limit*/>
+void
 QIDORSRequest
-::_split_full_url(const URL &url)
+::request_datasets(
+    Representation representation, Selector const & selector,
+    std::shared_ptr<DataSet> query_data_set, bool fuzzymatching,
+    int limit, int offset, bool numerical_tags)
 {
-    Selector selector;
-    URL base_url;
+    if(
+        representation != Representation::DICOM_JSON &&
+        representation != Representation::DICOM_XML)
+    {
+        throw Exception("Given representation is not available for QIDO-RS");
+    }
+    this->_representation = representation;
+    this->_selector = selector;
+    this->_query_data_set = query_data_set;
+    this->_fuzzymatching = fuzzymatching;
+    this->_limit = limit;
+    this->_offset = offset;
 
-    typedef std::string::const_iterator Iterator;
+    if(!QIDORSRequest::_is_selector_valid(selector))
+    {
+        throw Exception("Invalid selector");
+    }
 
+    this->_url = this->_generate_url(numerical_tags);
+}
+
+template<typename Iterator>
+Element &
+add_qido_element(
+    Iterator begin, Iterator end, std::shared_ptr<DataSet> data_set)
+{
     namespace qi = boost::spirit::qi;
-    namespace p = boost::phoenix; // boost::phoenix::ref clashes with std::ref
 
+    qi::rule<Iterator, std::string()> tag = +qi::alnum;
+    qi::rule<Iterator, std::vector<std::string>()> attribute_id = tag % ".";
 
-    typedef std::vector <std::pair <std::string, std::string> >  KeyVal;
-
-
-    auto const positions = {url.path.rfind("/instances"),
-                            url.path.rfind("/series"),
-                            url.path.rfind("/studies")};
-
-    auto const position = std::min(positions);
-
-    if(position != std::string::npos)
+    std::vector<std::string> tags;
+    auto const is_parsed = qi::phrase_parse(
+        begin, end, attribute_id, qi::ascii::space, tags);
+    if(!is_parsed)
     {
-        base_url = {
-            url.scheme, url.authority, url.path.substr(0, position), "", "" };
-        auto const resource = url.path.substr(position+1);
+        throw Exception("Could not parse attribute id");
+    }
+    else if(begin != end)
+    {
+        throw Exception("Attribute id was only partially parsed");
+    }
 
-
-        using boost::spirit::qi::char_;
-        using boost::spirit::qi::int_;
-        using boost::spirit::qi::lit;
-        using boost::spirit::qi::omit;
-        using boost::spirit::qi::string;
-        using boost::spirit::qi::_1;
-
-        qi::rule<Iterator, std::string()> selec =
-                -string("studies")
-                >> -string("series")
-                >> -string("instances");
-
-        qi::rule<Iterator, std::string()> value = +(~char_("/"));
-
-        qi::rule<Iterator, KeyVal()> retrieve_selector =
-                (selec >> -(omit["/"] >> value))% "/";
-
-        KeyVal selector_vector;
-        auto iterator = resource.begin();
-        qi::phrase_parse(
-            iterator, resource.end(),
-            retrieve_selector,
-            boost::spirit::qi::ascii::space, selector_vector
-        );
-        for (auto const it : selector_vector)
+    auto current_ds = data_set;
+    if(!tags.empty())
+    {
+        auto const last = --tags.end();
+        for(auto it = tags.begin(); it != last; ++it)
         {
-            if(it.first == "studies")
+            Tag const tag(*it);
+            if(!current_ds->has(tag))
             {
-                selector.set_study(it.second);
+                current_ds->add(tag, {std::make_shared<DataSet>()});
             }
-            else if(it.first == "series")
-            {
-                selector.set_series(it.second);
-            }
-            else if(it.first == "instances")
-            {
-                selector.set_instance(it.second);
-            }
-            else
-            {
-                throw Exception("Unrecognize option (" + it.first + ")");
-            }
+            current_ds = current_ds->as_data_set(tag)[0];
         }
     }
-
-    if (!QIDORSRequest::_is_selector_valid(selector))
+    else
     {
-        throw Exception("Selector not correctly constructed (" +
-                        selector.get_path(false) + ")");
+        throw Exception("No tag in attribute list");
     }
 
-    using boost::spirit::qi::char_;
-    using boost::spirit::qi::omit;
+    Tag const last(*tags.rbegin());
+    if(!current_ds->has(last))
+    {
+        current_ds->add(last);
+    }
+    return (*current_ds)[last];
+}
 
-    KeyVal key_val;
+void
+QIDORSRequest
+::_from_url(const URL &url)
+{
+    this->_base_url.scheme = url.scheme;
+    this->_base_url.authority = url.authority;
+    std::tie(this->_base_url.path, this->_selector) = Selector::from_path(url.path);
 
-    // everything but = and &
-    qi::rule<Iterator, std::string()> elem = +~char_("=&");
+    if (!QIDORSRequest::_is_selector_valid(this->_selector))
+    {
+        throw Exception(
+            "Selector not correctly constructed ("
+            + this->_selector.get_path(false) + ")");
+    }
 
-    qi::rule<Iterator, KeyVal()> retrieve_key_val =
-            (elem  >> omit["="] >> elem) % "&";
+    auto const query_items = url.parse_query();
 
-    auto iterator = url.query.begin();
-    qi::phrase_parse(
-        iterator, url.query.end(),
-            (
-               retrieve_key_val
-            ),
-        boost::spirit::qi::ascii::space, key_val
-    );
-
-    bool fuzzy = false;
-    int limit = -1, offset = 0;
-    std::set< std::vector<odil::Tag> > includefields;
+    // std::set<std::vector<Tag>> includefields;
     bool include_all = true;
-    odil::DataSet data_set;
-    for (auto const pair : key_val)
+    this->_query_data_set = std::make_shared<DataSet>();
+
+    for(auto const & item: query_items)
     {
-        if (pair.first == "fuzzymatching")
+        if(item.first == "fuzzymatching")
         {
-            if (pair.second == "true")
+            if(item.second == "true")
             {
-                fuzzy = true;
+                this->_fuzzymatching = true;
             }
-            else if (pair.second == "false")
+            else if(item.second == "false")
             {
-                fuzzy = false;
+                this->_fuzzymatching = false;
             }
             else
             {
-                throw Exception("Fuzzymatching is not a bool (" + pair.second + ")\n");
+                throw Exception("Fuzzymatching is not a boolean");
             }
         }
-        else if (pair.first == "limit")
+        else if(item.first == "limit")
         {
             try
             {
-                limit = boost::lexical_cast<int>(pair.second);
+                this->_limit = std::stoi(item.second);
             }
-            catch (boost::bad_lexical_cast& e)
+            catch(std::invalid_argument const &)
             {
-                std::cerr << "Limit value is not an integer (" << pair.second << ")\n";
+                throw Exception("Limit value is not an integer");
             }
         }
-        else if (pair.first == "offset")
+        else if(item.first == "offset")
         {
             try
             {
-                offset = boost::lexical_cast<int>(pair.second);
+                this->_offset = std::stoi(item.second);
             }
-            catch (boost::bad_lexical_cast& e)
+            catch (std::invalid_argument const &)
             {
-                std::cerr << "Offset value is not an integer (" << pair.second << ")\n";
+                throw Exception("Offset value is not an integer");
             }
         }
         else
         {
-            std::vector< std::string > dicom_tag_vec;
-            qi::rule<Iterator, std::string()> dicom_tags = +~char_("."); // simplified
-            qi::rule<Iterator, std::vector<std::string>() > retrieve_attribute_id =
-                    (dicom_tags) % ".";
-            if (pair.first == "includefield")
+            if (item.first == "includefield")
             {
-                if (pair.second == "all")
+                if (item.second == "all")
                 {
                     include_all = true;
                 }
                 else
                 {
-                    // retrive AttributeId
-                    qi::phrase_parse(
-                        pair.second.begin(), pair.second.end(),
-                                retrieve_attribute_id,
-                        boost::spirit::qi::ascii::space, dicom_tag_vec
-                    );
-                    odil::DataSet* current_ds = &data_set;
-                    bool last = false;
-                    odil::Tag last_tag = dicom_tag_vec.back();
-                    if (dicom_tag_vec.size() >= 1)
-                    {
-                        dicom_tag_vec.pop_back();
-                        last = true;
-                    }
-                    for (auto const dicom_tag : dicom_tag_vec)
-                    {
-                        if (!current_ds->has(dicom_tag))
-                        {
-                            current_ds->add(dicom_tag, {odil::DataSet()});
-                        }
-                        current_ds = &current_ds->as_data_set(dicom_tag)[0];
-                    }
-                    if (last)
-                    {
-                        current_ds->add(last_tag);
-                    }
+                    add_qido_element(
+                        item.second.begin(), item.second.end(),
+                        this->_query_data_set);
                 }
             }
             else
-            {// {AttributeID} = {value}
-                // retrive AttributeId
-                qi::phrase_parse(
-                    pair.first.begin(), pair.first.end(),
-                            retrieve_attribute_id,
-                    boost::spirit::qi::ascii::space, dicom_tag_vec
-                );
-                DataSet* top_seq = &data_set;
-                Tag current_tag;
-                size_t dicom_tag_vec_size = dicom_tag_vec.size();
-                for (int i = 0; i < dicom_tag_vec_size; ++i)
-                {
-                    current_tag = odil::Tag(dicom_tag_vec[i]);
+            {
+                // {AttributeID} = {value}
+                auto & element = add_qido_element(
+                    item.first.begin(), item.first.end(),
+                    this->_query_data_set);
 
-                    if (i < dicom_tag_vec_size - 1)
+                if(element.is_int())
+                {
+                    try
                     {
-                        if (!top_seq->has(current_tag))
-                        {
-                            top_seq->add(current_tag, {odil::DataSet()}, VR::SQ);
-                        }
-                        top_seq = &top_seq->as_data_set(current_tag)[0];
+                        element.as_int() = {std::stol(item.second)};
                     }
-                    else
+                    catch(std::invalid_argument const &)
                     {
-                        VR current_vr;
-                        try
-                        {
-                            current_vr = odil::as_vr(current_tag);
-                        }
-                        catch (Exception const &)
-                        {
-                            current_vr = VR::UN;
-                        }
-                        if (is_int(current_vr))
-                        {
-                            try
-                            {
-                                top_seq->add(current_tag, {boost::lexical_cast<int>(pair.second)});
-                            }
-                            catch (boost::bad_lexical_cast& e)
-                            {
-                                throw Exception(current_tag.get_name() + "Should be an integer (" + pair.second + ")");
-                            }
-                        }
-                        else if (is_real(current_vr))
-                        {
-                            try
-                            {
-                                top_seq->add(current_tag, {boost::lexical_cast<double>(pair.second)});
-                            }
-                            catch (boost::bad_lexical_cast& e)
-                            {
-                                throw Exception(current_tag.get_name() + "Should be a real (" + pair.second + ")");
-                            }
-                        }
-                        else if (is_string(current_vr))
-                        {
-                            top_seq->add(current_tag, {pair.second});
-                        }
-                        else
-                        {
-                            throw Exception("unrecognize VR for " + _tag_to_string(current_tag, true));
-                        }
+                        throw Exception("Value must be an integer");
                     }
+                }
+                else if(element.is_real())
+                {
+                    try
+                    {
+                        element.as_real() = {std::stod(item.second)};
+                    }
+                    catch(std::invalid_argument const &)
+                    {
+                        throw Exception("Value must be a real");
+                    }
+                }
+                else if(element.is_string())
+                {
+                    element.as_string() = {item.second};
+                }
+                else
+                {
+                    throw Exception("Invalid VR for value");
                 }
             }
         }
@@ -451,12 +376,7 @@ QIDORSRequest
 //        includefields.clear();
 //    }
 
-    URL full_url = QIDORSRequest::_generate_url(base_url, selector, data_set,
-                                           fuzzy, limit, offset, false);
-
-    return std::make_tuple(base_url, full_url, selector, data_set,
-                           fuzzy, limit, offset
-                           );
+    this->_url = this->_generate_url(false);
 }
 
 
@@ -475,9 +395,10 @@ QIDORSRequest
         accept.name_parameters["type"] = "application/dicom+xml";
     }
 
-    HTTPRequest::Headers const headers{
-        {"Accept", boost::lexical_cast<std::string>(accept) }
-    };
+    std::string accept_string;
+    OStringStream stream(accept_string);
+    stream << accept;
+    HTTPRequest::Headers const headers{ {"Accept", accept_string } };
 
     return HTTPRequest("GET", this->_url, "HTTP/1.0", headers);
 }
@@ -492,19 +413,37 @@ QIDORSRequest
     }
     else
     {
-        return(
+        return (
             // /studies
-            (selector.is_study_present() && selector.get_study().empty() && !selector.is_series_present() && !selector.is_instance_present())
+            (
+                selector.is_study_present() && selector.get_study().empty()
+                && !selector.is_series_present()
+                && !selector.is_instance_present())
             // /studies/1.2/series
-            ||(selector.is_study_present() && !selector.get_study().empty() && selector.is_series_present() && selector.get_series().empty() && !selector.is_instance_present())
+            || (
+                selector.is_study_present() && !selector.get_study().empty()
+                && selector.is_series_present() && selector.get_series().empty()
+                && !selector.is_instance_present())
             // /series
-            ||(!selector.is_study_present() && selector.is_series_present() && selector.get_series().empty() && !selector.is_instance_present())
+            || (
+                !selector.is_study_present() && selector.is_series_present()
+                && selector.get_series().empty()
+                && !selector.is_instance_present())
             // /studies/1.2/series/3.4/instances
-            ||(selector.is_study_present() && !selector.get_study().empty() && selector.is_series_present() && !selector.get_series().empty() && selector.is_instance_present())
+            || (
+                selector.is_study_present() && !selector.get_study().empty()
+                && selector.is_series_present()
+                && !selector.get_series().empty()
+                && selector.is_instance_present())
             // /studies/1.2/instances
-            ||(selector.is_study_present() && !selector.get_study().empty() && !selector.is_series_present() && selector.is_instance_present())
+            || (
+                selector.is_study_present() && !selector.get_study().empty()
+                && !selector.is_series_present()
+                && selector.is_instance_present())
             // /instances
-            || (!selector.is_study_present() && !selector.is_series_present() && selector.is_instance_present())
+            || (
+                !selector.is_study_present() && !selector.is_series_present()
+                && selector.is_instance_present())
         );
     }
 }
@@ -523,7 +462,7 @@ QIDORSRequest
         {
             return tag.get_name();
         }
-        catch (Exception const &)
+        catch(Exception const &)
         {
             return std::string(tag);
         }
@@ -532,15 +471,12 @@ QIDORSRequest
 
 URL
 QIDORSRequest
-::_generate_url(
-    URL const & base_url, Selector const & selector,
-    DataSet const & query_data_set,
-    bool fuzzymatching, int limit, int offset, bool numerical_tags)
+::_generate_url(bool numerical_tags)
 {
     // Breadth-first walk of the query data set to generate the query terms
     // (e.g. PatientName=Doe) and the include fields
-    std::queue<std::pair<odil::DataSet const, std::string>> queue;
-    queue.emplace(std::make_pair(std::cref(query_data_set), ""));
+    std::queue<std::pair<std::shared_ptr<DataSet const>, std::string>> queue;
+    queue.emplace(std::make_pair(this->_query_data_set, ""));
 
     std::vector<std::string> terms;
     std::vector<std::string> include_fields;
@@ -552,7 +488,7 @@ QIDORSRequest
         auto const & parent_data_set = front.first;
         auto const & parent_path = front.second;
 
-        for(auto const & item: parent_data_set)
+        for(auto const & item: *parent_data_set)
         {
             auto const & tag = item.first;
             auto const & element = item.second;
@@ -564,8 +500,7 @@ QIDORSRequest
             if(element.is_data_set())
             {
                 queue.emplace(
-                    std::make_pair(
-                        std::cref(element.as_data_set()[0]), child_path));
+                    std::make_pair(element.as_data_set()[0], child_path));
             }
             else
             {
@@ -621,58 +556,26 @@ QIDORSRequest
 
     query_string_stream
         << (query_string_stream.tellp()>0 ? "&" : "")
-        << "fuzzymatching=" << std::boolalpha << fuzzymatching;
+        << "fuzzymatching=" << std::boolalpha << this->_fuzzymatching;
 
-    if(limit != -1)
+    if(this->_limit != -1)
     {
         query_string_stream
             << (query_string_stream.tellp()>0 ? "&" : "")
-            << "limit=" << limit;
-        if(offset != 0)
+            << "limit=" << this->_limit;
+        if(this->_offset != 0)
         {
             query_string_stream
                 << (query_string_stream.tellp()>0 ? "&" : "")
-                << "offset=" << offset;
+                << "offset=" << this->_offset;
         }
     }
 
     return {
-        base_url.scheme, base_url.authority,
+        this->_base_url.scheme, this->_base_url.authority,
         // Frames are never included in QIDO
-        base_url.path + selector.get_path(false),
-        query_string_stream.str(), ""
-    };
-}
-
-
-void
-QIDORSRequest
-::request_datasets(
-    Representation representation, Selector const & selector,
-    DataSet const & query_data_set, bool fuzzymatching,
-    int limit, int offset, bool numerical_tags)
-{
-    if (representation != Representation::DICOM_JSON &&
-            representation != Representation::DICOM_XML)
-    {
-        throw Exception("Given representation is not available for QIDO-RS");
-    }
-    this->_representation = representation;
-    this->_selector = selector;
-    this->_query_data_set = query_data_set;
-    this->_fuzzymatching = fuzzymatching;
-    this->_limit = limit;
-    this->_offset = offset;
-
-    if (!QIDORSRequest::_is_selector_valid(selector))
-    {
-        throw Exception("Selector not correctly constructed (" +
-                        selector.get_path(false) + ")");
-    }
-
-    this->_url = QIDORSRequest::_generate_url(this->_base_url, selector,
-                                              query_data_set, fuzzymatching,
-                                              limit, offset, numerical_tags);
+        this->_base_url.path + this->_selector.get_path(false),
+        query_string_stream.str() };
 }
 
 }

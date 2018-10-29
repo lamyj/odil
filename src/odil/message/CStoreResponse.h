@@ -48,10 +48,7 @@ public:
      *
      * Raise an exception if the Message does not contain a C-STORE-RSP.
      */
-    CStoreResponse(Message const & message);
-
-    /// @brief Destructor.
-    virtual ~CStoreResponse();
+    CStoreResponse(std::shared_ptr<Message const> message);
 
     ODIL_MESSAGE_OPTIONAL_FIELD_INTEGER_MACRO(message_id, registry::MessageID)
     ODIL_MESSAGE_OPTIONAL_FIELD_STRING_MACRO(

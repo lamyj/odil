@@ -31,17 +31,14 @@ public:
     NCreateRequest(
         Value::Integer message_id,
         Value::String const & affected_sop_class_uid,
-        DataSet const & dataset);
+        std::shared_ptr<DataSet> dataset);
 
     /**
      * @brief Create a N-Create-RQ from a generic Message.
      *
      * Raise an exception if the Message does not contain a N-Create-RQ.
      */
-    NCreateRequest(Message const & message);
-
-    /// @brief Destructor.
-    virtual ~NCreateRequest();
+    NCreateRequest(std::shared_ptr<Message> message);
 
     ODIL_MESSAGE_MANDATORY_FIELD_INTEGER_MACRO(
         message_id, registry::MessageID)

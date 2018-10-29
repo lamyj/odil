@@ -1,13 +1,5 @@
-find_package(Boost REQUIRED COMPONENTS python)
 find_package(JsonCpp REQUIRED)
-find_package(PythonInterp 2.7 REQUIRED)
-find_package(PythonLibs 2.7 REQUIRED)
-
-if(NOT "${PYTHONLIBS_VERSION_STRING}" STREQUAL "${PYTHON_VERSION_STRING}")
-    message(
-        WARNING
-        "Python version mismatch:  libraries are \"${PYTHONLIBS_VERSION_STRING}\", interpreter is \"${PYTHON_VERSION_STRING}\"")
-endif()
+find_package(pybind11 REQUIRED)
 
 if(BUILD_SHARED_LIBS)
     add_definitions(-D BOOST_ALL_DYN_LINK)
@@ -26,14 +18,14 @@ list(SORT Header_Files)
 list(SORT Source_Files)
 list(SORT Python_Files)
 
-python_add_module(pyodil SHARED ${Source_Files} ${Header_Files})
+pybind11_add_module(pyodil SHARED ${Source_Files} ${Header_Files})
+
 set_target_properties(pyodil PROPERTIES OUTPUT_NAME _odil FOLDER "Wrappers")
 if(APPLE)
     set_target_properties(pyodil PROPERTIES SUFFIX ".so")
 endif()
 
-target_link_libraries(
-    pyodil ${Boost_LIBRARIES} ${JsonCpp_LIBRARIES} libodil ${PYTHON_LIBRARIES})
+target_link_libraries(pyodil ${JsonCpp_LIBRARIES} libodil)
 
 add_custom_target(
     pyodil-pure ${CMAKE_COMMAND} -E echo "Pure-python files"

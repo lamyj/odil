@@ -6,35 +6,32 @@
  * for details.
  ************************************************************************/
 
-#include <Python.h>
+#include <pybind11/pybind11.h>
 
-#include <boost/python.hpp>
+#include "odil/message/CGetRequest.h"
 
-#include "odil/message/CFindRequest.h"
-
-void wrap_CFindRequest()
+void wrap_CGetRequest(pybind11::module & m)
 {
-    using namespace boost::python;
+    using namespace pybind11;
     using namespace odil;
     using namespace odil::message;
 
-    class_<CFindRequest, bases<Request>>(
-            "CFindRequest",
-            init<
+    class_<CGetRequest, std::shared_ptr<CGetRequest>, Request>(m, "CGetRequest")
+        .def(init<
                 Value::Integer, Value::String const &, Value::Integer,
-                DataSet const &
+                std::shared_ptr<DataSet>
             >())
-        .def(init<Message>())
+        .def(init<std::shared_ptr<Message>>())
         .def(
             "get_affected_sop_class_uid",
-            &CFindRequest::get_affected_sop_class_uid,
-            return_value_policy<copy_const_reference>())
+            &CGetRequest::get_affected_sop_class_uid,
+            return_value_policy::copy)
         .def(
             "set_affected_sop_class_uid",
-            &CFindRequest::set_affected_sop_class_uid)
+            &CGetRequest::set_affected_sop_class_uid)
         .def(
-            "get_priority", &CFindRequest::get_priority,
-            return_value_policy<copy_const_reference>())
-        .def("set_priority", &CFindRequest::set_priority)
+            "get_priority", &CGetRequest::get_priority,
+            return_value_policy::copy)
+        .def("set_priority", &CGetRequest::set_priority)
     ;
 }

@@ -27,9 +27,6 @@ public:
     /// @brief Create a dispatcher with network and association.
     SCPDispatcher(Association & association);
 
-    /// @brief Destructor.
-    ~SCPDispatcher();
-
     /// @brief Test whether command has an SCP registered.
     bool has_scp(Value::Integer command) const;
 

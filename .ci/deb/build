@@ -2,8 +2,6 @@
 
 set -ev
 
-export Architecture=${Architecture:?}
-export Distribution=${Distribution:?}
 export Python=${Python:?}
 export WORKSPACE=${WORKSPACE:?}
 
@@ -17,16 +15,6 @@ else
   PYTHON_VERSION="UNKOWN"
 fi
 
-PYTHON_VERSION_NO_DOT=$(echo $PYTHON_VERSION | sed 's|\.||')
-
-if [ "${Distribution}" != "ubuntu/precise" -a "${Distribution}" != "debian/wheezy" ]; then
-  TRIPLET="$(dpkg-architecture -qDEB_HOST_MULTIARCH)"
-else
-  TRIPLET=""
-fi
-
-BOOST_PYTHON_LIBRARY=/usr/lib/${TRIPLET}/libboost_python-py${PYTHON_VERSION_NO_DOT}.so
-
 cd ${WORKSPACE}
 
 mkdir -p build
@@ -34,10 +22,7 @@ mkdir -p install
 cd build
 cmake \
   -D CMAKE_INSTALL_PREFIX="${WORKSPACE}/install" \
-  -D Python_ADDITIONAL_VERSIONS=${PYTHON_VERSION} \
   -D PYTHON_EXECUTABLE=/usr/bin/python${PYTHON_VERSION} \
-  -D Boost_PYTHON_LIBRARY_DEBUG=${BOOST_PYTHON_LIBRARY} \
-  -D Boost_PYTHON_LIBRARY_RELEASE=${BOOST_PYTHON_LIBRARY} \
   ${CMAKE_OPTIONS} \
   ..
 make ${MAKE_OPTIONS} install

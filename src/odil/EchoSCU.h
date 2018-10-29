@@ -23,9 +23,6 @@ public:
     /// @brief Constructor
     EchoSCU(Association & association);
 
-    /// @brief Destructor.
-    virtual ~EchoSCU();
-    
     /// @brief Perform DICOM ping
     void echo() const;
 };

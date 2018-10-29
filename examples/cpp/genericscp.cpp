@@ -29,16 +29,16 @@ public:
         // Nothing to do.
     }
 
-    virtual void initialize(odil::message::Request const & )
+    virtual void initialize(std::shared_ptr<odil::message::Request const> )
     {
-        odil::DataSet data_set_1;
-        data_set_1.add(odil::registry::PatientName, {"Hello^World"});
-        data_set_1.add(odil::registry::PatientID, {"1234"});
+        auto data_set_1 = std::make_shared<odil::DataSet>();
+        data_set_1->add(odil::registry::PatientName, {"Hello^World"});
+        data_set_1->add(odil::registry::PatientID, {"1234"});
         this->_responses.push_back(data_set_1);
 
-        odil::DataSet data_set_2;
-        data_set_2.add(odil::registry::PatientName, {"Doe^John"});
-        data_set_2.add(odil::registry::PatientID, {"5678"});
+        auto data_set_2 = std::make_shared<odil::DataSet>();
+        data_set_2->add(odil::registry::PatientName, {"Doe^John"});
+        data_set_2->add(odil::registry::PatientID, {"5678"});
         this->_responses.push_back(data_set_2);
 
         this->_response_iterator = this->_responses.begin();
@@ -49,7 +49,7 @@ public:
         return (this->_response_iterator == this->_responses.end());
     }
 
-    virtual odil::DataSet get() const
+    virtual std::shared_ptr<odil::DataSet> get() const
     {
         return *this->_response_iterator;
     }
@@ -61,30 +61,37 @@ public:
 
 
 private:
-    std::vector<odil::DataSet> _responses;
-    std::vector<odil::DataSet>::const_iterator _response_iterator;
+    odil::Value::DataSets _responses;
+    odil::Value::DataSets::const_iterator _response_iterator;
 };
 
-odil::Value::Integer echo(odil::message::CEchoRequest const & request)
+odil::Value::Integer
+echo(std::shared_ptr<odil::message::CEchoRequest const> request)
 {
     std::cout << "Received echo\n";
-    std::cout << "  ID: " << request.get_message_id() << "\n";
-    std::cout << "  Affected SOP Class UID: " << request.get_affected_sop_class_uid() << "\n";
+    std::cout << "  ID: " << request->get_message_id() << "\n";
+    std::cout
+        << "  Affected SOP Class UID: " << request->get_affected_sop_class_uid()
+        << "\n";
     return odil::message::Response::Success;
 }
 
-odil::Value::Integer store(odil::message::CStoreRequest const & request)
+odil::Value::Integer
+store(std::shared_ptr<odil::message::CStoreRequest const> request)
 {
     auto const patient_name =
-        request.get_data_set().as_string(odil::registry::PatientName)[0];
+        request->get_data_set()->as_string(odil::registry::PatientName)[0];
     std::cout << "Storing " << patient_name << "\n";
     return odil::message::Response::Success;
 }
 
-odil::Value::Integer nset(odil::message::NSetRequest const & request)
+odil::Value::Integer
+nset(std::shared_ptr<odil::message::NSetRequest const> request)
 {
-    std::cout << "NSetRequest message ID: " << request.get_message_id() <<"\n";
-    std::cout << "NSetRequest requested SOP Class UID: " << request.get_requested_sop_class_uid()<<"\n";
+    std::cout << "NSetRequest message ID: " << request->get_message_id() <<"\n";
+    std::cout
+        << "NSetRequest requested SOP Class UID: "
+        << request->get_requested_sop_class_uid()<<"\n";
 
     return odil::message::Response::Success;
 }

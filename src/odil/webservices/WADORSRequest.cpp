@@ -20,6 +20,7 @@
 
 #include "odil/Exception.h"
 #include "odil/registry.h"
+#include "odil/StringStream.h"
 #include "odil/webservices/HTTPRequest.h"
 #include "odil/webservices/ItemWithParameters.h"
 #include "odil/webservices/URL.h"
@@ -56,24 +57,11 @@ WADORSRequest
     }
 
     // Find the media type.
-    if(!request.has_header("Accept"))
-    {
-        throw Exception("Cannot parse request: Accept header missing");
-    }
-    auto const header_accept = boost::lexical_cast<ItemWithParameters>(
+    auto const header_accept = as<ItemWithParameters>(
         request.get_header("Accept"));
     if(header_accept.name == "multipart/related")
     {
-        auto const it = header_accept.name_parameters.find("type");
-        if(it == header_accept.name_parameters.end())
-        {
-            std::ostringstream message;
-            message
-                << "Missing type in Accept header: "
-                << request.get_header("Accept");
-            throw Exception(message.str());
-        }
-        this->_media_type = it->second;
+        this->_media_type = header_accept.name_parameters.at("type");
     }
     else
     {
@@ -81,48 +69,29 @@ WADORSRequest
     }
 
     // Parse the query string, look for "accept" and "charset" fields
+    auto const query = this->_url.parse_query();
     std::string query_accept;
     std::string query_charset;
-    {
-        typedef std::string::iterator Iterator;
-
-        namespace qi = boost::spirit::qi;
-        namespace p = boost::phoenix; // boost::phoenix::ref clashes with std::ref
-
-        using boost::spirit::qi::char_;
-        using boost::spirit::qi::omit;
-
-        qi::rule<Iterator, std::pair<std::string, std::string>()> term =
-            +~char_("&=") >> omit["="] >> +~char_("&");
-        qi::rule<Iterator, std::map<std::string, std::string>()> terms =
-            term%"&";
-
-        std::map<std::string, std::string> query_terms;
-        auto iterator = this->_url.query.begin();
-        qi::phrase_parse(
-            iterator, this->_url.query.end(), terms,
-            boost::spirit::qi::ascii::space, query_terms
-        );
-
-        auto const accept_it = query_terms.find("accept");
-        if(accept_it != query_terms.end())
+    std::for_each(
+        query.begin(), query.end(),
+        [&](std::pair<std::string, std::string> const & item)
         {
-            query_accept = accept_it->second;
-        }
-
-        auto const charset_it = query_terms.find("charset");
-        if(charset_it != query_terms.end())
-        {
-            query_charset = charset_it->second;
-        }
-    }
+            if(item.first == "accept")
+            {
+                query_accept = item.second;
+            }
+            if(item.first == "charset")
+            {
+                query_charset = item.second;
+            }
+        });
 
     // PS 3.18, 6.1.1.8 and 6.1.1.8.4
-    this->_transfer_syntax = odil::registry::ExplicitVRLittleEndian;
+    this->_transfer_syntax = registry::ExplicitVRLittleEndian;
     if(!query_accept.empty())
     {
         this->_include_media_type_in_query = true;
-        auto const item = boost::lexical_cast<ItemWithParameters>(query_accept);
+        auto const item = as<ItemWithParameters>(query_accept);
         auto const it = item.name_parameters.find("transfer-syntax");
         if(it != item.name_parameters.end())
         {
@@ -162,8 +131,15 @@ WADORSRequest
         this->_character_set = charset_it->second;
     }
 
-    std::tie(this->_base_url, this->_selector) =
-        WADORSRequest::_split_full_url(this->_url);
+    this->_base_url.scheme = this->_url.scheme;
+    this->_base_url.authority = this->_url.authority;
+    std::tie(this->_base_url.path, this->_selector) = Selector::from_path(
+        this->_url.path);
+
+    if(!WADORSRequest::_is_selector_valid(this->_selector))
+    {
+        throw Exception("Invalid selector");
+    }
 
     if(!this->_selector.get_study().empty())
     {
@@ -301,7 +277,7 @@ WADORSRequest
     return this->_type;
 }
 
-odil::webservices::Selector const &
+Selector const &
 WADORSRequest
 ::get_selector() const
 {
@@ -310,16 +286,25 @@ WADORSRequest
 
 bool
 WADORSRequest
-::_is_selector_valid(Selector const &selector)
+::_is_selector_valid(Selector const & selector)
 {
-    return(
+    return (
         // /studies/1.2
-        (selector.is_study_present() && !selector.get_study().empty() && !selector.is_series_present() && !selector.is_instance_present() && selector.get_frames().empty())
+        (
+            selector.is_study_present() && !selector.get_study().empty()
+            && !selector.is_series_present() && !selector.is_instance_present()
+            && selector.get_frames().empty())
         // /studies/1.2/series/3.4
-        || (selector.is_study_present() && !selector.get_study().empty() && selector.is_series_present() && !selector.get_series().empty() && !selector.is_instance_present() && selector.get_frames().empty())
+        || (
+            selector.is_study_present() && !selector.get_study().empty()
+            && selector.is_series_present() && !selector.get_series().empty()
+            && !selector.is_instance_present() && selector.get_frames().empty())
         // /studies/1.2/series/3.4/instances/5.6/
         // /studies/1.2/series/3.4/instances/5.6/frames/7,8,9
-        || (selector.is_study_present() && !selector.get_study().empty() && selector.is_series_present() && !selector.get_series().empty() && selector.is_instance_present() && !selector.get_instance().empty())
+        || (
+            selector.is_study_present() && !selector.get_study().empty()
+            && selector.is_series_present() && !selector.get_series().empty()
+            && selector.is_instance_present() && !selector.get_instance().empty())
     );
 }
 
@@ -349,10 +334,9 @@ WADORSRequest
 ::request_dicom(Representation representation, Selector const & selector)
 {
     this->_type = Type::DICOM;
-    if (!_is_selector_valid(selector))
+    if(!WADORSRequest::_is_selector_valid(selector))
     {
-        throw Exception("Selector not correctly constructed (" +
-                        selector.get_path(true) + ")");
+        throw Exception("Invalid selector");
     }
     this->_selector = selector;
     this->_representation = representation;
@@ -391,10 +375,9 @@ WADORSRequest
 ::request_bulk_data(Selector const & selector)
 {
     this->_type = Type::BulkData;
-    if (!_is_selector_valid(selector))
+    if(!_is_selector_valid(selector))
     {
-        throw Exception("Selector not correctly constructed (" +
-                        selector.get_path(true) + ")");
+        throw Exception("Invalid selector");
     }
     this->_selector = selector;
 
@@ -421,8 +404,7 @@ WADORSRequest
     this->_type = Type::PixelData;
     if (!_is_selector_valid(selector))
     {
-        throw Exception("Selector not correctly constructed (" +
-                        selector.get_path(true) + ")");
+        throw Exception("Invalid selector");
     }
     this->_selector = selector;
 
@@ -461,71 +443,6 @@ WADORSRequest
 
     // TODO: accept and accept-charset in URL query
     return HTTPRequest("GET", this->_url, "HTTP/1.0", headers);
-}
-
-std::pair<URL, odil::webservices::Selector>
-WADORSRequest
-::_split_full_url(URL const & url)
-{
-    URL base_url;
-    bool is_meta_data=false;
-    std::vector<int> frames;
-
-    auto const position = url.path.rfind("/studies/");
-
-
-    typedef std::string::const_iterator Iterator;
-
-    typedef std::map <std::string, std::string>  KeyVal;
-
-    typedef std::pair< KeyVal, std::vector<int> > KeyValFrames;
-
-    KeyValFrames selector_;
-    if(position != std::string::npos)
-    {
-        base_url = {
-            url.scheme, url.authority, url.path.substr(0, position), "", "" };
-        auto const resource = url.path.substr(position+1);
-
-        namespace qi = boost::spirit::qi;
-        namespace p = boost::phoenix; // boost::phoenix::ref clashes with std::ref
-
-        using boost::spirit::qi::char_;
-        using boost::spirit::qi::int_;
-        using boost::spirit::qi::lit;
-        using boost::spirit::qi::omit;
-        using boost::spirit::qi::string;
-        using boost::spirit::qi::_1;
-
-        qi::rule<Iterator, std::string()> selec =
-            string("studies") | string("series") | string("instances");
-
-        qi::rule<Iterator, std::string()> value = +(~char_("/"));
-
-        qi::rule<Iterator, std::vector<int>()> frame_list = int_ % ",";
-
-        qi::rule<Iterator, KeyValFrames()> retrieve_selector =
-            (selec >> omit["/"] >> value) % "/"
-            >> -(lit("/frames/") >> frame_list)
-        ;
-
-        auto iterator = resource.begin();
-        auto const parsed = qi::phrase_parse(
-            iterator, resource.end(),
-            retrieve_selector,
-            boost::spirit::qi::ascii::space, selector_
-        );
-    }
-
-    Selector selector(selector_.first, selector_.second);
-
-    if (!WADORSRequest::_is_selector_valid(selector))
-    {
-        throw Exception("Selector not correctly constructed (" +
-                        selector.get_path(true) + ")");
-    }
-
-    return std::make_pair(base_url, selector);
 }
 
 }

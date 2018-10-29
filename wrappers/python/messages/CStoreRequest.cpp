@@ -6,42 +6,39 @@
  * for details.
  ************************************************************************/
 
-#include <Python.h>
-
-#include <boost/python.hpp>
+#include <pybind11/pybind11.h>
 
 #include "odil/message/CStoreRequest.h"
 
-void wrap_CStoreRequest()
+void wrap_CStoreRequest(pybind11::module & m)
 {
-    using namespace boost::python;
+    using namespace pybind11;
     using namespace odil;
     using namespace odil::message;
 
-    class_<CStoreRequest, bases<Request>>(
-            "CStoreRequest",
-            init<
+    class_<CStoreRequest, std::shared_ptr<CStoreRequest>, Request>(m, "CStoreRequest")
+        .def(init<
                 Value::Integer, Value::String const &, Value::String const &,
-                Value::Integer, DataSet const &
+                Value::Integer, std::shared_ptr<DataSet>
             >())
-        .def(init<Message>())
+        .def(init<std::shared_ptr<Message>>())
         .def(
             "get_affected_sop_class_uid",
             &CStoreRequest::get_affected_sop_class_uid,
-            return_value_policy<copy_const_reference>())
+            return_value_policy::copy)
         .def(
             "set_affected_sop_class_uid",
             &CStoreRequest::set_affected_sop_class_uid)
         .def(
             "get_affected_sop_instance_uid",
             &CStoreRequest::get_affected_sop_instance_uid,
-            return_value_policy<copy_const_reference>())
+            return_value_policy::copy)
         .def(
             "set_affected_sop_instance_uid",
             &CStoreRequest::set_affected_sop_instance_uid)
         .def(
             "get_priority", &CStoreRequest::get_priority,
-            return_value_policy<copy_const_reference>())
+            return_value_policy::copy)
         .def("set_priority", &CStoreRequest::set_priority)
         .def(
             "has_move_originator_ae_title",
@@ -49,7 +46,7 @@ void wrap_CStoreRequest()
         .def(
             "get_move_originator_ae_title",
             &CStoreRequest::get_move_originator_ae_title,
-            return_value_policy<copy_const_reference>())
+            return_value_policy::copy)
         .def(
             "set_move_originator_ae_title",
             &CStoreRequest::set_move_originator_ae_title)
@@ -59,7 +56,7 @@ void wrap_CStoreRequest()
         .def(
             "get_move_originator_message_id",
             &CStoreRequest::get_move_originator_message_id,
-            return_value_policy<copy_const_reference>())
+            return_value_policy::copy)
         .def(
             "set_move_originator_message_id",
             &CStoreRequest::set_move_originator_message_id)

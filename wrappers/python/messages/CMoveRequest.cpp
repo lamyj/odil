@@ -6,39 +6,36 @@
  * for details.
  ************************************************************************/
 
-#include <Python.h>
-
-#include <boost/python.hpp>
+#include <pybind11/pybind11.h>
 
 #include "odil/message/CMoveRequest.h"
 
-void wrap_CMoveRequest()
+void wrap_CMoveRequest(pybind11::module & m)
 {
-    using namespace boost::python;
+    using namespace pybind11;
     using namespace odil;
     using namespace odil::message;
 
-    class_<CMoveRequest, bases<Request>>(
-            "CMoveRequest",
-            init<
+    class_<CMoveRequest, std::shared_ptr<CMoveRequest>, Request>(m, "CMoveRequest")
+        .def(init<
                 Value::Integer, Value::String const &, Value::Integer,
-                Value::String const &, DataSet const &
+                Value::String const &, std::shared_ptr<DataSet>
             >())
-        .def(init<Message>())
+        .def(init<std::shared_ptr<Message>>())
         .def(
             "get_affected_sop_class_uid",
             &CMoveRequest::get_affected_sop_class_uid,
-            return_value_policy<copy_const_reference>())
+            return_value_policy::copy)
         .def(
             "set_affected_sop_class_uid",
             &CMoveRequest::set_affected_sop_class_uid)
         .def(
             "get_priority", &CMoveRequest::get_priority,
-            return_value_policy<copy_const_reference>())
+            return_value_policy::copy)
         .def("set_priority", &CMoveRequest::set_priority)
         .def(
             "get_move_destination", &CMoveRequest::get_move_destination,
-            return_value_policy<copy_const_reference>())
+            return_value_policy::copy)
         .def("set_move_destination", &CMoveRequest::set_move_destination)
     ;
 }

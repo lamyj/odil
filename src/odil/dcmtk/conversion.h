@@ -68,10 +68,11 @@ void convert(
     TDestinationType & (Element::*getter)());
 
 /// @brief Convert a odil::DataSet to a DcmDataset or a DcmItem.
-ODIL_API DcmItem * convert(DataSet const & source, bool as_data_set=true);
+ODIL_API DcmItem * convert(
+    std::shared_ptr<DataSet const> source, bool as_data_set=true);
 
 /// @brief Convert a DcmDataset to a odil::DataSet.
-ODIL_API DataSet convert(DcmItem * source);
+ODIL_API std::shared_ptr<DataSet> convert(DcmItem * source);
 
 }
 

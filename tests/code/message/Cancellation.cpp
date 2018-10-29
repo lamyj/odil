@@ -8,12 +8,14 @@
 
 struct Fixture: public MessageFixtureBase<odil::message::Cancellation>
 {
-    odil::DataSet command_set;
+    std::shared_ptr<odil::DataSet> command_set;
+
     Fixture()
+    : command_set(std::make_shared<odil::DataSet>())
     {
-        this->command_set.add(
+        this->command_set->add(
             "CommandField", {odil::message::Message::Command::C_CANCEL_RQ});
-        this->command_set.add("MessageIDBeingRespondedTo", {1234});
+        this->command_set->add("MessageIDBeingRespondedTo", {1234});
     }
 
     void check(odil::message::Cancellation const & message)
@@ -38,7 +40,7 @@ BOOST_FIXTURE_TEST_CASE(MessageConstructor, Fixture)
 
 BOOST_FIXTURE_TEST_CASE(MessageConstructorWrongCommandField, Fixture)
 {
-    this->command_set.as_int("CommandField") = {
+    this->command_set->as_int("CommandField") = {
         odil::message::Message::Command::C_ECHO_RQ};
     this->check_message_constructor_throw(this->command_set);
 }

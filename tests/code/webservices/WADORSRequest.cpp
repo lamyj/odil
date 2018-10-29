@@ -1,6 +1,7 @@
 #define BOOST_TEST_MODULE WADORSRequest
 #include <boost/test/unit_test.hpp>
 
+#include "odil/Exception.h"
 #include "odil/registry.h"
 #include "odil/webservices/HTTPRequest.h"
 #include "odil/webservices/URL.h"
@@ -12,20 +13,13 @@ odil::webservices::URL const base_url{"", "example.com", "/dicom", "", ""};
 odil::webservices::URL const base_url_http{
     "http", "example.com", "/dicom", "", ""};
 
-odil::webservices::Selector const instance_selector(
-    std::map<std::string, std::string>(
-        {{"studies", "1.2"},
-         {"series", "3.4"},
-         {"instances", "5.6"}})
-);
+odil::webservices::Selector const instance_selector{
+    {{"studies", "1.2"}, {"series", "3.4"}, {"instances", "5.6"}}
+};
 
-odil::webservices::Selector const frames_selector(
-    std::map<std::string, std::string>(
-        {{"studies", "1.2"},
-         {"series", "3.4"},
-         {"instances", "5.6"}}),
-    {7,8,9}
-);
+odil::webservices::Selector const frames_selector{
+    {{"studies", "1.2"}, {"series", "3.4"}, {"instances", "5.6"}}, {7, 8, 9}
+};
 
 BOOST_AUTO_TEST_CASE(Constructor)
 {
@@ -108,13 +102,13 @@ BOOST_AUTO_TEST_CASE(RequestDicomException)
     selector.set_study("1.2").set_instance("5.6"); // need series in order to have instance
     odil::webservices::Selector selector_1; // empty : need at least a study
     BOOST_REQUIRE_THROW(
-                wado_request.request_dicom(
-                    odil::webservices::Representation::DICOM, selector
-                    ), odil::Exception);
+        wado_request.request_dicom(
+            odil::webservices::Representation::DICOM, selector),
+        odil::Exception);
     BOOST_REQUIRE_THROW(
-                wado_request.request_dicom(
-                    odil::webservices::Representation::DICOM, selector_1
-                    ), odil::Exception);
+        wado_request.request_dicom(
+            odil::webservices::Representation::DICOM, selector_1),
+        odil::Exception);
 }
 
 BOOST_AUTO_TEST_CASE(RequestDicomXML)
@@ -407,6 +401,9 @@ BOOST_AUTO_TEST_CASE(ParseRequestDICOM)
         "");
     odil::webservices::WADORSRequest const wado_request(http_request);
 
+    BOOST_REQUIRE_EQUAL(
+        std::string(wado_request.get_base_url()),
+        std::string(base_url));
     BOOST_REQUIRE(wado_request.get_base_url() == base_url);
     BOOST_REQUIRE(
         wado_request.get_type()

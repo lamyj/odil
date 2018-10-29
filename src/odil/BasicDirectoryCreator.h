@@ -72,7 +72,20 @@ private:
     struct Record
     {
         typedef std::shared_ptr<Record> Pointer;
-        DataSet data_set;
+
+        Record()
+        : data_set(std::make_shared<DataSet>())
+        {
+            // Nothing else.
+        }
+
+        Record(Record const &) = default;
+        Record(Record &&) = default;
+        Record & operator=(Record const &) = default;
+        Record & operator=(Record &&) = default;
+        ~Record() = default;
+
+        std::shared_ptr<DataSet> data_set;
         std::map<std::string, Record::Pointer> children;
     };
 
@@ -93,12 +106,12 @@ private:
 
     /// @brief Create a default record.
     void _fill_record(
-        DataSet const & data_set, Record & record,
+        std::shared_ptr<DataSet const> data_set, Record & record,
         std::string const & type) const;
 
     /// @brief Update the record content from a data set.
     void _update_record(
-        DataSet const & data_set, Record & record,
+        std::shared_ptr<DataSet const> data_set, Record & record,
         std::vector<RecordKey> const & keys) const;
 
     /// @brief Return a linearized version of the record hierarchy.

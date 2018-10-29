@@ -22,9 +22,9 @@ class Tag;
 enum class VR
 {
     UNKNOWN,
-    AE, AS, AT, CS, DA, DS, DT, FL, FD, IS, LO, LT, OB, OD, OF, OL, OW, PN, SH, 
+    AE, AS, AT, CS, DA, DS, DT, FL, FD, IS, LO, LT, OB, OD, OF, OL, OW, PN, SH,
     SL, SQ, SS, ST, TM, UC, UI, UL, UN, UR, US, UT,
-    INVALID
+    INVALID=9999
 };
 
 /// @brief Convert a VR to its string representation.

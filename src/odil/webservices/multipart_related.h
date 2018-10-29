@@ -40,8 +40,7 @@ void transform_parts(
 
 /// @brief Use to call a functor for each part of a multipart/related message.
 template<typename UnaryFunctor>
-void for_each_part(
-    Message const & message, UnaryFunctor functor);
+void for_each_part(Message const & message, UnaryFunctor functor);
 
 /**
  * @brief Serialize the (begin, end) sequence as a multipart/related message

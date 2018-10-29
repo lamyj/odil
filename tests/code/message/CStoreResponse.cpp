@@ -10,19 +10,20 @@
 
 struct Fixture: public MessageFixtureBase<odil::message::CStoreResponse>
 {
-    odil::DataSet command_set;
+    std::shared_ptr<odil::DataSet> command_set;
 
     Fixture()
+    : command_set(std::make_shared<odil::DataSet>())
     {
-        this->command_set.add(
+        this->command_set->add(
             "CommandField", {odil::message::Message::Command::C_STORE_RSP});
-        this->command_set.add("MessageIDBeingRespondedTo", {1234});
-        this->command_set.add("Status", {odil::message::Response::Success});
+        this->command_set->add("MessageIDBeingRespondedTo", {1234});
+        this->command_set->add("Status", {odil::message::Response::Success});
 
-        this->command_set.add("MessageID", {5678});
-        this->command_set.add(
+        this->command_set->add("MessageID", {5678});
+        this->command_set->add(
             "AffectedSOPClassUID", {odil::registry::MRImageStorage});
-        this->command_set.add("AffectedSOPInstanceUID", {"1.2.3.4"});
+        this->command_set->add("AffectedSOPInstanceUID", {"1.2.3.4"});
     }
 
     void check(odil::message::CStoreResponse const & message)
@@ -65,7 +66,7 @@ BOOST_FIXTURE_TEST_CASE(MessageConstructor, Fixture)
 
 BOOST_FIXTURE_TEST_CASE(MessageConstructorWrongCommandField, Fixture)
 {
-    this->command_set.add(
+    this->command_set->add(
         "CommandField", {odil::message::Message::Command::C_ECHO_RQ});
     this->check_message_constructor_throw(this->command_set);
 }

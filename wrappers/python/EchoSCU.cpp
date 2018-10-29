@@ -6,30 +6,22 @@
  * for details.
  ************************************************************************/
 
-#include <Python.h>
-
-#include <boost/python.hpp>
+#include <pybind11/pybind11.h>
 
 #include "odil/EchoSCU.h"
 
-void wrap_EchoSCU()
+void wrap_EchoSCU(pybind11::module & m)
 {
-    using namespace boost::python;
+    using namespace pybind11;
     using namespace odil;
 
-    class_<EchoSCU>("EchoSCU", init<Association &>())
+    class_<EchoSCU>(m, "EchoSCU")
+        .def(init<Association &>())
         .def(
             "get_affected_sop_class",
             &EchoSCU::get_affected_sop_class,
-            return_value_policy<copy_const_reference>()
-        )
-        .def(
-            "set_affected_sop_class",
-            &EchoSCU::set_affected_sop_class
-        )
-        .def(
-            "echo", 
-            &EchoSCU::echo
-        )
+            return_value_policy::copy)
+        .def("set_affected_sop_class", &EchoSCU::set_affected_sop_class)
+        .def("echo", &EchoSCU::echo)
     ;
 }
