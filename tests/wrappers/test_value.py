@@ -5,12 +5,35 @@ import odil
 
 class TestValue(unittest.TestCase):
     def _test_sequences(self, odil_contents, python_contents):
+        self.assertEqual(len(odil_contents), len(python_contents))
+
         if python_contents and isinstance(python_contents[0], bytearray):
             self.assertSequenceEqual(
                 [bytearray([x for x in item]) for item in odil_contents], 
                 python_contents)
+
+            # Access from start
+            self.assertEqual(bytearray(odil_contents[0]), python_contents[0])
+
+            # Access from end
+            self.assertEqual(bytearray(odil_contents[-1]), python_contents[-1])
+
+            # Slice
+            self.assertSequenceEqual(
+                [bytearray([x for x in item]) for item in odil_contents[0:-1]],
+                python_contents[0:-1])
         else:
             self.assertSequenceEqual(list(odil_contents), list(python_contents))
+
+            if python_contents:
+                # Access from start
+                self.assertEqual(odil_contents[0], python_contents[0])
+
+                # Access from end
+                self.assertEqual(odil_contents[-1], python_contents[-1])
+
+                # Slice
+                self.assertSequenceEqual(odil_contents[0:-1], python_contents[0:-1])
         
     def _test_contents(self, value, contents, type_, accessor):
         self.assertEqual(value.type, type_)

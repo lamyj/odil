@@ -18,7 +18,7 @@
 #include "opaque_types.h"
 #include "type_casters.h"
 
-namespace
+namespace odil
 {
 
 pybind11::object
@@ -32,6 +32,89 @@ as_memory_view(odil::Value::Binary::value_type const & binary_item)
     PyObject * memory_view = PyMemoryView_FromBuffer(&buffer);
 
     return pybind11::reinterpret_steal<pybind11::object>(memory_view);
+}
+
+// TODO: add this to bind_vector
+template<typename Vector, typename Class_>
+void vector_accessor(Class_ &cl)
+{
+    using T = typename Vector::value_type;
+    using SizeType = long; //typename Vector::size_type;
+    using ItType   = typename Vector::iterator;
+
+    cl.def(
+        "__getitem__",
+        [](Vector &v, SizeType i) -> T &
+        {
+            if((i>=0 && i >= SizeType(v.size())) || (i<0 && i < -SizeType(v.size())))
+            {
+                throw pybind11::index_error();
+            }
+            return v[i>=0?i:v.size()+i];
+        },
+        pybind11::return_value_policy::reference_internal // ref + keepalive
+    );
+
+    cl.def(
+        "__iter__",
+        [](Vector &v)
+        {
+            return pybind11::make_iterator<
+                    pybind11::return_value_policy::reference_internal, ItType, ItType, T&
+                >(v.begin(), v.end());
+        },
+        pybind11::keep_alive<0, 1>() /* Essential: keep list alive while iterator exists */
+    );
+}
+
+template<typename Vector, typename holder_type = std::unique_ptr<Vector>, typename... Args>
+pybind11::class_<Vector, holder_type>
+bind_vector(pybind11::handle scope, std::string const &name, Args&&... args)
+{
+    using Class_ = pybind11::class_<Vector, holder_type>;
+
+    // If the value_type is unregistered (e.g. a converting type) or is itself registered
+    // module-local then make the vector binding module-local as well:
+    using vtype = typename Vector::value_type;
+    auto vtype_info = pybind11::detail::get_type_info(typeid(vtype));
+    bool local = !vtype_info || vtype_info->module_local;
+
+    Class_ cl(
+        scope, name.c_str(), pybind11::module_local(local),
+        std::forward<Args>(args)...);
+
+    // Declare the buffer interface if a buffer_protocol() is passed in
+    pybind11::detail::vector_buffer<Vector, Class_, Args...>(cl);
+
+    cl.def(pybind11::init<>());
+
+    // Register copy constructor (if possible)
+    pybind11::detail::vector_if_copy_constructible<Vector, Class_>(cl);
+
+    // Register comparison-related operators and functions (if possible)
+    pybind11::detail::vector_if_equal_operator<Vector, Class_>(cl);
+
+    // Register stream insertion operator (if possible)
+    pybind11::detail::vector_if_insertion_operator<Vector, Class_>(cl, name);
+
+    // Modifiers require copyable vector value type
+    pybind11::detail::vector_modifiers<Vector, Class_>(cl);
+
+    // Accessor and iterator; return by value if copyable, otherwise we return by ref + keep-alive
+    odil::vector_accessor<Vector, Class_>(cl);
+
+    cl.def(
+        "__bool__",
+        [](const Vector &v) -> bool
+        {
+            return !v.empty();
+        },
+        "Check whether the list is nonempty"
+    );
+
+    cl.def("__len__", &Vector::size);
+
+    return cl;
 }
 
 }
@@ -87,8 +170,8 @@ void wrap_Value(pybind11::module & m)
         .value("Binary", Value::Type::Binary)
     ;
 
-    bind_vector<Value::Integers>(value, "Integers");
-    bind_vector<Value::Reals>(value, "Reals");
+    odil::bind_vector<Value::Integers>(value, "Integers");
+    odil::bind_vector<Value::Reals>(value, "Reals");
 
     // NOTE Using bind_vector brings back #63.
     // Re-use the code of bind_vector and modify where needed.
@@ -106,16 +189,16 @@ void wrap_Value(pybind11::module & m)
         detail::vector_modifiers<Vector, Class_>(cl);
 
         // vector_accessor
-        using SizeType = typename Vector::size_type;
+        using SizeType = long; //typename Vector::size_type;
         using ItType   = typename Vector::iterator;
 
         cl.def("__getitem__",
             [](Vector &v, SizeType i) {
-                if(i >= v.size())
+                if((i>=0 && i >= SizeType(v.size())) || (i<0 && i < -SizeType(v.size())))
                 {
-                    throw index_error();
+                    throw pybind11::index_error();
                 }
-                return bytes(v[i]);
+                return bytes(v[i>=0?i:v.size()+i]);
             });
 
         cl.def(
@@ -161,8 +244,8 @@ void wrap_Value(pybind11::module & m)
         cl.def("__len__", &Vector::size);
     }
 
-    bind_vector<Value::DataSets>(value, "DataSets");
-    bind_vector<Value::Binary::value_type>(value, "BinaryItem")
+    odil::bind_vector<Value::DataSets>(value, "DataSets");
+    odil::bind_vector<Value::Binary::value_type>(value, "BinaryItem")
         .def("get_memory_view", as_memory_view);
-    bind_vector<Value::Binary>(value, "Binary");
+    odil::bind_vector<Value::Binary>(value, "Binary");
 }
