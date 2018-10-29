@@ -19,7 +19,7 @@ class TestWADORSRequest(unittest.TestCase):
 
         self.assertEqual(str(wado_rs_request.get_base_url()), "/foo")
         self.assertEqual(
-            wado_rs_request.get_transfer_syntax(),
+            wado_rs_request.get_transfer_syntax().encode(),
             odil.registry.ExplicitVRLittleEndian)
         self.assertEqual(wado_rs_request.get_character_set(), "UTF-8")
         self.assertFalse(wado_rs_request.get_include_media_type_in_query())
@@ -44,7 +44,8 @@ class TestWADORSRequest(unittest.TestCase):
             include_character_set_in_query=True)
         self.assertEqual(str(request.get_base_url()), "http://foo.com/bar")
         self.assertEqual(
-            request.get_transfer_syntax(), odil.registry.ExplicitVRLittleEndian)
+            request.get_transfer_syntax().encode(),
+            odil.registry.ExplicitVRLittleEndian)
         self.assertEqual(request.get_character_set(), "utf-8")
         self.assertTrue(request.get_include_media_type_in_query())
         self.assertTrue(request.get_include_character_set_in_query())
