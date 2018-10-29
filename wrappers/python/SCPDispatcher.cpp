@@ -18,7 +18,7 @@
 namespace
 {
 
-template<typename TSCP, odil::message::Message::Command::Type Command>
+template<typename TSCP, odil::message::Message::Command Command>
 void set_scp(odil::SCPDispatcher & dispatcher, TSCP scp)
 {
     dispatcher.set_scp(Command, std::make_shared<TSCP>(scp));
@@ -37,16 +37,16 @@ void wrap_SCPDispatcher(pybind11::module & m)
         .def("dispatch", &SCPDispatcher::dispatch)
         .def(
             "set_echo_scp",
-            &set_scp<EchoSCP, message::Message::Command::Type::C_ECHO_RQ>)
+            &set_scp<EchoSCP, message::Message::Command::C_ECHO_RQ>)
         .def(
             "set_store_scp",
-            &set_scp<StoreSCP, message::Message::Command::Type::C_STORE_RQ>)
+            &set_scp<StoreSCP, message::Message::Command::C_STORE_RQ>)
         .def(
             "set_nset_scp",
-            &set_scp<NSetSCP, message::Message::Command::Type::N_SET_RQ>)
+            &set_scp<NSetSCP, message::Message::Command::N_SET_RQ>)
         .def(
             "set_ncreate_scp",
-            &set_scp<NCreateSCP, message::Message::Command::Type::N_CREATE_RQ>)
+            &set_scp<NCreateSCP, message::Message::Command::N_CREATE_RQ>)
         .def("has_scp", &SCPDispatcher::has_scp)
     ;
 }
