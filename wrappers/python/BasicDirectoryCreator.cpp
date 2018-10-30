@@ -6,6 +6,7 @@
  * for details.
  ************************************************************************/
 
+#include <algorithm>
 #include <string>
 #include <vector>
 
