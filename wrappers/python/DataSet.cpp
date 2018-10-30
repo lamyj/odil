@@ -34,7 +34,14 @@ void wrap_DataSet(pybind11::module & m)
                 {
                     vr = as_vr(tag);
                 }
-                data_set.add(tag, {convert_iterable<Value>(source), vr});
+                if(len(source) > 0)
+                {
+                    data_set.add(tag, {convert_iterable<Value>(source), vr});
+                }
+                else
+                {
+                    data_set.add(tag);
+                }
             },
             "self"_a, "tag"_a, "vr"_a=VR::UNKNOWN
         )

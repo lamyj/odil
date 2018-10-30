@@ -70,8 +70,16 @@ class TestDataSet(unittest.TestCase):
 
     def _test_implicit_container(
             self, tag, empty_content, type_check, accessor):
+
+        # Implicit empty content
         data_set = odil.DataSet()
         data_set.add(tag)
+        self._test_element_value(
+            data_set, tag, empty_content, type_check, accessor)
+
+        # Explicit empty content
+        data_set = odil.DataSet()
+        data_set.add(tag, empty_content)
         self._test_element_value(
             data_set, tag, empty_content, type_check, accessor)
 
