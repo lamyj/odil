@@ -28,7 +28,7 @@ void wrap_DataSet(pybind11::module & m)
             "tag"_a, "vr"_a=VR::UNKNOWN)
         .def(
             "add",
-            [](DataSet & data_set, Tag const & tag, iterable source, VR vr)
+            [](DataSet & data_set, Tag const & tag, sequence source, VR vr)
             {
                 if(vr == VR::UNKNOWN)
                 {
@@ -36,7 +36,7 @@ void wrap_DataSet(pybind11::module & m)
                 }
                 if(len(source) > 0)
                 {
-                    data_set.add(tag, {convert_iterable<Value>(source), vr});
+                    data_set.add(tag, {convert_sequence<Value>(source), vr});
                 }
                 else
                 {
@@ -128,4 +128,3 @@ void wrap_DataSet(pybind11::module & m)
     ;
 
 }
-

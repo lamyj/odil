@@ -31,7 +31,8 @@ pybind11::list get_files(odil::BasicDirectoryCreator const & creator)
 }
 
 void set_files(
-    odil::BasicDirectoryCreator & creator, pybind11::list const & files_python)
+    odil::BasicDirectoryCreator & creator,
+    pybind11::sequence const & files_python)
 {
     std::vector<std::string> files_cpp(pybind11::len(files_python));
     std::transform(
@@ -64,7 +65,7 @@ set_extra_record_keys(
     odil::BasicDirectoryCreator & creator, 
     pybind11::dict const & extra_record_keys_python)
 {
-    for(auto const & item: extra_record_keys_python)
+    for(auto const item: extra_record_keys_python)
     {
         auto const level = pybind11::cast<std::string>(item.first);
         auto const extra_record_keys = item.second;
@@ -75,7 +76,7 @@ set_extra_record_keys(
             extra_record_keys.begin(), extra_record_keys.end(), value.begin(),
             [](pybind11::handle const & h)
             {
-                auto const tag_and_type = pybind11::reinterpret_borrow<pybind11::list>(h);
+                auto const tag_and_type = h.cast<pybind11::sequence>();
                 auto const tag = pybind11::cast<odil::Tag>(tag_and_type[0]);
                 auto const type = pybind11::cast<int>(tag_and_type[1]);
                 return odil::BasicDirectoryCreator::RecordKey(tag, type);
@@ -96,7 +97,7 @@ void wrap_BasicDirectoryCreator(pybind11::module & m)
         .def(
             init(
                 [](
-                    std::string const & root, list const & files,
+                    std::string const & root, sequence const & files,
                     dict const & extra_record_keys)
                 {
                     BasicDirectoryCreator creator(root);

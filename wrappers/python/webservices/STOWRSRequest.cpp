@@ -18,15 +18,15 @@ namespace
 
 void
 request_dicom(
-    odil::webservices::STOWRSRequest& self, pybind11::list data_sets,
+    odil::webservices::STOWRSRequest& self, pybind11::sequence data_sets,
     odil::webservices::Selector selector,
     odil::webservices::Representation representation)
 {
-    odil::Value::DataSets cpp_val;
-    for(pybind11::size_t i = 0; i < pybind11::len(data_sets); ++i)
-    {
-        cpp_val.push_back(data_sets[i].cast<std::shared_ptr<odil::DataSet>>());
-    }
+    odil::Value::DataSets cpp_val(pybind11::len(data_sets));
+    std::transform(
+        data_sets.begin(), data_sets.end(), cpp_val.begin(), 
+        [](pybind11::handle const & h) 
+        { return h.cast<std::shared_ptr<odil::DataSet>>(); });
     self.request_dicom(cpp_val, selector, representation);
 }
 

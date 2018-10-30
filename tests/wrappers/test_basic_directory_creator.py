@@ -62,10 +62,24 @@ class TestBasicDirectoryCreator(unittest.TestCase):
 
         self._test_default_records(records)
 
-    def test_extra_record_keys(self):
+    def test_extra_record_keys_list(self):
         creator = odil.BasicDirectoryCreator(
             self.root, self.files,
             { "SERIES": [["SeriesDescription", 1]]})
+        creator()
+        with open(os.path.join(self.root, "DICOMDIR"), "rb") as fd:
+            header, dicomdir = odil.Reader.read_file(odil.iostream(fd))
+
+        records = dicomdir.as_data_set("DirectoryRecordSequence")
+
+        self._test_default_records(records)
+        self.assertSequenceEqual(
+            records[2].as_string("SeriesDescription"), [b"Series"])
+
+    def test_extra_record_keys_tuple(self):
+        creator = odil.BasicDirectoryCreator(
+            self.root, self.files,
+            { "SERIES": (("SeriesDescription", 1), )})
         creator()
         with open(os.path.join(self.root, "DICOMDIR"), "rb") as fd:
             header, dicomdir = odil.Reader.read_file(odil.iostream(fd))

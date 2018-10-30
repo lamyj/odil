@@ -19,14 +19,14 @@ namespace
 
 void
 set_data_sets(
-    odil::webservices::QIDORSResponse& self, pybind11::list data_sets)
+    odil::webservices::QIDORSResponse& self, pybind11::sequence data_sets)
 {
-    odil::Value::DataSets odil_ds;
-    for(pybind11::size_t i = 0; i < pybind11::len(data_sets) ; ++i)
-    {
-        odil_ds.push_back(data_sets[i].cast<std::shared_ptr<odil::DataSet>>());
-    }
-    self.set_data_sets(odil_ds);
+    odil::Value::DataSets cpp_val(pybind11::len(data_sets));
+    std::transform(
+        data_sets.begin(), data_sets.end(), cpp_val.begin(), 
+        [](pybind11::handle const & h) 
+        { return h.cast<std::shared_ptr<odil::DataSet>>(); });
+    self.set_data_sets(cpp_val);
 }
 
 }

@@ -26,11 +26,11 @@ PYBIND11_MAKE_OPAQUE(odil::Value::Binary);
 PYBIND11_MAKE_OPAQUE(odil::Value::Binary::value_type);
 
 template<typename T, typename ... Args>
-T convert_iterable(pybind11::iterable & source, Args && ... args)
+T convert_sequence(pybind11::sequence & source, Args && ... args)
 {
     if(pybind11::len(source) == 0)
     {
-        throw odil::Exception("Empty iterable has no type");
+        throw odil::Exception("Empty sequence has no type");
     }
 
 #define try_convert(Items) \

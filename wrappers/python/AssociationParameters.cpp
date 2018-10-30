@@ -19,11 +19,12 @@ namespace
 odil::AssociationParameters::PresentationContext
 presentation_context_constructor(
     uint8_t id, std::string const & abstract_syntax,
-    pybind11::list transfer_syntaxes,
+    pybind11::sequence transfer_syntaxes,
     bool scu_role_support, bool scp_role_support)
 {
 
-    std::vector<std::string> transfer_syntaxes_cpp(len(transfer_syntaxes));
+    std::vector<std::string> transfer_syntaxes_cpp(
+        pybind11::len(transfer_syntaxes));
     std::transform(
         transfer_syntaxes.begin(), transfer_syntaxes.end(),
         transfer_syntaxes_cpp.begin(),
@@ -38,7 +39,7 @@ presentation_context_constructor(
 odil::AssociationParameters::PresentationContext
 presentation_context_simplified_constructor(
     std::string const & abstract_syntax,
-    pybind11::list transfer_syntaxes,
+    pybind11::sequence transfer_syntaxes,
     bool scu_role_support, bool scp_role_support)
 {
 
@@ -69,16 +70,15 @@ get_presentation_contexts(odil::AssociationParameters const & parameters)
 odil::AssociationParameters &
 set_presentation_contexts(
     odil::AssociationParameters & parameters,
-    pybind11::list const & presentation_contexts)
+    pybind11::sequence const & presentation_contexts)
 {
     std::vector<odil::AssociationParameters::PresentationContext> 
         presentation_contexts_cpp;
     presentation_contexts_cpp.reserve(pybind11::len(presentation_contexts));
-    for(size_t i = 0; i<pybind11::len(presentation_contexts); ++i)
+    for(pybind11::handle const & item: presentation_contexts)
     {
         presentation_contexts_cpp.push_back(
-            presentation_contexts[i].cast<
-                odil::AssociationParameters::PresentationContext>());
+            item.cast<odil::AssociationParameters::PresentationContext>());
     }
     parameters.set_presentation_contexts(presentation_contexts_cpp);
     

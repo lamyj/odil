@@ -30,8 +30,8 @@ void wrap_Element(pybind11::module & m)
         .def(init<VR>())
         .def(init<Value const &, VR>())
         .def(
-            init([](iterable & source, VR vr) {
-                return convert_iterable<Element>(source, vr);
+            init([](sequence & source, VR vr) {
+                return convert_sequence<Element>(source, vr);
             }),
             "source"_a, "vr"_a=VR::INVALID)
         .def("empty", &Element::empty)

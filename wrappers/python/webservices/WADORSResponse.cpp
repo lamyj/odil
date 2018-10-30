@@ -19,25 +19,25 @@
 
 void
 set_data_sets(
-    odil::webservices::WADORSResponse& self, pybind11::list data_sets)
+    odil::webservices::WADORSResponse& self, pybind11::sequence data_sets)
 {
-    odil::Value::DataSets odil_ds;
-    for(pybind11::size_t i = 0; i < pybind11::len(data_sets); ++i)
-    {
-        odil_ds.push_back(data_sets[i].cast<std::shared_ptr<odil::DataSet>>());
-    }
-    self.set_data_sets(odil_ds);
+    odil::Value::DataSets cpp_val(pybind11::len(data_sets));
+    std::transform(
+        data_sets.begin(), data_sets.end(), cpp_val.begin(), 
+        [](pybind11::handle const & h) 
+        { return h.cast<std::shared_ptr<odil::DataSet>>(); });
+    self.set_data_sets(cpp_val);
 }
 
 void
 set_bulk_data(
-    odil::webservices::WADORSResponse& self, pybind11::list bulk_data)
+    odil::webservices::WADORSResponse& self, pybind11::sequence bulk_data)
 {
-    std::vector<odil::webservices::BulkData> cpp_val;
-    for (pybind11::size_t i = 0; i < pybind11::len(bulk_data); ++i)
-    {
-        cpp_val.push_back(bulk_data[i].cast<odil::webservices::BulkData>());
-    }
+    std::vector<odil::webservices::BulkData> cpp_val(pybind11::len(bulk_data));
+    std::transform(
+        bulk_data.begin(), bulk_data.end(), cpp_val.begin(), 
+        [](pybind11::handle const & h) 
+        { return h.cast<odil::webservices::BulkData>(); });
     self.set_bulk_data(cpp_val);
 }
 

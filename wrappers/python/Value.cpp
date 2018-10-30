@@ -134,8 +134,8 @@ void wrap_Value(pybind11::module & m)
         // Explicit constructor since Value::XXX are opaque
         // WARNING: define *after* other constructors for correct priority
         .def(
-            init([](iterable & source) {
-                return convert_iterable<Value>(source);
+            init([](sequence & source) {
+                return convert_sequence<Value>(source);
             }))
         .def("get_type", &Value::get_type)
         .def("empty", &Value::empty)
