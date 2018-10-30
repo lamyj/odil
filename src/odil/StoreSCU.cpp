@@ -113,11 +113,11 @@ StoreSCU
 
     if(message::Response::is_warning(response->get_status()))
     {
-        ODIL_LOG(WARN) << "C-STORE response status: " << response->get_status();
+        ODIL_LOG(warning) << "C-STORE response status: " << response->get_status();
     }
     else if(message::Response::is_failure(response->get_status()))
     {
-        ODIL_LOG(ERROR) << "C-STORE response status: " << response->get_status();
+        ODIL_LOG(error) << "C-STORE response status: " << response->get_status();
     }
 }
 

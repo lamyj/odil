@@ -181,11 +181,11 @@ MoveSCU
         this->_association.receive_message());
     if(message::Response::is_warning(response->get_status()))
     {
-        ODIL_LOG(WARN) << "C-MOVE response status: " << response->get_status();
+        ODIL_LOG(error) << "C-MOVE response status: " << response->get_status();
     }
     else if(message::Response::is_failure(response->get_status()))
     {
-        ODIL_LOG(ERROR) << "C-MOVE response status: " << response->get_status();
+        ODIL_LOG(error) << "C-MOVE response status: " << response->get_status();
     }
 
     // Store status before moving the response.

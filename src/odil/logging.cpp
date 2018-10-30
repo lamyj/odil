@@ -6,11 +6,13 @@
  * for details.
  ************************************************************************/
 
-#include <iostream>
+#include "odil/logging.h"
 
-#include <log4cpp/Category.hh>
-#include <log4cpp/OstreamAppender.hh>
-#include <log4cpp/Priority.hh>
+#include <boost/log/expressions.hpp>
+#include <boost/log/sources/severity_logger.hpp>
+#include <boost/log/trivial.hpp>
+
+#include "odil/odil.h"
 
 namespace odil
 {
@@ -20,15 +22,15 @@ namespace logging
 
 bool configure()
 {
-    auto * appender = new log4cpp::OstreamAppender("console", &std::cout);
-    appender->setLayout(new log4cpp::BasicLayout());
-
-    auto & root = log4cpp::Category::getInstance("odil");
-    root.setPriority(log4cpp::Priority::WARN);
-    root.addAppender(appender);
-
+    boost::log::core::get()->set_filter(
+        boost::log::trivial::severity >= boost::log::trivial::warning);
+    
     return true;
+
+    
 }
+
+boost::log::sources::severity_logger<int> logger = {};
 
 static bool const configured = configure();
 

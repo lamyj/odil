@@ -108,11 +108,11 @@ GetSCU
 {
     if(message::Response::is_warning(response->get_status()))
     {
-        ODIL_LOG(WARN) << "C-GET response status: " << response->get_status();
+        ODIL_LOG(warning) << "C-GET response status: " << response->get_status();
     }
     else if(message::Response::is_failure(response->get_status()))
     {
-        ODIL_LOG(ERROR) << "C-GET response status: " << response->get_status();
+        ODIL_LOG(error) << "C-GET response status: " << response->get_status();
     }
 
     // Store status before moving the response->

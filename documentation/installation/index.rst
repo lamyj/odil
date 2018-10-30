@@ -14,10 +14,9 @@ The core of Odil depends on:
 
 - C++ 11 (GCC >= 4.7, Clang)
 - `CMake`_ (>= 2.8.9)
-- `Boost`_ (>= 1.49, uses `Asio`_, `Date Time`_, `Filesystem`_, `Fusion`_, `Preprocessor`_, `Property Tree`_, `Spirit`_, `Uuid`_)
+- `Boost`_ (>= 1.54, uses `Asio`_, `Date Time`_, `Filesystem`_, `Fusion`_, `Log`, `Preprocessor`_, `Property Tree`_, `Spirit`_, `Uuid`_)
 - `ICU4C`_ (>= 4.8.1.1)
 - `JsonCpp`_ (>= 0.6.0)
-- `log4cpp`_ (>= 1.0)
 
 Earlier versions of these dependencies might work but are unsupported.
 
@@ -76,7 +75,6 @@ When building the Python wrappers, the Python interpreter and libraries default 
 .. _Git repository: https://github.com/lamyj/odil
 .. _ICU4C: https://ssl.icu-project.org/apiref/icu4c/
 .. _JsonCpp: https://github.com/open-source-parsers/jsoncpp
-.. _log4cpp: http://log4cpp.sourceforge.net/
 .. _nose: https://nose.readthedocs.io/en/latest/testing.html
 .. _Preprocessor: http://www.boost.org/doc/libs/release/libs/preprocessor/
 .. _Property Tree: http://www.boost.org/doc/libs/release/libs/property_tree/

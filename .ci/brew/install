@@ -9,8 +9,7 @@ import sys
 
 brew_conflicting = ["json-c"]
 brew_required = [
-    "boost", "cmake", "dcmtk", "icu4c", "jsoncpp", "log4cpp", "pkg-config",
-    "pybind11"
+    "boost", "cmake", "dcmtk", "icu4c", "jsoncpp", "pkg-config", "pybind11"
 ]
 brew_required.append(
     "python{}".format("@2" if os.environ["Python"] == 2 else ""))

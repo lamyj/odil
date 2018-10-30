@@ -129,7 +129,7 @@ UserInformation
             }
             sub_item_length = big_endian_to_host(sub_item_length);
 
-            ODIL_LOG(WARN)
+            ODIL_LOG(warning)
                 << "Skipping unknown item with type "
                 << std::hex << (unsigned int)type << std::dec << " "
                 << "(" << sub_item_length << " byte"

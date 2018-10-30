@@ -334,7 +334,7 @@ Reader::Visitor
                     }
                     catch(std::invalid_argument const &)
                     {
-                        ODIL_LOG(ERROR)
+                        ODIL_LOG(error)
                             << "Cannot convert \"" << s << "\" to IS, "
                             << "setting to 0";
                     }
@@ -411,7 +411,7 @@ Reader::Visitor
                     }
                     catch(std::invalid_argument const &)
                     {
-                        ODIL_LOG(ERROR)
+                        ODIL_LOG(error)
                             << "Cannot convert \"" << s << "\" to DS, "
                             << "setting to 0";
                     }

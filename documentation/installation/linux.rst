@@ -17,7 +17,7 @@ For Debian and Ubuntu, the following package list will allow you to compile the 
   sudo apt-get install \
     build-essential cmake pkg-config python-minimal \
     libboost-dev libboost-date-time-dev libboost-filesystem-dev \
-    libdcmtk2-dev libicu-dev libjsoncpp-dev liblog4cpp5-dev zlib1g-dev \
+    libdcmtk2-dev libicu-dev libjsoncpp-dev zlib1g-dev \
     libboost-python-dev python-dev \
     dcmtk libboost-test-dev python-nose
 

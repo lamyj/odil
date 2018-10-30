@@ -96,11 +96,11 @@ FindSCU
 
         if(message::Response::is_warning(response->get_status()))
         {
-            ODIL_LOG(WARN) << "C-FIND response status: " << response->get_status();
+            ODIL_LOG(warning) << "C-FIND response status: " << response->get_status();
         }
         else if(message::Response::is_failure(response->get_status()))
         {
-            ODIL_LOG(ERROR) << "C-FIND response status: " << response->get_status();
+            ODIL_LOG(error) << "C-FIND response status: " << response->get_status();
         }
 
         done = !response->is_pending();

@@ -20,8 +20,9 @@ fi
 # Compilation toolchain
 PACKAGES="build-essential cmake pkg-config python-minimal"
 # Dependencies of main lib
-PACKAGES="${PACKAGES} libboost-dev libboost-date-time-dev libboost-filesystem-dev"
-PACKAGES="${PACKAGES} libdcmtk2-dev libicu-dev libjsoncpp-dev liblog4cpp5-dev zlib1g-dev"
+PACKAGES="${PACKAGES} libboost-dev libboost-date-time-dev "
+PACKAGES="${PACKAGES} libboost-log-dev libboost-filesystem-dev"
+PACKAGES="${PACKAGES} libdcmtk2-dev libicu-dev libjsoncpp-dev zlib1g-dev"
 # Dependencies of Python wrappers
 PACKAGES="${PACKAGES} pybind11-dev ${PYTHON_PREFIX}-pybind11 ${PYTHON_PREFIX}-dev"
 # Dependencies of unit tests

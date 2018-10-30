@@ -9,26 +9,23 @@
 #ifndef _5382f5e0_e993_4966_9447_542844edb635
 #define _5382f5e0_e993_4966_9447_542844edb635
 
-#include <boost/preprocessor/facilities/overload.hpp>
-#include <log4cpp/Category.hh>
-#include <log4cpp/Priority.hh>
+#include <boost/log/sources/severity_logger.hpp>
+#include <boost/log/trivial.hpp>
 
-#define ODIL_LOG_1(level) \
-    log4cpp::Category::getInstance("odil") << log4cpp::Priority::level
+#include "odil/odil.h"
 
-#define ODIL_LOG_2(level, sub) \
-    log4cpp::Category::getInstance("odil." #sub) << log4cpp::Priority::level
+#define ODIL_LOG(level) \
+    BOOST_LOG_SEV(odil::logging::logger, boost::log::trivial::level)
 
-#if !BOOST_PP_VARIADICS_MSVC
+namespace odil
+{
+namespace logging
+{
 
-#define ODIL_LOG(...) BOOST_PP_OVERLOAD(ODIL_LOG_,__VA_ARGS__)(__VA_ARGS__)
+extern ODIL_API boost::log::sources::severity_logger<int> logger;
 
-#else
+}
 
-
-#define ODIL_LOG(...) \
-  BOOST_PP_CAT(BOOST_PP_OVERLOAD(ODIL_LOG_,__VA_ARGS__)(__VA_ARGS__),BOOST_PP_EMPTY())
-
-#endif
+}
 
 #endif // _5382f5e0_e993_4966_9447_542844edb635

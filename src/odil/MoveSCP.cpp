@@ -74,7 +74,7 @@ MoveSCP
     }
     catch(odil::Exception const & e)
     {
-        ODIL_LOG(ERROR) << "Cannot get move association: " << e.what();
+        ODIL_LOG(error) << "Cannot get move association: " << e.what();
         auto response = std::make_shared<message::CMoveResponse>(
             request->get_message_id(),
             message::CMoveResponse::RefusedMoveDestinationUnknown);
