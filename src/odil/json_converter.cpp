@@ -240,7 +240,7 @@ std::shared_ptr<DataSet> as_dataset(Json::Value const & json)
 
     for(auto it=json.begin(); it != json.end(); ++it)
     {
-        Tag const tag(it.memberName());
+        Tag const tag(it.name());
 
         auto const & json_element = *it;
         auto const vr = as_vr(json_element["vr"].asString());
