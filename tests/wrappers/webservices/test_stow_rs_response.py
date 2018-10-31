@@ -55,7 +55,7 @@ class TestSTOWRSResponse(unittest.TestCase):
         self.assertFalse(msg.is_multipart())
         self.assertTrue(msg.get_content_type(), "application/dicom+json")
         odil_json = [json.loads(odil.as_json(self.data_set))]
-        http_json = json.loads(http.get_body())
+        http_json = json.loads(http.get_body().decode())
         self.assertSequenceEqual(http_json, odil_json)
 
     def test_equality(self):

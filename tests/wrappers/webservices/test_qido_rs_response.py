@@ -37,7 +37,7 @@ class TestQIDORSResponse(unittest.TestCase):
         http = response.get_http_response()
         content_type = http.get_header("Content-Type")
         self.assertEqual(content_type, "application/dicom+json")
-        json_http = json.loads(http.get_body())
+        json_http = json.loads(http.get_body().decode())
         json_ds = [ json.loads(odil.as_json(x)) for x in self.data_sets ]
         self.assertEqual(json_ds, json_http)
 

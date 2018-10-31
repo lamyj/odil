@@ -135,7 +135,7 @@ class WADORSResponse(unittest.TestCase):
         self.assertFalse(msg.is_multipart())
         self.assertTrue(msg.get_content_type(), "application/dicom+json")
         odil_json = [json.loads(odil.as_json(x)) for x in self.data_sets]
-        http_json = json.loads(http.get_body())
+        http_json = json.loads(http.get_body().decode())
         self.assertSequenceEqual(http_json, odil_json)
 
     def test_respondBulkData(self):
@@ -164,7 +164,7 @@ class WADORSResponse(unittest.TestCase):
         wado.set_bulk_data(self.bulk_data)
         wado.respond_pixel_data("image/jpeg")
         self.assertEqual(wado.get_type(), odil.webservices.Utils.Type.PixelData)
-        http = wado.get_http_response();
+        http = wado.get_http_response()
 
         msg = self._http_message_to_email_message(http)
         self.assertTrue(msg.is_multipart())
