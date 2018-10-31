@@ -18,7 +18,9 @@ then
 fi
 
 # Compilation toolchain
-PACKAGES="build-essential cmake pkg-config python-minimal"
+# WARNING: we need a full Python for tests runner (argparse may be missing from
+# python-minimal)
+PACKAGES="build-essential cmake pkg-config python"
 # Dependencies of main lib
 PACKAGES="${PACKAGES} libboost-dev libboost-date-time-dev "
 PACKAGES="${PACKAGES} libboost-log-dev libboost-filesystem-dev"
@@ -26,7 +28,7 @@ PACKAGES="${PACKAGES} libdcmtk2-dev libicu-dev libjsoncpp-dev zlib1g-dev"
 # Dependencies of Python wrappers
 PACKAGES="${PACKAGES} pybind11-dev ${PYTHON_PREFIX}-pybind11 ${PYTHON_PREFIX}-dev"
 # Dependencies of unit tests
-PACKAGES="${PACKAGES} dcmtk libboost-test-dev ${PYTHON_PREFIX}-nose"
+PACKAGES="${PACKAGES} dcmtk libboost-test-dev ${PYTHON_PREFIX} ${PYTHON_PREFIX}-nose"
 
 apt-get -y update
 apt-get -y --no-install-recommends install ${PACKAGES}
