@@ -240,7 +240,11 @@ std::shared_ptr<DataSet> as_dataset(Json::Value const & json)
 
     for(auto it=json.begin(); it != json.end(); ++it)
     {
+#if defined(JSONCPP_VERSION_HEXA) && JSONCPP_VERSION_HEXA >= 0x010504
         Tag const tag(it.name());
+#else
+        Tag const tag(it.memberName());
+#endif
 
         auto const & json_element = *it;
         auto const vr = as_vr(json_element["vr"].asString());
