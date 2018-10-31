@@ -2,6 +2,7 @@ import email
 import io
 import json
 import tempfile
+import sys
 import unittest
 
 import odil
@@ -191,7 +192,10 @@ class WADORSResponse(unittest.TestCase):
         message_bytes.append(http_message.get_body())
         message_bytes = b"\r\n".join(message_bytes)
 
-        email_message = email.message_from_bytes(message_bytes)
+        if sys.version_info[0] >= 3:
+            email_message = email.message_from_bytes(message_bytes)
+        else:
+            email_message = email.message_from_string(message_bytes)
         return email_message
 
 if __name__ == "__main__":

@@ -1,5 +1,6 @@
 import email
 import json
+import sys
 import unittest
 
 import odil
@@ -54,7 +55,10 @@ class TestQIDORSResponse(unittest.TestCase):
             for (name, value) in http.get_headers().items()]
         message_bytes.append(http.get_body())
         message_bytes = b"\r\n".join(message_bytes)
-        msg = email.message_from_bytes(message_bytes)
+        if sys.version_info[0] >= 3:
+            msg = email.message_from_bytes(message_bytes)
+        else:
+            msg = email.message_from_string(message_bytes)
         self.assertTrue(msg.is_multipart())
 
         i = 0
