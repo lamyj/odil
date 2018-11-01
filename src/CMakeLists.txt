@@ -47,6 +47,12 @@ target_link_libraries(libodil
 if(WIN32)
     add_definitions(-DBUILDING_ODIL)
     target_link_libraries(libodil netapi32)
+    if(${VCPKG_TOOLCHAIN})
+		# WARNING Need to link with bcrypt explicitely, 
+		# cf. https://github.com/boostorg/uuid/issues/68#issuecomment-430173245
+        # Not sure why iphlpapi is not linked.
+		target_link_libraries(libodil bcrypt iphlpapi)
+	endif()
 endif()
 
 set_target_properties(libodil PROPERTIES
