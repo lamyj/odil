@@ -1,89 +1,44 @@
-version: "{build}"
+image: Visual Studio 2017
+platform:
+  - x64
+version: '{build}'
 branches:
   only:
     - master
-image: Visual Studio 2015
-platform:
-  - x64
-configuration:
-  - Release
+
+configuration: Release
 
 environment:
-  BOOST_ROOT: C:/Libraries/boost_1_62_0
-  DCMTK_ROOT: c:/Libraries/dcmtk
-  ICU_ROOT: C:/Libraries/icu
-  JsonCpp_ROOT: C:/Libraries/jsoncpp
-  Log4Cpp_ROOT: C:/Libraries/log4cpp
-  Python_ROOT: C:/Python27-x64
-  VERSION: 0.8.0-1
+  VCPKG_EXPORT: vcpkg-export-20181101-093017
+  VCVARSALL: '%ProgramFiles(x86)%\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat'
+  ARCHITECTURE: x86_amd64
 
 install:
-  - ps: |
-      Start-FileDownload https://github.com/lamyj/appveyor-dcmtk/releases/download/v3.6.1-20161102-2/dcmtk_3.6.1-20161102-2_dynamic_x64.zip dcmtk.zip
-      7z x -bd -oC:\Libraries dcmtk.zip
-
-      Start-FileDownload http://download.icu-project.org/files/icu4c/58.2/icu4c-58_2-Win64-MSVC2015.zip
-      7z x -bd -oC:\Libraries icu4c-58_2-Win64-MSVC2015.zip
-
-      Start-FileDownload https://github.com/lamyj/appveyor-jsoncpp/releases/download/v1.8.0-2/jsoncpp_1.8.0-2_dynamic_x64.zip jsoncpp.zip
-      7z x -bd -oC:\Libraries jsoncpp.zip
-
-      Start-FileDownload https://github.com/lamyj/appveyor-log4cpp/releases/download/v1.1.1-1/log4cpp_1.1.1-dll_x64.zip log4cpp.zip
-      7z x -bd -oC:\Libraries log4cpp.zip
+  # This archive was obtained by:
+  # vcpkg export --7zip --triplet x64-windows
+  #   boost-asio boost-date-time boost-filesystem boost-fusion  boost-iostreams
+  #   boost-lexical-cast boost-log boost-property-tree boost-spirit boost-test
+  #   boost-uuid dcmtk icu jsoncpp pybind11 zlib
+  - appveyor DownloadFile http://dl.bintray.com/lamyj/generic/vcpkg-exports/%VCPKG_EXPORT%.7z
+  - 7z x %VCPKG_EXPORT%.7z -aos -oc:\tools\vcpkg
+  - choco install ninja -y
+  - vcpkg integrate install
 
 before_build:
-  - ps: |
-      ${env:BUILD_DIRECTORY}="${env:APPVEYOR_BUILD_FOLDER}\build"
-      ${env:INSTALL_DIRECTORY}="${env:APPVEYOR_BUILD_FOLDER}\install\${env:APPVEYOR_PROJECT_NAME}"
-
-      New-Item -Path "${env:BUILD_DIRECTORY}" -ItemType "directory"
-      cd "${env:BUILD_DIRECTORY}"
-
-      ${generator} = "Visual Studio 14 2015"
-      if (${env:PLATFORM} -eq "x64") { ${generator} = "${generator} Win64" }
-      cmake `
-        -G "${generator}" -DCMAKE_INSTALL_PREFIX="${env:INSTALL_DIRECTORY}" `
-        -DBUILD_EXAMPLES=ON -DBUILD_PYTHON_WRAPPERS=OFF -DUSE_BUILTIN_DCMTK_GETSCU=OFF `
-        -DBUILD_SHARED_LIBS=ON -DBUILD_TESTING=ON -DWITH_DCMTK=ON `
-        -DBOOST_LIBRARYDIR="${env:BOOST_ROOT}/lib64-msvc-14.0" `
-        -DDCMTK_INCLUDE_DIR="${env:DCMTK_ROOT}/include" -DDCMTK_LIBRARY="${env:DCMTK_ROOT}/lib/dcmdata.lib" `
-        -DDCMDATA_LIBRARY="${env:DCMTK_ROOT}/lib/dcmdata.lib" -DDCMNET_LIBRARY="${env:DCMTK_ROOT}/lib/dcmnet.lib" `
-        -DOFLOG_LIBRARY="${env:DCMTK_ROOT}/lib/oflog.lib" -DOFSTD_LIBRARY="${env:DCMTK_ROOT}/lib/ofstd.lib" `
-        -DICU_INCLUDE_DIR="${env:ICU_ROOT}/include" -DICU_LIBRARY="${env:ICU_ROOT}/lib64/icuuc.lib" `
-        -DJsonCpp_INCLUDE_DIR="${env:JsonCpp_ROOT}/include" -DJsonCpp_LIBRARY="${env:JsonCpp_ROOT}/lib/jsoncpp.lib" `
-        -DLog4Cpp_INCLUDE_DIR="${env:Log4Cpp_ROOT}/include" -DLog4Cpp_LIBRARY="${env:Log4Cpp_ROOT}/lib/log4cpp.lib" `
-        "${env:APPVEYOR_BUILD_FOLDER}"
+  - call "%VCVARSALL%" %ARCHITECTURE%
+  - cd "%APPVEYOR_BUILD_FOLDER%"
+  - mkdir build
+  - cd build
+  - cmake
+      -G Ninja -DCMAKE_MAKE_PROGRAM=C:/ProgramData/chocolatey/bin/ninja.exe
+      -DCMAKE_BUILD_TYPE=%CONFIGURATION%
+      -DCMAKE_TOOLCHAIN_FILE=c:/tools/vcpkg/%VCPKG_EXPORT%/scripts/buildsystems/vcpkg.cmake
+      -DBUILD_PYTHON_WRAPPERS=OFF -DUSE_BUILTIN_DCMTK_GETSCU=OFF
+      -DCMAKE_INSTALL_PREFIX=%APPVEYOR_BUILD_FOLDER%\install
+      ..
 
 build_script:
-  - ps: |
-      msbuild "${env:BUILD_DIRECTORY}\${env:APPVEYOR_PROJECT_NAME}.sln" `
-        /m /clp:Verbosity=minimal /p:Configuration=${env:CONFIGURATION}
-      msbuild "${env:BUILD_DIRECTORY}\INSTALL.vcxproj" `
-        /m /clp:Verbosity=minimal /p:Configuration=${env:CONFIGURATION}
+  - cd "%APPVEYOR_BUILD_FOLDER%\odil"
+  - cmake --build .
+  - cmake --build . --target install
 
-before_test:
-  - ps: |
-      & "${env:Python_ROOT}\Scripts\pip.exe" install nose
-
-# nosetests writes on stderr, and powershell treats this as an exception:
-# use cmd instead
-test_script:
-  - cmd: |
-      set PATH=%PATH%;%BOOST_ROOT%\lib64-msvc-14.0;%DCMTK_ROOT%\bin
-      set PATH=%PATH%;%ICU_ROOT%\bin64;%JsonCpp_ROOT%\bin;%Log4Cpp_ROOT%\bin
-      set PATH=%PATH%;%INSTALL_DIRECTORY%\bin
-      set PYTHONPATH=%BUILD_DIRECTORY%\wrappers\%CONFIGURATION%
-      cd %BUILD_DIRECTORY%
-      %Python_ROOT%\python.exe ..\tests\run --no-network -e ".*" --nose=%Python_ROOT%\Scripts\nosetests.exe
-
-after_test:
-  - ps: |
-      Start-FileDownload https://download.microsoft.com/download/f/2/6/f263ac46-1fe9-4ae9-8fd3-21102100ebf5/msxsl.exe
-      .\msxsl.exe `
-        "${env:BUILD_DIRECTORY}\Testing\$(Get-Content Testing\TAG -TotalCount 1)\Test.xml" `
-        "${env:APPVEYOR_BUILD_FOLDER}\ctest-to-junit.xsl" `
-        -o junit.xml
-      $wc = New-Object 'System.Net.WebClient'
-      $wc.UploadFile(
-        "https://ci.appveyor.com/api/testresults/junit/${env:APPVEYOR_JOB_ID}",
-        (Resolve-Path .\junit.xml))
