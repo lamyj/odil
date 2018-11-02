@@ -6,35 +6,36 @@
  * for details.
  ************************************************************************/
 
-#include <boost/python.hpp>
+#include <pybind11/pybind11.h>
+#include <pybind11/operators.h>
 
 #include "odil/webservices/HTTPRequest.h"
 #include "odil/webservices/WADORSRequest.h"
 
-void wrap_webservices_WADORSRequest()
+void wrap_webservices_WADORSRequest(pybind11::module & m)
 {
-    using namespace boost::python;
+    using namespace pybind11;
     using namespace odil::webservices;
 
-    class_<WADORSRequest>(
-        "WADORSRequest",
-        init<URL, std::string, std::string, bool, bool>((
+    class_<WADORSRequest>(m, "WADORSRequest")
+        .def(
+            init<URL, std::string, std::string, bool, bool>(),
+            "",
             arg("base_url")=URL(), arg("transfer_syntax")="",
             arg("character_set")="", arg("include_media_type_in_query")=false,
-            arg("include_character_set_in_query")=false
-        )))
+            arg("include_character_set_in_query")=false)
         .def(init<HTTPRequest>())
         .def(
             "get_base_url", &WADORSRequest::get_base_url,
-            return_value_policy<copy_const_reference>())
+            return_value_policy::copy)
         .def("set_base_url", &WADORSRequest::set_base_url)
         .def(
             "get_transfer_syntax", &WADORSRequest::get_transfer_syntax,
-            return_value_policy<copy_const_reference>())
+            return_value_policy::copy)
         .def("set_transfer_syntax", &WADORSRequest::set_transfer_syntax)
         .def(
             "get_character_set", &WADORSRequest::get_character_set,
-            return_value_policy<copy_const_reference>())
+            return_value_policy::copy)
         .def("set_character_set", &WADORSRequest::set_character_set)
         .def(
             "get_include_media_type_in_query",
@@ -51,16 +52,16 @@ void wrap_webservices_WADORSRequest()
         .def("get_type", &WADORSRequest::get_type)
         .def(
             "get_selector", &WADORSRequest::get_selector,
-            return_value_policy<copy_const_reference>())
+            return_value_policy::copy)
         .def(
             "get_url", &WADORSRequest::get_url,
-            return_value_policy<copy_const_reference>())
+            return_value_policy::reference_internal)
         .def(
             "get_media_type", &WADORSRequest::get_media_type,
-            return_value_policy<copy_const_reference>())
+            return_value_policy::reference_internal)
         .def(
             "get_representation", &WADORSRequest::get_representation,
-            return_value_policy<copy_const_reference>())
+            return_value_policy::reference_internal)
         .def("request_dicom", &WADORSRequest::request_dicom)
         .def(
             "request_bulk_data",

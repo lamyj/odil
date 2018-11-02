@@ -17,18 +17,15 @@
 #include "odil/Tag.h"
 #include "odil/UIDsDictionary.h"
 
+{% for group in groups %}
+#include "odil/registry_{{ group }}.h"
+{% endfor %}
+
 namespace odil
 {
 
 namespace registry
 {
-{% for entry in elements_dictionary %}
-{% if entry[0] is string %}
-std::string const {{ entry[2] }}("{{ entry[0] }}");
-{% elif entry[0] is sequence %}
-Tag const {{ entry[2] }}({{ "0x%04x, 0x%04x"|format(*entry[0]) }});
-{% endif %}
-{% endfor %}
 
 {% for entry in uids %}
 std::string const {{ entry[2] }}("{{ entry[0] }}");
@@ -37,6 +34,7 @@ std::string const {{ entry[2] }}("{{ entry[0] }}");
 extern ODIL_API ElementsDictionary public_dictionary;
 extern ODIL_API std::map<std::string, Tag> public_tags;
 extern ODIL_API UIDsDictionary uids_dictionary;
+extern ODIL_API bool const dummy;
 }
 
 }

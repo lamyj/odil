@@ -6,27 +6,26 @@
  * for details.
  ************************************************************************/
 
-#include <boost/python.hpp>
-#include <boost/python/suite/indexing/map_indexing_suite.hpp>
+#include <pybind11/pybind11.h>
+#include <pybind11/stl_bind.h>
 
 #include <odil/UIDsDictionary.h>
 
-void wrap_UIDsDictionary()
+#include "opaque_types.h"
+#include "type_casters.h"
+
+void wrap_UIDsDictionary(pybind11::module & m)
 {
-    using namespace boost::python;
+    using namespace pybind11;
     using namespace odil;
 
-    class_<UIDsDictionaryEntry>(
-        "UIDsDictionaryEntry",
-        init<std::string, std::string, std::string>()
-    )
+    class_<UIDsDictionaryEntry>(m, "UIDsDictionaryEntry")
+        .def(init<std::string, std::string, std::string>())
         .def_readwrite("name", &UIDsDictionaryEntry::name)
         .def_readwrite("keyword", &UIDsDictionaryEntry::keyword)
         .def_readwrite("type", &UIDsDictionaryEntry::type)
     ;
 
-    class_<UIDsDictionary>("UIDsDictionary")
-        .def(map_indexing_suite<UIDsDictionary>())
-    ;
+    bind_map<UIDsDictionary>(m, "UIDsDictionary");
 }
 

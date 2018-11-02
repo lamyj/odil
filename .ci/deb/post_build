@@ -2,23 +2,8 @@
 
 set -ev
 
-export Architecture=${Architecture:?}
-export Distribution=${Distribution:?}
 export Python=${Python:?}
 export WORKSPACE=${WORKSPACE:?}
-
-cd ${WORKSPACE}
-
-rm -rf generatedJUnitFiles/CTest/*
-cd build
-rm -rf Testing/*
-
-if [ ! -d "${WORKSPACE}/generatedJUnitFiles" ]; then
-  mkdir "${WORKSPACE}/generatedJUnitFiles"
-fi
-
-wget -O lcov_cobertura https://raw.github.com/eriwen/lcov-to-cobertura-xml/master/lcov_cobertura/lcov_cobertura.py
-chmod a+x lcov_cobertura
 
 if [ "${Python}" = "2" ]
 then
@@ -28,27 +13,8 @@ then
   NOSE="nosetests3"
 fi
 
-if [ "${Python}" = "3" -a "${Distribution}" = "ubuntu/precise" -o "${Distribution}" = "debian/wheezy" ]
-then
-  # Python 3.2 does not include PEP0414
-  2to3 -w ../tests/wrappers/test_vr.py
-fi
+export LD_LIBRARY_PATH=${WORKSPACE}/install/lib
+export PYTHONPATH=${WORKSPACE}/install/$(python${Python} -c "from distutils.sysconfig import *; print(get_python_lib(True, prefix=''))")
 
-"${WORKSPACE}/tests/run" --no-network --nose ${NOSE}
-
-DIRECTORY=`mktemp -d`
-if [ "${Distribution}" != "ubuntu/precise" -a "${Distribution}" != "debian/wheezy" ]; then
-  lcov --quiet --capture --directory "${WORKSPACE}" --output-file ${DIRECTORY}/test.info
-  lcov --quiet --remove ${DIRECTORY}/test.info -o ${DIRECTORY}/filtered.info \
-    '/usr/*' '*/src/appli/*' '*/tests/*' '*/build/*'
-else
-  touch ${DIRECTORY}/filtered.info
-fi
-cp ${DIRECTORY}/filtered.info "${WORKSPACE}/build/coverage.info"
-./lcov_cobertura ${DIRECTORY}/filtered.info -b "${WORKSPACE}"
-rm -rf ${DIRECTORY}
-
-cppcheck -q --xml --xml-version=2 --enable=all \
-  -i "${WORKSPACE}/tests/tools" \
-  "${WORKSPACE}/src/" "${WORKSPACE}/tests/" "${WORKSPACE}/wrappers/" \
-  2> ${WORKSPACE}/build/cppcheck.xml
+cd ${WORKSPACE}/build
+"${WORKSPACE}/tests/run" --nose ${NOSE}

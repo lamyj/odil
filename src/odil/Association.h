@@ -170,11 +170,12 @@ public:
      * Throw an AssociationReleased or AssociationAborted if the peer released
      * or aborted the association.
      */
-    message::Message receive_message();
+    std::shared_ptr<message::Message> receive_message();
 
     /// @brief Send a DIMSE message.
     void send_message(
-        message::Message const & message, std::string const & abstract_syntax);
+        std::shared_ptr<message::Message const> message,
+        std::string const & abstract_syntax);
 
     /// @brief Return the next available message id.
     uint16_t next_message_id();
@@ -204,11 +205,8 @@ private:
 class ODIL_API AssociationReleased: public Exception
 {
 public:
-    AssociationReleased()
-    : Exception("Association released")
-    {
-        // Nothing else.
-    }
+    AssociationReleased();
+    virtual ~AssociationReleased() noexcept;
 };
 
 /** 
@@ -224,12 +222,8 @@ public:
     /// @brief Reason of the error.
     uint8_t reason;
     
-    /// @brief Constructor.
-    AssociationAborted(unsigned char source, unsigned char reason)
-    : Exception("Association aborted"), source(source), reason(reason)
-    {
-        // Nothing else.
-    }
+    AssociationAborted(unsigned char source, unsigned char reason);
+    virtual ~AssociationAborted() noexcept;
 };
 
 }

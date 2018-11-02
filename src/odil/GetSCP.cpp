@@ -22,13 +22,6 @@ namespace odil
 {
 
 GetSCP
-::GetSCP(Association & association)
-: SCP(association), _generator(nullptr)
-{
-    // Nothing else.
-}
-
-GetSCP
 ::GetSCP(
     Association & association,
     std::shared_ptr<DataSetGenerator> const & generator)
@@ -37,17 +30,11 @@ GetSCP
     this->set_generator(generator);
 }
 
-GetSCP
-::~GetSCP()
-{
-    // Nothing to do.
-}
-
-GetSCP::DataSetGenerator const &
+std::shared_ptr<GetSCP::DataSetGenerator const>
 GetSCP
 ::get_generator() const
 {
-    return *this->_generator;
+    return this->_generator;
 }
 
 void
@@ -59,28 +46,20 @@ GetSCP
 
 void
 GetSCP
-::operator()(message::Message const & message)
+::operator()(std::shared_ptr<message::Message> message)
 {
-    message::CGetRequest const request(message);
+    auto request = std::make_shared<message::CGetRequest const>(message);
     this->operator()(request);
 }
 
 void
 GetSCP
-::operator()(message::Message && message)
-{
-    message::CGetRequest request(std::move(message));
-    this->operator()(request);
-}
-
-void
-GetSCP
-::operator()(message::CGetRequest const & request)
+::operator()(std::shared_ptr<message::CGetRequest const> request)
 {
     StoreSCU store_scu(this->_association);
 
     Value::Integer final_status = message::CGetResponse::Success;
-    DataSet status_fields;
+    auto status_fields = std::make_shared<DataSet>();
     unsigned int remaining_sub_operations = 0;
     unsigned int completed_sub_operations=0;
     unsigned int failed_sub_operations=0;
@@ -93,24 +72,24 @@ GetSCP
 
         while(!this->_generator->done())
         {
-            message::CGetResponse response(
-                request.get_message_id(), message::CGetResponse::Pending);
-            response.set_number_of_remaining_sub_operations(
+            auto response = std::make_shared<message::CGetResponse>(
+                request->get_message_id(), message::CGetResponse::Pending);
+            response->set_number_of_remaining_sub_operations(
                 remaining_sub_operations);
-            response.set_number_of_completed_sub_operations(
+            response->set_number_of_completed_sub_operations(
                 completed_sub_operations);
-            response.set_number_of_failed_sub_operations(
+            response->set_number_of_failed_sub_operations(
                 failed_sub_operations);
-            response.set_number_of_warning_sub_operations(
+            response->set_number_of_warning_sub_operations(
                 warning_sub_operations);
             this->_association.send_message(
-                response, request.get_affected_sop_class_uid());
+                response, request->get_affected_sop_class_uid());
 
             auto data_set = this->_generator->get();
             store_scu.set_affected_sop_class(data_set);
             try
             {
-                store_scu.store(std::move(data_set));
+                store_scu.store(data_set);
 
                 --remaining_sub_operations;
                 ++completed_sub_operations;
@@ -130,18 +109,19 @@ GetSCP
     }
     catch(odil::Exception const & e)
     {
-        status_fields.add(registry::ErrorComment, {e.what()});
+        status_fields->add(registry::ErrorComment, {e.what()});
         final_status = message::CGetResponse::UnableToProcess;
     }
 
-    message::CGetResponse response(request.get_message_id(), final_status);
-    response.set_status_fields(status_fields);
-    response.set_number_of_remaining_sub_operations(remaining_sub_operations);
-    response.set_number_of_completed_sub_operations(completed_sub_operations);
-    response.set_number_of_failed_sub_operations(failed_sub_operations);
-    response.set_number_of_warning_sub_operations(warning_sub_operations);
+    auto response = std::make_shared<message::CGetResponse>(
+        request->get_message_id(), final_status);
+    response->set_status_fields(status_fields);
+    response->set_number_of_remaining_sub_operations(remaining_sub_operations);
+    response->set_number_of_completed_sub_operations(completed_sub_operations);
+    response->set_number_of_failed_sub_operations(failed_sub_operations);
+    response->set_number_of_warning_sub_operations(warning_sub_operations);
     this->_association.send_message(
-        response, request.get_affected_sop_class_uid());
+        response, request->get_affected_sop_class_uid());
 }
 
 }

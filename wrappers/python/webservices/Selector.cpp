@@ -6,57 +6,39 @@
  * for details.
  ************************************************************************/
 
-#include <boost/python.hpp>
+#include <pybind11/pybind11.h>
+#include <pybind11/operators.h>
+#include <pybind11/stl.h>
 
 #include "odil/webservices/HTTPRequest.h"
 #include "odil/webservices/WADORSRequest.h"
 
-void wrap_webservices_Selector()
+void wrap_webservices_Selector(pybind11::module & m)
 {
-    using namespace boost::python;
+    using namespace pybind11;
     using namespace odil::webservices;
 
-    class_<Selector>("Selector", init<>())
+    class_<Selector>(m, "Selector")
         .def(
-            init<std::map<std::string, std::string>, std::vector<int>>((
-                arg("selector") = std::map<std::string, std::string>(),
-                arg("frames")=std::vector<int>()), "selector : {\"studies\" : \"StudiesInstanceUID\", \"series\" : \"SeriesInstanceUID\", \"instances\" : \"SOPInstanceUID\"} "))
+            init<std::map<std::string, std::string>, std::vector<int>>(),
+            "",
+            arg("selector") = std::map<std::string, std::string>(),
+            arg("frames")=std::vector<int>())
+        //"selector : {\"studies\" : \"StudiesInstanceUID\", \"series\" : \"SeriesInstanceUID\", \"instances\" : \"SOPInstanceUID\"} "))
         .def("get_path", &Selector::get_path)
         .def("is_study_present", &Selector::is_study_present)
         .def("is_series_present", &Selector::is_series_present)
         .def("is_instance_present", &Selector::is_instance_present)
+        .def("get_study", &Selector::get_study, return_value_policy::copy)
+        .def("get_series", &Selector::get_series, return_value_policy::copy)
+        .def("get_instance", &Selector::get_instance, return_value_policy::copy)
+        .def("get_frames", &Selector::get_frames, return_value_policy::copy)
+        .def("set_study", &Selector::set_study, return_value_policy::copy)
+        .def("set_series", &Selector::set_series, return_value_policy::copy)
+        .def("set_instance", &Selector::set_instance, return_value_policy::copy)
         .def(
-            "get_study", &Selector::get_study,
-            return_value_policy<copy_const_reference>())
-        .def(
-            "get_series", &Selector::get_series,
-            return_value_policy<copy_const_reference>())
-        .def(
-            "get_instance", &Selector::get_instance,
-            return_value_policy<copy_const_reference>())
-        .def(
-            "get_frames", &Selector::get_frames,
-            return_value_policy<copy_const_reference>())
-        .def(
-            "set_study",
-            &Selector::set_study,
-            return_value_policy<reference_existing_object>()
-        )
-        .def(
-            "set_series",
-            &Selector::set_series,
-            return_value_policy<reference_existing_object>()
-        )
-        .def(
-            "set_instance",
-            &Selector::set_instance,
-            return_value_policy<reference_existing_object>()
-        )
-        .def(
-            "set_frames",
-            &Selector::set_frames,
-            return_value_policy<reference_existing_object>()
-        )
+            "set_frames", &Selector::set_frames,
+            return_value_policy::reference_internal)
         .def(self == self)
         .def(self != self)
     ;

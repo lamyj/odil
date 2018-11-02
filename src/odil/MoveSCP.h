@@ -41,7 +41,8 @@ public:
          * If the move destination is unknown, an odil::Exception must be
          * thrown.
          */
-        virtual Association get_association(message::CMoveRequest const &) const =0;
+        virtual Association get_association(
+            std::shared_ptr<message::CMoveRequest const>) const =0;
     };
 
     /// @brief Constructor.
@@ -52,24 +53,18 @@ public:
         Association & association,
         std::shared_ptr<DataSetGenerator> const & generator);
 
-    /// @brief Destructor.
-    virtual ~MoveSCP();
-
     /// @brief Return the generator.
-    DataSetGenerator const & get_generator() const;
+    std::shared_ptr<DataSetGenerator const> get_generator() const;
 
     /// @brief Set the generator.
     void set_generator(std::shared_ptr<DataSetGenerator> const & generator);
 
     /// @brief Process a C-Get request.
-    virtual void operator()(message::Message const & message);
-
-    /// @brief Process a C-Get request.
-    virtual void operator()(message::Message && message);
+    virtual void operator()(std::shared_ptr<message::Message> message);
 
 private:
     std::shared_ptr<DataSetGenerator> _generator;
-    void operator()(message::CMoveRequest const & request);
+    void operator()(std::shared_ptr<message::CMoveRequest const> request);
 };
 
 }

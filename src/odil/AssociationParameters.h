@@ -42,8 +42,16 @@ public:
             TransferSyntaxesNotSupported = 4,
         };
 
+        /// @brief Constructor.
         PresentationContext(
             uint8_t id,
+            std::string const & abstract_syntax,
+            std::vector<std::string> const & transfer_syntaxes,
+            bool scu_role_support, bool scp_role_support,
+            Result result=Result::NoReason);
+
+        /// @brief Simplified constructor, sets the id to the invalid value 0.
+        PresentationContext(
             std::string const & abstract_syntax,
             std::vector<std::string> const & transfer_syntaxes,
             bool scu_role_support, bool scp_role_support,

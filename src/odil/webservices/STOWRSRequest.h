@@ -73,10 +73,10 @@ public:
     Selector const & get_selector() const;
 
     /// @brief Get the response items.
-    std::vector<DataSet> const & get_data_sets() const;
+    Value::DataSets const & get_data_sets() const;
 
     /// @brief Modify the response items.
-    std::vector<DataSet> & get_data_sets();
+    Value::DataSets & get_data_sets();
 
     /**
      * @brief Prepare a dicom request
@@ -85,14 +85,18 @@ public:
      * A selector corresponding to the location where the instance will be stored
      * and a representation corresponding to the way the request will be encoded
      */
-    void request_dicom(std::vector<DataSet> const & data_sets, Selector const & selector,
-                       Representation const & representation,
-                       std::string const & transfer_syntax=odil::registry::ExplicitVRLittleEndian);
+    void request_dicom(
+        Value::DataSets const & data_sets, Selector const & selector,
+        Representation const & representation,
+        std::string const & transfer_syntax=registry::ExplicitVRLittleEndian);
 
     /// @brief Generate the associated HTTP request.
     HTTPRequest get_http_request() const;
 
 private:
+    /// @brief Map an UUID to its bulk content.
+    typedef std::map<std::string, Value::Binary::value_type> BulkMap;
+
     URL _base_url;
     std::string _transfer_syntax;
     Selector _selector;
@@ -100,25 +104,25 @@ private:
     std::string _media_type;
 
     Representation _representation; // Available request representations : DICOM - DICOM_XML - DICOM_JSON
-    std::vector<DataSet> _data_sets;
+    Value::DataSets _data_sets;
 
     /// @brief Return if the selector is valid or not
     static bool _is_selector_valid (Selector const & selector);
 
     /// @brief Return the media-type deduced from the transfer-syntax of the dataSet
-    static std::string _media_type_from_transfer_syntax(std::string const & transfer_syntax);
-
-    /// @brief Split an url into a pair containing the base url, and the Selector
-    static std::pair <URL, Selector> _split_full_url (const URL& url);
+    static std::string _media_type_from_transfer_syntax(
+        std::string const & transfer_syntax);
 
     /// @brief Function that extracts bulk data from a data_set and store them into the uuid_to_bulk vector
-    static void _extract_bulk_data( DataSet & data_set, std::vector<BulkData> & bulk_data);
+    static void _extract_bulk_data(
+        std::shared_ptr<DataSet> data_set, std::vector<BulkData> & bulk_data);
 
     /**
      * @brief Function used to restore the dataSet to its initial state (With bulk data at the correct location)
      * In this function we also change the content of uuid_to_bulk map
      */
-    static void _restore_data_set(DataSet & data_set, std::map<std::string, std::string>& uuid_bulk_raw);
+    static void _restore_data_set(
+        std::shared_ptr<DataSet> data_set, BulkMap & bulk_map);
 };
 
 }

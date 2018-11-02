@@ -180,7 +180,8 @@ public:
     Value::DataSets & as_data_set(Tag const & tag);
 
     /// @brief Return a data set contained in an existing element (read-only).
-    DataSet const & as_data_set(Tag const & tag, unsigned int position) const;
+    std::shared_ptr<DataSet> const &
+    as_data_set(Tag const & tag, unsigned int position) const;
 
     /// @brief Test whether an existing element has binary type.
     bool is_binary(Tag const & tag) const;
@@ -209,6 +210,12 @@ public:
 
     /// @brief Difference test.
     bool operator!=(DataSet const & other) const;
+
+    /**
+     * @brief Clear the data set (data_set.empty() will be true). All iterators
+     * and all references to elements will be invalidated.
+     */
+    void clear();
 
     /// @brief Clear the element (data_set.empty(tag) will be true).
     void clear(Tag const & tag);

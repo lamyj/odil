@@ -6,7 +6,7 @@
  * for details.
  ************************************************************************/
 
-#include <boost/python.hpp>
+#include <pybind11/pybind11.h>
 
 #include "odil/message/CMoveResponse.h"
 #include "odil/MoveSCU.h"
@@ -17,25 +17,25 @@ namespace
 void
 move_with_python_callback(
     odil::MoveSCU const & scu,
-    odil::DataSet const & query,
-    boost::python::object const & store_callback,
-    boost::python::object const & move_callback)
+    std::shared_ptr<odil::DataSet> query,
+    pybind11::object const & store_callback,
+    pybind11::object const & move_callback)
 {
     odil::MoveSCU::StoreCallback store_callback_cpp;
     if(!store_callback.is_none())
     {
-        store_callback_cpp = [store_callback](odil::DataSet const & data_set)
+        store_callback_cpp = [store_callback](std::shared_ptr<odil::DataSet> data_set)
         {
-            boost::python::call<void>(store_callback.ptr(), data_set);
+            store_callback(data_set);
         };
     }
 
     odil::MoveSCU::MoveCallback move_callback_cpp;
     if(!move_callback.is_none())
     {
-        move_callback_cpp = [move_callback](odil::message::CMoveResponse const & message)
+        move_callback_cpp = [move_callback](std::shared_ptr<odil::message::CMoveResponse> message)
         {
-            boost::python::call<void>(move_callback.ptr(), message);
+            move_callback(message);
         };
     }
 
@@ -44,17 +44,16 @@ move_with_python_callback(
 
 }
 
-void wrap_MoveSCU()
+void wrap_MoveSCU(pybind11::module & m)
 {
-    using namespace boost::python;
+    using namespace pybind11;
     using namespace odil;
 
-    class_<MoveSCU>("MoveSCU", init<Association &>())
+    class_<MoveSCU>(m, "MoveSCU")
+        .def(init<Association &>())
         .def(
-            "get_move_destination",
-            &MoveSCU::get_move_destination,
-            return_value_policy<copy_const_reference>()
-        )
+            "get_move_destination", &MoveSCU::get_move_destination,
+            return_value_policy::copy)
         .def(
             "set_move_destination",
             &MoveSCU::set_move_destination
@@ -67,18 +66,11 @@ void wrap_MoveSCU()
             "set_incoming_port",
             &MoveSCU::set_incoming_port
         )
-        .def(
-            "move",
-            &move_with_python_callback,
-            (
-                arg("scu"), arg("query"), arg("store_callback"),
-                arg("move_callback")
-            )
-        )
+        .def("move", &move_with_python_callback)
         .def(
             "move",
             static_cast<
-                std::vector<DataSet> (MoveSCU::*)(DataSet const &) const
+                Value::DataSets (MoveSCU::*)(std::shared_ptr<DataSet>) const
             >(&MoveSCU::move)
         )
         .def("set_affected_sop_class", &MoveSCU::set_affected_sop_class)

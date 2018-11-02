@@ -20,10 +20,10 @@ BOOST_AUTO_TEST_CASE(Constructor)
 
 BOOST_AUTO_TEST_CASE(MessageConstructor)
 {
-    odil::DataSet command_set;
-    command_set.add("MessageIDBeingRespondedTo", {1234});
-    command_set.add("Status", {odil::message::Response::Pending});
-    odil::message::Message const generic_message(command_set);
+    auto command_set = std::make_shared<odil::DataSet>();
+    command_set->add("MessageIDBeingRespondedTo", {1234});
+    command_set->add("Status", {odil::message::Response::Pending});
+    auto generic_message = std::make_shared<odil::message::Message const>(command_set);
 
     odil::message::Response const message(generic_message);
 
@@ -115,8 +115,8 @@ BOOST_AUTO_TEST_CASE(StatusDetails)
 {
     odil::message::Response response(
         1234, odil::message::Response::SOPClassNotSupported);
-    odil::DataSet status_details;
-    status_details.add(
+    auto status_details = std::make_shared<odil::DataSet>();
+    status_details->add(
         odil::registry::ErrorComment, {"This is the error comment"});
     response.set_status_fields(status_details);
 

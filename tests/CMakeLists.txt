@@ -46,8 +46,13 @@ foreach(test_file ${tests})
     endif()
 
     add_executable(test_${test} ${test_file} ${headers} ${extra_files})
+    
     target_link_libraries(
         test_${test} libodil ${Boost_LIBRARIES} ${DCMTK_LIBRARIES})
+    if(WIN32)
+        target_link_libraries(test_${test} Ws2_32)
+    endif()
+    
     set_target_properties(test_${test} PROPERTIES OUTPUT_NAME ${test} FOLDER "Tests")
 
     file(READ ${test_file} content)

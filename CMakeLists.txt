@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8)
 
 project("odil")
 set(odil_MAJOR_VERSION 0)
-set(odil_MINOR_VERSION 8)
+set(odil_MINOR_VERSION 10)
 set(odil_PATCH_VERSION 0)
 set(odil_VERSION
     ${odil_MAJOR_VERSION}.${odil_MINOR_VERSION}.${odil_PATCH_VERSION})
@@ -51,7 +51,6 @@ if(WIN32)
 endif()
 
 add_subdirectory("src")
-add_subdirectory("applications")
 
 if(BUILD_EXAMPLES)
     add_subdirectory("examples")
@@ -63,6 +62,7 @@ endif()
 
 if(BUILD_PYTHON_WRAPPERS)
     add_subdirectory("wrappers/python")
+    add_subdirectory("applications")
 endif()
 
 if(BUILD_JAVASCRIPT_WRAPPERS)
@@ -75,12 +75,14 @@ add_custom_target(
     SOURCES appveyor.yml .travis.yml ${ci_resources})
 set_target_properties(CIIntegration PROPERTIES FOLDER "Utils")
 
+file(GLOB_RECURSE documentation documentation/*)
 add_custom_target(
     Documentation ${CMAKE_COMMAND} -E echo "Documentation"
-    SOURCES Doxyfile LICENSE.txt README.md)
+    SOURCES LICENSE.txt README.md ${documentation})
 set_target_properties(Documentation PROPERTIES FOLDER "Utils")
 
+file(GLOB_RECURSE registry_templates registry*.tmpl)
 add_custom_target(
     Registry ${CMAKE_COMMAND} -E echo "Registry"
-    SOURCES generate_registry registry.cpp.tmpl registry.h.tmpl)
+    SOURCES generate_registry ${registry_templates})
 set_target_properties(Registry PROPERTIES FOLDER "Utils")

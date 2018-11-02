@@ -6,37 +6,38 @@
  * for details.
  ************************************************************************/
 
-#include "odil/NSetSCP.h"
+#include <pybind11/pybind11.h>
 
-#include <boost/python.hpp>
+#include "odil/NSetSCP.h"
 
 namespace
 {
 
 void
-set_callback( odil::NSetSCP& scp, boost::python::object const& f)
+set_callback(odil::NSetSCP& scp, pybind11::object const& f)
 {
     scp.set_callback(
-        [f](odil::message::NSetRequest const& message)
+        [f](std::shared_ptr<odil::message::NSetRequest const> message)
         {
-            return boost::python::call<odil::Value::Integer>(f.ptr(), message);
-        }
-        );
-}
+            return f(message).cast<odil::Value::Integer>();
+        });
 }
 
-void wrap_NSetSCP()
+}
+
+void wrap_NSetSCP(pybind11::module & m)
 {
-    using namespace boost::python;
+    using namespace pybind11;
     using namespace odil;
 
-    class_<NSetSCP >("NSetSCP", init<Association&>() )
+    class_<NSetSCP>(m, "NSetSCP")
+        .def(init<Association&>())
         .def (init<Association&, NSetSCP::Callback&>())
         .def("set_callback", &set_callback)
         .def(
             "__call__",
             static_cast<
-                void (NSetSCP::*)(message::Message const &)
+                void (NSetSCP::*)(std::shared_ptr<message::Message>)
             >(&NSetSCP::operator())
         )
     ;

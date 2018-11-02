@@ -5,12 +5,35 @@ import odil
 
 class TestValue(unittest.TestCase):
     def _test_sequences(self, odil_contents, python_contents):
+        self.assertEqual(len(odil_contents), len(python_contents))
+
         if python_contents and isinstance(python_contents[0], bytearray):
             self.assertSequenceEqual(
                 [bytearray([x for x in item]) for item in odil_contents], 
                 python_contents)
+
+            # Access from start
+            self.assertEqual(bytearray(odil_contents[0]), python_contents[0])
+
+            # Access from end
+            self.assertEqual(bytearray(odil_contents[-1]), python_contents[-1])
+
+            # Slice
+            self.assertSequenceEqual(
+                [bytearray([x for x in item]) for item in odil_contents[0:-1]],
+                python_contents[0:-1])
         else:
             self.assertSequenceEqual(list(odil_contents), list(python_contents))
+
+            if python_contents:
+                # Access from start
+                self.assertEqual(odil_contents[0], python_contents[0])
+
+                # Access from end
+                self.assertEqual(odil_contents[-1], python_contents[-1])
+
+                # Slice
+                self.assertSequenceEqual(odil_contents[0:-1], python_contents[0:-1])
         
     def _test_contents(self, value, contents, type_, accessor):
         self.assertEqual(value.type, type_)
@@ -42,7 +65,7 @@ class TestValue(unittest.TestCase):
     def _test_modify(self, contents, accessor):
         value = odil.Value([contents[0]])
         if isinstance(contents[0], bytearray):
-            accessor(value).append(odil.Value.BinaryItem("".join(chr(x) for x in contents[1])))
+            accessor(value).append(odil.Value.BinaryItem(contents[1]))
         else:
             accessor(value).append(contents[1])
         
@@ -90,7 +113,7 @@ class TestValue(unittest.TestCase):
 
     def test_strings(self):
         self._test(
-            odil.Value.Strings(), ["foo", "bar"], ["plip", "plop"],
+            odil.Value.Strings(), [b"foo", b"bar"], [b"plip", b"plop"],
             odil.Value.Type.Strings, odil.Value.as_strings)
 
     # FIXME: strings in DICOM are byte-string, with some VR requiring 
@@ -148,7 +171,7 @@ class TestValueStrings(unittest.TestCase):
         self.assertEqual([x for x in data], [])
 
     def test_sequence_constructor(self):
-        items = ["foo", "bar"]
+        items = [b"foo", b"bar"]
         data = odil.Value.Strings(items)
         self.assertEqual([x for x in data], items)
 
@@ -168,12 +191,12 @@ class TestValueBinary(unittest.TestCase):
         self.assertEqual([x for x in data], [])
 
     def test_sequence_constructor(self):
-        items = [odil.Value.BinaryItem("\x01\x02\x03")]
+        items = [odil.Value.BinaryItem([1, 2, 3])]
         data = odil.Value.Binary(items)
         self.assertEqual([x for x in data[0]], [x for x in items[0]])
 
     def test_buffer(self):
-        item = odil.Value.BinaryItem("\x01\x02\x03")
+        item = odil.Value.BinaryItem([1, 2, 3])
         memory_view = item.get_memory_view()
         self.assertTrue(isinstance(memory_view, memoryview))
 

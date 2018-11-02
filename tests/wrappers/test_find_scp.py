@@ -2,6 +2,7 @@ import glob
 import multiprocessing
 import os
 import subprocess
+import sys
 import time
 import unittest
 
@@ -51,12 +52,12 @@ class TestFindSCP(unittest.TestCase):
         self.assertEqual(len(data_sets[0]), 2)
         
         self.assertSequenceEqual(
-            data_sets[0].as_string("PatientName"), ["Hello^World"])
-        self.assertSequenceEqual(data_sets[0].as_string("PatientID"), ["1234"])
+            data_sets[0].as_string("PatientName"), [b"Hello^World"])
+        self.assertSequenceEqual(data_sets[0].as_string("PatientID"), [b"1234"])
         
         self.assertSequenceEqual(
-            data_sets[1].as_string("PatientName"), ["Doe^John"])
-        self.assertSequenceEqual(data_sets[1].as_string("PatientID"), ["5678"])
+            data_sets[1].as_string("PatientName"), [b"Doe^John"])
+        self.assertSequenceEqual(data_sets[1].as_string("PatientID"), [b"5678"])
     
     def run_client(self):
         command = [
@@ -71,15 +72,16 @@ class TestFindSCP(unittest.TestCase):
             return []
         
         files = sorted(glob.glob("rsp*"))
-        data_sets = [odil.read(x)[1] for x in files]
+        data_sets = []
+        for file_ in files:
+            with odil.open(file_, "rb") as fd:
+                data_sets.append(odil.Reader.read_file(fd)[1])
         for file_ in files:
             os.remove(file_)
         
         return data_sets
 
     def run_server(self):
-        called = False
-
         association = odil.Association()
         association.set_tcp_timeout(1)
         association.receive_association("v4", 11113)
@@ -100,10 +102,10 @@ class TestFindSCP(unittest.TestCase):
         except odil.AssociationAborted:
             pass
         
-        if called and termination_ok:
-            return 0
+        if termination_ok:
+            sys.exit(0)
         else:
-            return 1
+            sys.exit(1)
 
 if __name__ == "__main__":
     unittest.main()

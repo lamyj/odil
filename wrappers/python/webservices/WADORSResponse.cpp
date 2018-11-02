@@ -6,83 +6,68 @@
  * for details.
  ************************************************************************/
 
+#include <algorithm>
 #include <vector>
 
-#include <boost/python.hpp>
+#include <pybind11/pybind11.h>
+#include <pybind11/operators.h>
+#include <pybind11/stl.h>
 
 #include "odil/DataSet.h"
 #include "odil/webservices/BulkData.h"
 #include "odil/webservices/WADORSResponse.h"
 #include "odil/Value.h"
 
-boost::python::list
-get_data_sets(odil::webservices::WADORSResponse& self)
+void
+set_data_sets(
+    odil::webservices::WADORSResponse& self, pybind11::sequence data_sets)
 {
-    boost::python::list python_ds;
-    auto const cpp_val = self.get_data_sets();
-    for (auto const ds : cpp_val)
-    {
-        python_ds.append(ds);
-    }
-    return python_ds;
+    odil::Value::DataSets cpp_val(pybind11::len(data_sets));
+    std::transform(
+        data_sets.begin(), data_sets.end(), cpp_val.begin(), 
+        [](pybind11::handle const & h) 
+        { return h.cast<std::shared_ptr<odil::DataSet>>(); });
+    self.set_data_sets(cpp_val);
 }
 
 void
-set_data_sets(odil::webservices::WADORSResponse& self,
-                   boost::python::object data_sets)
+set_bulk_data(
+    odil::webservices::WADORSResponse& self, pybind11::sequence bulk_data)
 {
-    odil::Value::DataSets odil_ds;
-    for(int i = 0; i < boost::python::len(data_sets) ; ++i)
-    {
-        odil_ds.push_back(boost::python::extract<odil::DataSet>(data_sets[i]));
-    }
-    self.set_data_sets(odil_ds);
-}
-
-boost::python::list
-get_bulk_data(odil::webservices::WADORSResponse& self)
-{
-    auto const & cpp_val = self.get_bulk_data();
-    boost::python::list python_val;
-    for (auto const & bulk : cpp_val)
-    {
-        python_val.append(bulk);
-    }
-    return python_val;
-}
-
-void
-set_bulk_data(odil::webservices::WADORSResponse& self,
-                   boost::python::object bulk_data)
-{
-    std::vector<odil::webservices::BulkData> cpp_val;
-    for (int i = 0; i < boost::python::len(bulk_data); ++i)
-    {
-        cpp_val.push_back(boost::python::extract<odil::webservices::BulkData>(bulk_data[i]));
-    }
+    std::vector<odil::webservices::BulkData> cpp_val(pybind11::len(bulk_data));
+    std::transform(
+        bulk_data.begin(), bulk_data.end(), cpp_val.begin(), 
+        [](pybind11::handle const & h) 
+        { return h.cast<odil::webservices::BulkData>(); });
     self.set_bulk_data(cpp_val);
 }
 
 void
-wrap_webservices_WADORSResponse()
+wrap_webservices_WADORSResponse(pybind11::module & m)
 {
-    using namespace boost::python;
+    using namespace pybind11;
     using namespace odil;
     using namespace odil::webservices;
 
-    class_<WADORSResponse>("WADORSResponse", init<>())
+    class_<WADORSResponse>(m, "WADORSResponse")
+        .def(init<>())
         .def(init<HTTPResponse>())
-        .def("get_data_sets", get_data_sets)
-        .def("set_data_sets", set_data_sets)
-        .def("get_bulk_data", get_bulk_data)
+        .def(
+            "get_data_sets",
+            static_cast<
+                Value::DataSets const &(WADORSResponse::*)() const
+            >(&WADORSResponse::get_data_sets))
+        .def("set_data_sets", &set_data_sets)
+        .def(
+            "get_bulk_data",
+            static_cast<
+                std::vector<BulkData> const &(WADORSResponse::*)() const
+            >(&WADORSResponse::get_bulk_data))
         .def("set_bulk_data", set_bulk_data)
-        // TODO: bulk_data
         .def("is_partial", &WADORSResponse::is_partial)
         .def("set_partial", &WADORSResponse::set_partial)
         .def("get_type", &WADORSResponse::get_type)
-        .def(
-            "get_representation", &WADORSResponse::get_representation,
-            return_value_policy<copy_const_reference>())
+        .def("get_representation", &WADORSResponse::get_representation)
         .def("respond_dicom", &WADORSResponse::respond_dicom)
         .def("respond_bulk_data", &WADORSResponse::respond_bulk_data)
         .def("respond_pixel_data", &WADORSResponse::respond_pixel_data)

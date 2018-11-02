@@ -2,6 +2,7 @@ import glob
 import multiprocessing
 import os
 import subprocess
+import sys
 import time
 import unittest
 
@@ -52,15 +53,10 @@ class Generator(odil.MoveSCP.DataSetGenerator):
         move_association.set_peer_host(self._association.get_peer_host())
         move_association.set_peer_port(11114)
         
-        presentation_contexts = []
-        for entry in odil.registry.uids_dictionary:
-            if entry.data().name[-7:] == "Storage":
-                presentation_context = odil.AssociationParameters.PresentationContext(
-                    1+2*len(presentation_contexts),
-                    entry.key(),
-                    [odil.registry.ImplicitVRLittleEndian],
-                    True, False)
-                presentation_contexts.append(presentation_context)
+        presentation_contexts = [
+            odil.AssociationParameters.PresentationContext(
+                1, odil.registry.RawDataStorage,
+                [odil.registry.ImplicitVRLittleEndian], True, False)]
         
         move_association.update_parameters()\
             .set_calling_ae_title(
@@ -90,20 +86,20 @@ class TestMoveSCP(unittest.TestCase):
             [odil.registry.RawDataStorage])
         self.assertSequenceEqual(
             data_sets[0].as_string("SOPInstanceUID"), 
-            ["1.2.826.0.1.3680043.9.5560.3127449359877365688774406533090568532"])
+            [b"1.2.826.0.1.3680043.9.5560.3127449359877365688774406533090568532"])
         self.assertSequenceEqual(
-            data_sets[0].as_string("PatientName"), ["Hello^World"])
-        self.assertSequenceEqual(data_sets[0].as_string("PatientID"), ["1234"])
+            data_sets[0].as_string("PatientName"), [b"Hello^World"])
+        self.assertSequenceEqual(data_sets[0].as_string("PatientID"), [b"1234"])
         
         self.assertSequenceEqual(
             data_sets[1].as_string("SOPClassUID"), 
             [odil.registry.RawDataStorage])
         self.assertSequenceEqual(
             data_sets[1].as_string("SOPInstanceUID"), 
-            ["1.2.826.0.1.3680043.9.5560.3221615743193123463515381981101110692"])
+            [b"1.2.826.0.1.3680043.9.5560.3221615743193123463515381981101110692"])
         self.assertSequenceEqual(
-            data_sets[1].as_string("PatientName"), ["Doe^John"])
-        self.assertSequenceEqual(data_sets[1].as_string("PatientID"), ["5678"])
+            data_sets[1].as_string("PatientName"), [b"Doe^John"])
+        self.assertSequenceEqual(data_sets[1].as_string("PatientID"), [b"5678"])
     
     def run_client(self):
         command = [
@@ -119,15 +115,16 @@ class TestMoveSCP(unittest.TestCase):
             return []
         
         files = sorted(glob.glob("RAW*"))
-        data_sets = [odil.read(x)[1] for x in files]
+        data_sets = []
+        for file_ in files:
+            with odil.open(file_, "rb") as fd:
+                data_sets.append(odil.Reader.read_file(fd)[1])
         for file_ in files:
             os.remove(file_)
         
         return data_sets
 
     def run_server(self):
-        called = False
-
         association = odil.Association()
         association.set_tcp_timeout(1)
         association.receive_association("v4", 11113)
@@ -148,10 +145,10 @@ class TestMoveSCP(unittest.TestCase):
         except odil.AssociationAborted:
             pass
         
-        if called and termination_ok:
-            return 0
+        if termination_ok:
+            sys.exit(0)
         else:
-            return 1
+            sys.exit(1)
 
 if __name__ == "__main__":
     unittest.main()

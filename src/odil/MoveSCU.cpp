@@ -32,12 +32,6 @@ MoveSCU
     // Nothing else.
 }
 
-MoveSCU
-::~MoveSCU()
-{
-    // Nothing to do
-}
-
 std::string const &
 MoveSCU
 ::get_move_destination() const
@@ -68,40 +62,26 @@ MoveSCU
 
 void
 MoveSCU
-::move(DataSet const & query, StoreCallback store_callback) const
+::move(std::shared_ptr<DataSet> query, StoreCallback store_callback) const
 {
     this->move(query, store_callback, MoveCallback());
 }
 
 void
 MoveSCU
-::move(DataSet && query, StoreCallback store_callback) const
-{
-    this->move(std::move(query), store_callback, MoveCallback());
-}
-
-void
-MoveSCU
-::move(DataSet const & query, MoveCallback move_callback) const
+::move(std::shared_ptr<DataSet> query, MoveCallback move_callback) const
 {
     this->move(query, StoreCallback(), move_callback);
 }
 
 void
 MoveSCU
-::move(DataSet && query, MoveCallback move_callback) const
-{
-    this->move(std::move(query), StoreCallback(), move_callback);
-}
-
-void
-MoveSCU
 ::move(
-    DataSet const & query, StoreCallback store_callback,
+    std::shared_ptr<DataSet> query, StoreCallback store_callback,
     MoveCallback move_callback) const
 {
     // Send the request
-    message::CMoveRequest const request(
+    auto request = std::make_shared<message::CMoveRequest const>(
         this->_association.next_message_id(),
         this->_affected_sop_class, message::Message::Priority::MEDIUM,
         this->_move_destination, query);
@@ -110,23 +90,9 @@ MoveSCU
 
 void
 MoveSCU
-::move(
-    DataSet && query, StoreCallback store_callback,
-    MoveCallback move_callback) const
-{
-    // Send the request
-    message::CMoveRequest const request(
-        this->_association.next_message_id(),
-        this->_affected_sop_class, message::Message::Priority::MEDIUM,
-        this->_move_destination, std::move(query));
-    this->_move(request, store_callback, move_callback);
-}
-
-void
-MoveSCU
 ::_move(
-    message::CMoveRequest const & request, StoreCallback store_callback,
-    MoveCallback move_callback) const
+    std::shared_ptr<message::CMoveRequest const> request,
+    StoreCallback store_callback, MoveCallback move_callback) const
 {
     this->_association.send_message(request, this->_affected_sop_class);
 
@@ -169,28 +135,15 @@ MoveSCU
     this->_dispatch(store_association, store_callback, move_callback);
 }
 
-std::vector<DataSet>
+std::vector<std::shared_ptr<DataSet>>
 MoveSCU
-::move(DataSet const & query) const
+::move(std::shared_ptr<DataSet> query) const
 {
-    std::vector<DataSet> result;
-    auto callback = [&result](DataSet const & data_set) {
+    std::vector<std::shared_ptr<DataSet>> result;
+    auto callback = [&result](std::shared_ptr<DataSet> data_set) {
         result.push_back(data_set);
     };
     this->move(query, callback, MoveCallback());
-
-    return result;
-}
-
-std::vector<DataSet>
-MoveSCU
-::move(DataSet && query) const
-{
-    std::vector<DataSet> result;
-    auto callback = [&result](DataSet && data_set) {
-        result.push_back(std::move(data_set));
-    };
-    this->move(std::move(query), callback, MoveCallback());
 
     return result;
 }
@@ -224,22 +177,23 @@ bool
 MoveSCU
 ::_handle_main_association(MoveCallback callback) const
 {
-    message::CMoveResponse response = this->_association.receive_message();
-    if(message::Response::is_warning(response.get_status()))
+    auto response = std::make_shared<message::CMoveResponse>(
+        this->_association.receive_message());
+    if(message::Response::is_warning(response->get_status()))
     {
-        ODIL_LOG(WARN) << "C-MOVE response status: " << response.get_status();
+        ODIL_LOG(error) << "C-MOVE response status: " << response->get_status();
     }
-    else if(message::Response::is_failure(response.get_status()))
+    else if(message::Response::is_failure(response->get_status()))
     {
-        ODIL_LOG(ERROR) << "C-MOVE response status: " << response.get_status();
+        ODIL_LOG(error) << "C-MOVE response status: " << response->get_status();
     }
 
     // Store status before moving the response.
-    auto const done = !response.is_pending();
+    auto const done = !response->is_pending();
 
     if(callback)
     {
-        callback(std::move(response));
+        callback(response);
     }
     return done;
 }
@@ -252,21 +206,21 @@ MoveSCU
     bool result = false;
     try
     {
-        auto const store_callback = [&callback](message::CStoreRequest && request) {
+        auto const store_callback = [&callback](std::shared_ptr<message::CStoreRequest> request) {
             if(callback)
             {
-                callback(std::move(request.get_data_set()));
+                callback(request->get_data_set());
             }
             return message::Response::Success;
         };
         StoreSCP scp(association, store_callback);
         scp.receive_and_process();
     }
-    catch(odil::AssociationReleased const &)
+    catch(AssociationReleased const &)
     {
         result = true;
     }
-    catch(odil::AssociationAborted const & e)
+    catch(AssociationAborted const & e)
     {
         result = true;
     }

@@ -13,14 +13,14 @@ class TestDataSet(unittest.TestCase):
     def test_transfer_syntax_constructor(self):
         data_set = odil.DataSet(odil.registry.ExplicitVRLittleEndian)
         self.assertEqual(
-            data_set.get_transfer_syntax(),
+            data_set.get_transfer_syntax().encode(),
             odil.registry.ExplicitVRLittleEndian)
 
     def test_transfer_syntax(self):
         data_set = odil.DataSet()
         data_set.set_transfer_syntax(odil.registry.ExplicitVRLittleEndian)
         self.assertEqual(
-            data_set.get_transfer_syntax(),
+            data_set.get_transfer_syntax().encode(),
             odil.registry.ExplicitVRLittleEndian)
 
     def test_empty_element_tag(self):
@@ -70,8 +70,16 @@ class TestDataSet(unittest.TestCase):
 
     def _test_implicit_container(
             self, tag, empty_content, type_check, accessor):
+
+        # Implicit empty content
         data_set = odil.DataSet()
         data_set.add(tag)
+        self._test_element_value(
+            data_set, tag, empty_content, type_check, accessor)
+
+        # Explicit empty content
+        data_set = odil.DataSet()
+        data_set.add(tag, empty_content)
         self._test_element_value(
             data_set, tag, empty_content, type_check, accessor)
 
@@ -90,7 +98,7 @@ class TestDataSet(unittest.TestCase):
         data_set.add(tag, [contents[0]])
         if isinstance(contents[0], bytearray):
             accessor(data_set, tag).append(
-                odil.Value.BinaryItem("".join(chr(x) for x in contents[1])))
+                odil.Value.BinaryItem(contents[1]))
         else:
             accessor(data_set, tag).append(contents[1])
         self._test_sequences(accessor(data_set, tag), contents)
@@ -102,34 +110,52 @@ class TestDataSet(unittest.TestCase):
         self.assertTrue(type_check(data_set, tag))
         self.assertTrue(data_set.empty(tag))
 
+    def _test_item(self, tag, contents, type_check, accessor):
+        data_set = odil.DataSet()
+        data_set.add(tag, contents)
+
+        self._test_sequences(accessor(data_set[tag]), contents)
+
+        data_set[tag] = odil.Element(contents[:1], data_set.get_vr(tag))
+        self._test_sequences(accessor(data_set[tag]), contents[:1])
+
     def _test_element(
-            self, tag, empty_content, contents, vr, type_check, accessor):
+            self, tag, empty_content, contents, vr,
+            data_set_type_check, data_set_accessor,
+            element_type_check, element_accessor):
         self._test_implicit_container(
-            tag, empty_content, type_check, accessor)
+            tag, empty_content, data_set_type_check, data_set_accessor)
 
-        self._test_container_no_vr(tag, contents, type_check, accessor)
-        self._test_container_vr(tag, contents, vr, type_check, accessor)
+        self._test_container_no_vr(
+            tag, contents, data_set_type_check, data_set_accessor)
+        self._test_container_vr(
+            tag, contents, vr, data_set_type_check, data_set_accessor)
 
-        self._test_modify(tag, contents, accessor)
+        self._test_modify(tag, contents, data_set_accessor)
 
-        self._test_clear(tag, contents, type_check)
+        self._test_clear(tag, contents, data_set_type_check)
+
+        self._test_item(tag, contents, element_type_check, element_accessor)
 
     def test_int(self):
         self._test_element(
             odil.registry.Rows, odil.Value.Integers(), [1234, 5678], odil.VR.US,
-            odil.DataSet.is_int, odil.DataSet.as_int)
+            odil.DataSet.is_int, odil.DataSet.as_int,
+            odil.Element.is_int, odil.Element.as_int)
 
     def test_real(self):
         self._test_element(
             odil.registry.SpacingBetweenSlices, odil.Value.Reals(), 
             [12.34, 56.78], odil.VR.FL,
-            odil.DataSet.is_real, odil.DataSet.as_real)
+            odil.DataSet.is_real, odil.DataSet.as_real,
+            odil.Element.is_real, odil.Element.as_real)
 
     def test_string(self):
         self._test_element(
-            odil.registry.PatientID, odil.Value.Strings(), ["foo", "bar"], 
+            odil.registry.PatientID, odil.Value.Strings(), [b"foo", b"bar"],
             odil.VR.LT,
-            odil.DataSet.is_string, odil.DataSet.as_string)
+            odil.DataSet.is_string, odil.DataSet.as_string,
+            odil.Element.is_string, odil.Element.as_string)
 
     def test_data_set(self):
         data_set_1 = odil.DataSet()
@@ -141,19 +167,21 @@ class TestDataSet(unittest.TestCase):
         self._test_element(
             odil.registry.ReferencedStudySequence, odil.Value.DataSets(), 
             [data_set_1, data_set_2], odil.VR.SQ,
-            odil.DataSet.is_data_set, odil.DataSet.as_data_set)
+            odil.DataSet.is_data_set, odil.DataSet.as_data_set,
+            odil.Element.is_data_set, odil.Element.as_data_set)
 
     def test_binary(self):
         self._test_element(
             odil.registry.BadPixelImage, odil.Value.Binary(), 
             [bytearray([0x01, 0x02]), bytearray([0x03])], odil.VR.OB,
-            odil.DataSet.is_binary, odil.DataSet.as_binary)
+            odil.DataSet.is_binary, odil.DataSet.as_binary,
+            odil.Element.is_binary, odil.Element.as_binary)
 
     def test_getitem(self):
         data_set = odil.DataSet()
         data_set.add("PatientName", ["Doe^John"])
         self.assertSequenceEqual(
-            data_set["PatientName"].as_string(), ["Doe^John"])
+            data_set["PatientName"].as_string(), [b"Doe^John"])
         self.assertRaises(Exception, lambda x: data_set["PatientID"])
 
     def test_iter(self):
@@ -180,7 +208,7 @@ class TestDataSet(unittest.TestCase):
             [
                 [item for item in element.as_string()]
                 for element in data_set.values()],
-            [["Doe^John"], ["DJ123"]])
+            [[b"Doe^John"], [b"DJ123"]])
 
     def test_items(self):
         data_set = odil.DataSet()
@@ -190,7 +218,7 @@ class TestDataSet(unittest.TestCase):
             [
                 [tag.get_name(), [item for item in element.as_string()]]
                 for tag, element in data_set.items()],
-            [["PatientName", ["Doe^John"]], ["PatientID", ["DJ123"]]])
+            [["PatientName", [b"Doe^John"]], ["PatientID", [b"DJ123"]]])
 
 if __name__ == "__main__":
     unittest.main()

@@ -403,7 +403,7 @@ Element convert(DcmElement * source)
         for(unsigned int i=0; i<sequence->card(); ++i)
         {
             DcmItem * source_item = sequence->getItem(i);
-            DataSet const destination_item = convert(source_item);
+            std::shared_ptr<DataSet> destination_item = convert(source_item);
             destination_value.push_back(destination_item);
         }
     }
@@ -485,11 +485,11 @@ void convert(Element const & source, DcmOtherFloat * destination)
     }
 }
 
-DcmItem * convert(DataSet const & source, bool as_data_set)
+DcmItem * convert(std::shared_ptr<DataSet const> source, bool as_data_set)
 {
     DcmItem * destination = as_data_set?(new DcmDataset()):(new DcmItem());
 
-    for(auto const & iterator: source)
+    for(auto const & iterator: *source)
     {
         if(iterator.second.vr == VR::SQ)
         {
@@ -517,9 +517,9 @@ DcmItem * convert(DataSet const & source, bool as_data_set)
     return destination;
 }
 
-DataSet convert(DcmItem * source)
+std::shared_ptr<DataSet> convert(DcmItem * source)
 {
-    DataSet destination;
+    auto destination = std::make_shared<DataSet>();
 
     for(unsigned long i=0; i<source->card(); ++i)
     {
@@ -528,7 +528,7 @@ DataSet convert(DcmItem * source)
         auto const destination_tag = convert(source_element->getTag());
         auto const destination_element = convert(source_element);
 
-        destination.add(destination_tag, destination_element);
+        destination->add(destination_tag, destination_element);
     }
     return destination;
 }

@@ -10,11 +10,11 @@
 #define _b1a6d333_684d_4b50_a9b9_68af24027a10
 
 #include <string>
+#include <utility>
 #include <vector>
 #include <map>
 
 #include "odil/odil.h"
-#include "odil/Exception.h"
 
 namespace odil
 {
@@ -27,11 +27,19 @@ class ODIL_API Selector
 {
 public:
 
-    /// @brief Default constructor
+    /// @brief Default constructor.
     Selector(
-        std::map<std::string, std::string> const & selector=std::map<std::string, std::string>(),
-        std::vector<int> const & frames=std::vector<int>());
+        std::map<std::string, std::string> const & selector={},
+        std::vector<int> const & frames={});
 
+    Selector(Selector const &) = default;
+    Selector(Selector &&) = default;
+    Selector & operator=(Selector const &) = default;
+    Selector & operator=(Selector &&) = default;
+    ~Selector() = default;
+
+    /// @brief Build selector from URL path, return service path and selector.
+    static std::pair<std::string, Selector> from_path(std::string const & path);
 
     /// @brief Equality operator.
     bool operator==(Selector const & other) const;
@@ -62,13 +70,13 @@ public:
     std::vector<int> const & get_frames() const;
 
     /// @brief set the wanted study
-    Selector& set_study(std::string const & study);
+    Selector & set_study(std::string const & study);
     /// @brief set the wanted series
-    Selector& set_series(std::string const & series);
+    Selector & set_series(std::string const & series);
     /// @brief set the wanted instance
-    Selector& set_instance(std::string const & instance);
+    Selector & set_instance(std::string const & instance);
     /// @brief set the wanted frames
-    Selector& set_frames(std::vector<int> const & frames);
+    Selector & set_frames(std::vector<int> const & frames);
 
 private:
     std::string _study;
@@ -78,13 +86,10 @@ private:
     bool _study_present;
     bool _series_present;
     bool _instance_present;
-
-
 };
 
 }
 
 }
-
 
 #endif // _b1a6d333_684d_4b50_a9b9_68af24027a10

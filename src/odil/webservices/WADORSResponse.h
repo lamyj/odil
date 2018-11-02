@@ -48,13 +48,13 @@ public:
     bool operator!=(WADORSResponse const & other) const;
 
     /// @brief Get the response items.
-    std::vector<DataSet> const & get_data_sets() const;
+    Value::DataSets const & get_data_sets() const;
 
     /// @brief Modify the response items.
-    std::vector<DataSet> & get_data_sets();
+    Value::DataSets & get_data_sets();
 
     /// @brief Set the response items.
-    void set_data_sets(std::vector<DataSet> const & data_sets);
+    void set_data_sets(Value::DataSets const & data_sets);
 
     /// @brief Get the response items.
     std::vector<BulkData> const & get_bulk_data() const;
@@ -72,10 +72,10 @@ public:
     void set_partial(bool partial);
 
     /// @brief Return the response type.
-    odil::webservices::Type get_type() const;
+    Type get_type() const;
 
     /// @brief Return the representation.
-    odil::webservices::Representation const & get_representation() const;
+    Representation const & get_representation() const;
 
     /**
      * @brief Prepare a DICOM response.
@@ -83,7 +83,7 @@ public:
      * With a DICOM representation, the transfer_syntax of each data set will
      * be used.
      */
-    void respond_dicom(odil::webservices::Representation representation);
+    void respond_dicom(Representation representation);
 
     /// @brief Prepare a bulk data response.
     void respond_bulk_data();
@@ -96,11 +96,11 @@ public:
     HTTPResponse get_http_response() const;
 
 private:
-    std::vector<DataSet> _data_sets;
+    Value::DataSets _data_sets;
     std::vector<BulkData> _bulk_data;
     bool _is_partial;
-    odil::webservices::Type _type;
-    odil::webservices::Representation _representation;
+    Type _type;
+    Representation _representation;
     std::string _media_type;
 };
 

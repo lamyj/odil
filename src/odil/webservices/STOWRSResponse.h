@@ -33,7 +33,10 @@ public:
     /// @brief Parse an HTTPResponse as a STOWRSResponse.
     STOWRSResponse(HTTPResponse const & response);
 
-    /// @brief Destructor, does nothing
+    STOWRSResponse(STOWRSResponse const &) = default;
+    STOWRSResponse(STOWRSResponse &&) = default;
+    STOWRSResponse & operator=(STOWRSResponse const &) = default;
+    STOWRSResponse & operator=(STOWRSResponse &&) = default;
     ~STOWRSResponse() = default;
 
     /// @brief Equality operator
@@ -43,19 +46,19 @@ public:
     bool operator!=(STOWRSResponse const & other) const;
 
     /// @brief Set store instance responses
-    void set_store_instance_responses(DataSet const & responses);
+    void set_store_instance_responses(std::shared_ptr<DataSet> responses);
 
     /// @brief Get store instance responses
-    DataSet const & get_store_instance_responses() const;
+    std::shared_ptr<DataSet const> get_store_instance_responses() const;
 
     /// @brief Get the media type
     std::string const & get_media_type() const;
 
     /// @brief Set the representation
-    void set_representation (odil::webservices::Representation const & representation);
+    void set_representation(Representation const & representation);
 
     /// @brief Get the representation
-    odil::webservices::Representation const & get_representation() const;
+    Representation const & get_representation() const;
 
     /// @brief Set whether there is a warning in the response or not
     void set_warning(bool warn);
@@ -78,10 +81,9 @@ public:
     /// @brief Generate the associated HTTP Response
     HTTPResponse get_http_response() const;
 
-
 private:
-    DataSet _store_instance_responses;
-    odil::webservices::Representation _representation; // either DICOM+XML or DICOM+JSON
+    std::shared_ptr<DataSet> _store_instance_responses;
+    Representation _representation; // either DICOM+XML or DICOM+JSON
     std::string _reason;
     bool _warning;
     unsigned int _failure_code;

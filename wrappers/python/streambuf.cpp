@@ -14,7 +14,7 @@
 #include <string>
 #include <vector>
 
-#include <boost/python.hpp>
+#include <pybind11/pybind11.h>
 
 #include "odil/Exception.h"
 
@@ -35,7 +35,7 @@ namespace python
 {
 
 streambuf
-::streambuf(boost::python::object object, std::string::size_type buffer_size)
+::streambuf(pybind11::object object, std::string::size_type buffer_size)
 : _object(object),
   _buffer_size(buffer_size), _buffer(), _current(std::string::npos)
 {
@@ -43,14 +43,16 @@ streambuf
     this->setp(nullptr, nullptr);
 }
 
+// Python objects do not differentiate between input and output sequence: the
+// "which" parameter is unused.
 std::streambuf::pos_type
 streambuf
 ::seekoff(
     std::streambuf::off_type off, std::ios_base::seekdir dir,
-    std::ios_base::openmode which)
+    std::ios_base::openmode /* which */)
 {
     std::streambuf::off_type adjusted_offset;
-    if(dir == std::ios_base::cur)
+    if(dir == std::ios_base::cur && this->_current != std::string::npos)
     {
         // We need to adjust the offset since the position of the Python
         // file-like object is at the end of the buffer.
@@ -60,7 +62,10 @@ streambuf
     }
     else
     {
-        // Either beg or end, the semantics don't change
+        // Either
+        // - beg or end,
+        // - or at the end of buffer (_current == std::string::npos)
+        // In those cases, the semantics don't change
         adjusted_offset = off;
     }
 
@@ -86,15 +91,15 @@ streambuf
     this->_update_buffer();
 
     return (
-        int(boost::python::extract<int>(this->_object.attr("tell")())
-        - this->_buffer.size()));
+        pybind11::cast<int>(this->_object.attr("tell")())
+        - this->_buffer.size());
 }
 
 std::streambuf::pos_type
 streambuf
 ::seekpos(std::streambuf::pos_type pos, std::ios_base::openmode which)
 {
-    return this->seekoff(pos, std::ios_base::beg);
+    return this->seekoff(pos, std::ios_base::beg, which);
 }
 
 int
@@ -140,8 +145,7 @@ streambuf
     if(ch != std::char_traits<char>::eof())
     {
         char const cast_ch(ch);
-        boost::python::object bytes_ch = boost::python::object(
-            boost::python::handle<>(FromStringAndSize(&cast_ch, 1)));
+        pybind11::bytes bytes_ch(&cast_ch, 1);
         this->_object.attr("write")(bytes_ch);
     }
     return ch;
@@ -151,25 +155,15 @@ void
 streambuf
 ::_update_buffer()
 {
-    boost::python::object data = this->_object.attr("read")(this->_buffer_size);
-    if(boost::python::len(data) == 0)
+    auto data = this->_object.attr("read")(this->_buffer_size);
+    if(pybind11::len(data) == 0)
     {
         // EOF
         this->_current = std::string::npos;
     }
     else
     {
-#if PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION <= 2
-        // Exception as seen in Debian Wheezy / Ubuntu Precise:
-        // No registered converter was able to produce a C++ rvalue of type
-        //   std::string from this Python object of type bytes
-        std::vector<int> data_int =
-            boost::python::extract<std::vector<int>>(data);
-        this->_buffer.resize(data_int.size());
-        std::copy(data_int.begin(), data_int.end(), this->_buffer.begin());
-#else
-        this->_buffer = boost::python::extract<std::string>(data);
-#endif
+        this->_buffer = pybind11::cast<std::string>(data);
         this->_current = 0;
     }
 }
@@ -180,10 +174,11 @@ streambuf
 
 }
 
-void wrap_iostream()
+void wrap_iostream(pybind11::module & m)
 {
-    using namespace boost::python;
+    using namespace pybind11;
     using namespace odil::wrappers::python;
 
-    class_<iostream, boost::noncopyable>("iostream", init<object>());
+    class_<iostream>(m, "iostream")
+        .def(init<object>());
 }

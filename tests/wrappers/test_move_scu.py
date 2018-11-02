@@ -51,7 +51,7 @@ class TestMoveSCU(PeerFixtureBase):
         self.assertEqual(len(data_sets), 1)
         self.assertSequenceEqual(
             data_sets[0].as_string("SOPInstanceUID"),
-            ["2.25.95090344942250266709587559073467305647"])
+            [b"2.25.95090344942250266709587559073467305647"])
 
     def test_both_callback(self):
         data_sets = []
@@ -70,7 +70,7 @@ class TestMoveSCU(PeerFixtureBase):
         self.assertEqual(len(data_sets), 1)
         self.assertSequenceEqual(
             data_sets[0].as_string("SOPInstanceUID"),
-            ["2.25.95090344942250266709587559073467305647"])
+            [b"2.25.95090344942250266709587559073467305647"])
 
         self.assertEqual(len(messages), 2)
 
@@ -103,7 +103,7 @@ class TestMoveSCU(PeerFixtureBase):
         self.assertEqual(len(data_sets), 1)
         self.assertSequenceEqual(
             data_sets[0].as_string("SOPInstanceUID"),
-            ["2.25.95090344942250266709587559073467305647"])
+            [b"2.25.95090344942250266709587559073467305647"])
 
 if __name__ == "__main__":
     unittest.main()

@@ -1,4 +1,5 @@
 import email
+import sys
 import unittest
 
 import odil
@@ -9,7 +10,7 @@ class TestSTOWRSRequest(unittest.TestCase):
     full_url = odil.webservices.URL(
         "http", # scheme
         "example.com", # authority
-        "/dicom/studies/1.2/instances", # path
+        "/dicom/studies/1.2", # path
         "", # query
         "" # fragment
     )
@@ -85,17 +86,7 @@ class TestSTOWRSRequest(unittest.TestCase):
         self.assertEqual(http_request.get_method(), "POST")
         self.assertEqual(http_request.get_http_version(), "HTTP/1.0")
 
-        # Convert http response into string
-        http_str = ""
-        h = []
-        for header in http_request.get_headers():
-            h.append(header.key())
-        for header in h:
-            http_str += header + ": " + http_request.get_header(header)
-            http_str += "\r\n" + http_request.get_body()
-
-
-        msg = email.message_from_string(http_str)
+        msg = self._http_message_to_email_message(http_request)
         self.assertTrue(msg.is_multipart())
 
         i = 0
@@ -108,17 +99,7 @@ class TestSTOWRSRequest(unittest.TestCase):
         #DICOM
         request.request_dicom(self.data_sets, self.selector, odil.webservices.Utils.Representation.DICOM)
         http_request_dcm = request.get_http_request()
-        # Convert http response into string
-        http_str = ""
-        h = []
-        for header in http_request_dcm.get_headers():
-            h.append(header.key())
-        for header in h:
-            http_str += header + ": " + http_request_dcm.get_header(header)
-            http_str += "\r\n" + http_request_dcm.get_body()
-
-
-        msg = email.message_from_string(http_str)
+        msg = self._http_message_to_email_message(http_request_dcm)
         self.assertTrue(msg.is_multipart())
 
         i = 0
@@ -131,7 +112,7 @@ class TestSTOWRSRequest(unittest.TestCase):
         request = odil.webservices.STOWRSRequest(self.base_url_http)
         request.request_dicom([self.data_sets[1]], self.selector, odil.webservices.Utils.Representation.DICOM_JSON)
         http_request = request.get_http_request()
-        self.assertEqual(request.get_data_sets(), [self.data_sets[1]])
+        self.assertSequenceEqual(request.get_data_sets(), [self.data_sets[1]])
 
     def test_equality(self):
         request = odil.webservices.STOWRSRequest(self.base_url_http)
@@ -150,6 +131,19 @@ class TestSTOWRSRequest(unittest.TestCase):
 
     def tearDown(self):
         self.data_sets = None
+
+    def _http_message_to_email_message(self, http_message):
+        message_bytes = [
+            name.encode()+b": "+value.encode()
+            for (name, value) in http_message.get_headers().items()]
+        message_bytes.append(http_message.get_body())
+        message_bytes = b"\r\n".join(message_bytes)
+
+        if sys.version_info[0] >= 3:
+            email_message = email.message_from_bytes(message_bytes)
+        else:
+            email_message = email.message_from_string(message_bytes)
+        return email_message
 
 if __name__ == "__main__":
     unittest.main()

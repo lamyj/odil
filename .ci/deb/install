@@ -2,10 +2,12 @@
 
 set -ev
 
-export Architecture=${Architecture:?}
-export Distribution=${Distribution:?}
 export Python=${Python:?}
-export WORKSPACE=${WORKSPACE:?}
+
+apt-get -y update
+apt-get -y --no-install-recommends install gnupg software-properties-common wget
+wget -O - http://dl.bintray.com/lamyj/generic/gpg.key | apt-key add -
+add-apt-repository "deb http://dl.bintray.com/lamyj/generic/apt $(lsb_release -cs) main"
 
 if [ "${Python}" = "2" ]
 then
@@ -16,21 +18,17 @@ then
 fi
 
 # Compilation toolchain
-PACKAGES="build-essential cmake pkg-config python-minimal"
+# WARNING: we need a full Python for tests runner (argparse may be missing from
+# python-minimal)
+PACKAGES="build-essential cmake pkg-config python"
 # Dependencies of main lib
-PACKAGES="${PACKAGES} libboost-dev libboost-date-time-dev libboost-filesystem-dev"
-PACKAGES="${PACKAGES} libdcmtk2-dev libicu-dev libjsoncpp-dev liblog4cpp5-dev zlib1g-dev"
+PACKAGES="${PACKAGES} libboost-dev libboost-date-time-dev "
+PACKAGES="${PACKAGES} libboost-log-dev libboost-filesystem-dev"
+PACKAGES="${PACKAGES} libdcmtk2-dev libicu-dev libjsoncpp-dev zlib1g-dev"
 # Dependencies of Python wrappers
-PACKAGES="${PACKAGES} libboost-python-dev ${PYTHON_PREFIX}-dev"
+PACKAGES="${PACKAGES} pybind11-dev ${PYTHON_PREFIX}-pybind11 ${PYTHON_PREFIX}-dev"
 # Dependencies of unit tests
-PACKAGES="${PACKAGES} dcmtk libboost-test-dev ${PYTHON_PREFIX}-nose"
-# Coverage and static analysis
-PACKAGES="${PACKAGES} cppcheck lcov wget"
-
-if [ "${Distribution}" = "ubuntu/precise" ]
-then
-  PACKAGES="${PACKAGES} libwrap0-dev"
-fi
+PACKAGES="${PACKAGES} dcmtk libboost-test-dev ${PYTHON_PREFIX} ${PYTHON_PREFIX}-nose"
 
 apt-get -y update
-apt-get -y install ${PACKAGES}
+apt-get -y --no-install-recommends install ${PACKAGES}

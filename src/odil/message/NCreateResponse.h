@@ -38,11 +38,8 @@ public:
      *
      * Raise an exception if the Message does not contain a N-Create-RSP.
      */
-    NCreateResponse(Message const & message);
+    NCreateResponse(std::shared_ptr<Message const> message);
 
-    /// @brief Destructor.
-    virtual ~NCreateResponse();
-    
     ODIL_MESSAGE_MANDATORY_FIELD_INTEGER_MACRO(
         message_id_being_responded_to, registry::MessageIDBeingRespondedTo)
 

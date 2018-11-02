@@ -6,39 +6,34 @@
  * for details.
  ************************************************************************/
 
-#include <boost/python.hpp>
+#include <pybind11/pybind11.h>
+
 #include "odil/unicode.h"
 #include "odil/Value.h"
 
-namespace 
+#include "opaque_types.h"
+#include "type_casters.h"
+
+void wrap_unicode(pybind11::module & m)
 {
-
-boost::python::object as_unicode(
-    std::string const & input, 
-    odil::Value::Strings const & specific_character_set,
-    bool is_pn=false)
-{
-    auto const utf8_input = odil::as_utf8(input, specific_character_set, is_pn);
-    PyObject * unicode = PyUnicode_FromStringAndSize(
-        &utf8_input[0], utf8_input.size());
-
-    return boost::python::object(boost::python::handle<>(unicode));
-}
-
-}
-
-void wrap_unicode()
-{
-    using namespace boost::python;
+    using namespace pybind11;
     using namespace odil;
 
-    def(
-        "as_utf8", &as_utf8, 
-        (arg("input"), arg("specific_character_set"), arg("is_pn")=false));
-    def(
-        "as_specific_character_set", &as_specific_character_set,
-        (arg("input"), arg("specific_character_set"), arg("is_pn")=false));
-    def(
-        "as_unicode", &as_unicode, 
-        (arg("input"), arg("specific_character_set"), arg("is_pn")=false));
+    m.def(
+        "as_utf8", as_utf8,
+        "input"_a, "specific_character_set"_a, "is_pn"_a=false);
+    m.def(
+        "as_specific_character_set", as_specific_character_set,
+        "input"_a, "specific_character_set"_a, "is_pn"_a=false);
+    m.def(
+        "as_unicode",
+        [](
+            std::string const & input,
+            Value::Strings const & specific_character_set,
+            bool is_pn=false)
+        {
+            auto const utf8_input = as_utf8(input, specific_character_set, is_pn);
+            return utf8_input;
+        },
+        "input"_a, "specific_character_set"_a, "is_pn"_a=false);
 }

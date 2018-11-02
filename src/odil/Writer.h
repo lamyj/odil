@@ -78,7 +78,7 @@ public:
         bool use_group_length=false);
 
     /// @brief Write a data set.
-    void write_data_set(DataSet const & data_set) const;
+    void write_data_set(std::shared_ptr<DataSet const> data_set) const;
 
     /// @brief Write a tag.
     void write_tag(Tag const & tag) const;
@@ -88,8 +88,8 @@ public:
 
     /// @brief Write a file (meta-information and data set).
     static void write_file(
-        DataSet const &data_set, std::ostream & stream,
-        DataSet const & meta_information = DataSet(),
+        std::shared_ptr<DataSet const> data_set, std::ostream & stream,
+        std::shared_ptr<DataSet const> meta_information={},
         std::string const & transfer_syntax = registry::ExplicitVRLittleEndian,
         ItemEncoding item_encoding=ItemEncoding::ExplicitLength,
         bool use_group_length=false);

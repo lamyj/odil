@@ -5,6 +5,8 @@ set -ev
 export Python=${Python:?}
 export WORKSPACE=${WORKSPACE:?}
 
-cd build
+export LD_LIBRARY_PATH=${WORKSPACE}/install/lib
+export PYTHONPATH=${WORKSPACE}/install/$(python${Python} -c "from distutils.sysconfig import *; print(get_python_lib(True, prefix=''))")
 
-../tests/run --no-network --nose ~/Library/Python/${Python}*/bin/nosetests
+cd ${WORKSPACE}/build
+"${WORKSPACE}/tests/run"

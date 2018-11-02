@@ -68,8 +68,9 @@ public:
         bool keep_group_length=false);
 
     /// @brief Read a data set.
-    DataSet read_data_set(
-        std::function<bool(Tag const &)> halt_condition = [](Tag const &) { return false;}) const;
+    std::shared_ptr<DataSet> read_data_set(
+        std::function<bool(Tag const &)> halt_condition =
+            [](Tag const &) { return false;}) const;
 
     /// @brief Read a tag.
     Tag read_tag() const;
@@ -84,10 +85,11 @@ public:
      */
     Element read_element(
         Tag const & tag=Tag(0xffff,0xffff),
-        DataSet const & data_set=DataSet()) const;
+        std::shared_ptr<DataSet const> data_set=std::make_shared<DataSet>()) const;
 
     /// @brief Return the meta-data header and data set stored in the stream.
-    static std::pair<DataSet, DataSet> read_file(
+    static std::pair<std::shared_ptr<DataSet>, std::shared_ptr<DataSet>>
+    read_file(
         std::istream & stream,
         bool keep_group_length=false,
         std::function<bool(Tag const &)> halt_condition = [](Tag const &) { return false;});
@@ -120,7 +122,8 @@ private:
         // uint32_t read_length() const;
 
         Value::Strings split_strings(std::string const & string) const;
-        DataSet read_item(std::istream & specific_stream) const;
+        std::shared_ptr<DataSet>
+        read_item(std::istream & specific_stream) const;
         Value::Binary read_encapsulated_pixel_data(
             std::istream & specific_stream) const;
     };

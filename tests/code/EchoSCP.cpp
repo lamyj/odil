@@ -30,7 +30,7 @@ void run_server(Status * status)
         association.receive_association(boost::asio::ip::tcp::v4(), 11113);
 
         odil::EchoSCP echo_scp(association,
-            [status](odil::message::CEchoRequest const &)
+            [status](std::shared_ptr<odil::message::CEchoRequest const>)
             {
                 status->called = true;
                 return odil::message::Response::Success;
@@ -78,14 +78,14 @@ BOOST_AUTO_TEST_CASE(Callback)
 
     bool called = false;
     auto const callback =
-        [&called](odil::message::CEchoRequest const &)
+        [&called](std::shared_ptr<odil::message::CEchoRequest const>)
         {
             called = true;
             return odil::message::Response::Success;
         };
 
     scp.set_callback(callback);
-    scp.get_callback()(odil::message::CEchoRequest(1, ""));
+    scp.get_callback()(std::make_shared<odil::message::CEchoRequest>(1, ""));
     BOOST_REQUIRE_EQUAL(called, true);
 }
 

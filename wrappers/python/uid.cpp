@@ -6,17 +6,20 @@
  * for details.
  ************************************************************************/
 
-#include <boost/python.hpp>
+#include <pybind11/pybind11.h>
 
-#include "odil/uid.h"
+#include <odil/uid.h>
 
-void wrap_uid()
+#include "opaque_types.h"
+#include "type_casters.h"
+
+void wrap_uid(pybind11::module & m)
 {
-    using namespace boost::python;
+    using namespace pybind11;
     using namespace odil;
 
-    scope().attr("uid_prefix") = uid_prefix;
-    scope().attr("implementation_class_uid") = implementation_class_uid;
-    scope().attr("implementation_version_name") = implementation_version_name;
-    def("generate_uid", generate_uid);
+    m.attr("uid_prefix") = uid_prefix;
+    m.attr("implementation_class_uid") = implementation_class_uid;
+    m.attr("implementation_version_name") = implementation_version_name;
+    m.def("generate_uid", generate_uid);
 }

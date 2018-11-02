@@ -11,7 +11,6 @@
 #include <sstream>
 #include <vector>
 
-#include <boost/lexical_cast.hpp>
 #include <boost/property_tree/xml_parser.hpp>
 #include <boost/version.hpp>
 
@@ -19,6 +18,7 @@
 
 #include "odil/DataSet.h"
 #include "odil/Exception.h"
+#include "odil/StringStream.h"
 #include "odil/json_converter.h"
 #include "odil/webservices/HTTPResponse.h"
 #include "odil/webservices/ItemWithParameters.h"
@@ -35,16 +35,14 @@ namespace webservices
 
 QIDORSResponse
 ::QIDORSResponse()
-    :_data_sets(), _representation(odil::webservices::Representation::DICOM_XML),
-     _media_type("")
+:_data_sets(), _representation(Representation::DICOM_XML), _media_type("")
 {
     // Nothing else.
 }
 
 QIDORSResponse
 ::QIDORSResponse(HTTPResponse const & response)
-    :_data_sets(), _representation(odil::webservices::Representation::DICOM_XML),
-     _media_type("")
+:_data_sets(), _representation(Representation::DICOM_XML), _media_type("")
 {
     // Manage response status
     if(response.get_status() == 200)
@@ -64,60 +62,48 @@ QIDORSResponse
 
 
     // Find the media type.
-    if(!response.has_header("Content-Type"))
-    {
-        throw Exception("Cannot parse request: Content-Type header missing");
-    }
-    auto const & content_type = boost::lexical_cast<ItemWithParameters>(
+    auto const content_type = as<ItemWithParameters>(
         response.get_header("Content-Type"));
 
     if(content_type.name == "multipart/related")
     {
         auto const it = content_type.name_parameters.find("type");
-        // check if the type is not found
-        if(it == content_type.name_parameters.end())
+        if(
+            it == content_type.name_parameters.end()
+            || it->second != "application/dicom+xml")
         {
-            std::ostringstream message;
-            message
-                << "Missing type in Content-Type header: "
-                << response.get_header("Content-Type");
-            throw Exception(message.str());
-        }
-        // check if type is different from the only available type
-        if (it->second != "application/dicom+xml")
-        {
-            throw Exception("Unrecognize response representation");
+            throw Exception("Invalid content type");
         }
         this->_media_type = it->second;
         this->_representation = Representation::DICOM_XML;
     }
-    else
+    else if(content_type.name == "application/dicom+json")
     {
-        if (content_type.name != "application/dicom+json")
-        {
-            throw Exception("Unrecognize response representation");
-        }
         this->_media_type = content_type.name;
         this->_representation = Representation::DICOM_JSON;
     }
-
-    if (this->_media_type == "application/dicom+xml")
+    else
     {
-        auto const converter =
+        throw Exception("Unrecognized response representation");
+    }
+
+    if(this->_representation == Representation::DICOM_XML)
+    {
+        transform_parts(
+            response, std::back_inserter(this->get_data_sets()),
             [](Message const & part)
             {
-                std::stringstream stream(part.get_body());
+                IStringStream stream(
+                    &part.get_body()[0], part.get_body().size());
                 boost::property_tree::ptree xml;
                 boost::property_tree::read_xml(stream, xml);
                 return as_dataset(xml);
-            };
-        transform_parts(
-            response, std::back_inserter(this->get_data_sets()), converter);
+            });
     }
     else
     {
-        // WARNING if body is empty -> next Exception will be raised
-        std::istringstream stream(response.get_body());
+        IStringStream stream(
+            &response.get_body()[0], response.get_body().size());
         Json::Value array;
         stream >> array;
         if(!array.isArray())
@@ -129,13 +115,13 @@ QIDORSResponse
         std::transform(
             array.begin(), array.end(),
             std::back_inserter(this->get_data_sets()),
-            static_cast<DataSet(*)(Json::Value const &)>(as_dataset));
+            static_cast<std::shared_ptr<DataSet>(*)(Json::Value const &)>(as_dataset));
     }
 }
 
 bool
 QIDORSResponse
-::operator ==(QIDORSResponse const & other) const
+::operator==(QIDORSResponse const & other) const
 {
     return(
         this->_data_sets == other._data_sets
@@ -145,19 +131,19 @@ QIDORSResponse
 
 bool
 QIDORSResponse
-::operator !=(QIDORSResponse const & other) const
+::operator!=(QIDORSResponse const & other) const
 {
     return !(*this == other);
 }
 
-std::vector<DataSet> const &
+Value::DataSets const &
 QIDORSResponse
 ::get_data_sets() const
 {
     return this->_data_sets;
 }
 
-std::vector<DataSet> &
+Value::DataSets &
 QIDORSResponse
 ::get_data_sets()
 {
@@ -166,12 +152,12 @@ QIDORSResponse
 
 void
 QIDORSResponse
-::set_data_sets(std::vector<DataSet> const & data_sets)
+::set_data_sets(Value::DataSets const & data_sets)
 {
     this->_data_sets = data_sets;
 }
 
-odil::webservices::Representation const &
+Representation const &
 QIDORSResponse
 ::get_representation() const
 {
@@ -182,19 +168,19 @@ void
 QIDORSResponse
 ::set_representation(Representation const & representation)
 {
-    if (representation == odil::webservices::Representation::DICOM_JSON)
+    if(representation == Representation::DICOM_JSON)
     {
         this->_representation = representation;
         this->_media_type = "application/dicom+json";
     }
-    else if (representation == odil::webservices::Representation::DICOM_XML)
+    else if(representation == Representation::DICOM_XML)
     {
         this->_representation = representation;
         this->_media_type = "application/dicom+xml";
     }
     else
     {
-        throw Exception("Uknown representation");
+        throw Exception("Unknown representation");
     }
 }
 
@@ -213,26 +199,29 @@ QIDORSResponse
     response.set_status(this->_data_sets.empty()?204:200);
     response.set_reason(this->_data_sets.empty()?"No Content":"OK");
 
-    if(this->_representation == odil::webservices::Representation::DICOM_XML)
+    if(this->_representation == Representation::DICOM_XML)
     {
         auto const accumulator =
-            [](DataSet const & data_set)
+            [](std::shared_ptr<DataSet const> data_set)
             {
-                auto const xml = as_xml(data_set);
-                std::ostringstream stream;
+                auto const xml =
+                    data_set?as_xml(data_set):boost::property_tree::ptree();
 
+                std::string body;
+                OStringStream stream(body);
+
+                boost::property_tree::write_xml(
+                    stream, xml,
 #if BOOST_VERSION >= 105600
-                typedef boost::property_tree::xml_writer_settings<std::string> SettingsType;
+                    boost::property_tree::xml_writer_settings<std::string>()
 #else
-                typedef boost::property_tree::xml_writer_settings<char> SettingsType;
+                    boost::property_tree::xml_writer_settings<char>()
 #endif
-
-                boost::property_tree::write_xml(stream, xml, SettingsType());
+                );
+                stream.flush();
 
                 return Message(
-                    { { "Content-Type", "application/dicom+xml" } },
-                    stream.str()
-                );
+                    { { "Content-Type", "application/dicom+xml" } }, body);
             };
 
         auto const boundary = random_boundary();
@@ -249,7 +238,7 @@ QIDORSResponse
                     {"type", "application/dicom+xml"},
                     {"boundary", boundary}}));
     }
-    else if(this->_representation == odil::webservices::Representation::DICOM_JSON)
+    else if(this->_representation == Representation::DICOM_JSON)
     {
         Json::Value json;
         json.resize(this->_data_sets.size());

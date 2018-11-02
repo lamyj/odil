@@ -33,12 +33,6 @@ HTTPRequest
     // Nothing else.
 }
 
-HTTPRequest
-::~HTTPRequest()
-{
-    // Nothing to do.
-}
-
 std::string const &
 HTTPRequest
 ::get_method() const

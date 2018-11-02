@@ -73,7 +73,7 @@ Item::Field
 {
     if(this->_type != Type::unsigned_int_8)
     {
-        throw odil::Exception("Incorrect type");
+        throw Exception("Incorrect type");
     }
     return this->_uint8;
 }
@@ -84,7 +84,7 @@ Item::Field
 {
     if(this->_type != Type::unsigned_int_8)
     {
-        throw odil::Exception("Incorrect type");
+        throw Exception("Incorrect type");
     }
     return this->_uint8;
 }
@@ -95,7 +95,7 @@ Item::Field
 {
     if(this->_type != Type::unsigned_int_16)
     {
-        throw odil::Exception("Incorrect type");
+        throw Exception("Incorrect type");
     }
     return this->_uint16;
 }
@@ -106,7 +106,7 @@ Item::Field
 {
     if(this->_type != Type::unsigned_int_16)
     {
-        throw odil::Exception("Incorrect type");
+        throw Exception("Incorrect type");
     }
     return this->_uint16;
 }
@@ -117,7 +117,7 @@ Item::Field
 {
     if(this->_type != Type::unsigned_int_32)
     {
-        throw odil::Exception("Incorrect type");
+        throw Exception("Incorrect type");
     }
     return this->_uint32;
 }
@@ -128,7 +128,7 @@ Item::Field
 {
     if(this->_type != Type::unsigned_int_32)
     {
-        throw odil::Exception("Incorrect type");
+        throw Exception("Incorrect type");
     }
     return this->_uint32;
 }
@@ -139,7 +139,7 @@ Item::Field
 {
     if(this->_type != Type::string)
     {
-        throw odil::Exception("Incorrect type");
+        throw Exception("Incorrect type");
     }
     return this->_string;
 }
@@ -150,7 +150,7 @@ Item::Field
 {
     if(this->_type != Type::string)
     {
-        throw odil::Exception("Incorrect type");
+        throw Exception("Incorrect type");
     }
     return this->_string;
 }
@@ -161,7 +161,7 @@ Item::Field
 {
     if(this->_type != Type::items)
     {
-        throw odil::Exception("Incorrect type");
+        throw Exception("Incorrect type");
     }
     return this->_items;
 }
@@ -172,7 +172,7 @@ Item::Field
 {
     if(this->_type != Type::items)
     {
-        throw odil::Exception("Incorrect type");
+        throw Exception("Incorrect type");
     }
     return this->_items;
 }

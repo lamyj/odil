@@ -10,15 +10,16 @@
 
 struct Fixture: public MessageFixtureBase<odil::message::CEchoResponse>
 {
-    odil::DataSet command_set;
+    std::shared_ptr<odil::DataSet> command_set;
 
     Fixture()
+    : command_set(std::make_shared<odil::DataSet>())
     {
-        this->command_set.add(
+        this->command_set->add(
             "CommandField", {odil::message::Message::Command::C_ECHO_RSP});
-        this->command_set.add("MessageIDBeingRespondedTo", {1234});
-        this->command_set.add("Status", {odil::message::Response::Success});
-        this->command_set.add(
+        this->command_set->add("MessageIDBeingRespondedTo", {1234});
+        this->command_set->add("Status", {odil::message::Response::Success});
+        this->command_set->add(
             "AffectedSOPClassUID", {odil::registry::VerificationSOPClass});
     }
 
@@ -52,13 +53,13 @@ BOOST_FIXTURE_TEST_CASE(MessageConstructor, Fixture)
 
 BOOST_FIXTURE_TEST_CASE(MessageConstructorWrongCommandField, Fixture)
 {
-    this->command_set.as_int("CommandField") = {
+    this->command_set->as_int("CommandField") = {
         odil::message::Message::Command::C_ECHO_RQ};
     this->check_message_constructor_throw(this->command_set);
 }
 
 BOOST_FIXTURE_TEST_CASE(MessageConstructorMissingAffectSOPClass, Fixture)
 {
-    this->command_set.remove("AffectedSOPClassUID");
+    this->command_set->remove("AffectedSOPClassUID");
     this->check_message_constructor_throw(this->command_set);
 }

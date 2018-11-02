@@ -27,6 +27,8 @@
 #include "odil/dul/SOPClassExtendedNegotiation.h"
 #include "odil/dul/SOPClassCommonExtendedNegotiation.h"
 
+#include <iostream>
+
 namespace odil
 {
 
@@ -37,6 +39,18 @@ AssociationParameters::PresentationContext
     std::vector<std::string> const & transfer_syntaxes,
     bool scu_role_support, bool scp_role_support, Result result)
 : id(id), abstract_syntax(abstract_syntax), transfer_syntaxes(transfer_syntaxes),
+  scu_role_support(scu_role_support), scp_role_support(scp_role_support),
+  result(result)
+{
+    // Nothing else.
+}
+
+AssociationParameters::PresentationContext
+::PresentationContext(
+    std::string const & abstract_syntax,
+    std::vector<std::string> const & transfer_syntaxes,
+    bool scu_role_support, bool scp_role_support, Result result)
+: id(0), abstract_syntax(abstract_syntax), transfer_syntaxes(transfer_syntaxes),
   scu_role_support(scu_role_support), scp_role_support(scp_role_support),
   result(result)
 {
@@ -343,8 +357,44 @@ AssociationParameters &
 AssociationParameters
 ::set_presentation_contexts(std::vector<PresentationContext> const & value)
 {
+    std::vector<PresentationContext> contexts;
+    contexts.reserve(value.size());
+    std::vector<unsigned int> id_needed_indices;
     std::set<uint8_t> ids;
-    for(auto const context: value)
+    for(unsigned int i=0; i<value.size(); ++i)
+    {
+        auto const & context = value[i];
+        contexts.push_back(context);
+        if(context.id == 0)
+        {
+            id_needed_indices.push_back(i);
+        }
+        else
+        {
+            ids.insert(context.id);
+        }
+    }
+
+    for(auto const & index: id_needed_indices)
+    {
+        auto & context = contexts[index];
+        for(uint8_t id=1; id<=127; id += 2)
+        {
+            if(ids.find(id) == ids.end())
+            {
+                context.id = id;
+                ids.insert(id);
+
+                break;
+            }
+        }
+        if(context.id == 0)
+        {
+            throw Exception("No ID available for presentation context");
+        }
+    }
+
+    for(auto const & context: contexts)
     {
         auto const id = context.id;
         if(id%2 == 0)
@@ -353,12 +403,12 @@ AssociationParameters
         }
         ids.insert(id);
     }
-    if(ids.size() != value.size())
+    if(ids.size() != contexts.size())
     {
         throw Exception("All Presentation Context IDs must be unique");
     }
 
-    this->_presentation_contexts = value;
+    this->_presentation_contexts = std::move(contexts);
     return *this;
 }
 

@@ -31,32 +31,14 @@ public:
      */
     CGetRequest(
         Value::Integer message_id, Value::String const & affected_sop_class_uid,
-        Value::Integer priority, DataSet const & dataset);
-
-    /**
-     * @brief Create an get request with given Message ID,
-     * affected SOP class UID, priority, and data set.
-     */
-    CGetRequest(
-        Value::Integer message_id, Value::String const & affected_sop_class_uid,
-        Value::Integer priority, DataSet && dataset);
+        Value::Integer priority, std::shared_ptr<DataSet> dataset);
 
     /**
      * @brief Create a C-GET-RQ from a generic Message.
      *
      * Raise an exception if the Message does not contain a C-GET-RQ.
      */
-    CGetRequest(Message const & message);
-
-    /**
-     * @brief Create a C-GET-RQ from a generic Message.
-     *
-     * Raise an exception if the Message does not contain a C-GET-RQ.
-     */
-    CGetRequest(Message && message);
-
-    /// @brief Destructor.
-    virtual ~CGetRequest();
+    CGetRequest(std::shared_ptr<Message> message);
 
     ODIL_MESSAGE_MANDATORY_FIELD_STRING_MACRO(
         affected_sop_class_uid, registry::AffectedSOPClassUID)
@@ -65,8 +47,8 @@ public:
 private:
     void _create(
         Value::String const & affected_sop_class_uid, Value::Integer priority,
-        DataSet const & dataset);
-    void _parse(Message const & message);
+        std::shared_ptr<DataSet const> dataset);
+    void _parse(std::shared_ptr<Message const> message);
 };
 
 }

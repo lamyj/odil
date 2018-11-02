@@ -6,41 +6,39 @@
  * for details.
  ************************************************************************/
 
-#include <boost/python.hpp>
+#include <pybind11/pybind11.h>
 
 #include "odil/Value.h"
 #include "odil/webservices/BulkData.h"
 
 namespace
 {
-boost::shared_ptr<odil::webservices::BulkData>
+
+odil::webservices::BulkData
 constructor(
-        odil::Value::Binary::value_type const & data = odil::Value::Binary::value_type(),
-        std::string const & type = "",
-        std::string const & location = ""
-        )
+    odil::Value::Binary::value_type const & data = odil::Value::Binary::value_type(),
+    std::string const & type = "", std::string const & location = "")
 {
-    boost::shared_ptr<odil::webservices::BulkData> bulk_data(new odil::webservices::BulkData);
-    bulk_data->data = data;
-    bulk_data->type = type;
-    bulk_data->location = location;
+    odil::webservices::BulkData bulk_data;
+    bulk_data.data = data;
+    bulk_data.type = type;
+    bulk_data.location = location;
 
     return bulk_data;
 }
 
 }
 
-void wrap_webservices_BulkData()
+void wrap_webservices_BulkData(pybind11::module & m)
 {
-    using namespace boost::python;
+    using namespace pybind11;
     using namespace odil::webservices;
 
-    class_<BulkData>("BulkData", no_init)
+    class_<BulkData>(m, "BulkData")
         .def(
-            "__init__",
-            make_constructor(constructor, default_call_policies(),
-            ( arg("data") = odil::Value::Binary::value_type(), arg("type")="", arg("location")=""))
-            )
+            init(&constructor), "",
+            arg("data") = odil::Value::Binary::value_type(), arg("type")="",
+            arg("location")="")
         .def_readwrite("data", &BulkData::data)
         .def_readwrite("type", &BulkData::type)
         .def_readwrite("location", &BulkData::location)

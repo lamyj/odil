@@ -47,7 +47,7 @@ class TestElement(unittest.TestCase):
     def _test_modify(self, contents, vr, accessor):
         value = odil.Element([contents[0]], vr)
         if isinstance(contents[0], bytearray):
-            accessor(value).append(odil.Value.BinaryItem("".join(chr(x) for x in contents[1])))
+            accessor(value).append(odil.Value.BinaryItem(contents[1]))
         else:
             accessor(value).append(contents[1])
         
@@ -127,7 +127,7 @@ class TestElement(unittest.TestCase):
 
     def test_strings(self):
         self._test(
-            odil.Value.Strings(), ["foo", "bar"], ["plip", "plop"],
+            odil.Value.Strings(), [b"foo", b"bar"], [b"plip", b"plop"],
             odil.VR.CS, odil.VR.UT,
             odil.Element.is_string, odil.Element.as_string)
         

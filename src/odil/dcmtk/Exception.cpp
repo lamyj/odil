@@ -23,14 +23,14 @@ namespace dcmtk
 
 Exception
 ::Exception(std::string const & message)
-: ::odil::Exception(message), _source(Source::Message), _condition()
+: odil::Exception(message), _source(Source::Message), _condition()
 {
     // Nothing else.
 }
 
 Exception
 ::Exception(OFCondition const & condition)
-: ::odil::Exception(), _source(Source::Condition), _condition(condition)
+: odil::Exception(), _source(Source::Condition), _condition(condition)
 {
     // Nothing else.
 }

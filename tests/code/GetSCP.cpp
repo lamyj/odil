@@ -24,7 +24,7 @@ struct Status
 {
     int client;
     std::string server;
-    std::vector<odil::DataSet> responses;
+    odil::Value::DataSets responses;
 };
 
 class Generator: public odil::GetSCP::DataSetGenerator
@@ -40,25 +40,25 @@ public:
         // Nothing to do.
     }
 
-    virtual void initialize(odil::message::Request const & )
+    virtual void initialize(std::shared_ptr<odil::message::Request const>)
     {
-        odil::DataSet data_set_1;
-        data_set_1.add("SOPClassUID", {odil::registry::RawDataStorage});
-        data_set_1.add(
+        auto data_set_1 = std::make_shared<odil::DataSet>();
+        data_set_1->add("SOPClassUID", {odil::registry::RawDataStorage});
+        data_set_1->add(
             "SOPInstanceUID",
             {"1.2.826.0.1.3680043.9.5560.3127449359877365688774406533090568532"});
-        data_set_1.add("PatientName", {"Hello^World"});
-        data_set_1.add("PatientID", {"1234"});
-        this->_responses.push_back(std::move(data_set_1));
+        data_set_1->add("PatientName", {"Hello^World"});
+        data_set_1->add("PatientID", {"1234"});
+        this->_responses.push_back(data_set_1);
 
-        odil::DataSet data_set_2;
-        data_set_2.add("SOPClassUID", {odil::registry::RawDataStorage});
-        data_set_2.add(
+        auto data_set_2 = std::make_shared<odil::DataSet>();
+        data_set_2->add("SOPClassUID", {odil::registry::RawDataStorage});
+        data_set_2->add(
             "SOPInstanceUID",
             {"1.2.826.0.1.3680043.9.5560.3221615743193123463515381981101110692"});
-        data_set_2.add("PatientName", {"Doe^John"});
-        data_set_2.add("PatientID", {"5678"});
-        this->_responses.push_back(std::move(data_set_2));
+        data_set_2->add("PatientName", {"Doe^John"});
+        data_set_2->add("PatientID", {"5678"});
+        this->_responses.push_back(data_set_2);
 
         this->_response_iterator = this->_responses.begin();
     }
@@ -68,9 +68,9 @@ public:
         return (this->_response_iterator == this->_responses.end());
     }
 
-    virtual odil::DataSet get() const
+    virtual std::shared_ptr<odil::DataSet> get() const
     {
-        return *std::make_move_iterator(this->_response_iterator);
+        return *this->_response_iterator;
     }
 
     virtual void next()
@@ -84,8 +84,8 @@ public:
     }
 
 private:
-    mutable std::vector<odil::DataSet> _responses;
-    std::vector<odil::DataSet>::iterator _response_iterator;
+    mutable odil::Value::DataSets _responses;
+    odil::Value::DataSets::iterator _response_iterator;
 };
 
 void run_server(Status * status)
@@ -103,7 +103,7 @@ void run_server(Status * status)
 
         // Get C-GET message
         auto message = association.receive_message();
-        get_scp(std::move(message));
+        get_scp(message);
         // Should throw with peer closing connection
         association.receive_message();
     }
@@ -150,17 +150,19 @@ void run_client(Status * status)
 
         std::ifstream stream(it->path().string());
         auto data_set = odil::Reader::read_file(stream).second;
-        status->responses.push_back(std::move(data_set));
+        status->responses.push_back(data_set);
 
         boost::filesystem::remove(it->path());
     }
 
     std::sort(
         status->responses.begin(), status->responses.end(),
-        [](odil::DataSet const & left, odil::DataSet const & right)
+        [](
+            std::shared_ptr<odil::DataSet const> left,
+            std::shared_ptr<odil::DataSet const> right)
         {
-            auto const & left_uid = left.as_string("SOPInstanceUID", 0);
-            auto const & right_uid = right.as_string("SOPInstanceUID", 0);
+            auto const & left_uid = left->as_string("SOPInstanceUID", 0);
+            auto const & right_uid = right->as_string("SOPInstanceUID", 0);
             return (left_uid < right_uid);
         });
 }
@@ -180,23 +182,23 @@ BOOST_AUTO_TEST_CASE(Release)
     BOOST_REQUIRE_EQUAL(status.server, "release");
     BOOST_REQUIRE_EQUAL(status.responses.size(), 2);
 
-    BOOST_REQUIRE_EQUAL(status.responses[0].size(), 4);
+    BOOST_REQUIRE_EQUAL(status.responses[0]->size(), 4);
     BOOST_REQUIRE_EQUAL(
-        status.responses[0].as_string("SOPInstanceUID", 0),
+        status.responses[0]->as_string("SOPInstanceUID", 0),
         "1.2.826.0.1.3680043.9.5560.3127449359877365688774406533090568532");
     BOOST_REQUIRE_EQUAL(
-        status.responses[0].as_string("SOPClassUID", 0),
+        status.responses[0]->as_string("SOPClassUID", 0),
         odil::registry::RawDataStorage);
-    BOOST_REQUIRE_EQUAL(status.responses[0].as_string("PatientName", 0), "Hello^World");
-    BOOST_REQUIRE_EQUAL(status.responses[0].as_string("PatientID", 0), "1234");
+    BOOST_REQUIRE_EQUAL(status.responses[0]->as_string("PatientName", 0), "Hello^World");
+    BOOST_REQUIRE_EQUAL(status.responses[0]->as_string("PatientID", 0), "1234");
 
-    BOOST_REQUIRE_EQUAL(status.responses[1].size(), 4);
+    BOOST_REQUIRE_EQUAL(status.responses[1]->size(), 4);
     BOOST_REQUIRE_EQUAL(
-        status.responses[1].as_string("SOPInstanceUID", 0),
+        status.responses[1]->as_string("SOPInstanceUID", 0),
         "1.2.826.0.1.3680043.9.5560.3221615743193123463515381981101110692");
     BOOST_REQUIRE_EQUAL(
-        status.responses[1].as_string("SOPClassUID", 0),
+        status.responses[1]->as_string("SOPClassUID", 0),
         odil::registry::RawDataStorage);
-    BOOST_REQUIRE_EQUAL(status.responses[1].as_string("PatientName", 0), "Doe^John");
-    BOOST_REQUIRE_EQUAL(status.responses[1].as_string("PatientID", 0), "5678");
+    BOOST_REQUIRE_EQUAL(status.responses[1]->as_string("PatientName", 0), "Doe^John");
+    BOOST_REQUIRE_EQUAL(status.responses[1]->as_string("PatientID", 0), "5678");
 }

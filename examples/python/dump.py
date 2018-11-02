@@ -12,7 +12,8 @@ def main():
         "--decode-uids", "-D", action="store_true", help="Display UID names")
     arguments = parser.parse_args()
 
-    header, data_set = odil.read(arguments.file)
+    with odil.open(arguments.file) as stream:
+        header, data_set = odil.Reader.read_file(stream)
     if arguments.header:
         print_data_set(header, arguments.decode_uids)
         print

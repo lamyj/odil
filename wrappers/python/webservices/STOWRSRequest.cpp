@@ -6,69 +6,57 @@
  * for details.
  ************************************************************************/
 
-#include <boost/python.hpp>
+#include <algorithm>
+
+#include <pybind11/pybind11.h>
+#include <pybind11/operators.h>
 
 #include "odil/DataSet.h"
 #include "odil/webservices/STOWRSRequest.h"
 #include "odil/webservices/HTTPRequest.h"
 
-
-boost::python::list
-get_data_sets(odil::webservices::STOWRSRequest& self)
+namespace
 {
-    boost::python::list python_ds;
-    auto const cpp_val = self.get_data_sets();
-    for (auto const ds : cpp_val)
-    {
-        python_ds.append(ds);
-    }
-    return python_ds;
-}
 
 void
-request_dicom(odil::webservices::STOWRSRequest& self,
-                      boost::python::object data_sets,
-                      odil::webservices::Selector selector,
-                      odil::webservices::Representation representation
-                      )
+request_dicom(
+    odil::webservices::STOWRSRequest& self, pybind11::sequence data_sets,
+    odil::webservices::Selector selector,
+    odil::webservices::Representation representation)
 {
-    std::vector<odil::DataSet> cpp_val;
-    for (int i = 0; i < boost::python::len(data_sets); ++i)
-    {
-        cpp_val.push_back(boost::python::extract<odil::DataSet>(data_sets[i]));
-    }
+    odil::Value::DataSets cpp_val(pybind11::len(data_sets));
+    std::transform(
+        data_sets.begin(), data_sets.end(), cpp_val.begin(), 
+        [](pybind11::handle const & h) 
+        { return h.cast<std::shared_ptr<odil::DataSet>>(); });
     self.request_dicom(cpp_val, selector, representation);
 }
 
+}
+
 void
-wrap_webservices_STOWRSRequest()
+wrap_webservices_STOWRSRequest(pybind11::module & m)
 {
-    using namespace boost::python;
+    using namespace pybind11;
+    using namespace odil;
     using namespace odil::webservices;
 
-    class_<STOWRSRequest>(
-        "STOWRSRequest", no_init)
-        .def(init<URL>((arg("base_url")=URL())))
+    class_<STOWRSRequest>(m, "STOWRSRequest")
+        .def(init<URL>(), "", arg("base_url")=URL())
         .def(init<HTTPRequest>())
         .def(self == self)
         .def(self != self)
-        .def("get_base_url", &STOWRSRequest::get_base_url,
-             return_value_policy<copy_const_reference>())
+        .def("get_base_url", &STOWRSRequest::get_base_url)
         .def("set_base_url", &STOWRSRequest::set_base_url)
-        .def("get_media_type", &STOWRSRequest::get_media_type,
-             return_value_policy<copy_const_reference>())
-        .def("get_representation",&STOWRSRequest::get_representation,
-             return_value_policy<copy_const_reference>())
-        .def("get_url", &STOWRSRequest::get_url,
-             return_value_policy<copy_const_reference>())
-        .def("get_selector", &STOWRSRequest::get_selector,
-             return_value_policy<copy_const_reference>())
-        .def("get_data_sets", get_data_sets)
-        .def("request_dicom", request_dicom,
-             (arg("data_sets"),
-              arg("selector"),
-              arg("representation")
-            ))
+        .def("get_media_type", &STOWRSRequest::get_media_type)
+        .def("get_representation",&STOWRSRequest::get_representation)
+        .def("get_url", &STOWRSRequest::get_url)
+        .def("get_selector", &STOWRSRequest::get_selector)
+        .def(
+            "get_data_sets",
+            static_cast<Value::DataSets const & (STOWRSRequest::*)() const>(
+                &STOWRSRequest::get_data_sets))
+        .def("request_dicom", request_dicom)
         .def("get_http_request", &STOWRSRequest::get_http_request)
     ;
 }

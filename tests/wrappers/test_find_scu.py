@@ -30,7 +30,7 @@ class TestFindSCU(PeerFixtureBase):
 
         self.assertEqual(len(data_sets), 1)
         self.assertSequenceEqual(
-            data_sets[0].as_string("PatientID"), ["DJ001"])
+            data_sets[0].as_string("PatientID"), [b"DJ001"])
 
     def test_with_callback(self):
         data_sets = []
@@ -43,7 +43,7 @@ class TestFindSCU(PeerFixtureBase):
 
         self.assertEqual(len(data_sets), 1)
         self.assertSequenceEqual(
-            data_sets[0].as_string("PatientID"), ["DJ001"])
+            data_sets[0].as_string("PatientID"), [b"DJ001"])
 
 if __name__ == "__main__":
     unittest.main()

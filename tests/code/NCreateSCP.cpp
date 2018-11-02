@@ -30,7 +30,7 @@ void run_server(Status * status)
         association.receive_association(boost::asio::ip::tcp::v4(), 11113);
 
         odil::NCreateSCP NCreate_scp(association,
-            [status](odil::message::NCreateRequest const &)
+            [status](std::shared_ptr<odil::message::NCreateRequest const>)
             {
                 status->called = true;
                 return odil::message::Response::Success;
@@ -78,13 +78,16 @@ BOOST_AUTO_TEST_CASE(Callback)
 
     bool called = false;
     auto const callback =
-        [&called](odil::message::NCreateRequest const &)
+        [&called](std::shared_ptr<odil::message::NCreateRequest const>)
         {
             called = true;
             return odil::message::Response::Success;
         };
 
     scp.set_callback(callback);
-    scp.get_callback()(odil::message::NCreateRequest(1, "", odil::DataSet()));
+    auto data_set = std::make_shared<odil::DataSet>();
+    data_set->add("PatientName", {"Doe^John"});
+    scp.get_callback()(
+        std::make_shared<odil::message::NCreateRequest>(1, "", data_set));
     BOOST_REQUIRE_EQUAL(called, true);
 }

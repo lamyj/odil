@@ -49,32 +49,14 @@ public:
      */
     CGetResponse(
         Value::Integer message_id_being_responded_to, Value::Integer status,
-        DataSet const & dataset);
-
-    /**
-     * @brief Create an get response with given Message ID, status,
-     * and data set.
-     */
-    CGetResponse(
-        Value::Integer message_id_being_responded_to, Value::Integer status,
-        DataSet && dataset);
+        std::shared_ptr<DataSet> dataset);
 
     /**
      * @brief Create a C-GET-RSP from a generic Message.
      *
      * Raise an exception if the Message does not contain a C-GET-RSP.
      */
-    CGetResponse(Message const & message);
-
-    /**
-     * @brief Create a C-GET-RSP from a generic Message.
-     *
-     * Raise an exception if the Message does not contain a C-GET-RSP.
-     */
-    CGetResponse(Message && message);
-
-    /// @brief Destructor.
-    virtual ~CGetResponse();
+    CGetResponse(std::shared_ptr<Message> message);
 
     ODIL_MESSAGE_OPTIONAL_FIELD_INTEGER_MACRO(message_id, registry::MessageID)
     ODIL_MESSAGE_OPTIONAL_FIELD_STRING_MACRO(
@@ -90,7 +72,7 @@ public:
         number_of_warning_sub_operations, registry::NumberOfWarningSuboperations)
 
 private:
-    void _parse(Message const & message);
+    void _parse(std::shared_ptr<Message const> message);
 };
 
 }

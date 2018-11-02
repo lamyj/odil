@@ -21,7 +21,7 @@ namespace odil
 namespace dcmtk
 {
 
-class ODIL_API Exception: public ::odil::Exception
+class ODIL_API Exception: public odil::Exception
 {
 public:
     /**

@@ -6,26 +6,16 @@
  * for details.
  ************************************************************************/
 
-#include <boost/python.hpp>
+#include <Python.h>
+
+#include <pybind11/pybind11.h>
 
 #include "odil/Exception.h"
 
-#include "exception_factory.h"
+#include "opaque_types.h"
+#include "type_casters.h"
 
-namespace
+void wrap_Exception(pybind11::module & m)
 {
-
-PyObject * wrapped_Exception;
-
-void translator(odil::Exception const & e)
-{
-    PyErr_SetString(wrapped_Exception, e.what());
-}
-
-}
-
-void wrap_Exception()
-{
-    wrapped_Exception = exception_factory("Exception");
-    boost::python::register_exception_translator<odil::Exception>(translator);
+    pybind11::register_exception<odil::Exception>(m, "Exception");
 }

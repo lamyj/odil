@@ -32,33 +32,14 @@ public:
     CMoveRequest(
         Value::Integer message_id, Value::String const & affected_sop_class_uid,
         Value::Integer priority, Value::String const & move_destination,
-        DataSet const & dataset);
-
-    /**
-     * @brief Create an move request with given Message ID,
-     * affected SOP class UID, priority, move destination, and data set.
-     */
-    CMoveRequest(
-        Value::Integer message_id, Value::String const & affected_sop_class_uid,
-        Value::Integer priority, Value::String const & move_destination,
-        DataSet && dataset);
+        std::shared_ptr<DataSet> dataset);
 
     /**
      * @brief Create a C-MOVE-RQ from a generic Message.
      *
      * Raise an exception if the Message does not contain a C-MOVE-RQ.
      */
-    CMoveRequest(Message const & message);
-
-    /**
-     * @brief Create a C-MOVE-RQ from a generic Message.
-     *
-     * Raise an exception if the Message does not contain a C-MOVE-RQ.
-     */
-    CMoveRequest(Message && message);
-
-    /// @brief Destructor.
-    virtual ~CMoveRequest();
+    CMoveRequest(std::shared_ptr<Message> message);
 
     ODIL_MESSAGE_MANDATORY_FIELD_STRING_MACRO(
         affected_sop_class_uid, registry::AffectedSOPClassUID)
@@ -70,8 +51,8 @@ private:
     void _create(
         Value::String const & affected_sop_class_uid,
         Value::Integer priority, Value::String const & move_destination,
-        DataSet const & dataset);
-    void _parse(Message const & message);
+        std::shared_ptr<DataSet const> dataset);
+    void _parse(std::shared_ptr<Message const> message);
 };
 
 }

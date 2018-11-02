@@ -88,12 +88,12 @@ Writer
 
 void
 Writer
-::write_data_set(DataSet const & data_set) const
+::write_data_set(std::shared_ptr<DataSet const> data_set) const
 {
     // Build a map of the different group in order to handle
     // Group Length elements
     std::map<uint16_t, std::vector<Tag>> groups;
-    for(auto const & item: data_set)
+    for(auto const & item: *data_set)
     {
         auto const & tag = item.first;
         groups[tag.group].push_back(tag);
@@ -109,7 +109,7 @@ Writer
         for(auto const & tag: groups_it.second)
         {
             group_writer.write_tag(tag);
-            group_writer.write_element(data_set[tag]);
+            group_writer.write_element((*data_set)[tag]);
         }
 
         // Write group length if necessary
@@ -217,53 +217,56 @@ Writer
 
 void
 Writer
-::write_file(DataSet const &data_set , std::ostream & stream,
-             odil::DataSet const & meta_information,
-             std::string const & transfer_syntax, ItemEncoding item_encoding,
-             bool use_group_length)
+::write_file(
+    std::shared_ptr<DataSet const> data_set , std::ostream & stream,
+    std::shared_ptr<DataSet const> meta_information,
+    std::string const & transfer_syntax, ItemEncoding item_encoding,
+    bool use_group_length)
 {
     // Build File Meta Information, PS3.10, 7.1
-    DataSet meta_info = meta_information;
-    meta_info.add(
+    std::shared_ptr<DataSet> meta_info =
+        meta_information?std::make_shared<DataSet>(*meta_information)
+        :std::make_shared<DataSet>();
+    meta_info->add(
         registry::FileMetaInformationVersion, Value::Binary({{0x00, 0x01}}));
 
-    if(!data_set.has(registry::SOPClassUID))
+    if(!data_set->has(registry::SOPClassUID))
     {
         throw Exception("Missing SOP Class UID");
     }
-    if(!data_set.is_string(registry::SOPClassUID))
+    if(!data_set->is_string(registry::SOPClassUID))
     {
         throw Exception("SOP Class UID is not a string");
     }
-    if(data_set.as_string(registry::SOPClassUID).size()<1)
+    if(data_set->as_string(registry::SOPClassUID).size()<1)
     {
         throw Exception("Empty SOP Class UID");
     }
 
-    meta_info.add(
+    meta_info->add(
         registry::MediaStorageSOPClassUID,
-        data_set.as_string(registry::SOPClassUID));
+        data_set->as_string(registry::SOPClassUID));
 
-    if(!data_set.has(registry::SOPInstanceUID))
+    if(!data_set->has(registry::SOPInstanceUID))
     {
         throw Exception("Missing SOP Instance UID");
     }
-    if(!data_set.is_string(registry::SOPInstanceUID))
+    if(!data_set->is_string(registry::SOPInstanceUID))
     {
         throw Exception("SOP Instance UID is not a string");
     }
-    if(data_set.as_string(registry::SOPInstanceUID).size()<1)
+    if(data_set->as_string(registry::SOPInstanceUID).size()<1)
     {
         throw Exception("Empty SOP Instance UID");
     }
 
-    meta_info.add(registry::MediaStorageSOPInstanceUID,
-        data_set.as_string(registry::SOPInstanceUID));
+    meta_info->add(registry::MediaStorageSOPInstanceUID,
+        data_set->as_string(registry::SOPInstanceUID));
 
-    meta_info.add(registry::TransferSyntaxUID, {transfer_syntax});
-    meta_info.add(
+    meta_info->add(registry::TransferSyntaxUID, {transfer_syntax});
+    meta_info->add(
         registry::ImplementationClassUID, {implementation_class_uid});
-    meta_info.add(
+    meta_info->add(
         registry::ImplementationVersionName, { implementation_version_name });
 
     // Information set by input attribut 'meta_information':

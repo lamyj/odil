@@ -1,0 +1,35 @@
+/*************************************************************************
+ * odil - Copyright (C) Universite de Strasbourg
+ * Distributed under the terms of the CeCILL-B license, as published by
+ * the CEA-CNRS-INRIA. Refer to the LICENSE file or to
+ * http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
+ * for details.
+ ************************************************************************/
+
+#ifndef _afc7b2d7_0869_4fea_9a9b_7fe6228baca9_{{ group }}
+#define _afc7b2d7_0869_4fea_9a9b_7fe6228baca9_{{ group }}
+
+#include <map>
+#include <string>
+
+#include "odil/odil.h"
+#include "odil/Tag.h"
+
+namespace odil
+{
+
+namespace registry
+{
+{% for entry in elements_dictionary %}
+{% if entry[0] is string %}
+std::string const {{ entry[2] }}("{{ entry[0] }}");
+{% elif entry[0] is sequence %}
+Tag const {{ entry[2] }}({{ "0x%04x, 0x%04x"|format(*entry[0]) }});
+{% endif %}
+{% endfor %}
+
+}
+
+}
+
+#endif // _afc7b2d7_0869_4fea_9a9b_7fe6228baca9_{{ group }}

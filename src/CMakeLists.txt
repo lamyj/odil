@@ -1,7 +1,6 @@
-find_package(Boost REQUIRED COMPONENTS date_time filesystem system)
+find_package(Boost REQUIRED COMPONENTS date_time filesystem log system)
 find_package(ICU REQUIRED)
 find_package(JsonCpp REQUIRED)
-find_package(Log4Cpp REQUIRED)
 if(WITH_DCMTK)
     find_package(DCMTK REQUIRED)
 endif()
@@ -26,7 +25,7 @@ GroupFiles(Source_Files)
 
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR} ${Boost_INCLUDE_DIRS} ${DCMTK_INCLUDE_DIRS}
-${ICU_INCLUDE_DIRS} ${Log4Cpp_INCLUDE_DIRS} ${JsonCpp_INCLUDE_DIRS})
+    ${ICU_INCLUDE_DIRS} ${JsonCpp_INCLUDE_DIRS})
 
 add_definitions(
     ${DCMTK_DEFINITIONS}
@@ -43,17 +42,26 @@ add_library(libodil ${Source_Files} ${Header_Files} ${templates})
 set_target_properties(libodil PROPERTIES OUTPUT_NAME odil)
 
 target_link_libraries(libodil
-    ${Boost_LIBRARIES} ${DCMTK_LIBRARIES} ${ICU_LIBRARIES} ${JsonCpp_LIBRARIES}
-    ${Log4Cpp_LIBRARIES})
+    ${Boost_LIBRARIES} ${DCMTK_LIBRARIES} ${ICU_LIBRARIES} ${JsonCpp_LIBRARIES})
 
 if(WIN32)
     add_definitions(-DBUILDING_ODIL)
     target_link_libraries(libodil netapi32)
+    if(${VCPKG_TOOLCHAIN})
+		# WARNING Need to link with bcrypt explicitely, 
+		# cf. https://github.com/boostorg/uuid/issues/68#issuecomment-430173245
+        # Not sure why iphlpapi is not linked.
+		target_link_libraries(libodil bcrypt iphlpapi)
+	endif()
 endif()
 
 set_target_properties(libodil PROPERTIES
     VERSION ${odil_VERSION}
     SOVERSION ${odil_MAJOR_VERSION})
+if(APPLE)
+    set_target_properties(
+        libodil PROPERTIES INSTALL_NAME_DIR ${CMAKE_INSTALL_PREFIX}/lib)
+endif()
 
 install(
     DIRECTORY odil/ DESTINATION include/odil

@@ -26,12 +26,6 @@ SCPDispatcher
     // Nothing else.
 }
 
-SCPDispatcher
-::~SCPDispatcher()
-{
-    // Nothing to do.
-}
-
 bool
 SCPDispatcher
 ::has_scp(Value::Integer command) const
@@ -65,19 +59,19 @@ SCPDispatcher
 {
     auto const message = this->_association.receive_message();
 
-    auto const it = this->_providers.find(message.get_command_field());
+    auto const it = this->_providers.find(message->get_command_field());
     if(it == this->_providers.end())
     {
         std::ostringstream error_message;
         error_message
             << "No provider for: "
             << std::hex << std::setw(4) << std::setfill('0')
-            << message.get_command_field();
+            << message->get_command_field();
         throw Exception(error_message.str());
     }
 
-    auto& scp = *(it->second);
-    scp(message);
+    auto scp = it->second;
+    (*scp)(message);
 }
 
 }

@@ -9,6 +9,7 @@
 #include "odil/Reader.h"
 
 #include <algorithm>
+#include <cmath>
 #include <cstdint>
 #include <functional>
 #include <istream>
@@ -21,6 +22,7 @@
 #include "odil/Element.h"
 #include "odil/endian.h"
 #include "odil/Exception.h"
+#include "odil/logging.h"
 #include "odil/registry.h"
 #include "odil/Tag.h"
 #include "odil/Value.h"
@@ -119,11 +121,11 @@ Reader
     // Nothing else
 }
 
-DataSet
+std::shared_ptr<DataSet>
 Reader
 ::read_data_set(std::function<bool(Tag const &)> halt_condition) const
 {
-    DataSet data_set(transfer_syntax);
+    auto data_set = std::make_shared<DataSet>(this->transfer_syntax);
 
     bool done = (this->stream.peek() == EOF);
     while(!done)
@@ -142,7 +144,7 @@ Reader
 
             if(this->keep_group_length || tag.element != 0)
             {
-                data_set.add(tag, std::move(element));
+                data_set->add(tag, std::move(element));
             }
         }
 
@@ -198,7 +200,7 @@ Reader
 
 Element
 Reader
-::read_element(Tag const & tag, DataSet const & data_set) const
+::read_element(Tag const & tag, std::shared_ptr<DataSet const> data_set) const
 {
     VR vr;
     if(this->explicit_vr)
@@ -250,7 +252,7 @@ Reader
     return Element(*value, vr);
 }
 
-std::pair<DataSet, DataSet>
+std::pair<std::shared_ptr<DataSet>, std::shared_ptr<DataSet>>
 Reader
 ::read_file(
     std::istream & stream, bool keep_group_length,
@@ -276,25 +278,25 @@ Reader
     auto meta_information = meta_information_reader.read_data_set(
         [](Tag const & tag) { return (tag.group != 0x0002); });
 
-    if(!meta_information.has(registry::TransferSyntaxUID))
+    if(!meta_information->has(registry::TransferSyntaxUID))
     {
         throw Exception("Missing Transfer Syntax UID");
     }
-    if(!meta_information.is_string(registry::TransferSyntaxUID))
+    if(!meta_information->is_string(registry::TransferSyntaxUID))
     {
         throw Exception("Transfer Syntax UID is not a string");
     }
-    if(meta_information.as_string(registry::TransferSyntaxUID).size()<1)
+    if(meta_information->as_string(registry::TransferSyntaxUID).size()<1)
     {
         throw Exception("Empty Transfer Syntax UID");
     }
 
     Reader data_set_reader(
-        stream, meta_information.as_string(registry::TransferSyntaxUID)[0],
+        stream, meta_information->as_string(registry::TransferSyntaxUID)[0],
         keep_group_length);
     auto data_set = data_set_reader.read_data_set(halt_condition);
 
-    return std::make_pair(std::move(meta_information), std::move(data_set));
+    return std::make_pair(meta_information, data_set);
 }
 
 Reader::Visitor
@@ -323,7 +325,21 @@ Reader::Visitor
             value.resize(strings.size());
             std::transform(
                 strings.begin(), strings.end(), value.begin(),
-                [](std::string const & s) { return std::stoll(s); });
+                [](std::string const & s)
+                {
+                    long long value = 0;
+                    try
+                    {
+                        value = std::stoll(s);
+                    }
+                    catch(std::invalid_argument const &)
+                    {
+                        ODIL_LOG(error)
+                            << "Cannot convert \"" << s << "\" to IS, "
+                            << "setting to 0";
+                    }
+                    return static_cast<Value::Integer>(value);
+                });
         }
     }
     else
@@ -388,7 +404,18 @@ Reader::Visitor
                 strings.begin(), strings.end(), value.begin(),
                 [](std::string const & s)
                 {
-                    return static_cast<Value::Real>(std::stold(s));
+                    long double value = 0;
+                    try
+                    {
+                        value = std::stold(s);
+                    }
+                    catch(std::invalid_argument const &)
+                    {
+                        ODIL_LOG(error)
+                            << "Cannot convert \"" << s << "\" to DS, "
+                            << "setting to 0";
+                    }
+                    return static_cast<Value::Real>(value);
                 }
             );
         }
@@ -643,14 +670,14 @@ Reader::Visitor
     return value;
 }
 
-DataSet
+std::shared_ptr<DataSet>
 Reader::Visitor
 ::read_item(std::istream & specific_stream) const
 {
     auto const item_length = Reader::read_binary<uint32_t>(
         specific_stream, this->byte_ordering);
 
-    DataSet item;
+    std::shared_ptr<DataSet> item;
     if(item_length != 0xffffffff)
     {
         // Explicit length item

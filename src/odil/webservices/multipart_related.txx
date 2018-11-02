@@ -69,8 +69,7 @@ void transform_parts(
 }
 
 template<typename UnaryFunctor>
-void for_each_part(
-    Message const & message, UnaryFunctor functor)
+void for_each_part(Message const & message, UnaryFunctor functor)
 {
     if(!is_multipart_related(message))
     {

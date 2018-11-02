@@ -32,12 +32,6 @@ HTTPResponse
     // Nothing else.
 }
 
-HTTPResponse
-::~HTTPResponse()
-{
-    // Nothing to do.
-}
-
 std::string const &
 HTTPResponse
 ::get_http_version() const

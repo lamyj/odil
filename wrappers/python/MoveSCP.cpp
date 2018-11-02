@@ -8,7 +8,7 @@
 
 #include <memory>
 
-#include <boost/python.hpp>
+#include <pybind11/pybind11.h>
 
 #include "odil/message/CMoveRequest.h"
 #include "odil/MoveSCP.h"
@@ -28,48 +28,54 @@ public:
         // Nothing else
     }
     
-    virtual ~DataSetGeneratorWrapperMove()
+    virtual ~DataSetGeneratorWrapperMove() override
     {
         // Nothing to do.
     }
     
-    virtual unsigned int count() const
+    virtual unsigned int count() const override
     {
-        return this->get_override("count")();
+        PYBIND11_OVERLOAD_PURE(unsigned int, odil::MoveSCP::DataSetGenerator, count, );
     }
     
     virtual odil::Association 
-        get_association(odil::message::CMoveRequest const & request) const
+    get_association(std::shared_ptr<odil::message::CMoveRequest const> request) const override
     {
-        return this->get_override("get_association")(request);
+        PYBIND11_OVERLOAD_PURE(
+            odil::Association, odil::MoveSCP::DataSetGenerator, get_association,
+            request);
     }
 };
 
-void set_generator(
-    odil::MoveSCP & move_scp, DataSetGeneratorWrapperMove generator)
-{
-    auto cpp_generator = 
-        std::make_shared<DataSetGeneratorWrapperMove>(generator);
-    move_scp.set_generator(cpp_generator);
 }
 
-}
-
-void wrap_MoveSCP()
+void wrap_MoveSCP(pybind11::module & m)
 {
-    using namespace boost::python;
+    using namespace pybind11;
     using namespace odil;
     
-    scope move_scp_scope = class_<MoveSCP>("MoveSCP", init<Association &>())
-        .def("set_generator", &set_generator)
+    auto move_scp_scope = class_<MoveSCP>(m, "MoveSCP")
+        .def(init<Association &>())
+        .def("set_generator", &MoveSCP::set_generator)
         .def(
             "__call__",
             static_cast<
-                void (MoveSCP::*)(message::Message const &)
+                void (MoveSCP::*)(std::shared_ptr<message::Message>)
             >(&MoveSCP::operator())
         )
     ;
     
-    class_<DataSetGeneratorWrapperMove, boost::noncopyable>(
-        "DataSetGenerator", init<>());
+    class_<
+                MoveSCP::DataSetGenerator,
+                DataSetGeneratorWrapperMove, // trampoline
+                std::shared_ptr<MoveSCP::DataSetGenerator> // holder
+            >(move_scp_scope, "DataSetGenerator")
+        .def(init<>())
+        .def("initialize", &MoveSCP::DataSetGenerator::initialize)
+        .def("done", &MoveSCP::DataSetGenerator::done)
+        .def("next", &MoveSCP::DataSetGenerator::next)
+        .def("get", &MoveSCP::DataSetGenerator::get)
+        .def("count", &MoveSCP::DataSetGenerator::count)
+        .def("get_association", &MoveSCP::DataSetGenerator::get_association)
+    ;
 }

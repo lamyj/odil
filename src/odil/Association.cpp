@@ -34,6 +34,7 @@
 #include "odil/dul/UserIdentityRQ.h"
 #include "odil/dul/UserInformation.h"
 #include "odil/Reader.h"
+#include "odil/StringStream.h"
 #include "odil/Writer.h"
 
 namespace odil
@@ -195,7 +196,9 @@ bool
 Association
 ::is_associated() const
 {
-    return this->_state_machine.get_transport().is_open() && this->_state_machine.get_state() == odil::dul::StateMachine::State::Sta6 ;
+    return (
+        this->_state_machine.get_transport().is_open()
+        && this->_state_machine.get_state() == dul::StateMachine::State::Sta6);
 }
 
 void
@@ -362,7 +365,7 @@ Association
     this->_state_machine.send_pdu(data);
 }
 
-message::Message
+std::shared_ptr<message::Message>
 Association
 ::receive_message()
 {
@@ -372,8 +375,10 @@ Association
     bool has_data_set=true;
     bool data_set_received=false;
 
-    DataSet command_set;
-    std::stringstream command_stream, data_stream;
+    std::shared_ptr<DataSet> command_set;
+
+    std::string command_buffer;
+    std::string data_buffer;
 
     while(!done)
     {
@@ -405,22 +410,23 @@ Association
         for(auto const & pdv: p_data_tf->get_pdv_items())
         {
             presentation_context_id = pdv.get_presentation_context_id();
-            bool & received =
+
+            // Check if this is the last command or data PDV
+            auto & received =
                 pdv.is_command()?command_set_received:data_set_received;
             received |= pdv.is_last_fragment();
 
-            auto const & fragment_data = pdv.get_fragment();
+            // Accumulate incoming PDVs in command or data buffer
+            auto & buffer = (pdv.is_command()?command_buffer:data_buffer);
+            buffer.append(pdv.get_fragment());
 
-            std::stringstream  & stream =
-                pdv.is_command()?command_stream:data_stream;
-            stream.write(&fragment_data[0], fragment_data.size());
-
-            if(command_set_received && command_set.empty())
+            if(command_set_received && !command_set)
             {
-                Reader reader(command_stream, registry::ImplicitVRLittleEndian);
+                IStringStream istream(&command_buffer[0], command_buffer.size());
+                Reader reader(istream, registry::ImplicitVRLittleEndian);
                 command_set = reader.read_data_set();
                 auto const value =
-                    command_set.as_int(registry::CommandDataSetType, 0);
+                    command_set->as_int(registry::CommandDataSetType, 0);
 
                 if(value == message::Message::DataSetType::ABSENT)
                 {
@@ -432,6 +438,7 @@ Association
         done = command_set_received && (!has_data_set || data_set_received);
     }
 
+    std::shared_ptr<DataSet> data_set;
     if(has_data_set)
     {
         auto const transfer_syntax_it =
@@ -441,21 +448,18 @@ Association
             throw Exception("No such Presentation Context ID");
         }
 
-        Reader reader(data_stream, transfer_syntax_it->second);
-        auto data_set = reader.read_data_set();
-
-        return message::Message(std::move(command_set), std::move(data_set));
+        IStringStream istream(&data_buffer[0], data_buffer.size());
+        Reader reader(istream, transfer_syntax_it->second);
+        data_set = reader.read_data_set();
     }
-    else
-    {
-        return message::Message(std::move(command_set));
-    }
+    return std::make_shared<message::Message>(command_set, data_set);
 }
 
 void
 Association
 ::send_message(
-    message::Message const & message, std::string const & abstract_syntax)
+    std::shared_ptr<message::Message const> message,
+    std::string const & abstract_syntax)
 {
     if(!this->is_associated())
     {
@@ -474,22 +478,24 @@ Association
 
     std::vector<dul::PDataTF::PresentationDataValueItem> pdv_items;
 
-    std::ostringstream command_stream;
+    std::string command_buffer;
+    OStringStream command_stream(command_buffer);
     Writer command_writer(
         command_stream, registry::ImplicitVRLittleEndian, // implicit vr for command
         Writer::ItemEncoding::ExplicitLength, true); // true for Command
-    command_writer.write_data_set(message.get_command_set());
-    auto const command_buffer = command_stream.str();
+    command_writer.write_data_set(message->get_command_set());
+    command_stream.flush();
     pdv_items.emplace_back(id, 3, command_buffer);
 
-    if (message.has_data_set())
+    if (message->has_data_set())
     {
-        std::ostringstream data_stream;
+        std::string data_buffer;
+        OStringStream data_stream(data_buffer);
         Writer data_writer(
             data_stream, transfer_syntax,
             Writer::ItemEncoding::ExplicitLength, false);
-        data_writer.write_data_set(message.get_data_set());
-        auto const data_buffer = data_stream.str();
+        data_writer.write_data_set(message->get_data_set());
+        data_stream.flush();
 
         auto const max_length = this->_negotiated_parameters.get_maximum_length();
         auto current_length = command_buffer.size() + 12; // 12 is the size of all that is added on top of the fragment
@@ -545,6 +551,32 @@ Association
 ::next_message_id()
 {
     return ++this->_next_message_id;
+}
+
+AssociationReleased
+::AssociationReleased()
+: Exception("Association released")
+{
+    // Nothing else.
+}
+
+AssociationReleased
+::~AssociationReleased() noexcept
+{
+    // Nothing to do.
+}
+
+AssociationAborted
+::AssociationAborted(unsigned char source, unsigned char reason)
+: Exception("Association aborted"), source(source), reason(reason)
+{
+    // Nothing else.
+}
+
+AssociationAborted
+::~AssociationAborted() noexcept
+{
+    // Nothing to do.
 }
 
 }

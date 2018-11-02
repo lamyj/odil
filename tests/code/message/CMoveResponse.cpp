@@ -10,28 +10,30 @@
 
 struct Fixture: public MessageFixtureBase<odil::message::CMoveResponse>
 {
-    odil::DataSet command_set;
-    odil::DataSet data_set;
+    std::shared_ptr<odil::DataSet> command_set;
+    std::shared_ptr<odil::DataSet> data_set;
 
     Fixture()
+    : command_set(std::make_shared<odil::DataSet>()),
+      data_set(std::make_shared<odil::DataSet>())
     {
-        this->command_set.add(
+        this->command_set->add(
             "CommandField", {odil::message::Message::Command::C_MOVE_RSP});
-        this->command_set.add("MessageIDBeingRespondedTo", {1234});
-        this->command_set.add("Status", {odil::message::Response::Success});
+        this->command_set->add("MessageIDBeingRespondedTo", {1234});
+        this->command_set->add("Status", {odil::message::Response::Success});
 
-        this->command_set.add("MessageID", {5678});
-        this->command_set.add("AffectedSOPClassUID",
+        this->command_set->add("MessageID", {5678});
+        this->command_set->add("AffectedSOPClassUID",
             {odil::registry::StudyRootQueryRetrieveInformationModelMOVE});
-        this->command_set.add(odil::registry::NumberOfRemainingSuboperations, {1});
-        this->command_set.add(odil::registry::NumberOfCompletedSuboperations, {2});
-        this->command_set.add(odil::registry::NumberOfFailedSuboperations, {3});
-        this->command_set.add(odil::registry::NumberOfWarningSuboperations, {4});
+        this->command_set->add(odil::registry::NumberOfRemainingSuboperations, {1});
+        this->command_set->add(odil::registry::NumberOfCompletedSuboperations, {2});
+        this->command_set->add(odil::registry::NumberOfFailedSuboperations, {3});
+        this->command_set->add(odil::registry::NumberOfWarningSuboperations, {4});
 
-        this->data_set.add("PatientName", {"Doe^John"});
-        this->data_set.add("PatientID", {"DJ123"});
-        this->data_set.add("StudyDescription", {"Brain"});
-        this->data_set.add("StudyInstanceUID", {"1.2.3"});
+        this->data_set->add("PatientName", {"Doe^John"});
+        this->data_set->add("PatientID", {"DJ123"});
+        this->data_set->add("StudyDescription", {"Brain"});
+        this->data_set->add("StudyInstanceUID", {"1.2.3"});
     }
 
     virtual void check(odil::message::CMoveResponse const & message)
@@ -64,7 +66,7 @@ struct Fixture: public MessageFixtureBase<odil::message::CMoveResponse>
         BOOST_CHECK_EQUAL(message.get_number_of_warning_sub_operations(), 4);
 
         BOOST_CHECK(message.has_data_set());
-        BOOST_CHECK(message.get_data_set() == this->data_set);
+        BOOST_CHECK(*message.get_data_set() == *this->data_set);
     }
 };
 
@@ -90,7 +92,7 @@ BOOST_FIXTURE_TEST_CASE(MessageConstructor, Fixture)
 
 BOOST_FIXTURE_TEST_CASE(MessageConstructorWrongCommandField, Fixture)
 {
-    this->command_set.as_int("CommandField") = {
+    this->command_set->as_int("CommandField") = {
         odil::message::Message::Command::C_ECHO_RQ};
     this->check_message_constructor_throw(this->command_set, this->data_set);
 }

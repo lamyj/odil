@@ -30,6 +30,47 @@ BOOST_AUTO_TEST_CASE(Constructor)
     BOOST_REQUIRE(selector.get_frames().empty());
 }
 
+BOOST_AUTO_TEST_CASE(FromPath)
+{
+    std::string service;
+    odil::webservices::Selector selector;
+    std::tie(service, selector) = odil::webservices::Selector::from_path(
+        "/dicom/studies/1.2/instances");
+
+    BOOST_REQUIRE_EQUAL(service, "/dicom");
+
+    BOOST_REQUIRE(selector.is_study_present());
+    BOOST_REQUIRE_EQUAL(selector.get_study(), "1.2");
+
+    BOOST_REQUIRE(!selector.is_series_present());
+
+    BOOST_REQUIRE(selector.is_instance_present());
+    BOOST_REQUIRE_EQUAL(selector.get_instance(), "");
+
+    BOOST_REQUIRE(selector.get_frames().empty());
+}
+
+BOOST_AUTO_TEST_CASE(FromPathFrames)
+{
+    std::string service;
+    odil::webservices::Selector selector;
+    std::tie(service, selector) = odil::webservices::Selector::from_path(
+        "/dicom/studies/1.2/instances/3.4/frames/1,34");
+
+    BOOST_REQUIRE_EQUAL(service, "/dicom");
+
+    BOOST_REQUIRE(selector.is_study_present());
+    BOOST_REQUIRE_EQUAL(selector.get_study(), "1.2");
+
+    BOOST_REQUIRE(!selector.is_series_present());
+
+    BOOST_REQUIRE(selector.is_instance_present());
+    BOOST_REQUIRE_EQUAL(selector.get_instance(), "3.4");
+
+    std::vector<int> const expected_frames{1,34};
+    BOOST_REQUIRE(selector.get_frames() == expected_frames);
+}
+
 BOOST_AUTO_TEST_CASE(Equal)
 {
     odil::webservices::Selector selector;

@@ -32,12 +32,6 @@ NCreateSCP
     this->set_callback(callback);
 }
 
-NCreateSCP
-::~NCreateSCP()
-{
-    // Nothing to do.
-}
-
 NCreateSCP::Callback const &
 NCreateSCP::get_callback() const
 {
@@ -53,26 +47,18 @@ NCreateSCP
 
 void
 NCreateSCP
-::operator()(message::Message const & message)
+::operator()(std::shared_ptr<message::Message> message)
 {
-    message::NCreateRequest const request(message);
+    auto request = std::make_shared<message::NCreateRequest const>(message);
     this->operator()(request);
 }
 
 void
 NCreateSCP
-::operator()(message::Message && message)
-{
-    message::NCreateRequest const request(std::move(message));
-    this->operator()(request);
-}
-
-void
-NCreateSCP
-::operator()(message::NCreateRequest const & request)
+::operator()(std::shared_ptr<message::NCreateRequest const> request)
 {
     Value::Integer status=message::NCreateResponse::Success;
-    DataSet status_fields;
+    auto status_fields = std::make_shared<DataSet>();
 
     try
     {
@@ -88,16 +74,17 @@ NCreateSCP
         status = message::NCreateResponse::ProcessingFailure;
     }
 
-    message::NCreateResponse response(
-        request.get_message_id(), status, request.get_affected_sop_class_uid());
-    if(request.has_affected_sop_instance_uid())
+    auto response = std::make_shared<message::NCreateResponse>(
+        request->get_message_id(), status,
+        request->get_affected_sop_class_uid());
+    if(request->has_affected_sop_instance_uid())
     {
-        response.set_affected_sop_instance_uid(
-            request.get_affected_sop_instance_uid());
+        response->set_affected_sop_instance_uid(
+            request->get_affected_sop_instance_uid());
     }
-    response.set_status_fields(status_fields);
+    response->set_status_fields(status_fields);
     this->_association.send_message(
-        response, request.get_affected_sop_class_uid());
+        response, request->get_affected_sop_class_uid());
 }
 
 }

@@ -33,27 +33,21 @@ NSetResponse
 }
 
 NSetResponse
-::NSetResponse(Message const & message)
-: Response(message )
+::NSetResponse(std::shared_ptr<Message const> message)
+: Response(message)
 {
-    if(message.get_command_field() != Command::N_SET_RSP)
+    if(!message || message->get_command_field() != Command::N_SET_RSP)
     {
         throw Exception("Message is not a N-SET-RSP");
     }
 
-    this->set_command_field(message.get_command_field());
+    this->set_command_field(message->get_command_field());
 
     this->set_affected_sop_class_uid(
-        message.get_command_set().as_string(registry::RequestedSOPClassUID, 0));
+        message->get_command_set()->as_string(registry::RequestedSOPClassUID, 0));
 
     this->set_affected_sop_instance_uid(
-        message.get_command_set().as_string(registry::RequestedSOPInstanceUID, 0));
-}
-
-NSetResponse
-::~NSetResponse()
-{
-    // Nothing to do.
+        message->get_command_set()->as_string(registry::RequestedSOPInstanceUID, 0));
 }
 
 }

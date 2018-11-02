@@ -1,9 +1,9 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import argparse
 import os
 import re
-import urllib
+import urllib.request
 import sys
 import xml.etree.ElementTree
 
@@ -13,7 +13,7 @@ def main():
     parser = argparse.ArgumentParser("Generate registry files")
     parser.add_argument(
         "root", nargs="?",
-        default="http://medical.nema.org/medical/dicom/current/source/docbook",
+        default="http://dicom.nema.org/medical/dicom/current/source/docbook",
         help="Root URL or path to the Docbook version of the DICOM standard")
 
     arguments = parser.parse_args()
@@ -22,11 +22,6 @@ def main():
         loader=jinja2.FileSystemLoader(os.path.dirname(__file__)),
         trim_blocks=True)
 
-    templates = {
-        "src/odil/registry.h": jinja_environment.get_template("registry.h.tmpl"),
-        "src/odil/registry.cpp": jinja_environment.get_template("registry.cpp.tmpl"),
-    }
-
     sources = [
         ("part07/part07.xml", "table_E.1-1"),
         ("part06/part06.xml", "table_7-1"),
@@ -34,11 +29,12 @@ def main():
         ("part06/part06.xml", "table_6-1"),
     ]
 
-    elements_dictionary = []
+    elements_dictionary = {}
     for url, id_ in sources:
         url = os.path.join(arguments.root, url)
         entries = parse_elements_dictionaries(url, id_)
-        elements_dictionary.extend(entries)
+        for group, group_entries in entries.items():
+            elements_dictionary.setdefault(group, []).extend(group_entries)
 
     sources = [
         ("part06/part06.xml", "table_A-1"),
@@ -48,16 +44,30 @@ def main():
     for url, id_ in sources:
         uids.extend(parse_uids(os.path.join(arguments.root, url), id_))
 
-    for path, template in templates.items():
-        with open(path, "w") as fd:
-            fd.write(template.render(
-                elements_dictionary=elements_dictionary,
-                uids=uids))
+    group_templates = {
+        "src/odil/registry_{}.h": jinja_environment.get_template("registry_group.h.tmpl"),
+        "src/odil/registry_{}.cpp": jinja_environment.get_template("registry_group.cpp.tmpl"),
+    }
 
-    return 0
+    for group, group_items in elements_dictionary.items():
+        for path, template in group_templates.items():
+            suffix = "{:04x}".format(group) if group != "misc" else group
+            with open(path.format(suffix), "w") as fd:
+                fd.write(template.render(
+                    elements_dictionary=group_items, group=suffix))
+
+    main_templates = {
+        "src/odil/registry.h": jinja_environment.get_template("registry.h.tmpl"),
+        "src/odil/registry.cpp": jinja_environment.get_template("registry.cpp.tmpl"),
+    }
+    groups = [
+        "{:04x}".format(x) if x != "misc" else x for x in elements_dictionary.keys()]
+    for path, template in main_templates.items():
+        with open(path, "w") as fd:
+            fd.write(template.render(uids=uids, groups=groups))
 
 def parse_elements_dictionaries(url, id_):
-    fd = urllib.urlopen(url)
+    fd = urllib.request.urlopen(url)
     document = xml.etree.ElementTree.parse(fd)
     fd.close()
 
@@ -68,7 +78,7 @@ def parse_elements_dictionaries(url, id_):
 
     table = document.find(".//*[@xml:id=\"{}\"]".format(id_), namespaces)
 
-    entries = []
+    entries = {}
 
     for row in table.iterfind("./docbook:tbody/docbook:tr", namespaces):
         entry = row.findall("./docbook:td/docbook:para", namespaces)
@@ -103,12 +113,19 @@ def parse_elements_dictionaries(url, id_):
         vr = get_value(vr, "ascii", namespaces)
         vm = get_value(vm, "ascii", namespaces)
 
-        entries.append((tag, name, keyword, vr, vm))
+        if isinstance(tag, tuple):
+            group = tag[0]
+        elif isinstance(tag, str):
+            group = "misc"
+        else:
+            raise NotImplementedError("Unknown tag type: ".format(type(tag)))
+
+        entries.setdefault(group, []).append((tag, name, keyword, vr, vm))
 
     return entries
 
 def parse_uids(url, id_):
-    fd = urllib.urlopen(url)
+    fd = urllib.request.urlopen(url)
     document = xml.etree.ElementTree.parse(fd)
     fd.close()
 
@@ -156,7 +173,7 @@ def get_value(element, encoding, namespaces):
         element = emphasis
 
     element = element.text or ""
-    element = element.replace(u"\u200b", "").replace(u"\u00b5", "u").encode(encoding)
+    element = element.replace(u"\u200b", "").replace(u"\u00b5", "u")
     return element
 
 if __name__ == "__main__":

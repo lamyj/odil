@@ -29,16 +29,15 @@ public:
      * @brief Callback called when a request is received, shall throw an
      * SCP::Exception on error.
      */
-    typedef std::function<Value::Integer(message::NCreateRequest const &)> Callback;
+    typedef std::function<
+            Value::Integer(std::shared_ptr<message::NCreateRequest const>)
+        > Callback;
 
     /// @brief Constructor.
     NCreateSCP(Association & association);
 
     /// @brief Constructor.
     NCreateSCP(Association & association, Callback const & callback);
-
-    /// @brief Destructor.
-    virtual ~NCreateSCP();
 
     /// @brief Return the callback.
     Callback const & get_callback() const;
@@ -47,14 +46,10 @@ public:
     void set_callback(Callback const & callback);
 
     /// @brief Process a N-Create request.
-    virtual void operator()(message::Message const & message);
-
-    /// @brief Process a N-Create request.
-    virtual void operator()(message::Message && message);
-
+    virtual void operator()(std::shared_ptr<message::Message> message);
 private:
     Callback _callback;
-    void operator()(message::NCreateRequest const & message);
+    void operator()(std::shared_ptr<message::NCreateRequest const> message);
 };
 
 }

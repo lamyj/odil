@@ -6,8 +6,18 @@
  * for details.
  ************************************************************************/
 
-#include <cassert>
 #include "odil/webservices/Selector.h"
+
+#include <string>
+#include <utility>
+#include <vector>
+#include <map>
+
+#include <boost/fusion/include/std_pair.hpp>
+#include <boost/spirit/include/qi.hpp>
+
+#include "odil/Exception.h"
+#include "odil/odil.h"
 
 namespace odil
 {
@@ -16,31 +26,92 @@ namespace webservices
 {
 
 Selector
-::Selector(std::map<std::string, std::string> const & selector, std::vector<int> const & frames):
-    _study_present(false), _series_present(false), _instance_present(false),_frames(frames)
+::Selector(
+    std::map<std::string, std::string> const & selector,
+    std::vector<int> const & frames)
+: _frames(frames),
+  _study_present(false), _series_present(false), _instance_present(false)
 {
-    for (auto const pair_: selector)
+    for(auto const & pair: selector)
     {
-        if (pair_.first == "studies")
+        if (pair.first == "studies")
         {
-            _study_present = true;
-            _study = pair_.second;
+            this->_study_present = true;
+            this->_study = pair.second;
         }
-        else if (pair_.first == "series")
+        else if (pair.first == "series")
         {
-            _series_present = true;
-            _series = pair_.second;
+            this->_series_present = true;
+            this->_series = pair.second;
         }
-        else if (pair_.first == "instances")
+        else if (pair.first == "instances")
         {
-            _instance_present = true;
-            _instance = pair_.second;
+            this->_instance_present = true;
+            this->_instance = pair.second;
         }
         else
         {
-            throw Exception("Unknown option " + pair_.first);
+            throw Exception("Unknown option " + pair.first);
         }
     }
+}
+
+template <typename Iterator>
+struct Grammar:
+    boost::spirit::qi::grammar<
+        Iterator,
+        std::pair<std::map<std::string, std::string>, std::vector<int>>()>
+{
+    Grammar()
+    : Grammar::base_type(selector)
+    {
+        namespace qi = boost::spirit::qi;
+
+        level %=
+            qi::string("studies") | qi::string("series") | qi::string("instances");
+        value %= +(~qi::char_("/"));
+        objects %= (level >> -(qi::omit["/"] >> value)) % "/";
+        frames %= qi::lit("/frames/") >> qi::int_ % ",";
+        selector %= objects >> -frames;
+    }
+
+    boost::spirit::qi::rule<Iterator, std::string()> level;
+    boost::spirit::qi::rule<Iterator, std::string()> value;
+    boost::spirit::qi::rule<
+            Iterator, std::map<std::string, std::string>()
+        > objects;
+    boost::spirit::qi::rule<Iterator, std::vector<int>()> frames;
+    boost::spirit::qi::rule<
+            Iterator,
+            std::pair<std::map<std::string, std::string>, std::vector<int>>()
+        > selector;
+};
+
+std::pair<std::string, Selector>
+Selector
+::from_path(std::string const & path)
+{
+    auto const positions = {
+        path.rfind("/instances"), path.rfind("/series"), path.rfind("/studies")
+    };
+    auto const position = std::min(positions);
+
+    auto const service = path.substr(0, position);
+    auto const resource = path.substr(position+1);
+
+    Grammar<std::string::const_iterator> grammar;
+    std::pair<std::map<std::string, std::string>, std::vector<int>> parsed_value;
+    auto iterator = resource.begin();
+    auto const is_parsed = boost::spirit::qi::phrase_parse(
+        iterator, resource.end(), grammar,
+        boost::spirit::qi::ascii::space, parsed_value);
+    if(!is_parsed)
+    {
+        throw Exception("Could not parse path");
+    }
+
+    return std::make_pair(
+        std::move(service), Selector(parsed_value.first, parsed_value.second));
 }
 
 bool
@@ -69,42 +140,42 @@ bool
 Selector
 ::is_study_present() const
 {
-    return _study_present;
+    return this->_study_present;
 }
 
 bool
 Selector
 ::is_series_present() const
 {
-    return _series_present;
+    return this->_series_present;
 }
 
 bool
 Selector
 ::is_instance_present() const
 {
-    return _instance_present;
+    return this->_instance_present;
 }
 
 std::string const &
 Selector
 ::get_study() const
 {
-    return _study;
+    return this->_study;
 }
 
 std::string const &
 Selector
 ::get_series() const
 {
-    return _series;
+    return this->_series;
 }
 
 std::string const &
 Selector
 ::get_instance() const
 {
-    return _instance;
+    return this->_instance;
 }
 
 std::vector<int> const &
@@ -120,7 +191,6 @@ Selector
 {
     this->_study = study;
     this->_study_present = true;
-
     return *this;
 }
 
@@ -144,7 +214,7 @@ Selector
 
 Selector &
 Selector
-::set_frames(std::vector<int> const &frames)
+::set_frames(std::vector<int> const & frames)
 {
     this->_frames = frames;
     return *this;
@@ -166,7 +236,7 @@ Selector
     if(this->_series_present)
     {
         path += "/series";
-        if (!this->_series.empty())
+        if(!this->_series.empty())
         {
             path += "/" + this->_series;
         }

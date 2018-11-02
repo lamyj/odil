@@ -6,14 +6,14 @@
 #include "odil/FindSCU.h"
 #include "odil/registry.h"
 
-void print_informations(odil::DataSet const & response)
+void print_informations(std::shared_ptr<odil::DataSet const> response)
 {
-    auto const name = (response.has("PatientName") && !response.empty("PatientName"))?
-        response.as_string("PatientName", 0):"(no name)";
-    auto const study = (response.has("StudyDescription") && !response.empty("StudyDescription"))?
-        response.as_string("StudyDescription", 0):"(no description)";
-    auto const date = (response.has("StudyDate") && !response.empty("StudyDate"))?
-        response.as_string("StudyDate", 0):"(no date)";
+    auto const name = (response->has("PatientName") && !response->empty("PatientName"))?
+        response->as_string("PatientName", 0):"(no name)";
+    auto const study = (response->has("StudyDescription") && !response->empty("StudyDescription"))?
+        response->as_string("StudyDescription", 0):"(no description)";
+    auto const date = (response->has("StudyDate") && !response->empty("StudyDate"))?
+        response->as_string("StudyDate", 0):"(no date)";
     std::cout
         << "\"" << name << "\": \"" << study << "\" on " << date << "\n";
 }
@@ -28,11 +28,11 @@ int main()
         .set_called_ae_title("AWSPIXELMEDPUB")
         .set_presentation_contexts({
             {
-                1, odil::registry::StudyRootQueryRetrieveInformationModelFIND,
+                odil::registry::StudyRootQueryRetrieveInformationModelFIND,
                 { odil::registry::ExplicitVRLittleEndian }, true, false
             },
             {
-                3, odil::registry::VerificationSOPClass,
+                odil::registry::VerificationSOPClass,
                 { odil::registry::ExplicitVRLittleEndian }, true, false
             }
         });
@@ -44,11 +44,11 @@ int main()
     
     odil::FindSCU scu(association);
 
-    odil::DataSet query;
-    query.add("PatientName", { "*" });
-    query.add("QueryRetrieveLevel", { "STUDY" });
-    query.add("StudyDescription");
-    query.add("StudyDate");
+    auto query = std::make_shared<odil::DataSet>();
+    query->add("PatientName", { "*" });
+    query->add("QueryRetrieveLevel", { "STUDY" });
+    query->add("StudyDescription");
+    query->add("StudyDate");
     
     scu.set_affected_sop_class(odil::registry::StudyRootQueryRetrieveInformationModelFIND);
     

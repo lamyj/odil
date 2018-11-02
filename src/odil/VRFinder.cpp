@@ -36,7 +36,7 @@ VRFinder
 
 VR
 VRFinder::operator()(
-    Tag const & tag, DataSet const & data_set,
+    Tag const & tag, std::shared_ptr<DataSet const> data_set,
     std::string const & transfer_syntax) const
 {
     VR vr = VR::UNKNOWN;
@@ -87,7 +87,7 @@ VRFinder::operator()(
 VR
 VRFinder
 ::public_dictionary(
-    Tag const & tag, DataSet const &, std::string const &)
+    Tag const & tag, std::shared_ptr<DataSet const>, std::string const &)
 {
     VR vr = VR::UNKNOWN;
     
@@ -103,7 +103,7 @@ VRFinder
 VR
 VRFinder
 ::group_length(
-    Tag const & tag, DataSet const &, std::string const &)
+    Tag const & tag, std::shared_ptr<DataSet const>, std::string const &)
 {
     if(tag.element == 0)
     {
@@ -116,7 +116,7 @@ VRFinder
 VR
 VRFinder
 ::private_tag(
-    Tag const & tag, DataSet const &, std::string const &)
+    Tag const & tag, std::shared_ptr<DataSet const>, std::string const &)
 {
     if(tag.group %2 == 1)
     {
@@ -129,7 +129,7 @@ VRFinder
 VR
 VRFinder
 ::implicit_vr_little_endian(
-    Tag const & tag, DataSet const & data_set,
+    Tag const & tag, std::shared_ptr<DataSet const> data_set,
     std::string const & transfer_syntax)
 {
     if(transfer_syntax == registry::ImplicitVRLittleEndian)
@@ -180,12 +180,12 @@ VRFinder
             tag == registry::LargestPixelValueInSeries ||
             tag == registry::PixelPaddingValue)
         {
-            if(!data_set.has(odil::registry::PixelRepresentation))
+            if(!data_set->has(registry::PixelRepresentation))
             {
                 throw Exception("Cannot find VR without PixelRepresentation");
             }
             auto const & pixel_representation = 
-                data_set.as_int(odil::registry::PixelRepresentation)[0];
+                data_set->as_int(registry::PixelRepresentation)[0];
             return (pixel_representation==0)?(VR::US):(VR::SS);
         }
         else
@@ -204,7 +204,7 @@ VRFinder
 VR
 VRFinder
 ::explicit_vr_little_endian(
-    Tag const & tag, DataSet const & data_set,
+    Tag const & tag, std::shared_ptr<DataSet const> data_set,
     std::string const & transfer_syntax)
 {
     if(transfer_syntax == registry::ExplicitVRLittleEndian)
@@ -212,12 +212,12 @@ VRFinder
         // PS3.5, A.1 (c)
         if(tag == registry::PixelData)
         {
-            if(!data_set.has(odil::registry::BitsAllocated))
+            if(!data_set->has(registry::BitsAllocated))
             {
                 throw Exception("Cannot find VR without BitsAllocated");
             }
             auto const & bits_allocated = 
-                data_set.as_int(odil::registry::BitsAllocated)[0];
+                data_set->as_int(registry::BitsAllocated)[0];
             return (bits_allocated<=8)?(VR::OB):(VR::OW);
         }
         else if((tag.group>>8) == 0x60 && tag.element == 0x3000)
@@ -261,12 +261,12 @@ VRFinder
             tag == registry::LargestPixelValueInSeries ||
             tag == registry::PixelPaddingValue)
         {
-            if(!data_set.has(odil::registry::PixelRepresentation))
+            if(!data_set->has(registry::PixelRepresentation))
             {
                 throw Exception("Cannot find VR without PixelRepresentation");
             }
             auto const & pixel_representation = 
-                data_set.as_int(odil::registry::PixelRepresentation)[0];
+                data_set->as_int(registry::PixelRepresentation)[0];
             return (pixel_representation==0)?(VR::US):(VR::SS);
         }
         else

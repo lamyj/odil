@@ -14,11 +14,11 @@ int main(int argc, char** argv)
         .set_called_ae_title("AWSPIXELMEDPUB")
         .set_presentation_contexts({
             {
-                1, odil::registry::MRImageStorage,
+                odil::registry::MRImageStorage,
                 { odil::registry::ImplicitVRLittleEndian }, false, true
             },
             {
-                3, odil::registry::VerificationSOPClass,
+                odil::registry::VerificationSOPClass,
                 { odil::registry::ImplicitVRLittleEndian }, true, false
             }
         });

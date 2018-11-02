@@ -1,16 +1,10 @@
-#!/usr/bin/env python
+#!${PYTHON_EXECUTABLE}
 
 import argparse
 import logging
 import sys
 
-import dicomdir
-import echo
-import find
-import get
-import print_
-import store
-import transcode
+import odil.cli
 
 def main():
     parser = argparse.ArgumentParser()
@@ -18,28 +12,31 @@ def main():
     subparsers = parser.add_subparsers(help="Sub-commands help")
 
     modules = [
-        print_, transcode, dicomdir, 
-        echo, find, get, store
+        "print_", "transcode", "dicomdir",
+        "echo", "find", "get", "store"
     ]
     for module in modules:
-        sub_parser = module.add_subparser(subparsers)
+        sub_parser = getattr(odil.cli, module).add_subparser(subparsers)
         sub_parser.add_argument(
             "--verbosity", "-v",
             choices=["warning", "info", "debug"], default="warning")
 
     arguments = parser.parse_args()
 
-    verbosity = arguments.__dict__.pop("verbosity")
+    verbosity = arguments.__dict__.pop("verbosity", "warning")
     logging.getLogger().setLevel(verbosity.upper())
 
-    function = arguments.__dict__.pop("function")
-    try:
-        function(**arguments.__dict__)
-    except Exception as e:
-        if verbosity == "debug":
-            raise
-        else:
-            parser.error(e)
+    function = arguments.__dict__.pop("function", None)
+    if function is not None:
+        try:
+            function(**arguments.__dict__)
+        except Exception as e:
+            if verbosity == "debug":
+                raise
+            else:
+                parser.error(e)
+    else:
+        parser.error("Missing function")
 
 if __name__ == "__main__":
     sys.exit(main())

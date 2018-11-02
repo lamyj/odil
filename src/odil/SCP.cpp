@@ -25,8 +25,8 @@ SCP::DataSetGenerator
 SCP::Exception
 ::Exception(
     std::string const & message,
-    Value::Integer status, DataSet const & status_fields)
-: ::odil::Exception(message), status(status), status_fields(status_fields)
+    Value::Integer status, std::shared_ptr<DataSet> status_fields)
+: odil::Exception(message), status(status), status_fields(status_fields)
 {
     // Nothing else.
 }
@@ -44,18 +44,12 @@ SCP
     // Nothing else.
 }
 
-SCP
-::~SCP()
-{
-    // Nothing to do.
-}
-
 void
 SCP
 ::receive_and_process()
 {
     auto message = this->_association.receive_message();
-    (*this)(std::move(message));
+    (*this)(message);
 }
 
 }

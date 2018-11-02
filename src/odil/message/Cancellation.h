@@ -32,10 +32,7 @@ public:
      *
      * Raise an exception is this element is missing.
      */
-    Cancellation(Message const & message);
-
-    /// @brief Destructor.
-    ~Cancellation();
+    Cancellation(std::shared_ptr<Message const> message);
 
     ODIL_MESSAGE_MANDATORY_FIELD_INTEGER_MACRO(
         message_id_being_responded_to, registry::MessageIDBeingRespondedTo);

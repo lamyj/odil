@@ -28,7 +28,7 @@ class ODIL_API GetSCU: public SCU
 {
 public:
     /// @brief Callback called when a C-STORE request is received.
-    typedef std::function<void(DataSet &&)> StoreCallback;
+    typedef std::function<void(std::shared_ptr<DataSet>)> StoreCallback;
 
     /**
      * @brief Typedef to keep compatibility with previous versions.
@@ -37,42 +37,34 @@ public:
     typedef StoreCallback Callback;
 
     /// @brief Callback called when a C-GET response is received.
-    typedef std::function<void(message::CGetResponse &&)> GetCallback;
+    typedef std::function<
+            void(std::shared_ptr<message::CGetResponse>)
+        > GetCallback;
 
     /// @brief Constructor.
     GetSCU(Association & association);
 
-    /// @brief Destructor.
-    virtual ~GetSCU();
-    
     /// @brief Perform the C-GET using callbacks.
     void get(
-        DataSet const & query, StoreCallback store_callback,
+        std::shared_ptr<DataSet> query, StoreCallback store_callback,
         GetCallback get_callback=GetCallback()) const;
-
-    /// @brief Perform the C-GET using callbacks.
-    void get(
-        DataSet && query, StoreCallback store_callback,
-        GetCallback get_callback=GetCallback()) const;
-    
-    /**
-     * @brief Return a list of datasets matching the query.
-     */
-    std::vector<DataSet> get(DataSet const & query) const;
 
     /**
      * @brief Return a list of datasets matching the query.
      */
-    std::vector<DataSet> get(DataSet && query) const;
+    std::vector<std::shared_ptr<DataSet>> get(
+        std::shared_ptr<DataSet> query) const;
 
 private:
     void _get(
-        message::CGetRequest const & request,
+        std::shared_ptr<message::CGetRequest const> request,
         StoreCallback store_callback, GetCallback get_callback) const;
     bool _handle_get_response(
-        message::CGetResponse && response, GetCallback callback) const;
+        std::shared_ptr<message::CGetResponse> response,
+        GetCallback callback) const;
     void _handle_store_request(
-        message::CStoreRequest && request, StoreCallback callback) const;
+        std::shared_ptr<message::CStoreRequest> request,
+        StoreCallback callback) const;
 };
 
 }

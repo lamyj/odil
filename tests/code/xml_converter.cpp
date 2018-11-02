@@ -35,8 +35,8 @@ void test_parsing(
     std::string const & xml_value)
 {
     // Baseline data set
-    odil::DataSet data_set;
-    data_set.add(tag, odil_value);
+    auto data_set = std::make_shared<odil::DataSet>();
+    data_set->add(tag, odil_value);
 
     // Baseline XML
     std::stringstream stream;
@@ -55,14 +55,14 @@ void test_parsing(
     boost::property_tree::ptree xml;
     boost::property_tree::read_xml(stream, xml);
 
-    BOOST_REQUIRE(odil::as_dataset(xml) == data_set);
+    BOOST_REQUIRE(*odil::as_dataset(xml) == *data_set);
     BOOST_REQUIRE(compare_ptree(xml, odil::as_xml(data_set)));
 }
 
 BOOST_AUTO_TEST_CASE(EmptyDataSet)
 {
     // Baseline data set
-    odil::DataSet data_set;
+    auto data_set = std::make_shared<odil::DataSet>();
 
     // Baseline XML
     std::stringstream stream;
@@ -74,7 +74,7 @@ BOOST_AUTO_TEST_CASE(EmptyDataSet)
     boost::property_tree::ptree xml;
     boost::property_tree::read_xml(stream, xml);
 
-    BOOST_REQUIRE(odil::as_dataset(xml) == data_set);
+    BOOST_REQUIRE(*odil::as_dataset(xml) == *data_set);
     BOOST_REQUIRE(compare_ptree(xml, odil::as_xml(data_set)));
 }
 
@@ -154,7 +154,7 @@ BOOST_AUTO_TEST_CASE(StringValues)
 BOOST_AUTO_TEST_CASE(BulkDataURI)
 {
     auto const bulk_data_creator =
-        [](odil::DataSet const & data_set, odil::Tag const & tag)
+        [](std::shared_ptr<odil::DataSet const>, odil::Tag const & tag)
         {
             std::pair<std::string, std::string> result;
             if(tag == odil::registry::EncapsulatedDocument)
@@ -172,12 +172,12 @@ BOOST_AUTO_TEST_CASE(BulkDataURI)
     std::string const xml_value = "<BulkData uri=\"http://example.com\"/>";
 
     // Baseline data set
-    odil::DataSet data_set;
-    data_set.add(tag, odil_value);
+    auto data_set = std::make_shared<odil::DataSet>();
+    data_set->add(tag, odil_value);
 
     // Bulk-data data set
-    odil::DataSet bulk_data_set;
-    bulk_data_set.add(tag, {"http://example.com"}, odil::VR::UR);
+    auto bulk_data_set = std::make_shared<odil::DataSet>();
+    bulk_data_set->add(tag, {"http://example.com"}, odil::VR::UR);
 
     // Baseline XML
     std::stringstream stream;
@@ -196,14 +196,14 @@ BOOST_AUTO_TEST_CASE(BulkDataURI)
     boost::property_tree::ptree xml;
     boost::property_tree::read_xml(stream, xml);
 
-    BOOST_REQUIRE(odil::as_dataset(xml) == bulk_data_set);
+    BOOST_REQUIRE(*odil::as_dataset(xml) == *bulk_data_set);
     BOOST_REQUIRE(compare_ptree(xml, odil::as_xml(data_set, bulk_data_creator)));
 }
 
 BOOST_AUTO_TEST_CASE(BulkDataUUID)
 {
     auto const bulk_data_creator =
-        [](odil::DataSet const & data_set, odil::Tag const & tag)
+        [](std::shared_ptr<odil::DataSet const>, odil::Tag const & tag)
         {
             std::pair<std::string, std::string> result;
             if(tag == odil::registry::EncapsulatedDocument)
@@ -221,12 +221,12 @@ BOOST_AUTO_TEST_CASE(BulkDataUUID)
     std::string const xml_value = "<BulkData uuid=\"http://example.com\"/>";
 
     // Baseline data set
-    odil::DataSet data_set;
-    data_set.add(tag, odil_value);
+    auto data_set = std::make_shared<odil::DataSet>();
+    data_set->add(tag, odil_value);
 
     // Bulk-data data set
-    odil::DataSet bulk_data_set;
-    bulk_data_set.add(tag, {"http://example.com"}, odil::VR::UR);
+    auto bulk_data_set = std::make_shared<odil::DataSet>();
+    bulk_data_set->add(tag, {"http://example.com"}, odil::VR::UR);
 
     // Baseline XML
     std::stringstream stream;
@@ -245,7 +245,7 @@ BOOST_AUTO_TEST_CASE(BulkDataUUID)
     boost::property_tree::ptree xml;
     boost::property_tree::read_xml(stream, xml);
 
-    BOOST_REQUIRE(odil::as_dataset(xml) == bulk_data_set);
+    BOOST_REQUIRE(*odil::as_dataset(xml) == *bulk_data_set);
     BOOST_REQUIRE(compare_ptree(xml, odil::as_xml(data_set, bulk_data_creator)));
 }
 
@@ -331,10 +331,10 @@ BOOST_AUTO_TEST_CASE(Item)
 {
     auto const tag = odil::registry::ReferencedSeriesSequence;
     auto const vr = odil::VR::SQ;
-    odil::DataSet data_set_1;
-    data_set_1.add("PatientID", {"DJ1234"});
-    odil::DataSet data_set_2;
-    data_set_2.add("NumberOfSeriesRelatedInstances", {1234});
+    auto data_set_1 = std::make_shared<odil::DataSet>();
+    data_set_1->add("PatientID", {"DJ1234"});
+    auto data_set_2 = std::make_shared<odil::DataSet>();
+    data_set_2->add("NumberOfSeriesRelatedInstances", {1234});
     odil::Value::DataSets const value{data_set_1, data_set_2};
 
     std::stringstream stream;
@@ -373,8 +373,8 @@ BOOST_AUTO_TEST_CASE(MissingRootNode)
 
 BOOST_AUTO_TEST_CASE(BadVRCreation)
 {
-    odil::DataSet data_set;
-    data_set.add(odil::registry::PatientID, {"value"}, odil::VR::INVALID);
+    auto data_set = std::make_shared<odil::DataSet>();
+    data_set->add(odil::registry::PatientID, {"value"}, odil::VR::INVALID);
     BOOST_REQUIRE_THROW(odil::as_xml(data_set), odil::Exception);
 }
 

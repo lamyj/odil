@@ -10,22 +10,24 @@
 
 struct Fixture: public MessageFixtureBase<odil::message::CFindRequest>
 {
-    odil::DataSet command_set;
-    odil::DataSet query;
+    std::shared_ptr<odil::DataSet> command_set;
+    std::shared_ptr<odil::DataSet> query;
 
     Fixture()
+    : command_set(std::make_shared<odil::DataSet>()),
+      query(std::make_shared<odil::DataSet>())
     {
-        this->command_set.add(
+        this->command_set->add(
             "CommandField", {odil::message::Message::Command::C_FIND_RQ});
-        this->command_set.add("MessageID", {1234});
-        this->command_set.add("AffectedSOPClassUID",
+        this->command_set->add("MessageID", {1234});
+        this->command_set->add("AffectedSOPClassUID",
             {odil::registry::PatientRootQueryRetrieveInformationModelFIND});
-        this->command_set.add(
+        this->command_set->add(
             "Priority", {odil::message::Message::Priority::MEDIUM});
 
-        this->query.add("PatientName", {"Doe^John"});
-        this->query.add("StudyDescription", {"Brain"});
-        this->query.add("QueryRetrieveLevel", {"STUDY"});
+        this->query->add("PatientName", {"Doe^John"});
+        this->query->add("StudyDescription", {"Brain"});
+        this->query->add("QueryRetrieveLevel", {"STUDY"});
     }
 
     virtual void check(odil::message::CFindRequest const & message)
@@ -37,7 +39,7 @@ struct Fixture: public MessageFixtureBase<odil::message::CFindRequest>
         BOOST_CHECK_EQUAL(
             message.get_affected_sop_class_uid(),
             odil::registry::PatientRootQueryRetrieveInformationModelFIND);
-        BOOST_CHECK(message.get_data_set() == this->query);
+        BOOST_CHECK(*message.get_data_set() == *this->query);
     }
 };
 
@@ -56,20 +58,20 @@ BOOST_FIXTURE_TEST_CASE(MessageConstructor, Fixture)
 
 BOOST_FIXTURE_TEST_CASE(MessageConstructorWrongCommandField, Fixture)
 {
-    this->command_set.as_int("CommandField") = {
+    this->command_set->as_int("CommandField") = {
         odil::message::Message::Command::C_ECHO_RQ};
     this->check_message_constructor_throw(this->command_set, this->query);
 }
 
 BOOST_FIXTURE_TEST_CASE(MessageConstructorMissingAffectSOPClass, Fixture)
 {
-    this->command_set.remove("AffectedSOPClassUID");
+    this->command_set->remove("AffectedSOPClassUID");
     this->check_message_constructor_throw(this->command_set, this->query);
 }
 
 BOOST_FIXTURE_TEST_CASE(MessageConstructorMissingPriority, Fixture)
 {
-    this->command_set.remove("Priority");
+    this->command_set->remove("Priority");
     this->check_message_constructor_throw(this->command_set, this->query);
 }
 
@@ -80,6 +82,6 @@ BOOST_FIXTURE_TEST_CASE(MessageConstructorMissingQuery, Fixture)
 
 BOOST_FIXTURE_TEST_CASE(MessageConstructorEmptyQuery, Fixture)
 {
-    odil::DataSet empty;
+    auto empty = std::make_shared<odil::DataSet>();
     this->check_message_constructor_throw(this->command_set, empty);
 }

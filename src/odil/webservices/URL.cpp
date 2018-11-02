@@ -8,14 +8,17 @@
 
 #include "odil/webservices/URL.h"
 
-#include <sstream>
 #include <string>
+#include <utility>
+#include <vector>
 
 #include <boost/fusion/adapted/struct/adapt_struct.hpp>
 #include <boost/fusion/include/adapt_struct.hpp>
+#include <boost/fusion/include/std_pair.hpp>
 #include <boost/spirit/include/qi.hpp>
 
 #include "odil/Exception.h"
+#include "odil/StringStream.h"
 
 namespace odil
 {
@@ -45,31 +48,58 @@ URL
 URL
 ::operator std::string() const
 {
-    std::stringstream result;
+    std::string result;
+    OStringStream stream(result);
 
     if(!this->scheme.empty())
     {
-        result << this->scheme << ":";
+        stream << this->scheme << ":";
     }
 
     if(!this->authority.empty())
     {
-        result << "//" << this->authority;
+        stream << "//" << this->authority;
     }
 
-    result << this->path;
+    stream << this->path;
 
     if(!this->query.empty())
     {
-        result << "?" << this->query;
+        stream << "?" << this->query;
     }
 
     if(!this->fragment.empty())
     {
-        result << "#" << this->fragment;
+        stream << "#" << this->fragment;
     }
 
-    return result.str();
+    return result;
+}
+
+std::vector<std::pair<std::string, std::string>>
+URL
+::parse_query(std::string const & separator) const
+{
+    namespace qi = boost::spirit::qi;
+    typedef std::string::const_iterator Iterator;
+    typedef std::vector<std::pair<std::string, std::string>> PairContainer;
+
+    qi::rule<Iterator, std::string()> name = +~qi::char_("="+separator);
+    qi::rule<Iterator, std::string()> value = +~qi::char_(separator);
+    qi::rule<Iterator, PairContainer()> retrieve_key_val =
+            (name  >> qi::omit["="] >> value)%separator;
+
+    auto iterator = this->query.begin();
+    PairContainer pair_container;
+    auto const parsed = qi::phrase_parse(
+        iterator, this->query.end(), retrieve_key_val, qi::ascii::space,
+        pair_container);
+    if(!this->query.empty() && (!parsed || iterator != this->query.end()))
+    {
+        throw Exception("Could not parse query string");
+    }
+
+    return pair_container;
 }
 
 URL

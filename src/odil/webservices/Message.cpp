@@ -35,12 +35,6 @@ Message
     // Nothing else.
 }
 
-Message
-::~Message()
-{
-    // Nothing to do.
-}
-
 Message::Headers const &
 Message
 ::get_headers() const

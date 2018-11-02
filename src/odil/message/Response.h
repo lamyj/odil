@@ -78,10 +78,7 @@ public:
      *
      * Raise an exception is either of those elements is missing.
      */
-    Response(Message const & message);
-
-    /// @brief Destructor.
-    virtual ~Response();
+    Response(std::shared_ptr<Message const> message);
 
     ODIL_MESSAGE_MANDATORY_FIELD_INTEGER_MACRO(
         message_id_being_responded_to, registry::MessageIDBeingRespondedTo)
@@ -94,9 +91,9 @@ public:
     ODIL_MESSAGE_OPTIONAL_FIELD_INTEGER_MACRO(
         error_id, registry::ErrorID)
     ODIL_MESSAGE_OPTIONAL_FIELD_STRING_MACRO(
-        affected_sop_instance_uid, odil::registry::AffectedSOPInstanceUID)
+        affected_sop_instance_uid, registry::AffectedSOPInstanceUID)
     ODIL_MESSAGE_OPTIONAL_FIELD_STRING_MACRO(
-        attribute_identifier_list, odil::registry::AttributeIdentifierList)
+        attribute_identifier_list, registry::AttributeIdentifierList)
 
     /// @brief Test whether the status class is pending.
     bool is_pending() const;
@@ -108,7 +105,7 @@ public:
     bool is_failure() const;
 
     /// @brief Set the status fields (cf. PS.37, C)
-    void set_status_fields(DataSet const & status_fields);
+    void set_status_fields(std::shared_ptr<DataSet const> status_fields);
 };
 
 }

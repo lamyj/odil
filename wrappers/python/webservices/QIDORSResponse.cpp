@@ -6,68 +6,54 @@
  * for details.
  ************************************************************************/
 
-#include <boost/python.hpp>
+#include <algorithm>
+
+#include <pybind11/pybind11.h>
+#include <pybind11/operators.h>
 
 #include "odil/DataSet.h"
 #include "odil/Value.h"
 #include "odil/webservices/HTTPResponse.h"
 #include "odil/webservices/QIDORSResponse.h"
 
+namespace
+{
 
 void
-set_data_sets(odil::webservices::QIDORSResponse& self,
-                   boost::python::list data_sets)
+set_data_sets(
+    odil::webservices::QIDORSResponse& self, pybind11::sequence data_sets)
 {
-//    std::vector<odil::DataSet> odil_ds;
-    odil::Value::DataSets odil_ds;
-    for(int i = 0; i < boost::python::len(data_sets) ; ++i)
-    {
-        odil_ds.push_back(boost::python::extract<odil::DataSet>(data_sets[i]));
-    }
-    self.set_data_sets(odil_ds);
+    odil::Value::DataSets cpp_val(pybind11::len(data_sets));
+    std::transform(
+        data_sets.begin(), data_sets.end(), cpp_val.begin(), 
+        [](pybind11::handle const & h) 
+        { return h.cast<std::shared_ptr<odil::DataSet>>(); });
+    self.set_data_sets(cpp_val);
 }
 
-boost::python::list
-get_data_sets(odil::webservices::QIDORSResponse& self)
-{
-    boost::python::list python_ds;
-    auto const cpp_val = self.get_data_sets();
-    for (auto const ds : cpp_val)
-    {
-        python_ds.append(ds);
-    }
-    return python_ds;
 }
 
 void
-wrap_webservices_QIDORSResponse()
+wrap_webservices_QIDORSResponse(pybind11::module & m)
 {
-    using namespace boost::python;
+    using namespace pybind11;
     using namespace odil;
     using namespace odil::webservices;
 
-    class_<QIDORSResponse>(
-        "QIDORSResponse")
+    class_<QIDORSResponse>(m, "QIDORSResponse")
+        .def(init())
         .def(init<HTTPResponse>())
         .def(self == self)
         .def(self != self)
         .def(
-            "get_data_sets", get_data_sets
-            )
-        .def(
-            "set_data_sets", set_data_sets
-            )
-        .def(
-            "get_representation", &QIDORSResponse::get_representation,
-            return_value_policy<copy_const_reference>())
-        .def(
-            "set_representation", &QIDORSResponse::set_representation
-            )
-        .def(
-            "get_media_type", &QIDORSResponse::get_media_type,
-            return_value_policy<copy_const_reference>())
-        .def(
-            "get_http_response", &QIDORSResponse::get_http_response
-            )
+            "get_data_sets",
+            static_cast<
+                Value::DataSets const &(QIDORSResponse::*)() const
+            >(&QIDORSResponse::get_data_sets))
+        .def("set_data_sets", set_data_sets)
+        .def("get_representation", &QIDORSResponse::get_representation)
+        .def("set_representation", &QIDORSResponse::set_representation)
+        .def("get_media_type", &QIDORSResponse::get_media_type)
+        .def("get_http_response", &QIDORSResponse::get_http_response)
     ;
 }

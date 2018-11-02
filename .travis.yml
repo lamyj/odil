@@ -1,23 +1,55 @@
-language: cpp
+language: minimal
+sudo: required
+services:
+  - docker
+
 matrix:
   include:
-    - os: linux
-      sudo: required
-      dist: trusty
-      compiler: gcc
-      env: Architecture=amd64 Distribution=ubuntu/trusty Python=2 WORKSPACE=${TRAVIS_BUILD_DIR} CMAKE_OPTIONS="-D CMAKE_CXX_FLAGS=--coverage" MAKE_OPTIONS="-j$(nproc)"
-    - os: osx
-      compiler: clang
-      env: Python=2 WORKSPACE=${TRAVIS_BUILD_DIR} MAKE_OPTIONS="-j$(sysctl -n hw.ncpu)"
+    # Debian
+    - name: "Debian Stretch, Python 3"
+      env:
+        vendor: debian
+        version: stretch
+        python: 3
+        CMAKE_OPTIONS: "'-D CMAKE_CXX_FLAGS=--coverage'"
+    - name: "Debian Stretch, Python 2"
+      env: { vendor: debian, version: stretch, python: 2 }
+    - name: "Debian Jessie, Python 3"
+      env: { vendor: debian, version: jessie, python: 3 }
+    - name: "Debian Jessie, Python 2"
+      env: { vendor: debian, version: jessie, python: 2 }
+    # Ubuntu
+    - name: "Ubuntu Bionic, Python 3"
+      env: { vendor: ubuntu, version: bionic, python: 3 }
+    - name: "Ubuntu Bionic, Python 2"
+      env: { vendor: ubuntu, version: bionic, python: 2 }
+    - name: "Ubuntu Xenial, Python 3"
+      env: { vendor: ubuntu, version: xenial, python: 3 }
+    - name: "Ubuntu Xenial, Python 2"
+      env: { vendor: ubuntu, version: xenial, python: 2 }
+    - name: "Ubuntu Trusty, Python 3"
+      env: { vendor: ubuntu, version: trusty, python: 3 }
+    - name: "Ubuntu Trusty, Python 2"
+      env: { vendor: ubuntu, version: trusty, python: 2 }
+
+before_install:
+  - |
+    docker run -di \
+      -e Python=${python} -e WORKSPACE=${TRAVIS_BUILD_DIR} \
+      -e MAKE_OPTIONS="-j$(nproc)" \
+      -e CMAKE_OPTIONS="${CMAKE_OPTIONS}" \
+      -v ${TRAVIS_BUILD_DIR}:${TRAVIS_BUILD_DIR} \
+      --name odil --rm \
+      ${vendor}:${version}
+
 install:
-  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo -E sh ./.ci/deb/install; fi
-  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then ./.ci/brew/install; fi
-  - if [ "${CC}" = "gcc" ]; then pip${Python} install -U --user cpp-coveralls; fi
-  - if [ "${CC}" = "gcc" ]; then export PATH=$(python -c 'import site; print(site.getuserbase())')/bin:${PATH}; fi
+  - docker exec odil ${TRAVIS_BUILD_DIR}/.ci/deb/install
+  #- docker exec odil pip${python} install -U --user cpp-coveralls
+  # TODO: export PATH=$(python -c 'import site; print(site.getuserbase())')/bin:${PATH}
+
 script:
-  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then ./.ci/deb/build; fi
-  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then ./.ci/brew/build; fi
+  - docker exec odil ${TRAVIS_BUILD_DIR}/.ci/deb/build
+
 after_success:
-  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then ./.ci/deb/post_build; fi
-  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then ./.ci/brew/post_build; fi
-  - if [ "${CC}" = "gcc" ]; then coveralls -n -l build/coverage.info; fi
+  - docker exec odil ${TRAVIS_BUILD_DIR}/.ci/deb/post_build
+  #- docker exec odil coveralls -n -l build/coverage.info

@@ -6,20 +6,23 @@
  * for details.
  ************************************************************************/
 
+#include <algorithm>
 #include <string>
 #include <vector>
 
-#include <boost/python.hpp>
-#include <boost/shared_ptr.hpp>
+#include <pybind11/pybind11.h>
 
 #include "odil/BasicDirectoryCreator.h"
+
+#include "opaque_types.h"
+#include "type_casters.h"
 
 namespace
 {
 
-boost::python::list get_files(odil::BasicDirectoryCreator const & creator)
+pybind11::list get_files(odil::BasicDirectoryCreator const & creator)
 {
-    boost::python::list result;
+    pybind11::list result;
     for(auto const & file: creator.files)
     {
         result.append(file);
@@ -29,32 +32,31 @@ boost::python::list get_files(odil::BasicDirectoryCreator const & creator)
 }
 
 void set_files(
-    odil::BasicDirectoryCreator & creator, 
-    boost::python::list const & files_python)
+    odil::BasicDirectoryCreator & creator,
+    pybind11::sequence const & files_python)
 {
-    std::vector<std::string> files_cpp(boost::python::len(files_python));
-    for(int i = 0; i<boost::python::len(files_python); ++i)
-    {
-        files_cpp[i] = boost::python::extract<std::string>(files_python[i]);
-    }
+    std::vector<std::string> files_cpp(pybind11::len(files_python));
+    std::transform(
+        files_python.begin(), files_python.end(), files_cpp.begin(),
+        [](pybind11::handle const & h) { return pybind11::cast<std::string>(h); });
     creator.files = files_cpp;
 }
 
-boost::python::dict 
+pybind11::dict
 get_extra_record_keys(odil::BasicDirectoryCreator const & creator)
 {
-    boost::python::dict result;
+    pybind11::dict result;
     for(auto const & item: creator.extra_record_keys)
     {
-        boost::python::list values;
+        pybind11::list values;
         for(auto const & value_cpp: item.second)
         {
-            boost::python::list value_python;
+            pybind11::list value_python;
             value_python.append(value_cpp.first);
             value_python.append(value_cpp.second);
             values.append(value_python);
         }
-        result[item.first] = values;
+        result[pybind11::cast(item.first)] = values;
     }
     return result;
 }
@@ -62,68 +64,52 @@ get_extra_record_keys(odil::BasicDirectoryCreator const & creator)
 void 
 set_extra_record_keys(
     odil::BasicDirectoryCreator & creator, 
-    boost::python::dict const & extra_record_keys_python)
+    pybind11::dict const & extra_record_keys_python)
 {
-    odil::BasicDirectoryCreator::RecordKeyMap extra_record_keys_cpp;
-    
-    auto items = extra_record_keys_python.items();
-    for(int item_index=0; item_index<boost::python::len(items); ++item_index)
+    for(auto const item: extra_record_keys_python)
     {
-        auto item = items[item_index];
-        
-        auto key_python = item[0];
-        std::string const key_cpp = boost::python::extract<std::string>(key_python);
-        
-        auto value_python = item[1];
-        std::vector<odil::BasicDirectoryCreator::RecordKey> value_cpp;
-        for(int value_index=0; value_index<boost::python::len(value_python); ++value_index)
-        {
-            auto record_key_python = value_python[value_index];
-            
-            auto tag_python = record_key_python[0];
-            odil::Tag const tag_cpp = boost::python::extract<odil::Tag>(tag_python);
-            
-            auto type_python = record_key_python[1];
-            int const type_cpp = boost::python::extract<int>(type_python);
-            
-            value_cpp.push_back(
-                odil::BasicDirectoryCreator::RecordKey(tag_cpp, type_cpp));
-        }
-        
-        extra_record_keys_cpp[key_cpp] = value_cpp;
+        auto const level = pybind11::cast<std::string>(item.first);
+        auto const extra_record_keys = item.second;
+
+        std::vector<odil::BasicDirectoryCreator::RecordKey> value(
+            pybind11::len(extra_record_keys));
+        std::transform(
+            extra_record_keys.begin(), extra_record_keys.end(), value.begin(),
+            [](pybind11::handle const & h)
+            {
+                auto const tag_and_type = h.cast<pybind11::sequence>();
+                auto const tag = pybind11::cast<odil::Tag>(tag_and_type[0]);
+                auto const type = pybind11::cast<int>(tag_and_type[1]);
+                return odil::BasicDirectoryCreator::RecordKey(tag, type);
+            });
+
+        creator.extra_record_keys[level] = value;
     }
-    
-    creator.extra_record_keys = extra_record_keys_cpp;
-}
-    
-boost::shared_ptr<odil::BasicDirectoryCreator>
-constructor(
-    std::string const & root, boost::python::list const & files, 
-    boost::python::dict const & extra_record_keys=boost::python::dict())
-{
-    // Old versions of Boost.Python (Debian 7, Ubuntu 12.04) do not like 
-    // std::shared_ptr
-    auto creator = new odil::BasicDirectoryCreator(root);
-    set_files(*creator, files);
-    set_extra_record_keys(*creator, extra_record_keys);
-    return boost::shared_ptr<odil::BasicDirectoryCreator>(creator);    
 }
 
 }
 
-void wrap_BasicDirectoryCreator()
+void wrap_BasicDirectoryCreator(pybind11::module & m)
 {
-    using namespace boost::python;
+    using namespace pybind11;
     using namespace odil;
 
-    class_<BasicDirectoryCreator>("BasicDirectoryCreator", no_init)
+    class_<BasicDirectoryCreator>(m, "BasicDirectoryCreator")
         .def(
-            "__init__", 
-            make_constructor(constructor, default_call_policies(), 
-            (arg("root"), arg("files"), arg("extra_record_keys")=dict())))
+            init(
+                [](
+                    std::string const & root, sequence const & files,
+                    dict const & extra_record_keys)
+                {
+                    BasicDirectoryCreator creator(root);
+                    set_files(creator, files);
+                    set_extra_record_keys(creator, extra_record_keys);
+                    return creator;
+                }),
+            "root"_a, "files"_a, "extra_record_keys"_a=dict())
         .def_readwrite("root", &BasicDirectoryCreator::root)
-        .add_property("files", &get_files, &set_files)
-        .add_property(
+        .def_property("files", &get_files, &set_files)
+        .def_property(
             "extra_record_keys", &get_extra_record_keys, &set_extra_record_keys)
         .def("__call__", &BasicDirectoryCreator::operator())
     ;
