@@ -38,7 +38,11 @@ before_build:
       ..
 
 build_script:
-  - cd "%APPVEYOR_BUILD_FOLDER%\odil"
+  - cd "%APPVEYOR_BUILD_FOLDER%\build"
   - cmake --build .
   - cmake --build . --target install
 
+test_script:
+  - cd "%APPVEYOR_BUILD_FOLDER%\build"
+  - set PATH=%APPVEYOR_BUILD_FOLDER%\install\bin;%APPVEYOR_BUILD_FOLDER%\build\src;%PATH%
+  - ctest -C Test -E "Association|Network|ServiceRole|SCP|SCU|Transport"
