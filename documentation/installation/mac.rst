@@ -21,7 +21,7 @@ The following package list will allow you to compile the whole library:
   
   brew install \
     cmake pkg-config \
-    boost boost-python dcmtk icu4c jsoncpp python
+    boost dcmtk icu4c jsoncpp pybind11 python
   pip install nose
 
 Build Odil

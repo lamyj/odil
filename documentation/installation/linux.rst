@@ -16,9 +16,9 @@ For Debian and Ubuntu, the following package list will allow you to compile the 
   
   sudo apt-get install \
     build-essential cmake pkg-config python-minimal \
-    libboost-dev libboost-date-time-dev libboost-filesystem-dev \
+    libboost-dev libboost-date-time-dev libboost-filesystem-dev libboost-log-dev \
     libdcmtk2-dev libicu-dev libjsoncpp-dev zlib1g-dev \
-    libboost-python-dev python-dev \
+    pybind11-dev python-dev \
     dcmtk libboost-test-dev python-nose
 
 Build Odil
@@ -56,9 +56,7 @@ Choose the Python version
 
 If you have multiple versions of Python installed, you may need to specify the following extra parameters to CMake to build the Python wrappers for a specific version:
 
-- ``Python_ADDITIONAL_VERSIONS``: the requested Python version number, e.g. ``2.7`` or ``3.6``
 - ``PYTHON_EXECUTABLE``: path to the Python interpreter, e.g. ``/usr/bin/python2.7`` or ``/usr/bin/python3.6``
-- ``Boost_PYTHON_LIBRARY_DEBUG`` and ``Boost_PYTHON_LIBRARY_RELEASE``: the path to the Boost.Python library, e.g. ``/usr/lib/x86_64-linux-gnu/libboost_python-py27.so``.
 
 Install Odil
 ------------
