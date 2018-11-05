@@ -51,7 +51,7 @@ Connection
     });
     this->transport_connection.indication.connect(
         [&](boost::system::error_code error) {
-            ODIL_LOG(DEBUG, dul) << "Transport connection indication";
+            logging::trace() << "Transport connection indication";
 
             if(error)
             {
@@ -80,7 +80,7 @@ Connection
             }
             else
             {
-                ODIL_LOG(DEBUG, dul) << "Received transport connection confirmation";
+                logging::trace() << "Received transport connection confirmation";
                 if(this->_state == 4)
                 {
                     // Socket is opened, we can start receiving PDUs.
@@ -96,7 +96,7 @@ Connection
             }
     });
     this->transport_closed.indication.connect([&]() {
-        ODIL_LOG(DEBUG, dul) << "Transport connection closed";
+        logging::trace() << "Transport connection closed";
 
         if(this->_state == 2) { this->AA_5(); }
         else if(this->_state >= 3 && this->_state <= 12) { this->AA_4(); }
@@ -111,7 +111,7 @@ Connection
 
     // A-ASSOCIATE service
     this->a_associate.request.connect([&](AAssociateRQ::Pointer pdu) {
-        ODIL_LOG(DEBUG, dul) << "Received A-ASSOCIATE request";
+        logging::trace() << "Received A-ASSOCIATE request";
 
         if(this->_state == 1) { this->AE_1(pdu); }
         else
@@ -121,7 +121,7 @@ Connection
         }
     });
     this->a_associate.response.connect([&](PDU::Pointer pdu) {
-        ODIL_LOG(DEBUG, dul) << "Received A-ASSOCIATE response";
+        logging::trace() << "Received A-ASSOCIATE response";
         if(pdu->get_pdu_type() == AAssociateAC::type)
         {
             if(this->_state == 3)
@@ -156,7 +156,7 @@ Connection
 
     // A-RELEASE service
     this->a_release.request.connect([&](AReleaseRQ::Pointer pdu) {
-        ODIL_LOG(DEBUG, dul) << "Received A-RELEASE request";
+        logging::trace() << "Received A-RELEASE request";
         if(this->_state == 6)
         {
             this->AR_1(pdu);
@@ -168,11 +168,11 @@ Connection
         }
     });
     this->a_release.indication.connect([&](AReleaseRQ::Pointer /* pdu */) {
-        ODIL_LOG(DEBUG, dul) << "Received A-RELEASE indication";
+        logging::trace() << "Received A-RELEASE indication";
         this->async_send(std::make_shared<AReleaseRP>());
     });
     this->a_release.response.connect([&](AReleaseRP::Pointer pdu) {
-        ODIL_LOG(DEBUG, dul) << "Received A-RELEASE response";
+        logging::trace() << "Received A-RELEASE response";
         if(this->_state == 8)
         {
             this->AR_4(pdu);
@@ -194,7 +194,7 @@ Connection
 
     // A-ABORT service
     this->a_abort.request.connect([&](AAbort::Pointer pdu) {
-        ODIL_LOG(DEBUG, dul) << "Received A-ABORT request";
+        logging::trace() << "Received A-ABORT request";
         if(this->_state == 3)
         {
             this->AA_1(pdu);
@@ -216,7 +216,7 @@ Connection
 
     // P-DATA service
     this->p_data.request.connect([&](PDataTF::Pointer pdu) {
-        ODIL_LOG(DEBUG, dul) << "Received P-DATA request";
+        logging::trace() << "Received P-DATA request";
         if(this->_state == 6)
         {
             this->DT_1(pdu);
@@ -285,7 +285,7 @@ Connection
 ::send(
     boost::asio::ip::tcp::endpoint const & endpoint, AAssociateRQ::Pointer pdu)
 {
-    ODIL_LOG(DEBUG, dul) << "Sending A-ASSOCIATE-RQ synchronously";
+    logging::trace() << "Sending A-ASSOCIATE-RQ synchronously";
 
     SynchronousStatus status;
 
@@ -320,7 +320,7 @@ Connection::SynchronousStatus
 Connection
 ::send(AReleaseRQ::Pointer pdu)
 {
-    ODIL_LOG(DEBUG, dul) << "Sending A-RELEASE-RQ synchronously";
+    logging::trace() << "Sending A-RELEASE-RQ synchronously";
 
     SynchronousStatus status;
 
@@ -380,7 +380,7 @@ Connection
     }
     else if(error == boost::asio::error::bad_descriptor)
     {
-        // ODIL_LOG(DEBUG, dul) << "Reading from a closed socket";
+        // odil::logging::debug() << "Reading from a closed socket";
     }
     else if(error)
     {
@@ -463,7 +463,7 @@ void
 Connection
 ::_received(AAssociateAC::Pointer pdu)
 {
-    ODIL_LOG(DEBUG, dul) << "Received A-ASSOCIATE-AC";
+    logging::trace() << "Received A-ASSOCIATE-AC";
 
     if(this->_state == 2) { this->AA_1(); }
     else if(this->_state == 3) { this->AA_8(); }
@@ -482,7 +482,7 @@ void
 Connection
 ::_received(AAssociateRJ::Pointer pdu)
 {
-    ODIL_LOG(DEBUG, dul) << "Received A-ASSOCIATE-RJ";
+    logging::trace() << "Received A-ASSOCIATE-RJ";
 
     if(this->_state == 2) { this->AA_1(); }
     else if(this->_state == 3) { this->AA_8(); }
@@ -501,7 +501,7 @@ void
 Connection
 ::_received(AAssociateRQ::Pointer pdu)
 {
-    ODIL_LOG(DEBUG, dul) << "Received A-ASSOCIATE-RQ";
+    logging::trace() << "Received A-ASSOCIATE-RQ";
     if(this->_state == 2) { this->AE_6(pdu); }
     else if(this->_state == 3) { this->AA_8(); }
     else if(this->_state >= 5 && this->_state <= 12) { this->AA_8(); }
@@ -518,7 +518,7 @@ void
 Connection
 ::_received(PDataTF::Pointer pdu)
 {
-    ODIL_LOG(DEBUG, dul) << "Received P-DATA-TF";
+    logging::trace() << "Received P-DATA-TF";
 
     if(this->_state == 2) { this->AA_1(); }
     else if(this->_state == 3) { this->AA_8(); }
@@ -539,7 +539,7 @@ void
 Connection
 ::_received(AReleaseRQ::Pointer pdu)
 {
-    ODIL_LOG(DEBUG, dul) << "Received A-RELEASE-RQ";
+    logging::trace() << "Received A-RELEASE-RQ";
 
     if(this->_state == 2) { this->AA_1(); }
     else if(this->_state == 3) { this->AA_8(); }
@@ -560,7 +560,7 @@ void
 Connection
 ::_received(AReleaseRP::Pointer pdu)
 {
-    ODIL_LOG(DEBUG, dul) << "Received A-RELEASE-RP";
+    logging::trace() << "Received A-RELEASE-RP";
 
     if(this->_state == 2) { this->AA_1(); }
     else if(this->_state == 3) { this->AA_8(); }
@@ -583,7 +583,7 @@ void
 Connection
 ::_received(AAbort::Pointer pdu)
 {
-    ODIL_LOG(DEBUG, dul) << "Received A-ABORT";
+    logging::trace() << "Received A-ABORT";
 
     if(this->_state == 2) { this->AA_2(); }
     else if(this->_state == 3) { this->AA_3(pdu); }
@@ -603,7 +603,7 @@ Connection
 {
     if(error && error == boost::system::errc::operation_canceled)
     {
-        ODIL_LOG(DEBUG, dul) << "ARTIM timer canceled";
+        logging::trace() << "ARTIM timer canceled";
     }
     else if(error)
     {
@@ -611,7 +611,7 @@ Connection
     }
     else
     {
-        ODIL_LOG(DEBUG, dul) << "ARTIM timer expired";
+        logging::trace() << "ARTIM timer expired";
 
         if(this->_state == 2) { this->AA_2(); }
         else if(this->_state == 13) { this->AA_2(); }
@@ -628,7 +628,7 @@ void
 Connection
 ::_invalid_pdu()
 {
-    ODIL_LOG(DEBUG, dul) << "Received unrecognized or invalid PDU";
+    logging::trace() << "Received unrecognized or invalid PDU";
 
     if(this->_state == 2) { this->AA_1(); }
     else if(this->_state == 3)  { this->AA_8(); }
@@ -646,7 +646,7 @@ void
 Connection
 ::_async_send(PDU::Pointer pdu)
 {
-    ODIL_LOG(DEBUG, dul) << "Sending PDU of type " << std::to_string(pdu->get_pdu_type());
+    logging::trace() << "Sending PDU of type " << std::to_string(pdu->get_pdu_type());
     std::ostringstream stream;
     stream << *pdu;
     boost::asio::async_write(
@@ -659,7 +659,7 @@ void
 Connection
 ::_start_artim_timer()
 {
-    ODIL_LOG(DEBUG, dul) << "Starting ARTIM timer";
+    logging::trace() << "Starting ARTIM timer";
     this->_artim_timer.expires_from_now(this->artim_timeout);
     this->_artim_timer.async_wait(
         boost::bind(
@@ -671,7 +671,7 @@ void
 Connection
 ::_stop_artim_timer()
 {
-    ODIL_LOG(DEBUG, dul) << "Stopping ARTIM timer";
+    logging::trace() << "Stopping ARTIM timer";
     this->_artim_timer.expires_at(boost::posix_time::pos_infin);
 }
 

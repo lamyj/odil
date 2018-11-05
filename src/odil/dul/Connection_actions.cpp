@@ -36,7 +36,7 @@ void
 Connection
 ::AE_1(AAssociateRQ::Pointer pdu)
 {
-    ODIL_LOG(DEBUG, dul) << "AE-1";
+    logging::trace() << "AE-1";
 
     // Save the PDU for later (AE-2).
     this->_association_request = pdu;
@@ -50,7 +50,7 @@ void
 Connection
 ::AE_2(AAssociateRQ::Pointer associate_rq)
 {
-    ODIL_LOG(DEBUG, dul) << "AE-2";
+    logging::trace() << "AE-2";
 
     this->_state = 5;
     this->_async_send(associate_rq);
@@ -60,7 +60,7 @@ void
 Connection
 ::AE_3(AAssociateAC::Pointer pdu)
 {
-    ODIL_LOG(DEBUG, dul) << "AE-3";
+    logging::trace() << "AE-3";
 
     this->_state = 6;
     this->socket.get_io_service().post(
@@ -71,7 +71,7 @@ void
 Connection
 ::AE_4(AAssociateRJ::Pointer pdu)
 {
-    ODIL_LOG(DEBUG, dul) << "AE-4";
+    logging::trace() << "AE-4";
 
     this->_state = 1;
     this->socket.get_io_service().post(
@@ -83,7 +83,7 @@ void
 Connection
 ::AE_5()
 {
-    ODIL_LOG(DEBUG, dul) << "AE-5";
+    logging::trace() << "AE-5";
 
     this->_state = 2;
     this->socket.get_io_service().post(
@@ -95,21 +95,21 @@ void
 Connection
 ::AE_6(AAssociateRQ::Pointer pdu)
 {
-    ODIL_LOG(DEBUG, dul) << "AE-6";
+    logging::trace() << "AE-6";
 
     this->_stop_artim_timer();
 
     auto const response = this->acceptor(pdu);
     if(response->get_pdu_type() == AAssociateAC::type)
     {
-        ODIL_LOG(DEBUG, dul) << "Association request accepted";
+        logging::debug() << "Association request accepted";
         this->_state = 3;
         this->socket.get_io_service().post(
             [=]() { this->a_associate.response(response); });
     }
     else if(response->get_pdu_type() == AAssociateRJ::type)
     {
-        ODIL_LOG(DEBUG, dul) << "Association request rejected";
+        logging::debug() << "Association request rejected";
         // WARNING: standard says to send RJ and switch to state 13. However,
         // this is AE-8, which needs to happen in state 3.
         this->_state = 3;
@@ -118,7 +118,7 @@ Connection
     }
     else if(response->get_pdu_type() == AAbort::type)
     {
-        ODIL_LOG(DEBUG, dul) << "Association request aborted";
+        logging::debug() << "Association request aborted";
         this->_state = 3;
         this->socket.get_io_service().post(
             [=]() {
@@ -138,7 +138,7 @@ void
 Connection
 ::AE_7(AAssociateAC::Pointer pdu)
 {
-    ODIL_LOG(DEBUG, dul) << "AE-7";
+    logging::trace() << "AE-7";
 
     this->_state = 6;
     this->_async_send(pdu);
@@ -148,7 +148,7 @@ void
 Connection
 ::AE_8(AAssociateRJ::Pointer pdu)
 {
-    ODIL_LOG(DEBUG, dul) << "AE-8";
+    logging::trace() << "AE-8";
 
     this->_state = 13;
     this->_async_send(pdu);
@@ -159,7 +159,7 @@ void
 Connection
 ::DT_1(PDataTF::Pointer pdu)
 {
-    ODIL_LOG(DEBUG, dul) << "DT-1";
+    logging::trace() << "DT-1";
 
     this->_state = 6;
     this->_async_send(pdu);
@@ -169,7 +169,7 @@ void
 Connection
 ::DT_2(PDataTF::Pointer pdu)
 {
-    ODIL_LOG(DEBUG, dul) << "DT-2";
+    logging::trace() << "DT-2";
 
     this->_state = 6;
     this->socket.get_io_service().post([=]() { this->p_data.indication(pdu); });
@@ -179,7 +179,7 @@ void
 Connection
 ::AR_1(AReleaseRQ::Pointer pdu)
 {
-    ODIL_LOG(DEBUG, dul) << "AR-1";
+    logging::trace() << "AR-1";
 
     this->_state = 7;
     this->_async_send(pdu);
@@ -189,7 +189,7 @@ void
 Connection
 ::AR_2(AReleaseRQ::Pointer pdu)
 {
-    ODIL_LOG(DEBUG, dul) << "AR-2";
+    logging::trace() << "AR-2";
 
     this->_state = 8;
     this->socket.get_io_service().post(
@@ -200,7 +200,7 @@ void
 Connection
 ::AR_3(AReleaseRP::Pointer pdu)
 {
-    ODIL_LOG(DEBUG, dul) << "AR-3";
+    logging::trace() << "AR-3";
 
     this->_state = 1;
     this->socket.get_io_service().post(
@@ -212,7 +212,7 @@ void
 Connection
 ::AR_4(AReleaseRP::Pointer pdu)
 {
-    ODIL_LOG(DEBUG, dul) << "AR-4";
+    logging::trace() << "AR-4";
 
     this->_state = 13;
     this->_async_send(pdu);
@@ -223,7 +223,7 @@ void
 Connection
 ::AR_5()
 {
-    ODIL_LOG(DEBUG, dul) << "AR-5";
+    logging::trace() << "AR-5";
 
     this->_state = 1;
     this->_stop_artim_timer();
@@ -233,7 +233,7 @@ void
 Connection
 ::AR_6(PDataTF::Pointer pdu)
 {
-    ODIL_LOG(DEBUG, dul) << "AR-6";
+    logging::trace() << "AR-6";
 
     this->_state = 7;
     this->socket.get_io_service().post(
@@ -244,7 +244,7 @@ void
 Connection
 ::AR_7(PDataTF::Pointer pdu)
 {
-    ODIL_LOG(DEBUG, dul) << "AR-7";
+    logging::trace() << "AR-7";
 
     this->_state = 8;
     this->_async_send(pdu);
@@ -254,7 +254,7 @@ void
 Connection
 ::AR_8(AReleaseRQ::Pointer pdu)
 {
-    ODIL_LOG(DEBUG, dul) << "AR-8";
+    logging::trace() << "AR-8";
 
     this->_state = this->_is_requestor ? 9 : 10;
     this->socket.get_io_service().post(
@@ -265,7 +265,7 @@ void
 Connection
 ::AR_9(AReleaseRP::Pointer pdu)
 {
-    ODIL_LOG(DEBUG, dul) << "AR-9";
+    logging::trace() << "AR-9";
 
     this->_state = 11;
     this->_async_send(pdu);
@@ -275,7 +275,7 @@ void
 Connection
 ::AR_10(AReleaseRP::Pointer pdu)
 {
-    ODIL_LOG(DEBUG, dul) << "AR-10";
+    logging::trace() << "AR-10";
 
     this->_state = 12;
     this->socket.get_io_service().post(
@@ -286,7 +286,7 @@ void
 Connection
 ::AA_1(AAbort::Pointer pdu)
 {
-    ODIL_LOG(DEBUG, dul) << "AA-1";
+    logging::trace() << "AA-1";
 
     this->_state = 13;
     this->_async_send(pdu);
@@ -297,7 +297,7 @@ void
 Connection
 ::AA_2()
 {
-    ODIL_LOG(DEBUG, dul) << "AA-2";
+    logging::trace() << "AA-2";
 
     this->_state = 1;
     this->_stop_artim_timer();
@@ -308,7 +308,7 @@ void
 Connection
 ::AA_3(AAbort::Pointer pdu)
 {
-    ODIL_LOG(DEBUG, dul) << "AA-3";
+    logging::trace() << "AA-3";
 
     this->_state = 1;
     // a_abort is a generic handler (A-ABORT and A-P-ABORT)
@@ -321,7 +321,7 @@ void
 Connection
 ::AA_4()
 {
-    ODIL_LOG(DEBUG, dul) << "AA-4";
+    logging::trace() << "AA-4";
 
     this->_state = 1;
     this->socket.get_io_service().post(
@@ -332,7 +332,7 @@ void
 Connection
 ::AA_5()
 {
-    ODIL_LOG(DEBUG, dul) << "AA-5";
+    logging::trace() << "AA-5";
 
     this->_state = 1;
     this->_stop_artim_timer();
@@ -342,7 +342,7 @@ void
 Connection
 ::AA_6()
 {
-    ODIL_LOG(DEBUG, dul) << "AA-6";
+    logging::trace() << "AA-6";
 
     // Ignore PDU
     this->_state = 13;
@@ -352,7 +352,7 @@ void
 Connection
 ::AA_7()
 {
-    ODIL_LOG(DEBUG, dul) << "AA-7";
+    logging::trace() << "AA-7";
 
     this->_state = 13;
     this->_async_send(std::make_shared<AAbort>(1, 0));
@@ -362,7 +362,7 @@ void
 Connection
 ::AA_8()
 {
-    ODIL_LOG(DEBUG, dul) << "AA-8";
+    logging::trace() << "AA-8";
 
     this->_state = 13;
     auto pdu = std::make_shared<AAbort>(2, 2);
