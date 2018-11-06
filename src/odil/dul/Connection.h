@@ -164,6 +164,18 @@ public:
      */
     SynchronousStatus send(AReleaseRQ::Pointer pdu);
 
+    /**
+     * @brief Synchronously receive an incoming association.
+     *
+     * This function will return when
+     * - An A-ASSOCIATE-AC or an A-ASSOCIATE-RJ PDU has been sent
+     * - OR an error occured
+     */
+    SynchronousStatus receive(boost::asio::ip::tcp::endpoint endpoint);
+
+    /// @brief Synchronously receive a PDU.
+    SynchronousStatus receive();
+
 private:
     /// @brief Reception stage of a PDU
     enum class ReceiveStage

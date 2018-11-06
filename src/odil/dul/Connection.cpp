@@ -121,9 +121,9 @@ Connection
         }
     });
     this->a_associate.response.connect([&](PDU::Pointer pdu) {
-        logging::trace() << "Received A-ASSOCIATE response";
         if(pdu->get_pdu_type() == AAssociateAC::type)
         {
+            logging::trace() << "Received A-ASSOCIATE response (accept)";
             if(this->_state == 3)
             {
                 this->AE_7(std::dynamic_pointer_cast<AAssociateAC>(pdu));
@@ -136,6 +136,7 @@ Connection
         }
         else if(pdu->get_pdu_type() == AAssociateRJ::type)
         {
+            logging::trace() << "Received A-ASSOCIATE response (reject)";
             if(this->_state == 3)
             {
                 this->AE_8(std::dynamic_pointer_cast<AAssociateRJ>(pdu));
@@ -354,6 +355,91 @@ Connection
     return status;
 }
 
+Connection::SynchronousStatus
+Connection
+::receive(boost::asio::ip::tcp::endpoint endpoint)
+{
+    logging::trace() << "Waiting for association";
+
+    SynchronousStatus status;
+
+    auto const on_pdu = [&](PDU::Pointer pdu) { status.pdu = pdu; };
+    auto const on_error =
+        [&](boost::system::error_code error=boost::system::error_code()) {
+            status.error_code = error; };
+
+    std::vector<boost::signals2::connection> connections;
+    connections.emplace_back(this->a_associate.response.connect(on_pdu));
+    connections.emplace_back(this->a_p_abort.indication.connect(on_pdu));
+    connections.emplace_back(this->a_abort.request.connect(on_pdu));
+    connections.emplace_back(
+        this->transport_error.indication.connect(on_error));
+    connections.emplace_back(
+        this->transport_closed.indication.connect(on_error));
+
+    this->_peer = endpoint;
+    boost::asio::ip::tcp::acceptor tcp_acceptor(
+        this->socket.get_io_service(), this->_peer);
+    tcp_acceptor.async_accept(
+        this->socket,
+        [&](boost::system::error_code error) {
+            this->transport_connection.indication(error);
+        }
+    );
+
+    while(!status.pdu && !status.error_code)
+    {
+        this->socket.get_io_service().run_one();
+    }
+
+    for(auto const & connection: connections)
+    {
+        connection.disconnect();
+    }
+
+    return status;
+}
+
+Connection::SynchronousStatus
+Connection
+::receive()
+{
+    logging::trace() << "Waiting for PDU";
+
+    SynchronousStatus status;
+
+    auto const on_pdu = [&](PDU::Pointer pdu) { status.pdu = pdu; };
+    auto const on_error =
+        [&](boost::system::error_code error=boost::system::error_code()) {
+            status.error_code = error; };
+
+    std::vector<boost::signals2::connection> connections;
+    connections.emplace_back(this->a_associate.indication.connect(on_pdu));
+    connections.emplace_back(this->a_associate.confirmation.connect(on_pdu));
+    connections.emplace_back(this->a_release.indication.connect(on_pdu));
+    connections.emplace_back(this->a_release.confirmation.connect(on_pdu));
+    connections.emplace_back(this->a_abort.indication.connect(on_pdu));
+    connections.emplace_back(this->a_p_abort.indication.connect(on_pdu));
+    connections.emplace_back(this->p_data.indication.connect(on_pdu));
+    connections.emplace_back(
+        this->transport_error.indication.connect(on_error));
+    connections.emplace_back(
+        this->transport_closed.indication.connect(on_error));
+
+    while(!status.pdu && !status.error_code)
+    {
+        this->socket.get_io_service().run_one();
+    }
+
+    for(auto const & connection: connections)
+    {
+        connection.disconnect();
+    }
+
+    return status;
+
+}
+
 void
 Connection
 ::_sent_handler(boost::system::error_code const & error)
@@ -463,7 +549,7 @@ void
 Connection
 ::_received(AAssociateAC::Pointer pdu)
 {
-    logging::trace() << "Received A-ASSOCIATE-AC";
+    logging::trace() << "Received PDU of type A-ASSOCIATE-AC on transport connection";
 
     if(this->_state == 2) { this->AA_1(); }
     else if(this->_state == 3) { this->AA_8(); }
@@ -482,7 +568,7 @@ void
 Connection
 ::_received(AAssociateRJ::Pointer pdu)
 {
-    logging::trace() << "Received A-ASSOCIATE-RJ";
+    logging::trace() << "Received PDU of type A-ASSOCIATE-RJ on transport connection";
 
     if(this->_state == 2) { this->AA_1(); }
     else if(this->_state == 3) { this->AA_8(); }
@@ -501,7 +587,7 @@ void
 Connection
 ::_received(AAssociateRQ::Pointer pdu)
 {
-    logging::trace() << "Received A-ASSOCIATE-RQ";
+    logging::trace() << "Received PDU of type A-ASSOCIATE-RQ on transport connection";
     if(this->_state == 2) { this->AE_6(pdu); }
     else if(this->_state == 3) { this->AA_8(); }
     else if(this->_state >= 5 && this->_state <= 12) { this->AA_8(); }
@@ -518,7 +604,7 @@ void
 Connection
 ::_received(PDataTF::Pointer pdu)
 {
-    logging::trace() << "Received P-DATA-TF";
+    logging::trace() << "Received PDU of type P-DATA-TF on transport connection";
 
     if(this->_state == 2) { this->AA_1(); }
     else if(this->_state == 3) { this->AA_8(); }
@@ -539,7 +625,7 @@ void
 Connection
 ::_received(AReleaseRQ::Pointer pdu)
 {
-    logging::trace() << "Received A-RELEASE-RQ";
+    logging::trace() << "Received PDU of type A-RELEASE-RQ on transport connection";
 
     if(this->_state == 2) { this->AA_1(); }
     else if(this->_state == 3) { this->AA_8(); }
@@ -560,7 +646,7 @@ void
 Connection
 ::_received(AReleaseRP::Pointer pdu)
 {
-    logging::trace() << "Received A-RELEASE-RP";
+    logging::trace() << "Received PDU of type A-RELEASE-RP on transport connection";
 
     if(this->_state == 2) { this->AA_1(); }
     else if(this->_state == 3) { this->AA_8(); }
@@ -583,7 +669,7 @@ void
 Connection
 ::_received(AAbort::Pointer pdu)
 {
-    logging::trace() << "Received A-ABORT";
+    logging::trace() << "Received PDU of type A-ABORT on transport connection";
 
     if(this->_state == 2) { this->AA_2(); }
     else if(this->_state == 3) { this->AA_3(pdu); }

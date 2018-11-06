@@ -1,4 +1,4 @@
-find_package(Boost REQUIRED COMPONENTS date_time filesystem log system)
+find_package(Boost REQUIRED COMPONENTS date_time filesystem system)
 find_package(ICU REQUIRED)
 find_package(JsonCpp REQUIRED)
 if(WITH_DCMTK)

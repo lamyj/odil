@@ -12,9 +12,8 @@
 
 #include "odil/AssociationParameters.h"
 #include "odil/dul/Connection.h"
+#include "odil/logging.h"
 #include "odil/registry.h"
-
-#include <log4cpp/Category.hh>
 
 struct DCMTKStatus
 {
@@ -192,7 +191,6 @@ BOOST_FIXTURE_TEST_CASE(RequestorAccepted, Fixture)
 
 BOOST_FIXTURE_TEST_CASE(RequestorAcceptedSync, Fixture)
 {
-    log4cpp::Category::getInstance("odil.dul").setPriority(log4cpp::Priority::DEBUG);
     auto const port = Fixture::random_distribution(Fixture::random_generator);
 
     std::thread acceptor(
@@ -381,6 +379,121 @@ BOOST_FIXTURE_TEST_CASE(AcceptorAbort, Fixture)
 
     service.run();
     requestor.join();
+
+    BOOST_REQUIRE(associate_request_received);
+    BOOST_REQUIRE(this->dcmtk_status.request == DUL_PEERABORTEDASSOCIATION);
+}
+
+BOOST_FIXTURE_TEST_CASE(AcceptorAcceptSync, Fixture)
+{
+    auto const port = Fixture::random_distribution(Fixture::random_generator);
+
+    this->endpoint = boost::asio::ip::tcp::endpoint(
+        boost::asio::ip::address_v4::from_string("127.0.0.1"), port);
+
+    bool associate_request_received = false;
+    bool release_request_received = false;
+
+    std::thread acceptor(
+        [&]() {
+            this->connection.acceptor = [&](odil::dul::AAssociateRQ::Pointer){
+                associate_request_received = true;
+                return std::make_shared<odil::dul::AAssociateAC>(
+                    this->association_parameters.as_a_associate_ac());
+            };
+
+            this->connection.receive(this->endpoint);
+
+            auto status = this->connection.receive();
+            if(std::dynamic_pointer_cast<odil::dul::AReleaseRQ>(status.pdu))
+            {
+                release_request_received = true;
+            }
+        });
+
+    // WARNING: make sure the acceptor thread is running before starting the
+    // requestor thread.
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    std::thread requestor(
+        [&]() { this->dcmtk_status = this->dcmtk_request(port); }
+    );
+
+    requestor.join();
+    acceptor.join();
+
+    BOOST_REQUIRE(associate_request_received);
+    BOOST_REQUIRE(release_request_received);
+    BOOST_REQUIRE(this->dcmtk_status.request.good());
+}
+
+BOOST_FIXTURE_TEST_CASE(AcceptorRejectSync, Fixture)
+{
+    auto const port = Fixture::random_distribution(Fixture::random_generator);
+
+    this->endpoint = boost::asio::ip::tcp::endpoint(
+        boost::asio::ip::address_v4::from_string("127.0.0.1"), port);
+
+    bool associate_request_received = false;
+
+    std::thread acceptor(
+        [&]() {
+            this->connection.acceptor = [&](odil::dul::AAssociateRQ::Pointer){
+                associate_request_received = true;
+                return std::make_shared<odil::dul::AAssociateRJ>(1, 3, 0);
+            };
+
+            this->connection.receive(this->endpoint);
+        });
+
+    // WARNING: make sure the acceptor thread is running before starting the
+    // requestor thread.
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    std::thread requestor(
+        [&]() { this->dcmtk_status = this->dcmtk_request(port); }
+    );
+
+    requestor.join();
+    acceptor.join();
+
+    BOOST_REQUIRE(associate_request_received);
+
+    BOOST_REQUIRE(this->dcmtk_status.request == DUL_ASSOCIATIONREJECTED);
+
+    T_ASC_RejectParameters rejection;
+    ASC_getRejectParameters(this->dcmtk_status.parameters, &rejection);
+    BOOST_REQUIRE_EQUAL(rejection.result & 0xff, 1);
+    BOOST_REQUIRE_EQUAL(rejection.source & 0xff, 3);
+    BOOST_REQUIRE_EQUAL(rejection.reason & 0xff, 0);
+}
+
+BOOST_FIXTURE_TEST_CASE(AcceptorAbortSync, Fixture)
+{
+    auto const port = Fixture::random_distribution(Fixture::random_generator);
+
+    this->endpoint = boost::asio::ip::tcp::endpoint(
+        boost::asio::ip::address_v4::from_string("127.0.0.1"), port);
+
+    bool associate_request_received = false;
+
+    std::thread acceptor(
+        [&]() {
+            this->connection.acceptor = [&](odil::dul::AAssociateRQ::Pointer){
+                associate_request_received = true;
+                return std::make_shared<odil::dul::AAbort>(0, 0);
+            };
+
+            this->connection.receive(this->endpoint);
+        });
+
+    // WARNING: make sure the acceptor thread is running before starting the
+    // requestor thread.
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    std::thread requestor(
+        [&]() { this->dcmtk_status = this->dcmtk_request(port); }
+    );
+
+    requestor.join();
+    acceptor.join();
 
     BOOST_REQUIRE(associate_request_received);
     BOOST_REQUIRE(this->dcmtk_status.request == DUL_PEERABORTEDASSOCIATION);
