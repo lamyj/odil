@@ -165,6 +165,13 @@ public:
     SynchronousStatus send(AReleaseRQ::Pointer pdu);
 
     /**
+     * @brief Synchronously send a PDU.
+     *
+     * This function will return when the PDU has been sent.
+     */
+    SynchronousStatus send(PDU::Pointer pdu);
+
+    /**
      * @brief Synchronously receive an incoming association.
      *
      * This function will return when

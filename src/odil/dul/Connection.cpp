@@ -357,6 +357,45 @@ Connection
 
 Connection::SynchronousStatus
 Connection
+::send(PDU::Pointer pdu)
+{
+
+    SynchronousStatus status;
+
+    std::vector<boost::signals2::connection> connections;
+
+    auto const on_error =
+        [&](boost::system::error_code error=boost::system::error_code()) {
+            status.error_code = error; };
+    connections.emplace_back(
+        this->transport_error.indication.connect(on_error));
+    connections.emplace_back(
+        this->transport_closed.indication.connect(on_error));
+
+    bool sent = false;
+    auto const on_sent =
+        [&](boost::system::error_code error) {
+            sent = true;
+            status.error_code = error;
+        };
+    connections.emplace_back(this->_sent.connect(on_sent));
+
+    this->async_send(pdu);
+    while(!sent && !status.error_code)
+    {
+        this->socket.get_io_service().run_one();
+    }
+
+    for(auto const & connection: connections)
+    {
+        connection.disconnect();
+    }
+
+    return status;
+}
+
+Connection::SynchronousStatus
+Connection
 ::receive(boost::asio::ip::tcp::endpoint endpoint)
 {
     logging::trace() << "Waiting for association";
@@ -444,6 +483,8 @@ void
 Connection
 ::_sent_handler(boost::system::error_code const & error)
 {
+    this->_sent(error);
+
     if(error == boost::asio::error::eof)
     {
         this->socket.get_io_service().post(
