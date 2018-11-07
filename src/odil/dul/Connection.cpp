@@ -294,6 +294,7 @@ Connection
 
     auto const on_pdu = [&](PDU::Pointer pdu) { status.pdu = pdu; };
     connections.emplace_back(this->a_associate.confirmation.connect(on_pdu));
+    connections.emplace_back(this->a_abort.indication.connect(on_pdu));
 
     auto const on_error =
         [&](boost::system::error_code error=boost::system::error_code()) {
@@ -476,6 +477,7 @@ Connection
     }
 
     return status;
+}
 
 }
 

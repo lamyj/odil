@@ -67,6 +67,9 @@ public:
 class ODIL_API Connection
 {
 public:
+    /// @brief Acceptor function: its value is returned to the requestor.
+    using Acceptor = std::function<PDU::Pointer(AAssociateRQ::Pointer)>;
+
     /// @brief Status for a synchronous operation.
     struct SynchronousStatus
     {
@@ -123,7 +126,7 @@ public:
     boost::posix_time::time_duration artim_timeout;
 
     /// @brief Acceptor function, used when the connection is acceptor.
-    std::function<PDU::Pointer(AAssociateRQ::Pointer)> acceptor;
+    Acceptor acceptor;
 
     Connection(
         boost::asio::ip::tcp::socket & socket,
