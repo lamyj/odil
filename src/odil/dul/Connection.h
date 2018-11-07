@@ -214,6 +214,9 @@ private:
     /// @brief A-ASSOCIATE-RQ PDU from latest A-ASSOCIATE request primitive.
     AAssociateRQ::Pointer _association_request;
 
+    /// @brief Signal called when a PDU has been sent.
+    boost::signals2::signal<void(boost::system::error_code)> _sent;
+
     /// @addtogroup dul_handlers boost::asio handlers
     /// @{
 
