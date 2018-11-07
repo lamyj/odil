@@ -479,6 +479,11 @@ Connection
     return status;
 }
 
+int
+Connection
+::get_state() const
+{
+    return this->_state;
 }
 
 void

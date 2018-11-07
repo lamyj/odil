@@ -186,6 +186,9 @@ public:
     /// @brief Synchronously receive a PDU.
     SynchronousStatus receive();
 
+    /// @brief Return the current state of the state machine.
+    int get_state() const;
+
 private:
     /// @brief Reception stage of a PDU
     enum class ReceiveStage
