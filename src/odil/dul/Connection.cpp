@@ -170,7 +170,7 @@ Connection
     });
     this->a_release.indication.connect([&](AReleaseRQ::Pointer /* pdu */) {
         logging::trace() << "Received A-RELEASE indication";
-        this->async_send(std::make_shared<AReleaseRP>());
+        this->send(std::make_shared<AReleaseRP>());
     });
     this->a_release.response.connect([&](AReleaseRP::Pointer pdu) {
         logging::trace() << "Received A-RELEASE response";
@@ -236,7 +236,7 @@ Connection
 
 void
 Connection
-::async_send(boost::asio::ip::tcp::endpoint peer, AAssociateRQ::Pointer pdu)
+::send(boost::asio::ip::tcp::endpoint peer, AAssociateRQ::Pointer pdu)
 {
     // Save peer for later (transport_connection.request)
     this->_peer = peer;
@@ -245,7 +245,7 @@ Connection
 
 void
 Connection
-::async_send(PDU::Pointer pdu)
+::send(PDU::Pointer pdu)
 {
     if(pdu->get_pdu_type() == AAssociateAC::type)
     {
@@ -276,207 +276,9 @@ Connection
     else
     {
         throw Exception(
-            "Invalid PDU type in async_send(peer): "
+            "Invalid PDU type in send(peer): "
             +std::to_string(pdu->get_pdu_type()));
     }
-}
-
-Connection::SynchronousStatus
-Connection
-::send(
-    boost::asio::ip::tcp::endpoint const & endpoint, AAssociateRQ::Pointer pdu)
-{
-    logging::trace() << "Sending A-ASSOCIATE-RQ synchronously";
-
-    SynchronousStatus status;
-
-    std::vector<boost::signals2::connection> connections;
-
-    auto const on_pdu = [&](PDU::Pointer pdu) { status.pdu = pdu; };
-    connections.emplace_back(this->a_associate.confirmation.connect(on_pdu));
-    connections.emplace_back(this->a_abort.indication.connect(on_pdu));
-
-    auto const on_error =
-        [&](boost::system::error_code error=boost::system::error_code()) {
-            status.error_code = error; };
-    connections.emplace_back(
-        this->transport_error.indication.connect(on_error));
-    connections.emplace_back(
-        this->transport_closed.indication.connect(on_error));
-
-    this->async_send(endpoint, pdu);
-    while(!status.pdu && !status.error_code)
-    {
-        this->socket.get_io_service().run_one();
-    }
-
-    for(auto const & connection: connections)
-    {
-        connection.disconnect();
-    }
-
-    return status;
-}
-
-Connection::SynchronousStatus
-Connection
-::send(AReleaseRQ::Pointer pdu)
-{
-    logging::trace() << "Sending A-RELEASE-RQ synchronously";
-
-    SynchronousStatus status;
-
-    std::vector<boost::signals2::connection> connections;
-
-    auto const on_pdu = [&](PDU::Pointer pdu) { status.pdu = pdu; };
-    connections.emplace_back(this->p_data.indication.connect(on_pdu));
-    connections.emplace_back(this->a_release.indication.connect(on_pdu));
-    connections.emplace_back(this->a_release.confirmation.connect(on_pdu));
-    connections.emplace_back(this->a_abort.indication.connect(on_pdu));
-
-    auto const on_error =
-        [&](boost::system::error_code error=boost::system::error_code()) {
-            status.error_code = error; };
-    connections.emplace_back(
-        this->transport_error.indication.connect(on_error));
-    connections.emplace_back(
-        this->transport_closed.indication.connect(on_error));
-
-    this->async_send(pdu);
-    while(!status.pdu && !status.error_code)
-    {
-        this->socket.get_io_service().run_one();
-    }
-
-    for(auto const & connection: connections)
-    {
-        connection.disconnect();
-    }
-
-    return status;
-}
-
-Connection::SynchronousStatus
-Connection
-::send(PDU::Pointer pdu)
-{
-
-    SynchronousStatus status;
-
-    std::vector<boost::signals2::connection> connections;
-
-    auto const on_error =
-        [&](boost::system::error_code error=boost::system::error_code()) {
-            status.error_code = error; };
-    connections.emplace_back(
-        this->transport_error.indication.connect(on_error));
-    connections.emplace_back(
-        this->transport_closed.indication.connect(on_error));
-
-    bool sent = false;
-    auto const on_sent =
-        [&](boost::system::error_code error) {
-            sent = true;
-            status.error_code = error;
-        };
-    connections.emplace_back(this->_sent.connect(on_sent));
-
-    this->async_send(pdu);
-    while(!sent && !status.error_code)
-    {
-        this->socket.get_io_service().run_one();
-    }
-
-    for(auto const & connection: connections)
-    {
-        connection.disconnect();
-    }
-
-    return status;
-}
-
-Connection::SynchronousStatus
-Connection
-::receive(boost::asio::ip::tcp::endpoint endpoint)
-{
-    logging::trace() << "Waiting for association";
-
-    SynchronousStatus status;
-
-    auto const on_pdu = [&](PDU::Pointer pdu) { status.pdu = pdu; };
-    auto const on_error =
-        [&](boost::system::error_code error=boost::system::error_code()) {
-            status.error_code = error; };
-
-    std::vector<boost::signals2::connection> connections;
-    connections.emplace_back(this->a_associate.response.connect(on_pdu));
-    connections.emplace_back(this->a_p_abort.indication.connect(on_pdu));
-    connections.emplace_back(this->a_abort.request.connect(on_pdu));
-    connections.emplace_back(
-        this->transport_error.indication.connect(on_error));
-    connections.emplace_back(
-        this->transport_closed.indication.connect(on_error));
-
-    this->_peer = endpoint;
-    boost::asio::ip::tcp::acceptor tcp_acceptor(
-        this->socket.get_io_service(), this->_peer);
-    tcp_acceptor.async_accept(
-        this->socket,
-        [&](boost::system::error_code error) {
-            this->transport_connection.indication(error);
-        }
-    );
-
-    while(!status.pdu && !status.error_code)
-    {
-        this->socket.get_io_service().run_one();
-    }
-
-    for(auto const & connection: connections)
-    {
-        connection.disconnect();
-    }
-
-    return status;
-}
-
-Connection::SynchronousStatus
-Connection
-::receive()
-{
-    logging::trace() << "Waiting for PDU";
-
-    SynchronousStatus status;
-
-    auto const on_pdu = [&](PDU::Pointer pdu) { status.pdu = pdu; };
-    auto const on_error =
-        [&](boost::system::error_code error=boost::system::error_code()) {
-            status.error_code = error; };
-
-    std::vector<boost::signals2::connection> connections;
-    connections.emplace_back(this->a_associate.indication.connect(on_pdu));
-    connections.emplace_back(this->a_associate.confirmation.connect(on_pdu));
-    connections.emplace_back(this->a_release.indication.connect(on_pdu));
-    connections.emplace_back(this->a_release.confirmation.connect(on_pdu));
-    connections.emplace_back(this->a_abort.indication.connect(on_pdu));
-    connections.emplace_back(this->a_p_abort.indication.connect(on_pdu));
-    connections.emplace_back(this->p_data.indication.connect(on_pdu));
-    connections.emplace_back(
-        this->transport_error.indication.connect(on_error));
-    connections.emplace_back(
-        this->transport_closed.indication.connect(on_error));
-
-    while(!status.pdu && !status.error_code)
-    {
-        this->socket.get_io_service().run_one();
-    }
-
-    for(auto const & connection: connections)
-    {
-        connection.disconnect();
-    }
-
-    return status;
 }
 
 int
@@ -490,8 +292,6 @@ void
 Connection
 ::_sent_handler(boost::system::error_code const & error)
 {
-    this->_sent(error);
-
     if(error == boost::asio::error::eof)
     {
         this->socket.get_io_service().post(
@@ -514,7 +314,7 @@ Connection
     }
     else if(error == boost::asio::error::bad_descriptor)
     {
-        // odil::logging::debug() << "Reading from a closed socket";
+        // logging::debug() << "Reading from a closed socket";
     }
     else if(error)
     {
@@ -778,7 +578,7 @@ Connection
 
 void
 Connection
-::_async_send(PDU::Pointer pdu)
+::_send(PDU::Pointer pdu)
 {
     logging::trace() << "Sending PDU of type " << std::to_string(pdu->get_pdu_type());
     std::ostringstream stream;

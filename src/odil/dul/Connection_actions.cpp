@@ -53,7 +53,7 @@ Connection
     logging::trace() << "AE-2";
 
     this->_state = 5;
-    this->_async_send(associate_rq);
+    this->_send(associate_rq);
 }
 
 void
@@ -141,7 +141,7 @@ Connection
     logging::trace() << "AE-7";
 
     this->_state = 6;
-    this->_async_send(pdu);
+    this->_send(pdu);
 }
 
 void
@@ -151,7 +151,7 @@ Connection
     logging::trace() << "AE-8";
 
     this->_state = 13;
-    this->_async_send(pdu);
+    this->_send(pdu);
     this->_start_artim_timer();
 }
 
@@ -162,7 +162,7 @@ Connection
     logging::trace() << "DT-1";
 
     this->_state = 6;
-    this->_async_send(pdu);
+    this->_send(pdu);
 }
 
 void
@@ -182,7 +182,7 @@ Connection
     logging::trace() << "AR-1";
 
     this->_state = 7;
-    this->_async_send(pdu);
+    this->_send(pdu);
 }
 
 void
@@ -215,7 +215,7 @@ Connection
     logging::trace() << "AR-4";
 
     this->_state = 13;
-    this->_async_send(pdu);
+    this->_send(pdu);
     this->_start_artim_timer();
 }
 
@@ -247,7 +247,7 @@ Connection
     logging::trace() << "AR-7";
 
     this->_state = 8;
-    this->_async_send(pdu);
+    this->_send(pdu);
 }
 
 void
@@ -268,7 +268,7 @@ Connection
     logging::trace() << "AR-9";
 
     this->_state = 11;
-    this->_async_send(pdu);
+    this->_send(pdu);
 }
 
 void
@@ -289,7 +289,7 @@ Connection
     logging::trace() << "AA-1";
 
     this->_state = 13;
-    this->_async_send(pdu);
+    this->_send(pdu);
     this->_start_artim_timer();
 }
 
@@ -355,7 +355,7 @@ Connection
     logging::trace() << "AA-7";
 
     this->_state = 13;
-    this->_async_send(std::make_shared<AAbort>(1, 0));
+    this->_send(std::make_shared<AAbort>(1, 0));
 }
 
 void
@@ -366,7 +366,7 @@ Connection
 
     this->_state = 13;
     auto pdu = std::make_shared<AAbort>(2, 2);
-    this->_async_send(pdu);
+    this->_send(pdu);
     this->socket.get_io_service().post(
         [=]() { this->a_abort.indication(pdu); });
     this->_start_artim_timer();

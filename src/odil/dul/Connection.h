@@ -54,14 +54,8 @@ public:
 /**
  * @brief DICOM Upper Layer connection.
  *
- * This class asynchronously or synchronously sends and receives PDUs.
- *
- * Asynchronous operations will return immediately and will send a signal when
- * completed.
- *
- * Synchronous operations will block until completed, and will return the
- * response PDU (if any) or the error_code (if any).
- *
+ * This class asynchronously sends and receives PDUs.
+ * 
  * @warning The io_context from the socket will be used to dispatch every action
  */
 class ODIL_API Connection
@@ -69,13 +63,6 @@ class ODIL_API Connection
 public:
     /// @brief Acceptor function: its value is returned to the requestor.
     using Acceptor = std::function<PDU::Pointer(AAssociateRQ::Pointer)>;
-
-    /// @brief Status for a synchronous operation.
-    struct SynchronousStatus
-    {
-        PDU::Pointer pdu;
-        boost::system::error_code error_code;
-    };
 
     /**
      * @addtogroup dul_primitives DICOM Upper Layer service primitives
@@ -140,51 +127,10 @@ public:
     Connection & operator=(Connection &&) = delete;
 
     /// @brief Asynchronously send an A-ASSOCIATE-RQ PDU to the given peer.
-    void async_send(
-        boost::asio::ip::tcp::endpoint peer, AAssociateRQ::Pointer pdu);
+    void send(boost::asio::ip::tcp::endpoint peer, AAssociateRQ::Pointer pdu);
 
     /// @brief Asynchronously send any non-A-ASSOCIATE-RQ PDU.
-    void async_send(PDU::Pointer pdu);
-
-    /**
-     * @brief Synchronously send an A-ASSOCIATE-RQ PDU to the given peer.
-     *
-     * This function will return when
-     * - The PDU has been sent correctly and a response has been received
-     * - OR an error occured
-     */
-    SynchronousStatus
-    send(
-        boost::asio::ip::tcp::endpoint const & endpoint,
-        AAssociateRQ::Pointer pdu);
-
-    /**
-     * @brief Synchronously send an A-RELEASE-RQ PDU.
-     *
-     * This function will return when
-     * - The PDU has been sent correctly and a response has been received
-     * - OR an error occured
-     */
-    SynchronousStatus send(AReleaseRQ::Pointer pdu);
-
-    /**
-     * @brief Synchronously send a PDU.
-     *
-     * This function will return when the PDU has been sent.
-     */
-    SynchronousStatus send(PDU::Pointer pdu);
-
-    /**
-     * @brief Synchronously receive an incoming association.
-     *
-     * This function will return when
-     * - An A-ASSOCIATE-AC or an A-ASSOCIATE-RJ PDU has been sent
-     * - OR an error occured
-     */
-    SynchronousStatus receive(boost::asio::ip::tcp::endpoint endpoint);
-
-    /// @brief Synchronously receive a PDU.
-    SynchronousStatus receive();
+    void send(PDU::Pointer pdu);
 
     /// @brief Return the current state of the state machine.
     int get_state() const;
@@ -216,9 +162,6 @@ private:
 
     /// @brief A-ASSOCIATE-RQ PDU from latest A-ASSOCIATE request primitive.
     AAssociateRQ::Pointer _association_request;
-
-    /// @brief Signal called when a PDU has been sent.
-    boost::signals2::signal<void(boost::system::error_code)> _sent;
 
     /// @addtogroup dul_handlers boost::asio handlers
     /// @{
@@ -286,7 +229,7 @@ private:
     /// @}
 
     /// @brief Send the PDU without checking state consistency.
-    void _async_send(PDU::Pointer pdu);
+    void _send(PDU::Pointer pdu);
 
     /// @brief Start or restart the ARTIM timer.
     void _start_artim_timer();

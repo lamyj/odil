@@ -46,24 +46,17 @@ public:
 
     Fixture();
 
-    void test_odil_acceptor_async(std::string const & acceptor_action, bool requestor_abort);
-    void test_odil_acceptor_sync(std::string const & acceptor_action, bool requestor_abort);
-
-    void test_odil_requestor_async(std::string const & acceptor_action);
-    void test_odil_requestor_sync(std::string const & acceptor_action);
-
-    void odil_acceptor_async(
-        Port port, odil::dul::Connection & connection,
-        odil::dul::Connection::Acceptor const & acceptor);
-
-    odil::dul::Connection::SynchronousStatus
-    odil_acceptor_sync(
+    void test_odil_acceptor(std::string const & acceptor_action, bool requestor_abort);
+    
+    void test_odil_requestor(std::string const & acceptor_action);
+    
+    void odil_acceptor(
         Port port, odil::dul::Connection & connection,
         odil::dul::Connection::Acceptor const & acceptor);
 
     void dcmtk_acceptor(Port port,std::string const & acceptor_action);
 
-    void odil_requestor_async(
+    void odil_requestor(
         Port port, odil::dul::Connection & connection,
         odil::dul::PDU::Pointer & received_pdu);
 
@@ -79,57 +72,31 @@ private:
         DCMTKStatus const & dcmtk_status, std::string const & acceptor_action) const;
 };
 
-BOOST_FIXTURE_TEST_CASE(OdilAcceptorAsyncAcceptDCMTKRelease, Fixture)
-{ this->test_odil_acceptor_async("accept", false); }
+BOOST_FIXTURE_TEST_CASE(OdilAcceptorAcceptDCMTKRelease, Fixture)
+{ this->test_odil_acceptor("accept", false); }
 
-BOOST_FIXTURE_TEST_CASE(OdilAcceptorAsyncAcceptDCMTKAbort, Fixture)
-{ this->test_odil_acceptor_async("accept", true); }
+BOOST_FIXTURE_TEST_CASE(OdilAcceptorAcceptDCMTKAbort, Fixture)
+{ this->test_odil_acceptor("accept", true); }
 
-BOOST_FIXTURE_TEST_CASE(OdilAcceptorAsyncRejectDCMTKRelease, Fixture)
-{ this->test_odil_acceptor_async("reject", false); }
+BOOST_FIXTURE_TEST_CASE(OdilAcceptorRejectDCMTKRelease, Fixture)
+{ this->test_odil_acceptor("reject", false); }
 
-BOOST_FIXTURE_TEST_CASE(OdilAcceptorAsyncRejectDCMTKAbort, Fixture)
-{ this->test_odil_acceptor_async("reject", true); }
+BOOST_FIXTURE_TEST_CASE(OdilAcceptorRejectDCMTKAbort, Fixture)
+{ this->test_odil_acceptor("reject", true); }
 
-BOOST_FIXTURE_TEST_CASE(OdilAcceptorAsyncAbortDCMTKRelease, Fixture)
-{ this->test_odil_acceptor_async("abort", false); }
+BOOST_FIXTURE_TEST_CASE(OdilAcceptorAbortDCMTKRelease, Fixture)
+{ this->test_odil_acceptor("abort", false); }
 
-// This one makes no sense: OdilRequestorAsyncAbortDCMTKAbort
+// This one makes no sense: OdilRequestorAbortDCMTKAbort
 
-BOOST_FIXTURE_TEST_CASE(OdilAcceptorSyncAcceptDCMTKRelease, Fixture)
-{ this->test_odil_acceptor_sync("accept", false); }
+BOOST_FIXTURE_TEST_CASE(OdilRequestorDCMTKAccept, Fixture)
+{ this->test_odil_requestor("accept"); }
 
-BOOST_FIXTURE_TEST_CASE(OdilAcceptorSyncAcceptDCMTKAbort, Fixture)
-{ this->test_odil_acceptor_sync("accept", true); }
+BOOST_FIXTURE_TEST_CASE(OdilRequestorDCMTKReject, Fixture)
+{ this->test_odil_requestor("reject"); }
 
-BOOST_FIXTURE_TEST_CASE(OdilAcceptorSyncRejectDCMTKRelease, Fixture)
-{ this->test_odil_acceptor_sync("reject", false); }
-
-BOOST_FIXTURE_TEST_CASE(OdilAcceptorSyncRejectDCMTKAbort, Fixture)
-{ this->test_odil_acceptor_sync("reject", true); }
-
-BOOST_FIXTURE_TEST_CASE(OdilAcceptorSyncAbortDCMTKRelease, Fixture)
-{ this->test_odil_acceptor_sync("abort", false); }
-
-// This one makes no sense: OdilRequestorSyncAbortDCMTKAbort
-
-BOOST_FIXTURE_TEST_CASE(OdilRequestorAsyncDCMTKAccept, Fixture)
-{ this->test_odil_requestor_async("accept"); }
-
-BOOST_FIXTURE_TEST_CASE(OdilRequestorAsyncDCMTKReject, Fixture)
-{ this->test_odil_requestor_async("reject"); }
-
-BOOST_FIXTURE_TEST_CASE(OdilRequestorAsyncDCMTKAbort, Fixture)
-{ this->test_odil_requestor_async("abort"); }
-
-BOOST_FIXTURE_TEST_CASE(OdilRequestorSyncDCMTKAccept, Fixture)
-{ this->test_odil_requestor_sync("accept"); }
-
-BOOST_FIXTURE_TEST_CASE(OdilRequestorSyncDCMTKReject, Fixture)
-{ this->test_odil_requestor_sync("reject"); }
-
-BOOST_FIXTURE_TEST_CASE(OdilRequestorSyncDCMTKAbort, Fixture)
-{ this->test_odil_requestor_sync("abort"); }
+BOOST_FIXTURE_TEST_CASE(OdilRequestorDCMTKAbort, Fixture)
+{ this->test_odil_requestor("abort"); }
 
 std::random_device Fixture::random_device{};
 std::mt19937 Fixture::random_generator{Fixture::random_device()};
@@ -150,7 +117,7 @@ Fixture
 
 void
 Fixture
-::test_odil_acceptor_async(
+::test_odil_acceptor(
     std::string const & acceptor_action, bool requestor_abort)
 {
     auto const port = Fixture::random_distribution(Fixture::random_generator);
@@ -162,7 +129,7 @@ Fixture
         return this->_acceptor_handler(request, acceptor_action, parameters_ok);
     };
 
-    this->odil_acceptor_async(port, connection, acceptor);
+    this->odil_acceptor(port, connection, acceptor);
 
     // WARNING: make sure the acceptor is running before starting the
     // requestor thread.
@@ -181,48 +148,7 @@ Fixture
 
 void
 Fixture
-::test_odil_acceptor_sync(
-    std::string const & acceptor_action, bool requestor_abort)
-{
-    auto const port = Fixture::random_distribution(Fixture::random_generator);
-
-    odil::dul::Connection connection(this->socket);
-
-    this->endpoint = boost::asio::ip::tcp::endpoint(
-        boost::asio::ip::address_v4::from_string("127.0.0.1"), port);
-
-    bool parameters_ok = false;
-
-    std::thread acceptor(
-        [&]() {
-            connection.acceptor = [&](odil::dul::AAssociateRQ::Pointer request){
-                return this->_acceptor_handler(request, acceptor_action, parameters_ok);
-            };
-
-            connection.receive(this->endpoint);
-            if(acceptor_action == "accept")
-            {
-                // Block until we get A-RELEASE-RQ or A-ABORT
-                connection.receive();
-            }
-        });
-
-    // WARNING: make sure the acceptor thread is running before starting the
-    // requestor thread.
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    DCMTKStatus dcmtk_status;
-    std::thread requestor( [&]() { dcmtk_status = this->dcmtk_requestor(port, requestor_abort); } );
-
-    requestor.join();
-    acceptor.join();
-
-    this->_check_dcmtk_status(dcmtk_status, acceptor_action);
-    BOOST_REQUIRE(parameters_ok);
-}
-
-void
-Fixture
-::test_odil_requestor_async(std::string const & acceptor_action)
+::test_odil_requestor(std::string const & acceptor_action)
 {
     auto const port = Fixture::random_distribution(Fixture::random_generator);
 
@@ -230,12 +156,12 @@ Fixture
 
     odil::dul::Connection connection(this->socket);
     odil::dul::PDU::Pointer received_pdu;
-    this->odil_requestor_async(port, connection, received_pdu);
+    this->odil_requestor(port, connection, received_pdu);
     if(acceptor_action == "accept")
     {
         connection.a_associate.confirmation.connect(
             [&](odil::dul::PDU::Pointer) {
-                connection.async_send(std::make_shared<odil::dul::AReleaseRQ>());
+                connection.send(std::make_shared<odil::dul::AReleaseRQ>());
             });
     }
 
@@ -269,58 +195,7 @@ Fixture
 
 void
 Fixture
-::test_odil_requestor_sync(std::string const & acceptor_action)
-{
-    auto const port = Fixture::random_distribution(Fixture::random_generator);
-
-    std::thread acceptor([&](){ this->dcmtk_acceptor(port, acceptor_action); });
-
-    this->endpoint = boost::asio::ip::tcp::endpoint(
-        boost::asio::ip::address_v4::from_string("127.0.0.1"), port);
-
-    odil::dul::Connection connection(this->socket);
-    auto status = connection.send(
-        this->endpoint,
-        std::make_shared<odil::dul::AAssociateRQ>(
-            this->parameters.as_a_associate_rq()));
-    if(acceptor_action == "accept")
-    {
-        connection.send(std::make_shared<odil::dul::AReleaseRQ>());
-    }
-
-    acceptor.join();
-
-    BOOST_REQUIRE(status.pdu);
-    BOOST_REQUIRE(!status.error_code);
-
-    if(acceptor_action == "accept")
-    {
-        auto acception = std::dynamic_pointer_cast<odil::dul::AAssociateAC>(
-            status.pdu);
-        BOOST_REQUIRE(acception);
-    }
-    else if(acceptor_action == "reject")
-    {
-        auto rejection = std::dynamic_pointer_cast<odil::dul::AAssociateRJ>(
-            status.pdu);
-        BOOST_REQUIRE(rejection);
-    }
-    else if(acceptor_action == "abort")
-    {
-        auto rejection = std::dynamic_pointer_cast<odil::dul::AAbort>(
-            status.pdu);
-        BOOST_REQUIRE(rejection);
-    }
-    else
-    {
-        throw std::runtime_error(
-            "Unknown acceptor action: "+acceptor_action);
-    }
-}
-
-void
-Fixture
-::odil_acceptor_async(
+::odil_acceptor(
     Port port, odil::dul::Connection & connection,
     odil::dul::Connection::Acceptor const & acceptor)
 {
@@ -334,20 +209,6 @@ Fixture
             connection.transport_connection.indication(error);
         }
     );
-}
-
-odil::dul::Connection::SynchronousStatus
-Fixture
-::odil_acceptor_sync(
-    Port port, odil::dul::Connection & connection,
-    odil::dul::Connection::Acceptor const & acceptor)
-{
-    connection.acceptor = acceptor;
-
-    this->endpoint = Fixture::Endpoint(boost::asio::ip::tcp::v4(), port);
-    this->acceptor = Fixture::Acceptor(this->service, this->endpoint);
-
-    return connection.receive(this->endpoint);
 }
 
 void
@@ -415,7 +276,7 @@ Fixture
 
 void
 Fixture
-::odil_requestor_async(
+::odil_requestor(
     Port port, odil::dul::Connection & connection,
     odil::dul::PDU::Pointer & received_pdu)
 {
@@ -426,7 +287,7 @@ Fixture
     this->endpoint = boost::asio::ip::tcp::endpoint(
         boost::asio::ip::address_v4::from_string("127.0.0.1"), port);
 
-    connection.async_send(
+    connection.send(
         this->endpoint,
         std::make_shared<odil::dul::AAssociateRQ>(
             this->parameters.as_a_associate_rq()));
