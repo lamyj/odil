@@ -31,8 +31,14 @@ Formatter
     if(this->active && this->_stream)
     {
         auto const now = std::time(nullptr);
+        
+        static char time_buffer[100];
+        std::strftime(time_buffer, sizeof(time_buffer), "%F %T", std::localtime(&now));
+
         (*this->buffer)
-            << std::put_time(std::localtime(&now), "%F %T") << " "
+            // WARNING: put_time is missing in g++ <= 4.9
+            //<< std::put_time(std::localtime(&now), "%F %T") << " "
+            << time_buffer << " "
             << as_string(level) << " " << std::this_thread::get_id() << ": ";
     }
 }
