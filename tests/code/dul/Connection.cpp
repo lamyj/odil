@@ -94,8 +94,7 @@ BOOST_FIXTURE_TEST_CASE(OdilAcceptorAsyncRejectDCMTKAbort, Fixture)
 BOOST_FIXTURE_TEST_CASE(OdilAcceptorAsyncAbortDCMTKRelease, Fixture)
 { this->test_odil_acceptor_async("abort", false); }
 
-// This one makes no sense:
-// BOOST_FIXTURE_TEST_CASE(OdilRequestorAsyncAbortDCMTKAbort, Fixture)
+// This one makes no sense: OdilRequestorAsyncAbortDCMTKAbort
 
 BOOST_FIXTURE_TEST_CASE(OdilAcceptorSyncAcceptDCMTKRelease, Fixture)
 { this->test_odil_acceptor_sync("accept", false); }
@@ -112,8 +111,7 @@ BOOST_FIXTURE_TEST_CASE(OdilAcceptorSyncRejectDCMTKAbort, Fixture)
 BOOST_FIXTURE_TEST_CASE(OdilAcceptorSyncAbortDCMTKRelease, Fixture)
 { this->test_odil_acceptor_sync("abort", false); }
 
-// This one makes no sense:
-// BOOST_FIXTURE_TEST_CASE(OdilRequestorSyncAbortDCMTKAbort, Fixture)
+// This one makes no sense: OdilRequestorSyncAbortDCMTKAbort
 
 BOOST_FIXTURE_TEST_CASE(OdilRequestorAsyncDCMTKAccept, Fixture)
 { this->test_odil_requestor_async("accept"); }
