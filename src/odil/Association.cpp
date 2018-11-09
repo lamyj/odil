@@ -18,6 +18,7 @@
 #include "odil/DataSet.h"
 #include "odil/Exception.h"
 #include "odil/uid.h"
+#include "odil/dul/Connection.h"
 #include "odil/dul/StateMachine.h"
 #include "odil/message/Message.h"
 #include "odil/dul/AAbort.h"
@@ -196,45 +197,233 @@ bool
 Association
 ::is_associated() const
 {
-    return (
-        this->_state_machine.get_transport().is_open()
-        && this->_state_machine.get_state() == dul::StateMachine::State::Sta6);
+    return (this->_connection.get_status() == dul::Connection::Status::DataTransfer);
 }
 
 void
 Association
 ::associate()
 {
+    bool done = false;
+    dul::PDU::Pointer pdu;
+    boost::system::error_code error;
+    auto success_handler = [&](Association & association) { 
+        done = true; 
+    };
+    auto error_handler = [&](dul::PDU::Pointer p, boost::system::error_code e) {
+        done = true;
+        pdu = p;
+        error = e;
+    };
+    this->associate(success_handler, error_handler);
+    
+    while(!done)
+    {
+        this->_connection.socket.get_io_service().run_one();
+    }
+
+    if(pdu)
+    {
+        auto rejection = std::dynamic_pointer_cast<dul::AAssociateRJ>(pdu);
+        auto abort_ = std::dynamic_pointer_cast<dul::AAbort>(pdu);
+        if(rejection)
+        {
+            throw Exception("Association rejected");
+        }
+        else if(abort_)
+        {
+            throw AssociationAborted(abort_->get_source(), abort_->get_reason());
+        }
+        else
+        {
+            throw Exception("Association failed (unknown PDU received)");
+        }
+    }
+    else if(error)
+    {
+        throw Exception("Association failed: "+error.message());
+    }
+}
+
+void
+Association
+::associate(
+    std::function<void(Association &)> success_handler, 
+    std::function<void(dul::PDU::Pointer, boost::system::error_code)> error_handler)
+{
+    this->_associate_connections.emplace_back(this->_connection.a_associate.confirmation.connect(
+        [&](dul::PDU::Pointer pdu)
+        {
+            for(auto const & c: this->_associate_connections) 
+            { 
+                c.disconnect();
+            };
+            this->_associate_connections.clear();
+
+            auto acceptation = std::dynamic_pointer_cast<dul::AAssociateAC>(pdu);
+            auto rejection = std::dynamic_pointer_cast<dul::AAssociateRJ>(pdu);
+            if(acceptation)
+            {
+                this->_negotiated_parameters = AssociationParameters(
+                    *acceptation, this->_association_parameters);
+
+                this->_transfer_syntaxes_by_abstract_syntax.clear();
+                this->_transfer_syntaxes_by_id.clear();
+
+                for(auto const & pc: this->_negotiated_parameters.get_presentation_contexts())
+                {
+                    if(pc.result != AssociationParameters::PresentationContext::Result::Acceptance)
+                    {
+                        continue;
+                    }
+
+                    this->_transfer_syntaxes_by_id[pc.id] = pc.transfer_syntaxes[0];
+                    this->_transfer_syntaxes_by_abstract_syntax[pc.abstract_syntax] =
+                        {pc.id, pc.transfer_syntaxes[0]};
+                }
+                
+                success_handler(*this);
+            }
+            else if(rejection)
+            {
+                error_handler(rejection, boost::system::error_code());
+            }
+        }));
+    this->_associate_connections.emplace_back(this->_connection.a_abort.indication.connect(
+        [&](dul::PDU::Pointer pdu)
+        {
+            for(auto const & c: this->_associate_connections) 
+            { 
+                c.disconnect();
+            };
+            this->_associate_connections.clear();
+
+            error_handler(pdu, boost::system::error_code());
+        }));
+    
+    this->_associate_connections.emplace_back(this->_connection.transport_error.indication.connect(
+        [&](boost::system::error_code error)
+        {
+            for(auto const & c: this->_associate_connections) 
+            { 
+                c.disconnect();
+            };
+            this->_associate_connections.clear();
+
+            error_handler(nullptr, error);
+        }));
+    this->_associate_connections.emplace_back(this->_connection.transport_closed.indication.connect(
+        [&]() 
+        {
+            for(auto const & c: this->_associate_connections) 
+            { 
+                c.disconnect();
+            };
+            this->_associate_connections.clear();
+
+            error_handler(
+                nullptr, 
+                boost::system::errc::make_error_code(boost::system::errc::connection_reset)); 
+        }));
+    
     boost::asio::ip::tcp::resolver resolver(
         this->_state_machine.get_transport().get_service());
-    boost::asio::ip::tcp::resolver::query const query(this->_peer_host, "");
+    boost::asio::ip::tcp::resolver::query const query(
+        this->_peer_host, std::to_string(this->_peer_port));
     auto const endpoint_it = resolver.resolve(query);
-
-    dul::EventData data;
-    data.peer_endpoint = *endpoint_it;
-    data.peer_endpoint.port(this->_peer_port);
 
     auto const request =
         std::make_shared<dul::AAssociateRQ>(
             this->_association_parameters.as_a_associate_rq());
 
-    data.pdu = request;
+    this->_connection.send(*endpoint_it, request);
+}
 
-    this->_state_machine.send_pdu(data);
-    this->_state_machine.receive_pdu(data);
+void
+Association
+::receive_association(
+    boost::asio::ip::tcp const & protocol, unsigned short port,
+    AssociationAcceptor acceptor)
+{
+    bool done = false;
+    auto success_handler = [&](Association &) { done = true; };
+    auto const error_handler = [&](dul::PDU::Pointer pdu, boost::system::error_code error) {
+        done = true;
 
-    if(data.pdu == nullptr)
-    {
-        throw Exception("No response received");
-    }
-    else
-    {
-        auto const acceptation = std::dynamic_pointer_cast<dul::AAssociateAC>(data.pdu);
-        auto const rejection = std::dynamic_pointer_cast<dul::AAssociateRJ>(data.pdu);
-        if(acceptation != nullptr)
+        auto const reject = std::dynamic_pointer_cast<dul::AAssociateRJ>(pdu);
+        auto const abort_ = std::dynamic_pointer_cast<dul::AAbort>(pdu);
+        if(reject)
         {
-            this->_negotiated_parameters = AssociationParameters(
-                *acceptation, this->_association_parameters);
+            throw AssociationRejected(
+                reject->get_result(), reject->get_source(), reject->get_reason());
+        }
+        else if(abort_)
+        {
+            throw AssociationAborted(abort_->get_source(), abort_->get_reason());
+        }
+        else if(error)
+        {
+            throw Exception("Could not receive association: "+error.message());
+        }
+        else
+        {
+            throw Exception("Could not receive association (unknown reason)");
+        }
+    };
+    this->receive_association(protocol, port, success_handler, error_handler);
+
+    while(!done)
+    {
+        this->_connection.socket.get_io_service().run_one();
+    }
+}
+
+void 
+Association
+::receive_association(
+    boost::asio::ip::tcp const & protocol, unsigned short port,
+    std::function<void(Association &)> success_handler,
+    std::function<void(dul::PDU::Pointer, boost::system::error_code)> error_handler,
+    AssociationAcceptor acceptor)
+{
+    std::vector<boost::signals2::connection> connections;
+    
+    this->_receive_association_connections.emplace_back(this->_connection.transport_error.indication.connect(
+        [&](boost::system::error_code error)
+        {
+            for(auto const & c: this->_receive_association_connections) 
+            { 
+                c.disconnect();
+            };
+            this->_receive_association_connections.clear();
+
+            error_handler(nullptr, error);
+        }));
+    this->_receive_association_connections.emplace_back(this->_connection.transport_closed.indication.connect(
+        [&]()
+        {
+            for(auto const & c: this->_receive_association_connections) 
+            { 
+                c.disconnect();
+            };
+            this->_receive_association_connections.clear();
+
+            error_handler(
+                nullptr, 
+                boost::system::errc::make_error_code(boost::system::errc::connection_reset));
+        }));
+
+    this->_connection.acceptor = [&](dul::AAssociateRQ::Pointer request) {
+        dul::PDU::Pointer result;
+
+        AssociationParameters negotiated_parameters;
+        try
+        {
+            this->_negotiated_parameters = acceptor(AssociationParameters(*request));
+
+            auto const endpoint = this->_connection.socket.remote_endpoint();
+            this->_peer_host = endpoint.address().to_string();
+            this->_peer_port = endpoint.port();
 
             this->_transfer_syntaxes_by_abstract_syntax.clear();
             this->_transfer_syntaxes_by_id.clear();
@@ -250,119 +439,158 @@ Association
                 this->_transfer_syntaxes_by_abstract_syntax[pc.abstract_syntax] =
                     {pc.id, pc.transfer_syntaxes[0]};
             }
+
+            result = std::make_shared<dul::AAssociateAC>(
+                negotiated_parameters.as_a_associate_ac());
+            success_handler(*this);
         }
-        else if(rejection != nullptr)
+        catch(AssociationRejected const & e)
         {
-            throw Exception("Association rejected");
-        }
-        else
-        {
-            throw Exception("Invalid response");
-        }
-    }
-}
-
-void
-Association
-::receive_association(
-    boost::asio::ip::tcp const & protocol, unsigned short port,
-    AssociationAcceptor acceptor)
-{
-    dul::EventData data;
-    data.peer_endpoint = dul::Transport::Socket::endpoint_type(protocol, port);
-
-    this->_state_machine.set_association_acceptor(acceptor);
-
-    this->_state_machine.receive(data);
-    this->_state_machine.receive_pdu(data);
-
-    if(data.pdu == NULL)
-    {
-        // We have rejected the request
-        if(!data.reject)
-        {
-            throw (*data.reject);
-        }
-        else
-        {
-            throw AssociationRejected(
-                Association::RejectedTransient,
-                Association::ULServiceProvderPresentationRelatedFunction,
-                Association::NoReasonGiven,
-                "No reject information");
-        }
-    }
-    else
-    {
-        auto const & request = std::dynamic_pointer_cast<dul::AAssociateRQ>(data.pdu);
-        if(request == nullptr)
-        {
-            throw Exception("Invalid response");
+            result = std::make_shared<dul::AAssociateRJ>(
+                e.get_result(), e.get_source(), e.get_reason());
+            // TODO: what about transport errors?
+            error_handler(result, boost::system::error_code());
         }
 
-        auto const endpoint =
-            this->_state_machine.get_transport().get_socket()->remote_endpoint();
-        this->_peer_host = endpoint.address().to_string();
-        this->_peer_port = endpoint.port();
-
-        this->_negotiated_parameters = data.association_parameters;
-
-        this->_transfer_syntaxes_by_abstract_syntax.clear();
-        this->_transfer_syntaxes_by_id.clear();
-
-        for(auto const & pc: this->_negotiated_parameters.get_presentation_contexts())
-        {
-            if(pc.result != AssociationParameters::PresentationContext::Result::Acceptance)
-            {
-                continue;
-            }
-
-            this->_transfer_syntaxes_by_id[pc.id] = pc.transfer_syntaxes[0];
-            this->_transfer_syntaxes_by_abstract_syntax[pc.abstract_syntax] =
-                {pc.id, pc.transfer_syntaxes[0]};
+        return result;
+    };
+    
+    boost::asio::ip::tcp::endpoint endpoint(protocol, port);
+    boost::asio::ip::tcp::acceptor network_acceptor(
+        this->_connection.socket.get_io_service(), endpoint);
+    network_acceptor.async_accept(
+        this->_connection.socket,
+        [&](boost::system::error_code error) {
+            this->_connection.transport_connection.indication(error);
         }
+    );
 
-        data.pdu = std::make_shared<dul::AAssociateAC>(
-            this->_negotiated_parameters.as_a_associate_ac());
-        this->_state_machine.send_pdu(data);
-    }
 }
 
 void
 Association
 ::release()
 {
-    if(!this->is_associated())
+    bool done = false;
+    dul::PDU::Pointer pdu;
+    boost::system::error_code error;
+
+    auto success_handler = [&](Association &) { done = true; };
+    auto error_handler = [&](dul::PDU::Pointer p, boost::system::error_code e) {
+        done = true;
+        pdu = p;
+        error = e;
+    };
+
+    this->release(success_handler, error_handler);
+
+    while(!done && !pdu && !error)
     {
-        throw Exception("Not associated");
+        this->_connection.socket.get_io_service().run_one();
     }
 
-    auto pdu = std::make_shared<dul::AReleaseRQ>();
-    dul::EventData data;
-    data.pdu = pdu;
-    this->_state_machine.send_pdu(data);
-    this->_state_machine.receive_pdu(data);
-
-    auto const reply = std::dynamic_pointer_cast<dul::AReleaseRP>(data.pdu);
-    if(reply == nullptr)
+    if(pdu)
     {
-        // Invalid response, accept it nevertheless.
+        auto abort_ = std::dynamic_pointer_cast<dul::AAbort>(pdu);
+        if(abort_)
+        {
+            throw AssociationAborted(abort_->get_source(), abort_->get_reason());
+        }
+        else
+        {
+            throw Exception("Association release failed (unknown PDU received)");
+        }
     }
+    else if(error)
+    {
+        throw Exception("Association release failed: "+error.message());
+    }
+}
+
+void
+Association
+::release(
+    std::function<void(Association &)> success_handler,
+    std::function<void(dul::PDU::Pointer, boost::system::error_code)> error_handler)
+{
+    
+    this->_release_connections.emplace_back(this->_connection.a_release.confirmation.connect(
+        [&](dul::AReleaseRP::Pointer) {
+            for(auto const & c: this->_release_connections) 
+            { 
+                c.disconnect();
+            };
+            this->_release_connections.clear();
+
+            success_handler(*this);
+        }));
+    this->_release_connections.emplace_back(this->_connection.a_abort.indication.connect(
+        [&](dul::AAbort::Pointer pdu) {
+            for(auto const & c: this->_release_connections) 
+            { 
+                c.disconnect();
+            };
+            this->_release_connections.clear();
+            
+            error_handler(pdu, boost::system::error_code());
+        }));
+    this->_release_connections.emplace_back(this->_connection.transport_error.indication.connect(
+        [&](boost::system::error_code error) {
+            for(auto const & c: this->_release_connections) 
+            { 
+                c.disconnect();
+            };
+            this->_release_connections.clear();
+
+            error_handler(nullptr, error);
+        }
+    ));
+    this->_release_connections.emplace_back(this->_connection.transport_closed.indication.connect(
+        [&]() {
+            for(auto const & c: this->_release_connections) 
+            { 
+                c.disconnect();
+            };
+            this->_release_connections.clear();
+
+            error_handler(
+                nullptr, 
+                boost::system::errc::make_error_code(boost::system::errc::connection_reset));
+        }));
+
+    this->_connection.send(std::make_shared<dul::AReleaseRQ>());
 }
 
 void
 Association
 ::abort(int source, int reason)
 {
-    if(!this->is_associated())
+    bool done = false;
+    auto close_handler = [&]() { done = true; };
+    this->abort(source, reason, close_handler);
+    while(!done)
     {
-        throw Exception("Not associated");
+        this->_connection.socket.get_io_service().run_one();
     }
+}
+
+void 
+Association
+::abort(int source, int reason, std::function<void()> close_handler)
+{
+    this->_abort_connections.emplace_back(this->_connection.transport_closed.indication.connect(
+        [&](){
+            for(auto const & c: this->_abort_connections) 
+            { 
+                c.disconnect();
+            };
+            this->_abort_connections.clear();
+
+            close_handler();
+        }));
 
     auto pdu = std::make_shared<dul::AAbort>(source, reason);
-    dul::EventData data;
-    data.pdu = pdu;
-    this->_state_machine.send_pdu(data);
+    this->_connection.send(pdu);
 }
 
 std::shared_ptr<message::Message>

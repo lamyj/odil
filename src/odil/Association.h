@@ -17,6 +17,7 @@
 
 #include "odil/AssociationAcceptor.h"
 #include "odil/AssociationParameters.h"
+#include "odil/dul/Connection.h"
 #include "odil/dul/StateMachine.h"
 #include "odil/message/Message.h"
 #include "odil/odil.h"
@@ -143,12 +144,42 @@ public:
     /// @brief Test whether the object is currently associated to its peer.
     bool is_associated() const;
 
-    /// @brief Request an association with the peer. Throws an exception if the endpoint can not be reached.
+    /** 
+     * @brief Synchronously request an association with the peer. Throws an 
+     * exception if the endpoint can not be reached.
+     */
     void associate();
 
-    /// @brief Receive an association from a peer.
+    /**
+     * @brief Asynchronously request an association with the peer.
+     * 
+     * The success_handler will be called upon association success. The 
+     * error_handler will be called if:
+     * - The request is rejected
+     * - The negotiation is aborted
+     * - An error occurs on the transport
+     */ 
+    void associate(
+        std::function<void(Association &)> success_handler, 
+        std::function<void(dul::PDU::Pointer, boost::system::error_code)> error_handler);
+
+    /// @brief Synchronously receive an association from a peer.
     void receive_association(
         boost::asio::ip::tcp const & protocol, unsigned short port,
+        AssociationAcceptor acceptor=default_association_acceptor);
+    
+    /**
+     * @brief Asynchronously receive an association from a peer.
+     * 
+     * The success_handler will be called if no error occurs, whether the 
+     * association is accepted or rejected. The error_handler will be called if:
+     * - The negotiation is aborted
+     * - An error occurs on the transport
+     */
+    void receive_association(
+        boost::asio::ip::tcp const & protocol, unsigned short port,
+        std::function<void(Association &)> success_handler,
+        std::function<void(dul::PDU::Pointer, boost::system::error_code)> error_handler,
         AssociationAcceptor acceptor=default_association_acceptor);
 
     /// @brief Reject the received association request.
@@ -156,8 +187,15 @@ public:
 
     /// @brief Gracefully release the association. Throws an exception if not associated.
     void release();
+
+    void release(
+        std::function<void(Association &)> success_handler,
+        std::function<void(dul::PDU::Pointer, boost::system::error_code)> error_handler);
+
     /// @brief Forcefully release the association. Throws an exception if not associated.
     void abort(int source, int reason);
+
+    void abort(int source, int reason, std::function<void()> close_handler);
 
     /// @}
 
@@ -196,6 +234,20 @@ private:
     std::map<uint8_t, std::string> _transfer_syntaxes_by_id;
 
     uint16_t _next_message_id;
+
+    /**
+     * @name Pools of signal connections during the asynchronous functions.
+     * 
+     * We need to keep these objects alive during the lifetime of their slots,
+     * since they are disconnected from the slots themselves.
+     */
+    /// {@
+    std::vector<boost::signals2::connection> _associate_connections;
+    std::vector<boost::signals2::connection> _receive_association_connections;
+    std::vector<boost::signals2::connection> _release_connections;
+    std::vector<boost::signals2::connection> _abort_connections;
+
+    /// @}
 };
 
 /** 
