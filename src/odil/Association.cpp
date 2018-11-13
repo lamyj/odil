@@ -249,7 +249,7 @@ void
 Association
 ::associate(
     std::function<void(Association &)> success_handler, 
-    std::function<void(dul::PDU::Pointer, boost::system::error_code)> error_handler)
+    ErrorHandler error_handler)
 {
     this->_associate_connections.emplace_back(this->_connection.a_associate.confirmation.connect(
         [&](dul::PDU::Pointer pdu)
@@ -382,8 +382,8 @@ void
 Association
 ::receive_association(
     boost::asio::ip::tcp const & protocol, unsigned short port,
-    std::function<void(Association &)> success_handler,
-    std::function<void(dul::PDU::Pointer, boost::system::error_code)> error_handler,
+    std::function<void(Association &)> success_handler, 
+    ErrorHandler error_handler,
     AssociationAcceptor acceptor)
 {
     std::vector<boost::signals2::connection> connections;
@@ -511,7 +511,7 @@ void
 Association
 ::release(
     std::function<void(Association &)> success_handler,
-    std::function<void(dul::PDU::Pointer, boost::system::error_code)> error_handler)
+    ErrorHandler error_handler)
 {
     
     this->_release_connections.emplace_back(this->_connection.a_release.confirmation.connect(

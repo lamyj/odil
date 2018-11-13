@@ -79,6 +79,9 @@ public:
     /// @brief Duration of the timeout.
     typedef dul::StateMachine::duration_type duration_type;
 
+    using ErrorHandler = 
+        std::function<void(dul::PDU::Pointer, boost::system::error_code)>;
+
     /// @brief Create a default, un-associated, association.
     Association();
 
@@ -161,7 +164,7 @@ public:
      */ 
     void associate(
         std::function<void(Association &)> success_handler, 
-        std::function<void(dul::PDU::Pointer, boost::system::error_code)> error_handler);
+        ErrorHandler error_handler);
 
     /// @brief Synchronously receive an association from a peer.
     void receive_association(
@@ -178,8 +181,8 @@ public:
      */
     void receive_association(
         boost::asio::ip::tcp const & protocol, unsigned short port,
-        std::function<void(Association &)> success_handler,
-        std::function<void(dul::PDU::Pointer, boost::system::error_code)> error_handler,
+        std::function<void(Association &)> success_handler, 
+        ErrorHandler error_handler,
         AssociationAcceptor acceptor=default_association_acceptor);
 
     /// @brief Reject the received association request.
@@ -189,8 +192,8 @@ public:
     void release();
 
     void release(
-        std::function<void(Association &)> success_handler,
-        std::function<void(dul::PDU::Pointer, boost::system::error_code)> error_handler);
+        std::function<void(Association &)> success_handler, 
+        ErrorHandler error_handler);
 
     /// @brief Forcefully release the association. Throws an exception if not associated.
     void abort(int source, int reason);
