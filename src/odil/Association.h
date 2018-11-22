@@ -245,40 +245,13 @@ private:
      * since they are disconnected from the slots themselves.
      */
     /// {@
+
     std::vector<boost::signals2::connection> _associate_connections;
     std::vector<boost::signals2::connection> _receive_association_connections;
     std::vector<boost::signals2::connection> _release_connections;
     std::vector<boost::signals2::connection> _abort_connections;
-
+    
     /// @}
-};
-
-/** 
- * @brief Exception reported when receiving a message after the association was
- * released.
- */
-class ODIL_API AssociationReleased: public Exception
-{
-public:
-    AssociationReleased();
-    virtual ~AssociationReleased() noexcept;
-};
-
-/** 
- * @brief Exception reported when receiving a message after the association was
- * aborted.
- */
-class ODIL_API AssociationAborted: public Exception
-{
-public:
-    /// @brief Source of the error.
-    uint8_t source;
-    
-    /// @brief Reason of the error.
-    uint8_t reason;
-    
-    AssociationAborted(unsigned char source, unsigned char reason);
-    virtual ~AssociationAborted() noexcept;
 };
 
 }
