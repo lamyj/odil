@@ -290,7 +290,7 @@ Connection
 
 void
 Connection
-::_sent_handler(boost::system::error_code const & error)
+::_sent_handler(dul::PDU::Pointer pdu, boost::system::error_code const & error)
 {
     if(error == boost::asio::error::eof)
     {
@@ -301,6 +301,10 @@ Connection
     {
         this->socket.get_io_service().post(
             [=]() { this->transport_error.indication(error); });
+    }
+    else
+    {
+        this->sent(pdu);
     }
 }
 
@@ -586,7 +590,8 @@ Connection
     boost::asio::async_write(
         this->socket, boost::asio::buffer(stream.str()),
         boost::bind(
-            &Connection::_sent_handler, this, boost::asio::placeholders::error));
+            &Connection::_sent_handler, 
+            this, pdu, boost::asio::placeholders::error));
 }
 
 void

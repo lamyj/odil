@@ -106,6 +106,9 @@ public:
 
     /// @}
 
+    /// @brief Signal called when a PDU has been sent.
+    boost::signals2::signal<void(dul::PDU::Pointer)> sent;
+
     /// @brief Network socket for the underlying TCP transport.
     boost::asio::ip::tcp::socket & socket;
 
@@ -166,7 +169,8 @@ private:
     /// @addtogroup dul_handlers boost::asio handlers
     /// @{
 
-    void _sent_handler(boost::system::error_code const & error);
+    void _sent_handler(
+        dul::PDU::Pointer pdu, boost::system::error_code const & error);
 
     void _receive_handler(
             boost::system::error_code const & error=boost::system::error_code(),
