@@ -14,7 +14,7 @@ The core of Odil depends on:
 
 - C++ 11 (GCC >= 4.7, Clang)
 - `CMake`_ (>= 2.8.9)
-- `Boost`_ (>= 1.54, uses `Asio`_, `Date Time`_, `Filesystem`_, `Fusion`_, `Log`, `Preprocessor`_, `Property Tree`_, `Spirit`_, `Uuid`_)
+- `Boost`_ (>= 1.54, uses `Asio`_, `Date Time`_, `Filesystem`_, `Fusion`_, `Preprocessor`_, `Property Tree`_, `Spirit`_, `Uuid`_)
 - `ICU4C`_ (>= 4.8.1.1)
 - `JsonCpp`_ (>= 0.6.0)
 

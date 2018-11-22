@@ -11,6 +11,7 @@
 
 #include <memory>
 #include <ostream>
+#include <sstream>
 #include <string>
 
 #include "odil/odil.h"
@@ -29,6 +30,9 @@ enum class ODIL_API Level
 };
 
 class Formatter;
+
+/// @brief Return the global log level.
+Level get_level();
 
 /// @brief Set the global log level (default to off).
 void set_level(Level level);

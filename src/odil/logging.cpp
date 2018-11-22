@@ -24,32 +24,9 @@ namespace odil
 namespace logging
 {
 
-Formatter
-::Formatter(std::ostream * stream, Level level, Level min_level)
-: active(level >= min_level), buffer(new std::ostringstream), _stream(stream)
+Level get_level()
 {
-    if(this->active && this->_stream)
-    {
-        auto const now = std::time(nullptr);
-        
-        static char time_buffer[100];
-        std::strftime(time_buffer, sizeof(time_buffer), "%F %T", std::localtime(&now));
-
-        (*this->buffer)
-            // WARNING: put_time is missing in g++ <= 4.9
-            //<< std::put_time(std::localtime(&now), "%F %T") << " "
-            << time_buffer << " "
-            << as_string(level) << " " << std::this_thread::get_id() << ": ";
-    }
-}
-
-Formatter
-::~Formatter()
-{
-    if(this->active && this->_stream)
-    {
-        (*this->_stream) << this->buffer->str() << std::endl;
-    }
+    return odil::logging::Logger::get().get_level();
 }
 
 void set_level(Level level)
@@ -75,6 +52,34 @@ std::string as_string(Level level)
     else
     {
         throw std::runtime_error("Unknown logging level");
+    }
+}
+
+Formatter
+::Formatter(std::ostream * stream, Level level, Level min_level)
+: active(level >= min_level), buffer(new std::ostringstream), _stream(stream)
+{
+    if(this->active && this->_stream)
+    {
+        auto const now = std::time(nullptr);
+        
+        static char time_buffer[100];
+        std::strftime(time_buffer, sizeof(time_buffer), "%F %T", std::localtime(&now));
+
+        (*this->buffer)
+            // WARNING: put_time is missing in g++ <= 4.9
+            //<< std::put_time(std::localtime(&now), "%F %T") << " "
+            << time_buffer << " "
+            << as_string(level) << " " << std::this_thread::get_id() << ": ";
+    }
+}
+
+Formatter
+::~Formatter()
+{
+    if(this->active && this->_stream)
+    {
+        (*this->_stream) << this->buffer->str() << std::endl;
     }
 }
 
