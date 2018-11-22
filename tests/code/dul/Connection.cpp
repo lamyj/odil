@@ -98,6 +98,30 @@ BOOST_FIXTURE_TEST_CASE(OdilRequestorDCMTKReject, Fixture)
 BOOST_FIXTURE_TEST_CASE(OdilRequestorDCMTKAbort, Fixture)
 { this->test_odil_requestor("abort"); }
 
+BOOST_FIXTURE_TEST_CASE(ReuseRequestor, Fixture)
+{
+    this->test_odil_requestor("accept");
+    // WARNING: can we call restart in Connection? If the service object is
+    // user-provided, this might not be a good idea (assuming we were in the 
+    // function, this would read connection.socket.get_io_service().restart).
+    this->service.restart();
+    this->test_odil_requestor("accept");
+}
+
+BOOST_FIXTURE_TEST_CASE(ReuseAcceptor, Fixture)
+{
+    this->test_odil_acceptor("accept", true);
+    this->service.restart();
+    this->test_odil_acceptor("accept", true);
+}
+
+BOOST_FIXTURE_TEST_CASE(ReuseAcceptorRequestor, Fixture)
+{
+    this->test_odil_acceptor("accept", true);
+    this->service.restart();
+    this->test_odil_requestor("accept");
+}
+
 std::random_device Fixture::random_device{};
 std::mt19937 Fixture::random_generator{Fixture::random_device()};
 std::uniform_int_distribution<Port> Fixture::random_distribution{49152, 65535};
