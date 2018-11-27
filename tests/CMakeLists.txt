@@ -45,7 +45,10 @@ foreach(test_file ${tests})
         set(test "${unit}")
     endif()
 
-    add_executable(test_${test} ${test_file} ${headers} ${extra_files})
+    add_executable(
+        test_${test} ${test_file} 
+        ${CMAKE_CURRENT_SOURCE_DIR}/ConnectionFixtureBase.cpp ${headers} 
+        ${extra_files})
     
     target_link_libraries(
         test_${test} libodil ${Boost_LIBRARIES} ${DCMTK_LIBRARIES})

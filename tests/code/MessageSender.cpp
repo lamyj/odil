@@ -1,11 +1,7 @@
 #define BOOST_TEST_MODULE MessageSender
 #include <boost/test/unit_test.hpp>
 
-#include <random>
 #include <thread>
-
-#include <dcmtk/dcmnet/assoc.h>
-#include <dcmtk/dcmnet/dimse.h>
 
 #include "odil/AssociationParameters.h"
 #include "odil/dul/AAssociateAC.h"
@@ -18,36 +14,18 @@
 #include "odil/MessageSender.h"
 #include "odil/registry.h"
 
-using Port = unsigned short;
+#include "../ConnectionFixtureBase.h"
 
-class Fixture
+struct Fixture: public ConnectionFixtureBase
 {
 public:
-    using Service = boost::asio::io_service;
-    using Socket = boost::asio::ip::tcp::socket;
-    using Endpoint = boost::asio::ip::tcp::endpoint;
-
-    static std::random_device random_device;
-    static std::mt19937 random_generator;
-    static std::uniform_int_distribution<Port> random_distribution;
-
-    Service service;
-    Socket socket;
-    Endpoint endpoint;
-
     odil::AssociationParameters parameters;
     bool odil_success;
     odil::dul::PDU::Pointer error_pdu;
     boost::system::error_code error_code;
 
-    std::vector<T_DIMSE_Message> dcmtk_messages;
-    std::vector<T_ASC_PresentationContextID> dcmtk_context_ids;
-    std::vector<DcmDataset*> dcmtk_data_sets;
-
     Fixture();
     
-    void dcmtk_acceptor(Port port, bool receive_data_set);
-
     void success_handler();
     void error_handler(
         odil::dul::PDU::Pointer pdu, boost::system::error_code code);
@@ -55,12 +33,9 @@ public:
 
 BOOST_FIXTURE_TEST_CASE(CommandOnly, Fixture)
 {
-    auto const port = Fixture::random_distribution(Fixture::random_generator);
+    this->setup_odil_requestor();
 
-    this->endpoint = boost::asio::ip::tcp::endpoint(
-        boost::asio::ip::address_v4::from_string("127.0.0.1"), port);
-
-    std::thread acceptor([&](){ this->dcmtk_acceptor(port, false); });
+    std::thread acceptor([&](){ this->dcmtk_acceptor("accept"); });
 
     odil::dul::Connection connection(this->socket);
     
@@ -115,12 +90,9 @@ BOOST_FIXTURE_TEST_CASE(CommandOnly, Fixture)
 
 BOOST_FIXTURE_TEST_CASE(CommandAndDataSet, Fixture)
 {
-    auto const port = Fixture::random_distribution(Fixture::random_generator);
-
-    this->endpoint = boost::asio::ip::tcp::endpoint(
-        boost::asio::ip::address_v4::from_string("127.0.0.1"), port);
-
-    std::thread acceptor([&](){ this->dcmtk_acceptor(port, true); });
+    this->setup_odil_requestor();
+    
+    std::thread acceptor([&](){ this->dcmtk_acceptor("accept"); });
 
     odil::dul::Connection connection(this->socket);
     
@@ -183,13 +155,9 @@ BOOST_FIXTURE_TEST_CASE(CommandAndDataSet, Fixture)
     BOOST_REQUIRE_NE(this->dcmtk_data_sets[0], nullptr);
 }
 
-std::random_device Fixture::random_device{};
-std::mt19937 Fixture::random_generator{Fixture::random_device()};
-std::uniform_int_distribution<Port> Fixture::random_distribution{49152, 65535};
-
 Fixture
 ::Fixture()
-: service(), socket(service), endpoint(), parameters(), odil_success(false),
+: ConnectionFixtureBase(), parameters(), odil_success(false),
     error_pdu(nullptr), error_code()
 {
     this->parameters
@@ -198,58 +166,6 @@ Fixture
             {
                 1, odil::registry::RawDataStorage,
                 { odil::registry::ImplicitVRLittleEndian }, true, false } });
-}
-
-void 
-Fixture
-::dcmtk_acceptor(Port port, bool receive_data_set)
-{
-    OFCondition condition;
-
-    T_ASC_Network * network;
-    condition = ASC_initializeNetwork(NET_ACCEPTOR, port, 5, &network);
-    if(!condition.good())
-    {
-        throw std::runtime_error("Could not initialize network");
-    }
-
-    T_ASC_Association *association;
-    condition = ASC_receiveAssociation(network, &association, ASC_DEFAULTMAXPDU);
-    if(!condition.good())
-    {
-        throw std::runtime_error(
-            std::string("Could not receive association: ")+condition.text());
-    }
-
-    ASC_acceptPresentationContext(
-        association->params, 1, UID_LittleEndianImplicitTransferSyntax);
-    ASC_acknowledgeAssociation(association);
-
-    T_ASC_PresentationContextID context_id;
-    T_DIMSE_Message message;
-    
-    while(condition != DUL_PEERREQUESTEDRELEASE)
-    {
-        condition = DIMSE_receiveCommand(
-            association, DIMSE_BLOCKING, 0, &context_id, &message, nullptr);
-        if(condition.good())
-        {
-            this->dcmtk_messages.push_back(message);
-            this->dcmtk_context_ids.push_back(context_id);
-
-            DcmDataset * data_set=nullptr;
-            if(receive_data_set)
-            {
-                condition = DIMSE_receiveDataSetInMemory(
-                    association, DIMSE_BLOCKING, 0, &context_id, &data_set, 
-                    nullptr, nullptr);
-                this->dcmtk_data_sets.push_back(data_set);
-            }
-        }
-    }
-    
-    ASC_acknowledgeRelease(association);
-    ASC_dropNetwork(&network);
 }
 
 void

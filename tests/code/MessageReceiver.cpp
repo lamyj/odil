@@ -1,12 +1,9 @@
 #define BOOST_TEST_MODULE MessageReceiver
 #include <boost/test/unit_test.hpp>
 
-#include <random>
 #include <thread>
 
 #include <dcmtk/dcmdata/dctk.h>
-#include <dcmtk/dcmnet/assoc.h>
-#include <dcmtk/dcmnet/dimse.h>
 
 #include "odil/AssociationParameters.h"
 #include "odil/dul/AAssociateAC.h"
@@ -18,25 +15,11 @@
 #include "odil/MessageReceiver.h"
 #include "odil/registry.h"
 
-using Port = unsigned short;
+#include "../ConnectionFixtureBase.h"
 
-class Fixture
+class Fixture: public ConnectionFixtureBase
 {
 public:
-    using Service = boost::asio::io_service;
-    using Socket = boost::asio::ip::tcp::socket;
-    using Endpoint = boost::asio::ip::tcp::endpoint;
-    using Acceptor = boost::asio::ip::tcp::acceptor;
-
-    static std::random_device random_device;
-    static std::mt19937 random_generator;
-    static std::uniform_int_distribution<Port> random_distribution;
-
-    Service service;
-    Socket socket;
-    Endpoint endpoint;
-    std::shared_ptr<Fixture::Acceptor> socket_acceptor;
-
     odil::dul::Connection connection;
     std::map<uint8_t, std::string> transfer_syntaxes_by_id;
 
@@ -44,13 +27,8 @@ public:
     odil::dul::PDU::Pointer error_pdu;
     boost::system::error_code error_code;
     
-
     Fixture();
     
-    void dcmtk_requestor(
-        Port port, char const * abstract_syntax, 
-        T_DIMSE_Message * message, DcmDataset * data_set);
-
     odil::dul::PDU::Pointer request_acceptor(odil::dul::AAssociateRQ::Pointer request);
 
     void on_success(std::shared_ptr<odil::message::Message> message);
@@ -76,9 +54,9 @@ BOOST_FIXTURE_TEST_CASE(CommandOnly, Fixture)
     std::thread requestor(
         [&](){ 
             this->dcmtk_requestor(
-                this->endpoint.port(), 
                 UID_VerificationSOPClass, 
-                &dcmtk_message, nullptr); });
+                UID_LittleEndianImplicitTransferSyntax,
+                false, &dcmtk_message, nullptr); });
 
     this->service.run();
     requestor.join();    
@@ -117,9 +95,9 @@ BOOST_FIXTURE_TEST_CASE(CommandAndDataSet, Fixture)
     std::thread requestor(
         [&](){ 
             this->dcmtk_requestor(
-                this->endpoint.port(), 
                 UID_FINDPatientRootQueryRetrieveInformationModel, 
-                &dcmtk_message, &data_set); });
+                UID_LittleEndianImplicitTransferSyntax,
+                false, &dcmtk_message, &data_set); });
     
     this->service.run();
     requestor.join();    
@@ -176,9 +154,9 @@ BOOST_FIXTURE_TEST_CASE(MultiPDU, Fixture)
     std::thread requestor(
         [&](){ 
             this->dcmtk_requestor(
-                this->endpoint.port(), 
                 UID_FINDPatientRootQueryRetrieveInformationModel, 
-                &dcmtk_message, &data_set); });
+                UID_LittleEndianImplicitTransferSyntax,
+                false, &dcmtk_message, &data_set); });
     
     this->service.run();
     requestor.join();    
@@ -204,59 +182,21 @@ BOOST_FIXTURE_TEST_CASE(MultiPDU, Fixture)
     BOOST_REQUIRE(!this->error_code);
 }
 
-std::random_device Fixture::random_device{};
-std::mt19937 Fixture::random_generator{Fixture::random_device()};
-std::uniform_int_distribution<Port> Fixture::random_distribution{49152, 65535};
-
 Fixture
 ::Fixture()
-: service(), socket(service), endpoint(), socket_acceptor(nullptr),
+: ConnectionFixtureBase(), 
     connection(this->socket), transfer_syntaxes_by_id(),
     message(nullptr), error_pdu(nullptr), error_code()
 {
+    this->setup_odil_receiver();
     this->connection.acceptor = boost::bind(&Fixture::request_acceptor, this, _1);
 
-    auto const port = 11112; //Fixture::random_distribution(Fixture::random_generator);
-    
-    this->endpoint = Fixture::Endpoint(boost::asio::ip::tcp::v4(), port);
-    this->socket_acceptor = std::make_shared<Fixture::Acceptor>(this->service, endpoint);
-    this->socket_acceptor->async_accept(
+    this->acceptor.async_accept(
         this->socket,
         [&](boost::system::error_code error) {
             connection.transport_connection.indication(error);
         }
     );
-}
-
-void
-Fixture
-::dcmtk_requestor(
-    Port port, char const * abstract_syntax, 
-    T_DIMSE_Message * message, DcmDataset * data_set)
-{
-    T_ASC_Network * network;
-    ASC_initializeNetwork(NET_REQUESTOR, 0, 5, &network);
-
-    T_ASC_Parameters * parameters;
-    ASC_createAssociationParameters(&parameters, ASC_DEFAULTMAXPDU);
-    ASC_setAPTitles(parameters, "calling", "called", nullptr);
-
-    auto const peer_address = "localhost:"+std::to_string(port);
-    ASC_setPresentationAddresses(parameters, "localhost", peer_address.c_str());
-
-    char const * ts[] = { UID_LittleEndianExplicitTransferSyntax };
-    ASC_addPresentationContext(parameters, 1, abstract_syntax, ts, 1);
-
-    OFCondition condition;
-
-    T_ASC_Association *association;
-    condition = ASC_requestAssociation(network, parameters, &association);
-    DIMSE_sendMessageUsingMemoryData(
-        association, 1, message, nullptr, data_set, nullptr, nullptr);
-    ASC_releaseAssociation(association);
-    ASC_destroyAssociation(&association);
-    
-    ASC_dropNetwork(&network);
 }
 
 odil::dul::PDU::Pointer
