@@ -288,6 +288,22 @@ Connection
     return this->_state;
 }
 
+Connection::Status
+Connection
+::get_status() const
+{
+    int const state = this->_state;
+    if(state == 1) { return Status::NoAssociation; }
+    else if(state >= 2 && state <= 5) { return Status::AssociationEstablishment; }
+    else if(state >= 6 && state <= 7) { return Status::DataTransfer; }
+    else if(state >= 8 && state <= 12) { return Status::AssociationRelease; }
+    else if(state == 13) { return Status::WaitForTransportClose; }
+    else
+    {
+        throw Exception("Unknown state: "+std::to_string(state));
+    }
+}
+
 void
 Connection
 ::_sent_handler(dul::PDU::Pointer pdu, boost::system::error_code const & error)

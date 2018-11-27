@@ -64,6 +64,16 @@ public:
     /// @brief Acceptor function: its value is returned to the requestor.
     using Acceptor = std::function<PDU::Pointer(AAssociateRQ::Pointer)>;
 
+    /// @brief Status of the DUL connection (cf. PS3.8, table 9-10)
+    enum class Status
+    {
+        NoAssociation,
+        AssociationEstablishment,
+        DataTransfer,
+        AssociationRelease,
+        WaitForTransportClose
+    };
+
     /**
      * @addtogroup dul_primitives DICOM Upper Layer service primitives
      * @warning Primitives should not be called directly by the user. However,
@@ -137,6 +147,9 @@ public:
 
     /// @brief Return the current state of the state machine.
     int get_state() const;
+
+    /// @brief Return the current status of the state machine.
+    Status get_status() const;
 
 private:
     /// @brief Reception stage of a PDU
