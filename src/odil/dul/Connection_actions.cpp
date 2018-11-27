@@ -102,14 +102,14 @@ Connection
     auto const response = this->acceptor(pdu);
     if(response->get_pdu_type() == AAssociateAC::type)
     {
-        logging::debug() << "Association request accepted";
+        logging::trace() << "Association request accepted";
         this->_state = 3;
         this->socket.get_io_service().post(
             [=]() { this->a_associate.response(response); });
     }
     else if(response->get_pdu_type() == AAssociateRJ::type)
     {
-        logging::debug() << "Association request rejected";
+        logging::trace() << "Association request rejected";
         // WARNING: standard says to send RJ and switch to state 13. However,
         // this is AE-8, which needs to happen in state 3.
         this->_state = 3;
@@ -118,7 +118,7 @@ Connection
     }
     else if(response->get_pdu_type() == AAbort::type)
     {
-        logging::debug() << "Association request aborted";
+        logging::trace() << "Association request aborted";
         this->_state = 3;
         this->socket.get_io_service().post(
             [=]() {
