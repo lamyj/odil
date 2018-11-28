@@ -11,6 +11,8 @@
 #include <boost/filesystem.hpp>
 
 #include "odil/Association.h"
+#include "odil/AssociationAborted.h"
+#include "odil/AssociationReleased.h"
 #include "odil/AssociationParameters.h"
 #include "odil/DataSet.h"
 #include "odil/MoveSCP.h"
@@ -85,7 +87,7 @@ public:
         return 2;
     }
 
-    virtual odil::Association get_association(
+    virtual odil::Association && get_association(
         std::shared_ptr<odil::message::CMoveRequest const> request) const
     {
         odil::Association move_association;
@@ -108,8 +110,7 @@ public:
             .set_called_ae_title(request->get_move_destination())
             .set_presentation_contexts(presentation_contexts);
 
-        std::cout << "get_association done" << std::endl;
-        return move_association;
+        return std::move(move_association);
     }
 
 private:
@@ -121,7 +122,8 @@ private:
 void run_server(Status * status)
 {
     odil::Association association;
-    association.set_tcp_timeout(boost::posix_time::seconds(1));
+    // FIXME
+    // association.set_tcp_timeout(boost::posix_time::seconds(1));
 
     try
     {

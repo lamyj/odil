@@ -70,7 +70,8 @@ MoveSCP
     Association move_association;
     try
     {
-        move_association = this->_generator->get_association(request);
+        // FIXME
+        // move_association = this->_generator->get_association(request);
     }
     catch(odil::Exception const & e)
     {

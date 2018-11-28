@@ -22,45 +22,6 @@ BOOST_AUTO_TEST_CASE(DefaultConstructor)
     BOOST_CHECK(!association.is_associated());
 }
 
-BOOST_AUTO_TEST_CASE(CopyConstructor)
-{
-    odil::Association association;
-    association.set_peer_host("pacs.example.com");
-    association.set_peer_port(11112);
-    association.update_parameters()
-        .set_called_ae_title("remote")
-        .set_user_identity_to_username_and_password("foo", "bar");
-
-    odil::Association const other(association);
-
-    BOOST_CHECK_EQUAL(other.get_peer_host(), association.get_peer_host());
-    BOOST_CHECK_EQUAL(other.get_peer_port(), association.get_peer_port());
-    BOOST_CHECK(
-        association.get_parameters() ==
-            other.get_parameters()
-    );
-}
-
-BOOST_AUTO_TEST_CASE(Assignment)
-{
-    odil::Association association;
-    association.set_peer_host("pacs.example.com");
-    association.set_peer_port(11112);
-    association.update_parameters()
-        .set_called_ae_title("remote")
-        .set_user_identity_to_username_and_password("foo", "bar");
-
-    odil::Association other;
-    other = association;
-
-    BOOST_CHECK_EQUAL(other.get_peer_host(), association.get_peer_host());
-    BOOST_CHECK_EQUAL(other.get_peer_port(), association.get_peer_port());
-    BOOST_CHECK(
-        association.get_parameters() ==
-            other.get_parameters()
-    );
-}
-
 BOOST_AUTO_TEST_CASE(PeerHostName)
 {
     odil::Association association;

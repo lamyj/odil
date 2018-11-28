@@ -17,9 +17,12 @@
 
 #include "odil/AssociationAcceptor.h"
 #include "odil/AssociationParameters.h"
+#include "odil/AssociationReceiver.h"
+#include "odil/AssociationRequester.h"
 #include "odil/dul/Connection.h"
-#include "odil/dul/StateMachine.h"
 #include "odil/message/Message.h"
+#include "odil/MessageReceiver.h"
+#include "odil/MessageSender.h"
 #include "odil/odil.h"
 
 namespace odil
@@ -76,26 +79,28 @@ public:
         NoPresentationServiceAccessPointAvailable=7,
     };
 
-    /// @brief Duration of the timeout.
-    typedef dul::StateMachine::duration_type duration_type;
-
     using ErrorHandler = 
         std::function<void(dul::PDU::Pointer, boost::system::error_code)>;
 
-    /// @brief Create a default, un-associated, association.
+    /// @brief Create an association along with a new io_service.
     Association();
 
-    /// @brief Create an un-associated association.
-    Association(Association const & other);
+    /// @brief Create an association along using an existing io_service.
+    Association(boost::asio::io_service & service);
 
     /// @brief Destroy the association, release it if necessary.
     ~Association();
 
-    /// @brief Return the TCP transport.
-    dul::Transport & get_transport();
+    Association(Association const &) = delete;
+    Association(Association &&) = default;
 
-    /// @brief Assing an un-associated association; it remains un-associated.
-    Association & operator=(Association const & other);
+    Association & operator=(Association const &) = delete;
+    Association & operator=(Association &&) = default;
+
+    /// @brief Return the I/O service.
+    boost::asio::io_service & get_io_service();
+
+    boost::asio::ip::tcp::socket & get_socket();
 
     /// @name Peer
     /// @{
@@ -128,16 +133,20 @@ public:
     /// @{
 
     /// @brief Return the TCP timeout, default to infinity.
-    duration_type get_tcp_timeout() const;
+    // FIXME
+    // duration_type get_tcp_timeout() const;
 
     /// @brief Set the timeout.
-    void set_tcp_timeout(duration_type const & duration);
+    // FIXME
+    // void set_tcp_timeout(duration_type const & duration);
 
     /// @brief Return the DIMSE timeout, default to 30s.
-    duration_type get_message_timeout() const;
+    // FIXME
+    // duration_type get_message_timeout() const;
 
     /// @brief Set the DIMSE timeout.
-    void set_message_timeout(duration_type const & duration);
+    // FIXME
+    // void set_message_timeout(duration_type const & duration);
 
     /// @}
 
@@ -163,7 +172,7 @@ public:
      * - An error occurs on the transport
      */ 
     void associate(
-        std::function<void(Association &)> success_handler, 
+        std::function<void(dul::AAssociateAC::Pointer)> success_handler, 
         ErrorHandler error_handler);
 
     /// @brief Synchronously receive an association from a peer.
@@ -181,7 +190,7 @@ public:
      */
     void receive_association(
         boost::asio::ip::tcp const & protocol, unsigned short port,
-        std::function<void(Association &)> success_handler, 
+        std::function<void(dul::PDU::Pointer)> success_handler, 
         ErrorHandler error_handler,
         AssociationAcceptor acceptor=default_association_acceptor);
 
@@ -213,10 +222,19 @@ public:
      */
     std::shared_ptr<message::Message> receive_message();
 
+    void receive_message(
+        std::function<void(std::shared_ptr<message::Message>)> message_handler,
+        ErrorHandler error_handler);
+
     /// @brief Send a DIMSE message.
     void send_message(
         std::shared_ptr<message::Message const> message,
         std::string const & abstract_syntax);
+    
+    void send_message(
+        std::shared_ptr<message::Message const> message,
+        std::string const & abstract_syntax,
+        std::function<void()> success_handler, ErrorHandler error_handler);
 
     /// @brief Return the next available message id.
     uint16_t next_message_id();
@@ -224,7 +242,22 @@ public:
     /// @}
 
 private:
-    dul::StateMachine _state_machine;
+    /**
+     * @brief An io_service owned by the instance.
+     * 
+     * This pointer will be non-null if the default constructor was used.
+     */
+    std::shared_ptr<boost::asio::io_service> _own_service;
+
+    /**
+     * @brief This reference is bound either to the object supplied by the 
+     * non-default constructor or to the non-null pointer created by the default
+     * constructor.
+     */
+    boost::asio::io_service & _service;
+
+    boost::asio::ip::tcp::socket _socket;
+    dul::Connection _connection;
 
     std::string _peer_host;
     uint16_t _peer_port;
@@ -246,12 +279,15 @@ private:
      */
     /// {@
 
-    std::vector<boost::signals2::connection> _associate_connections;
-    std::vector<boost::signals2::connection> _receive_association_connections;
     std::vector<boost::signals2::connection> _release_connections;
     std::vector<boost::signals2::connection> _abort_connections;
     
     /// @}
+
+    std::shared_ptr<AssociationRequester> _association_requester;
+    std::shared_ptr<AssociationReceiver> _association_receiver;
+    std::shared_ptr<MessageReceiver> _message_receiver;
+    std::shared_ptr<MessageSender> _message_sender;
 };
 
 }

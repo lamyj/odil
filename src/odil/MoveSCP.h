@@ -41,7 +41,7 @@ public:
          * If the move destination is unknown, an odil::Exception must be
          * thrown.
          */
-        virtual Association get_association(
+        virtual Association && get_association(
             std::shared_ptr<message::CMoveRequest const>) const =0;
     };
 

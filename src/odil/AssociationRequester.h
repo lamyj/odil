@@ -25,6 +25,7 @@
 namespace odil
 {
 
+/// @brief Request an association and handle success/error notification.
 class ODIL_API AssociationRequester
 {
 public:

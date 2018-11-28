@@ -6,6 +6,8 @@
 #include <thread>
 
 #include "odil/Association.h"
+#include "odil/AssociationAborted.h"
+#include "odil/AssociationReleased.h"
 #include "odil/EchoSCP.h"
 #include "odil/Exception.h"
 #include "odil/SCPDispatcher.h"
@@ -22,7 +24,8 @@ struct Status
 void run_server(Status * status, bool with_echo)
 {
     odil::Association association;
-    association.set_tcp_timeout(boost::posix_time::seconds(1));
+    //FIXME
+    // association.set_tcp_timeout(boost::posix_time::seconds(1));
 
     try
     {

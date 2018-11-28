@@ -1,6 +1,10 @@
+#include <iostream>
+
 #include <boost/asio.hpp>
 
 #include "odil/Association.h"
+#include "odil/AssociationAborted.h"
+#include "odil/AssociationReleased.h"
 #include "odil/DataSet.h"
 #include "odil/EchoSCP.h"
 #include "odil/FindSCP.h"

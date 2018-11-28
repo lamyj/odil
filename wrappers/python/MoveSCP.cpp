@@ -38,13 +38,14 @@ public:
         PYBIND11_OVERLOAD_PURE(unsigned int, odil::MoveSCP::DataSetGenerator, count, );
     }
     
-    virtual odil::Association 
-    get_association(std::shared_ptr<odil::message::CMoveRequest const> request) const override
-    {
-        PYBIND11_OVERLOAD_PURE(
-            odil::Association, odil::MoveSCP::DataSetGenerator, get_association,
-            request);
-    }
+    // FIXME
+    // virtual odil::Association 
+    // get_association(std::shared_ptr<odil::message::CMoveRequest const> request) const override
+    // {
+    //     PYBIND11_OVERLOAD_PURE(
+    //         odil::Association, odil::MoveSCP::DataSetGenerator, get_association,
+    //         request);
+    // }
 };
 
 }
@@ -65,17 +66,18 @@ void wrap_MoveSCP(pybind11::module & m)
         )
     ;
     
-    class_<
-                MoveSCP::DataSetGenerator,
-                DataSetGeneratorWrapperMove, // trampoline
-                std::shared_ptr<MoveSCP::DataSetGenerator> // holder
-            >(move_scp_scope, "DataSetGenerator")
-        .def(init<>())
-        .def("initialize", &MoveSCP::DataSetGenerator::initialize)
-        .def("done", &MoveSCP::DataSetGenerator::done)
-        .def("next", &MoveSCP::DataSetGenerator::next)
-        .def("get", &MoveSCP::DataSetGenerator::get)
-        .def("count", &MoveSCP::DataSetGenerator::count)
-        .def("get_association", &MoveSCP::DataSetGenerator::get_association)
-    ;
+    // FIXME
+    // class_<
+    //             MoveSCP::DataSetGenerator,
+    //             DataSetGeneratorWrapperMove, // trampoline
+    //             std::shared_ptr<MoveSCP::DataSetGenerator> // holder
+    //         >(move_scp_scope, "DataSetGenerator")
+    //     .def(init<>())
+    //     .def("initialize", &MoveSCP::DataSetGenerator::initialize)
+    //     .def("done", &MoveSCP::DataSetGenerator::done)
+    //     .def("next", &MoveSCP::DataSetGenerator::next)
+    //     .def("get", &MoveSCP::DataSetGenerator::get)
+    //     .def("count", &MoveSCP::DataSetGenerator::count)
+    //     .def("get_association", &MoveSCP::DataSetGenerator::get_association)
+    // ;
 }

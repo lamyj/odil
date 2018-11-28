@@ -11,6 +11,8 @@
 #include <pybind11/pybind11.h>
 
 #include "odil/Association.h"
+#include "odil/AssociationAborted.h"
+#include "odil/AssociationReleased.h"
 
 namespace
 {
@@ -28,16 +30,18 @@ void receive_association(
     }
 }
 
-float get_tcp_timeout(odil::Association const& association)
-{
-    return association.get_tcp_timeout().total_microseconds()/1000000.f;
-}
+// FIXME
+// float get_tcp_timeout(odil::Association const& association)
+// {
+//     return association.get_tcp_timeout().total_microseconds()/1000000.f;
+// }
 
-void set_tcp_timeout(odil::Association& association, float seconds)
-{
-    association.set_tcp_timeout(
-        boost::posix_time::microseconds(int(seconds*1000000.f)));
-}
+// FIXME
+// void set_tcp_timeout(odil::Association& association, float seconds)
+// {
+//     association.set_tcp_timeout(
+//         boost::posix_time::microseconds(int(seconds*1000000.f)));
+// }
 
 }
 
@@ -62,17 +66,22 @@ void wrap_Association(pybind11::module & m)
         .def(
             "get_negotiated_parameters", &Association::get_negotiated_parameters,
             return_value_policy::reference_internal)
-        .def("get_tcp_timeout", &get_tcp_timeout)
-        .def("set_tcp_timeout", &set_tcp_timeout)
+        // FIXME
+        // .def("get_tcp_timeout", &get_tcp_timeout)
+        // .def("set_tcp_timeout", &set_tcp_timeout)
         .def("is_associated", &Association::is_associated)
-        .def("associate", &Association::associate)
+        // FIXME
+        // .def("associate", &Association::associate)
         .def("receive_association", &receive_association)
+        // FIXME
         //.def("reject", &Association::reject)
-        .def("release", &Association::release)
-        .def("abort", &Association::abort)
-        .def("receive_message", &Association::receive_message)
+        // FIXME
+        // .def("release", &Association::release)
+        // .def("abort", &Association::abort)
+        // .def("receive_message", &Association::receive_message)
         .def("next_message_id", &Association::next_message_id)
-        .def("send_message", &Association::send_message)
+        // FIXME
+        // .def("send_message", &Association::send_message)
     ;
 
     enum_<Association::Result>(association_scope, "Result")

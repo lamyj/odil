@@ -14,6 +14,8 @@
 #include <vector>
 
 #include "odil/Association.h"
+#include "odil/AssociationAborted.h"
+#include "odil/AssociationReleased.h"
 #include "odil/DataSet.h"
 #include "odil/Exception.h"
 #include "odil/logging.h"
@@ -105,8 +107,9 @@ MoveSCU
         {
             // Use a small timeout to avoid blocking for a long time.
             boost::posix_time::milliseconds const timeout(10);
-            store_association.set_tcp_timeout(timeout);
-            store_association.set_message_timeout(timeout);
+            // FIXME
+            // store_association.set_tcp_timeout(timeout);
+            // store_association.set_message_timeout(timeout);
 
             if(!store_association.is_associated())
             {
@@ -114,10 +117,11 @@ MoveSCU
                 {
                     store_association.receive_association(
                         boost::asio::ip::tcp::v4(), this->_incoming_port);
-                    store_association.set_tcp_timeout(
-                        this->_association.get_tcp_timeout());
-                    store_association.set_message_timeout(
-                        this->_association.get_message_timeout());
+                    // FIXME
+                    // store_association.set_tcp_timeout(
+                    //     this->_association.get_tcp_timeout());
+                    // store_association.set_message_timeout(
+                    //     this->_association.get_message_timeout());
                 }
                 catch(Exception const & e)
                 {
@@ -159,12 +163,12 @@ MoveSCU
     bool main_done = false;
     while(!(store_done && main_done))
     {
-        if(!store_done && store_association.get_transport().get_socket()->available() > 0)
+        if(!store_done && store_association.get_socket().available() > 0)
         {
             store_done = this->_handle_store_association(
                 store_association, store_callback);
         }
-        if(!main_done && this->_association.get_transport().get_socket()->available() > 0)
+        if(!main_done && this->_association.get_socket().available() > 0)
         {
             main_done = this->_handle_main_association(move_callback);
         }
