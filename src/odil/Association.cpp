@@ -255,7 +255,7 @@ Association
     boost::asio::ip::tcp::resolver::query const query(
         this->_peer_host, std::to_string(this->_peer_port));
     auto const endpoint_it = resolver.resolve(query);
-    if(endpoint_it.empty())
+    if(endpoint_it != boost::asio::ip::tcp::resolver::iterator())
     {
         throw Exception("Cannot resolve peer host: "+this->_peer_host);
     }
