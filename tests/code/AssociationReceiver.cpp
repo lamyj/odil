@@ -1,6 +1,8 @@
 #define BOOST_TEST_MODULE AssociationReceiver
 #include <boost/test/unit_test.hpp>
 
+#include <thread>
+
 #include "odil/AssociationParameters.h"
 #include "odil/AssociationReceiver.h"
 #include "odil/dul/AAbort.h"
