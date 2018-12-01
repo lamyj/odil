@@ -93,7 +93,12 @@ ConnectionFixtureBase
                 DcmDataset * data_set=nullptr;
                 Uint16 data_set_type;
                 command_set->findAndGetUint16(
-                    DCM_CommandDataSetType, data_set_type);
+#ifdef DCM_CommandDataSetType
+                    DCM_CommandDataSetType, 
+#else
+                    DCM_DataSetType,
+#endif
+                    data_set_type);
                 if(data_set_type != DIMSE_DATASET_NULL)
                 {
                     condition = DIMSE_receiveDataSetInMemory(
