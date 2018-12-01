@@ -50,7 +50,8 @@ BOOST_FIXTURE_TEST_CASE(CommandOnly, Fixture)
 
     T_DIMSE_Message dcmtk_message;
     dcmtk_message.CommandField = DIMSE_C_ECHO_RQ;
-    dcmtk_message.msg.CEchoRQ = {1, UID_VerificationSOPClass, DIMSE_DATASET_NULL};
+    dcmtk_message.msg.CEchoRQ = T_DIMSE_C_EchoRQ{
+        1, UID_VerificationSOPClass, DIMSE_DATASET_NULL};
     std::thread requestor(
         [&](){ 
             this->dcmtk_requestor(
@@ -85,7 +86,7 @@ BOOST_FIXTURE_TEST_CASE(CommandAndDataSet, Fixture)
 
     T_DIMSE_Message dcmtk_message;
     dcmtk_message.CommandField = DIMSE_C_FIND_RQ;
-    dcmtk_message.msg.CFindRQ = {
+    dcmtk_message.msg.CFindRQ = T_DIMSE_C_FindRQ{
         1, UID_FINDPatientRootQueryRetrieveInformationModel, 
         DIMSE_PRIORITY_MEDIUM, DIMSE_DATASET_PRESENT};
     DcmDataset data_set;
@@ -137,7 +138,7 @@ BOOST_FIXTURE_TEST_CASE(MultiPDU, Fixture)
 
     T_DIMSE_Message dcmtk_message;
     dcmtk_message.CommandField = DIMSE_C_FIND_RQ;
-    dcmtk_message.msg.CFindRQ = {
+    dcmtk_message.msg.CFindRQ = T_DIMSE_C_FindRQ{
         1, UID_FINDPatientRootQueryRetrieveInformationModel, 
         DIMSE_PRIORITY_MEDIUM, DIMSE_DATASET_PRESENT};
     DcmDataset data_set;

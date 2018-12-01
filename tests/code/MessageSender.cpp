@@ -68,7 +68,7 @@ BOOST_FIXTURE_TEST_CASE(CommandOnly, Fixture)
     acceptor.join();
 
     BOOST_REQUIRE(this->odil_success);
-    BOOST_REQUIRE_EQUAL(this->error_pdu, nullptr);
+    BOOST_REQUIRE(this->error_pdu == nullptr);
     BOOST_REQUIRE_EQUAL(this->error_code, boost::system::error_code());
 
     BOOST_REQUIRE_EQUAL(this->dcmtk_messages.size(), 1);
@@ -134,7 +134,7 @@ BOOST_FIXTURE_TEST_CASE(CommandAndDataSet, Fixture)
     acceptor.join();
 
     BOOST_REQUIRE(this->odil_success);
-    BOOST_REQUIRE_EQUAL(this->error_pdu, nullptr);
+    BOOST_REQUIRE(this->error_pdu == nullptr);
     BOOST_REQUIRE_EQUAL(this->error_code, boost::system::error_code());
 
     BOOST_REQUIRE_EQUAL(this->dcmtk_messages.size(), 1);
@@ -152,7 +152,7 @@ BOOST_FIXTURE_TEST_CASE(CommandAndDataSet, Fixture)
         this->parameters.get_presentation_contexts()[0].id);
     
     BOOST_REQUIRE_EQUAL(this->dcmtk_data_sets.size(), 1);
-    BOOST_REQUIRE_NE(this->dcmtk_data_sets[0], nullptr);
+    BOOST_REQUIRE(this->dcmtk_data_sets[0] != nullptr);
 }
 
 Fixture

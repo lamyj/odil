@@ -1,6 +1,8 @@
 #define BOOST_TEST_MODULE AssociationRequester
 #include <boost/test/unit_test.hpp>
 
+#include <thread>
+
 #include "odil/AssociationRequester.h"
 #include "odil/AssociationParameters.h"
 #include "odil/dul/AAssociateAC.h"
@@ -77,7 +79,7 @@ BOOST_FIXTURE_TEST_CASE(Aborted, Fixture)
 {
     this->setup_odil_requestor();
     
-    std::thread acceptor([&](){ this->dcmtk_acceptor("abort"); });
+    std::thread acceptor_thread([&](){ this->dcmtk_acceptor("abort"); });
 
     odil::AssociationRequester requester(
         this->service, this->connection,
@@ -87,7 +89,7 @@ BOOST_FIXTURE_TEST_CASE(Aborted, Fixture)
     requester(this->endpoint, this->request);
 
     this->service.run();
-    acceptor.join();
+    acceptor_thread.join();
 
     BOOST_REQUIRE(!this->acceptation);
     BOOST_REQUIRE(std::dynamic_pointer_cast<odil::dul::AAbort>(this->error_pdu));
