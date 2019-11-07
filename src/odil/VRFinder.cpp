@@ -154,7 +154,19 @@ VRFinder
         {
             return VR::OW;
         }
-        // {Red,Green,Blue,Alpha}PaletteColorLookupTableDescriptor
+        else if(tag == registry::RedPaletteColorLookupTableDescriptor ||
+            tag == registry::GreenPaletteColorLookupTableDescriptor ||
+            tag == registry::BluePaletteColorLookupTableDescriptor)
+        {
+            // PS 3.3, C.7.6.3.1.5, note 2
+            if(!data_set->has(registry::PixelRepresentation))
+            {
+                throw Exception("Cannot find VR without PixelRepresentation");
+            }
+            auto const & pixel_representation = 
+                data_set->as_int(registry::PixelRepresentation)[0];
+            return (pixel_representation==0)?(VR::US):(VR::SS);
+        }
         else if(tag == registry::SegmentedRedPaletteColorLookupTableData ||
             tag == registry::SegmentedGreenPaletteColorLookupTableData ||
             tag == registry::SegmentedBluePaletteColorLookupTableData)
@@ -235,7 +247,19 @@ VRFinder
         {
             return VR::OW;
         }
-        // {Red,Green,Blue,Alpha}PaletteColorLookupTableDescriptor
+        else if(tag == registry::RedPaletteColorLookupTableDescriptor ||
+            tag == registry::GreenPaletteColorLookupTableDescriptor ||
+            tag == registry::BluePaletteColorLookupTableDescriptor)
+        {
+            // PS 3.3, C.7.6.3.1.5, note 2
+            if(!data_set->has(registry::PixelRepresentation))
+            {
+                throw Exception("Cannot find VR without PixelRepresentation");
+            }
+            auto const & pixel_representation = 
+                data_set->as_int(registry::PixelRepresentation)[0];
+            return (pixel_representation==0)?(VR::US):(VR::SS);
+        }
         else if(tag == registry::SegmentedRedPaletteColorLookupTableData ||
             tag == registry::SegmentedGreenPaletteColorLookupTableData ||
             tag == registry::SegmentedBluePaletteColorLookupTableData)
