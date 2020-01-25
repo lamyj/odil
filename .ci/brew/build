@@ -2,26 +2,22 @@
 
 set -ev
 
-export Python=${Python:?}
 export WORKSPACE=${WORKSPACE:?}
+export BUILD_DIR="${WORKSPACE}/${BUILD_DIR:-build}"
+export INSTALL_DIR="${WORKSPACE}/${INSTALL_DIR:-install}"
 
-if [ "${Python}" = "2" ]
-then
-  PYTHON_EXECUTABLE="/usr/local/opt/python@2/bin/python2.7"
-else
-  PYTHON_EXECUTABLE="/usr/local/bin/python3"
-fi
+mkdir -p ${BUILD_DIR}
+mkdir -p ${INSTALL_DIR}
 
-
-mkdir build
-mkdir install
-cd build
+cd ${BUILD_DIR}
 
 export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/usr/local/opt/icu4c/lib/pkgconfig
 
 cmake \
-  -D CMAKE_INSTALL_PREFIX="${WORKSPACE}/install" \
-  -D PYTHON_EXECUTABLE=${PYTHON_EXECUTABLE} \
+  -G Ninja \
+  -D CMAKE_INSTALL_PREFIX="${INSTALL_DIR}" \
+  -DCMAKE_BUILD_TYPE=Release \
+  -D PYTHON_EXECUTABLE=/usr/local/bin/python3 \
   ${CMAKE_OPTIONS} \
   ..
-make ${MAKE_OPTIONS} install
+cmake --build . --target install

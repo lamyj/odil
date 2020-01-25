@@ -1,55 +1,28 @@
-#!/usr/bin/env python
+#!/bin/sh
 
-from __future__ import print_function
+set -ev
 
-import json
-import os
-import subprocess
-import sys
+export PYTHON=${PYTHON:-python}
 
-brew_conflicting = ["json-c"]
-brew_required = [
-    "boost", "cmake", "dcmtk", "icu4c", "jsoncpp", "pkg-config", "pybind11"
-]
-brew_required.append(
-    "python{}".format("@2" if os.environ["Python"] == 2 else ""))
+# WARNING The Python environment in Travis is weird: "brew install python" fails
+# when symlinking, due to the presence of python@2.
+brew upgrade python || brew install python || true
+brew link --overwrite python || true
 
-pip_required = ["nose"]
-
-def get_formula_info(formula):
-    try:
-        info = json.loads(
-            subprocess.check_output(["brew", "info", "--json=v1", formula]))
-    except subprocess.CalledProcessError:
-        return None
-
-    if len(info) > 1:
-        print("Too many formulas matching {}".format(formula))
-        sys.exit(1)
-    elif len(info) == 0:
-        return None
-    else:
-        return info[0]
-
-for formula in brew_conflicting:
-    info = get_formula_info(formula)
-    if info is not None and info["installed"]:
-        print("Removing conflicting formula: {}".format(formula))
-        subprocess.check_call(["brew", "unlink", formula])
-
-for formula in brew_required:
-    info = get_formula_info(formula)
-    if info is None:
-        raise Exception("No such formula: {}".format(formula))
-
-    action = None
-    if not info["installed"]:
-        action = "install"
-    elif not info["installed"][-1]["version"].startswith(info["versions"]["stable"]):
-        action = "upgrade"
-
-    if action is not None:
-        subprocess.check_call(["brew", action, formula])
-
-subprocess.check_call(
-    ["pip"+os.environ["Python"], "install", "-U"]+pip_required)
+for PACKAGE in boost cmake dcmtk icu4c jsoncpp ninja pkg-config pybind11; do
+    VERSIONS=$(brew ls --versions ${PACKAGE} || true)
+    if [ -z "${VERSIONS}" ]; then
+        COMMAND="install"
+    else
+        OUTDATED=$(brew outdated ${PACKAGE} || true)
+        if [ -z "${OUTDATED}" ]; then
+            COMMAND=""
+        else
+            COMMAND="upgrade"
+        fi
+    fi
+    
+    if [ -n "${COMMAND}" ]; then
+        brew ${COMMAND} ${PACKAGE}
+    fi
+done
