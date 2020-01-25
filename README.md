@@ -1,6 +1,10 @@
 # Odil
 
-Odil is a C++11 library for the [DICOM](http://dicom.nema.org/) standard.
+[![Build Status (Travis)](https://travis-ci.org/lamyj/odil.svg?branch=master)](https://travis-ci.org/lamyj/odil)
+[![Build Status (Appveyor)](https://ci.appveyor.com/api/projects/status/github/lamyj/odil?svg=true)](https://ci.appveyor.com/project/lamyj/odil)
+[![Conda Version](https://img.shields.io/conda/vn/conda-forge/odil.svg)](https://anaconda.org/conda-forge/odil)
+
+Odil is a C++11 library for the [DICOM][] standard.
 
 Odil leverages C++ constructs to provide a user-friendly API of the different
 parts of the DICOM standard. Included in Odil are:
@@ -8,16 +12,16 @@ parts of the DICOM standard. Included in Odil are:
 - Standard JSON and XML representation of datasets
 - Clients and servers for the various DICOM protocols (C-FIND, C-GET, C-MOVE, C-STORE)
 - Implementation of the DICOM web-services (WADO-RS, QIDO-RS, STOW-RS)
-- Conversion to and from [DCMTK](http://dicom.offis.de/dcmtk.php.en) data structures.
+- Conversion to and from [DCMTK][] data structures.
 
-Odil builds and run on:
+Packaged versions of Odil are available on [Anaconda][] for Linux, macOS and Windows. Official packages are available for [Debian][] and [Ubuntu][], as well as [unofficial backports][].
 
-- Linux (Debian 8 and 9; Ubuntu 14.04, 16.04 and 18.04). Official packages are available ([Debian](https://packages.debian.org/search?keywords=odil&searchon=sourcenames&suite=all&section=all), [Ubuntu](http://packages.ubuntu.com/search?keywords=odil&searchon=sourcenames&suite=all&section=all)), as well as [unofficial backports](https://github.com/lamyj/packages).
-- macOS
-- Windows
+Installation and usage instructions are available on the [documentation website][].
 
-Installation and usage instructions are available on the [documentation website](http://odil.readthedocs.io/).
-
-[![Build Status (Travis)](https://travis-ci.org/lamyj/odil.svg?branch=master)](https://travis-ci.org/lamyj/odil)
-[![Build Status (Appveyor)](https://ci.appveyor.com/api/projects/status/github/lamyj/odil?svg=true)](https://ci.appveyor.com/project/lamyj/odil)
-[![Coverage Status](https://coveralls.io/repos/lamyj/odil/badge.svg)](https://coveralls.io/r/lamyj/odil)
+[Anaconda]: https://www.anaconda.com/distribution/
+[DCMTK]: http://dicom.offis.de/dcmtk.php.en
+[Debian]: https://packages.debian.org/search?keywords=odil&searchon=sourcenames&suite=all&section=all
+[DICOM]: http://dicom.nema.org/
+[documentation website]: http://odil.readthedocs.io/
+[Ubuntu]: http://packages.ubuntu.com/search?keywords=odil&searchon=sourcenames&suite=all&section=all
+[unofficial backports]: https://github.com/lamyj/packages
