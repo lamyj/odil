@@ -63,6 +63,7 @@ matrix:
       osx_image: xcode11
       env: 
         - CI_TYPE=brew 
+        - CMAKE_OPTIONS="-DBoost_NO_BOOST_CMAKE=ON"
         - WORKSPACE=${TRAVIS_BUILD_DIR}
         - RUNNER=""
 
