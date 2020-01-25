@@ -14,7 +14,8 @@ class TestFindSCU(PeerFixtureBase):
             [
                 odil.AssociationParameters.PresentationContext(
                 1, odil.registry.PatientRootQueryRetrieveInformationModelFIND,
-                [ odil.registry.ImplicitVRLittleEndian ], True, False)
+                [ odil.registry.ImplicitVRLittleEndian ], 
+                odil.AssociationParameters.PresentationContext.Role.SCU)
             ]
         )
 

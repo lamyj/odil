@@ -31,19 +31,23 @@ int main()
         .set_presentation_contexts({
             {
                 odil::registry::StudyRootQueryRetrieveInformationModelFIND,
-                { odil::registry::ImplicitVRLittleEndian }, true, false
+                { odil::registry::ImplicitVRLittleEndian }, 
+                odil::AssociationParameters::PresentationContext::Role::SCU
             },
             {
                 odil::registry::StudyRootQueryRetrieveInformationModelMOVE,
-                { odil::registry::ImplicitVRLittleEndian }, true, false
+                { odil::registry::ImplicitVRLittleEndian }, 
+                odil::AssociationParameters::PresentationContext::Role::SCU
             },
             {
                 odil::registry::MRImageStorage,
-                { odil::registry::ImplicitVRLittleEndian }, false, true
+                { odil::registry::ImplicitVRLittleEndian }, 
+                odil::AssociationParameters::PresentationContext::Role::SCP
             },
             {
                 odil::registry::VerificationSOPClass,
-                { odil::registry::ImplicitVRLittleEndian }, true, false
+                { odil::registry::ImplicitVRLittleEndian }, 
+                odil::AssociationParameters::PresentationContext::Role::SCU
             }
         });
 

@@ -120,11 +120,28 @@ int main()
             << odil::registry::uids_dictionary.at(context.abstract_syntax).name
             << ": "
             << odil::registry::uids_dictionary.at(context.transfer_syntaxes[0]).name
-            << ", "
-            << (context.scu_role_support?"SCU":"")
-            << ((context.scu_role_support & context.scp_role_support)?"/":"")
-            << (context.scp_role_support?"SCP":"")
-            << std::endl;
+            << ", ";
+        if(context.role == odil::AssociationParameters::PresentationContext::Role::SCU)
+        {
+            std::cout << "SCU";
+        }
+        else if(context.role == odil::AssociationParameters::PresentationContext::Role::SCP)
+        {
+            std::cout << "SCP";
+        }
+        else if(context.role == odil::AssociationParameters::PresentationContext::Role::Both)
+        {
+            std::cout << "SCU+SCP";
+        }
+        else if(context.role == odil::AssociationParameters::PresentationContext::Role::Unspecified)
+        {
+            std::cout << "no role specified";
+        }
+        else if(context.role == odil::AssociationParameters::PresentationContext::Role::None)
+        {
+            std::cout << "no role";
+        }
+        std::cout << std::endl;
     }
 
     auto echo_scp = std::make_shared<odil::EchoSCP>(association, echo);

@@ -37,10 +37,9 @@ AssociationParameters::PresentationContext
     uint8_t id,
     std::string const & abstract_syntax,
     std::vector<std::string> const & transfer_syntaxes,
-    bool scu_role_support, bool scp_role_support, Result result)
+    Role role, Result result)
 : id(id), abstract_syntax(abstract_syntax), transfer_syntaxes(transfer_syntaxes),
-  scu_role_support(scu_role_support), scp_role_support(scp_role_support),
-  result(result)
+  role(role), result(result)
 {
     // Nothing else.
 }
@@ -49,10 +48,9 @@ AssociationParameters::PresentationContext
 ::PresentationContext(
     std::string const & abstract_syntax,
     std::vector<std::string> const & transfer_syntaxes,
-    bool scu_role_support, bool scp_role_support, Result result)
+    Role role, Result result)
 : id(0), abstract_syntax(abstract_syntax), transfer_syntaxes(transfer_syntaxes),
-  scu_role_support(scu_role_support), scp_role_support(scp_role_support),
-  result(result)
+  role(role), result(result)
 {
     // Nothing else.
 }
@@ -65,8 +63,7 @@ AssociationParameters::PresentationContext
         this->id == other.id && 
         this->abstract_syntax == other.abstract_syntax &&
         this->transfer_syntaxes == other.transfer_syntaxes &&
-        this->scu_role_support == other.scu_role_support &&
-        this->scp_role_support == other.scp_role_support &&
+        this->role == other.role &&
         this->result == other.result
     );
 }
@@ -141,14 +138,24 @@ AssociationParameters
     // Presentation contexts
     auto const & pcs_pdu = pdu.get_presentation_contexts();
 
-    std::map<std::string, std::pair<bool, bool>> roles_map;
-    auto const roles = user_information.get_sub_items<pdu::RoleSelection>();
-    for(auto const & role: roles)
+    std::map<std::string, PresentationContext::Role> roles_map;
+    auto const role_items = user_information.get_sub_items<pdu::RoleSelection>();
+    for(auto const & role_item: role_items)
     {
-        roles_map[role.get_sop_class_uid()] =
-            std::make_pair(
-                role.get_scu_role_support(),
-                role.get_scp_role_support());
+        auto role = PresentationContext::Role::None;
+        if(role_item.get_scu_role_support() && role_item.get_scp_role_support())
+        {
+            role = PresentationContext::Role::Both;
+        }
+        else if(role_item.get_scu_role_support())
+        {
+            role = PresentationContext::Role::SCU;
+        }
+        else if(role_item.get_scp_role_support())
+        {
+            role = PresentationContext::Role::SCP;
+        }
+        roles_map[role_item.get_sop_class_uid()] = role;
     }
 
     std::vector<AssociationParameters::PresentationContext> pcs_parameters;
@@ -159,8 +166,7 @@ AssociationParameters
         pcs_parameters.emplace_back(
             pc_pdu.get_id(),
             pc_pdu.get_abstract_syntax(), pc_pdu.get_transfer_syntaxes(),
-            (it!=roles_map.end())?it->second.first:true,
-            (it!=roles_map.end())?it->second.second:false);
+            (it!=roles_map.end())?it->second:PresentationContext::Role::Unspecified);
     }
     this->set_presentation_contexts(pcs_parameters);
 
@@ -239,14 +245,24 @@ AssociationParameters
 
     auto const & pcs_pdu = pdu.get_presentation_contexts();
 
-    std::map<std::string, std::pair<bool, bool>> roles_map;
-    auto const roles = user_information.get_sub_items<pdu::RoleSelection>();
-    for(auto const & role: roles)
+    std::map<std::string, PresentationContext::Role> roles_map;
+    auto const role_items = user_information.get_sub_items<pdu::RoleSelection>();
+    for(auto const & role_item: role_items)
     {
-        roles_map[role.get_sop_class_uid()] =
-            std::make_pair(
-                role.get_scu_role_support(),
-                role.get_scp_role_support());
+        auto role = PresentationContext::Role::None;
+        if(role_item.get_scu_role_support() && role_item.get_scp_role_support())
+        {
+            role = PresentationContext::Role::Both;
+        }
+        else if(role_item.get_scu_role_support())
+        {
+            role = PresentationContext::Role::SCU;
+        }
+        else if(role_item.get_scp_role_support())
+        {
+            role = PresentationContext::Role::SCP;
+        }
+        roles_map[role_item.get_sop_class_uid()] = role;
     }
 
     std::vector<AssociationParameters::PresentationContext> pcs_parameters;
@@ -260,8 +276,7 @@ AssociationParameters
             pc_pdu.get_id(),
             pc_request.abstract_syntax,
             std::vector<std::string>{ pc_pdu.get_transfer_syntax() },
-            (it!=roles_map.end())?it->second.first:pc_request.scu_role_support,
-            (it!=roles_map.end())?it->second.second:pc_request.scp_role_support,
+            (it!=roles_map.end())?it->second:PresentationContext::Role::Unspecified,
             static_cast<PresentationContext::Result>(pc_pdu.get_result_reason()));
     }
     this->set_presentation_contexts(pcs_parameters);
@@ -589,10 +604,16 @@ AssociationParameters
     std::vector<pdu::RoleSelection> roles;
     for(auto const & presentation_context: this->get_presentation_contexts())
     {
+        if(presentation_context.role == PresentationContext::Role::Unspecified)
+        {
+            continue;
+        }
         pdu::RoleSelection const role(
             presentation_context.abstract_syntax,
-            presentation_context.scu_role_support,
-            presentation_context.scp_role_support);
+            presentation_context.role == PresentationContext::Role::SCU
+                || presentation_context.role == PresentationContext::Role::Both,
+            presentation_context.role == PresentationContext::Role::SCP
+                || presentation_context.role == PresentationContext::Role::Both);
         roles.push_back(role);
     }
     user_information.set_sub_items(roles);
@@ -672,10 +693,16 @@ AssociationParameters
     std::vector<pdu::RoleSelection> roles;
     for(auto const & presentation_context: this->get_presentation_contexts())
     {
+        if(presentation_context.role == PresentationContext::Role::Unspecified)
+        {
+            continue;
+        }
         pdu::RoleSelection const role(
             presentation_context.abstract_syntax,
-            presentation_context.scu_role_support,
-            presentation_context.scp_role_support);
+            presentation_context.role == PresentationContext::Role::SCU
+                || presentation_context.role == PresentationContext::Role::Both,
+            presentation_context.role == PresentationContext::Role::SCP
+                || presentation_context.role == PresentationContext::Role::Both);
         roles.push_back(role);
     }
     user_information.set_sub_items(roles);

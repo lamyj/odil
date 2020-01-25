@@ -29,11 +29,13 @@ int main()
         .set_presentation_contexts({
             {
                 odil::registry::StudyRootQueryRetrieveInformationModelFIND,
-                { odil::registry::ExplicitVRLittleEndian }, true, false
+                { odil::registry::ExplicitVRLittleEndian }, 
+                odil::AssociationParameters::PresentationContext::Role::SCU
             },
             {
                 odil::registry::VerificationSOPClass,
-                { odil::registry::ExplicitVRLittleEndian }, true, false
+                { odil::registry::ExplicitVRLittleEndian }, 
+                odil::AssociationParameters::PresentationContext::Role::SCU
             }
         });
     

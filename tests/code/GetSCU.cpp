@@ -18,11 +18,13 @@ struct Fixture: public PeerFixtureBase
     : PeerFixtureBase({
             {
                 1, odil::registry::PatientRootQueryRetrieveInformationModelGET,
-                { odil::registry::ImplicitVRLittleEndian }, true, false
+                { odil::registry::ImplicitVRLittleEndian }, 
+                odil::AssociationParameters::PresentationContext::Role::SCU
             },
             {
                 3, odil::registry::RawDataStorage,
-                { odil::registry::ImplicitVRLittleEndian }, false, true
+                { odil::registry::ImplicitVRLittleEndian }, 
+                odil::AssociationParameters::PresentationContext::Role::SCP
             }
         }),
         query(std::make_shared<odil::DataSet>())

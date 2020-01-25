@@ -12,7 +12,8 @@ struct Fixture: public PeerFixtureBase
     : PeerFixtureBase({
         {
             1, odil::registry::VerificationSOPClass,
-            {odil::registry::ImplicitVRLittleEndian}, true, false
+            {odil::registry::ImplicitVRLittleEndian}, 
+            odil::AssociationParameters::PresentationContext::Role::SCU
         }
     })
     {
@@ -25,4 +26,3 @@ BOOST_FIXTURE_TEST_CASE(Echo, Fixture)
     odil::EchoSCU scu(this->association);
     scu.echo();
 }
-

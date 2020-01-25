@@ -56,7 +56,8 @@ class Generator(odil.MoveSCP.DataSetGenerator):
         presentation_contexts = [
             odil.AssociationParameters.PresentationContext(
                 1, odil.registry.RawDataStorage,
-                [odil.registry.ImplicitVRLittleEndian], True, False)]
+                [odil.registry.ImplicitVRLittleEndian], 
+                odil.AssociationParameters.PresentationContext.Role.SCU)]
         
         move_association.update_parameters()\
             .set_calling_ae_title(

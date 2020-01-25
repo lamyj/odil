@@ -57,8 +57,12 @@ BOOST_AUTO_TEST_CASE(PresentationContexts)
 {
     odil::AssociationParameters parameters;
     parameters.set_presentation_contexts({
-        { 1, "abstract1", { "transfer1", "transfer2" }, true, false },
-        { 3, "abstract2", { "transfer3" }, false, true }
+        { 
+            1, "abstract1", { "transfer1", "transfer2" }, 
+            odil::AssociationParameters::PresentationContext::Role::SCU },
+        { 
+            3, "abstract2", { "transfer3" }, 
+            odil::AssociationParameters::PresentationContext::Role::SCP }
     });
 
     BOOST_REQUIRE_EQUAL(parameters.get_presentation_contexts().size(), 2);
@@ -74,8 +78,9 @@ BOOST_AUTO_TEST_CASE(PresentationContexts)
     BOOST_REQUIRE_EQUAL(
         parameters.get_presentation_contexts()[0].transfer_syntaxes[1],
         "transfer2");
-    BOOST_REQUIRE(parameters.get_presentation_contexts()[0].scu_role_support);
-    BOOST_REQUIRE(!parameters.get_presentation_contexts()[0].scp_role_support);
+    BOOST_REQUIRE(
+        parameters.get_presentation_contexts()[0].role
+        == odil::AssociationParameters::PresentationContext::Role::SCU);
 
     BOOST_REQUIRE_EQUAL(parameters.get_presentation_contexts()[1].id, 3);
     BOOST_REQUIRE_EQUAL(
@@ -85,17 +90,24 @@ BOOST_AUTO_TEST_CASE(PresentationContexts)
     BOOST_REQUIRE_EQUAL(
         parameters.get_presentation_contexts()[1].transfer_syntaxes[0],
         "transfer3");
-    BOOST_REQUIRE(!parameters.get_presentation_contexts()[1].scu_role_support);
-    BOOST_REQUIRE(parameters.get_presentation_contexts()[1].scp_role_support);
+    BOOST_REQUIRE(
+        parameters.get_presentation_contexts()[1].role
+        == odil::AssociationParameters::PresentationContext::Role::SCP);
 }
 
 BOOST_AUTO_TEST_CASE(SimplifiedPresentationContexts)
 {
     odil::AssociationParameters parameters;
     parameters.set_presentation_contexts({
-        { 1, "abstract1", { "transfer1", "transfer2" }, true, false },
-        { "abstract2", { "transfer3", "transfer4" }, true, false },
-        { 3, "abstract3", { "transfer4" }, false, true }
+        { 
+            1, "abstract1", { "transfer1", "transfer2" }, 
+            odil::AssociationParameters::PresentationContext::Role::SCU},
+        { 
+            "abstract2", { "transfer3", "transfer4" }, 
+            odil::AssociationParameters::PresentationContext::Role::SCU },
+        { 
+            3, "abstract3", { "transfer4" }, 
+            odil::AssociationParameters::PresentationContext::Role::SCP }
     });
 
     BOOST_REQUIRE_EQUAL(parameters.get_presentation_contexts().size(), 3);
@@ -111,8 +123,9 @@ BOOST_AUTO_TEST_CASE(SimplifiedPresentationContexts)
     BOOST_REQUIRE_EQUAL(
         parameters.get_presentation_contexts()[0].transfer_syntaxes[1],
         "transfer2");
-    BOOST_REQUIRE(parameters.get_presentation_contexts()[0].scu_role_support);
-    BOOST_REQUIRE(!parameters.get_presentation_contexts()[0].scp_role_support);
+    BOOST_REQUIRE(
+        parameters.get_presentation_contexts()[0].role
+        == odil::AssociationParameters::PresentationContext::Role::SCU);
 
     // Do not check ID
     BOOST_REQUIRE_EQUAL(
@@ -125,8 +138,9 @@ BOOST_AUTO_TEST_CASE(SimplifiedPresentationContexts)
     BOOST_REQUIRE_EQUAL(
         parameters.get_presentation_contexts()[1].transfer_syntaxes[1],
         "transfer4");
-    BOOST_REQUIRE(parameters.get_presentation_contexts()[1].scu_role_support);
-    BOOST_REQUIRE(!parameters.get_presentation_contexts()[1].scp_role_support);
+    BOOST_REQUIRE(
+        parameters.get_presentation_contexts()[1].role
+        == odil::AssociationParameters::PresentationContext::Role::SCU);
 
     BOOST_REQUIRE_EQUAL(parameters.get_presentation_contexts()[2].id, 3);
     BOOST_REQUIRE_EQUAL(
@@ -136,8 +150,9 @@ BOOST_AUTO_TEST_CASE(SimplifiedPresentationContexts)
     BOOST_REQUIRE_EQUAL(
         parameters.get_presentation_contexts()[2].transfer_syntaxes[0],
         "transfer4");
-    BOOST_REQUIRE(!parameters.get_presentation_contexts()[2].scu_role_support);
-    BOOST_REQUIRE(parameters.get_presentation_contexts()[2].scp_role_support);
+    BOOST_REQUIRE(
+        parameters.get_presentation_contexts()[2].role
+        == odil::AssociationParameters::PresentationContext::Role::SCP);
 }
 
 BOOST_AUTO_TEST_CASE(UserIdentityDefault)
@@ -238,7 +253,12 @@ BOOST_AUTO_TEST_CASE(ChainedSetters)
     parameters
         .set_called_ae_title("called")
         .set_calling_ae_title("calling")
-        .set_presentation_contexts({ { "abstract", { "transfer" }, true, true } })
+        .set_presentation_contexts({ 
+                { 
+                    "abstract", { "transfer" }, 
+                    odil::AssociationParameters::PresentationContext::Role::Both 
+                } 
+            })
         .set_user_identity_to_username_and_password("foo", "bar")
         .set_maximum_length(0x12345678)
         .set_maximum_number_operations_invoked(12)

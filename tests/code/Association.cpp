@@ -91,7 +91,8 @@ BOOST_AUTO_TEST_CASE(Associate)
     PeerFixtureBase fixture({
         {
             1, odil::registry::VerificationSOPClass,
-            { odil::registry::ImplicitVRLittleEndian }, true, false
+            { odil::registry::ImplicitVRLittleEndian }, 
+            odil::AssociationParameters::PresentationContext::Role::SCU
         }
     });
     BOOST_CHECK_THROW(

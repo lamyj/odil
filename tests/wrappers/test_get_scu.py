@@ -14,11 +14,13 @@ class TestGetSCU(PeerFixtureBase):
             [
                 odil.AssociationParameters.PresentationContext(
                     1, odil.registry.PatientRootQueryRetrieveInformationModelGET,
-                    [ odil.registry.ImplicitVRLittleEndian ], True, False
+                    [ odil.registry.ImplicitVRLittleEndian ], 
+                    odil.AssociationParameters.PresentationContext.Role.SCU
                 ),
                 odil.AssociationParameters.PresentationContext(
                     3, odil.registry.RawDataStorage,
-                    [ odil.registry.ImplicitVRLittleEndian ], False, True
+                    [ odil.registry.ImplicitVRLittleEndian ], 
+                    odil.AssociationParameters.PresentationContext.Role.SCP
                 )
             ])
 

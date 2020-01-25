@@ -12,7 +12,8 @@ struct Fixture: public PeerFixtureBase
     : PeerFixtureBase({
         {
             1, odil::registry::VerificationSOPClass,
-            {odil::registry::ImplicitVRLittleEndian}, true, false
+            {odil::registry::ImplicitVRLittleEndian}, 
+            odil::AssociationParameters::PresentationContext::Role::SCU
         }
     })
     {
@@ -32,4 +33,3 @@ BOOST_FIXTURE_TEST_CASE(AffectedSOPClassUID, Fixture)
     scu.set_affected_sop_class("1.2.3");
     BOOST_CHECK_EQUAL(scu.get_affected_sop_class(), "1.2.3");
 }
-

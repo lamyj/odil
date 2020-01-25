@@ -28,7 +28,8 @@ class TestAssociationParameters(unittest.TestCase):
 
     def test_presentation_contexts(self):
         presentation_context = odil.AssociationParameters.PresentationContext(
-            1, "foo", ["bar"], True, False)
+            1, "foo", ["bar"], 
+            odil.AssociationParameters.PresentationContext.Role.SCU)
         parameters = odil.AssociationParameters()
         parameters.set_presentation_contexts([presentation_context])
 
@@ -38,7 +39,8 @@ class TestAssociationParameters(unittest.TestCase):
 
     def test_presentation_contexts_simplified(self):
         presentation_context = odil.AssociationParameters.PresentationContext(
-            "quux", ["plip", "plop"], True, False)
+            "quux", ["plip", "plop"], 
+            odil.AssociationParameters.PresentationContext.Role.SCU)
         parameters = odil.AssociationParameters()
         parameters.set_presentation_contexts([presentation_context])
 
@@ -113,13 +115,15 @@ class TestAssociationParameters(unittest.TestCase):
 class TestPresentationContext(unittest.TestCase):
     def test_constructor(self):
         presentation_context = odil.AssociationParameters.PresentationContext(
-            1, "foo", ["bar", "baz"], False, True)
+            1, "foo", ["bar", "baz"], 
+            odil.AssociationParameters.PresentationContext.Role.SCP)
         self.assertEqual(presentation_context.id, 1)
         self.assertEqual(presentation_context.abstract_syntax, "foo")
         self.assertEqual(
             [x for x in presentation_context.transfer_syntaxes], [b"bar", b"baz"])
-        self.assertEqual(presentation_context.scu_role_support, False)
-        self.assertEqual(presentation_context.scp_role_support, True)
+        self.assertEqual(
+            presentation_context.role, 
+            odil.AssociationParameters.PresentationContext.Role.SCP)
 
 if __name__ == "__main__":
     unittest.main()

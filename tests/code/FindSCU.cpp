@@ -17,7 +17,8 @@ struct Fixture: public PeerFixtureBase
     : PeerFixtureBase({
             {
                 1, odil::registry::PatientRootQueryRetrieveInformationModelFIND,
-                { odil::registry::ImplicitVRLittleEndian }, true, false
+                { odil::registry::ImplicitVRLittleEndian }, 
+                odil::AssociationParameters::PresentationContext::Role::SCU
             }
         }),
       query(std::make_shared<odil::DataSet>())
@@ -62,4 +63,3 @@ BOOST_FIXTURE_TEST_CASE(FindCallback, Fixture)
 
     BOOST_CHECK(Fixture::called);
 }
-

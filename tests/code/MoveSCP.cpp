@@ -98,7 +98,7 @@ public:
                 {
                     1, odil::registry::RawDataStorage,
                     { odil::registry::ImplicitVRLittleEndian },
-                    true, false
+                    odil::AssociationParameters::PresentationContext::Role::SCU
                 }
         };
 

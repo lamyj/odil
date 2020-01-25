@@ -41,20 +41,29 @@ public:
             AbstractSyntaxNotSupported = 3,
             TransferSyntaxesNotSupported = 4,
         };
+        
+        enum class Role
+        {
+            Unspecified, // No information specified in a query
+            None, // No role accepted in a response
+            SCU,
+            SCP,
+            Both,
+        };
 
         /// @brief Constructor.
         PresentationContext(
             uint8_t id,
             std::string const & abstract_syntax,
             std::vector<std::string> const & transfer_syntaxes,
-            bool scu_role_support, bool scp_role_support,
+            Role role,
             Result result=Result::NoReason);
 
         /// @brief Simplified constructor, sets the id to the invalid value 0.
         PresentationContext(
             std::string const & abstract_syntax,
             std::vector<std::string> const & transfer_syntaxes,
-            bool scu_role_support, bool scp_role_support,
+            Role role,
             Result result=Result::NoReason);
 
         /// @brief Identifier of the presentation context, must be odd.
@@ -66,11 +75,8 @@ public:
         /// @brief Proposed transfer syntaxes or accepted transfer syntax.
         std::vector<std::string> transfer_syntaxes;
         
-        /// @brief Support for SCU role.
-        bool scu_role_support;
-        
-        /// @brief Support for SCP role.
-        bool scp_role_support;
+        /// @brief SCU/SCP role negotiation
+        Role role;
         
         /// @brief Result of the negotiation.
         Result result;

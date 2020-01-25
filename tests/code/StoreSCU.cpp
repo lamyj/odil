@@ -16,7 +16,8 @@ struct Fixture: public PeerFixtureBase
     : PeerFixtureBase({
             {
                 1, odil::registry::RawDataStorage,
-                {odil::registry::ImplicitVRLittleEndian}, true, false
+                {odil::registry::ImplicitVRLittleEndian}, 
+                odil::AssociationParameters::PresentationContext::Role::SCU
             }
         }),
         dataset(std::make_shared<odil::DataSet>())

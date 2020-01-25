@@ -21,7 +21,7 @@ odil::AssociationParameters::PresentationContext
 presentation_context_constructor(
     uint8_t id, std::string const & abstract_syntax,
     pybind11::sequence transfer_syntaxes,
-    bool scu_role_support, bool scp_role_support)
+    odil::AssociationParameters::PresentationContext::Role role)
 {
 
     std::vector<std::string> transfer_syntaxes_cpp(
@@ -33,15 +33,14 @@ presentation_context_constructor(
             return item.cast<std::string>();
         });
     return odil::AssociationParameters::PresentationContext(
-        id, abstract_syntax, transfer_syntaxes_cpp,
-        scu_role_support, scp_role_support);
+        id, abstract_syntax, transfer_syntaxes_cpp, role);
 }
 
 odil::AssociationParameters::PresentationContext
 presentation_context_simplified_constructor(
     std::string const & abstract_syntax,
     pybind11::sequence transfer_syntaxes,
-    bool scu_role_support, bool scp_role_support)
+    odil::AssociationParameters::PresentationContext::Role role)
 {
 
     std::vector<std::string> transfer_syntaxes_cpp(len(transfer_syntaxes));
@@ -52,8 +51,7 @@ presentation_context_simplified_constructor(
             return item.cast<std::string>();
         });
     return odil::AssociationParameters::PresentationContext(
-        abstract_syntax, transfer_syntaxes_cpp,
-        scu_role_support, scp_role_support);
+        abstract_syntax, transfer_syntaxes_cpp, role);
 }
 
 pybind11::list
@@ -176,6 +174,18 @@ void wrap_AssociationParameters(pybind11::module & m)
                 AssociationParameters::PresentationContext::Result::TransferSyntaxesNotSupported
             )
         ;
+        
+        enum_<AssociationParameters::PresentationContext::Role>(
+                presentation_context_scope, "Role")
+            .value(
+                "Unspecified",
+                AssociationParameters::PresentationContext::Role::Unspecified
+            )
+            .value("None", AssociationParameters::PresentationContext::Role::None)
+            .value("SCU", AssociationParameters::PresentationContext::Role::SCU)
+            .value("SCP", AssociationParameters::PresentationContext::Role::SCP)
+            .value("Both", AssociationParameters::PresentationContext::Role::Both)
+        ;
 
         // WARNING using STL conversion
         // (https://pybind11.readthedocs.io/en/stable/advanced/cast/stl.html)
@@ -196,12 +206,7 @@ void wrap_AssociationParameters(pybind11::module & m)
                 &AssociationParameters::PresentationContext::transfer_syntaxes
             )
             .def_readwrite(
-                "scu_role_support",
-                &AssociationParameters::PresentationContext::scu_role_support
-            )
-            .def_readwrite(
-                "scp_role_support",
-                &AssociationParameters::PresentationContext::scp_role_support
+                "role", &AssociationParameters::PresentationContext::role
             )
             .def_readwrite(
                 "result",
