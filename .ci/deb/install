@@ -2,33 +2,21 @@
 
 set -ev
 
-export Python=${Python:?}
-
 apt-get -y update
+
+BINTRAY=http://dl.bintray.com/lamyj/generic/apt
+
 apt-get -y --no-install-recommends install gnupg software-properties-common wget
 wget -O - http://dl.bintray.com/lamyj/generic/gpg.key | apt-key add -
-add-apt-repository "deb http://dl.bintray.com/lamyj/generic/apt $(lsb_release -cs) main"
-
-if [ "${Python}" = "2" ]
-then
-  PYTHON_PREFIX="python"
-elif [ "${Python}" = "3" ]
-then
-  PYTHON_PREFIX="python3"
+if wget -q -O /dev/null ${BINTRAY}/dists/$(lsb_release -cs)/Release; then
+  add-apt-repository "deb ${BINTRAY} $(lsb_release -cs) main"
 fi
+apt-get update
 
-# Compilation toolchain
-# WARNING: we need a full Python for tests runner (argparse may be missing from
-# python-minimal)
-PACKAGES="build-essential cmake pkg-config python"
-# Dependencies of main lib
-PACKAGES="${PACKAGES} libboost-dev libboost-date-time-dev "
-PACKAGES="${PACKAGES} libboost-log-dev libboost-filesystem-dev"
-PACKAGES="${PACKAGES} libdcmtk2-dev libicu-dev libjsoncpp-dev zlib1g-dev"
-# Dependencies of Python wrappers
-PACKAGES="${PACKAGES} pybind11-dev ${PYTHON_PREFIX}-pybind11 ${PYTHON_PREFIX}-dev"
-# Dependencies of unit tests
-PACKAGES="${PACKAGES} dcmtk libboost-test-dev ${PYTHON_PREFIX} ${PYTHON_PREFIX}-nose"
-
-apt-get -y update
-apt-get -y --no-install-recommends install ${PACKAGES}
+apt-get -y --no-install-recommends install \
+  build-essential cmake ninja-build pkg-config python3 \
+  libboost-dev libboost-date-time-dev libboost-exception-dev \
+  libboost-log-dev libboost-filesystem-dev \
+  libdcmtk2-dev libicu-dev libjsoncpp-dev zlib1g-dev \
+  pybind11-dev python3-pybind11 python3-dev \
+  libboost-test-dev dcmtk
