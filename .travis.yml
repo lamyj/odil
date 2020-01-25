@@ -1,55 +1,72 @@
 language: minimal
-sudo: required
-services:
-  - docker
 
 matrix:
   include:
-    # Debian
-    - name: "Debian Stretch, Python 3"
-      env:
-        vendor: debian
-        version: stretch
-        python: 3
-        CMAKE_OPTIONS: "'-D CMAKE_CXX_FLAGS=--coverage'"
-    - name: "Debian Stretch, Python 2"
-      env: { vendor: debian, version: stretch, python: 2 }
-    - name: "Debian Jessie, Python 3"
-      env: { vendor: debian, version: jessie, python: 3 }
-    - name: "Debian Jessie, Python 2"
-      env: { vendor: debian, version: jessie, python: 2 }
-    # Ubuntu
-    - name: "Ubuntu Bionic, Python 3"
-      env: { vendor: ubuntu, version: bionic, python: 3 }
-    - name: "Ubuntu Bionic, Python 2"
-      env: { vendor: ubuntu, version: bionic, python: 2 }
-    - name: "Ubuntu Xenial, Python 3"
-      env: { vendor: ubuntu, version: xenial, python: 3 }
-    - name: "Ubuntu Xenial, Python 2"
-      env: { vendor: ubuntu, version: xenial, python: 2 }
-    - name: "Ubuntu Trusty, Python 3"
-      env: { vendor: ubuntu, version: trusty, python: 3 }
-    - name: "Ubuntu Trusty, Python 2"
-      env: { vendor: ubuntu, version: trusty, python: 2 }
+    - name: "Debian 9 (Stretch)"
+      os: linux
+      sudo: required
+      services:
+        - docker
+      env: 
+        - CI_TYPE=deb
+        - WORKSPACE=${TRAVIS_BUILD_DIR}
+        - RUNNER="docker exec -w ${TRAVIS_BUILD_DIR} -e WORKSPACE=${WORKSPACE} debian_stretch"
+      before_install:
+        - docker run -di -v ${TRAVIS_BUILD_DIR}:${TRAVIS_BUILD_DIR} --name debian_stretch --rm debian:stretch
+      after_success:
+        - docker kill debian_stretch
+    
+    - name: "Debian 10 (Buster)"
+      os: linux
+      sudo: required
+      services:
+        - docker
+      env: 
+        - CI_TYPE=deb
+        - WORKSPACE=${TRAVIS_BUILD_DIR}
+        - RUNNER="docker exec -w ${TRAVIS_BUILD_DIR} -e WORKSPACE=${WORKSPACE} debian_buster"
+      before_install:
+        - docker run -di -v ${TRAVIS_BUILD_DIR}:${TRAVIS_BUILD_DIR} --name debian_buster --rm debian:buster
+      after_success:
+        - docker kill debian_buster
+    
+    - name: "Ubuntu 16.04 (Xenial)"
+      os: linux
+      sudo: required
+      services:
+        - docker
+      env: 
+        - CI_TYPE=deb
+        - WORKSPACE=${TRAVIS_BUILD_DIR}
+        - RUNNER="docker exec -w ${TRAVIS_BUILD_DIR} -e WORKSPACE=${WORKSPACE} ubuntu_xenial"
+      before_install:
+        - docker run -di -v ${TRAVIS_BUILD_DIR}:${TRAVIS_BUILD_DIR} --name ubuntu_xenial --rm ubuntu:xenial
+      after_success:
+        - docker kill ubuntu_xenial
+    
+    - name: "Ubuntu 18.04 (Bionic)"
+      os: linux
+      sudo: required
+      services:
+        - docker
+      env: 
+        - CI_TYPE=deb
+        - WORKSPACE=${TRAVIS_BUILD_DIR}
+        - RUNNER="docker exec -w ${TRAVIS_BUILD_DIR} -e WORKSPACE=${WORKSPACE} ubuntu_bionic"
+      before_install:
+        - docker run -di -v ${TRAVIS_BUILD_DIR}:${TRAVIS_BUILD_DIR} --name ubuntu_bionic --rm ubuntu:bionic
+      after_success:
+        - docker kill ubuntu_bionic
+    
+    - name: "macOS 10.14 (Mojave)"
+      os: osx
+      osx_image: xcode11
+      env: 
+        - CI_TYPE=brew 
+        - WORKSPACE=${TRAVIS_BUILD_DIR}
+        - RUNNER=""
 
-before_install:
-  - |
-    docker run -di \
-      -e Python=${python} -e WORKSPACE=${TRAVIS_BUILD_DIR} \
-      -e MAKE_OPTIONS="-j$(nproc)" \
-      -e CMAKE_OPTIONS="${CMAKE_OPTIONS}" \
-      -v ${TRAVIS_BUILD_DIR}:${TRAVIS_BUILD_DIR} \
-      --name odil --rm \
-      ${vendor}:${version}
-
-install:
-  - docker exec odil ${TRAVIS_BUILD_DIR}/.ci/deb/install
-  #- docker exec odil pip${python} install -U --user cpp-coveralls
-  # TODO: export PATH=$(python -c 'import site; print(site.getuserbase())')/bin:${PATH}
-
-script:
-  - docker exec odil ${TRAVIS_BUILD_DIR}/.ci/deb/build
-
-after_success:
-  - docker exec odil ${TRAVIS_BUILD_DIR}/.ci/deb/post_build
-  #- docker exec odil coveralls -n -l build/coverage.info
+script: |
+  ${RUNNER} ./.ci/${CI_TYPE}/install
+  ${RUNNER} ./.ci/${CI_TYPE}/build
+  ${RUNNER} ./.ci/${CI_TYPE}/post_build
