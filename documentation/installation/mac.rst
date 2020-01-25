@@ -39,6 +39,10 @@ From the source directory, create a ``build`` directory, configure and run the b
   cmake ..
   make
 
+.. note::
+
+	Add ``-D Boost_NO_BOOST_CMAKE=ON`` with brew and boost 1.71.0
+
 The compilation can take advantage of a multi-core CPU either by using `make`_ with the ``-jN`` flag (where ``N`` is the number of concurrent tasks, i.e. the number of cores) or by using `Ninja`_.
 
 Without additional options, this will build the examples, the Python wrappers and the DCMTK converter, but not the Javascript wrappers. The following optinal features are summarized in the table below and may passed to CMake with the ``-D`` flag (for example ``cmake -D BUILD_EXAMPLES=OFF ..``).
