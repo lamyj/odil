@@ -39,6 +39,8 @@ Tag const EncryptedAttributesSequence(0x0400, 0x0500);
 Tag const EncryptedContentTransferSyntaxUID(0x0400, 0x0510);
 Tag const EncryptedContent(0x0400, 0x0520);
 Tag const ModifiedAttributesSequence(0x0400, 0x0550);
+Tag const NonconformingModifiedAttributesSequence(0x0400, 0x0551);
+Tag const NonconformingDataElementValue(0x0400, 0x0552);
 Tag const OriginalAttributesSequence(0x0400, 0x0561);
 Tag const AttributeModificationDateTime(0x0400, 0x0562);
 Tag const ModifyingSystem(0x0400, 0x0563);

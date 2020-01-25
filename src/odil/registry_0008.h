@@ -130,6 +130,7 @@ Tag const ProcedureCodeSequence(0x0008, 0x1032);
 Tag const SeriesDescription(0x0008, 0x103e);
 Tag const SeriesDescriptionCodeSequence(0x0008, 0x103f);
 Tag const InstitutionalDepartmentName(0x0008, 0x1040);
+Tag const InstitutionalDepartmentTypeCodeSequence(0x0008, 0x1041);
 Tag const PhysiciansOfRecord(0x0008, 0x1048);
 Tag const PhysiciansOfRecordIdentificationSequence(0x0008, 0x1049);
 Tag const PerformingPhysicianName(0x0008, 0x1050);
@@ -213,6 +214,7 @@ Tag const AnatomicLocationOfExaminingInstrumentCodeSequenceTrial(0x0008, 0x2259)
 Tag const AnatomicStructureSpaceOrRegionModifierCodeSequenceTrial(0x0008, 0x225a);
 Tag const OnAxisBackgroundAnatomicStructureCodeSequenceTrial(0x0008, 0x225c);
 Tag const AlternateRepresentationSequence(0x0008, 0x3001);
+Tag const AvailableTransferSyntaxUID(0x0008, 0x3002);
 Tag const IrradiationEventUID(0x0008, 0x3010);
 Tag const SourceIrradiationEventSequence(0x0008, 0x3011);
 Tag const RadiopharmaceuticalAdministrationEventUID(0x0008, 0x3012);

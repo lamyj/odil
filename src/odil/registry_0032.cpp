@@ -49,6 +49,8 @@ void update_0032(
     public_dictionary.emplace(Tag(0x0032, 0x1055), ElementsDictionaryEntry("Study Component Status ID", "StudyComponentStatusID",  "CS", "1"));
     public_dictionary.emplace(Tag(0x0032, 0x1060), ElementsDictionaryEntry("Requested Procedure Description", "RequestedProcedureDescription",  "LO", "1"));
     public_dictionary.emplace(Tag(0x0032, 0x1064), ElementsDictionaryEntry("Requested Procedure Code Sequence", "RequestedProcedureCodeSequence",  "SQ", "1"));
+    public_dictionary.emplace(Tag(0x0032, 0x1066), ElementsDictionaryEntry("Reason for Visit", "ReasonForVisit",  "UT", "1"));
+    public_dictionary.emplace(Tag(0x0032, 0x1067), ElementsDictionaryEntry("Reason for Visit Code Sequence", "ReasonForVisitCodeSequence",  "SQ", "1"));
     public_dictionary.emplace(Tag(0x0032, 0x1070), ElementsDictionaryEntry("Requested Contrast Agent", "RequestedContrastAgent",  "LO", "1"));
     public_dictionary.emplace(Tag(0x0032, 0x4000), ElementsDictionaryEntry("Study Comments", "StudyComments",  "LT", "1"));
 
@@ -77,6 +79,8 @@ void update_0032(
     public_tags.emplace("StudyComponentStatusID", Tag(0x0032, 0x1055));
     public_tags.emplace("RequestedProcedureDescription", Tag(0x0032, 0x1060));
     public_tags.emplace("RequestedProcedureCodeSequence", Tag(0x0032, 0x1064));
+    public_tags.emplace("ReasonForVisit", Tag(0x0032, 0x1066));
+    public_tags.emplace("ReasonForVisitCodeSequence", Tag(0x0032, 0x1067));
     public_tags.emplace("RequestedContrastAgent", Tag(0x0032, 0x1070));
     public_tags.emplace("StudyComments", Tag(0x0032, 0x4000));
 }

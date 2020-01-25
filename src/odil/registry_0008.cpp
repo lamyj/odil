@@ -134,6 +134,7 @@ void update_0008(
     public_dictionary.emplace(Tag(0x0008, 0x103e), ElementsDictionaryEntry("Series Description", "SeriesDescription",  "LO", "1"));
     public_dictionary.emplace(Tag(0x0008, 0x103f), ElementsDictionaryEntry("Series Description Code Sequence", "SeriesDescriptionCodeSequence",  "SQ", "1"));
     public_dictionary.emplace(Tag(0x0008, 0x1040), ElementsDictionaryEntry("Institutional Department Name", "InstitutionalDepartmentName",  "LO", "1"));
+    public_dictionary.emplace(Tag(0x0008, 0x1041), ElementsDictionaryEntry("Institutional Department Type Code Sequence", "InstitutionalDepartmentTypeCodeSequence",  "SQ", "1"));
     public_dictionary.emplace(Tag(0x0008, 0x1048), ElementsDictionaryEntry("Physician(s) of Record", "PhysiciansOfRecord",  "PN", "1-n"));
     public_dictionary.emplace(Tag(0x0008, 0x1049), ElementsDictionaryEntry("Physician(s) of Record Identification Sequence", "PhysiciansOfRecordIdentificationSequence",  "SQ", "1"));
     public_dictionary.emplace(Tag(0x0008, 0x1050), ElementsDictionaryEntry("Performing Physician's Name", "PerformingPhysicianName",  "PN", "1-n"));
@@ -217,6 +218,7 @@ void update_0008(
     public_dictionary.emplace(Tag(0x0008, 0x225a), ElementsDictionaryEntry("Anatomic Structure Space Or Region Modifier Code Sequence (Trial)", "AnatomicStructureSpaceOrRegionModifierCodeSequenceTrial",  "SQ", "1"));
     public_dictionary.emplace(Tag(0x0008, 0x225c), ElementsDictionaryEntry("On Axis Background Anatomic Structure Code Sequence (Trial)", "OnAxisBackgroundAnatomicStructureCodeSequenceTrial",  "SQ", "1"));
     public_dictionary.emplace(Tag(0x0008, 0x3001), ElementsDictionaryEntry("Alternate Representation Sequence", "AlternateRepresentationSequence",  "SQ", "1"));
+    public_dictionary.emplace(Tag(0x0008, 0x3002), ElementsDictionaryEntry("Available Transfer Syntax UID", "AvailableTransferSyntaxUID",  "UI", "1-n"));
     public_dictionary.emplace(Tag(0x0008, 0x3010), ElementsDictionaryEntry("Irradiation Event UID", "IrradiationEventUID",  "UI", "1-n"));
     public_dictionary.emplace(Tag(0x0008, 0x3011), ElementsDictionaryEntry("Source Irradiation Event Sequence", "SourceIrradiationEventSequence",  "SQ", "1"));
     public_dictionary.emplace(Tag(0x0008, 0x3012), ElementsDictionaryEntry("Radiopharmaceutical Administration Event UID", "RadiopharmaceuticalAdministrationEventUID",  "UI", "1"));
@@ -349,6 +351,7 @@ void update_0008(
     public_tags.emplace("SeriesDescription", Tag(0x0008, 0x103e));
     public_tags.emplace("SeriesDescriptionCodeSequence", Tag(0x0008, 0x103f));
     public_tags.emplace("InstitutionalDepartmentName", Tag(0x0008, 0x1040));
+    public_tags.emplace("InstitutionalDepartmentTypeCodeSequence", Tag(0x0008, 0x1041));
     public_tags.emplace("PhysiciansOfRecord", Tag(0x0008, 0x1048));
     public_tags.emplace("PhysiciansOfRecordIdentificationSequence", Tag(0x0008, 0x1049));
     public_tags.emplace("PerformingPhysicianName", Tag(0x0008, 0x1050));
@@ -432,6 +435,7 @@ void update_0008(
     public_tags.emplace("AnatomicStructureSpaceOrRegionModifierCodeSequenceTrial", Tag(0x0008, 0x225a));
     public_tags.emplace("OnAxisBackgroundAnatomicStructureCodeSequenceTrial", Tag(0x0008, 0x225c));
     public_tags.emplace("AlternateRepresentationSequence", Tag(0x0008, 0x3001));
+    public_tags.emplace("AvailableTransferSyntaxUID", Tag(0x0008, 0x3002));
     public_tags.emplace("IrradiationEventUID", Tag(0x0008, 0x3010));
     public_tags.emplace("SourceIrradiationEventSequence", Tag(0x0008, 0x3011));
     public_tags.emplace("RadiopharmaceuticalAdministrationEventUID", Tag(0x0008, 0x3012));

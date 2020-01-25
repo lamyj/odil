@@ -76,6 +76,9 @@ void update_3006(
     public_dictionary.emplace(Tag(0x3006, 0x00c4), ElementsDictionaryEntry("Frame of Reference Transformation Type", "FrameOfReferenceTransformationType",  "CS", "1"));
     public_dictionary.emplace(Tag(0x3006, 0x00c6), ElementsDictionaryEntry("Frame of Reference Transformation Matrix", "FrameOfReferenceTransformationMatrix",  "DS", "16"));
     public_dictionary.emplace(Tag(0x3006, 0x00c8), ElementsDictionaryEntry("Frame of Reference Transformation Comment", "FrameOfReferenceTransformationComment",  "LO", "1"));
+    public_dictionary.emplace(Tag(0x3006, 0x00c9), ElementsDictionaryEntry("Patient Location Coordinates Sequence", "PatientLocationCoordinatesSequence",  "SQ", "1"));
+    public_dictionary.emplace(Tag(0x3006, 0x00ca), ElementsDictionaryEntry("Patient Location Coordinates Code Sequence", "PatientLocationCoordinatesCodeSequence",  "SQ", "1"));
+    public_dictionary.emplace(Tag(0x3006, 0x00cb), ElementsDictionaryEntry("Patient Support Position Sequence", "PatientSupportPositionSequence",  "SQ", "1"));
 
     public_tags.emplace("StructureSetLabel", Tag(0x3006, 0x0002));
     public_tags.emplace("StructureSetName", Tag(0x3006, 0x0004));
@@ -129,6 +132,9 @@ void update_3006(
     public_tags.emplace("FrameOfReferenceTransformationType", Tag(0x3006, 0x00c4));
     public_tags.emplace("FrameOfReferenceTransformationMatrix", Tag(0x3006, 0x00c6));
     public_tags.emplace("FrameOfReferenceTransformationComment", Tag(0x3006, 0x00c8));
+    public_tags.emplace("PatientLocationCoordinatesSequence", Tag(0x3006, 0x00c9));
+    public_tags.emplace("PatientLocationCoordinatesCodeSequence", Tag(0x3006, 0x00ca));
+    public_tags.emplace("PatientSupportPositionSequence", Tag(0x3006, 0x00cb));
 }
 
 }

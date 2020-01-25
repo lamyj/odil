@@ -43,6 +43,8 @@ void update_0400(
     public_dictionary.emplace(Tag(0x0400, 0x0510), ElementsDictionaryEntry("Encrypted Content Transfer Syntax UID", "EncryptedContentTransferSyntaxUID",  "UI", "1"));
     public_dictionary.emplace(Tag(0x0400, 0x0520), ElementsDictionaryEntry("Encrypted Content", "EncryptedContent",  "OB", "1"));
     public_dictionary.emplace(Tag(0x0400, 0x0550), ElementsDictionaryEntry("Modified Attributes Sequence", "ModifiedAttributesSequence",  "SQ", "1"));
+    public_dictionary.emplace(Tag(0x0400, 0x0551), ElementsDictionaryEntry("Nonconforming Modified Attributes Sequence", "NonconformingModifiedAttributesSequence",  "SQ", "1"));
+    public_dictionary.emplace(Tag(0x0400, 0x0552), ElementsDictionaryEntry("Nonconforming Data Element Value", "NonconformingDataElementValue",  "OB", "1"));
     public_dictionary.emplace(Tag(0x0400, 0x0561), ElementsDictionaryEntry("Original Attributes Sequence", "OriginalAttributesSequence",  "SQ", "1"));
     public_dictionary.emplace(Tag(0x0400, 0x0562), ElementsDictionaryEntry("Attribute Modification DateTime", "AttributeModificationDateTime",  "DT", "1"));
     public_dictionary.emplace(Tag(0x0400, 0x0563), ElementsDictionaryEntry("Modifying System", "ModifyingSystem",  "LO", "1"));
@@ -69,6 +71,8 @@ void update_0400(
     public_tags.emplace("EncryptedContentTransferSyntaxUID", Tag(0x0400, 0x0510));
     public_tags.emplace("EncryptedContent", Tag(0x0400, 0x0520));
     public_tags.emplace("ModifiedAttributesSequence", Tag(0x0400, 0x0550));
+    public_tags.emplace("NonconformingModifiedAttributesSequence", Tag(0x0400, 0x0551));
+    public_tags.emplace("NonconformingDataElementValue", Tag(0x0400, 0x0552));
     public_tags.emplace("OriginalAttributesSequence", Tag(0x0400, 0x0561));
     public_tags.emplace("AttributeModificationDateTime", Tag(0x0400, 0x0562));
     public_tags.emplace("ModifyingSystem", Tag(0x0400, 0x0563));

@@ -30,6 +30,16 @@ Tag const ImplementationVersionName(0x0002, 0x0013);
 Tag const SourceApplicationEntityTitle(0x0002, 0x0016);
 Tag const SendingApplicationEntityTitle(0x0002, 0x0017);
 Tag const ReceivingApplicationEntityTitle(0x0002, 0x0018);
+Tag const SourcePresentationAddress(0x0002, 0x0026);
+Tag const SendingPresentationAddress(0x0002, 0x0027);
+Tag const ReceivingPresentationAddress(0x0002, 0x0028);
+Tag const RTVMetaInformationVersion(0x0002, 0x0031);
+Tag const RTVCommunicationSOPClassUID(0x0002, 0x0032);
+Tag const RTVCommunicationSOPInstanceUID(0x0002, 0x0033);
+Tag const RTVSourceIdentifier(0x0002, 0x0035);
+Tag const RTVFlowIdentifier(0x0002, 0x0036);
+Tag const RTVFlowRTPSamplingRate(0x0002, 0x0037);
+Tag const RTVFlowActualFrameDuration(0x0002, 0x0038);
 Tag const PrivateInformationCreatorUID(0x0002, 0x0100);
 Tag const PrivateInformation(0x0002, 0x0102);
 

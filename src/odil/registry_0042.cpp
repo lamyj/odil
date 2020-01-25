@@ -29,12 +29,14 @@ void update_0042(
     public_dictionary.emplace(Tag(0x0042, 0x0012), ElementsDictionaryEntry("MIME Type of Encapsulated Document", "MIMETypeOfEncapsulatedDocument",  "LO", "1"));
     public_dictionary.emplace(Tag(0x0042, 0x0013), ElementsDictionaryEntry("Source Instance Sequence", "SourceInstanceSequence",  "SQ", "1"));
     public_dictionary.emplace(Tag(0x0042, 0x0014), ElementsDictionaryEntry("List of MIME Types", "ListOfMIMETypes",  "LO", "1-n"));
+    public_dictionary.emplace(Tag(0x0042, 0x0015), ElementsDictionaryEntry("Encapsulated Document Length", "EncapsulatedDocumentLength",  "UL", "1"));
 
     public_tags.emplace("DocumentTitle", Tag(0x0042, 0x0010));
     public_tags.emplace("EncapsulatedDocument", Tag(0x0042, 0x0011));
     public_tags.emplace("MIMETypeOfEncapsulatedDocument", Tag(0x0042, 0x0012));
     public_tags.emplace("SourceInstanceSequence", Tag(0x0042, 0x0013));
     public_tags.emplace("ListOfMIMETypes", Tag(0x0042, 0x0014));
+    public_tags.emplace("EncapsulatedDocumentLength", Tag(0x0042, 0x0015));
 }
 
 }

@@ -72,6 +72,9 @@ Tag const RelatedFrameOfReferenceUID(0x3006, 0x00c2);
 Tag const FrameOfReferenceTransformationType(0x3006, 0x00c4);
 Tag const FrameOfReferenceTransformationMatrix(0x3006, 0x00c6);
 Tag const FrameOfReferenceTransformationComment(0x3006, 0x00c8);
+Tag const PatientLocationCoordinatesSequence(0x3006, 0x00c9);
+Tag const PatientLocationCoordinatesCodeSequence(0x3006, 0x00ca);
+Tag const PatientSupportPositionSequence(0x3006, 0x00cb);
 
 }
 

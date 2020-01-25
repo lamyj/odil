@@ -40,6 +40,7 @@ void update_0050(
     public_dictionary.emplace(Tag(0x0050, 0x001d), ElementsDictionaryEntry("Container Component Diameter", "ContainerComponentDiameter",  "FD", "1"));
     public_dictionary.emplace(Tag(0x0050, 0x001e), ElementsDictionaryEntry("Container Component Description", "ContainerComponentDescription",  "LO", "1"));
     public_dictionary.emplace(Tag(0x0050, 0x0020), ElementsDictionaryEntry("Device Description", "DeviceDescription",  "LO", "1"));
+    public_dictionary.emplace(Tag(0x0050, 0x0021), ElementsDictionaryEntry("Long Device Description", "LongDeviceDescription",  "ST", "1"));
 
     public_tags.emplace("CalibrationImage", Tag(0x0050, 0x0004));
     public_tags.emplace("DeviceSequence", Tag(0x0050, 0x0010));
@@ -57,6 +58,7 @@ void update_0050(
     public_tags.emplace("ContainerComponentDiameter", Tag(0x0050, 0x001d));
     public_tags.emplace("ContainerComponentDescription", Tag(0x0050, 0x001e));
     public_tags.emplace("DeviceDescription", Tag(0x0050, 0x0020));
+    public_tags.emplace("LongDeviceDescription", Tag(0x0050, 0x0021));
 }
 
 }

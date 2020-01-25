@@ -20,6 +20,8 @@ namespace odil
 
 namespace registry
 {
+Tag const ExtendedOffsetTable(0x7fe0, 0x0001);
+Tag const ExtendedOffsetTableLengths(0x7fe0, 0x0002);
 Tag const FloatPixelData(0x7fe0, 0x0008);
 Tag const DoubleFloatPixelData(0x7fe0, 0x0009);
 Tag const PixelData(0x7fe0, 0x0010);

@@ -25,6 +25,7 @@ Tag const EncapsulatedDocument(0x0042, 0x0011);
 Tag const MIMETypeOfEncapsulatedDocument(0x0042, 0x0012);
 Tag const SourceInstanceSequence(0x0042, 0x0013);
 Tag const ListOfMIMETypes(0x0042, 0x0014);
+Tag const EncapsulatedDocumentLength(0x0042, 0x0015);
 
 }
 

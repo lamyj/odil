@@ -39,6 +39,7 @@ void update_0046(
     public_dictionary.emplace(Tag(0x0046, 0x0042), ElementsDictionaryEntry("Channel Width", "ChannelWidth",  "FD", "1"));
     public_dictionary.emplace(Tag(0x0046, 0x0044), ElementsDictionaryEntry("Pupil Size", "PupilSize",  "FD", "1"));
     public_dictionary.emplace(Tag(0x0046, 0x0046), ElementsDictionaryEntry("Corneal Size", "CornealSize",  "FD", "1"));
+    public_dictionary.emplace(Tag(0x0046, 0x0047), ElementsDictionaryEntry("Corneal Size Sequence", "CornealSizeSequence",  "SQ", "1"));
     public_dictionary.emplace(Tag(0x0046, 0x0050), ElementsDictionaryEntry("Autorefraction Right Eye Sequence", "AutorefractionRightEyeSequence",  "SQ", "1"));
     public_dictionary.emplace(Tag(0x0046, 0x0052), ElementsDictionaryEntry("Autorefraction Left Eye Sequence", "AutorefractionLeftEyeSequence",  "SQ", "1"));
     public_dictionary.emplace(Tag(0x0046, 0x0060), ElementsDictionaryEntry("Distance Pupillary Distance", "DistancePupillaryDistance",  "FD", "1"));
@@ -62,6 +63,15 @@ void update_0046(
     public_dictionary.emplace(Tag(0x0046, 0x0102), ElementsDictionaryEntry("Add Other Sequence", "AddOtherSequence",  "SQ", "1"));
     public_dictionary.emplace(Tag(0x0046, 0x0104), ElementsDictionaryEntry("Add Power", "AddPower",  "FD", "1"));
     public_dictionary.emplace(Tag(0x0046, 0x0106), ElementsDictionaryEntry("Viewing Distance", "ViewingDistance",  "FD", "1"));
+    public_dictionary.emplace(Tag(0x0046, 0x0110), ElementsDictionaryEntry("Cornea Measurements Sequence", "CorneaMeasurementsSequence",  "SQ", "1"));
+    public_dictionary.emplace(Tag(0x0046, 0x0111), ElementsDictionaryEntry("Source of Cornea Measurement Data Code Sequence", "SourceOfCorneaMeasurementDataCodeSequence",  "SQ", "1"));
+    public_dictionary.emplace(Tag(0x0046, 0x0112), ElementsDictionaryEntry("Steep Corneal Axis Sequence", "SteepCornealAxisSequence",  "SQ", "1"));
+    public_dictionary.emplace(Tag(0x0046, 0x0113), ElementsDictionaryEntry("Flat Corneal Axis Sequence", "FlatCornealAxisSequence",  "SQ", "1"));
+    public_dictionary.emplace(Tag(0x0046, 0x0114), ElementsDictionaryEntry("Corneal Power", "CornealPower",  "FD", "1"));
+    public_dictionary.emplace(Tag(0x0046, 0x0115), ElementsDictionaryEntry("Corneal Axis", "CornealAxis",  "FD", "1"));
+    public_dictionary.emplace(Tag(0x0046, 0x0116), ElementsDictionaryEntry("Cornea Measurement Method Code Sequence", "CorneaMeasurementMethodCodeSequence",  "SQ", "1"));
+    public_dictionary.emplace(Tag(0x0046, 0x0117), ElementsDictionaryEntry("Refractive Index of Cornea", "RefractiveIndexOfCornea",  "FL", "1"));
+    public_dictionary.emplace(Tag(0x0046, 0x0118), ElementsDictionaryEntry("Refractive Index of Aqueous Humor", "RefractiveIndexOfAqueousHumor",  "FL", "1"));
     public_dictionary.emplace(Tag(0x0046, 0x0121), ElementsDictionaryEntry("Visual Acuity Type Code Sequence", "VisualAcuityTypeCodeSequence",  "SQ", "1"));
     public_dictionary.emplace(Tag(0x0046, 0x0122), ElementsDictionaryEntry("Visual Acuity Right Eye Sequence", "VisualAcuityRightEyeSequence",  "SQ", "1"));
     public_dictionary.emplace(Tag(0x0046, 0x0123), ElementsDictionaryEntry("Visual Acuity Left Eye Sequence", "VisualAcuityLeftEyeSequence",  "SQ", "1"));
@@ -119,6 +129,7 @@ void update_0046(
     public_tags.emplace("ChannelWidth", Tag(0x0046, 0x0042));
     public_tags.emplace("PupilSize", Tag(0x0046, 0x0044));
     public_tags.emplace("CornealSize", Tag(0x0046, 0x0046));
+    public_tags.emplace("CornealSizeSequence", Tag(0x0046, 0x0047));
     public_tags.emplace("AutorefractionRightEyeSequence", Tag(0x0046, 0x0050));
     public_tags.emplace("AutorefractionLeftEyeSequence", Tag(0x0046, 0x0052));
     public_tags.emplace("DistancePupillaryDistance", Tag(0x0046, 0x0060));
@@ -142,6 +153,15 @@ void update_0046(
     public_tags.emplace("AddOtherSequence", Tag(0x0046, 0x0102));
     public_tags.emplace("AddPower", Tag(0x0046, 0x0104));
     public_tags.emplace("ViewingDistance", Tag(0x0046, 0x0106));
+    public_tags.emplace("CorneaMeasurementsSequence", Tag(0x0046, 0x0110));
+    public_tags.emplace("SourceOfCorneaMeasurementDataCodeSequence", Tag(0x0046, 0x0111));
+    public_tags.emplace("SteepCornealAxisSequence", Tag(0x0046, 0x0112));
+    public_tags.emplace("FlatCornealAxisSequence", Tag(0x0046, 0x0113));
+    public_tags.emplace("CornealPower", Tag(0x0046, 0x0114));
+    public_tags.emplace("CornealAxis", Tag(0x0046, 0x0115));
+    public_tags.emplace("CorneaMeasurementMethodCodeSequence", Tag(0x0046, 0x0116));
+    public_tags.emplace("RefractiveIndexOfCornea", Tag(0x0046, 0x0117));
+    public_tags.emplace("RefractiveIndexOfAqueousHumor", Tag(0x0046, 0x0118));
     public_tags.emplace("VisualAcuityTypeCodeSequence", Tag(0x0046, 0x0121));
     public_tags.emplace("VisualAcuityRightEyeSequence", Tag(0x0046, 0x0122));
     public_tags.emplace("VisualAcuityLeftEyeSequence", Tag(0x0046, 0x0123));

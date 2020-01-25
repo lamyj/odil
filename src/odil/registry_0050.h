@@ -36,6 +36,7 @@ Tag const ContainerComponentLength(0x0050, 0x001c);
 Tag const ContainerComponentDiameter(0x0050, 0x001d);
 Tag const ContainerComponentDescription(0x0050, 0x001e);
 Tag const DeviceDescription(0x0050, 0x0020);
+Tag const LongDeviceDescription(0x0050, 0x0021);
 
 }
 

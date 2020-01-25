@@ -24,6 +24,7 @@
 #include "odil/registry_0010.h"
 #include "odil/registry_0012.h"
 #include "odil/registry_0014.h"
+#include "odil/registry_0016.h"
 #include "odil/registry_0018.h"
 #include "odil/registry_0020.h"
 #include "odil/registry_misc.h"
@@ -31,6 +32,7 @@
 #include "odil/registry_0024.h"
 #include "odil/registry_0028.h"
 #include "odil/registry_0032.h"
+#include "odil/registry_0034.h"
 #include "odil/registry_0038.h"
 #include "odil/registry_003a.h"
 #include "odil/registry_0040.h"
@@ -74,6 +76,7 @@
 #include "odil/registry_300a.h"
 #include "odil/registry_300c.h"
 #include "odil/registry_300e.h"
+#include "odil/registry_3010.h"
 #include "odil/registry_4000.h"
 #include "odil/registry_4008.h"
 #include "odil/registry_4010.h"
@@ -135,6 +138,9 @@ std::string const HEVCH265Main10ProfileLevel51("1.2.840.10008.1.2.4.108");
 std::string const RLELossless("1.2.840.10008.1.2.5");
 std::string const RFC2557MIMEencapsulation_Retired("1.2.840.10008.1.2.6.1");
 std::string const XMLEncoding_Retired("1.2.840.10008.1.2.6.2");
+std::string const SMPTEST211020UncompressedProgressiveActiveVideo("1.2.840.10008.1.2.7.1");
+std::string const SMPTEST211020UncompressedInterlacedActiveVideo("1.2.840.10008.1.2.7.2");
+std::string const SMPTEST211030PCMDigitalAudio("1.2.840.10008.1.2.7.3");
 std::string const MediaStorageDirectoryStorage("1.2.840.10008.1.3.10");
 std::string const TalairachBrainAtlasFrameofReference("1.2.840.10008.1.4.1.1");
 std::string const SPM2T1FrameofReference("1.2.840.10008.1.4.1.2");
@@ -156,6 +162,7 @@ std::string const SPM2AVG152PDFrameofReference("1.2.840.10008.1.4.1.17");
 std::string const SPM2SINGLESUBJT1FrameofReference("1.2.840.10008.1.4.1.18");
 std::string const ICBM452T1FrameofReference("1.2.840.10008.1.4.2.1");
 std::string const ICBMSingleSubjectMRIFrameofReference("1.2.840.10008.1.4.2.2");
+std::string const IEC61217FixedCoordinateSystemFrameofReference("1.2.840.10008.1.4.3.1");
 std::string const HotIronColorPaletteSOPInstance("1.2.840.10008.1.5.1");
 std::string const PETColorPaletteSOPInstance("1.2.840.10008.1.5.2");
 std::string const HotMetalBlueColorPaletteSOPInstance("1.2.840.10008.1.5.3");
@@ -181,6 +188,11 @@ std::string const UberonOntology("1.2.840.10008.2.16.6");
 std::string const IntegratedTaxonomicInformationSystemITISTaxonomicSerialNumberTSN("1.2.840.10008.2.16.7");
 std::string const MouseGenomeInitiativeMGI("1.2.840.10008.2.16.8");
 std::string const PubChemCompoundCID("1.2.840.10008.2.16.9");
+std::string const ICD11("1.2.840.10008.2.16.10");
+std::string const NewYorkUniversityMelanomaClinicalCooperativeGroup("1.2.840.10008.2.16.11");
+std::string const MayoClinicNonradiologicalImagesSpecificBodyStructureAnatomicalSurfaceRegionGuide("1.2.840.10008.2.16.12");
+std::string const ImageBiomarkerStandardisationInitiative("1.2.840.10008.2.16.13");
+std::string const RadiomicsOntology("1.2.840.10008.2.16.14");
 std::string const DICOMApplicationContextName("1.2.840.10008.3.1.1.1");
 std::string const DetachedPatientManagementSOPClass_Retired("1.2.840.10008.3.1.2.1.1");
 std::string const DetachedPatientManagementMetaSOPClass_Retired("1.2.840.10008.3.1.2.1.4");
@@ -349,6 +361,8 @@ std::string const ImplantationPlanSRStorage("1.2.840.10008.5.1.4.1.1.88.70");
 std::string const AcquisitionContextSRStorage("1.2.840.10008.5.1.4.1.1.88.71");
 std::string const SimplifiedAdultEchoSRStorage("1.2.840.10008.5.1.4.1.1.88.72");
 std::string const PatientRadiationDoseSRStorage("1.2.840.10008.5.1.4.1.1.88.73");
+std::string const PlannedImagingAgentAdministrationSRStorage("1.2.840.10008.5.1.4.1.1.88.74");
+std::string const PerformedImagingAgentAdministrationSRStorage("1.2.840.10008.5.1.4.1.1.88.75");
 std::string const ContentAssessmentResultsStorage("1.2.840.10008.5.1.4.1.1.90.1");
 std::string const EncapsulatedPDFStorage("1.2.840.10008.5.1.4.1.1.104.1");
 std::string const EncapsulatedCDAStorage("1.2.840.10008.5.1.4.1.1.104.2");
@@ -373,6 +387,10 @@ std::string const RTBrachyTreatmentRecordStorage("1.2.840.10008.5.1.4.1.1.481.6"
 std::string const RTTreatmentSummaryRecordStorage("1.2.840.10008.5.1.4.1.1.481.7");
 std::string const RTIonPlanStorage("1.2.840.10008.5.1.4.1.1.481.8");
 std::string const RTIonBeamsTreatmentRecordStorage("1.2.840.10008.5.1.4.1.1.481.9");
+std::string const RTPhysicianIntentStorage("1.2.840.10008.5.1.4.1.1.481.10");
+std::string const RTSegmentAnnotationStorage("1.2.840.10008.5.1.4.1.1.481.11");
+std::string const RTRadiationSetStorage("1.2.840.10008.5.1.4.1.1.481.12");
+std::string const CArmPhotonElectronRadiationStorage("1.2.840.10008.5.1.4.1.1.481.13");
 std::string const DICOSCTImageStorage("1.2.840.10008.5.1.4.1.1.501.1");
 std::string const DICOSDigitalXRayImageStorageForPresentation("1.2.840.10008.5.1.4.1.1.501.2.1");
 std::string const DICOSDigitalXRayImageStorageForProcessing("1.2.840.10008.5.1.4.1.1.501.2.2");
@@ -418,6 +436,7 @@ std::string const UnifiedProcedureStepPushSOPClass("1.2.840.10008.5.1.4.34.6.1")
 std::string const UnifiedProcedureStepWatchSOPClass("1.2.840.10008.5.1.4.34.6.2");
 std::string const UnifiedProcedureStepPullSOPClass("1.2.840.10008.5.1.4.34.6.3");
 std::string const UnifiedProcedureStepEventSOPClass("1.2.840.10008.5.1.4.34.6.4");
+std::string const UnifiedProcedureStepQuerySOPClass("1.2.840.10008.5.1.4.34.6.5");
 std::string const RTBeamsDeliveryInstructionStorage("1.2.840.10008.5.1.4.34.7");
 std::string const RTConventionalMachineVerification("1.2.840.10008.5.1.4.34.8");
 std::string const RTIonMachineVerification("1.2.840.10008.5.1.4.34.9");
@@ -450,6 +469,10 @@ std::string const ImplantTemplateGroupInformationModelGET("1.2.840.10008.5.1.4.4
 std::string const NativeDICOMModel("1.2.840.10008.7.1.1");
 std::string const AbstractMultiDimensionalImageModel("1.2.840.10008.7.1.2");
 std::string const DICOMContentMappingResource("1.2.840.10008.8.1.1");
+std::string const VideoEndoscopicImageRealTimeCommunication("1.2.840.10008.10.1");
+std::string const VideoPhotographicImageRealTimeCommunication("1.2.840.10008.10.2");
+std::string const AudioWaveformRealTimeCommunication("1.2.840.10008.10.3");
+std::string const RenditionSelectionDocumentRealTimeCommunication("1.2.840.10008.10.4");
 std::string const dicomDeviceName("1.2.840.10008.15.0.3.1");
 std::string const dicomDescription("1.2.840.10008.15.0.3.2");
 std::string const dicomManufacturer("1.2.840.10008.15.0.3.3");
