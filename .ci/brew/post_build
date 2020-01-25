@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -ev
+set -v
 
 export WORKSPACE=${WORKSPACE:?}
 export BUILD_DIR="${WORKSPACE}/${BUILD_DIR:-build}"
@@ -24,11 +24,15 @@ sleep 1
 
 cd "${BUILD_DIR}"
 
-# FIXME: GetSCP_Release fails
-ctest -T Test -E GetSCP_Release
-# FIXME: test_get_scp_release fails
-${PYTHON} -m unittest discover -s ${WORKSPACE}/tests/wrappers/ || true
+ctest -T Test
+R1=$?
+
+${PYTHON} -m unittest discover -s ${WORKSPACE}/tests/wrappers/
+R2=$?
 
 kill %1
 cd "${WORKSPACE}/tests/data"
-rm index.dat RAW_*.dcm
+rm -f index.dat RAW_*.dcm
+
+RETURNCODE=$(if test ${R2} -gt ${R1}; then echo ${R2} ; else echo ${R1}; fi)
+exit ${RETURNCODE}
