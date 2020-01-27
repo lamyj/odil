@@ -66,6 +66,11 @@ matrix:
         - CMAKE_OPTIONS="-DBoost_NO_BOOST_CMAKE=ON"
         - WORKSPACE=${TRAVIS_BUILD_DIR}
         - RUNNER=""
+      cache:
+        directories:
+          - $HOME/Library/Caches/Homebrew
+      before_cache:
+        - brew cleanup
 
 script: |
   ${RUNNER} ./.ci/${CI_TYPE}/install
