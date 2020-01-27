@@ -1,6 +1,7 @@
 #define BOOST_TEST_MODULE FindSCP
 #include <boost/test/unit_test.hpp>
 
+#include <algorithm>
 #include <chrono>
 #include <cstdlib>
 #include <memory>
@@ -140,6 +141,17 @@ void run_client(Status * status)
 
         boost::filesystem::remove(it->path());
     }
+    
+    std::sort(
+        status->responses.begin(), status->responses.end(),
+        [](
+            std::shared_ptr<odil::DataSet const> left,
+            std::shared_ptr<odil::DataSet const> right)
+        {
+            auto const & left_uid = left->as_string("PatientID", 0);
+            auto const & right_uid = right->as_string("PatientID", 0);
+            return (left_uid < right_uid);
+        });
 }
 
 BOOST_AUTO_TEST_CASE(Release)
