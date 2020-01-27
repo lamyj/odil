@@ -24,7 +24,7 @@ sleep 1
 
 cd "${BUILD_DIR}"
 
-ctest -T Test
+ctest --output-on-failure # -T Test
 R1=$?
 
 ${PYTHON} -m unittest discover -s ${WORKSPACE}/tests/wrappers/
