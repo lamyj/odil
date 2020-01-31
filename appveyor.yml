@@ -1,48 +1,19 @@
-image: Visual Studio 2017
-platform:
-  - x64
 version: '{build}'
+image: Visual Studio 2017
+environment:
+  PATH: C:\Miniconda3-x64;C:\Miniconda3-x64\Scripts;C:\Miniconda3-x64\Library\bin;$(PATH)
+  PLATFORM: x64
+  PYTHON: C:\Miniconda3-x64\python.exe
+  VCVARS_PATH: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\VC\\Auxiliary\\Build\\vcvarsall.bat"
+  WORKSPACE: $(APPVEYOR_BUILD_FOLDER)
 branches:
   only:
     - master
-
-configuration: Release
-
-environment:
-  VCPKG_EXPORT: vcpkg-export-20181101-093017
-  VCVARSALL: '%ProgramFiles(x86)%\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat'
-  ARCHITECTURE: x86_amd64
-
+    - appveyor
 install:
-  # This archive was obtained by:
-  # vcpkg export --7zip --triplet x64-windows
-  #   boost-asio boost-date-time boost-filesystem boost-fusion  boost-iostreams
-  #   boost-lexical-cast boost-log boost-property-tree boost-spirit boost-test
-  #   boost-uuid dcmtk icu jsoncpp pybind11 zlib
-  - appveyor DownloadFile http://dl.bintray.com/lamyj/generic/vcpkg-exports/%VCPKG_EXPORT%.7z
-  - 7z x %VCPKG_EXPORT%.7z -aos -oc:\tools\vcpkg
-  - choco install ninja -y
-  - vcpkg integrate install
-
-before_build:
-  - call "%VCVARSALL%" %ARCHITECTURE%
-  - cd "%APPVEYOR_BUILD_FOLDER%"
-  - mkdir build
-  - cd build
-  - cmake
-      -G Ninja -DCMAKE_MAKE_PROGRAM=C:/ProgramData/chocolatey/bin/ninja.exe
-      -DCMAKE_BUILD_TYPE=%CONFIGURATION%
-      -DCMAKE_TOOLCHAIN_FILE=c:/tools/vcpkg/%VCPKG_EXPORT%/scripts/buildsystems/vcpkg.cmake
-      -DBUILD_PYTHON_WRAPPERS=OFF -DUSE_BUILTIN_DCMTK_GETSCU=OFF
-      -DCMAKE_INSTALL_PREFIX=%APPVEYOR_BUILD_FOLDER%\install
-      ..
-
+  - call "%VCVARS_PATH%" %PLATFORM%
+  - call .\.ci\windows\install.cmd
 build_script:
-  - cd "%APPVEYOR_BUILD_FOLDER%\build"
-  - cmake --build .
-  - cmake --build . --target install
-
+  - call .\.ci\windows\build.cmd
 test_script:
-  - cd "%APPVEYOR_BUILD_FOLDER%\build"
-  - set PATH=%APPVEYOR_BUILD_FOLDER%\install\bin;%APPVEYOR_BUILD_FOLDER%\build\src;%PATH%
-  - ctest -C Test -E "Association|Network|ServiceRole|SCP|SCU|Transport"
+  - call .\.ci\windows\post_build.cmd

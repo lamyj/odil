@@ -1,4 +1,4 @@
-find_package(Boost REQUIRED COMPONENTS date_time filesystem log system)
+find_package(Boost REQUIRED COMPONENTS date_time exception filesystem log system)
 find_package(ICU REQUIRED)
 find_package(JsonCpp REQUIRED)
 if(WITH_DCMTK)
@@ -32,6 +32,9 @@ add_definitions(
     -D BOOST_ASIO_SEPARATE_COMPILATION
     -D ODIL_MAJOR_VERSION=${odil_MAJOR_VERSION}
 )
+if(WIN32)
+    add_definitions(-D BOOST_UUID_FORCE_AUTO_LINK)
+endif()
 if(BUILD_SHARED_LIBS)
     add_definitions(-D BOOST_ALL_DYN_LINK)
 endif()

@@ -48,6 +48,11 @@ if(WIN32)
     else() # Windows XP (5.1)
         add_definitions(-D _WIN32_WINNT=0x0501)
     endif()
+    
+    # Starting with Visual Studio 2015 / VC 14 / MSVC 19.00, snprintf is present
+    if(${MSVC_VERSION} GREATER_EQUAL "1900")
+        add_definitions(-D HAVE_SNPRINTF)
+    endif()
 endif()
 
 add_subdirectory("src")

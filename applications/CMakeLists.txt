@@ -7,7 +7,7 @@ set_target_properties(PythonFiles PROPERTIES FOLDER "Examples")
 if(BUILD_PYTHON_WRAPPERS)
     execute_process(
         COMMAND ${PYTHON_EXECUTABLE}
-          -c "from distutils.sysconfig import *; print(get_python_lib(True, prefix=''))"
+          -c "from distutils.sysconfig import *; print(get_python_lib(True, prefix='').replace('\\\\', '/'))"
         OUTPUT_VARIABLE PYTHON_SITE_PACKAGES
         OUTPUT_STRIP_TRAILING_WHITESPACE)
 
