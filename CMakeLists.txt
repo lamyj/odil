@@ -1,11 +1,12 @@
 cmake_minimum_required(VERSION 2.8)
 
 project("odil")
-set(odil_MAJOR_VERSION 0)
-set(odil_MINOR_VERSION 10)
-set(odil_PATCH_VERSION 0)
-set(odil_VERSION
-    ${odil_MAJOR_VERSION}.${odil_MINOR_VERSION}.${odil_PATCH_VERSION})
+
+set(odil_VERSION 0.10.0)
+string(REGEX MATCH "^([0-9]+)\\.([0-9]+)\\.([0-9]+)" _ "${odil_VERSION}")
+set(odil_MAJOR_VERSION "${CMAKE_MATCH_1}")
+set(odil_MINOR_VERSION "${CMAKE_MATCH_2}")
+set(odil_PATCH_VERSION "${CMAKE_MATCH_3}")
 
 option(BUILD_SHARED_LIBS "Build Odil with shared libraries." ON)
 option(BUILD_EXAMPLES "Build the examples directory." ON)
