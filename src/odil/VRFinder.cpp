@@ -85,8 +85,7 @@ VRFinder::operator()(
         }
         else
         {
-            ODIL_LOG(warning) 
-                << "No known VR for " << tag << ", defaulting to UN";
+            ODIL_LOG(info) << "No known VR for " << tag << ", defaulting to UN";
             vr = VR::UN;
         }
     }
@@ -183,8 +182,21 @@ VRFinder
         {
             return VR::OW;
         }
-        // LUTData
-        // LUTDescriptor
+        else if(tag == registry::LUTData)
+        {
+            return VR::OW;
+        }
+        else if(tag == registry::LUTDescriptor)
+        {
+            // - PS 3.3, C.11.1.1.1: may be heterogeneous, depends on 
+            //   Pixel Representation
+            // - PS 3.3, C.11.2.1.1: may be heterogeneous, depends on 
+            //   Pixel Representation, Rescale Slope and Rescale Intercept
+            // - C.11.4.1: always US
+            // - C.11.6.1.1: always US
+            // FIXME This is too context-dependent
+            return VR::UN;
+        }
         else if(tag == registry::BlendingLookupTableData)
         {
             return VR::OW;
