@@ -163,6 +163,7 @@ void update_uids_dictionary(UIDsDictionary & uids_dictionary)
     uids_dictionary.emplace("1.2.840.10008.1.4.2.1", UIDsDictionaryEntry("ICBM 452 T1 Frame of Reference", "ICBM452T1FrameofReference",  "Well-known frame of reference"));
     uids_dictionary.emplace("1.2.840.10008.1.4.2.2", UIDsDictionaryEntry("ICBM Single Subject MRI Frame of Reference", "ICBMSingleSubjectMRIFrameofReference",  "Well-known frame of reference"));
     uids_dictionary.emplace("1.2.840.10008.1.4.3.1", UIDsDictionaryEntry("IEC 61217 Fixed Coordinate System Frame of Reference", "IEC61217FixedCoordinateSystemFrameofReference",  "Well-known frame of reference"));
+    uids_dictionary.emplace("1.2.840.10008.1.4.3.2", UIDsDictionaryEntry("Standard Robotic-Arm Coordinate System Frame of Reference", "StandardRoboticArmCoordinateSystemFrameofReference",  "Well-known frame of reference"));
     uids_dictionary.emplace("1.2.840.10008.1.5.1", UIDsDictionaryEntry("Hot Iron Color Palette SOP Instance", "HotIronColorPaletteSOPInstance",  "Well-known SOP Instance"));
     uids_dictionary.emplace("1.2.840.10008.1.5.2", UIDsDictionaryEntry("PET Color Palette SOP Instance", "PETColorPaletteSOPInstance",  "Well-known SOP Instance"));
     uids_dictionary.emplace("1.2.840.10008.1.5.3", UIDsDictionaryEntry("Hot Metal Blue Color Palette SOP Instance", "HotMetalBlueColorPaletteSOPInstance",  "Well-known SOP Instance"));
@@ -193,6 +194,7 @@ void update_uids_dictionary(UIDsDictionary & uids_dictionary)
     uids_dictionary.emplace("1.2.840.10008.2.16.12", UIDsDictionaryEntry("Mayo Clinic Non-radiological Images Specific Body Structure Anatomical Surface Region Guide", "MayoClinicNonradiologicalImagesSpecificBodyStructureAnatomicalSurfaceRegionGuide",  "Coding Scheme"));
     uids_dictionary.emplace("1.2.840.10008.2.16.13", UIDsDictionaryEntry("Image Biomarker Standardisation Initiative", "ImageBiomarkerStandardisationInitiative",  "Coding Scheme"));
     uids_dictionary.emplace("1.2.840.10008.2.16.14", UIDsDictionaryEntry("Radiomics Ontology", "RadiomicsOntology",  "Coding Scheme"));
+    uids_dictionary.emplace("1.2.840.10008.2.16.15", UIDsDictionaryEntry("RadElement", "RadElement",  "Coding Scheme"));
     uids_dictionary.emplace("1.2.840.10008.3.1.1.1", UIDsDictionaryEntry("DICOM Application Context Name", "DICOMApplicationContextName",  "Application Context Name"));
     uids_dictionary.emplace("1.2.840.10008.3.1.2.1.1", UIDsDictionaryEntry("Detached Patient Management SOP Class (Retired)", "DetachedPatientManagementSOPClass_Retired",  "SOP Class"));
     uids_dictionary.emplace("1.2.840.10008.3.1.2.1.4", UIDsDictionaryEntry("Detached Patient Management Meta SOP Class (Retired)", "DetachedPatientManagementMetaSOPClass_Retired",  "Meta SOP Class"));
@@ -367,6 +369,8 @@ void update_uids_dictionary(UIDsDictionary & uids_dictionary)
     uids_dictionary.emplace("1.2.840.10008.5.1.4.1.1.104.1", UIDsDictionaryEntry("Encapsulated PDF Storage", "EncapsulatedPDFStorage",  "SOP Class"));
     uids_dictionary.emplace("1.2.840.10008.5.1.4.1.1.104.2", UIDsDictionaryEntry("Encapsulated CDA Storage", "EncapsulatedCDAStorage",  "SOP Class"));
     uids_dictionary.emplace("1.2.840.10008.5.1.4.1.1.104.3", UIDsDictionaryEntry("Encapsulated STL Storage", "EncapsulatedSTLStorage",  "SOP Class"));
+    uids_dictionary.emplace("1.2.840.10008.5.1.4.1.1.104.4", UIDsDictionaryEntry("Encapsulated OBJ Storage", "EncapsulatedOBJStorage",  "SOP Class"));
+    uids_dictionary.emplace("1.2.840.10008.5.1.4.1.1.104.5", UIDsDictionaryEntry("Encapsulated MTL Storage", "EncapsulatedMTLStorage",  "SOP Class"));
     uids_dictionary.emplace("1.2.840.10008.5.1.4.1.1.128", UIDsDictionaryEntry("Positron Emission Tomography Image Storage", "PositronEmissionTomographyImageStorage",  "SOP Class"));
     uids_dictionary.emplace("1.2.840.10008.5.1.4.1.1.128.1", UIDsDictionaryEntry("Legacy Converted Enhanced PET Image Storage", "LegacyConvertedEnhancedPETImageStorage",  "SOP Class"));
     uids_dictionary.emplace("1.2.840.10008.5.1.4.1.1.129", UIDsDictionaryEntry("Standalone PET Curve Storage (Retired)", "StandalonePETCurveStorage_Retired",  "SOP Class"));
@@ -391,6 +395,8 @@ void update_uids_dictionary(UIDsDictionary & uids_dictionary)
     uids_dictionary.emplace("1.2.840.10008.5.1.4.1.1.481.11", UIDsDictionaryEntry("RT Segment Annotation Storage", "RTSegmentAnnotationStorage",  "SOP Class"));
     uids_dictionary.emplace("1.2.840.10008.5.1.4.1.1.481.12", UIDsDictionaryEntry("RT Radiation Set Storage", "RTRadiationSetStorage",  "SOP Class"));
     uids_dictionary.emplace("1.2.840.10008.5.1.4.1.1.481.13", UIDsDictionaryEntry("C-Arm Photon-Electron Radiation Storage", "CArmPhotonElectronRadiationStorage",  "SOP Class"));
+    uids_dictionary.emplace("1.2.840.10008.5.1.4.1.1.481.14", UIDsDictionaryEntry("Tomotherapeutic Radiation Storage", "TomotherapeuticRadiationStorage",  "SOP Class"));
+    uids_dictionary.emplace("1.2.840.10008.5.1.4.1.1.481.15", UIDsDictionaryEntry("Robotic-Arm Radiation Storage", "RoboticArmRadiationStorage",  "SOP Class"));
     uids_dictionary.emplace("1.2.840.10008.5.1.4.1.1.501.1", UIDsDictionaryEntry("DICOS CT Image Storage", "DICOSCTImageStorage",  "SOP Class"));
     uids_dictionary.emplace("1.2.840.10008.5.1.4.1.1.501.2.1", UIDsDictionaryEntry("DICOS Digital X-Ray Image Storage - For Presentation", "DICOSDigitalXRayImageStorageForPresentation",  "SOP Class"));
     uids_dictionary.emplace("1.2.840.10008.5.1.4.1.1.501.2.2", UIDsDictionaryEntry("DICOS Digital X-Ray Image Storage - For Processing", "DICOSDigitalXRayImageStorageForProcessing",  "SOP Class"));

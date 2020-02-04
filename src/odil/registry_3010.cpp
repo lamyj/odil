@@ -160,6 +160,17 @@ void update_3010(
     public_dictionary.emplace(Tag(0x3010, 0x0087), ElementsDictionaryEntry("Weekday Fraction Pattern Sequence", "WeekdayFractionPatternSequence",  "SQ", "1"));
     public_dictionary.emplace(Tag(0x3010, 0x0088), ElementsDictionaryEntry("Delivery Time Structure Code Sequence", "DeliveryTimeStructureCodeSequence",  "SQ", "1"));
     public_dictionary.emplace(Tag(0x3010, 0x0089), ElementsDictionaryEntry("Treatment Site Modifier Code Sequence", "TreatmentSiteModifierCodeSequence",  "SQ", "1"));
+    public_dictionary.emplace(Tag(0x3010, 0x0090), ElementsDictionaryEntry("Robotic Base Location Indicator", "RoboticBaseLocationIndicator",  "CS", "1"));
+    public_dictionary.emplace(Tag(0x3010, 0x0091), ElementsDictionaryEntry("Robotic Path Node Set Code Sequence", "RoboticPathNodeSetCodeSequence",  "SQ", "1"));
+    public_dictionary.emplace(Tag(0x3010, 0x0092), ElementsDictionaryEntry("Robotic Node Identifier", "RoboticNodeIdentifier",  "UL", "1"));
+    public_dictionary.emplace(Tag(0x3010, 0x0093), ElementsDictionaryEntry("RT Treatment Source Coordinates", "RTTreatmentSourceCoordinates",  "FD", "3"));
+    public_dictionary.emplace(Tag(0x3010, 0x0094), ElementsDictionaryEntry("Radiation Source Coordinate SystemYaw Angle", "RadiationSourceCoordinateSystemYawAngle",  "FD", "1"));
+    public_dictionary.emplace(Tag(0x3010, 0x0095), ElementsDictionaryEntry("Radiation Source Coordinate SystemRoll Angle", "RadiationSourceCoordinateSystemRollAngle",  "FD", "1"));
+    public_dictionary.emplace(Tag(0x3010, 0x0096), ElementsDictionaryEntry("Radiation Source Coordinate SystemPitch Angle", "RadiationSourceCoordinateSystemPitchAngle",  "FD", "1"));
+    public_dictionary.emplace(Tag(0x3010, 0x0097), ElementsDictionaryEntry("Robotic Path Control Point Sequence", "RoboticPathControlPointSequence",  "SQ", "1"));
+    public_dictionary.emplace(Tag(0x3010, 0x0098), ElementsDictionaryEntry("Tomotherapeutic Control Point Sequence", "TomotherapeuticControlPointSequence",  "SQ", "1"));
+    public_dictionary.emplace(Tag(0x3010, 0x0099), ElementsDictionaryEntry("Tomotherapeutic Leaf Open Durations", "TomotherapeuticLeafOpenDurations",  "FD", "1-n"));
+    public_dictionary.emplace(Tag(0x3010, 0x009a), ElementsDictionaryEntry("Tomotherapeutic Leaf Initial Closed Durations", "TomotherapeuticLeafInitialClosedDurations",  "FD", "1-n"));
 
     public_tags.emplace("RadiobiologicalDoseEffectSequence", Tag(0x3010, 0x0001));
     public_tags.emplace("RadiobiologicalDoseEffectFlag", Tag(0x3010, 0x0002));
@@ -297,6 +308,17 @@ void update_3010(
     public_tags.emplace("WeekdayFractionPatternSequence", Tag(0x3010, 0x0087));
     public_tags.emplace("DeliveryTimeStructureCodeSequence", Tag(0x3010, 0x0088));
     public_tags.emplace("TreatmentSiteModifierCodeSequence", Tag(0x3010, 0x0089));
+    public_tags.emplace("RoboticBaseLocationIndicator", Tag(0x3010, 0x0090));
+    public_tags.emplace("RoboticPathNodeSetCodeSequence", Tag(0x3010, 0x0091));
+    public_tags.emplace("RoboticNodeIdentifier", Tag(0x3010, 0x0092));
+    public_tags.emplace("RTTreatmentSourceCoordinates", Tag(0x3010, 0x0093));
+    public_tags.emplace("RadiationSourceCoordinateSystemYawAngle", Tag(0x3010, 0x0094));
+    public_tags.emplace("RadiationSourceCoordinateSystemRollAngle", Tag(0x3010, 0x0095));
+    public_tags.emplace("RadiationSourceCoordinateSystemPitchAngle", Tag(0x3010, 0x0096));
+    public_tags.emplace("RoboticPathControlPointSequence", Tag(0x3010, 0x0097));
+    public_tags.emplace("TomotherapeuticControlPointSequence", Tag(0x3010, 0x0098));
+    public_tags.emplace("TomotherapeuticLeafOpenDurations", Tag(0x3010, 0x0099));
+    public_tags.emplace("TomotherapeuticLeafInitialClosedDurations", Tag(0x3010, 0x009a));
 }
 
 }

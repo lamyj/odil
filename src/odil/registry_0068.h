@@ -93,6 +93,8 @@ Tag const ThreeDPlaneNormal(0x0068, 0x6620);
 Tag const ModelModification(0x0068, 0x7001);
 Tag const ModelMirroring(0x0068, 0x7002);
 Tag const ModelUsageCodeSequence(0x0068, 0x7003);
+Tag const ModelGroupUID(0x0068, 0x7004);
+Tag const RelativeURIReferenceWithinEncapsulatedDocument(0x0068, 0x7005);
 
 }
 

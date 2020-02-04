@@ -156,6 +156,17 @@ Tag const IntendedStartDayOfWeek(0x3010, 0x0086);
 Tag const WeekdayFractionPatternSequence(0x3010, 0x0087);
 Tag const DeliveryTimeStructureCodeSequence(0x3010, 0x0088);
 Tag const TreatmentSiteModifierCodeSequence(0x3010, 0x0089);
+Tag const RoboticBaseLocationIndicator(0x3010, 0x0090);
+Tag const RoboticPathNodeSetCodeSequence(0x3010, 0x0091);
+Tag const RoboticNodeIdentifier(0x3010, 0x0092);
+Tag const RTTreatmentSourceCoordinates(0x3010, 0x0093);
+Tag const RadiationSourceCoordinateSystemYawAngle(0x3010, 0x0094);
+Tag const RadiationSourceCoordinateSystemRollAngle(0x3010, 0x0095);
+Tag const RadiationSourceCoordinateSystemPitchAngle(0x3010, 0x0096);
+Tag const RoboticPathControlPointSequence(0x3010, 0x0097);
+Tag const TomotherapeuticControlPointSequence(0x3010, 0x0098);
+Tag const TomotherapeuticLeafOpenDurations(0x3010, 0x0099);
+Tag const TomotherapeuticLeafInitialClosedDurations(0x3010, 0x009a);
 
 }
 

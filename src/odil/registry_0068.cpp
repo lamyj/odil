@@ -97,6 +97,8 @@ void update_0068(
     public_dictionary.emplace(Tag(0x0068, 0x7001), ElementsDictionaryEntry("Model Modification", "ModelModification",  "CS", "1"));
     public_dictionary.emplace(Tag(0x0068, 0x7002), ElementsDictionaryEntry("Model Mirroring", "ModelMirroring",  "CS", "1"));
     public_dictionary.emplace(Tag(0x0068, 0x7003), ElementsDictionaryEntry("Model Usage Code Sequence", "ModelUsageCodeSequence",  "SQ", "1"));
+    public_dictionary.emplace(Tag(0x0068, 0x7004), ElementsDictionaryEntry("Model Group UID", "ModelGroupUID",  "UI", "1"));
+    public_dictionary.emplace(Tag(0x0068, 0x7005), ElementsDictionaryEntry("Relative URI Reference Within Encapsulated Document", "RelativeURIReferenceWithinEncapsulatedDocument",  "UR", "1"));
 
     public_tags.emplace("ImplantSize", Tag(0x0068, 0x6210));
     public_tags.emplace("ImplantTemplateVersion", Tag(0x0068, 0x6221));
@@ -171,6 +173,8 @@ void update_0068(
     public_tags.emplace("ModelModification", Tag(0x0068, 0x7001));
     public_tags.emplace("ModelMirroring", Tag(0x0068, 0x7002));
     public_tags.emplace("ModelUsageCodeSequence", Tag(0x0068, 0x7003));
+    public_tags.emplace("ModelGroupUID", Tag(0x0068, 0x7004));
+    public_tags.emplace("RelativeURIReferenceWithinEncapsulatedDocument", Tag(0x0068, 0x7005));
 }
 
 }
