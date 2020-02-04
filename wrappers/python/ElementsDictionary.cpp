@@ -19,10 +19,32 @@ void wrap_ElementsDictionary(pybind11::module & m)
     using namespace pybind11;
     using namespace odil;
 
-    class_<ElementsDictionaryKey>(m, "ElementsDictionaryKey")
+    auto scope = class_<ElementsDictionaryKey>(m, "ElementsDictionaryKey")
         .def(init<>())
         .def(init<Tag>())
         .def(init<std::string>())
+        .def("get_type", &ElementsDictionaryKey::get_type)
+        .def("get_tag", &ElementsDictionaryKey::get_tag)
+        .def("get_string", &ElementsDictionaryKey::get_string)
+        .def("get_string", &ElementsDictionaryKey::get_string)
+        .def(
+            "set", 
+            static_cast<
+                void (ElementsDictionaryKey::*)(Tag const)
+            >(&ElementsDictionaryKey::set))
+        .def(
+            "set", 
+            static_cast<
+                void (ElementsDictionaryKey::*)(std::string const &)
+            >(&ElementsDictionaryKey::set))
+        .def(self < self)
+        .def(self == self)
+    ;
+    
+    enum_<ElementsDictionaryKey::Type>(scope, "Type")
+        .value("Tag", ElementsDictionaryKey::Type::Tag)
+        .value("String", ElementsDictionaryKey::Type::String)
+        .value("None", ElementsDictionaryKey::Type::None)
     ;
 
     class_<ElementsDictionaryEntry>(m, "ElementsDictionaryEntry")
