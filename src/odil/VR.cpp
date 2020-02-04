@@ -121,8 +121,8 @@ VR as_vr(Tag const & tag)
 bool is_int(VR vr)
 {
     return (
-        vr == VR::IS || vr == VR::SL || vr == VR::SS || vr == VR::UL ||
-        vr == VR::US);
+        vr == VR::IS || vr == VR::SL || vr == VR::SS || vr == VR::SV || 
+        vr == VR::UL || vr == VR::US || vr == VR::UV);
 }
 
 bool is_real(VR vr)
@@ -143,7 +143,7 @@ bool is_binary(VR vr)
 {
     return (
         vr == VR::OB || vr == VR::OD || vr == VR::OF || vr == VR::OL ||
-        vr == VR::OW || vr == VR::UN);
+        vr == VR::OV || vr == VR::OW || vr == VR::UN);
 }
 
 

@@ -175,8 +175,8 @@ Writer
     if(this->explicit_vr)
     {
         if(vr == VR::OB || vr == VR::OD || vr == VR::OF || vr == VR::OL ||
-           vr == VR::OW || vr == VR::SQ || vr == VR::UC || vr == VR::UR || 
-           vr == VR::UT || vr == VR::UN)
+           vr == VR::OV || vr == VR::OW || vr == VR::SQ || vr == VR::UC || 
+           vr == VR::UR || vr == VR::UT || vr == VR::UN)
         {
             this->write_binary(uint16_t(0), this->stream, this->byte_ordering);
 
@@ -325,6 +325,14 @@ Writer::Visitor
     {
         this->write_strings(value, ' ');
     }
+    else if(this->vr == VR::SV)
+    {
+        for(auto item: value)
+        {
+            Writer::write_binary(
+                int64_t(item), this->stream, this->byte_ordering);
+        }
+    }
     else if(this->vr == VR::SL)
     {
         for(auto item: value)
@@ -339,6 +347,14 @@ Writer::Visitor
         {
             Writer::write_binary(
                 int16_t(item), this->stream, this->byte_ordering);
+        }
+    }
+    else if(this->vr == VR::UV)
+    {
+        for(auto item: value)
+        {
+            Writer::write_binary(
+                uint64_t(item), this->stream, this->byte_ordering);
         }
     }
     else if(this->vr == VR::UL)

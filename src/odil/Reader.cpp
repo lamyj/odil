@@ -345,7 +345,11 @@ Reader::Visitor
     else
     {
         uint32_t items = 0;
-        if(this->vr == VR::SL || this->vr == VR::UL)
+        if(this->vr == VR::SV || this->vr == VR::UV)
+        {
+            items = this->vl/8;
+        }
+        else if(this->vr == VR::SL || this->vr == VR::UL)
         {
             items = this->vl/4;
         }
@@ -361,7 +365,13 @@ Reader::Visitor
         value.resize(items);
         for(unsigned int i=0; i<items; ++i)
         {
-            if(this->vr == VR::SL)
+            if(this->vr == VR::SV)
+            {
+                auto const item = Reader::read_binary<int64_t>(
+                    this->stream, this->byte_ordering);
+                value[i] = item;
+            }
+            else if(this->vr == VR::SL)
             {
                 auto const item = Reader::read_binary<int32_t>(
                     this->stream, this->byte_ordering);
@@ -370,6 +380,12 @@ Reader::Visitor
             else if(this->vr == VR::SS)
             {
                 auto const item = Reader::read_binary<int16_t>(
+                    this->stream, this->byte_ordering);
+                value[i] = item;
+            }
+            else if(this->vr == VR::UV)
+            {
+                auto const item = Reader::read_binary<uint64_t>(
                     this->stream, this->byte_ordering);
                 value[i] = item;
             }
@@ -621,6 +637,21 @@ Reader::Visitor
                 auto const item = Reader::read_binary<uint32_t>(
                     this->stream, this->byte_ordering);
                 *reinterpret_cast<uint32_t*>(&value[0][i]) = item;
+            }
+        }
+        else if(this->vr == VR::OV)
+        {
+            if(this->vl%8 != 0)
+            {
+                throw Exception("Cannot read OV for odd-sized array");
+            }
+
+            value[0].resize(this->vl);
+            for(unsigned int i=0; i<value[0].size(); i+=8)
+            {
+                auto const item = Reader::read_binary<uint64_t>(
+                    this->stream, this->byte_ordering);
+                *reinterpret_cast<uint16_t*>(&value[0][i]) = item;
             }
         }
         else if(this->vr == VR::OW)

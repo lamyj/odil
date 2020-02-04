@@ -28,11 +28,12 @@ void wrap_VR(pybind11::module & m)
         .value("DT", VR::DT).value("FD", VR::FD).value("FL", VR::FL)
         .value("IS", VR::IS).value("LO", VR::LO).value("LT", VR::LT)
         .value("PN", VR::PN).value("OB", VR::OB).value("OF", VR::OF)
-        .value("OW", VR::OW).value("SH", VR::SH).value("SL", VR::SL)
-        .value("SQ", VR::SQ).value("SS", VR::SS).value("ST", VR::ST)
-        .value("TM", VR::TM).value("UC", VR::UC).value("UI", VR::UI)
-        .value("UL", VR::UL).value("UN", VR::UN).value("UR", VR::UR)
-        .value("US", VR::US).value("UT", VR::UT)
+        .value("OV", VR::OV).value("OW", VR::OW).value("SH", VR::SH)
+        .value("SL", VR::SL).value("SQ", VR::SQ).value("SS", VR::SS)
+        .value("ST", VR::ST).value("SV", VR::SV).value("TM", VR::TM)
+        .value("UC", VR::UC).value("UI", VR::UI).value("UL", VR::UL)
+        .value("UN", VR::UN).value("UR", VR::UR).value("US", VR::US)
+        .value("UT", VR::UT).value("UV", VR::UV)
         .value("INVALID", VR::INVALID)
         .def(init([](std::string const & string) { return as_vr(string); }))
         .def("__str__", [](VR const & vr ) { return as_string(vr); })
@@ -46,4 +47,3 @@ void wrap_VR(pybind11::module & m)
     m.def("is_string", odil::is_string);
     m.def("is_binary", odil::is_binary);
 }
-
