@@ -169,9 +169,27 @@ BOOST_AUTO_TEST_CASE(UserFinder)
     BOOST_REQUIRE_EQUAL(called, true);
 }
 
-BOOST_AUTO_TEST_CASE(NoVRFound)
+BOOST_AUTO_TEST_CASE(NoVRFoundDefault)
 {
     odil::VRFinder finder;
+    auto const vr = finder(
+        odil::Tag(0xcccc, 0xcccc), std::make_shared<odil::DataSet>(),
+        odil::registry::ImplicitVRLittleEndian);
+    BOOST_REQUIRE(vr == odil::VR::UN);
+}
+
+BOOST_AUTO_TEST_CASE(NoVRFoundNonStrict)
+{
+    odil::VRFinder finder(false);
+    auto const vr = finder(
+        odil::Tag(0xcccc, 0xcccc), std::make_shared<odil::DataSet>(),
+        odil::registry::ImplicitVRLittleEndian);
+    BOOST_REQUIRE(vr == odil::VR::UN);
+}
+
+BOOST_AUTO_TEST_CASE(NoVRFoundStrict)
+{
+    odil::VRFinder finder(true);
     BOOST_REQUIRE_THROW(
         finder(
             odil::Tag(0xcccc, 0xcccc), std::make_shared<odil::DataSet>(),

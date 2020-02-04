@@ -16,6 +16,7 @@
 #include "odil/DataSet.h"
 #include "odil/ElementsDictionary.h"
 #include "odil/Exception.h"
+#include "odil/logging.h"
 #include "odil/registry.h"
 #include "odil/Tag.h"
 #include "odil/VR.h"
@@ -28,8 +29,8 @@ VRFinder
 ::default_finders=VRFinder::_get_default_finders();
 
 VRFinder
-::VRFinder()
-: finders()
+::VRFinder(bool strict)
+: finders(), strict(strict)
 {
     // Nothing else
 }
@@ -75,10 +76,19 @@ VRFinder::operator()(
             }
         }
     }
-
+    
     if(vr == VR::UNKNOWN)
     {
-        throw Exception("Could not find a VR for "+std::string(tag));
+        if(this->strict)
+        {
+            throw Exception("Could not find a VR for "+std::string(tag));
+        }
+        else
+        {
+            ODIL_LOG(warning) 
+                << "No known VR for " << tag << ", defaulting to UN";
+            vr = VR::UN;
+        }
     }
 
     return vr;

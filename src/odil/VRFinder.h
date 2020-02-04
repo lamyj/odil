@@ -39,9 +39,15 @@ public:
 
     /// @brief User-defined finder functions, empty by default.
     std::vector<Finder> finders;
+    
+    /** 
+     * @brief Whether to raise an exception when a VR is not found, or to 
+     * return VR::UN.
+     */
+    bool strict;
 
     /// @brief Constructor.
-    VRFinder();
+    VRFinder(bool strict=false);
 
     /**
      * @brief Return a VR for the given tag, partially-constructed data set and
