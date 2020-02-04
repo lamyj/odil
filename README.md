@@ -1,6 +1,6 @@
 # Odil
 
-[![Build Status (Travis)](https://travis-ci.org/lamyj/odil.svg?branch=master)](https://travis-ci.org/lamyj/odil)
+[![Build Status (Travis)](https://travis-ci.com/lamyj/odil.svg?branch=master)](https://travis-ci.com/lamyj/odil)
 [![Build Status (Appveyor)](https://ci.appveyor.com/api/projects/status/github/lamyj/odil?svg=true)](https://ci.appveyor.com/project/lamyj/odil)
 [![Conda Version](https://img.shields.io/conda/vn/conda-forge/odil.svg)](https://anaconda.org/conda-forge/odil)
 
