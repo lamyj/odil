@@ -25,7 +25,7 @@ if(APPLE)
     set_target_properties(pyodil PROPERTIES SUFFIX ".so")
 endif()
 
-target_link_libraries(pyodil ${JsonCpp_LIBRARIES} libodil)
+target_link_libraries(pyodil ${JsonCpp_LIBRARIES} general libodil)
 
 add_custom_target(
     pyodil-pure ${CMAKE_COMMAND} -E echo "Pure-python files"
