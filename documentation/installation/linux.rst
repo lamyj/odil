@@ -5,7 +5,7 @@ Unofficial packages are provided for stable Debian and Ubuntu versions. After fo
 
 This will install the main command-line application as well as the C++ library and the Python wrappers.
 
-If your distribution has no pre-compiled package available, you can either compile it from source (see below) or `ask for packaging`_.
+If your distribution has no pre-compiled package available, you can compile it from source.
 
 Install dependencies
 --------------------
@@ -15,64 +15,54 @@ For Debian and Ubuntu, the following package list will allow you to compile the 
 .. code-block:: bash
   
   sudo apt-get install \
-    build-essential cmake pkg-config python-minimal \
-    libboost-dev libboost-date-time-dev libboost-filesystem-dev libboost-log-dev \
+    build-essential cmake ninja-build pkg-config python3 \
+    libboost-dev libboost-date-time-dev libboost-exception-dev \
+    libboost-log-dev libboost-filesystem-dev \
     libdcmtk2-dev libicu-dev libjsoncpp-dev zlib1g-dev \
-    pybind11-dev python-dev \
-    dcmtk libboost-test-dev python-nose
+    pybind11-dev python3-pybind11 python3-dev \
+    libboost-test-dev dcmtk
 
 Build Odil
 ----------
 
-From the source directory, create a ``build`` directory, configure and run the build:
+First, choose where the compiled files will be installed: it can be for example ``$HOME/local``. From the source directory, create a ``build`` directory, configure and run the build:
 
 .. code-block:: bash
 
   mkdir build
   cd build
-  cmake ..
-  make
+  cmake -D CMAKE_INSTALL_PREFIX="${INSTALL_DIR}" ..
+  cmake --build .
+
+The ``${INSTALL_DIR}`` in the previous snippet must be replaced with the installation directory.
 
 The compilation can take advantage of a multi-core CPU either by using `make`_ with the ``-jN`` flag (where ``N`` is the number of concurrent tasks, i.e. the number of cores) or by using `Ninja`_.
 
-Without additional options, this will build the examples, the Python wrappers and the DCMTK converter, but not the Javascript wrappers. The following optinal features are summarized in the table below and may passed to CMake with the ``-D`` flag (for example ``cmake -D BUILD_EXAMPLES=OFF ..``).
+Without additional options, the examples, the Python wrappers and the DCMTK converter are built. The following optinal features are summarized in the table below and may passed to CMake with the ``-D`` flag (for example ``cmake -D BUILD_EXAMPLES=OFF ..``).
 
-+---------------------+-------------------------------+---------------------------+
-| Feature             | Option name                   | Possible values           |
-+=====================+===============================+===========================+
-| Code examples       | ``BUILD_EXAMPLES``            | ``ON`` (default), ``OFF`` |
-+---------------------+-------------------------------+---------------------------+
-| Python wrappers     | ``BUILD_PYTHON_WRAPPERS``     | ``ON`` (default), ``OFF`` |
-+---------------------+-------------------------------+---------------------------+
-| Javascript wrappers | ``BUILD_JAVASCRIPT_WRAPPERS`` | ``ON``, ``OFF`` (default) |
-+---------------------+-------------------------------+---------------------------+
-| DCMTK converter     | ``WITH_DCMTK``                | ``ON`` (default), ``OFF`` |
-+---------------------+-------------------------------+---------------------------+
+.. csv-table:: 
+  :header: "Feature", "Option name", "Possible values"
+  
+  "Code examples", "``BUILD_EXAMPLES``", "``ON`` (default), ``OFF``"
+  "Python wrappers", "``BUILD_PYTHON_WRAPPERS``", "``ON`` (default), ``OFF``"
+  "Python interpreter", "``PYTHON_EXECUTABLE``", "Defaults to ``python``"
+  "Python include directory", "``PYTHON_INCLUDE_DIR``", "Default depending on the interpreter"
+  "Python library", "``PYTHON_LIBRARY``", Default depending on the interpreter
+  "DCMTK converter", "``WITH_DCMTK``", "``ON`` (default), ``OFF``"
 
 Note that the Python wrappers are required for the command-line application.
 
-Choose the Python version
--------------------------
+When building the Python wrappers, the Python interpreter and libraries default to whatever version is invoked when running ``python`` from a terminal. On a system that has multiple versions of Python and multiple versions of Boost.Python, the required versions should be explicitely specified to avoid version mismatch at link-time, which yield errors at run-time. The following CMake options control this behavior:
 
-If you have multiple versions of Python installed, you may need to specify the following extra parameters to CMake to build the Python wrappers for a specific version:
-
-- ``PYTHON_EXECUTABLE``: path to the Python interpreter, e.g. ``/usr/bin/python2.7`` or ``/usr/bin/python3.6``
+- ``PYTHON_EXECUTABLE``: the Python interpreter that will be used when calling the main command-line application, ``odil``
+- ``PYTHON_INCLUDE_DIR``: the directory containing the development headers of Python
+- ``PYTHON_LIBRARY``: path to the Python library, static or shared
 
 Install Odil
 ------------
 
-You can use the library and applications from the source directory, but it is more convenient to install it. Choose a destination directory on your system, either in your home directory or in a system location (e.g. ``/usr/local`` or ``/opt/odil``). The latter case will probably require you to become *root*. From the *build* directory, re-run CMake and ``make install``:
+If your install path is a standard system path (e.g. ``/usr`` or ``/usr/local``, being *root* may be required in these cases), no additional step need to be taken. In a user-dependent path or a non-standard system path, you may need to update two environment variables. Assuming your install prefix is ``/some/location``, add ``/some/location/bin`` to your ``PATH``, and ``/some/location/lib`` to your ``LD_LIBRARY_PATH``. With Python wrappers, you should also add ``/some/location/lib/python3.5/site-packages`` (update according to the Python version you built for) to your ``PYTHONPATH``.
 
-.. code-block:: bash
-
-  cmake -D CMAKE_INSTALL_PREFIX=/some/location ..
-  make install
-
-The ``CMAKE_INSTALL_PREFIX`` option may be specified during the first call to CMake; it is presented in separate steps in this document for readability.
-
-If your install path is a standard system path (e.g. ``/usr`` or ``/usr/local``), no additional step need to be taken. In a user-dependent path or a non-standard system path, you may need to update two environment variables. Assuming your install prefix is ``/some/location``, add ``/some/location/bin`` to your ``PATH``, and ``/some/location/lib`` to your ``LD_LIBRARY_PATH``. With Python wrappers, you should also add ``/some/location/lib/python2.7/site-packages`` (update according to the Python version you built for) to your ``PYTHONPATH``.
-
-.. _ask for packaging: https://github.com/lamyj/odil/issues
 .. _instructions to set up the unofficial repository: https://github.com/lamyj/packages
 .. _make: https://www.gnu.org/software/make/
 .. _Ninja: https://ninja-build.org/
