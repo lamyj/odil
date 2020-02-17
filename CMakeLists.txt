@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.5)
 
 project("odil")
 
-set(odil_VERSION 0.10.0)
+set(odil_VERSION 0.11.0)
 string(REGEX MATCH "^([0-9]+)\\.([0-9]+)\\.([0-9]+)" _ "${odil_VERSION}")
 set(odil_MAJOR_VERSION "${CMAKE_MATCH_1}")
 set(odil_MINOR_VERSION "${CMAKE_MATCH_2}")
