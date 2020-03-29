@@ -125,6 +125,28 @@ void wrap_DataSet(pybind11::module & m)
                 }
                 return tags;
             })
+        .def(pickle(
+            [](DataSet const & data_set) {
+                tuple pickled(data_set.size());
+                int i = 0; 
+                for(auto && item: data_set)
+                {
+                    pickled[i] = make_tuple(item.first, item.second);
+                    ++i;
+                }
+                return pickled;
+            },
+            [](tuple pickled) {
+                DataSet data_set;
+                for(auto && item: pickled)
+                {
+                    data_set.add(
+                        item.cast<tuple>()[0].cast<Tag>(), 
+                        item.cast<tuple>()[1].cast<Element>());
+                }
+                return data_set;
+            }
+        ))
     ;
 
 }

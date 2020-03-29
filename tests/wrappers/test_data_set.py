@@ -1,3 +1,4 @@
+import pickle
 import unittest
 
 import odil
@@ -219,7 +220,12 @@ class TestDataSet(unittest.TestCase):
                 [tag.get_name(), [item for item in element.as_string()]]
                 for tag, element in data_set.items()],
             [["PatientName", [b"Doe^John"]], ["PatientID", [b"DJ123"]]])
+    
+    def test_pickle(self):
+        data_set = odil.DataSet()
+        data_set.add("PatientName", ["Doe^John"])
+        data_set.add("PatientID", ["DJ123"])
+        self.assertEqual(pickle.loads(pickle.dumps(data_set)), data_set)
 
 if __name__ == "__main__":
     unittest.main()
-

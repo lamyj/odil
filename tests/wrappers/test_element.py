@@ -1,3 +1,4 @@
+import pickle
 import re
 import unittest
 
@@ -45,13 +46,13 @@ class TestElement(unittest.TestCase):
         self._test_value(element, vr, contents, type_check, accessor)
     
     def _test_modify(self, contents, vr, accessor):
-        value = odil.Element([contents[0]], vr)
+        element = odil.Element([contents[0]], vr)
         if isinstance(contents[0], bytearray):
-            accessor(value).append(odil.Value.BinaryItem(contents[1]))
+            accessor(element).append(odil.Value.BinaryItem(contents[1]))
         else:
-            accessor(value).append(contents[1])
+            accessor(element).append(contents[1])
         
-        self._test_sequences(accessor(value), contents)
+        self._test_sequences(accessor(element), contents)
 
     def _test_clear(self, contents, vr, type_check):
         element = odil.Element(contents, vr)
@@ -73,6 +74,12 @@ class TestElement(unittest.TestCase):
         self.assertTrue(element_1 != element_3)
         self.assertTrue(element_1 != element_4)
 
+    def _test_pickle(self, contents, vr, accessor):
+        element = odil.Element(contents, vr)
+        self.assertSequenceEqual(
+            accessor(pickle.loads(pickle.dumps(element))), accessor(element))
+        self.assertEqual(pickle.loads(pickle.dumps(element)).vr, vr)
+        
     def _test(
             self, 
             empty_content, contents, other_contents, vr, other_vr, 
@@ -85,6 +92,8 @@ class TestElement(unittest.TestCase):
         self._test_clear(contents, vr, type_check)
 
         self._test_equality(contents, other_contents, vr, other_vr)
+        
+        self._test_pickle(contents, vr, accessor)
 
     def test_implicit_type(self):
         for vr in dir(odil.VR):
@@ -151,6 +160,11 @@ class TestElement(unittest.TestCase):
             [bytearray([0x04]), bytearray([0x05, 0x06])],
             odil.VR.OB, odil.VR.OW,
             odil.Element.is_binary, odil.Element.as_binary)
+    
+    def test_pickle_empty(self):
+        self.assertEqual(
+            pickle.loads(pickle.dumps(odil.Element(odil.VR.CS))),
+            odil.Element(odil.VR.CS))
 
 if __name__ == "__main__":
     unittest.main()

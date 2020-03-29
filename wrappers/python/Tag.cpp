@@ -11,9 +11,6 @@
 
 #include "odil/Tag.h"
 
-#include "opaque_types.h"
-#include "type_casters.h"
-
 void wrap_Tag(pybind11::module & m)
 {
     using namespace pybind11;
@@ -36,6 +33,18 @@ void wrap_Tag(pybind11::module & m)
         .def("__str__", &Tag::operator std::string)
         .def_property_readonly("name", &Tag::get_name)
         .def("__hash__", [](Tag const & x) { return (x.group<<16)+x.element; })
+        .def(pickle(
+            [](Tag const & t) {
+                return make_tuple(t.group, t.element);
+            },
+            [](tuple t) {
+                if (t.size() != 2)
+                {
+                    throw std::runtime_error("Invalid state");
+                }
+                return Tag(t[0].cast<uint16_t>(), t[1].cast<uint16_t>());
+            }
+        ))
     ;
     implicitly_convertible<std::string, Tag>();
 }

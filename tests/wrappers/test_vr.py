@@ -1,3 +1,4 @@
+import pickle
 import unittest
 
 import odil
@@ -22,7 +23,9 @@ class TestVR(unittest.TestCase):
     def test_string(self):
         vr = odil.VR.AE
         self.assertEqual(str(vr), "AE")
+    
+    def test_pickle(self):
+        self.assertEqual(pickle.loads(pickle.dumps(odil.VR.AE)), odil.VR.AE)
 
 if __name__ == "__main__":
     unittest.main()
-

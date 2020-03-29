@@ -1,3 +1,4 @@
+import pickle
 import unittest
 
 import odil
@@ -93,6 +94,11 @@ class TestTag(unittest.TestCase):
 
         other = odil.Tag(
             odil.registry.PatientID.group, odil.registry.PatientID.element)
+    
+    def test_pickle(self):
+        self.assertEqual(
+            pickle.loads(pickle.dumps(odil.registry.PatientName)),
+            odil.registry.PatientName)
 
 if __name__ == "__main__":
     unittest.main()

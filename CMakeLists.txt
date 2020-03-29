@@ -19,6 +19,8 @@ option(
     "Compile a locally packaged version of getscu for old DCMTK versions" ON)
 
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}" ${CMAKE_MODULE_PATH})
+set(CMAKE_INSTALL_MESSAGE LAZY)
+
 include(CTest)
 include(cmake/functions.cmake)
 

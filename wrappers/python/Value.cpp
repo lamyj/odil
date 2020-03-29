@@ -18,6 +18,33 @@
 #include "opaque_types.h"
 #include "type_casters.h"
 
+namespace 
+{
+
+template<typename T>
+pybind11::tuple pickle_value_container(T const & container)
+{
+    return pybind11::make_tuple(
+        pybind11::bytes(
+            reinterpret_cast<char const*>(container.data()), 
+            sizeof(typename T::value_type)*container.size()));
+}
+
+template<typename T>
+T unpickle_value_container(pybind11::tuple pickled)
+{
+    char * raw_buffer;
+    ssize_t length;
+    PYBIND11_BYTES_AS_STRING_AND_SIZE(
+        pickled[0].cast<pybind11::bytes>().ptr(), &raw_buffer, &length);
+    
+    auto buffer = reinterpret_cast<typename T::value_type *>(raw_buffer);
+    
+    return T(buffer, buffer+length/sizeof(typename T::value_type));
+}
+
+}
+
 namespace odil
 {
 
@@ -160,6 +187,62 @@ void wrap_Value(pybind11::module & m)
         .def("clear", &Value::clear)
         .def("__len__", &Value::size)
         .def_property_readonly("type", &Value::get_type)
+        .def(pickle(
+            [](Value const & value) -> tuple {
+                auto const type = value.get_type();
+                if(type == Value::Type::Integers)
+                {
+                    return pybind11::make_tuple(type, value.as_integers());
+                }
+                else if(type == Value::Type::Reals)
+                {
+                    return pybind11::make_tuple(type, value.as_reals());
+                }
+                else if(type == Value::Type::Strings)
+                {
+                    return pybind11::make_tuple(type, value.as_strings());
+                }
+                else if(type == Value::Type::DataSets)
+                {
+                    return pybind11::make_tuple(type, value.as_data_sets());
+                }
+                else if(type == Value::Type::Binary)
+                {
+                    return pybind11::make_tuple(type, value.as_binary());
+                }
+                else
+                {
+                    throw Exception("Value: invalid pickled state");
+                }
+            },
+            [](tuple pickled) {
+                auto const type = pickled[0].cast<Value::Type>();
+                if(type == Value::Type::Integers)
+                {
+                    return Value(pickled[1].cast<Value::Integers>());
+                }
+                else if(type == Value::Type::Reals)
+                {
+                    return Value(pickled[1].cast<Value::Reals>());
+                }
+                else if(type == Value::Type::Strings)
+                {
+                    return Value(pickled[1].cast<Value::Strings>());
+                }
+                else if(type == Value::Type::DataSets)
+                {
+                    return Value(pickled[1].cast<Value::DataSets>());
+                }
+                else if(type == Value::Type::Binary)
+                {
+                    return Value(pickled[1].cast<Value::Binary>());
+                }
+                else
+                {
+                    throw Exception("Value: invalid pickled state");
+                }
+            }
+        ))
     ;
 
     enum_<Value::Type>(value, "Type")
@@ -169,9 +252,17 @@ void wrap_Value(pybind11::module & m)
         .value("DataSets", Value::Type::DataSets)
         .value("Binary", Value::Type::Binary)
     ;
-
-    odil::bind_vector<Value::Integers>(value, "Integers");
-    odil::bind_vector<Value::Reals>(value, "Reals");
+    
+    odil::bind_vector<Value::Integers>(value, "Integers")
+        .def(pickle(
+            &pickle_value_container<Value::Integers>,
+            &unpickle_value_container<Value::Integers>))
+    ;
+    odil::bind_vector<Value::Reals>(value, "Reals")
+        .def(pickle(
+            &pickle_value_container<Value::Reals>,
+            &unpickle_value_container<Value::Reals>))
+    ;
 
     // NOTE Using bind_vector brings back #63.
     // Re-use the code of bind_vector and modify where needed.
@@ -242,10 +333,75 @@ void wrap_Value(pybind11::module & m)
         );
 
         cl.def("__len__", &Vector::size);
+        
+        cl.def(pickle(
+                &pickle_value_container<Value::Strings>,
+                &unpickle_value_container<Value::Strings>))
+        ;
     }
 
-    odil::bind_vector<Value::DataSets>(value, "DataSets");
+    odil::bind_vector<Value::DataSets>(value, "DataSets")
+        .def(pickle(
+            [](Value::DataSets const & value) {
+                tuple pickled(value.size());
+                for(std::size_t i=0; i<value.size(); ++i)
+                {
+                    pickled[i] = value[i];
+                }
+                return pickled;
+            },
+            [](tuple pickled) {
+                Value::DataSets value(pickled.size());
+                for(std::size_t i=0; i<value.size(); ++i)
+                {
+                    value[i] = std::make_shared<DataSet>(
+                        pickled[i].cast<DataSet>());
+                }
+                return value;
+            }
+        ))
+    ;
+    
     odil::bind_vector<Value::Binary::value_type>(value, "BinaryItem")
-        .def("get_memory_view", as_memory_view);
-    odil::bind_vector<Value::Binary>(value, "Binary");
+        .def("get_memory_view", as_memory_view)
+        .def(pickle(
+            [](Value::Binary::value_type b) {
+                return make_tuple(
+                    bytes(reinterpret_cast<char*>(b.data()), b.size()));
+            },
+            [](tuple pickled) {
+                // bytes(pickled[0]);
+                
+                char * buffer;
+                ssize_t length;
+                PYBIND11_BYTES_AS_STRING_AND_SIZE(
+                    pickled[0].ptr(), &buffer, &length);
+                
+                
+                return Value::Binary::value_type{
+                    reinterpret_cast<unsigned char*>(buffer), 
+                    reinterpret_cast<unsigned char*>(buffer)+length};
+            }
+        ))
+    ;
+    odil::bind_vector<Value::Binary>(value, "Binary")
+        .def(pickle(
+            [](Value::Binary const & value) {
+                tuple pickled(value.size());
+                for(std::size_t i=0; i<value.size(); ++i)
+                {
+                    pickled[i] = value[i];
+                }
+                return pickled;
+            },
+            [](tuple pickled) {
+                Value::Binary value(pickled.size());
+                for(std::size_t i=0; i<value.size(); ++i)
+                {
+                    value[i] = pickled[i].cast<Value::Binary::value_type>();
+                }
+                return value;
+            }
+        ))
+    ;
 }

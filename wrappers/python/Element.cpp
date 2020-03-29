@@ -63,5 +63,22 @@ void wrap_Element(pybind11::module & m)
         .def(self != self)
         .def("__len__", &Element::size)
         .def("clear", &Element::clear)
+        .def(pickle(
+            [](Element const & element) {
+                return make_tuple(element.get_value(), element.vr);
+            },
+            [](tuple pickled) {
+                auto const vr = pickled[1].cast<VR>();
+                if(len(pickled[0]) == 0)
+                {
+                    return Element(vr);
+                }
+                else
+                {
+                    auto const value = pickled[0].cast<Value>();
+                    return Element(value, vr);
+                }
+            }
+        ))
     ;
 }

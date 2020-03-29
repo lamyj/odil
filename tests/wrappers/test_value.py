@@ -1,4 +1,5 @@
 #encoding: utf-8
+import pickle
 import unittest
 
 import odil
@@ -90,7 +91,12 @@ class TestValue(unittest.TestCase):
         self.assertFalse(value_1 != value_2)
         self.assertTrue(value_1 != value_3)
         self.assertTrue(value_1 != value_4)
-
+    
+    def _test_pickle(self, contents, accessor):
+        value = odil.Value(contents)
+        self.assertSequenceEqual(
+            accessor(pickle.loads(pickle.dumps(value))), accessor(value))
+    
     def _test(self, empty_content, contents, other_contents, type_, accessor):
         self._test_container(empty_content, type_, accessor)
         self._test_container(contents, type_, accessor)
@@ -100,6 +106,8 @@ class TestValue(unittest.TestCase):
         self._test_clear(contents, type_)
 
         self._test_equality(contents, other_contents)
+        
+        self._test_pickle(contents, accessor)
 
     def test_integers(self):
         self._test(
