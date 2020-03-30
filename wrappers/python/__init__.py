@@ -9,8 +9,10 @@ _open = open
 def open(path, mode="rb"):
     fd = _open(path, mode)
     stream = iostream(fd)
-    yield stream
-    fd.close()
+    try:
+        yield stream
+    finally:
+        fd.close()
 
 def read(path, keep_group_length=False, halt_condition=None):
     warnings.warn("odil.read is deprecated. Use odil.open instead")

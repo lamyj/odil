@@ -113,6 +113,23 @@ class TestReader(unittest.TestCase):
 
         self.assertEqual(len(data_set), 1)
         self.assertSequenceEqual(data_set.as_string("PatientName"), [b"Foo^Bar"])
+    
+    def test_open_context(self):
+        data = (
+            128*b"\x00"+b"DICM"+
+            b"\x02\x00\x10\x00" b"UI" b"\x14\x00" b"1.2.840.10008.1.2.1\x00"
+            b"\x10\x00\x10\x00" b"PN" b"\x08\x00" b"Foo^Bar "
+        )
+    
+        fd, path = tempfile.mkstemp()
+        os.write(fd, data)
+        os.close(fd)
+    
+        try:
+            with odil.open(path) as fd:
+                header, data_set = odil.Reader.read_file(fd)
+        finally:
+            os.remove(path)
 
 if __name__ == "__main__":
     unittest.main()
