@@ -9,6 +9,8 @@
 #ifndef _99998287_59bb_4f7c_aadc_fe5ecb87f8c2
 #define _99998287_59bb_4f7c_aadc_fe5ecb87f8c2
 
+#include <fstream>
+
 #include <pybind11/pybind11.h>
 #include <pybind11/functional.h>
 
@@ -50,9 +52,27 @@ void wrap_Reader(pybind11::module & m)
                 bool keep_group_length,
                 std::function<bool(Tag const &)> halt_condition)
             {
-                return Reader::read_file(stream, keep_group_length, halt_condition);
+                return Reader::read_file(
+                    stream, keep_group_length, halt_condition);
             },
             "stream"_a, "keep_group_length"_a=false,
+            "halt_condition"_a=default_halt_condition)
+        .def_static(
+            "read_file",
+            [](
+                std::string const & file_name,
+                bool keep_group_length,
+                std::function<bool(Tag const &)> halt_condition)
+            {
+                std::ifstream stream(file_name);
+                if(!stream)
+                {
+                    throw Exception("Could not open stream");
+                }
+                return Reader::read_file(
+                    stream, keep_group_length, halt_condition);
+            },
+            "file_name"_a, "keep_group_length"_a=false,
             "halt_condition"_a=default_halt_condition)
     ;
 }

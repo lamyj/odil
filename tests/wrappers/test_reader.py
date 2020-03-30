@@ -1,3 +1,5 @@
+import os
+import tempfile
 import unittest
 
 from io import BytesIO
@@ -69,7 +71,7 @@ class TestReader(unittest.TestCase):
             reader.read_element(odil.registry.PatientName),
             odil.Element([b"Foo^Bar"], odil.VR.PN))
 
-    def test_read_file(self):
+    def test_read_file_stream(self):
         data = (
             128*b"\x00"+b"DICM"+
             b"\x02\x00\x10\x00" b"UI" b"\x14\x00" b"1.2.840.10008.1.2.1\x00"
@@ -79,6 +81,30 @@ class TestReader(unittest.TestCase):
         stream = odil.iostream(string_io)
 
         header, data_set = odil.Reader.read_file(stream)
+
+        self.assertEqual(len(header), 1)
+        self.assertSequenceEqual(
+            header.as_string("TransferSyntaxUID"),
+            [odil.registry.ExplicitVRLittleEndian])
+
+        self.assertEqual(len(data_set), 1)
+        self.assertSequenceEqual(data_set.as_string("PatientName"), [b"Foo^Bar"])
+    
+    def test_read_file_path(self):
+        data = (
+            128*b"\x00"+b"DICM"+
+            b"\x02\x00\x10\x00" b"UI" b"\x14\x00" b"1.2.840.10008.1.2.1\x00"
+            b"\x10\x00\x10\x00" b"PN" b"\x08\x00" b"Foo^Bar "
+        )
+        
+        fd, path = tempfile.mkstemp()
+        os.write(fd, data)
+        os.close(fd)
+        
+        try:
+            header, data_set = odil.Reader.read_file(path)
+        finally:
+            os.remove(path)
 
         self.assertEqual(len(header), 1)
         self.assertSequenceEqual(
