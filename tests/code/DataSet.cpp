@@ -295,6 +295,17 @@ BOOST_AUTO_TEST_CASE(Real)
         &odil::DataSet::as_real, &odil::DataSet::as_real, &odil::DataSet::as_real);
 }
 
+BOOST_AUTO_TEST_CASE(RealString)
+{
+    odil::DataSet data_set;
+    data_set.add(odil::registry::FieldOfViewOrigin, {12.34, 56.78});
+
+    test_element<odil::Value::Reals>(
+        odil::registry::FieldOfViewOrigin, {12.34, 56.78}, odil::VR::DS,
+        &odil::DataSet::is_real, 
+        &odil::DataSet::as_real, &odil::DataSet::as_real, &odil::DataSet::as_real);
+}
+
 BOOST_AUTO_TEST_CASE(String)
 {
     odil::DataSet data_set;
@@ -439,4 +450,3 @@ BOOST_AUTO_TEST_CASE(Clear)
     BOOST_CHECK(data_set.empty("PatientID"));
     BOOST_CHECK_THROW(data_set.clear("PatietName"), odil::Exception);
 }
-

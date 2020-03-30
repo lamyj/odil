@@ -150,6 +150,13 @@ class TestDataSet(unittest.TestCase):
             [12.34, 56.78], odil.VR.FL,
             odil.DataSet.is_real, odil.DataSet.as_real,
             odil.Element.is_real, odil.Element.as_real)
+    
+    def test_real_string(self):
+        self._test_element(
+            odil.registry.FieldOfViewOrigin, odil.Value.Reals(), 
+            [12.34, 56.78], odil.VR.DS,
+            odil.DataSet.is_real, odil.DataSet.as_real,
+            odil.Element.is_real, odil.Element.as_real)
 
     def test_string(self):
         self._test_element(
