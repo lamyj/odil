@@ -6,6 +6,8 @@
  * for details.
  ************************************************************************/
 
+#include <fstream>
+
 #include <pybind11/pybind11.h>
 
 #include <odil/registry.h>
@@ -64,6 +66,30 @@ void wrap_Writer(pybind11::module & m)
                     item_encoding, use_group_length);
             },
             "data_set"_a, "stream"_a,
+            "meta_information"_a=std::make_shared<DataSet>(),
+            "transfer_syntax"_a=registry::ExplicitVRLittleEndian,
+            "item_encoding"_a=Writer::ItemEncoding::ExplicitLength,
+            "use_group_length"_a=false)
+        .def_static(
+            "write_file",
+            [](
+                std::shared_ptr<DataSet> const data_set,
+                std::string const & file_name,
+                std::shared_ptr<DataSet const> meta_information,
+                std::string const & transfer_syntax,
+                Writer::ItemEncoding item_encoding, bool use_group_length)
+            {
+                std::ofstream stream(file_name, std::ios::binary);
+                if(!stream)
+                {
+                    throw Exception("Could not open stream");
+                }
+                
+                Writer::write_file(
+                    data_set, stream, meta_information, transfer_syntax,
+                    item_encoding, use_group_length);
+            },
+            "data_set"_a, "file_name"_a,
             "meta_information"_a=std::make_shared<DataSet>(),
             "transfer_syntax"_a=registry::ExplicitVRLittleEndian,
             "item_encoding"_a=Writer::ItemEncoding::ExplicitLength,
