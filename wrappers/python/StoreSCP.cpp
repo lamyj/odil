@@ -10,6 +10,9 @@
 #include <pybind11/pybind11.h>
 #include "odil/StoreSCP.h"
 
+#include "opaque_types.h"
+#include "type_casters.h"
+
 namespace
 {
 using namespace std;

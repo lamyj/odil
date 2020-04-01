@@ -11,6 +11,9 @@
 #include "odil/message/CFindRequest.h"
 #include "odil/FindSCP.h"
 
+#include "opaque_types.h"
+#include "type_casters.h"
+
 #include "DataSetGeneratorWrapper.h"
 
 void wrap_FindSCP(pybind11::module & m)

@@ -11,6 +11,9 @@
 #include "odil/message/CMoveResponse.h"
 #include "odil/MoveSCU.h"
 
+#include "opaque_types.h"
+#include "type_casters.h"
+
 namespace
 {
 

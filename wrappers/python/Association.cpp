@@ -12,6 +12,9 @@
 
 #include "odil/Association.h"
 
+#include "opaque_types.h"
+#include "type_casters.h"
+
 namespace
 {
 

@@ -18,6 +18,9 @@
 
 #include "odil/Exception.h"
 
+#include "opaque_types.h"
+#include "type_casters.h"
+
 #if PY_MAJOR_VERSION >= 3
     #define FromStringAndSize(v, len) PyBytes_FromStringAndSize(v, len)
 #else

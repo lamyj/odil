@@ -15,6 +15,9 @@
 #include "odil/SCPDispatcher.h"
 #include "odil/StoreSCP.h"
 
+#include "opaque_types.h"
+#include "type_casters.h"
+
 namespace
 {
 
@@ -50,5 +53,3 @@ void wrap_SCPDispatcher(pybind11::module & m)
         .def("has_scp", &SCPDispatcher::has_scp)
     ;
 }
-
-

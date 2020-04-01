@@ -22,7 +22,7 @@ namespace
 {
 
 template<typename T>
-pybind11::tuple pickle_value_container(T const & container)
+pybind11::tuple pickle_pod_container(T const & container)
 {
     return pybind11::make_tuple(
         pybind11::bytes(
@@ -31,7 +31,7 @@ pybind11::tuple pickle_value_container(T const & container)
 }
 
 template<typename T>
-T unpickle_value_container(pybind11::tuple pickled)
+T unpickle_pod_container(pybind11::tuple pickled)
 {
     char * raw_buffer;
     ssize_t length;
@@ -41,6 +41,28 @@ T unpickle_value_container(pybind11::tuple pickled)
     auto buffer = reinterpret_cast<typename T::value_type *>(raw_buffer);
     
     return T(buffer, buffer+length/sizeof(typename T::value_type));
+}
+
+template<typename T>
+pybind11::tuple pickle_object_container(T const & container)
+{
+    pybind11::tuple pickled(container.size());
+    for(std::size_t i=0; i<container.size(); ++i)
+    {
+        pickled[i] = container[i];
+    }
+    return pickled;
+}
+
+template<typename T>
+T unpickle_object_container(pybind11::tuple pickled) 
+{
+    T value(pickled.size());
+    for(std::size_t i=0; i<value.size(); ++i)
+    {
+        value[i] = pickled[i].cast<typename T::value_type>();
+    }
+    return value;
 }
 
 }
@@ -255,13 +277,13 @@ void wrap_Value(pybind11::module & m)
     
     odil::bind_vector<Value::Integers>(value, "Integers")
         .def(pickle(
-            &pickle_value_container<Value::Integers>,
-            &unpickle_value_container<Value::Integers>))
+            &pickle_pod_container<Value::Integers>,
+            &unpickle_pod_container<Value::Integers>))
     ;
     odil::bind_vector<Value::Reals>(value, "Reals")
         .def(pickle(
-            &pickle_value_container<Value::Reals>,
-            &unpickle_value_container<Value::Reals>))
+            &pickle_pod_container<Value::Reals>,
+            &unpickle_pod_container<Value::Reals>))
     ;
 
     // NOTE Using bind_vector brings back #63.
@@ -335,9 +357,9 @@ void wrap_Value(pybind11::module & m)
         cl.def("__len__", &Vector::size);
         
         cl.def(pickle(
-                &pickle_value_container<Value::Strings>,
-                &unpickle_value_container<Value::Strings>))
-        ;
+            &pickle_object_container<Value::Strings>,
+            &unpickle_object_container<Value::Strings>
+        ));
     }
 
     odil::bind_vector<Value::DataSets>(value, "DataSets")
@@ -370,13 +392,10 @@ void wrap_Value(pybind11::module & m)
                     bytes(reinterpret_cast<char*>(b.data()), b.size()));
             },
             [](tuple pickled) {
-                // bytes(pickled[0]);
-                
                 char * buffer;
                 ssize_t length;
                 PYBIND11_BYTES_AS_STRING_AND_SIZE(
                     pickled[0].ptr(), &buffer, &length);
-                
                 
                 return Value::Binary::value_type{
                     reinterpret_cast<unsigned char*>(buffer), 
@@ -386,22 +405,8 @@ void wrap_Value(pybind11::module & m)
     ;
     odil::bind_vector<Value::Binary>(value, "Binary")
         .def(pickle(
-            [](Value::Binary const & value) {
-                tuple pickled(value.size());
-                for(std::size_t i=0; i<value.size(); ++i)
-                {
-                    pickled[i] = value[i];
-                }
-                return pickled;
-            },
-            [](tuple pickled) {
-                Value::Binary value(pickled.size());
-                for(std::size_t i=0; i<value.size(); ++i)
-                {
-                    value[i] = pickled[i].cast<Value::Binary::value_type>();
-                }
-                return value;
-            }
+            &pickle_object_container<Value::Binary>,
+            &unpickle_object_container<Value::Binary>
         ))
     ;
 }

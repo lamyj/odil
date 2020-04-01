@@ -10,6 +10,9 @@
 
 #include "odil/StoreSCU.h"
 
+#include "opaque_types.h"
+#include "type_casters.h"
+
 void wrap_StoreSCU(pybind11::module & m)
 {
     using namespace pybind11;

@@ -10,6 +10,8 @@
 
 #include "odil/NSetSCU.h"
 
+#include "opaque_types.h"
+#include "type_casters.h"
 
 void wrap_NSetSCU(pybind11::module & m)
 {

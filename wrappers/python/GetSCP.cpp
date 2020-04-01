@@ -13,6 +13,9 @@
 #include "odil/message/CGetRequest.h"
 #include "odil/GetSCP.h"
 
+#include "opaque_types.h"
+#include "type_casters.h"
+
 #include "DataSetGeneratorWrapper.h"
 
 namespace

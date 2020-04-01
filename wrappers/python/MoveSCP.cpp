@@ -13,6 +13,9 @@
 #include "odil/message/CMoveRequest.h"
 #include "odil/MoveSCP.h"
 
+#include "opaque_types.h"
+#include "type_casters.h"
+
 #include "DataSetGeneratorWrapper.h"
 
 namespace

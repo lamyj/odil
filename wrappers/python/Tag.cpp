@@ -11,6 +11,9 @@
 
 #include "odil/Tag.h"
 
+#include "opaque_types.h"
+#include "type_casters.h"
+
 void wrap_Tag(pybind11::module & m)
 {
     using namespace pybind11;

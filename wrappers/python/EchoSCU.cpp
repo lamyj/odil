@@ -10,6 +10,9 @@
 
 #include "odil/EchoSCU.h"
 
+#include "opaque_types.h"
+#include "type_casters.h"
+
 void wrap_EchoSCU(pybind11::module & m)
 {
     using namespace pybind11;
