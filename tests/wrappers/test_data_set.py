@@ -16,7 +16,31 @@ class TestDataSet(unittest.TestCase):
         self.assertEqual(
             data_set.get_transfer_syntax().encode(),
             odil.registry.ExplicitVRLittleEndian)
-
+    
+    def test_kwargs_constructor(self):
+        data_set = odil.DataSet(
+            PatientName=["Doe^John"], PatientWeight=[70],
+             ReferencedStudySequence=[
+                odil.DataSet(StudyInstanceUID=["1.2.3"])
+            ])
+        
+        self.assertEqual(data_set.size(), 3)
+        
+        self._test_element_value(
+            data_set, "PatientName", [b"Doe^John"], 
+            odil.DataSet.is_string, odil.DataSet.as_string)
+        self._test_element_value(
+            data_set, "PatientWeight", [70], 
+            odil.DataSet.is_int, odil.DataSet.as_int)
+        self._test_element_value(
+            data_set, "ReferencedStudySequence", [
+               odil.DataSet(StudyInstanceUID=["1.2.3"])
+            ], 
+            odil.DataSet.is_data_set, odil.DataSet.as_data_set)
+        
+        with self.assertRaises(odil.Exception):
+            odil.DataSet(FooBar=["foo"])
+    
     def test_transfer_syntax(self):
         data_set = odil.DataSet()
         data_set.set_transfer_syntax(odil.registry.ExplicitVRLittleEndian)

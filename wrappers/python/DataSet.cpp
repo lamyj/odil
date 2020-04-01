@@ -14,37 +14,52 @@
 #include "opaque_types.h"
 #include "type_casters.h"
 
+namespace
+{
+void 
+add_python_object(
+    odil::DataSet & self, odil::Tag const & tag, pybind11::sequence source, 
+    odil::VR vr=odil::VR::UNKNOWN)
+{
+    if(vr == odil::VR::UNKNOWN)
+    {
+        vr = as_vr(tag);
+    }
+    if(pybind11::len(source) > 0)
+    {
+        self.add(tag, {convert_sequence<odil::Value>(source), vr});
+    }
+    else
+    {
+        self.add(tag);
+    }
+}
+}
+
 void wrap_DataSet(pybind11::module & m)
 {
     using namespace pybind11;
     using namespace odil;
 
     class_<DataSet, std::shared_ptr<DataSet>>(m, "DataSet")
-        .def(init<>())
-        .def(init<std::string const &>())
+        .def(
+            init([](std::string const & transfer_syntax, pybind11::kwargs kwargs)
+            {
+                auto self = std::make_shared<DataSet>(transfer_syntax);
+                for(auto && item: kwargs)
+                {
+                    add_python_object(
+                        *self, item.first.cast<std::string>(), 
+                        item.second.cast<sequence>());
+                }
+                return self;
+            }),
+            "transfer_syntax"_a="")
         .def("add", (void (DataSet::*)(Tag const &, Element const &)) &DataSet::add)
         .def(
             "add", (void (DataSet::*)(Tag const &, VR)) &DataSet::add,
             "tag"_a, "vr"_a=VR::UNKNOWN)
-        .def(
-            "add",
-            [](DataSet & self, Tag const & tag, sequence source, VR vr)
-            {
-                if(vr == VR::UNKNOWN)
-                {
-                    vr = as_vr(tag);
-                }
-                if(len(source) > 0)
-                {
-                    self.add(tag, {convert_sequence<Value>(source), vr});
-                }
-                else
-                {
-                    self.add(tag);
-                }
-            },
-            "self"_a, "tag"_a, "vr"_a=VR::UNKNOWN
-        )
+        .def("add", add_python_object, "self"_a, "tag"_a, "vr"_a=VR::UNKNOWN)
         .def("remove", &DataSet::remove)
         .def("has", &DataSet::has)
         .def("empty", (bool (DataSet::*)() const) &DataSet::empty)
