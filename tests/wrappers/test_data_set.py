@@ -191,7 +191,41 @@ class TestDataSet(unittest.TestCase):
         self.assertSequenceEqual(
             data_set["PatientName"].as_string(), [b"Doe^John"])
         self.assertRaises(Exception, lambda x: data_set["PatientID"])
-
+    
+    def test_delitem(self):
+        data_set = odil.DataSet()
+        data_set.add("PatientName", ["Doe^John"])
+        del data_set[odil.registry.PatientName]
+        self.assertTrue(data_set.empty())
+        
+        data_set = odil.DataSet()
+        data_set.add("PatientName", ["Doe^John"])
+        del data_set["PatientName"]
+        self.assertTrue(data_set.empty())
+    
+    def test_contains(self):
+        data_set = odil.DataSet()
+        data_set.add("PatientName", ["Doe^John"])
+        self.assertTrue("PatientName" in data_set)
+        self.assertTrue(odil.registry.PatientName in data_set)
+        self.assertTrue("PatientID" not in data_set)
+        self.assertTrue(odil.registry.PatientID not in data_set)
+    
+    def test_get(self):
+        data_set = odil.DataSet()
+        data_set.add("PatientName", ["Doe^John"])
+        
+        self.assertSequenceEqual(
+            data_set.get(odil.registry.PatientName).as_string(), [b"Doe^John"])
+        self.assertSequenceEqual(
+            data_set.get("PatientName").as_string(), [b"Doe^John"])
+        
+        self.assertEqual(data_set.get(odil.registry.PatientID), None)
+        self.assertEqual(data_set.get("PatientID"), None)
+        
+        self.assertEqual(data_set.get(odil.registry.PatientID, 123), 123)
+        self.assertEqual(data_set.get("PatientID", 123), 123)
+        
     def test_iter(self):
         data_set = odil.DataSet()
         data_set.add("PatientName", ["Doe^John"])
@@ -206,6 +240,12 @@ class TestDataSet(unittest.TestCase):
         data_set.add("PatientID", ["DJ123"])
         self.assertEqual(
             [x.get_name() for x in data_set.keys()],
+            ["PatientName", "PatientID"])
+        self.assertEqual(
+            [x.get_name() for x in list(data_set)],
+            ["PatientName", "PatientID"])
+        self.assertEqual(
+            [x.get_name() for x in data_set],
             ["PatientName", "PatientID"])
 
     def test_values(self):
@@ -227,6 +267,26 @@ class TestDataSet(unittest.TestCase):
                 [tag.get_name(), [item for item in element.as_string()]]
                 for tag, element in data_set.items()],
             [["PatientName", [b"Doe^John"]], ["PatientID", [b"DJ123"]]])
+    
+    def test_update(self):
+        data_set = odil.DataSet()
+        data_set.add("PatientName", ["Doe^John"])
+        data_set.add("PatientSex", ["M"])
+        
+        other = odil.DataSet()
+        data_set.add("PatientName", ["Bloggs^Joe"])
+        other.add("PatientID", ["BJ123"])
+        other.add("IssuerOfPatientID", ["Hospital"])
+        
+        data_set.update(other)
+        
+        self.assertSequenceEqual(
+            [
+                [tag.get_name(), [item for item in element.as_string()]]
+                for tag, element in data_set.items()],
+            [
+                ["PatientName", [b"Bloggs^Joe"]], ["PatientID", [b"BJ123"]],
+                ["IssuerOfPatientID", [b"Hospital"]], ["PatientSex", [b"M"]]])
     
     def test_pickle(self):
         data_set = odil.DataSet()
