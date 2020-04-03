@@ -166,7 +166,7 @@ void update_3010(
     public_dictionary.emplace(Tag(0x3010, 0x0093), ElementsDictionaryEntry("RT Treatment Source Coordinates", "RTTreatmentSourceCoordinates",  "FD", "3"));
     public_dictionary.emplace(Tag(0x3010, 0x0094), ElementsDictionaryEntry("Radiation Source Coordinate SystemYaw Angle", "RadiationSourceCoordinateSystemYawAngle",  "FD", "1"));
     public_dictionary.emplace(Tag(0x3010, 0x0095), ElementsDictionaryEntry("Radiation Source Coordinate SystemRoll Angle", "RadiationSourceCoordinateSystemRollAngle",  "FD", "1"));
-    public_dictionary.emplace(Tag(0x3010, 0x0096), ElementsDictionaryEntry("Radiation Source Coordinate SystemPitch Angle", "RadiationSourceCoordinateSystemPitchAngle",  "FD", "1"));
+    public_dictionary.emplace(Tag(0x3010, 0x0096), ElementsDictionaryEntry("Radiation Source Coordinate System Pitch Angle", "RadiationSourceCoordinateSystemPitchAngle",  "FD", "1"));
     public_dictionary.emplace(Tag(0x3010, 0x0097), ElementsDictionaryEntry("Robotic Path Control Point Sequence", "RoboticPathControlPointSequence",  "SQ", "1"));
     public_dictionary.emplace(Tag(0x3010, 0x0098), ElementsDictionaryEntry("Tomotherapeutic Control Point Sequence", "TomotherapeuticControlPointSequence",  "SQ", "1"));
     public_dictionary.emplace(Tag(0x3010, 0x0099), ElementsDictionaryEntry("Tomotherapeutic Leaf Open Durations", "TomotherapeuticLeafOpenDurations",  "FD", "1-n"));
