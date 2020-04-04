@@ -39,8 +39,7 @@ struct SliceAccessorVisitor
 {
     using result_type = pybind11::list;
     
-    // NOTE use ssize_t as step may be < 0
-    ssize_t start, stop, step, slice_length;
+    std::size_t start, stop, step, slice_length;
     
     SliceAccessorVisitor(std::size_t size, pybind11::slice slice);
     
