@@ -15,10 +15,13 @@
 #include "opaque_types.h"
 #include "type_casters.h"
 
+#include "Value.h"
+
 void wrap_Element(pybind11::module & m)
 {
     using namespace pybind11;
     using namespace odil;
+    using namespace odil::wrappers;
 
     class_<Element>(m, "Element")
         // WARNING: the VR is not handled correctly
@@ -63,6 +66,27 @@ void wrap_Element(pybind11::module & m)
         .def(self != self)
         .def("__len__", &Element::size)
         .def("clear", &Element::clear)
+        .def(
+            "__getitem__", [](Element const & self, std::size_t index) {
+                if(index >= self.size())
+                {
+                    throw std::out_of_range("list index out of range");
+                }
+                return apply_visitor(
+                    IndexAccessorVisitor(index), self.get_value());
+            })
+        .def(
+            "__getitem__", [](Element const & self, slice slice_) {
+                return apply_visitor(
+                    SliceAccessorVisitor(self.size(), slice_), 
+                    self.get_value());
+            })
+        .def(
+            "__iter__", 
+            [](Element const & self) 
+            { 
+                return apply_visitor(IteratorVisitor(), self.get_value());
+            })
         .def(pickle(
             [](Element const & element) {
                 return make_tuple(element.get_value(), element.vr);

@@ -44,7 +44,7 @@ class TestElement(unittest.TestCase):
     def _test_container(self, contents, vr, type_check, accessor):
         element = odil.Element(contents, vr)
         self._test_value(element, vr, contents, type_check, accessor)
-    
+        
     def _test_modify(self, contents, vr, accessor):
         element = odil.Element([contents[0]], vr)
         if isinstance(contents[0], bytearray):
@@ -52,7 +52,7 @@ class TestElement(unittest.TestCase):
         else:
             accessor(element).append(contents[1])
         
-        self._test_sequences(accessor(element), contents)
+        self._test_sequences(accessor(element), contents[:2])
 
     def _test_clear(self, contents, vr, type_check):
         element = odil.Element(contents, vr)
@@ -73,28 +73,40 @@ class TestElement(unittest.TestCase):
         self.assertFalse(element_1 != element_2)
         self.assertTrue(element_1 != element_3)
         self.assertTrue(element_1 != element_4)
-
+    
+    def _test_getitem(self, contents, vr, accessor):    
+        element = odil.Element(contents, vr)
+        self.assertEqual(element[0], accessor(element)[0])
+        self.assertEqual(
+            element[2:0:-1], [accessor(element)[2], accessor(element)[1]])
+    
+    def _test_iteration(self, contents, vr, accessor):
+        element = odil.Element(contents, vr)
+        if element.is_binary():
+            self.assertSequenceEqual(
+                [bytearray([x for x in item]) for item in element], contents)
+        else:
+            self.assertSequenceEqual([x for x in element], contents)
+    
     def _test_pickle(self, contents, vr, accessor):
         element = odil.Element(contents, vr)
         self.assertSequenceEqual(
             accessor(pickle.loads(pickle.dumps(element))), accessor(element))
         self.assertEqual(pickle.loads(pickle.dumps(element)).vr, vr)
-        
+    
     def _test(
             self, 
             empty_content, contents, other_contents, vr, other_vr, 
             type_check, accessor):
         self._test_implicit_container(empty_content, vr, type_check, accessor)
         self._test_container(contents, vr, type_check, accessor)
-
         self._test_modify(contents, vr, accessor)
-
         self._test_clear(contents, vr, type_check)
-
         self._test_equality(contents, other_contents, vr, other_vr)
-        
+        self._test_getitem(contents, vr, accessor)
+        self._test_iteration(contents, vr, accessor)
         self._test_pickle(contents, vr, accessor)
-
+        
     def test_implicit_type(self):
         for vr in dir(odil.VR):
             if re.match(r"^[A-Z]{2}$", vr) is None:
@@ -124,39 +136,37 @@ class TestElement(unittest.TestCase):
 
     def test_integers(self):
         self._test(
-            odil.Value.Integers(), [1234, 5678], [9012, 3456],
+            odil.Value.Integers(), [1234, 5678, 9012], [3456, 7890],
             odil.VR.US, odil.VR.UL,
             odil.Element.is_int, odil.Element.as_int)
 
     def test_reals(self):
         self._test(
-            odil.Value.Reals(), [12.34, 56.78], [1., 2.],
+            odil.Value.Reals(), [12.34, 56.78, 90.12], [1., 2.],
             odil.VR.FD, odil.VR.DS,
             odil.Element.is_real, odil.Element.as_real)
 
     def test_strings(self):
         self._test(
-            odil.Value.Strings(), [b"foo", b"bar"], [b"plip", b"plop"],
+            odil.Value.Strings(), [b"foo", b"bar", b"baz"], [b"plip", b"plop"],
             odil.VR.CS, odil.VR.UT,
             odil.Element.is_string, odil.Element.as_string)
         
     def test_data_sets(self):
-        data_set_1 = odil.DataSet()
-        data_set_1.add("PatientID", ["DJ1234"])
-    
-        data_set_2 = odil.DataSet()
-        data_set_2.add("EchoTime", [100])
+        data_set_1 = odil.DataSet(PatientID=["DJ1234"])
+        data_set_2 = odil.DataSet(EchoTime=[100])
+        data_set_3 = odil.DataSet(PixelSpacing=[2.3, 4.5])
 
         self._test(
             odil.Value.DataSets(), 
-            [data_set_1, data_set_2], [data_set_2, data_set_1],
+            [data_set_1, data_set_2, data_set_3], [data_set_2, data_set_1],
             odil.VR.SQ, odil.VR.UN,
             odil.Element.is_data_set, odil.Element.as_data_set)
 
     def test_binary(self):
         self._test(
             odil.Value.Binary(), 
-            [bytearray([0x01, 0x02]), bytearray([0x03])],
+            [bytearray([0x01, 0x02]), bytearray([0x03]), bytearray([0x04, 0x05])],
             [bytearray([0x04]), bytearray([0x05, 0x06])],
             odil.VR.OB, odil.VR.OW,
             odil.Element.is_binary, odil.Element.as_binary)
