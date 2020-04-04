@@ -65,6 +65,44 @@ T unpickle_object_container(pybind11::tuple pickled)
     return value;
 }
 
+struct IteratorVisitor
+{
+    using result_type = pybind11::iterator;
+    
+    template<typename T>
+    result_type operator()(T const & value) const
+    {
+        return pybind11::make_iterator(value.begin(), value.end());
+    }
+    
+    result_type operator()(odil::Value::Strings const & value) const
+    {
+        return pybind11::make_iterator<
+                pybind11::return_value_policy::reference_internal,
+                decltype(value.begin()), decltype(value.end()), pybind11::bytes
+            >(value.begin(), value.end());
+    }
+};
+
+struct PickleVisitor
+{
+    using result_type = pybind11::tuple;
+    
+    odil::Value::Type type;
+    
+    PickleVisitor(odil::Value::Type type)
+    :type(type)
+    {
+        // Nothing else
+    }
+    
+    template<typename T>
+    result_type operator()(T const & value) const
+    {
+        return pybind11::make_tuple(this->type, value);
+    }
+};
+
 }
 
 namespace odil
@@ -208,34 +246,15 @@ void wrap_Value(pybind11::module & m)
         .def(self != self)
         .def("clear", &Value::clear)
         .def("__len__", &Value::size)
+        .def(
+            "__iter__", 
+            [](Value const & self) {
+                return apply_visitor(IteratorVisitor(), self);
+        })
         .def_property_readonly("type", &Value::get_type)
         .def(pickle(
             [](Value const & value) -> tuple {
-                auto const type = value.get_type();
-                if(type == Value::Type::Integers)
-                {
-                    return pybind11::make_tuple(type, value.as_integers());
-                }
-                else if(type == Value::Type::Reals)
-                {
-                    return pybind11::make_tuple(type, value.as_reals());
-                }
-                else if(type == Value::Type::Strings)
-                {
-                    return pybind11::make_tuple(type, value.as_strings());
-                }
-                else if(type == Value::Type::DataSets)
-                {
-                    return pybind11::make_tuple(type, value.as_data_sets());
-                }
-                else if(type == Value::Type::Binary)
-                {
-                    return pybind11::make_tuple(type, value.as_binary());
-                }
-                else
-                {
-                    throw Exception("Value: invalid pickled state");
-                }
+                return apply_visitor(PickleVisitor(value.get_type()), value);
             },
             [](tuple pickled) {
                 auto const type = pickled[0].cast<Value::Type>();

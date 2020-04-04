@@ -92,6 +92,14 @@ class TestValue(unittest.TestCase):
         self.assertTrue(value_1 != value_3)
         self.assertTrue(value_1 != value_4)
     
+    def _test_iteration(self, contents, accessor):
+        value = odil.Value(contents)
+        if value.type == odil.Value.Type.Binary:
+            self.assertSequenceEqual(
+                [bytearray([x for x in item]) for item in value], contents)
+        else:
+            self.assertSequenceEqual([x for x in value], contents)
+    
     def _test_pickle(self, contents, accessor):
         value = odil.Value(contents)
         self.assertSequenceEqual(
@@ -100,13 +108,10 @@ class TestValue(unittest.TestCase):
     def _test(self, empty_content, contents, other_contents, type_, accessor):
         self._test_container(empty_content, type_, accessor)
         self._test_container(contents, type_, accessor)
-
         self._test_modify(contents, accessor)
-
         self._test_clear(contents, type_)
-
         self._test_equality(contents, other_contents)
-        
+        self._test_iteration(contents, accessor)
         self._test_pickle(contents, accessor)
 
     def test_integers(self):
