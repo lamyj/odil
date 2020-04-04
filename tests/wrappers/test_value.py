@@ -95,6 +95,7 @@ class TestValue(unittest.TestCase):
     def _test_getitem(self, contents, accessor):    
         value = odil.Value(contents)
         self.assertEqual(value[0], accessor(value)[0])
+        self.assertEqual(value[-1], accessor(value)[-1])
         self.assertEqual(
             value[2:0:-1], [accessor(value)[2], accessor(value)[1]])
     

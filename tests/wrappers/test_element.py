@@ -77,6 +77,7 @@ class TestElement(unittest.TestCase):
     def _test_getitem(self, contents, vr, accessor):    
         element = odil.Element(contents, vr)
         self.assertEqual(element[0], accessor(element)[0])
+        self.assertEqual(element[-1], accessor(element)[-1])
         self.assertEqual(
             element[2:0:-1], [accessor(element)[2], accessor(element)[1]])
     

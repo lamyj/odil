@@ -122,11 +122,17 @@ void wrap_Value(pybind11::module & m)
         .def("clear", &Value::clear)
         .def("__len__", &Value::size)
         .def(
-            "__getitem__", [](Value const & self, std::size_t index) {
+            "__getitem__", [](Value const & self, ssize_t index) {
+                if(index < 0)
+                {
+                    index += self.size();
+                }
+                
                 if(index >= self.size())
                 {
                     throw std::out_of_range("list index out of range");
                 }
+                
                 return apply_visitor(IndexAccessorVisitor(index), self);
             })
         .def(
