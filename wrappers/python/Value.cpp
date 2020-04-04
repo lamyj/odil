@@ -17,191 +17,65 @@
 
 #include "opaque_types.h"
 #include "type_casters.h"
-
-namespace 
-{
-
-template<typename T>
-pybind11::tuple pickle_pod_container(T const & container)
-{
-    return pybind11::make_tuple(
-        pybind11::bytes(
-            reinterpret_cast<char const*>(container.data()), 
-            sizeof(typename T::value_type)*container.size()));
-}
-
-template<typename T>
-T unpickle_pod_container(pybind11::tuple pickled)
-{
-    char * raw_buffer;
-    ssize_t length;
-    PYBIND11_BYTES_AS_STRING_AND_SIZE(
-        pickled[0].cast<pybind11::bytes>().ptr(), &raw_buffer, &length);
-    
-    auto buffer = reinterpret_cast<typename T::value_type *>(raw_buffer);
-    
-    return T(buffer, buffer+length/sizeof(typename T::value_type));
-}
-
-template<typename T>
-pybind11::tuple pickle_object_container(T const & container)
-{
-    pybind11::tuple pickled(container.size());
-    for(std::size_t i=0; i<container.size(); ++i)
-    {
-        pickled[i] = container[i];
-    }
-    return pickled;
-}
-
-template<typename T>
-T unpickle_object_container(pybind11::tuple pickled) 
-{
-    T value(pickled.size());
-    for(std::size_t i=0; i<value.size(); ++i)
-    {
-        value[i] = pickled[i].cast<typename T::value_type>();
-    }
-    return value;
-}
-
-struct IteratorVisitor
-{
-    using result_type = pybind11::iterator;
-    
-    template<typename T>
-    result_type operator()(T const & value) const
-    {
-        return pybind11::make_iterator(value.begin(), value.end());
-    }
-    
-    result_type operator()(odil::Value::Strings const & value) const
-    {
-        return pybind11::make_iterator<
-                pybind11::return_value_policy::reference_internal,
-                decltype(value.begin()), decltype(value.end()), pybind11::bytes
-            >(value.begin(), value.end());
-    }
-};
-
-struct PickleVisitor
-{
-    using result_type = pybind11::tuple;
-    
-    odil::Value::Type type;
-    
-    PickleVisitor(odil::Value::Type type)
-    :type(type)
-    {
-        // Nothing else
-    }
-    
-    template<typename T>
-    result_type operator()(T const & value) const
-    {
-        return pybind11::make_tuple(this->type, value);
-    }
-};
-
-}
+#include "Value.h"
 
 namespace odil
 {
 
-pybind11::object
-as_memory_view(odil::Value::Binary::value_type const & binary_item)
+namespace wrappers
 {
-    Py_buffer buffer;
-    PyBuffer_FillInfo(
-        &buffer, nullptr,
-        const_cast<odil::Value::Binary::value_type::value_type*>(&binary_item[0]),
-        binary_item.size(), 1, PyBUF_SIMPLE);
-    PyObject * memory_view = PyMemoryView_FromBuffer(&buffer);
 
-    return pybind11::reinterpret_steal<pybind11::object>(memory_view);
+IndexAccessorVisitor
+::IndexAccessorVisitor(std::size_t index)
+: index(index)
+{
+    // Nothing else.
+}
+    
+IndexAccessorVisitor::result_type
+IndexAccessorVisitor
+::operator()(odil::Value::Strings const & value) const
+{
+    return pybind11::bytes(value[this->index]).cast<pybind11::object>();
 }
 
-// TODO: add this to bind_vector
-template<typename Vector, typename Class_>
-void vector_accessor(Class_ &cl)
+SliceAccessorVisitor
+::SliceAccessorVisitor(std::size_t size, pybind11::slice slice)
 {
-    using T = typename Vector::value_type;
-    using SizeType = long; //typename Vector::size_type;
-    using ItType   = typename Vector::iterator;
-
-    cl.def(
-        "__getitem__",
-        [](Vector &v, SizeType i) -> T &
-        {
-            if((i>=0 && i >= SizeType(v.size())) || (i<0 && i < -SizeType(v.size())))
-            {
-                throw pybind11::index_error();
-            }
-            return v[i>=0?i:v.size()+i];
-        },
-        pybind11::return_value_policy::reference_internal // ref + keepalive
-    );
-
-    cl.def(
-        "__iter__",
-        [](Vector &v)
-        {
-            return pybind11::make_iterator<
-                    pybind11::return_value_policy::reference_internal, ItType, ItType, T&
-                >(v.begin(), v.end());
-        },
-        pybind11::keep_alive<0, 1>() /* Essential: keep list alive while iterator exists */
-    );
+    slice.compute(
+        size, &this->start, &this->stop, &this->step, &this->slice_length);
 }
 
-template<typename Vector, typename holder_type = std::unique_ptr<Vector>, typename... Args>
-pybind11::class_<Vector, holder_type>
-bind_vector(pybind11::handle scope, std::string const &name, Args&&... args)
+SliceAccessorVisitor::result_type
+SliceAccessorVisitor
+::operator()(odil::Value::Strings const & value) const
 {
-    using Class_ = pybind11::class_<Vector, holder_type>;
+    result_type result(this->slice_length);
+    std::size_t d = 0;
+    for(ssize_t s = this->start; s != this->stop; s += this->step) 
+    { 
+        result[d++] = pybind11::bytes(value[s]);
+    }
+    return result;
+}
 
-    // If the value_type is unregistered (e.g. a converting type) or is itself registered
-    // module-local then make the vector binding module-local as well:
-    using vtype = typename Vector::value_type;
-    auto vtype_info = pybind11::detail::get_type_info(typeid(vtype));
-    bool local = !vtype_info || vtype_info->module_local;
+IteratorVisitor::result_type
+IteratorVisitor
+::operator()(odil::Value::Strings const & value) const
+{
+    return pybind11::make_iterator<
+            pybind11::return_value_policy::reference_internal,
+            decltype(value.begin()), decltype(value.end()), pybind11::bytes
+        >(value.begin(), value.end());
+}
 
-    Class_ cl(
-        scope, name.c_str(), pybind11::module_local(local),
-        std::forward<Args>(args)...);
+PickleVisitor
+::PickleVisitor(odil::Value::Type type)
+:type(type)
+{
+    // Nothing else
+}
 
-    // Declare the buffer interface if a buffer_protocol() is passed in
-    pybind11::detail::vector_buffer<Vector, Class_, Args...>(cl);
-
-    cl.def(pybind11::init<>());
-
-    // Register copy constructor (if possible)
-    pybind11::detail::vector_if_copy_constructible<Vector, Class_>(cl);
-
-    // Register comparison-related operators and functions (if possible)
-    pybind11::detail::vector_if_equal_operator<Vector, Class_>(cl);
-
-    // Register stream insertion operator (if possible)
-    pybind11::detail::vector_if_insertion_operator<Vector, Class_>(cl, name);
-
-    // Modifiers require copyable vector value type
-    pybind11::detail::vector_modifiers<Vector, Class_>(cl);
-
-    // Accessor and iterator; return by value if copyable, otherwise we return by ref + keep-alive
-    odil::vector_accessor<Vector, Class_>(cl);
-
-    cl.def(
-        "__bool__",
-        [](const Vector &v) -> bool
-        {
-            return !v.empty();
-        },
-        "Check whether the list is nonempty"
-    );
-
-    cl.def("__len__", &Vector::size);
-
-    return cl;
 }
 
 }
@@ -210,6 +84,7 @@ void wrap_Value(pybind11::module & m)
 {
     using namespace pybind11;
     using namespace odil;
+    using namespace odil::wrappers;
 
     class_<Value> value(m, "Value");
     value
@@ -247,10 +122,24 @@ void wrap_Value(pybind11::module & m)
         .def("clear", &Value::clear)
         .def("__len__", &Value::size)
         .def(
+            "__getitem__", [](Value const & self, std::size_t index) {
+                if(index >= self.size())
+                {
+                    throw std::out_of_range("list index out of range");
+                }
+                return apply_visitor(IndexAccessorVisitor(index), self);
+            })
+        .def(
+            "__getitem__", [](Value const & self, slice slice_) {
+                return apply_visitor(
+                    SliceAccessorVisitor(self.size(), slice_), self);
+            })
+        .def(
             "__iter__", 
-            [](Value const & self) {
+            [](Value const & self) 
+            { 
                 return apply_visitor(IteratorVisitor(), self);
-        })
+            })
         .def_property_readonly("type", &Value::get_type)
         .def(pickle(
             [](Value const & value) -> tuple {
@@ -294,12 +183,12 @@ void wrap_Value(pybind11::module & m)
         .value("Binary", Value::Type::Binary)
     ;
     
-    odil::bind_vector<Value::Integers>(value, "Integers")
+    odil::wrappers::bind_vector<Value::Integers>(value, "Integers")
         .def(pickle(
             &pickle_pod_container<Value::Integers>,
             &unpickle_pod_container<Value::Integers>))
     ;
-    odil::bind_vector<Value::Reals>(value, "Reals")
+    odil::wrappers::bind_vector<Value::Reals>(value, "Reals")
         .def(pickle(
             &pickle_pod_container<Value::Reals>,
             &unpickle_pod_container<Value::Reals>))
@@ -381,7 +270,7 @@ void wrap_Value(pybind11::module & m)
         ));
     }
 
-    odil::bind_vector<Value::DataSets>(value, "DataSets")
+    odil::wrappers::bind_vector<Value::DataSets>(value, "DataSets")
         .def(pickle(
             [](Value::DataSets const & value) {
                 tuple pickled(value.size());
@@ -403,8 +292,20 @@ void wrap_Value(pybind11::module & m)
         ))
     ;
     
-    odil::bind_vector<Value::Binary::value_type>(value, "BinaryItem")
-        .def("get_memory_view", as_memory_view)
+    odil::wrappers::bind_vector<Value::Binary::value_type>(value, "BinaryItem")
+        .def(
+            "get_memory_view", 
+            [](Value::Binary::value_type const & binary_item)
+            {
+                Py_buffer buffer;
+                PyBuffer_FillInfo(
+                    &buffer, nullptr,
+                    const_cast<Value::Binary::value_type::value_type*>(&binary_item[0]),
+                    binary_item.size(), 1, PyBUF_SIMPLE);
+                PyObject * memory_view = PyMemoryView_FromBuffer(&buffer);
+
+                return reinterpret_steal<object>(memory_view);
+            })
         .def(pickle(
             [](Value::Binary::value_type b) {
                 return make_tuple(
@@ -422,7 +323,7 @@ void wrap_Value(pybind11::module & m)
             }
         ))
     ;
-    odil::bind_vector<Value::Binary>(value, "Binary")
+    odil::wrappers::bind_vector<Value::Binary>(value, "Binary")
         .def(pickle(
             &pickle_object_container<Value::Binary>,
             &unpickle_object_container<Value::Binary>

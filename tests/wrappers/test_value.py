@@ -70,7 +70,7 @@ class TestValue(unittest.TestCase):
         else:
             accessor(value).append(contents[1])
         
-        self._test_sequences(accessor(value), contents)
+        self._test_sequences(accessor(value), contents[:2])
 
     def _test_clear(self, contents, type_):
         value = odil.Value(contents)
@@ -91,6 +91,12 @@ class TestValue(unittest.TestCase):
         self.assertFalse(value_1 != value_2)
         self.assertTrue(value_1 != value_3)
         self.assertTrue(value_1 != value_4)
+    
+    def _test_getitem(self, contents, accessor):    
+        value = odil.Value(contents)
+        self.assertEqual(value[0], accessor(value)[0])
+        self.assertEqual(
+            value[2:0:-1], [accessor(value)[2], accessor(value)[1]])
     
     def _test_iteration(self, contents, accessor):
         value = odil.Value(contents)
@@ -116,17 +122,18 @@ class TestValue(unittest.TestCase):
 
     def test_integers(self):
         self._test(
-            odil.Value.Integers(), [1234, 5678], [9012, 3456], 
+            odil.Value.Integers(), [1234, 5678, 9012], [9012, 3456], 
             odil.Value.Type.Integers, odil.Value.as_integers)
         
     def test_reals(self):
         self._test(
-            odil.Value.Reals(), [12.34, 56.78], [1., 2.],
+            odil.Value.Reals(), [12.34, 56.78, 90.12], [1., 2.],
             odil.Value.Type.Reals, odil.Value.as_reals)
 
     def test_strings(self):
         self._test(
-            odil.Value.Strings(), [b"foo", b"bar"], [b"plip", b"plop"],
+            odil.Value.Strings(), 
+            [b"foo", b"bar", b"baz"], [b"plip", b"plop"],
             odil.Value.Type.Strings, odil.Value.as_strings)
 
     # FIXME: strings in DICOM are byte-string, with some VR requiring 
@@ -134,21 +141,19 @@ class TestValue(unittest.TestCase):
     # explicit conversion are used (unicode <-> std::string in Python 3).
 
     def test_data_sets(self):
-        data_set_1 = odil.DataSet()
-        data_set_1.add("PatientID", ["DJ1234"])
-    
-        data_set_2 = odil.DataSet()
-        data_set_2.add("EchoTime", [100])
+        data_set_1 = odil.DataSet(PatientID=["DJ1234"])
+        data_set_2 = odil.DataSet(EchoTime=[100])
+        data_set_3 = odil.DataSet(PixelSpacing=[2.3, 4.5])
 
         self._test(
             odil.Value.DataSets(), 
-            [data_set_1, data_set_2], [data_set_2, data_set_1],
+            [data_set_1, data_set_2, data_set_3], [data_set_2, data_set_1],
             odil.Value.Type.DataSets, odil.Value.as_data_sets)
 
     def test_binary(self):
         self._test(
             odil.Value.Binary(), 
-            [bytearray([0x01, 0x02]), bytearray([0x03])],
+            [bytearray([0x01, 0x02]), bytearray([0x03]), bytearray([0x04, 0x05])],
             [bytearray([0x04]), bytearray([0x05, 0x06])],
             odil.Value.Type.Binary, odil.Value.as_binary)
         
