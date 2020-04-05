@@ -42,8 +42,11 @@ IndexAccessorVisitor
 SliceAccessorVisitor
 ::SliceAccessorVisitor(std::size_t size, pybind11::slice slice)
 {
-    slice.compute(
-        size, &this->start, &this->stop, &this->step, &this->slice_length);
+    // WARNING: pybind11 <= 2.2.4 uses the unsigned size_t, not the signed 
+    // ssize_t. Use the Python API directly.
+    PySlice_GetIndicesEx(
+        slice.ptr(), size, 
+        &this->start, &this->stop, &this->step, &this->slice_length);
 }
 
 SliceAccessorVisitor::result_type
