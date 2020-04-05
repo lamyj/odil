@@ -19,24 +19,28 @@ class TestDataSet(unittest.TestCase):
     
     def test_kwargs_constructor(self):
         data_set = odil.DataSet(
+            odil.registry.ImplicitVRLittleEndian,
             PatientName=["Doe^John"], PatientWeight=[70],
-             ReferencedStudySequence=[
-                odil.DataSet(StudyInstanceUID=["1.2.3"])
-            ])
+            ReferencedStudySequence=[
+                odil.DataSet(StudyInstanceUID=["1.2.3"])],
+            PixelData=[odil.Value.BinaryItem([1,2,3])])
         
-        self.assertEqual(data_set.size(), 3)
+        self.assertEqual(data_set.size(), 4)
         
         self._test_element_value(
-            data_set, "PatientName", [b"Doe^John"], 
+            data_set, "PatientName", [b"Doe^John"], odil.VR.PN,
             odil.DataSet.is_string, odil.DataSet.as_string)
         self._test_element_value(
-            data_set, "PatientWeight", [70], 
+            data_set, "PatientWeight", [70], odil.VR.DS,
             odil.DataSet.is_int, odil.DataSet.as_int)
         self._test_element_value(
             data_set, "ReferencedStudySequence", [
                odil.DataSet(StudyInstanceUID=["1.2.3"])
-            ], 
+            ], odil.VR.SQ,
             odil.DataSet.is_data_set, odil.DataSet.as_data_set)
+        self._test_element_value(
+            data_set, "PixelData", [odil.Value.BinaryItem([1,2,3])], odil.VR.OW,
+            odil.DataSet.is_binary, odil.DataSet.as_binary)
         
         with self.assertRaises(odil.Exception):
             odil.DataSet(FooBar=["foo"])
@@ -70,11 +74,12 @@ class TestDataSet(unittest.TestCase):
             self.assertSequenceEqual(list(odil_contents), list(python_contents))
 
     def _test_element_value(
-            self, data_set, tag, contents, type_check, accessor):
+            self, data_set, tag, contents, vr, type_check, accessor):
         self.assertTrue(data_set.has(tag))
         self.assertEqual(data_set.empty(tag), len(contents)==0)
         self.assertEqual(data_set.size(tag), len(contents))
         self.assertTrue(type_check(data_set, tag))
+        self.assertEqual(data_set[tag].vr, vr)
         self._test_sequences(accessor(data_set, tag), contents)
 
         if not data_set.is_int(tag):
@@ -94,29 +99,31 @@ class TestDataSet(unittest.TestCase):
                 data_set.as_binary(tag)
 
     def _test_implicit_container(
-            self, tag, empty_content, type_check, accessor):
+            self, tag, empty_content, vr, type_check, accessor):
 
         # Implicit empty content
         data_set = odil.DataSet()
         data_set.add(tag)
         self._test_element_value(
-            data_set, tag, empty_content, type_check, accessor)
+            data_set, tag, empty_content, vr, type_check, accessor)
 
         # Explicit empty content
         data_set = odil.DataSet()
         data_set.add(tag, empty_content)
         self._test_element_value(
-            data_set, tag, empty_content, type_check, accessor)
+            data_set, tag, empty_content, vr, type_check, accessor)
 
-    def _test_container_no_vr(self, tag, contents, type_check, accessor):
+    def _test_container_no_vr(self, tag, contents, vr, type_check, accessor):
         data_set = odil.DataSet()
         data_set.add(tag, contents)
-        self._test_element_value(data_set, tag, contents, type_check, accessor)
+        self._test_element_value(
+            data_set, tag, contents, vr, type_check, accessor)
 
     def _test_container_vr(self, tag, contents, vr, type_check, accessor):
         data_set = odil.DataSet()
         data_set.add(tag, contents, vr)
-        self._test_element_value(data_set, tag, contents, type_check, accessor)
+        self._test_element_value(
+            data_set, tag, contents, vr, type_check, accessor)
 
     def _test_modify(self, tag, contents, accessor):
         data_set = odil.DataSet()
@@ -149,10 +156,10 @@ class TestDataSet(unittest.TestCase):
             data_set_type_check, data_set_accessor,
             element_type_check, element_accessor):
         self._test_implicit_container(
-            tag, empty_content, data_set_type_check, data_set_accessor)
+            tag, empty_content, vr, data_set_type_check, data_set_accessor)
 
         self._test_container_no_vr(
-            tag, contents, data_set_type_check, data_set_accessor)
+            tag, contents, vr, data_set_type_check, data_set_accessor)
         self._test_container_vr(
             tag, contents, vr, data_set_type_check, data_set_accessor)
 
@@ -170,7 +177,7 @@ class TestDataSet(unittest.TestCase):
 
     def test_real(self):
         self._test_element(
-            odil.registry.SpacingBetweenSlices, odil.Value.Reals(), 
+            odil.registry.B1rms, odil.Value.Reals(), 
             [12.34, 56.78], odil.VR.FL,
             odil.DataSet.is_real, odil.DataSet.as_real,
             odil.Element.is_real, odil.Element.as_real)
@@ -185,7 +192,7 @@ class TestDataSet(unittest.TestCase):
     def test_string(self):
         self._test_element(
             odil.registry.PatientID, odil.Value.Strings(), [b"foo", b"bar"],
-            odil.VR.LT,
+            odil.VR.LO,
             odil.DataSet.is_string, odil.DataSet.as_string,
             odil.Element.is_string, odil.Element.as_string)
 

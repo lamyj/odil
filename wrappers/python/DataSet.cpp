@@ -10,6 +10,7 @@
 #include <pybind11/operators.h>
 
 #include "odil/DataSet.h"
+#include "odil/VRFinder.h"
 
 #include "opaque_types.h"
 #include "type_casters.h"
@@ -18,20 +19,21 @@ namespace
 {
 void 
 add_python_object(
-    odil::DataSet & self, odil::Tag const & tag, pybind11::sequence source, 
-    odil::VR vr=odil::VR::UNKNOWN)
+    std::shared_ptr<odil::DataSet> self, odil::Tag const & tag, 
+    pybind11::sequence source, odil::VR vr=odil::VR::UNKNOWN)
 {
     if(vr == odil::VR::UNKNOWN)
     {
-        vr = as_vr(tag);
+        static odil::VRFinder const vr_finder;
+        vr = vr_finder(tag, self, self->get_transfer_syntax());
     }
     if(pybind11::len(source) > 0)
     {
-        self.add(tag, {convert_sequence<odil::Value>(source), vr});
+        self->add(tag, {convert_sequence<odil::Value>(source), vr});
     }
     else
     {
-        self.add(tag);
+        self->add(tag);
     }
 }
 }
@@ -49,7 +51,7 @@ void wrap_DataSet(pybind11::module & m)
                 for(auto && item: kwargs)
                 {
                     add_python_object(
-                        *self, item.first.cast<std::string>(), 
+                        self, item.first.cast<std::string>(), 
                         item.second.cast<sequence>());
                 }
                 return self;
