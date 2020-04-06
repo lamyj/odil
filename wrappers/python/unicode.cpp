@@ -8,6 +8,7 @@
 
 #include <pybind11/pybind11.h>
 
+#include "odil/Element.h"
 #include "odil/unicode.h"
 #include "odil/Value.h"
 
@@ -33,6 +34,18 @@ void wrap_unicode(pybind11::module & m)
             bool is_pn=false)
         {
             auto const utf8_input = as_utf8(input, specific_character_set, is_pn);
+            return utf8_input;
+        },
+        "input"_a, "specific_character_set"_a, "is_pn"_a=false);
+    m.def(
+        "as_unicode",
+        [](
+            std::string const & input,
+            Element const & specific_character_set,
+            bool is_pn=false)
+        {
+            auto const utf8_input = as_utf8(
+                input, specific_character_set.as_string(), is_pn);
             return utf8_input;
         },
         "input"_a, "specific_character_set"_a, "is_pn"_a=false);
