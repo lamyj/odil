@@ -40,7 +40,7 @@ void wrap_Element(pybind11::module & m)
         .def("empty", &Element::empty)
         .def("size", &Element::size)
         .def(
-            "get_value", &Element::get_value,
+            "get_value", (Value const & (Element::*)() const) &Element::get_value,
             return_value_policy::reference_internal)
         .def("is_int", &Element::is_int)
         .def(
@@ -78,20 +78,36 @@ void wrap_Element(pybind11::module & m)
                     throw std::out_of_range("list index out of range");
                 }
                 
-                return apply_visitor(
-                    IndexAccessorVisitor(index), self.get_value());
+                return apply_visitor(GetItem(index), self.get_value());
             })
         .def(
             "__getitem__", [](Element const & self, slice slice_) {
                 return apply_visitor(
-                    SliceAccessorVisitor(self.size(), slice_), 
-                    self.get_value());
+                    GetSlice(self.size(), slice_), self.get_value());
+            })
+        .def(
+            "__setitem__", [](Element & self, ssize_t index, object item) {
+                if(index < 0)
+                {
+                    index += self.size();
+                }
+                
+                if(index >= self.size())
+                {
+                    throw std::out_of_range("list index out of range");
+                }
+                
+                return apply_visitor(SetItem(index, item), self.get_value());
             })
         .def(
             "__iter__", 
             [](Element const & self) 
             { 
-                return apply_visitor(IteratorVisitor(), self.get_value());
+                return apply_visitor(Iterate(), self.get_value());
+            })
+        .def(
+            "append", [](Element & self, object item) {
+                return apply_visitor(Append(item), self.get_value());
             })
         .def(pickle(
             [](Element const & element) {

@@ -124,6 +124,13 @@ Element
     return this->_value.size();
 }
 
+Value &
+Element
+::get_value()
+{
+    return this->_value;
+}
+
 Value const &
 Element
 ::get_value() const
@@ -256,4 +263,3 @@ Element
 }
 
 }
-

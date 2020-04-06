@@ -126,6 +126,7 @@ class TestDataSet(unittest.TestCase):
             data_set, tag, contents, vr, type_check, accessor)
 
     def _test_modify(self, tag, contents, accessor):
+        # Typed test
         data_set = odil.DataSet()
         data_set.add(tag, [contents[0]])
         if isinstance(contents[0], bytearray):
@@ -134,6 +135,15 @@ class TestDataSet(unittest.TestCase):
         else:
             accessor(data_set, tag).append(contents[1])
         self._test_sequences(accessor(data_set, tag), contents)
+        
+        # Polymorphic test
+        data_set = odil.DataSet()
+        data_set.add(tag, [contents[0]])
+        if isinstance(contents[0], bytearray):
+            data_set[tag].append(odil.Value.BinaryItem(contents[1]))
+        else:
+            data_set[tag].append(contents[1])
+        self._test_sequences(data_set[tag], contents)
 
     def _test_clear(self, tag, contents, type_check):
         data_set = odil.DataSet()

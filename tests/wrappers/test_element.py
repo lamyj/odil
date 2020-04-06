@@ -18,6 +18,9 @@ class TestElement(unittest.TestCase):
         self.assertEqual(element.empty(), len(contents)==0)
         self.assertEqual(element.size(), len(contents))
         self.assertEqual(len(element), len(contents))
+        # Polymorphic test
+        self._test_sequences(element, contents)
+        # Typed test
         self._test_sequences(accessor(element), contents)
         self.assertEqual(element.vr, vr)
 
@@ -46,13 +49,35 @@ class TestElement(unittest.TestCase):
         self._test_value(element, vr, contents, type_check, accessor)
         
     def _test_modify(self, contents, vr, accessor):
+        # Typed test
         element = odil.Element([contents[0]], vr)
+        
         if isinstance(contents[0], bytearray):
             accessor(element).append(odil.Value.BinaryItem(contents[1]))
         else:
             accessor(element).append(contents[1])
-        
         self._test_sequences(accessor(element), contents[:2])
+        
+        if isinstance(contents[0], bytearray):
+            accessor(element)[0] = odil.Value.BinaryItem(contents[1])
+        else:
+            accessor(element)[0] = contents[1]
+        self._test_sequences(accessor(element), [contents[1], contents[1]])
+        
+        # Polymorphic test
+        element = odil.Element([contents[0]], vr)
+        
+        if isinstance(contents[0], bytearray):
+            element.append(odil.Value.BinaryItem(contents[1]))
+        else:
+            element.append(contents[1])
+        self._test_sequences(element, contents[:2])
+        
+        if isinstance(contents[0], bytearray):
+            element[0] = odil.Value.BinaryItem(contents[1])
+        else:
+            element[0] = contents[1]
+        self._test_sequences(element, [contents[1], contents[1]])
 
     def _test_clear(self, contents, vr, type_check):
         element = odil.Element(contents, vr)
@@ -74,21 +99,6 @@ class TestElement(unittest.TestCase):
         self.assertTrue(element_1 != element_3)
         self.assertTrue(element_1 != element_4)
     
-    def _test_getitem(self, contents, vr, accessor):    
-        element = odil.Element(contents, vr)
-        self.assertEqual(element[0], accessor(element)[0])
-        self.assertEqual(element[-1], accessor(element)[-1])
-        self.assertEqual(
-            element[2:0:-1], [accessor(element)[2], accessor(element)[1]])
-    
-    def _test_iteration(self, contents, vr, accessor):
-        element = odil.Element(contents, vr)
-        if element.is_binary():
-            self.assertSequenceEqual(
-                [bytearray([x for x in item]) for item in element], contents)
-        else:
-            self.assertSequenceEqual([x for x in element], contents)
-    
     def _test_pickle(self, contents, vr, accessor):
         element = odil.Element(contents, vr)
         self.assertSequenceEqual(
@@ -104,8 +114,6 @@ class TestElement(unittest.TestCase):
         self._test_modify(contents, vr, accessor)
         self._test_clear(contents, vr, type_check)
         self._test_equality(contents, other_contents, vr, other_vr)
-        self._test_getitem(contents, vr, accessor)
-        self._test_iteration(contents, vr, accessor)
         self._test_pickle(contents, vr, accessor)
         
     def test_implicit_type(self):

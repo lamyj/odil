@@ -98,13 +98,12 @@ void wrap_DataSet(pybind11::module & m)
         .def("__len__", (std::size_t (DataSet::*)() const) &DataSet::size)
         .def(
             "__getitem__",
-            [](DataSet const & self, Tag const & t) { return self[t]; })
+            (Element & (DataSet::*)(Tag const &)) &DataSet::operator[],
+            return_value_policy::reference_internal)
         .def(
             "__setitem__",
             [](DataSet & self, Tag const & t, Element const & e) { self[t] = e; })
-        .def(
-            "__delitem__", 
-            [](DataSet & self, Tag const & t) { self.remove(t); })
+        .def("__delitem__", &DataSet::remove)
         .def(
             "__iter__",
             [](DataSet const & self)

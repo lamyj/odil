@@ -25,22 +25,22 @@ namespace odil
 namespace wrappers
 {
 
-IndexAccessorVisitor
-::IndexAccessorVisitor(std::size_t index)
+GetItem
+::GetItem(std::size_t index)
 : index(index)
 {
     // Nothing else.
 }
     
-IndexAccessorVisitor::result_type
-IndexAccessorVisitor
+GetItem::result_type
+GetItem
 ::operator()(odil::Value::Strings const & value) const
 {
     return pybind11::bytes(value[this->index]).cast<pybind11::object>();
 }
 
-SliceAccessorVisitor
-::SliceAccessorVisitor(std::size_t size, pybind11::slice slice)
+GetSlice
+::GetSlice(std::size_t size, pybind11::slice slice)
 {
     // WARNING: pybind11 <= 2.2.4 uses the unsigned size_t, not the signed 
     // ssize_t. Use the Python API directly.
@@ -49,8 +49,8 @@ SliceAccessorVisitor
         &this->start, &this->stop, &this->step, &this->slice_length);
 }
 
-SliceAccessorVisitor::result_type
-SliceAccessorVisitor
+GetSlice::result_type
+GetSlice
 ::operator()(odil::Value::Strings const & value) const
 {
     result_type result(this->slice_length);
@@ -62,8 +62,15 @@ SliceAccessorVisitor
     return result;
 }
 
-IteratorVisitor::result_type
-IteratorVisitor
+SetItem
+::SetItem(std::size_t index, pybind11::object item)
+: index(index), item(item)
+{
+    // Nothing else.
+}
+
+Iterate::result_type
+Iterate
 ::operator()(odil::Value::Strings const & value) const
 {
     return pybind11::make_iterator<
@@ -72,8 +79,15 @@ IteratorVisitor
         >(value.begin(), value.end());
 }
 
-PickleVisitor
-::PickleVisitor(odil::Value::Type type)
+Append
+::Append(pybind11::object item)
+: item(item) 
+{
+    // Nothing else.
+}
+
+Pickle
+::Pickle(odil::Value::Type type)
 :type(type)
 {
     // Nothing else
@@ -136,23 +150,40 @@ void wrap_Value(pybind11::module & m)
                     throw std::out_of_range("list index out of range");
                 }
                 
-                return apply_visitor(IndexAccessorVisitor(index), self);
+                return apply_visitor(GetItem(index), self);
             })
         .def(
             "__getitem__", [](Value const & self, slice slice_) {
-                return apply_visitor(
-                    SliceAccessorVisitor(self.size(), slice_), self);
+                return apply_visitor(GetSlice(self.size(), slice_), self);
+            })
+        .def(
+            "__setitem__", [](Value & self, ssize_t index, object item) {
+                if(index < 0)
+                {
+                    index += self.size();
+                }
+                
+                if(index >= self.size())
+                {
+                    throw std::out_of_range("list index out of range");
+                }
+                
+                return apply_visitor(SetItem(index, item), self);
             })
         .def(
             "__iter__", 
             [](Value const & self) 
             { 
-                return apply_visitor(IteratorVisitor(), self);
+                return apply_visitor(Iterate(), self);
+            })
+        .def(
+            "append", [](Value & self, object item) {
+                return apply_visitor(Append(item), self);
             })
         .def_property_readonly("type", &Value::get_type)
         .def(pickle(
             [](Value const & value) -> tuple {
-                return apply_visitor(PickleVisitor(value.get_type()), value);
+                return apply_visitor(Pickle(value.get_type()), value);
             },
             [](tuple pickled) {
                 auto const type = pickled[0].cast<Value::Type>();

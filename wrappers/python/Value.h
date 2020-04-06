@@ -20,13 +20,13 @@ namespace wrappers
 {
 
 /// @brief Retrieve a single element from a Value
-struct IndexAccessorVisitor
+struct GetItem
 {
     using result_type = pybind11::object;
     
     std::size_t index;
     
-    IndexAccessorVisitor(std::size_t index);
+    GetItem(std::size_t index);
     
     template<typename T>
     result_type operator()(T const & value) const;
@@ -35,13 +35,13 @@ struct IndexAccessorVisitor
 };
 
 /// @brief Retrieve a slice from a Value
-struct SliceAccessorVisitor
+struct GetSlice
 {
     using result_type = pybind11::list;
     
     ssize_t start, stop, step, slice_length;
     
-    SliceAccessorVisitor(std::size_t size, pybind11::slice slice);
+    GetSlice(std::size_t size, pybind11::slice slice);
     
     template<typename T>
     result_type operator()(T const & value) const;
@@ -49,8 +49,21 @@ struct SliceAccessorVisitor
     result_type operator()(odil::Value::Strings const & value) const;
 };
 
+struct SetItem
+{
+    using result_type = void;
+    
+    std::size_t index;
+    pybind11::object item;
+    
+    SetItem(std::size_t index, pybind11::object item);
+    
+    template<typename T>
+    result_type operator()(T & value) const;
+};
+
 /// @brief Return an iterator to a Value.
-struct IteratorVisitor
+struct Iterate
 {
     using result_type = pybind11::iterator;
     
@@ -60,14 +73,26 @@ struct IteratorVisitor
     result_type operator()(odil::Value::Strings const & value) const;
 };
 
+struct Append
+{
+    using result_type = void;
+    
+    pybind11::object item;
+    
+    Append(pybind11::object item);
+    
+    template<typename T>
+    result_type operator()(T & value) const;
+};
+
 /// @brief Return a pickled Value.
-struct PickleVisitor
+struct Pickle
 {
     using result_type = pybind11::tuple;
     
     odil::Value::Type type;
     
-    PickleVisitor(odil::Value::Type type);
+    Pickle(odil::Value::Type type);
     
     template<typename T>
     result_type operator()(T const & value) const;

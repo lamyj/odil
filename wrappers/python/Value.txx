@@ -23,16 +23,16 @@ namespace wrappers
 {
 
 template<typename T>
-IndexAccessorVisitor::result_type 
-IndexAccessorVisitor
+GetItem::result_type 
+GetItem
 ::operator()(T const & value) const
 {
     return pybind11::cast(value[this->index]);
 }
 
 template<typename T>
-SliceAccessorVisitor::result_type
-SliceAccessorVisitor
+GetSlice::result_type
+GetSlice
 ::operator()(T const & value) const
 {
     result_type result(this->slice_length);
@@ -45,16 +45,32 @@ SliceAccessorVisitor
 }
 
 template<typename T>
-IteratorVisitor::result_type
-IteratorVisitor
+SetItem::result_type
+SetItem
+::operator()(T & value) const
+{
+    value[this->index] = this->item.cast<typename T::value_type>();
+}
+
+template<typename T>
+Iterate::result_type
+Iterate
 ::operator()(T const & value) const
 {
     return pybind11::make_iterator(value.begin(), value.end());
 }
 
 template<typename T>
-PickleVisitor::result_type
-PickleVisitor
+Append::result_type 
+Append
+::operator()(T & value) const
+{
+    value.push_back(this->item.cast<typename T::value_type>());
+}
+
+template<typename T>
+Pickle::result_type
+Pickle
 ::operator()(T const & value) const
 {
     return pybind11::make_tuple(this->type, value);
