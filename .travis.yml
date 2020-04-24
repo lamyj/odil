@@ -16,7 +16,7 @@ matrix:
       after_success:
         - docker kill debian_buster
     
-    - name: "Ubuntu 18.04 (Bionic)"
+    - name: "Ubuntu 20.04 (Focal)"
       os: linux
       sudo: required
       services:
@@ -24,11 +24,11 @@ matrix:
       env: 
         - CI_TYPE=deb
         - WORKSPACE=${TRAVIS_BUILD_DIR}
-        - RUNNER="docker exec -w ${TRAVIS_BUILD_DIR} -e WORKSPACE=${WORKSPACE} ubuntu_bionic"
+        - RUNNER="docker exec -w ${TRAVIS_BUILD_DIR} -e WORKSPACE=${WORKSPACE} ubuntu_focal"
       before_install:
-        - docker run -di -v ${TRAVIS_BUILD_DIR}:${TRAVIS_BUILD_DIR} --name ubuntu_bionic --rm ubuntu:bionic
+        - docker run -di -v ${TRAVIS_BUILD_DIR}:${TRAVIS_BUILD_DIR} --name ubuntu_focal --rm ubuntu:focal
       after_success:
-        - docker kill ubuntu_bionic
+        - docker kill ubuntu_focal
     
     - name: "macOS 10.14 (Mojave)"
       os: osx
