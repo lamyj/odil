@@ -85,7 +85,8 @@ def get(
     ]
     
     get_pc = odil.AssociationParameters.PresentationContext(
-        1, get_syntax, transfer_syntaxes, True, False)
+        1, get_syntax, transfer_syntaxes, 
+        odil.AssociationParameters.PresentationContext.Role.SCU)
     
     abstract_syntaxes = find_abstract_syntaxes(
         host, port, calling_ae_title, called_ae_title, level, keys)
@@ -99,7 +100,8 @@ def get(
         raise Exception("Too many storage syntaxes")
     storage_pcs = [
         odil.AssociationParameters.PresentationContext(
-            2*(i+1)+1, uid, transfer_syntaxes, False, True)
+            2*(i+1)+1, uid, transfer_syntaxes, 
+            odil.AssociationParameters.PresentationContext.Role.SCP)
         for i, uid in enumerate(abstract_syntaxes)
     ]
     
@@ -275,7 +277,8 @@ def find_abstract_syntaxes(
     ]
     
     find_pc = odil.AssociationParameters.PresentationContext(
-        1, find_syntax, transfer_syntaxes, True, False)
+        1, find_syntax, transfer_syntaxes, 
+        odil.AssociationParameters.PresentationContext.Role.SCU)
     
     association = odil.Association()
     association.set_peer_host(host)

@@ -36,7 +36,8 @@ def store(host, port, calling_ae_title, called_ae_title, filenames):
 
     presentation_contexts = [
         odil.AssociationParameters.PresentationContext(
-            2*i+1, sop_class, transfer_syntaxes, True, False)
+            2*i+1, sop_class, transfer_syntaxes, 
+            odil.AssociationParameters.PresentationContext.Role.SCU)
         for i, sop_class in enumerate(sop_classes)
     ]
     

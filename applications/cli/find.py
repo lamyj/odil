@@ -56,7 +56,7 @@ def find(host, port, calling_ae_title, called_ae_title, level, keys, decode_uids
         [
             odil.registry.ImplicitVRLittleEndian,
             odil.registry.ExplicitVRLittleEndian
-        ], True, False
+        ], odil.AssociationParameters.PresentationContext.Role.SCU
     )
     
     association = odil.Association()
