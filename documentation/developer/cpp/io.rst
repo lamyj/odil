@@ -49,11 +49,11 @@ Reading from a file return a pair of data sets: the first element of the pair is
   {
       std::ifstream stream{"foo.dcm"};
       
-      odil::DataSet header, data_set;
+      std::shared_ptr<odil::DataSet> header, data_set;
       std::tie(header, data_set) = odil::Reader::read_file(stream);
       
-      std::cout << header.as_string("ImplementationVersionName")[0] << "\n";
-      std::cout << data_set.as_string("SOPInstanceUID")[0] << "\n";
+      std::cout << header->as_string("ImplementationVersionName")[0] << "\n";
+      std::cout << data_set->as_string("SOPInstanceUID")[0] << "\n";
   }
 
 JSON format
