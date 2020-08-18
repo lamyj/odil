@@ -55,7 +55,7 @@ Exception
     }
     else
     {
-        throw std::runtime_error("Invalid source");
+        return "Invalid source";
     }
 }
 
