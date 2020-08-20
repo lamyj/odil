@@ -30,7 +30,7 @@ namespace odil
 template<typename T>
 T
 Reader
-::read_binary(std::istream & stream, ByteOrdering byte_ordering)
+::read_binary(std::istream & stream, ByteOrdering ordering)
 {
     T value;
     stream.read(reinterpret_cast<char*>(&value), sizeof(value));
@@ -38,11 +38,11 @@ Reader
     {
         throw Exception("Could not read from stream");
     }
-    if(byte_ordering == ByteOrdering::LittleEndian)
+    if(ordering == ByteOrdering::LittleEndian)
     {
         value = little_endian_to_host(value);
     }
-    else if(byte_ordering == ByteOrdering::BigEndian)
+    else if(ordering == ByteOrdering::BigEndian)
     {
         value = big_endian_to_host(value);
     }
