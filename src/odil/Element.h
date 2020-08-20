@@ -50,11 +50,11 @@ public:
      * copying a std::initializer_list does not copy the underlying objects.
      */
 
-    ODIL_ELEMENT_CONSTRUCTORS(Integers);
-    ODIL_ELEMENT_CONSTRUCTORS(Reals);
-    ODIL_ELEMENT_CONSTRUCTORS(Strings);
-    ODIL_ELEMENT_CONSTRUCTORS(DataSets);
-    ODIL_ELEMENT_CONSTRUCTORS(Binary);
+    ODIL_ELEMENT_CONSTRUCTORS(Integers)
+    ODIL_ELEMENT_CONSTRUCTORS(Reals)
+    ODIL_ELEMENT_CONSTRUCTORS(Strings)
+    ODIL_ELEMENT_CONSTRUCTORS(DataSets)
+    ODIL_ELEMENT_CONSTRUCTORS(Binary)
 #undef ODIL_ELEMENT_CONSTRUCTORS
 
     Element(
