@@ -94,3 +94,37 @@ add_custom_target(
     Registry ${CMAKE_COMMAND} -E echo "Registry"
     SOURCES generate_registry ${registry_templates})
 set_target_properties(Registry PROPERTIES FOLDER "Utils")
+
+set(INSTALL_LIB_DIR "${CMAKE_INSTALL_PREFIX}/lib")
+set(INSTALL_BIN_DIR "${CMAKE_INSTALL_PREFIX}/bin")
+set(INSTALL_INCLUDE_DIR "${CMAKE_INSTALL_PREFIX}/include")
+set(INSTALL_CMAKE_DIR "${CMAKE_INSTALL_PREFIX}/lib")
+if(WIN32 AND NOT CYGWIN)
+  set(INSTALL_CMAKE_DIR "${CMAKE_INSTALL_PREFIX}/CMake")
+else()
+  set(INSTALL_CMAKE_DIR "${CMAKE_INSTALL_PREFIX}/lib/CMake/Odil")
+endif()
+
+export(TARGETS libodil pyodil FILE "${PROJECT_BINARY_DIR}/OdilTargets.cmake")
+
+file(
+    RELATIVE_PATH REL_INCLUDE_DIR "${INSTALL_CMAKE_DIR}" 
+    "${INSTALL_INCLUDE_DIR}")
+
+set(CONF_INCLUDE_DIRS "${PROJECT_SOURCE_DIR}" "${PROJECT_BINARY_DIR}")
+configure_file(
+    OdilConfig.cmake.in "${PROJECT_BINARY_DIR}/OdilConfig.cmake" @ONLY)
+set(CONF_INCLUDE_DIRS "\${ODIL_CMAKE_DIR}/${REL_INCLUDE_DIR}")
+configure_file(
+    OdilConfig.cmake.in 
+    "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/OdilConfig.cmake" @ONLY)
+configure_file(
+    OdilConfigVersion.cmake.in 
+    "${PROJECT_BINARY_DIR}/OdilConfigVersion.cmake" @ONLY)
+
+install(FILES
+    "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/OdilConfig.cmake"
+    "${PROJECT_BINARY_DIR}/OdilConfigVersion.cmake"
+    DESTINATION "${INSTALL_CMAKE_DIR}" COMPONENT dev)
+
+install(EXPORT OdilTargets DESTINATION "${INSTALL_CMAKE_DIR}" COMPONENT dev)

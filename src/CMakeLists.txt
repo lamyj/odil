@@ -71,6 +71,7 @@ install(
     FILES_MATCHING PATTERN "*.h" PATTERN "*.txx")
 install(
     TARGETS libodil
+    EXPORT OdilTargets
     ARCHIVE DESTINATION lib
     LIBRARY DESTINATION lib
     RUNTIME DESTINATION bin)
