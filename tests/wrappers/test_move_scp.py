@@ -6,6 +6,9 @@ import sys
 import time
 import unittest
 
+if sys.platform == "darwin" and multiprocessing.get_start_method(True) is None:
+    multiprocessing.set_start_method("fork")
+
 import odil
 
 class Generator(odil.MoveSCP.DataSetGenerator):
