@@ -105,7 +105,9 @@ else()
   set(INSTALL_CMAKE_DIR "${CMAKE_INSTALL_PREFIX}/lib/CMake/Odil")
 endif()
 
-export(TARGETS libodil pyodil FILE "${PROJECT_BINARY_DIR}/OdilTargets.cmake")
+if(BUILD_PYTHON_WRAPPERS)
+    export(TARGETS libodil pyodil FILE "${PROJECT_BINARY_DIR}/OdilTargets.cmake")
+endif()
 
 file(
     RELATIVE_PATH REL_INCLUDE_DIR "${INSTALL_CMAKE_DIR}" 
