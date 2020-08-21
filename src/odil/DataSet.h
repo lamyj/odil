@@ -65,11 +65,11 @@ public:
      * copying a std::initializer_list does not copy the underlying objects.
      */
 
-    ODIL_DATASET_ADD(Integers);
-    ODIL_DATASET_ADD(Reals);
-    ODIL_DATASET_ADD(Strings);
-    ODIL_DATASET_ADD(DataSets);
-    ODIL_DATASET_ADD(Binary);
+    ODIL_DATASET_ADD(Integers)
+    ODIL_DATASET_ADD(Reals)
+    ODIL_DATASET_ADD(Strings)
+    ODIL_DATASET_ADD(DataSets)
+    ODIL_DATASET_ADD(Binary)
 #undef ODIL_DATASET_ADD
 
     /// @brief Add an element to the dataset.

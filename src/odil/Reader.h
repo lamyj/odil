@@ -49,7 +49,7 @@ public:
      * ensure stream is still good.
      */
     template<typename T>
-    static T read_binary(std::istream & stream, ByteOrdering byte_ordering);
+    static T read_binary(std::istream & stream, ByteOrdering ordering);
 
     /// @brief Read pixel data in encapsulated form.
     static Value::Binary read_encapsulated_pixel_data(
