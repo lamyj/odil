@@ -1,5 +1,5 @@
 find_package(Boost REQUIRED COMPONENTS date_time exception filesystem log system)
-find_package(ICU REQUIRED)
+find_package(ICU REQUIRED COMPONENTS uc)
 find_package(JsonCpp REQUIRED)
 if(WITH_DCMTK)
     find_package(DCMTK REQUIRED)
@@ -19,59 +19,56 @@ if(NOT WITH_DCMTK)
     string(REGEX REPLACE ${pattern} "" templates "${templates}")
 endif()
 
-# Regroup files by folder
-GroupFiles(Header_Files)
-GroupFiles(Source_Files)
-
-include_directories(
-    ${CMAKE_CURRENT_SOURCE_DIR} ${Boost_INCLUDE_DIRS} ${DCMTK_INCLUDE_DIRS}
-    ${ICU_INCLUDE_DIRS} ${JsonCpp_INCLUDE_DIRS})
-
-add_definitions(
-    ${DCMTK_DEFINITIONS}
-    -D BOOST_ASIO_SEPARATE_COMPILATION
-    -D ODIL_MAJOR_VERSION=${odil_MAJOR_VERSION}
-)
-if(WIN32)
-    add_definitions(-D BOOST_UUID_FORCE_AUTO_LINK)
-endif()
-if(BUILD_SHARED_LIBS)
-    add_definitions(-D BOOST_ALL_DYN_LINK)
-endif()
-
-link_directories(${Boost_LIBRARY_DIRS} ${DCMTK_LIBRARY_DIRS})
-
 add_library(libodil ${Source_Files} ${Header_Files} ${templates})
-set_target_properties(libodil PROPERTIES OUTPUT_NAME odil)
 
-target_link_libraries(libodil
-    ${Boost_LIBRARIES} ${DCMTK_LIBRARIES} ${ICU_LIBRARIES} ${JsonCpp_LIBRARIES})
+target_compile_definitions(
+    libodil 
+    PUBLIC
+        BOOST_ASIO_SEPARATE_COMPILATION ${DCMTK_DEFINITIONS}
+        ODIL_VERSION_MAJOR=${Odil_VERSION_MAJOR}
+        $<$<BOOL:BUILD_SHARED_LIBS>:BOOST_ALL_DYN_LINK>
+        $<$<PLATFORM_ID:Windows>:BOOST_UUID_FORCE_AUTO_LINK>
+    PRIVATE 
+        $<$<PLATFORM_ID:Windows>:BUILDING_ODIL>)
 
-if(WIN32)
-    add_definitions(-DBUILDING_ODIL)
-    target_link_libraries(libodil netapi32)
-    if(${VCPKG_TOOLCHAIN})
-		# WARNING Need to link with bcrypt explicitely, 
-		# cf. https://github.com/boostorg/uuid/issues/68#issuecomment-430173245
+target_include_directories(
+    libodil 
+    PUBLIC 
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/> $<INSTALL_INTERFACE:>
+        ${Boost_INCLUDE_DIRS} 
+        "$<$<BOOL:${WITH_DCMTK}>:${DCMTK_INCLUDE_DIRS}>"
+        # ${ICU_INCLUDE_DIRS}
+        # ${JsonCpp_INCLUDE_DIRS}
+    )
+
+target_link_directories(
+    libodil 
+    PUBLIC 
+        ${Boost_LIBRARY_DIRS} "$<$<BOOL:${WITH_DCMTK}>:${DCMTK_LIBRARY_DIRS}>")
+
+target_link_libraries(
+    libodil 
+    PUBLIC
+        ${Boost_LIBRARIES} "$<$<BOOL:${WITH_DCMTK}>:${DCMTK_LIBRARIES}>"
+        ICU::uc # ${ICU_LIBRARIES} 
+        JsonCpp::JsonCpp # ${JsonCpp_LIBRARIES}
+        $<$<PLATFORM_ID:Windows>:netapi32>
+        # WARNING Need to link with bcrypt explicitely, 
+        # cf. https://github.com/boostorg/uuid/issues/68#issuecomment-430173245
         # Not sure why iphlpapi is not linked.
-		target_link_libraries(libodil bcrypt iphlpapi)
-	endif()
-endif()
+        "$<$<BOOL:${VCPKG_TOOLCHAIN}>:bcrypt;iphlpapi>")
 
-set_target_properties(libodil PROPERTIES
-    VERSION ${odil_VERSION}
-    SOVERSION ${odil_MAJOR_VERSION})
-if(APPLE)
-    set_target_properties(
-        libodil PROPERTIES INSTALL_NAME_DIR ${CMAKE_INSTALL_PREFIX}/lib)
-endif()
+set_target_properties(
+    libodil PROPERTIES 
+    PUBLIC_HEADER "${Header_Files};${templates}"
+    OUTPUT_NAME odil 
+    VERSION ${Odil_VERSION} 
+    SOVERSION ${Odil_VERSION_MAJOR}
+    $<$<PLATFORM_ID:Darwin>:INSTALL_NAME_DIR ${CMAKE_INSTALL_PREFIX}/lib>)
 
-install(
-    DIRECTORY odil/ DESTINATION include/odil
-    FILES_MATCHING PATTERN "*.h" PATTERN "*.txx")
 install(
     TARGETS libodil
     EXPORT OdilTargets
-    ARCHIVE DESTINATION lib
-    LIBRARY DESTINATION lib
-    RUNTIME DESTINATION bin)
+    ARCHIVE DESTINATION bin LIBRARY DESTINATION lib RUNTIME DESTINATION bin
+    PUBLIC_HEADER DESTINATION include/odil
+    INCLUDES DESTINATION include/odil)

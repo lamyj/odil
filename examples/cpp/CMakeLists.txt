@@ -8,7 +8,7 @@ include_directories(
 
 add_definitions(
     ${DCMTK_DEFINITIONS}
-    -D ODIL_MAJOR_VERSION=${odil_MAJOR_VERSION}
+    -D ODIL_MAJOR_VERSION=${Odil_VERSION_MAJOR}
 )
 if(BUILD_SHARED_LIBS)
     add_definitions(-D BOOST_ALL_DYN_LINK)

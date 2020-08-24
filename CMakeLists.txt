@@ -1,12 +1,10 @@
 cmake_minimum_required(VERSION 3.5)
+if(${CMAKE_VERSION} VERSION_LESS 3.12)
+    cmake_policy(VERSION ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION})
+endif()
+cmake_policy(SET CMP0074 NEW)
 
-project("odil")
-
-set(odil_VERSION 0.12.0)
-string(REGEX MATCH "^([0-9]+)\\.([0-9]+)\\.([0-9]+)" _ "${odil_VERSION}")
-set(odil_MAJOR_VERSION "${CMAKE_MATCH_1}")
-set(odil_MINOR_VERSION "${CMAKE_MATCH_2}")
-set(odil_PATCH_VERSION "${CMAKE_MATCH_3}")
+project("Odil" VERSION 0.12.0)
 
 option(BUILD_SHARED_LIBS "Build Odil with shared libraries." ON)
 option(BUILD_EXAMPLES "Build the examples directory." ON)
@@ -22,17 +20,10 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}" ${CMAKE_MODULE_PATH})
 set(CMAKE_INSTALL_MESSAGE LAZY)
 
 include(CTest)
-include(cmake/functions.cmake)
+include(CMakePackageConfigHelpers)
 
-# Add the C++0x or C++11 flag
-include(CheckCXXCompilerFlag)
-CHECK_CXX_COMPILER_FLAG(-std=c++11 COMPILER_SUPPORTS_CXX11)
-CHECK_CXX_COMPILER_FLAG(-std=c++0x COMPILER_SUPPORTS_CXX0X)
-if(COMPILER_SUPPORTS_CXX11)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-elseif(COMPILER_SUPPORTS_CXX0X)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
-endif()
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
@@ -95,9 +86,6 @@ add_custom_target(
     SOURCES generate_registry ${registry_templates})
 set_target_properties(Registry PROPERTIES FOLDER "Utils")
 
-set(INSTALL_LIB_DIR "${CMAKE_INSTALL_PREFIX}/lib")
-set(INSTALL_BIN_DIR "${CMAKE_INSTALL_PREFIX}/bin")
-set(INSTALL_INCLUDE_DIR "${CMAKE_INSTALL_PREFIX}/include")
 set(INSTALL_CMAKE_DIR "${CMAKE_INSTALL_PREFIX}/lib")
 if(WIN32 AND NOT CYGWIN)
   set(INSTALL_CMAKE_DIR "${CMAKE_INSTALL_PREFIX}/CMake")
@@ -105,28 +93,18 @@ else()
   set(INSTALL_CMAKE_DIR "${CMAKE_INSTALL_PREFIX}/lib/CMake/Odil")
 endif()
 
-if(BUILD_PYTHON_WRAPPERS)
-    export(TARGETS libodil pyodil FILE "${PROJECT_BINARY_DIR}/OdilTargets.cmake")
-endif()
+# https://pabloariasal.github.io/2018/02/19/its-time-to-do-cmake-right/
+# https://cliutils.gitlab.io/modern-cmake/
 
-file(
-    RELATIVE_PATH REL_INCLUDE_DIR "${INSTALL_CMAKE_DIR}" 
-    "${INSTALL_INCLUDE_DIR}")
+install(EXPORT OdilTargets DESTINATION "${INSTALL_CMAKE_DIR}")
 
-set(CONF_INCLUDE_DIRS "${PROJECT_SOURCE_DIR}" "${PROJECT_BINARY_DIR}")
-configure_file(
-    OdilConfig.cmake.in "${PROJECT_BINARY_DIR}/OdilConfig.cmake" @ONLY)
-set(CONF_INCLUDE_DIRS "\${ODIL_CMAKE_DIR}/${REL_INCLUDE_DIR}")
-configure_file(
-    OdilConfig.cmake.in 
-    "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/OdilConfig.cmake" @ONLY)
-configure_file(
-    OdilConfigVersion.cmake.in 
-    "${PROJECT_BINARY_DIR}/OdilConfigVersion.cmake" @ONLY)
+write_basic_package_version_file(
+    "OdilConfigVersion.cmake" COMPATIBILITY SameMajorVersion)
+configure_file(OdilConfig.cmake.in OdilConfig.cmake @ONLY)
+install(
+    FILES 
+        ${CMAKE_CURRENT_BINARY_DIR}/OdilConfig.cmake
+        ${CMAKE_CURRENT_BINARY_DIR}/OdilConfigVersion.cmake
+    DESTINATION "${INSTALL_CMAKE_DIR}")
 
-install(FILES
-    "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/OdilConfig.cmake"
-    "${PROJECT_BINARY_DIR}/OdilConfigVersion.cmake"
-    DESTINATION "${INSTALL_CMAKE_DIR}" COMPONENT dev)
-
-install(EXPORT OdilTargets DESTINATION "${INSTALL_CMAKE_DIR}" COMPONENT dev)
+export(TARGETS libodil FILE "${PROJECT_BINARY_DIR}/OdilTargets.cmake")

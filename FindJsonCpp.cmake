@@ -22,3 +22,11 @@ find_package_handle_standard_args(
     JsonCpp DEFAULT_MSG JsonCpp_LIBRARY JsonCpp_INCLUDE_DIR)
 
 mark_as_advanced(JsonCpp_INCLUDE_DIR JsonCpp_LIBRARY)
+
+if(JsonCpp_FOUND AND NOT TARGET JsonCpp::JsonCpp)
+    add_library(JsonCpp::JsonCpp INTERFACE IMPORTED)
+    set_target_properties(JsonCpp::JsonCpp PROPERTIES
+        INTERFACE_INCLUDE_DIRECTORIES "${JsonCpp_INCLUDE_DIR}"
+        INTERFACE_LINK_LIBRARIES "${JsonCpp_LIBRARIES}"
+    )
+endif()

@@ -1,14 +1,17 @@
-# - Config file for the Odil package
-# It defines the following variables
-#  ODIL_INCLUDE_DIRS - include directories for Odil
-#  ODIL_LIBRARIES    - libraries to link against
+include(CMakeFindDependencyMacro)
 
-get_filename_component(ODIL_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
-set(ODIL_INCLUDE_DIRS "@CONF_INCLUDE_DIRS@")
+# Capturing values from configure (optional)
+set(my-config-var @my-config-var@)
 
-# Our library dependencies (contains definitions for IMPORTED targets)
-if(NOT TARGET libodil AND NOT Odil_BINARY_DIR)
-  include("${ODIL_CMAKE_DIR}/OdilTargets.cmake")
+# Same syntax as find_package
+find_dependency(Boost REQUIRED)
+find_dependency(ICU REQUIRED)
+find_dependency(JsonCpp REQUIRED)
+if("@WITH_DCMTK@")
+    find_dependency(DCMTK REQUIRED)
 endif()
 
-set(ODIL_LIBRARIES libodil)
+# Any extra setup
+
+# Add the targets file
+include("${CMAKE_CURRENT_LIST_DIR}/MyLibTargets.cmake")
