@@ -9,6 +9,8 @@
 #ifndef _05d00816_25d0_41d1_9768_afd39f0503da
 #define _05d00816_25d0_41d1_9768_afd39f0503da
 
+#include "odil/odil.h"
+
 #define ODIL_SWAP \
     auto source = reinterpret_cast<char const *>(&value); \
     auto const end = source + sizeof(value); \
@@ -24,15 +26,15 @@
 namespace odil
 {
 
-enum class ByteOrdering
+enum class ODIL_API ByteOrdering
 {
     LittleEndian,
     BigEndian
 };
 
-ByteOrdering get_endianness();
+ByteOrdering ODIL_API get_endianness();
 
-static ByteOrdering const byte_ordering{get_endianness()};
+static ODIL_API ByteOrdering const byte_ordering{get_endianness()};
 
 template<typename T>
 T host_to_big_endian(T const & value)
