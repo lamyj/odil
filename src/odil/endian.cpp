@@ -20,4 +20,6 @@ ByteOrdering get_endianness()
     return (bytes[0] == 1)?ByteOrdering::LittleEndian:ByteOrdering::BigEndian;
 }
 
+ByteOrdering const byte_ordering{get_endianness()};
+
 }

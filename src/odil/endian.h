@@ -34,7 +34,7 @@ enum class ODIL_API ByteOrdering
 
 ByteOrdering ODIL_API get_endianness();
 
-static ODIL_API ByteOrdering const byte_ordering{get_endianness()};
+extern ODIL_API ByteOrdering const byte_ordering;
 
 template<typename T>
 T host_to_big_endian(T const & value)
