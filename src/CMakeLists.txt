@@ -35,23 +35,17 @@ target_include_directories(
     libodil 
     PUBLIC 
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/> $<INSTALL_INTERFACE:>
-        ${Boost_INCLUDE_DIRS} 
-        "$<$<BOOL:${WITH_DCMTK}>:${DCMTK_INCLUDE_DIRS}>"
-        # ${ICU_INCLUDE_DIRS}
-        # ${JsonCpp_INCLUDE_DIRS}
-    )
+        "$<$<BOOL:${WITH_DCMTK}>:${DCMTK_INCLUDE_DIRS}>")
 
 target_link_directories(
-    libodil 
-    PUBLIC 
-        ${Boost_LIBRARY_DIRS} "$<$<BOOL:${WITH_DCMTK}>:${DCMTK_LIBRARY_DIRS}>")
+    libodil PUBLIC "$<$<BOOL:${WITH_DCMTK}>:${DCMTK_LIBRARY_DIRS}>")
 
 target_link_libraries(
     libodil 
     PUBLIC
-        ${Boost_LIBRARIES} "$<$<BOOL:${WITH_DCMTK}>:${DCMTK_LIBRARIES}>"
-        ICU::uc # ${ICU_LIBRARIES} 
-        JsonCpp::JsonCpp # ${JsonCpp_LIBRARIES}
+        Boost::date_time Boost::exception Boost::filesystem Boost::log 
+        "$<$<BOOL:${WITH_DCMTK}>:${DCMTK_LIBRARIES}>"
+        ICU::uc JsonCpp::JsonCpp
         $<$<PLATFORM_ID:Windows>:netapi32>
         # WARNING Need to link with bcrypt explicitely, 
         # cf. https://github.com/boostorg/uuid/issues/68#issuecomment-430173245

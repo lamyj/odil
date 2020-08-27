@@ -13,15 +13,13 @@ pybind11_add_module(
     pyodil SHARED ${Source_Files} ${Header_Files} ${Python_Files})
 
 target_compile_definitions(
-    pyodil PUBLIC $<$<BOOL:BUILD_SHARED_LIBS>:BOOST_ALL_DYN_LINK>)
+    pyodil PRIVATE $<$<BOOL:BUILD_SHARED_LIBS>:BOOST_ALL_DYN_LINK>)
 
 target_include_directories(
     pyodil 
-    PUBLIC 
-        $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src>
-        ${JsonCpp_INCLUDE_DIRS} ${PYTHON_INCLUDE_DIRS})
+    PRIVATE $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src> ${PYTHON_INCLUDE_DIRS})
 
-target_link_libraries(pyodil PUBLIC ${JsonCpp_LIBRARIES} libodil)
+target_link_libraries(pyodil PRIVATE JsonCpp::JsonCpp libodil)
 
 set_target_properties(
     pyodil PROPERTIES 
