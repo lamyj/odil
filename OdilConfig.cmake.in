@@ -1,17 +1,19 @@
 include(CMakeFindDependencyMacro)
 
-# Capturing values from configure (optional)
-set(my-config-var @my-config-var@)
+set(ICU_ROOT @ICU_ROOT@)
 
-# Same syntax as find_package
-find_dependency(Boost REQUIRED)
-find_dependency(ICU REQUIRED)
-find_dependency(JsonCpp REQUIRED)
+find_dependency(Boost REQUIRED COMPONENTS date_time exception filesystem log)
+find_dependency(ICU REQUIRED COMPONENTS uc)
+
+get_filename_component(ODIL_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
+list(APPEND CMAKE_MODULE_PATH ${ODIL_CMAKE_DIR})
+find_dependency(JsonCpp REQUIRED COMPONENTS JsonCpp)
+list(REMOVE_AT CMAKE_MODULE_PATH -1)
+
 if("@WITH_DCMTK@")
     find_dependency(DCMTK REQUIRED)
 endif()
 
-# Any extra setup
-
-# Add the targets file
-include("${CMAKE_CURRENT_LIST_DIR}/MyLibTargets.cmake")
+if(NOT TARGET Odil::Odil)
+    include("${ODIL_CMAKE_DIR}/OdilTargets.cmake")
+endif()

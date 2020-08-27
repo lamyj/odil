@@ -27,6 +27,5 @@ if(JsonCpp_FOUND AND NOT TARGET JsonCpp::JsonCpp)
     add_library(JsonCpp::JsonCpp INTERFACE IMPORTED)
     set_target_properties(JsonCpp::JsonCpp PROPERTIES
         INTERFACE_INCLUDE_DIRECTORIES "${JsonCpp_INCLUDE_DIR}"
-        INTERFACE_LINK_LIBRARIES "${JsonCpp_LIBRARIES}"
-    )
+        INTERFACE_LINK_LIBRARIES "${JsonCpp_LIBRARIES}")
 endif()

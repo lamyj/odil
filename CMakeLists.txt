@@ -86,25 +86,20 @@ add_custom_target(
     SOURCES generate_registry ${registry_templates})
 set_target_properties(Registry PROPERTIES FOLDER "Utils")
 
-set(INSTALL_CMAKE_DIR "${CMAKE_INSTALL_PREFIX}/lib")
-if(WIN32 AND NOT CYGWIN)
-  set(INSTALL_CMAKE_DIR "${CMAKE_INSTALL_PREFIX}/CMake")
-else()
-  set(INSTALL_CMAKE_DIR "${CMAKE_INSTALL_PREFIX}/lib/CMake/Odil")
-endif()
+# Export the build tree (don't install the generated file)
+export(
+    TARGETS libodil NAMESPACE Odil:: 
+    FILE "${PROJECT_BINARY_DIR}/OdilTargets.cmake")
 
-# https://pabloariasal.github.io/2018/02/19/its-time-to-do-cmake-right/
-# https://cliutils.gitlab.io/modern-cmake/
-
-install(EXPORT OdilTargets DESTINATION "${INSTALL_CMAKE_DIR}")
-
+# Export the install tree
 write_basic_package_version_file(
     "OdilConfigVersion.cmake" COMPATIBILITY SameMajorVersion)
+set(INSTALL_CMAKE_DIR "${CMAKE_INSTALL_PREFIX}/lib/CMake/Odil")
+install(EXPORT OdilTargets NAMESPACE Odil:: DESTINATION "${INSTALL_CMAKE_DIR}")
 configure_file(OdilConfig.cmake.in OdilConfig.cmake @ONLY)
 install(
     FILES 
+        FindJsonCpp.cmake
         ${CMAKE_CURRENT_BINARY_DIR}/OdilConfig.cmake
         ${CMAKE_CURRENT_BINARY_DIR}/OdilConfigVersion.cmake
     DESTINATION "${INSTALL_CMAKE_DIR}")
-
-export(TARGETS libodil FILE "${PROJECT_BINARY_DIR}/OdilTargets.cmake")
