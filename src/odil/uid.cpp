@@ -19,11 +19,11 @@
 namespace odil
 {
 
-#ifdef ODIL_MAJOR_VERSION
-std::string implementation_class_uid=uid_prefix+"0." ODIL_STRINGIFY(ODIL_MAJOR_VERSION);
-std::string implementation_version_name="Odil " ODIL_STRINGIFY(ODIL_MAJOR_VERSION);
+#ifdef ODIL_VERSION_MAJOR
+std::string implementation_class_uid=uid_prefix+"0." ODIL_STRINGIFY(ODIL_VERSION_MAJOR);
+std::string implementation_version_name="Odil " ODIL_STRINGIFY(ODIL_VERSION_MAJOR);
 #else
-#error ODIL_MAJOR_VERSION must be defined
+#error ODIL_VERSION_MAJOR must be defined
 #endif
 
 std::string generate_uid()
