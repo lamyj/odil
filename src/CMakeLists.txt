@@ -37,9 +37,6 @@ target_include_directories(
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/> $<INSTALL_INTERFACE:>
         "$<$<BOOL:${WITH_DCMTK}>:${DCMTK_INCLUDE_DIRS}>")
 
-target_link_directories(
-    libodil PUBLIC "$<$<BOOL:${WITH_DCMTK}>:${DCMTK_LIBRARY_DIRS}>")
-
 target_link_libraries(
     libodil 
     PUBLIC

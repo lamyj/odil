@@ -1,8 +1,9 @@
 cmake_minimum_required(VERSION 3.5)
 if(${CMAKE_VERSION} VERSION_LESS 3.12)
     cmake_policy(VERSION ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION})
+else()
+    cmake_policy(SET CMP0074 NEW)
 endif()
-cmake_policy(SET CMP0074 NEW)
 
 project("Odil" VERSION 0.12.0)
 

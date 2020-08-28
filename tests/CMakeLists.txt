@@ -43,8 +43,6 @@ foreach(test_file ${tests})
     target_include_directories(
         test_${test} PRIVATE ${CMAKE_SOURCE_DIR}/src ${DCMTK_INCLUDE_DIRS})
     
-    target_link_directories(test_${test} PRIVATE ${DCMTK_LIBRARY_DIRS})
-    
     target_link_libraries(
         test_${test} 
         PRIVATE 
