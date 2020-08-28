@@ -1,7 +1,6 @@
 #!/bin/bash
 
 CI_TYPE=${CI_TYPE:?}
-RUNNER=${RUNNER:?}
 WORKSPACE=${WORKSPACE:?}
 
 if [ "${RUNNER}" = "docker" ]; then
