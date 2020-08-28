@@ -2,6 +2,17 @@ language: minimal
 
 matrix:
   include:
+    # - name: "Debian 9 (Stretch)"
+    #   os: linux
+    #   sudo: required
+    #   services:
+    #     - docker
+    #   env: 
+    #     - CI_TYPE=deb
+    #     - WORKSPACE=${TRAVIS_BUILD_DIR}
+    #     - RUNNER="docker"
+    #     - IMAGE="debian:stretch"
+    
     - name: "Debian 10 (Buster)"
       os: linux
       sudo: required
@@ -10,11 +21,19 @@ matrix:
       env: 
         - CI_TYPE=deb
         - WORKSPACE=${TRAVIS_BUILD_DIR}
-        - RUNNER="docker exec -w ${TRAVIS_BUILD_DIR} -e WORKSPACE=${WORKSPACE} debian_buster"
-      before_install:
-        - docker run -di -v ${TRAVIS_BUILD_DIR}:${TRAVIS_BUILD_DIR} --name debian_buster --rm debian:buster
-      after_success:
-        - docker kill debian_buster
+        - RUNNER="docker"
+        - IMAGE="debian:buster"
+    
+    # - name: "Ubuntu 18.04 (Bionic)"
+    #   os: linux
+    #   sudo: required
+    #   services:
+    #     - docker
+    #   env: 
+    #     - CI_TYPE=deb
+    #     - WORKSPACE=${TRAVIS_BUILD_DIR}
+    #     - RUNNER="docker"
+    #     - IMAGE="ubuntu:bionic"
     
     - name: "Ubuntu 20.04 (Focal)"
       os: linux
@@ -24,11 +43,8 @@ matrix:
       env: 
         - CI_TYPE=deb
         - WORKSPACE=${TRAVIS_BUILD_DIR}
-        - RUNNER="docker exec -w ${TRAVIS_BUILD_DIR} -e WORKSPACE=${WORKSPACE} ubuntu_focal"
-      before_install:
-        - docker run -di -v ${TRAVIS_BUILD_DIR}:${TRAVIS_BUILD_DIR} --name ubuntu_focal --rm ubuntu:focal
-      after_success:
-        - docker kill ubuntu_focal
+        - RUNNER="docker"
+        - IMAGE="ubuntu:focal"
     
     - name: "macOS 10.14 (Mojave)"
       os: osx
@@ -44,7 +60,4 @@ matrix:
       before_cache:
         - brew cleanup
 
-script: |
-  ${RUNNER} ./.ci/${CI_TYPE}/install
-  ${RUNNER} ./.ci/${CI_TYPE}/build
-  ${RUNNER} ./.ci/${CI_TYPE}/post_build
+script: ./.ci/run.sh
