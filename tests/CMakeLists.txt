@@ -1,4 +1,5 @@
-find_package(Boost COMPONENTS unit_test_framework REQUIRED)
+find_package(
+    Boost COMPONENTS exception filesystem log unit_test_framework REQUIRED)
 find_package(DCMTK REQUIRED)
 find_package(JsonCpp REQUIRED)
 
@@ -20,21 +21,6 @@ if(NOT WITH_DCMTK)
         ${CMAKE_SOURCE_DIR}/src/odil/dcmtk/Exception.cpp)
 endif()
 
-include_directories(
-    ${CMAKE_SOURCE_DIR}/src ${Boost_INCLUDE_DIRS} ${DCMTK_INCLUDE_DIRS}
-    ${JsonCpp_INCLUDE_DIRS})
-
-add_definitions(
-    ${DCMTK_DEFINITIONS}
-    -D ODIL_MAJOR_VERSION=${odil_MAJOR_VERSION}
-)
-if(BUILD_SHARED_LIBS)
-    add_definitions(-D BOOST_ALL_DYN_LINK)
-endif()
-
-link_directories(${Boost_LIBRARY_DIRS} ${DCMTK_LIBRARY_DIRS})
-
-
 foreach(test_file ${tests})
     get_filename_component(unit ${test_file} NAME_WE)
     get_filename_component(module ${test_file} PATH)
@@ -47,13 +33,27 @@ foreach(test_file ${tests})
 
     add_executable(test_${test} ${test_file} ${headers} ${extra_files})
     
-    target_link_libraries(
-        test_${test} libodil ${Boost_LIBRARIES} ${DCMTK_LIBRARIES})
-    if(WIN32)
-        target_link_libraries(test_${test} Ws2_32)
-    endif()
+    target_compile_definitions(
+        test_${test} 
+        PRIVATE
+            BOOST_ASIO_SEPARATE_COMPILATION ${DCMTK_DEFINITIONS}
+            ODIL_VERSION_MAJOR=${Odil_VERSION_MAJOR}
+            $<$<BOOL:BUILD_SHARED_LIBS>:BOOST_ALL_DYN_LINK>)
     
-    set_target_properties(test_${test} PROPERTIES OUTPUT_NAME ${test} FOLDER "Tests")
+    target_include_directories(
+        test_${test} PRIVATE ${CMAKE_SOURCE_DIR}/src ${DCMTK_INCLUDE_DIRS})
+    
+    target_link_directories(test_${test} PRIVATE ${DCMTK_LIBRARY_DIRS})
+    
+    target_link_libraries(
+        test_${test} 
+        PRIVATE 
+            Boost::unit_test_framework ${DCMTK_LIBRARIES} JsonCpp::JsonCpp 
+            libodil
+            $<$<PLATFORM_ID:Windows>:Ws2_32>)
+    
+    set_target_properties(
+        test_${test} PROPERTIES OUTPUT_NAME ${test} FOLDER "Tests")
 
     file(READ ${test_file} content)
 
