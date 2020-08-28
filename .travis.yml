@@ -2,16 +2,16 @@ language: minimal
 
 matrix:
   include:
-    # - name: "Debian 9 (Stretch)"
-    #   os: linux
-    #   sudo: required
-    #   services:
-    #     - docker
-    #   env: 
-    #     - CI_TYPE=deb
-    #     - WORKSPACE=${TRAVIS_BUILD_DIR}
-    #     - RUNNER="docker"
-    #     - IMAGE="debian:stretch"
+    - name: "Debian 9 (Stretch)"
+      os: linux
+      sudo: required
+      services:
+        - docker
+      env: 
+        - CI_TYPE=deb
+        - WORKSPACE=${TRAVIS_BUILD_DIR}
+        - RUNNER="docker"
+        - IMAGE="debian:stretch"
     
     - name: "Debian 10 (Buster)"
       os: linux
@@ -24,16 +24,16 @@ matrix:
         - RUNNER="docker"
         - IMAGE="debian:buster"
     
-    # - name: "Ubuntu 18.04 (Bionic)"
-    #   os: linux
-    #   sudo: required
-    #   services:
-    #     - docker
-    #   env: 
-    #     - CI_TYPE=deb
-    #     - WORKSPACE=${TRAVIS_BUILD_DIR}
-    #     - RUNNER="docker"
-    #     - IMAGE="ubuntu:bionic"
+    - name: "Ubuntu 18.04 (Bionic)"
+      os: linux
+      sudo: required
+      services:
+        - docker
+      env: 
+        - CI_TYPE=deb
+        - WORKSPACE=${TRAVIS_BUILD_DIR}
+        - RUNNER="docker"
+        - IMAGE="ubuntu:bionic"
     
     - name: "Ubuntu 20.04 (Focal)"
       os: linux
