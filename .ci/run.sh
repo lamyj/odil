@@ -21,4 +21,8 @@ ${RUNNER} ./.ci/${CI_TYPE}/install \
   && ${RUNNER} ./.ci/${CI_TYPE}/build \
   && ${RUNNER} ./.ci/${CI_TYPE}/post_build
 
+RETURNCODE=$?
+
 ${POST_END}
+
+exit ${RETURNCODE}
