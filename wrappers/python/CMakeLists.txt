@@ -9,8 +9,7 @@ list(SORT Header_Files)
 list(SORT Source_Files)
 list(SORT Python_Files)
 
-pybind11_add_module(
-    pyodil SHARED ${Source_Files} ${Header_Files} ${Python_Files})
+pybind11_add_module(pyodil SHARED ${Source_Files} ${Header_Files})
 
 target_compile_definitions(
     pyodil PRIVATE $<$<BOOL:BUILD_SHARED_LIBS>:BOOST_ALL_DYN_LINK>)
@@ -34,3 +33,4 @@ execute_process(
     OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 install(TARGETS pyodil DESTINATION "${PYTHON_SITE_PACKAGES}/odil")
+install(FILES ${Python_Files} DESTINATION "${PYTHON_SITE_PACKAGES}/odil")
