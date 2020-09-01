@@ -51,7 +51,7 @@ matrix:
       osx_image: xcode11
       env: 
         - CI_TYPE=brew 
-        - CMAKE_OPTIONS="-DBoost_NO_BOOST_CMAKE=ON"
+        - CMAKE_OPTIONS="-DBoost_NO_BOOST_CMAKE=ON -DICU_ROOT=/usr/local/Cellar/icu4c/*"
         - WORKSPACE=${TRAVIS_BUILD_DIR}
         - RUNNER=""
       cache:
