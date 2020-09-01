@@ -46,18 +46,18 @@ matrix:
         - RUNNER="docker"
         - IMAGE="ubuntu:focal"
     
-    - name: "macOS 10.14 (Mojave)"
-      os: osx
-      osx_image: xcode11
-      env: 
-        - CI_TYPE=brew 
-        - CMAKE_OPTIONS="-DBoost_NO_BOOST_CMAKE=ON -DICU_ROOT=/usr/local/Cellar/icu4c/*"
-        - WORKSPACE=${TRAVIS_BUILD_DIR}
-        - RUNNER=""
-      cache:
-        directories:
-          - $HOME/Library/Caches/Homebrew
-      before_cache:
-        - brew cleanup
+    # - name: "macOS 10.14 (Mojave)"
+    #   os: osx
+    #   osx_image: xcode11
+    #   env: 
+    #     - CI_TYPE=brew 
+    #     - CMAKE_OPTIONS="-DBoost_NO_BOOST_CMAKE=ON -DICU_ROOT=/usr/local/Cellar/icu4c/*"
+    #     - WORKSPACE=${TRAVIS_BUILD_DIR}
+    #     - RUNNER=""
+    #   cache:
+    #     directories:
+    #       - $HOME/Library/Caches/Homebrew
+    #   before_cache:
+    #     - brew cleanup
 
 script: ./.ci/run.sh
