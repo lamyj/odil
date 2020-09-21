@@ -36,7 +36,18 @@ def create_dicomdir(
         elif os.path.isdir(name):
             for dirpath, _, filenames in os.walk(name):
                 dirpath = os.path.abspath(dirpath)
-                files.extend(os.path.join(dirpath, x) for x in filenames)
+                filenames = [os.path.join(dirpath, x) for x in filenames]
+                dicom_files = []
+                for filename in filenames:
+                    try:
+                        odil.Reader.read_file(
+                            filename, halt_condition=lambda x: True)
+                    except:
+                        # Not a DICOM file
+                        pass
+                    else:
+                        dicom_files.append(filename)
+                files.extend(dicom_files)
     
     directory = os.path.abspath(directory)
     if not all(x.startswith(directory) for x in files):
