@@ -73,7 +73,7 @@ author = 'Julien Lamy'
 # The short X.Y version
 here = os.path.abspath(os.path.dirname(__file__))
 with open(os.path.join(here, "..", "CMakeLists.txt")) as fd:
-    version = re.search(r"set\(odil_VERSION (.+?)\)", fd.read())
+    version = re.search(r"""project\("Odil" VERSION (.+?)\)""", fd.read())
 if not version:
     raise Exception("Could not get version from CMakeLists.txt")
 version = version.group(1)
