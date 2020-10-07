@@ -5,7 +5,7 @@ Unofficial packages are provided for stable Debian and Ubuntu versions. After fo
 
 This will install the main command-line application as well as the C++ library and the Python wrappers.
 
-If your distribution has no pre-compiled package available, you can compile it from source.
+If your distribution has no pre-compiled package available, you can compile it from source; refer to the :doc:`generic install instructions <index>` for minimum required versions.
 
 Install dependencies
 --------------------

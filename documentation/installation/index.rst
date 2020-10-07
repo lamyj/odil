@@ -10,7 +10,7 @@ Installation
 
 The easiest way to install Odil is to use the pre-compiled packages, either from `Anaconda`_, or from `Debian`_/`Ubuntu`_. For Anaconda packages, simply run ``conda install -c conda-forge odil``. For Debian and Ubuntu packages, packages are available from the official repositories but are usually not the latest version; `unofficial packages`_ are also available: follow the linked instructions to set up the repository, then run ``apt-get install odil``.
 
-To compile from source, you will need a C++ 11 compiler and `CMake`_, as well as several additional libraries: `Boost`_ (`Asio`_, `Date Time`_, `Filesystem`_, `Fusion`_, `Log`_, `Preprocessor`_, `Property Tree`_, `Spirit`_, `Uuid`_), `ICU4C`_, `JsonCpp`_ and `pybind11`_. Moreover, the DCMTK converter requires `DCMTK`_, and unit tests require `Boost Test`_.
+To compile from source, you will need a C++ 11 compiler and `CMake`_, as well as several additional libraries: `Boost`_ ≥ 1.58 (`Asio`_, `Date Time`_, `Filesystem`_, `Fusion`_, `Log`_, `Preprocessor`_, `Property Tree`_, `Spirit`_, `Uuid`_), `ICU4C`_ ≥ 55.1, `JsonCpp`_ ≥ 1.7.2 and `pybind11`_ ≥ 2.2.4. Moreover, the DCMTK converter requires `DCMTK`_ ≥ 3.6.1, and unit tests require `Boost Test`_.
 
 The build process consists in 
 
