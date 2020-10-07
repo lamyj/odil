@@ -8,9 +8,8 @@ Odil can be included in another project using e.g.:
 ::
 
   find_package(Odil 0.12.0 REQUIRED)
-  include_directories(${ODIL_INCLUDE_DIRS})
-  ...
-  target_link_libraries(... libodil)
+  # Add targets, then for each target call
+  target_link_libraries(... Odil::libodil)
   
 Odil_DIR might need to be passed as cmake argument if odil was built from source and was not installed to the default location (CMAKE_INSTALL_PREFIX). For example ``cmake -DOdil_DIR=/opt/odil/install/lib/CMake/Odil``.
 
