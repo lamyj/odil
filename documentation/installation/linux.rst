@@ -17,7 +17,7 @@ For Debian and Ubuntu, the following package list will allow you to compile the 
   sudo apt-get install \
     build-essential cmake ninja-build pkg-config python3 \
     libboost-dev libboost-date-time-dev libboost-exception-dev \
-    libboost-log-dev libboost-filesystem-dev \
+    libboost-log-dev libboost-filesystem-dev libboost-regex-dev \
     libdcmtk2-dev libicu-dev libjsoncpp-dev zlib1g-dev \
     pybind11-dev python3-pybind11 python3-dev \
     libboost-test-dev dcmtk
