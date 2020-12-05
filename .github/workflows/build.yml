@@ -1,0 +1,63 @@
+name: Build
+on: push
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    name: ${{ matrix.name }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: "Debian 9 (Stretch)"
+            os: ubuntu-latest
+            ci_type: deb
+            start_worker: "docker run -di -v ${WORKSPACE}:${WORKSPACE} --name worker --rm debian:stretch"
+            worker: "docker exec -w ${WORKSPACE} -e WORKSPACE=${WORKSPACE} -e DEBIAN_FRONTEND=noninteractive worker"
+            stop_worker: "docker kill worker"
+            # python: python3
+          - name: "Debian 10 (Buster)"
+            os: ubuntu-latest
+            ci_type: deb
+            start_worker: "docker run -di -v ${WORKSPACE}:${WORKSPACE} --name worker --rm debian:buster"
+            worker: "docker exec -w ${WORKSPACE} -e WORKSPACE=${WORKSPACE} -e DEBIAN_FRONTEND=noninteractive worker"
+            stop_worker: "docker kill worker"
+            # python: python3
+          - name: "Ubuntu 18.04 (Bionic)"
+            os: ubuntu-latest
+            ci_type: deb
+            start_worker: "docker run -di -v ${WORKSPACE}:${WORKSPACE} --name worker --rm ubuntu:bionic"
+            worker: "docker exec -w ${WORKSPACE} -e WORKSPACE=${WORKSPACE} -e DEBIAN_FRONTEND=noninteractive worker"
+            stop_worker: "docker kill worker"
+          - name: "Ubuntu 20.04 (Focal)"
+            os: ubuntu-latest
+            ci_type: deb
+            start_worker: "docker run -di -v ${WORKSPACE}:${WORKSPACE} --name worker --rm ubuntu:focal"
+            worker: "docker exec -w ${WORKSPACE} -e WORKSPACE=${WORKSPACE} -e DEBIAN_FRONTEND=noninteractive worker"
+            stop_worker: "docker kill worker"
+            # python: python3
+          - name: "macOS 10.15 (Catalina)"
+            os: macos-10.15
+            ci_type: conda_mac
+            start_worker: ""
+            worker: ""
+            stop_worker: ""
+            # python: python
+            # cmake_options: "-DPYTHON_EXECUTABLE=/usr/local/bin/python3"
+    steps:
+      - name: Configure environment
+        run: |
+          echo "WORKSPACE=${GITHUB_WORKSPACE}" >> $GITHUB_ENV
+          echo "CMAKE_OPTIONS=${{ matrix.cmake_options }}" >> $GITHUB_ENV
+      - name: Checkout latest revision
+        uses: actions/checkout@v2
+      - name: Start the worker
+        run: ${{ matrix.start_worker }}
+      - name: Configure the build
+        run: ${{ matrix.worker }} ./.ci/${{ matrix.ci_type}}/install
+      - name: Build
+        run: ${{ matrix.worker }} ./.ci/${{ matrix.ci_type}}/build
+      - name: Run tests
+        run: ${{ matrix.worker }} ./.ci/${{ matrix.ci_type}}/post_build
+      - name: Stop the worker
+        run: ${{ matrix.stop_worker }}

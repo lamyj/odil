@@ -1,0 +1,23 @@
+#!/bin/sh
+
+set -ev
+
+source "$HOME/miniconda/etc/profile.d/conda.sh"
+conda activate odil
+
+export WORKSPACE=${WORKSPACE:?}
+export BUILD_DIR="${WORKSPACE}/${BUILD_DIR:-build}"
+export INSTALL_DIR="${WORKSPACE}/${INSTALL_DIR:-install}"
+
+mkdir -p ${BUILD_DIR}
+mkdir -p ${INSTALL_DIR}
+
+cd ${BUILD_DIR}
+
+cmake \
+  -G Ninja \
+  -D CMAKE_INSTALL_PREFIX="${INSTALL_DIR}" \
+  -D PYTHON_EXECUTABLE=$(which python3) \
+  ${CMAKE_OPTIONS} \
+  ..
+cmake --build . --target install
