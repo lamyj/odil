@@ -13,5 +13,5 @@ conda config --set always_yes yes --set changeps1 no
 conda update -q conda
 conda info -a
 
-conda create --name odil -c conda-forge \
-  boost cmake dcmtk icu4c jsoncpp ninja pkg-config pybind11
+conda create --name odil -c conda-forge -c bioconda \
+  boost cmake dcmtk icu jsoncpp ninja pkg-config pybind11
