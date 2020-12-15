@@ -2,6 +2,7 @@
 
 set -v
 
+source "$HOME/miniconda/etc/profile.d/conda.sh"
 conda activate odil
 
 export WORKSPACE=${WORKSPACE:?}
