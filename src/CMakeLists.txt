@@ -49,6 +49,11 @@ target_link_libraries(
         # Not sure why iphlpapi is not linked.
         "$<$<BOOL:${VCPKG_TOOLCHAIN}>:bcrypt;iphlpapi>")
 
+# WARNING: Boost::log may add -licudata  -licui18n  -licuu, which cause problem
+# with macOS/brew
+get_filename_component(ICU_FOUND_DIRECTORY "${ICU_UC_LIBRARY}" DIRECTORY)
+target_link_directories(libodil PUBLIC "${ICU_FOUND_DIRECTORY}")
+
 set_target_properties(
     libodil PROPERTIES 
     PUBLIC_HEADER "${Header_Files};${templates}"
