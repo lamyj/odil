@@ -15,7 +15,7 @@ option(BUILD_JAVASCRIPT_WRAPPERS "Build the Javascript Wrappers." OFF)
 option(WITH_DCMTK "Build the DCMTK converter" ON)
 option(
     USE_BUILTIN_DCMTK_GETSCU
-    "Compile a locally packaged version of getscu for old DCMTK versions" ON)
+    "Compile a locally packaged version of getscu for old DCMTK versions" OFF)
 
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}" ${CMAKE_MODULE_PATH})
 set(CMAKE_INSTALL_MESSAGE LAZY)
