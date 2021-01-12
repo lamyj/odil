@@ -21,7 +21,7 @@ void wrap_VR(pybind11::module & m)
     using namespace pybind11;
     using namespace odil;
 
-    enum_<VR>(m, "VR")
+    auto vr = enum_<VR>(m, "VR")
         .value("UNKNOWN", VR::UNKNOWN)
         .value("AE", VR::AE).value("AS", VR::AS).value("AT", VR::AT)
         .value("CS", VR::CS).value("DA", VR::DA).value("DS", VR::DS)
@@ -36,8 +36,14 @@ void wrap_VR(pybind11::module & m)
         .value("UT", VR::UT).value("UV", VR::UV)
         .value("INVALID", VR::INVALID)
         .def(init([](std::string const & string) { return as_vr(string); }))
-        .def("__str__", [](VR const & vr ) { return as_string(vr); })
     ;
+    
+    // See pybind11#2537
+    vr.attr("__str__") = cpp_function(
+        [](VR const & vr ) { return as_string(vr); },
+        name("__str__"),
+        is_method(vr));
+    
     m.def("as_string", (std::string (*)(VR)) as_string);
     m.def("as_vr", (VR (*)(std::string)) as_string);
     m.def("as_vr", (VR (*)(Tag)) as_string);
