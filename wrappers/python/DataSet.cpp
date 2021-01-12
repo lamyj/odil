@@ -36,6 +36,33 @@ add_python_object(
         self->add(tag);
     }
 }
+
+class DataSetValueConstIterator : public odil::DataSet::const_iterator {
+public:
+    DataSetValueConstIterator()
+    : odil::DataSet::const_iterator() 
+    {
+        // Nothing else.
+    }
+    
+    DataSetValueConstIterator(odil::DataSet::const_iterator it)
+    : odil::DataSet::const_iterator(it)
+    { 
+        // Nothing else.
+    }
+
+    odil::Element const * operator->() const 
+    { 
+        return &(this->odil::DataSet::const_iterator::operator->()->second); 
+    }
+    
+    odil::Element const & operator*() const
+    {
+        return this->odil::DataSet::const_iterator::operator*().second; 
+    }
+};
+
+
 }
 
 void wrap_DataSet(pybind11::module & m)
@@ -129,37 +156,33 @@ void wrap_DataSet(pybind11::module & m)
             "tag"_a, "default"_a=none())
         .def(
             "keys",
-            [](DataSet const & self)
+            [](DataSet const & self) 
             {
-                list tags;
-                for(auto const & item: self)
-                {
-                    tags.append(item.first);
-                }
-                return tags;
-            })
+                return make_key_iterator(self.begin(), self.end());
+            },
+            keep_alive<0, 1>())
         .def(
             "values",
             [](DataSet const & self)
             {
-                list tags;
-                for(auto const & item: self)
-                {
-                    tags.append(&item.second);
-                }
-                return tags;
-            })
+                return make_iterator(
+                    DataSetValueConstIterator(self.begin()), 
+                    DataSetValueConstIterator(self.end()));
+                // list tags;
+                // for(auto const & item: self)
+                // {
+                //     tags.append(&item.second);
+                // }
+                // return tags;
+            },
+            keep_alive<0, 1>())
         .def(
             "items",
-            [](DataSet const & self)
-            {
-                list tags;
-                for(auto const & item: self)
-                {
-                    tags.append(std::make_pair(item.first, &item.second));
-                }
-                return tags;
-            })
+            [](DataSet const & self) 
+            { 
+                return make_iterator(self.begin(), self.end()); 
+            },
+            keep_alive<0, 1>())
         .def(
             "update",
             [](DataSet & self, DataSet const & other) {
