@@ -78,11 +78,11 @@ The behavior of C++ SCUs w is kept as is in Python: services which return data s
       .set_called_ae_title("SERVER")\
       .set_presentation_contexts([
           odil.AssociationParameters.PresentationContext(
-              odil.registry.VerificationSOPClass,
+              odil.registry.Verification,
               transfer_syntaxes, True, False
           ),
           odil.AssociationParameters.PresentationContext(
-              odil.registry.StudyRootQueryRetrieveInformationModelFIND,
+              odil.registry.StudyRootQueryRetrieveInformationModelFind,
               transfer_syntaxes, True, False
           )
       ]) 
@@ -104,7 +104,7 @@ The behavior of C++ SCUs w is kept as is in Python: services which return data s
   query.add("SOPClassesInStudy")
 
   find_scu = odil.FindSCU(association)
-  find_scu.set_affected_sop_class(odil.registry.StudyRootQueryRetrieveInformationModelFIND)
+  find_scu.set_affected_sop_class(odil.registry.StudyRootQueryRetrieveInformationModelFind)
   study = find_scu.find(query)[0]
 
   # Fetch the first study
@@ -117,7 +117,7 @@ The behavior of C++ SCUs w is kept as is in Python: services which return data s
       .set_called_ae_title("SERVER")\
       .set_presentation_contexts([
           odil.AssociationParameters.PresentationContext(
-              odil.registry.StudyRootQueryRetrieveInformationModelGET,
+              odil.registry.StudyRootQueryRetrieveInformationModelGet,
               transfer_syntaxes, True, False
           )
       ]
@@ -134,7 +134,7 @@ The behavior of C++ SCUs w is kept as is in Python: services which return data s
   query.add("SOPClassesInStudy")
 
   get_scu = odil.GetSCU(association)
-  get_scu.set_affected_sop_class(odil.registry.StudyRootQueryRetrieveInformationModelGET)
+  get_scu.set_affected_sop_class(odil.registry.StudyRootQueryRetrieveInformationModelGet)
 
   def data_set_received(data_set):
       print("Got data set {}".format(data_set.as_string("SOPInstanceUID")[0]))

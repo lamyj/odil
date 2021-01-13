@@ -19,7 +19,7 @@ struct Fixture: public MessageFixtureBase<odil::message::CEchoRequest>
             "CommandField", {odil::message::Message::Command::C_ECHO_RQ});
         this->command_set->add("MessageID", {1234});
         this->command_set->add(
-            "AffectedSOPClassUID", {odil::registry::VerificationSOPClass});
+            "AffectedSOPClassUID", {odil::registry::Verification});
     }
 
     void check(odil::message::CEchoRequest const & message)
@@ -29,8 +29,7 @@ struct Fixture: public MessageFixtureBase<odil::message::CEchoRequest>
             odil::message::Message::Command::C_ECHO_RQ);
         BOOST_CHECK_EQUAL(message.get_message_id(), 1234);
         BOOST_CHECK_EQUAL(
-            message.get_affected_sop_class_uid(),
-            odil::registry::VerificationSOPClass);
+            message.get_affected_sop_class_uid(), odil::registry::Verification);
         BOOST_CHECK(!message.has_data_set());
     }
 };
@@ -38,7 +37,7 @@ struct Fixture: public MessageFixtureBase<odil::message::CEchoRequest>
 BOOST_FIXTURE_TEST_CASE(Constructor, Fixture)
 {
     odil::message::CEchoRequest const message(
-        1234, odil::registry::VerificationSOPClass);
+        1234, odil::registry::Verification);
     this->check(message);
 }
 

@@ -28,12 +28,12 @@ int main()
         .set_called_ae_title("AWSPIXELMEDPUB")
         .set_presentation_contexts({
             {
-                odil::registry::StudyRootQueryRetrieveInformationModelFIND,
+                odil::registry::StudyRootQueryRetrieveInformationModelFind,
                 { odil::registry::ExplicitVRLittleEndian }, 
                 odil::AssociationParameters::PresentationContext::Role::SCU
             },
             {
-                odil::registry::VerificationSOPClass,
+                odil::registry::Verification,
                 { odil::registry::ExplicitVRLittleEndian }, 
                 odil::AssociationParameters::PresentationContext::Role::SCU
             }
@@ -52,7 +52,7 @@ int main()
     query->add("StudyDescription");
     query->add("StudyDate");
     
-    scu.set_affected_sop_class(odil::registry::StudyRootQueryRetrieveInformationModelFIND);
+    scu.set_affected_sop_class(odil::registry::StudyRootQueryRetrieveInformationModelFind);
     
     std::cout << "--------\n";
     std::cout << "Callback\n";

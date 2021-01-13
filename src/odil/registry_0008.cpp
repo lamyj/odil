@@ -58,7 +58,7 @@ void update_0008(
     public_dictionary.emplace(Tag(0x0008, 0x0052), ElementsDictionaryEntry("Query/Retrieve Level", "QueryRetrieveLevel",  "CS", "1"));
     public_dictionary.emplace(Tag(0x0008, 0x0053), ElementsDictionaryEntry("Query/Retrieve View", "QueryRetrieveView",  "CS", "1"));
     public_dictionary.emplace(Tag(0x0008, 0x0054), ElementsDictionaryEntry("Retrieve AE Title", "RetrieveAETitle",  "AE", "1-n"));
-    public_dictionary.emplace(Tag(0x0008, 0x0055), ElementsDictionaryEntry("Station  AE Title", "StationAETitle",  "AE", "1"));
+    public_dictionary.emplace(Tag(0x0008, 0x0055), ElementsDictionaryEntry("Station AE Title", "StationAETitle",  "AE", "1"));
     public_dictionary.emplace(Tag(0x0008, 0x0056), ElementsDictionaryEntry("Instance Availability", "InstanceAvailability",  "CS", "1"));
     public_dictionary.emplace(Tag(0x0008, 0x0058), ElementsDictionaryEntry("Failed SOP Instance UID List", "FailedSOPInstanceUIDList",  "UI", "1-n"));
     public_dictionary.emplace(Tag(0x0008, 0x0060), ElementsDictionaryEntry("Modality", "Modality",  "CS", "1"));

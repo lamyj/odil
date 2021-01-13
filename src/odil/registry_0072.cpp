@@ -82,6 +82,9 @@ void update_0072(
     public_dictionary.emplace(Tag(0x0072, 0x007e), ElementsDictionaryEntry("Selector SS Value", "SelectorSSValue",  "SS", "1-n"));
     public_dictionary.emplace(Tag(0x0072, 0x007f), ElementsDictionaryEntry("Selector UI Value", "SelectorUIValue",  "UI", "1-n"));
     public_dictionary.emplace(Tag(0x0072, 0x0080), ElementsDictionaryEntry("Selector Code Sequence Value", "SelectorCodeSequenceValue",  "SQ", "1"));
+    public_dictionary.emplace(Tag(0x0072, 0x0081), ElementsDictionaryEntry("Selector OV Value", "SelectorOVValue",  "OV", "1"));
+    public_dictionary.emplace(Tag(0x0072, 0x0082), ElementsDictionaryEntry("Selector SV Value", "SelectorSVValue",  "SV", "1-n"));
+    public_dictionary.emplace(Tag(0x0072, 0x0083), ElementsDictionaryEntry("Selector UV Value", "SelectorUVValue",  "UV", "1-n"));
     public_dictionary.emplace(Tag(0x0072, 0x0100), ElementsDictionaryEntry("Number of Screens", "NumberOfScreens",  "US", "1"));
     public_dictionary.emplace(Tag(0x0072, 0x0102), ElementsDictionaryEntry("Nominal Screen Definition Sequence", "NominalScreenDefinitionSequence",  "SQ", "1"));
     public_dictionary.emplace(Tag(0x0072, 0x0104), ElementsDictionaryEntry("Number of Vertical Pixels", "NumberOfVerticalPixels",  "US", "1"));
@@ -204,6 +207,9 @@ void update_0072(
     public_tags.emplace("SelectorSSValue", Tag(0x0072, 0x007e));
     public_tags.emplace("SelectorUIValue", Tag(0x0072, 0x007f));
     public_tags.emplace("SelectorCodeSequenceValue", Tag(0x0072, 0x0080));
+    public_tags.emplace("SelectorOVValue", Tag(0x0072, 0x0081));
+    public_tags.emplace("SelectorSVValue", Tag(0x0072, 0x0082));
+    public_tags.emplace("SelectorUVValue", Tag(0x0072, 0x0083));
     public_tags.emplace("NumberOfScreens", Tag(0x0072, 0x0100));
     public_tags.emplace("NominalScreenDefinitionSequence", Tag(0x0072, 0x0102));
     public_tags.emplace("NumberOfVerticalPixels", Tag(0x0072, 0x0104));

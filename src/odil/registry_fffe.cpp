@@ -24,9 +24,9 @@ void update_fffe(
     std::map<std::string, odil::Tag> & public_tags)
 {
 
-    public_dictionary.emplace(Tag(0xfffe, 0xe000), ElementsDictionaryEntry("Item", "Item",  "See Note ", "1"));
-    public_dictionary.emplace(Tag(0xfffe, 0xe00d), ElementsDictionaryEntry("Item Delimitation Item", "ItemDelimitationItem",  "See Note ", "1"));
-    public_dictionary.emplace(Tag(0xfffe, 0xe0dd), ElementsDictionaryEntry("Sequence Delimitation Item", "SequenceDelimitationItem",  "See Note ", "1"));
+    public_dictionary.emplace(Tag(0xfffe, 0xe000), ElementsDictionaryEntry("Item", "Item",  "See Note", "1"));
+    public_dictionary.emplace(Tag(0xfffe, 0xe00d), ElementsDictionaryEntry("Item Delimitation Item", "ItemDelimitationItem",  "See Note", "1"));
+    public_dictionary.emplace(Tag(0xfffe, 0xe0dd), ElementsDictionaryEntry("Sequence Delimitation Item", "SequenceDelimitationItem",  "See Note", "1"));
 
     public_tags.emplace("Item", Tag(0xfffe, 0xe000));
     public_tags.emplace("ItemDelimitationItem", Tag(0xfffe, 0xe00d));

@@ -29,11 +29,11 @@ An association will at least require to define the application entity titles (bo
           .set_called_ae_title("SERVER")
           .set_presentation_contexts({
               { 
-                  odil::registry::VerificationSOPClass, 
+                  odil::registry::Verification, 
                   transfer_syntaxes, true, false
               },
               { 
-                  odil::registry::PatientRootQueryRetrieveInformationModelFIND,
+                  odil::registry::PatientRootQueryRetrieveInformationModelFind,
                   transfer_syntaxes, true, false
               }
           });

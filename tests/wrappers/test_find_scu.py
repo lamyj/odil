@@ -13,7 +13,7 @@ class TestFindSCU(PeerFixtureBase):
             self, 
             [
                 odil.AssociationParameters.PresentationContext(
-                1, odil.registry.PatientRootQueryRetrieveInformationModelFIND,
+                1, odil.registry.PatientRootQueryRetrieveInformationModelFind,
                 [ odil.registry.ImplicitVRLittleEndian ], 
                 odil.AssociationParameters.PresentationContext.Role.SCU)
             ]
@@ -26,7 +26,7 @@ class TestFindSCU(PeerFixtureBase):
 
     def test_without_callback(self):
         find = odil.FindSCU(self.association)
-        find.set_affected_sop_class(odil.registry.PatientRootQueryRetrieveInformationModelFIND)
+        find.set_affected_sop_class(odil.registry.PatientRootQueryRetrieveInformationModelFind)
         data_sets = find.find(self.query)
 
         self.assertEqual(len(data_sets), 1)
@@ -39,7 +39,7 @@ class TestFindSCU(PeerFixtureBase):
             data_sets.append(data_set)
 
         find = odil.FindSCU(self.association)
-        find.set_affected_sop_class(odil.registry.PatientRootQueryRetrieveInformationModelFIND)
+        find.set_affected_sop_class(odil.registry.PatientRootQueryRetrieveInformationModelFind)
         find.find(self.query, callback)
 
         self.assertEqual(len(data_sets), 1)

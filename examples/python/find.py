@@ -6,11 +6,11 @@ association.set_peer_port(11112)
 
 presentation_contexts = [
     odil.AssociationParameters.PresentationContext(
-        1, odil.registry.StudyRootQueryRetrieveInformationModelFIND,
+        1, odil.registry.StudyRootQueryRetrieveInformationModelFind,
         [ odil.registry.ExplicitVRLittleEndian ], True, False
     ),
     odil.AssociationParameters.PresentationContext(
-        3, odil.registry.VerificationSOPClass,
+        3, odil.registry.Verification,
         [ odil.registry.ExplicitVRLittleEndian ], True, False
     )
 ]
@@ -28,7 +28,7 @@ query.add(odil.registry.StudyDescription)
 query.add(odil.registry.StudyDate)
 
 find = odil.FindSCU(association)
-find.set_affected_sop_class(odil.registry.StudyRootQueryRetrieveInformationModelFIND)
+find.set_affected_sop_class(odil.registry.StudyRootQueryRetrieveInformationModelFind)
 
 def callback(data_set):
     print data_set.as_string(odil.registry.PatientName)[0]

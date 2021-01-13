@@ -24,7 +24,7 @@ struct Fixture: public MessageFixtureBase<odil::message::CGetResponse>
 
         this->command_set->add("MessageID", {5678});
         this->command_set->add("AffectedSOPClassUID",
-            {odil::registry::StudyRootQueryRetrieveInformationModelGET});
+            {odil::registry::StudyRootQueryRetrieveInformationModelGet});
         this->command_set->add(odil::registry::NumberOfRemainingSuboperations, {1});
         this->command_set->add(odil::registry::NumberOfCompletedSuboperations, {2});
         this->command_set->add(odil::registry::NumberOfFailedSuboperations, {3});
@@ -51,7 +51,7 @@ struct Fixture: public MessageFixtureBase<odil::message::CGetResponse>
         BOOST_CHECK(message.has_affected_sop_class_uid());
         BOOST_CHECK_EQUAL(
             message.get_affected_sop_class_uid(),
-            odil::registry::StudyRootQueryRetrieveInformationModelGET);
+            odil::registry::StudyRootQueryRetrieveInformationModelGet);
 
         BOOST_CHECK(message.has_number_of_remaining_sub_operations());
         BOOST_CHECK_EQUAL(message.get_number_of_remaining_sub_operations(), 1);
@@ -76,7 +76,7 @@ BOOST_FIXTURE_TEST_CASE(Constructor, Fixture)
         1234, odil::message::Response::Success, this->data_set);
     message.set_message_id(5678);
     message.set_affected_sop_class_uid(
-        odil::registry::StudyRootQueryRetrieveInformationModelGET);
+        odil::registry::StudyRootQueryRetrieveInformationModelGet);
     message.set_number_of_remaining_sub_operations(1);
     message.set_number_of_completed_sub_operations(2);
     message.set_number_of_failed_sub_operations(3);

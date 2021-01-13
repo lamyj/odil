@@ -55,7 +55,7 @@ Tag const RouteSegmentStartTime(0x4010, 0x1025);
 Tag const RouteSegmentEndTime(0x4010, 0x1026);
 Tag const TDRType(0x4010, 0x1027);
 Tag const InternationalRouteSegment(0x4010, 0x1028);
-Tag const ThreatDetectionAlgorithmandVersion(0x4010, 0x1029);
+Tag const ThreatDetectionAlgorithmAndVersion(0x4010, 0x1029);
 Tag const AssignedLocation(0x4010, 0x102a);
 Tag const AlarmDecisionTime(0x4010, 0x102b);
 Tag const AlarmDecision(0x4010, 0x1031);

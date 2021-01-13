@@ -20,7 +20,7 @@
 BOOST_AUTO_TEST_CASE(Constructor)
 {
     std::istringstream stream;
-    odil::Reader const reader(stream, odil::registry::ExplicitVRBigEndian_Retired);
+    odil::Reader const reader(stream, odil::registry::ExplicitVRBigEndian);
     BOOST_REQUIRE(reader.byte_ordering == odil::ByteOrdering::BigEndian);
     BOOST_REQUIRE(reader.explicit_vr == true);
 }
@@ -58,7 +58,7 @@ void do_test(std::shared_ptr<odil::DataSet const> odil_data_set)
         {
             odil::registry::ImplicitVRLittleEndian,
             odil::registry::ExplicitVRLittleEndian,
-            odil::registry::ExplicitVRBigEndian_Retired
+            odil::registry::ExplicitVRBigEndian
         };
     std::vector<E_EncodingType> item_encodings =
         { EET_ExplicitLength, EET_UndefinedLength };
@@ -355,7 +355,7 @@ void do_file_test(std::shared_ptr<odil::DataSet const> odil_data_set)
         {
             odil::registry::ImplicitVRLittleEndian,
             odil::registry::ExplicitVRLittleEndian,
-            odil::registry::ExplicitVRBigEndian_Retired
+            odil::registry::ExplicitVRBigEndian
         };
     std::vector<E_EncodingType> item_encodings =
         { EET_ExplicitLength, EET_UndefinedLength };

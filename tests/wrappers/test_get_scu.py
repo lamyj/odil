@@ -13,7 +13,7 @@ class TestGetSCU(PeerFixtureBase):
             self, 
             [
                 odil.AssociationParameters.PresentationContext(
-                    1, odil.registry.PatientRootQueryRetrieveInformationModelGET,
+                    1, odil.registry.PatientRootQueryRetrieveInformationModelGet,
                     [ odil.registry.ImplicitVRLittleEndian ], 
                     odil.AssociationParameters.PresentationContext.Role.SCU
                 ),
@@ -30,7 +30,7 @@ class TestGetSCU(PeerFixtureBase):
 
     def test_without_callback(self):
         get = odil.GetSCU(self.association)
-        get.set_affected_sop_class(odil.registry.PatientRootQueryRetrieveInformationModelGET)
+        get.set_affected_sop_class(odil.registry.PatientRootQueryRetrieveInformationModelGet)
         data_sets = get.get(self.query)
 
         self.assertEqual(len(data_sets), 1)
@@ -48,7 +48,7 @@ class TestGetSCU(PeerFixtureBase):
 
         get = odil.GetSCU(self.association)
         get.set_affected_sop_class(
-            odil.registry.PatientRootQueryRetrieveInformationModelGET)
+            odil.registry.PatientRootQueryRetrieveInformationModelGet)
         get.get(self.query, store_callback, get_callback)
 
         self.assertEqual(len(data_sets), 1)
@@ -80,7 +80,7 @@ class TestGetSCU(PeerFixtureBase):
 
         get = odil.GetSCU(self.association)
         get.set_affected_sop_class(
-            odil.registry.PatientRootQueryRetrieveInformationModelGET)
+            odil.registry.PatientRootQueryRetrieveInformationModelGet)
         get.get(self.query, store_callback)
 
         self.assertEqual(len(data_sets), 1)

@@ -90,7 +90,7 @@ BOOST_AUTO_TEST_CASE(Associate)
 {
     PeerFixtureBase fixture({
         {
-            1, odil::registry::VerificationSOPClass,
+            1, odil::registry::Verification,
             { odil::registry::ImplicitVRLittleEndian }, 
             odil::AssociationParameters::PresentationContext::Role::SCU
         }

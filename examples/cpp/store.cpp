@@ -19,7 +19,7 @@ int main(int argc, char** argv)
                 odil::AssociationParameters::PresentationContext::Role::SCP
             },
             {
-                odil::registry::VerificationSOPClass,
+                odil::registry::Verification,
                 { odil::registry::ImplicitVRLittleEndian }, 
                 odil::AssociationParameters::PresentationContext::Role::SCU
             }

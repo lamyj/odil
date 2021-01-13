@@ -11,7 +11,7 @@ struct Fixture: public PeerFixtureBase
     Fixture()
     : PeerFixtureBase({
         {
-            1, odil::registry::VerificationSOPClass,
+            1, odil::registry::Verification,
             {odil::registry::ImplicitVRLittleEndian}, 
             odil::AssociationParameters::PresentationContext::Role::SCU
         }

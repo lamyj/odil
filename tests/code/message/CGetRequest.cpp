@@ -22,7 +22,7 @@ struct Fixture: public MessageFixtureBase<odil::message::CGetRequest>
             "CommandField", {odil::message::Message::Command::C_GET_RQ});
         this->command_set->add("MessageID", {1234});
         this->command_set->add("AffectedSOPClassUID",
-            {odil::registry::PatientRootQueryRetrieveInformationModelGET});
+            {odil::registry::PatientRootQueryRetrieveInformationModelGet});
         this->command_set->add(
             "Priority", {odil::message::Message::Priority::MEDIUM});
 
@@ -39,7 +39,7 @@ struct Fixture: public MessageFixtureBase<odil::message::CGetRequest>
         BOOST_CHECK_EQUAL(message.get_message_id(), 1234);
         BOOST_CHECK_EQUAL(
             message.get_affected_sop_class_uid(),
-            odil::registry::PatientRootQueryRetrieveInformationModelGET);
+            odil::registry::PatientRootQueryRetrieveInformationModelGet);
         BOOST_CHECK(message.has_data_set());
         BOOST_CHECK(*message.get_data_set() == *this->query);
     }
@@ -48,7 +48,7 @@ struct Fixture: public MessageFixtureBase<odil::message::CGetRequest>
 BOOST_FIXTURE_TEST_CASE(Constructor, Fixture)
 {
     odil::message::CGetRequest const message(
-        1234, odil::registry::PatientRootQueryRetrieveInformationModelGET,
+        1234, odil::registry::PatientRootQueryRetrieveInformationModelGet,
         odil::message::Message::Priority::MEDIUM, this->query);
     this->check(message);
 }

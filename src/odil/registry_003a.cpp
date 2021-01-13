@@ -62,6 +62,13 @@ void update_003a(
     public_dictionary.emplace(Tag(0x003a, 0x0300), ElementsDictionaryEntry("Multiplexed Audio Channels Description Code Sequence", "MultiplexedAudioChannelsDescriptionCodeSequence",  "SQ", "1"));
     public_dictionary.emplace(Tag(0x003a, 0x0301), ElementsDictionaryEntry("Channel Identification Code", "ChannelIdentificationCode",  "IS", "1"));
     public_dictionary.emplace(Tag(0x003a, 0x0302), ElementsDictionaryEntry("Channel Mode", "ChannelMode",  "CS", "1"));
+    public_dictionary.emplace(Tag(0x003a, 0x0310), ElementsDictionaryEntry("Multiplex Group UID", "MultiplexGroupUID",  "UI", "1"));
+    public_dictionary.emplace(Tag(0x003a, 0x0311), ElementsDictionaryEntry("Powerline Frequency", "PowerlineFrequency",  "DS", "1"));
+    public_dictionary.emplace(Tag(0x003a, 0x0312), ElementsDictionaryEntry("Channel Impedance Sequence", "ChannelImpedanceSequence",  "SQ", "1"));
+    public_dictionary.emplace(Tag(0x003a, 0x0313), ElementsDictionaryEntry("Impedance Value", "ImpedanceValue",  "DS", "1"));
+    public_dictionary.emplace(Tag(0x003a, 0x0314), ElementsDictionaryEntry("Impedance Measurement DateTime", "ImpedanceMeasurementDateTime",  "DT", "1"));
+    public_dictionary.emplace(Tag(0x003a, 0x0315), ElementsDictionaryEntry("Impedance Measurement Frequency", "ImpedanceMeasurementFrequency",  "DS", "1"));
+    public_dictionary.emplace(Tag(0x003a, 0x0316), ElementsDictionaryEntry("Impedance Measurement Current Type", "ImpedanceMeasurementCurrentType",  "CS", "1"));
 
     public_tags.emplace("WaveformOriginality", Tag(0x003a, 0x0004));
     public_tags.emplace("NumberOfWaveformChannels", Tag(0x003a, 0x0005));
@@ -101,6 +108,13 @@ void update_003a(
     public_tags.emplace("MultiplexedAudioChannelsDescriptionCodeSequence", Tag(0x003a, 0x0300));
     public_tags.emplace("ChannelIdentificationCode", Tag(0x003a, 0x0301));
     public_tags.emplace("ChannelMode", Tag(0x003a, 0x0302));
+    public_tags.emplace("MultiplexGroupUID", Tag(0x003a, 0x0310));
+    public_tags.emplace("PowerlineFrequency", Tag(0x003a, 0x0311));
+    public_tags.emplace("ChannelImpedanceSequence", Tag(0x003a, 0x0312));
+    public_tags.emplace("ImpedanceValue", Tag(0x003a, 0x0313));
+    public_tags.emplace("ImpedanceMeasurementDateTime", Tag(0x003a, 0x0314));
+    public_tags.emplace("ImpedanceMeasurementFrequency", Tag(0x003a, 0x0315));
+    public_tags.emplace("ImpedanceMeasurementCurrentType", Tag(0x003a, 0x0316));
 }
 
 }

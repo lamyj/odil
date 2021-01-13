@@ -113,7 +113,7 @@ Reader
     bool keep_group_length)
 : stream(stream), transfer_syntax(transfer_syntax),
     byte_ordering(
-        (transfer_syntax==registry::ExplicitVRBigEndian_Retired)?
+        (transfer_syntax==registry::ExplicitVRBigEndian)?
         ByteOrdering::BigEndian:ByteOrdering::LittleEndian),
     explicit_vr(transfer_syntax!=registry::ImplicitVRLittleEndian),
     keep_group_length(keep_group_length)

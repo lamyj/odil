@@ -30,12 +30,12 @@ int main()
         .set_called_ae_title("AWSPIXELMEDPUB")
         .set_presentation_contexts({
             {
-                odil::registry::StudyRootQueryRetrieveInformationModelFIND,
+                odil::registry::StudyRootQueryRetrieveInformationModelFind,
                 { odil::registry::ImplicitVRLittleEndian }, 
                 odil::AssociationParameters::PresentationContext::Role::SCU
             },
             {
-                odil::registry::StudyRootQueryRetrieveInformationModelMOVE,
+                odil::registry::StudyRootQueryRetrieveInformationModelMove,
                 { odil::registry::ImplicitVRLittleEndian }, 
                 odil::AssociationParameters::PresentationContext::Role::SCU
             },
@@ -45,7 +45,7 @@ int main()
                 odil::AssociationParameters::PresentationContext::Role::SCP
             },
             {
-                odil::registry::VerificationSOPClass,
+                odil::registry::Verification,
                 { odil::registry::ImplicitVRLittleEndian }, 
                 odil::AssociationParameters::PresentationContext::Role::SCU
             }
@@ -55,7 +55,7 @@ int main()
 
     odil::FindSCU find_scu(association);
     find_scu.set_affected_sop_class(
-        odil::registry::StudyRootQueryRetrieveInformationModelFIND);
+        odil::registry::StudyRootQueryRetrieveInformationModelFind);
 
     auto query = std::make_shared<odil::DataSet>();
     query->add("QueryRetrieveLevel", { "STUDY" });
@@ -88,7 +88,7 @@ int main()
 
     odil::MoveSCU move_scu(association);
     move_scu.set_affected_sop_class(
-        odil::registry::StudyRootQueryRetrieveInformationModelMOVE);
+        odil::registry::StudyRootQueryRetrieveInformationModelMove);
     move_scu.set_move_destination(
         association.get_parameters().get_calling_ae_title());
 

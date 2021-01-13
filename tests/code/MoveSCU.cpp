@@ -17,7 +17,7 @@ struct Fixture: public PeerFixtureBase
     Fixture()
     : PeerFixtureBase({
             {
-                1, odil::registry::PatientRootQueryRetrieveInformationModelMOVE,
+                1, odil::registry::PatientRootQueryRetrieveInformationModelMove,
                 { odil::registry::ImplicitVRLittleEndian }, 
                 odil::AssociationParameters::PresentationContext::Role::SCU
             },
@@ -78,7 +78,7 @@ BOOST_FIXTURE_TEST_CASE(Move, Fixture)
     scu.set_incoming_port(11113);
 
     scu.set_affected_sop_class(
-        odil::registry::PatientRootQueryRetrieveInformationModelMOVE);
+        odil::registry::PatientRootQueryRetrieveInformationModelMove);
     auto const results = scu.move(this->query);
 
     BOOST_REQUIRE_EQUAL(results.size(), 1);
@@ -94,7 +94,7 @@ BOOST_FIXTURE_TEST_CASE(MoveBothCallback, Fixture)
     scu.set_incoming_port(11113);
 
     scu.set_affected_sop_class(
-        odil::registry::PatientRootQueryRetrieveInformationModelMOVE);
+        odil::registry::PatientRootQueryRetrieveInformationModelMove);
     scu.move(this->query, Fixture::store_callback, Fixture::move_callback);
 
     BOOST_CHECK(Fixture::store_callback_called);
@@ -108,7 +108,7 @@ BOOST_FIXTURE_TEST_CASE(MoveOnlyStoreCallback, Fixture)
     scu.set_incoming_port(11113);
 
     scu.set_affected_sop_class(
-        odil::registry::PatientRootQueryRetrieveInformationModelMOVE);
+        odil::registry::PatientRootQueryRetrieveInformationModelMove);
     scu.move(
         this->query, Fixture::store_callback, odil::MoveSCU::MoveCallback());
 

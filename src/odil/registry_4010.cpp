@@ -59,7 +59,7 @@ void update_4010(
     public_dictionary.emplace(Tag(0x4010, 0x1026), ElementsDictionaryEntry("Route Segment End Time", "RouteSegmentEndTime",  "DT", "1"));
     public_dictionary.emplace(Tag(0x4010, 0x1027), ElementsDictionaryEntry("TDR Type", "TDRType",  "CS", "1"));
     public_dictionary.emplace(Tag(0x4010, 0x1028), ElementsDictionaryEntry("International Route Segment", "InternationalRouteSegment",  "CS", "1"));
-    public_dictionary.emplace(Tag(0x4010, 0x1029), ElementsDictionaryEntry("Threat Detection Algorithm and Version", "ThreatDetectionAlgorithmandVersion",  "LO", "1-n"));
+    public_dictionary.emplace(Tag(0x4010, 0x1029), ElementsDictionaryEntry("Threat Detection Algorithm and Version", "ThreatDetectionAlgorithmAndVersion",  "LO", "1-n"));
     public_dictionary.emplace(Tag(0x4010, 0x102a), ElementsDictionaryEntry("Assigned Location", "AssignedLocation",  "SH", "1"));
     public_dictionary.emplace(Tag(0x4010, 0x102b), ElementsDictionaryEntry("Alarm Decision Time", "AlarmDecisionTime",  "DT", "1"));
     public_dictionary.emplace(Tag(0x4010, 0x1031), ElementsDictionaryEntry("Alarm Decision", "AlarmDecision",  "CS", "1"));
@@ -146,7 +146,7 @@ void update_4010(
     public_tags.emplace("RouteSegmentEndTime", Tag(0x4010, 0x1026));
     public_tags.emplace("TDRType", Tag(0x4010, 0x1027));
     public_tags.emplace("InternationalRouteSegment", Tag(0x4010, 0x1028));
-    public_tags.emplace("ThreatDetectionAlgorithmandVersion", Tag(0x4010, 0x1029));
+    public_tags.emplace("ThreatDetectionAlgorithmAndVersion", Tag(0x4010, 0x1029));
     public_tags.emplace("AssignedLocation", Tag(0x4010, 0x102a));
     public_tags.emplace("AlarmDecisionTime", Tag(0x4010, 0x102b));
     public_tags.emplace("AlarmDecision", Tag(0x4010, 0x1031));

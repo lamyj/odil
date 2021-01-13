@@ -129,6 +129,11 @@ void update_0016(
     public_dictionary.emplace(Tag(0x0016, 0x008c), ElementsDictionaryEntry("GPS Area Information", "GPSAreaInformation",  "OB", "1"));
     public_dictionary.emplace(Tag(0x0016, 0x008d), ElementsDictionaryEntry("GPS Date Stamp", "GPSDateStamp",  "DT", "1"));
     public_dictionary.emplace(Tag(0x0016, 0x008e), ElementsDictionaryEntry("GPS Differential", "GPSDifferential",  "IS", "1"));
+    public_dictionary.emplace(Tag(0x0016, 0x1001), ElementsDictionaryEntry("Light Source Polarization", "LightSourcePolarization",  "CS", "1"));
+    public_dictionary.emplace(Tag(0x0016, 0x1002), ElementsDictionaryEntry("Emitter Color Temperature", "EmitterColorTemperature",  "DS", "1"));
+    public_dictionary.emplace(Tag(0x0016, 0x1003), ElementsDictionaryEntry("Contact Method", "ContactMethod",  "CS", "1"));
+    public_dictionary.emplace(Tag(0x0016, 0x1004), ElementsDictionaryEntry("Immersion Media", "ImmersionMedia",  "CS", "1-n"));
+    public_dictionary.emplace(Tag(0x0016, 0x1005), ElementsDictionaryEntry("Optical Magnification Factor", "OpticalMagnificationFactor",  "DS", "1"));
 
     public_tags.emplace("WhitePoint", Tag(0x0016, 0x0001));
     public_tags.emplace("PrimaryChromaticities", Tag(0x0016, 0x0002));
@@ -235,6 +240,11 @@ void update_0016(
     public_tags.emplace("GPSAreaInformation", Tag(0x0016, 0x008c));
     public_tags.emplace("GPSDateStamp", Tag(0x0016, 0x008d));
     public_tags.emplace("GPSDifferential", Tag(0x0016, 0x008e));
+    public_tags.emplace("LightSourcePolarization", Tag(0x0016, 0x1001));
+    public_tags.emplace("EmitterColorTemperature", Tag(0x0016, 0x1002));
+    public_tags.emplace("ContactMethod", Tag(0x0016, 0x1003));
+    public_tags.emplace("ImmersionMedia", Tag(0x0016, 0x1004));
+    public_tags.emplace("OpticalMagnificationFactor", Tag(0x0016, 0x1005));
 }
 
 }

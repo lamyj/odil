@@ -19,11 +19,9 @@ class TestReader(unittest.TestCase):
 
     def test_constructor_no_default(self):
         stream = odil.iostream(BytesIO())
-        reader = odil.Reader(
-            stream, odil.registry.ExplicitVRBigEndian_Retired, True)
+        reader = odil.Reader(stream, odil.registry.ExplicitVRBigEndian, True)
         self.assertEqual(
-            reader.transfer_syntax.encode(),
-            odil.registry.ExplicitVRBigEndian_Retired)
+            reader.transfer_syntax.encode(), odil.registry.ExplicitVRBigEndian)
         self.assertEqual(reader.byte_ordering, odil.ByteOrdering.BigEndian)
         self.assertTrue(reader.explicit_vr)
         self.assertTrue(reader.keep_group_length)

@@ -31,7 +31,7 @@ EchoSCU
     auto const message_id = this->_association.next_message_id();
     
     auto request = std::make_shared<message::CEchoRequest>(
-        message_id, registry::VerificationSOPClass);
+        message_id, registry::Verification);
     this->_association.send_message(
         request, request->get_affected_sop_class_uid());
 
@@ -48,4 +48,3 @@ EchoSCU
 }
 
 }
-

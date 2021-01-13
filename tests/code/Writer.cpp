@@ -25,7 +25,7 @@ BOOST_AUTO_TEST_CASE(Constructor)
 BOOST_AUTO_TEST_CASE(ConstructorTransferSyntax)
 {
     std::ostringstream stream;
-    odil::Writer const writer(stream, odil::registry::ExplicitVRBigEndian_Retired);
+    odil::Writer const writer(stream, odil::registry::ExplicitVRBigEndian);
     BOOST_REQUIRE(writer.byte_ordering == odil::ByteOrdering::BigEndian);
     BOOST_REQUIRE(writer.explicit_vr == true);
 }
@@ -64,7 +64,7 @@ void do_test(std::shared_ptr<odil::DataSet const> odil_data_set)
         {
             odil::registry::ImplicitVRLittleEndian,
             odil::registry::ExplicitVRLittleEndian,
-            odil::registry::ExplicitVRBigEndian_Retired
+            odil::registry::ExplicitVRBigEndian
         };
     std::vector<odil::Writer::ItemEncoding> item_encodings =
         {
@@ -288,7 +288,7 @@ void do_file_test(std::shared_ptr<odil::DataSet const> odil_data_set)
         {
             odil::registry::ImplicitVRLittleEndian,
             odil::registry::ExplicitVRLittleEndian,
-            odil::registry::ExplicitVRBigEndian_Retired
+            odil::registry::ExplicitVRBigEndian
         };
     std::vector<odil::Writer::ItemEncoding> item_encodings =
         {

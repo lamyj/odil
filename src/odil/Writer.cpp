@@ -78,7 +78,7 @@ Writer
     ItemEncoding item_encoding, bool use_group_length)
 : stream(stream),
     byte_ordering(
-        (transfer_syntax==registry::ExplicitVRBigEndian_Retired)?
+        (transfer_syntax==registry::ExplicitVRBigEndian)?
         ByteOrdering::BigEndian:ByteOrdering::LittleEndian),
     explicit_vr(transfer_syntax!=registry::ImplicitVRLittleEndian),
     item_encoding(item_encoding), use_group_length(use_group_length)

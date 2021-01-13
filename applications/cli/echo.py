@@ -25,7 +25,7 @@ def echo(host, port, calling_ae_title, called_ae_title):
         .set_called_ae_title(called_ae_title) \
         .set_presentation_contexts([
             odil.AssociationParameters.PresentationContext(
-                3, odil.registry.VerificationSOPClass,
+                3, odil.registry.Verification,
                 [ odil.registry.ImplicitVRLittleEndian ], True, False
             )
         ])

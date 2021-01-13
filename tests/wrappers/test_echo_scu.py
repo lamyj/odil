@@ -13,7 +13,7 @@ class TestEchoSCU(PeerFixtureBase):
             self, 
             [
                 odil.AssociationParameters.PresentationContext(
-                    3, odil.registry.VerificationSOPClass,
+                    3, odil.registry.Verification,
                     [ odil.registry.ImplicitVRLittleEndian ], 
                     odil.AssociationParameters.PresentationContext.Role.SCU)
             ]

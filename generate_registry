@@ -9,6 +9,9 @@ import xml.etree.ElementTree
 
 import jinja2
 
+# Cache for downloaded Docbook documents
+documents = {}
+
 def main():
     parser = argparse.ArgumentParser("Generate registry files")
     parser.add_argument(
@@ -66,10 +69,16 @@ def main():
         with open(path, "w") as fd:
             fd.write(template.render(uids=uids, groups=groups))
 
+def get_document(url):
+    if url not in documents:
+        print("Downloading {}".format(url))
+        fd = urllib.request.urlopen(url)
+        documents[url] = xml.etree.ElementTree.parse(fd)
+        fd.close()
+    return documents[url]
+
 def parse_elements_dictionaries(url, id_):
-    fd = urllib.request.urlopen(url)
-    document = xml.etree.ElementTree.parse(fd)
-    fd.close()
+    document = get_document(url)
 
     namespaces = {
         "xml": "http://www.w3.org/XML/1998/namespace",
@@ -85,7 +94,7 @@ def parse_elements_dictionaries(url, id_):
 
         tag, name, keyword, vr, vm = entry[:5]
 
-        if tag.getchildren():
+        if len(tag):
             tag = tag.find("./docbook:emphasis", namespaces)
         tag = tag.text
 
@@ -125,9 +134,7 @@ def parse_elements_dictionaries(url, id_):
     return entries
 
 def parse_uids(url, id_):
-    fd = urllib.request.urlopen(url)
-    document = xml.etree.ElementTree.parse(fd)
-    fd.close()
+    document = get_document(url)
 
     namespaces = {
         "xml": "http://www.w3.org/XML/1998/namespace",
@@ -144,28 +151,21 @@ def parse_uids(url, id_):
 
     for row in table.iterfind("./docbook:tbody/docbook:tr", namespaces):
         entry = row.findall("./docbook:td/docbook:para", namespaces)
-        uid, name, type_ = entry[:3]
+        uid, name, keyword, type_ = entry[:4]
 
         uid = get_value(uid, "ascii", namespaces)
         name = get_value(name, "ascii", namespaces)
+        keyword = get_value(keyword, "ascii", namespaces)
         type_ = get_value(type_, "ascii", namespaces)
 
         if name == "(Retired)":
             continue
-
-        retired = name.endswith(" (Retired)")
-        keyword = name.replace(" (Retired)", "")
-        keyword = re.sub(":.*", "", keyword)
-        keyword = re.sub("\W", " ", keyword).strip().replace(" ", "")
-        if retired:
-            keyword += "_Retired"
 
         keyword = keywords_map.get(keyword, keyword)
 
         entries.append((uid, name, keyword, type_))
 
     return entries
-
 
 def get_value(element, encoding, namespaces):
     emphasis = element.find("./docbook:emphasis", namespaces)
@@ -174,7 +174,7 @@ def get_value(element, encoding, namespaces):
 
     element = element.text or ""
     element = element.replace(u"\u200b", "").replace(u"\u00b5", "u")
-    return element
+    return element.strip()
 
 if __name__ == "__main__":
     sys.exit(main())

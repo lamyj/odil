@@ -49,7 +49,7 @@ def find(host, port, calling_ae_title, called_ae_title, level, keys, decode_uids
     
     sop_class = getattr(
         odil.registry,
-        "{}RootQueryRetrieveInformationModelFIND".format(level.capitalize()))
+        "{}RootQueryRetrieveInformationModelFind".format(level.capitalize()))
     
     find_pc = odil.AssociationParameters.PresentationContext(
         1, sop_class,

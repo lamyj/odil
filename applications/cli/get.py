@@ -77,7 +77,7 @@ def get(
     
     get_syntax = getattr(
         odil.registry,
-        "{}RootQueryRetrieveInformationModelGET".format(level.capitalize()))
+        "{}RootQueryRetrieveInformationModelGet".format(level.capitalize()))
     
     transfer_syntaxes = [
         odil.registry.ImplicitVRLittleEndian,
@@ -269,7 +269,7 @@ def find_abstract_syntaxes(
     
     find_syntax = getattr(
         odil.registry,
-        "{}RootQueryRetrieveInformationModelFIND".format(level.capitalize()))
+        "{}RootQueryRetrieveInformationModelFind".format(level.capitalize()))
     
     transfer_syntaxes = [
         odil.registry.ImplicitVRLittleEndian,

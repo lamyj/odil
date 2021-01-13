@@ -16,7 +16,7 @@ struct Fixture: public PeerFixtureBase
     Fixture()
     : PeerFixtureBase({
             {
-                1, odil::registry::PatientRootQueryRetrieveInformationModelFIND,
+                1, odil::registry::PatientRootQueryRetrieveInformationModelFind,
                 { odil::registry::ImplicitVRLittleEndian }, 
                 odil::AssociationParameters::PresentationContext::Role::SCU
             }
@@ -43,7 +43,7 @@ BOOST_FIXTURE_TEST_CASE(Find, Fixture)
 {
     odil::FindSCU scu(this->association);
 
-    scu.set_affected_sop_class(odil::registry::PatientRootQueryRetrieveInformationModelFIND);
+    scu.set_affected_sop_class(odil::registry::PatientRootQueryRetrieveInformationModelFind);
     auto const results = scu.find(this->query);
     BOOST_REQUIRE(!this->query->empty());
 
@@ -57,7 +57,7 @@ BOOST_FIXTURE_TEST_CASE(FindCallback, Fixture)
 {
     odil::FindSCU scu(this->association);
 
-    scu.set_affected_sop_class(odil::registry::PatientRootQueryRetrieveInformationModelFIND);
+    scu.set_affected_sop_class(odil::registry::PatientRootQueryRetrieveInformationModelFind);
     scu.find(this->query, Fixture::callback);
     BOOST_REQUIRE(!this->query->empty());
 

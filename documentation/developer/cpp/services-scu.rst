@@ -42,7 +42,7 @@ The simplest service is C-ECHO, used to verify that the two peers can exchange i
           .set_called_ae_title("SERVER")
           .set_presentation_contexts({
               {
-                  odil::registry::VerificationSOPClass,
+                  odil::registry::Verification,
                   { odil::registry::ExplicitVRLittleEndian }, true, false
               }
           });  
@@ -81,7 +81,7 @@ The query service, C-FIND, is parameterized by a query and either returns all th
   
   int main()
   {
-      auto const model = odil::registry::StudyRootQueryRetrieveInformationModelFIND;
+      auto const model = odil::registry::StudyRootQueryRetrieveInformationModelFind;
       
       odil::Association association;
       association.set_peer_host("www.dicomserver.co.uk");
@@ -134,7 +134,7 @@ The retrieval of data sets, using either C-GET or C-MOVE, is very similar to que
       std::string const & host, unsigned int port, 
       std::string const & calling_aet, std::string const & called_aet)
   {
-      auto const model = odil::registry::StudyRootQueryRetrieveInformationModelFIND;
+      auto const model = odil::registry::StudyRootQueryRetrieveInformationModelFind;
       
       odil::Association association;
       association.set_peer_host(host);
@@ -171,7 +171,7 @@ The retrieval of data sets, using either C-GET or C-MOVE, is very similar to que
       std::string const & calling_aet, std::string const & called_aet,
       odil::DataSet const & study)
   {
-      auto const model = odil::registry::StudyRootQueryRetrieveInformationModelGET;
+      auto const model = odil::registry::StudyRootQueryRetrieveInformationModelGet;
       
       odil::Association association;
       association.set_peer_host(host);

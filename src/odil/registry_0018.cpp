@@ -299,6 +299,7 @@ void update_0018(
     public_dictionary.emplace(Tag(0x0018, 0x4000), ElementsDictionaryEntry("Acquisition Comments", "AcquisitionComments",  "LT", "1"));
     public_dictionary.emplace(Tag(0x0018, 0x5000), ElementsDictionaryEntry("Output Power", "OutputPower",  "SH", "1-n"));
     public_dictionary.emplace(Tag(0x0018, 0x5010), ElementsDictionaryEntry("Transducer Data", "TransducerData",  "LO", "1-n"));
+    public_dictionary.emplace(Tag(0x0018, 0x5011), ElementsDictionaryEntry("Transducer Identification Sequence", "TransducerIdentificationSequence",  "SQ", "1"));
     public_dictionary.emplace(Tag(0x0018, 0x5012), ElementsDictionaryEntry("Focus Depth", "FocusDepth",  "DS", "1"));
     public_dictionary.emplace(Tag(0x0018, 0x5020), ElementsDictionaryEntry("Processing Function", "ProcessingFunction",  "LO", "1"));
     public_dictionary.emplace(Tag(0x0018, 0x5021), ElementsDictionaryEntry("Postprocessing Function", "PostprocessingFunction",  "LO", "1"));
@@ -1151,6 +1152,7 @@ void update_0018(
     public_tags.emplace("AcquisitionComments", Tag(0x0018, 0x4000));
     public_tags.emplace("OutputPower", Tag(0x0018, 0x5000));
     public_tags.emplace("TransducerData", Tag(0x0018, 0x5010));
+    public_tags.emplace("TransducerIdentificationSequence", Tag(0x0018, 0x5011));
     public_tags.emplace("FocusDepth", Tag(0x0018, 0x5012));
     public_tags.emplace("ProcessingFunction", Tag(0x0018, 0x5020));
     public_tags.emplace("PostprocessingFunction", Tag(0x0018, 0x5021));

@@ -24,7 +24,7 @@ struct Fixture: public MessageFixtureBase<odil::message::CFindResponse>
 
         command_set->add("MessageID", {5678});
         command_set->add("AffectedSOPClassUID",
-            {odil::registry::StudyRootQueryRetrieveInformationModelFIND});
+            {odil::registry::StudyRootQueryRetrieveInformationModelFind});
 
         data_set->add("PatientName", {"Doe^John"});
         data_set->add("PatientID", {"DJ123"});
@@ -47,7 +47,7 @@ struct Fixture: public MessageFixtureBase<odil::message::CFindResponse>
         BOOST_CHECK(message.has_affected_sop_class_uid());
         BOOST_CHECK_EQUAL(
             message.get_affected_sop_class_uid(),
-            odil::registry::StudyRootQueryRetrieveInformationModelFIND);
+            odil::registry::StudyRootQueryRetrieveInformationModelFind);
 
         BOOST_CHECK(message.has_data_set());
         BOOST_CHECK(*message.get_data_set() == *this->data_set);
@@ -60,7 +60,7 @@ BOOST_FIXTURE_TEST_CASE(Constructor, Fixture)
         1234, odil::message::Response::Success, this->data_set);
     message.set_message_id(5678);
     message.set_affected_sop_class_uid(
-        odil::registry::StudyRootQueryRetrieveInformationModelFIND);
+        odil::registry::StudyRootQueryRetrieveInformationModelFind);
     this->check(message);
 }
 

@@ -58,6 +58,13 @@ Tag const AbsoluteChannelDisplayScale(0x003a, 0x0248);
 Tag const MultiplexedAudioChannelsDescriptionCodeSequence(0x003a, 0x0300);
 Tag const ChannelIdentificationCode(0x003a, 0x0301);
 Tag const ChannelMode(0x003a, 0x0302);
+Tag const MultiplexGroupUID(0x003a, 0x0310);
+Tag const PowerlineFrequency(0x003a, 0x0311);
+Tag const ChannelImpedanceSequence(0x003a, 0x0312);
+Tag const ImpedanceValue(0x003a, 0x0313);
+Tag const ImpedanceMeasurementDateTime(0x003a, 0x0314);
+Tag const ImpedanceMeasurementFrequency(0x003a, 0x0315);
+Tag const ImpedanceMeasurementCurrentType(0x003a, 0x0316);
 
 }
 

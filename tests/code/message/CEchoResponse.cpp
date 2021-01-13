@@ -20,7 +20,7 @@ struct Fixture: public MessageFixtureBase<odil::message::CEchoResponse>
         this->command_set->add("MessageIDBeingRespondedTo", {1234});
         this->command_set->add("Status", {odil::message::Response::Success});
         this->command_set->add(
-            "AffectedSOPClassUID", {odil::registry::VerificationSOPClass});
+            "AffectedSOPClassUID", {odil::registry::Verification});
     }
 
     void check(odil::message::CEchoResponse const & message)
@@ -32,8 +32,7 @@ struct Fixture: public MessageFixtureBase<odil::message::CEchoResponse>
         BOOST_CHECK_EQUAL(
             message.get_status(), odil::message::Response::Success);
         BOOST_CHECK_EQUAL(
-            message.get_affected_sop_class_uid(),
-            odil::registry::VerificationSOPClass);
+            message.get_affected_sop_class_uid(), odil::registry::Verification);
         BOOST_CHECK(!message.has_data_set());
     }
 };
@@ -41,8 +40,7 @@ struct Fixture: public MessageFixtureBase<odil::message::CEchoResponse>
 BOOST_FIXTURE_TEST_CASE(Constructor, Fixture)
 {
     odil::message::CEchoResponse const message(
-        1234, odil::message::Response::Success,
-        odil::registry::VerificationSOPClass);
+        1234, odil::message::Response::Success, odil::registry::Verification);
     this->check(message);
 }
 

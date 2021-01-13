@@ -18,8 +18,7 @@ class TestWriter(unittest.TestCase):
 
     def test_constructor_2(self):
         stream = odil.iostream(BytesIO())
-        writer = odil.Writer(
-            stream, odil.registry.ExplicitVRBigEndian_Retired)
+        writer = odil.Writer(stream, odil.registry.ExplicitVRBigEndian)
         self.assertEqual(writer.byte_ordering, odil.ByteOrdering.BigEndian)
         self.assertTrue(writer.explicit_vr)
         self.assertEqual(

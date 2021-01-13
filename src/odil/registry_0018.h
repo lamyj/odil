@@ -295,6 +295,7 @@ Tag const LesionNumber(0x0018, 0x3105);
 Tag const AcquisitionComments(0x0018, 0x4000);
 Tag const OutputPower(0x0018, 0x5000);
 Tag const TransducerData(0x0018, 0x5010);
+Tag const TransducerIdentificationSequence(0x0018, 0x5011);
 Tag const FocusDepth(0x0018, 0x5012);
 Tag const ProcessingFunction(0x0018, 0x5020);
 Tag const PostprocessingFunction(0x0018, 0x5021);

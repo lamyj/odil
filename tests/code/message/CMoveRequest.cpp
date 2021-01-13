@@ -21,7 +21,7 @@ struct Fixture: public MessageFixtureBase<odil::message::CMoveRequest>
             "CommandField", {odil::message::Message::Command::C_MOVE_RQ});
         this->command_set->add("MessageID", {1234});
         this->command_set->add("AffectedSOPClassUID",
-            {odil::registry::PatientRootQueryRetrieveInformationModelMOVE});
+            {odil::registry::PatientRootQueryRetrieveInformationModelMove});
         this->command_set->add(
             "Priority", {odil::message::Message::Priority::MEDIUM});
         this->command_set->add("MoveDestination", {"destination"});
@@ -39,7 +39,7 @@ struct Fixture: public MessageFixtureBase<odil::message::CMoveRequest>
         BOOST_CHECK_EQUAL(message.get_message_id(), 1234);
         BOOST_CHECK_EQUAL(
             message.get_affected_sop_class_uid(),
-            odil::registry::PatientRootQueryRetrieveInformationModelMOVE);
+            odil::registry::PatientRootQueryRetrieveInformationModelMove);
         BOOST_CHECK_EQUAL(message.get_move_destination(), "destination");
         BOOST_CHECK(message.has_data_set());
         BOOST_CHECK(*message.get_data_set() == *this->query);
@@ -49,7 +49,7 @@ struct Fixture: public MessageFixtureBase<odil::message::CMoveRequest>
 BOOST_FIXTURE_TEST_CASE(Constructor, Fixture)
 {
     odil::message::CMoveRequest const message(
-        1234, odil::registry::PatientRootQueryRetrieveInformationModelMOVE,
+        1234, odil::registry::PatientRootQueryRetrieveInformationModelMove,
         odil::message::Message::Priority::MEDIUM, "destination",
         this->query);
     this->check(message);

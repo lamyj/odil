@@ -125,6 +125,11 @@ Tag const GPSProcessingMethod(0x0016, 0x008b);
 Tag const GPSAreaInformation(0x0016, 0x008c);
 Tag const GPSDateStamp(0x0016, 0x008d);
 Tag const GPSDifferential(0x0016, 0x008e);
+Tag const LightSourcePolarization(0x0016, 0x1001);
+Tag const EmitterColorTemperature(0x0016, 0x1002);
+Tag const ContactMethod(0x0016, 0x1003);
+Tag const ImmersionMedia(0x0016, 0x1004);
+Tag const OpticalMagnificationFactor(0x0016, 0x1005);
 
 }
 

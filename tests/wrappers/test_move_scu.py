@@ -13,7 +13,7 @@ class TestMoveSCU(PeerFixtureBase):
             self,
             [
                 odil.AssociationParameters.PresentationContext(
-                    1, odil.registry.PatientRootQueryRetrieveInformationModelMOVE,
+                    1, odil.registry.PatientRootQueryRetrieveInformationModelMove,
                     [ odil.registry.ImplicitVRLittleEndian ], 
                     odil.AssociationParameters.PresentationContext.Role.SCU
                 ),
@@ -45,7 +45,7 @@ class TestMoveSCU(PeerFixtureBase):
 
     def test_without_callback(self):
         move = odil.MoveSCU(self.association)
-        move.set_affected_sop_class(odil.registry.PatientRootQueryRetrieveInformationModelMOVE)
+        move.set_affected_sop_class(odil.registry.PatientRootQueryRetrieveInformationModelMove)
         move.set_move_destination("LOCAL")
         move.set_incoming_port(11113)
         data_sets = move.move(self.query)
@@ -64,7 +64,7 @@ class TestMoveSCU(PeerFixtureBase):
             messages.append(message)
 
         move = odil.MoveSCU(self.association)
-        move.set_affected_sop_class(odil.registry.PatientRootQueryRetrieveInformationModelMOVE)
+        move.set_affected_sop_class(odil.registry.PatientRootQueryRetrieveInformationModelMove)
         move.set_move_destination("LOCAL")
         move.set_incoming_port(11113)
         move.move(self.query, store_callback, move_callback)
@@ -97,7 +97,7 @@ class TestMoveSCU(PeerFixtureBase):
             data_sets.append(data_set)
 
         move = odil.MoveSCU(self.association)
-        move.set_affected_sop_class(odil.registry.PatientRootQueryRetrieveInformationModelMOVE)
+        move.set_affected_sop_class(odil.registry.PatientRootQueryRetrieveInformationModelMove)
         move.set_move_destination("LOCAL")
         move.set_incoming_port(11113)
         move.move(self.query, store_callback, None)
