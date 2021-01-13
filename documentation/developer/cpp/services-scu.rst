@@ -43,7 +43,8 @@ The simplest service is C-ECHO, used to verify that the two peers can exchange i
           .set_presentation_contexts({
               {
                   odil::registry::Verification,
-                  { odil::registry::ExplicitVRLittleEndian }, true, false
+                  { odil::registry::ExplicitVRLittleEndian }, 
+                  odil::AssociationParameters::PresentationContext::Role::SCU
               }
           });  
       association.associate();
@@ -90,7 +91,9 @@ The query service, C-FIND, is parameterized by a query and either returns all th
           .set_calling_ae_title("WORKSTATION")
           .set_called_ae_title("SERVER")
           .set_presentation_contexts({
-              { model, { odil::registry::ExplicitVRLittleEndian }, true, false }
+              { 
+                  model, { odil::registry::ExplicitVRLittleEndian }, 
+                  odil::AssociationParameters::PresentationContext::Role::SCU }
           });  
       association.associate();
       
@@ -142,7 +145,9 @@ The retrieval of data sets, using either C-GET or C-MOVE, is very similar to que
       association.update_parameters()
           .set_calling_ae_title(calling_aet).set_called_ae_title(called_aet)
           .set_presentation_contexts({
-              { model, { odil::registry::ExplicitVRLittleEndian }, true, false }
+              { 
+                  model, { odil::registry::ExplicitVRLittleEndian }, 
+                  odil::AssociationParameters::PresentationContext::Role::SCU }
           });  
       association.associate();
       
@@ -180,13 +185,15 @@ The retrieval of data sets, using either C-GET or C-MOVE, is very similar to que
           .set_calling_ae_title(calling_aet).set_called_ae_title(called_aet);
       
       std::vector<odil::AssociationParameters::PresentationContext> contexts{
-          { model, { odil::registry::ExplicitVRLittleEndian }, true, false }
+          { 
+              model, { odil::registry::ExplicitVRLittleEndian }, 
+              odil::AssociationParameters::PresentationContext::Role::SCU }
       };
       for(auto const & abstract_syntax: study.as_string("SOPClassesInStudy"))
       {
           contexts.push_back({
               abstract_syntax, { odil::registry::ExplicitVRLittleEndian }, 
-              false, true
+              odil::AssociationParameters::PresentationContext::Role::SCP
           });
       }
       association.update_parameters().set_presentation_contexts(contexts);

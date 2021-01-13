@@ -30,11 +30,13 @@ An association will at least require to define the application entity titles (bo
           .set_presentation_contexts({
               { 
                   odil::registry::Verification, 
-                  transfer_syntaxes, true, false
+                  transfer_syntaxes, 
+                  odil::AssociationParameters::PresentationContext::Role::SCU
               },
               { 
                   odil::registry::PatientRootQueryRetrieveInformationModelFind,
-                  transfer_syntaxes, true, false
+                  transfer_syntaxes, 
+                  odil::AssociationParameters::PresentationContext::Role::SCU
               }
           });
       return parameters;

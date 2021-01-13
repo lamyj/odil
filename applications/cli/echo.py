@@ -26,7 +26,8 @@ def echo(host, port, calling_ae_title, called_ae_title):
         .set_presentation_contexts([
             odil.AssociationParameters.PresentationContext(
                 3, odil.registry.Verification,
-                [ odil.registry.ImplicitVRLittleEndian ], True, False
+                [ odil.registry.ImplicitVRLittleEndian ], 
+                odil.AssociationParameters.PresentationContext.Role.SCU
             )
         ])
     association.associate()

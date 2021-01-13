@@ -79,11 +79,13 @@ The behavior of C++ SCUs w is kept as is in Python: services which return data s
       .set_presentation_contexts([
           odil.AssociationParameters.PresentationContext(
               odil.registry.Verification,
-              transfer_syntaxes, True, False
+              transfer_syntaxes, 
+              odil.AssociationParameters.PresentationContext.Role.SCU
           ),
           odil.AssociationParameters.PresentationContext(
               odil.registry.StudyRootQueryRetrieveInformationModelFind,
-              transfer_syntaxes, True, False
+              transfer_syntaxes, 
+              odil.AssociationParameters.PresentationContext.Role.SCU
           )
       ]) 
   association.associate()
@@ -118,12 +120,14 @@ The behavior of C++ SCUs w is kept as is in Python: services which return data s
       .set_presentation_contexts([
           odil.AssociationParameters.PresentationContext(
               odil.registry.StudyRootQueryRetrieveInformationModelGet,
-              transfer_syntaxes, True, False
+              transfer_syntaxes, 
+              odil.AssociationParameters.PresentationContext.Role.SCU
           )
       ]
       +[
           odil.AssociationParameters.PresentationContext(
-              x, [odil.registry.ExplicitVRLittleEndian], True, False)
+              x, [odil.registry.ExplicitVRLittleEndian], 
+              odil.AssociationParameters.PresentationContext.Role.SCU)
           for x in study.as_string("SOPClassesInStudy")
       ]) 
   association.associate()
