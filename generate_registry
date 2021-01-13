@@ -146,8 +146,13 @@ def parse_uids(url, id_):
     keywords_map = {
         "12leadECGWaveformStorage": "TwelveleadECGWaveformStorage",
     }
+    old_keywords_map = {
+        "Verification": "VerificationSOPClass",
+    }
 
     entries = []
+    
+    keywords = set()
 
     for row in table.iterfind("./docbook:tbody/docbook:tr", namespaces):
         entry = row.findall("./docbook:td/docbook:para", namespaces)
@@ -164,6 +169,17 @@ def parse_uids(url, id_):
         keyword = keywords_map.get(keyword, keyword)
 
         entries.append((uid, name, keyword, type_))
+        keywords.add(keyword)
+        
+        retired = name.endswith(" (Retired)")
+        old_keyword = name.replace(" (Retired)", "")
+        old_keyword = re.sub(":.*", "", old_keyword)
+        old_keyword = re.sub("\W", " ", old_keyword).strip().replace(" ", "")
+        old_keywords_map.get(old_keyword, old_keyword)
+        if retired:
+            old_keyword += "_Retired"
+        if old_keyword not in keywords and old_keyword not in keywords_map:
+            entries.append((uid, name, old_keyword, type_))
 
     return entries
 
