@@ -28,9 +28,9 @@ The system-specific instructions will detail how to install using pre-compiled p
 
 .. code-block:: bash
 
-  wget https://github.com/lamyj/odil/archive/v0.12.0.tar.gz
-  tar -x -f v0.12.0.tar.gz
-  cd odil-0.12.0
+  wget https://github.com/lamyj/odil/archive/v0.12.1.tar.gz
+  tar -x -f v0.12.1.tar.gz
+  cd odil-0.12.1
 
 You can also clone the `Git repository`_. Note that the latest Git version may not always compile; should it happen, you can keep your clone but check out the latest tagged version:
 
@@ -38,7 +38,7 @@ You can also clone the `Git repository`_. Note that the latest Git version may n
   
   git clone https://github.com/lamyj/odil
   cd odil
-  git checkout v0.12.0
+  git checkout v0.12.1
 
 Build options
 -------------
