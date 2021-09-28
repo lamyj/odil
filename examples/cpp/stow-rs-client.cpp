@@ -131,7 +131,7 @@ int main()
      stow_request.request_dicom(d.data_sets, selector, odil::webservices::Representation::DICOM_JSON);
 
     auto http_request = stow_request.get_http_request();
-    // Explicitely use HTTP/1.0 to avoid chunked encoding
+    // Explicitly use HTTP/1.0 to avoid chunked encoding
     http_request.set_http_version("HTTP/1.0");
     http_request.set_header("Host", root.authority);
     http_request.set_header("Content-Length", std::to_string(http_request.get_body().size()));

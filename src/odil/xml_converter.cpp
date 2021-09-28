@@ -196,7 +196,7 @@ struct ToXMLVisitor
             // PS3.18 2016b, F.2.7: There is a single InlineBinary value
             // representing the entire Value Field.
             // PS3.18 2016b, Figure 6.5-1: Pixel data is not encoded in
-            // JSON/XML, but transfered using a different content type
+            // JSON/XML, but transferred using a different content type
             throw Exception("Binary element is multiple-valued");
         }
 

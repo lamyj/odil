@@ -269,7 +269,7 @@ Writer
     meta_info->add(
         registry::ImplementationVersionName, { implementation_version_name });
 
-    // Information set by input attribut 'meta_information':
+    // Information set by input attribute 'meta_information':
     // - SourceApplicationEntityTitle
     // - SendingApplicationEntityTitle
     // - ReceivingApplicationEntityTitle

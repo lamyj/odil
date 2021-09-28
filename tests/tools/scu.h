@@ -270,7 +270,7 @@ public:
    *  disabled by default. See setDatasetConversionMode() on how to enable it.
    *  @param presID        [in]  Contains in the end the ID of the presentation context which
    *                             was specified in the DIMSE command. If 0 is given, the
-   *                             function tries to find an approriate presentation context
+   *                             function tries to find an appropriate presentation context
    *                             itself (based on SOP class and original transfer syntax of
    *                             the 'dicomFile' or 'dataset').
    *  @param dicomFile     [in]  The filename of the DICOM file to be sent. Alternatively, a
@@ -357,7 +357,7 @@ public:
    *                         specifies NULL, no responses will be returned; otherwise there
    *                         should be at least one final C-GET response (mandatory). C-GET
    *                         responses after each DICOM object received are optional and may
-   *                         have been ommitted by the server.
+   *                         have been omitted by the server.
    *  @return EC_Normal if everything went fine, i.e.\ if request could be sent and expected
    *          responses (with whatever status) could be received.
    */
@@ -384,7 +384,7 @@ public:
    *                         specifies NULL, no responses will be returned; otherwise there
    *                         should be at least one final C-GET response (mandatory). C-GET
    *                         responses after each DICOM object received are optional and may
-   *                         have been ommitted by the server.
+   *                         have been omitted by the server.
    *  @return EC_Normal if everything went fine, i.e.\ if request could be send
    *          and expected responses (with whatever status) could be received.
    */
@@ -394,7 +394,7 @@ public:
 
   /** Function handling a single C-GET Response. This standard handler reads the status of the
    *  response and decides whether to receive any further messages related to the original
-   *  C-GET Request or whether the last response was received or an error occured.
+   *  C-GET Request or whether the last response was received or an error occurred.
    *  @param presID              [in]  The presentation context the C-GET Response was
    *                                   received on.
    *  @param response            [in]  The response received
@@ -488,7 +488,7 @@ public:
    *                                   response. If set to OFTrue, then sendFINDRequest()
    *                                   will continue waiting for responses. The current
    *                                   implementation does that for all responses do not have
-   *                                   status SUCESSS. If set to OFFalse, sendFINDRequest()
+   *                                   status SUCCESS. If set to OFFalse, sendFINDRequest()
    *                                   will return control to the caller.
    *  @return EC_Normal, if response could be handled. Error code otherwise.
    *          The current implementation always returns EC_Normal.
@@ -632,7 +632,7 @@ public:
                                     const OFString &profile);
 
   /** Set the directory that should be used by the standard C-GET handler to store objects
-   *  that come in with the corresponding C-STORE rqeuests
+   *  that come in with the corresponding C-STORE requests
    *  @param storeDir [in] The directory to store to. It is checked in handleSTORERequest()
    *                       whether the directory is writeable and readable. Per default, the
    *                       received objects are stored in the current working directory.
@@ -748,7 +748,7 @@ public:
   OFBool getProgressNotificationMode() const;
 
   /** Returns whether SCU is configured to create a TLS connection with the SCP
-   *  @return OFFalse for this class but may be overriden by derived classes
+   *  @return OFFalse for this class but may be overridden by derived classes
    */
   OFBool getTLSEnabled() const;
 
@@ -1056,7 +1056,7 @@ private:
 ** Fixed typos in a log commit message.
 **
 ** Revision 1.32  2011-09-06 12:57:36  ogazzar
-** Added a function to send N-EVENT-REPORT request and receive a reponse.
+** Added a function to send N-EVENT-REPORT request and receive a response.
 **
 ** Revision 1.31  2011-08-25 15:46:18  joergr
 ** Further cleanup of minor inconsistencies regarding documentation, parameter
@@ -1081,7 +1081,7 @@ private:
 ** the abstract syntax and the transfer syntax.
 **
 ** Revision 1.25  2011-05-24 13:17:58  onken
-** Added missing default initializiation of role flag in presentation context
+** Added missing default initialization of role flag in presentation context
 ** constructor.
 **
 ** Revision 1.24  2011-05-24 08:28:08  ogazzar
@@ -1094,7 +1094,7 @@ private:
 ** Fixed message ID field in C-CANCEL request (should be the one of last
 ** request). In case of error status codes in C-MOVE responses, the default
 ** behaviour is now to not wait for further responses. Fixed log output level
-** to better fit the messages while receiveing C-MOVE responses. Minor
+** to better fit the messages while receiving C-MOVE responses. Minor
 ** code and comment cleanups. Renamed function parameter in sendMOVEREquest
 ** to better reflect the standard.
 **
@@ -1166,7 +1166,7 @@ private:
 **
 ** Revision 1.7  2010-06-08 17:54:12  onken
 ** Added C-FIND functionality to DcmSCU. Some code cleanups. Fixed
-** memory leak sometimes occuring during association configuration.
+** memory leak sometimes occurring during association configuration.
 **
 ** Revision 1.6  2010-04-29 16:13:28  onken
 ** Made SCU class independent from dcmtls, i.e. outsourced TLS API. Added
