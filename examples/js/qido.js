@@ -125,13 +125,12 @@ function updateGui()
 
 
         // SEARCH For Study display
-        var study_info = document.getElementById("Study"+studyUID+"-info");
         if (study_item === null)
         {
             study_item = document.createElement("li");
             study_item.id = studyUID;
             study_item.appendChild(document.createTextNode("Study " + studyUID));
-            study_info = document.createElement("ul");
+            var study_info = document.createElement("ul");
             study_info.id = "Study"+studyUID+"-info";
             for (var study_tags_idx = 0; study_tags_idx < studyTags.length; study_tags_idx ++)
             {
