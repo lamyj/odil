@@ -34,9 +34,9 @@ function getWADORequest() {
     
     var wadoRequest = new odil.webservices.WADORSRequest(
         baseUrl, '', '', false, false);
-    var repr_dcm = document.querySelector('#representation__dicom');
-    var repr_xml = document.querySelector('#representation__xml');
-    var repr_json = document.querySelector('#representation__json');
+//    var repr_dcm = document.querySelector('#representation__dicom');
+//    var repr_xml = document.querySelector('#representation__xml');
+//    var repr_json = document.querySelector('#representation__json');
 
     // for the moment only DICOM representation is handled
     var repr = odil.webservices.Utils.Representation.DICOM;
