@@ -44,7 +44,7 @@ target_link_libraries(
         "$<$<BOOL:${WITH_DCMTK}>:${DCMTK_LIBRARIES}>"
         ICU::uc JsonCpp::JsonCpp
         $<$<PLATFORM_ID:Windows>:netapi32>
-        # WARNING Need to link with bcrypt explicitely, 
+        # WARNING Need to link with bcrypt explicitly, 
         # cf. https://github.com/boostorg/uuid/issues/68#issuecomment-430173245
         # Not sure why iphlpapi is not linked.
         "$<$<BOOL:${VCPKG_TOOLCHAIN}>:bcrypt;iphlpapi>")

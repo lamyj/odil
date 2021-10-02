@@ -76,7 +76,7 @@ function getXMLHttpRequest(wadoRequest) {
         updateGui();
     });
     xhr.addEventListener('error', function(event) { 
-        console.log('An error occured in XMLHttpRequest');
+        console.log('An error occurred in XMLHttpRequest');
         console.log(event);
     });
     xhr.open(httpRequest.get_method(), httpRequest.get_target().toString());
@@ -152,7 +152,7 @@ function updateGui()
             }
             else
             {
-                // add into "Unknow Series"
+                // add into "Unknown Series"
             }
             study_list.appendChild(study_item);
         }

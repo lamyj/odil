@@ -79,7 +79,7 @@ function getXMLHttpRequest(qidoRequest)
         updateGui();
     });
     xhr.addEventListener('error', function(event) {
-        console.log('An error occured in XMLHttpRequest');
+        console.log('An error occurred in XMLHttpRequest');
         console.log(event);
     });
     xhr.open(httpRequest.get_method(), httpRequest.get_target().toString());

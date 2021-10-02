@@ -78,7 +78,7 @@ function renderDataSet(dataSet, parent) {
             listItem.textContent += JSON.stringify(array);
         }
         else {
-            listItem.textContent += '(unknonw type)';
+            listItem.textContent += '(unknown type)';
         }
     }
 }

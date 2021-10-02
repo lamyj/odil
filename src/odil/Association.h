@@ -90,7 +90,7 @@ public:
     /// @brief Return the TCP transport.
     dul::Transport & get_transport();
 
-    /// @brief Assing an un-associated association; it remains un-associated.
+    /// @brief Assign an un-associated association; it remains un-associated.
     Association & operator=(Association const & other);
 
     /// @name Peer

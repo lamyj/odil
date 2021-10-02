@@ -37,7 +37,7 @@ The following example show the use of a C-ECHO SCP. The message handler prints a
 
 ::
 
-  #incude <iostream>
+  #include <iostream>
   
   #include <odil/Association.h>
   #include <odil/EchoSCP.h>
@@ -141,8 +141,8 @@ In order to facilitate the development of a DICOM server handling multiple servi
 
 ::
   
-  #incude <iostream>
-  #incude <memory>
+  #include <iostream>
+  #include <memory>
   
   #include <odil/EchoSCP.h>
   #include <odil/FindSCP.h>

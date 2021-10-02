@@ -272,7 +272,7 @@ OFCondition DcmSCU::initNetwork()
     // add the presentation context
     cond = ASC_addPresentationContext(m_params, OFstatic_cast(Uint8, nextFreePresID),
       (*contIt).abstractSyntaxName.c_str(), transferSyntaxes, numTransferSyntaxes,(*contIt).roleSelect);
-    // if adding was successfull, prepare presentation context ID for next addition
+    // if adding was successful, prepare presentation context ID for next addition
     delete[] transferSyntaxes;
     transferSyntaxes = NULL;
     if (cond.bad())
@@ -950,7 +950,7 @@ OFCondition DcmSCU::sendMOVERequest(const T_ASC_PresentationContextID presID,
         delete moveRSP; // includes statusDetail
     }
   }
-  /* All responses received or break signal occured */
+  /* All responses received or break signal occurred */
   return cond;
 }
 
@@ -1015,7 +1015,7 @@ OFCondition DcmSCU::handleMOVEResponse( const T_ASC_PresentationContextID /* pre
 
 
 /* ************************************************************************* */
-/*               C-GET and acommpanying C-STORE functionality                */
+/*               C-GET and accompanying C-STORE functionality                */
 /* ************************************************************************* */
 
 // Sends a C-GET Request on given presentation context
@@ -1076,7 +1076,7 @@ OFCondition DcmSCU::handleCGETSession(const T_ASC_PresentationContextID /* presI
   OFString tempStr;
 
   // As long we want to continue (usually, as long as we receive more objects,
-  // i.e. the final C-GET reponse has not arrived yet)
+  // i.e. the final C-GET response has not arrived yet)
   while (continueSession)
   {
     T_DIMSE_Message rsp;
@@ -1198,7 +1198,7 @@ OFCondition DcmSCU::handleCGETSession(const T_ASC_PresentationContextID /* presI
     delete statusDetail; // should be NULL if not existing or added to response list
     statusDetail = NULL;
   }
-  /* All responses received or break signal occured */
+  /* All responses received or break signal occurred */
 
   return result;
 
@@ -1234,11 +1234,11 @@ OFCondition DcmSCU::handleCGETResponse(const T_ASC_PresentationContextID /* pres
   switch (response->m_status) {
   case STATUS_GET_Refused_OutOfResourcesNumberOfMatches:
     continueCGETSession = OFFalse;
-    DCMNET_ERROR("Out of Resouces - Unable to calculate number of matches");
+    DCMNET_ERROR("Out of Resources - Unable to calculate number of matches");
     break;
   case STATUS_GET_Refused_OutOfResourcesSubOperations:
     continueCGETSession = OFFalse;
-    DCMNET_ERROR("Out of Resouces - Unable to perform sub-operations");
+    DCMNET_ERROR("Out of Resources - Unable to perform sub-operations");
     break;
   case STATUS_GET_Failed_IdentifierDoesNotMatchSOPClass:
     continueCGETSession = OFFalse;
@@ -1555,7 +1555,7 @@ OFCondition DcmSCU::sendFINDRequest(const T_ASC_PresentationContextID presID,
         delete findRSP; // includes statusDetail and rspDataset
     }
   }
-  /* All responses received or break signal occured */
+  /* All responses received or break signal occurred */
   return EC_Normal;
 }
 
@@ -2455,7 +2455,7 @@ void RetrieveResponse::print()
 **
 ** Revision 1.28  2011-05-19 10:51:20  onken
 ** Simplified C string copy by using OFStandard::strlcpy and removed debugging
-** code introduced with last comit.
+** code introduced with last commit.
 **
 ** Revision 1.27  2011-05-19 10:37:44  onken
 ** Removed unused variable that caused compiler warning. Fixed typo.
@@ -2464,7 +2464,7 @@ void RetrieveResponse::print()
 ** Fixed message ID field in C-CANCEL request (should be the one of last
 ** request). In case of error status codes in C-MOVE responses, the default
 ** behaviour is now to not wait for further responses. Fixed log output level
-** to better fit the messages while receiveing C-MOVE responses. Minor
+** to better fit the messages while receiving C-MOVE responses. Minor
 ** code and comment cleanups. Renamed function parameter in sendMOVEREquest
 ** to better reflect the standard.
 **
@@ -2550,7 +2550,7 @@ void RetrieveResponse::print()
 **
 ** Revision 1.6  2010-06-08 17:54:14  onken
 ** Added C-FIND functionality to DcmSCU. Some code cleanups. Fixed
-** memory leak sometimes occuring during association configuration.
+** memory leak sometimes occurring during association configuration.
 **
 ** Revision 1.5  2010-06-02 16:01:49  joergr
 ** Slightly modified some log messages and levels for reasons of consistency.

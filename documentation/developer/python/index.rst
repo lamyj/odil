@@ -21,7 +21,7 @@ The following example show basic manipulations of a data set. This code snippet,
 
   # Data set size, using C++ API
   print(
-      "The header {} empty and has {} elemens".format(
+      "The header {} empty and has {} elements".format(
           "is" if header.empty() else "is not", header.size()))
   # Data set size, using Python API
   print(

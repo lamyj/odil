@@ -43,7 +43,7 @@ You can also clone the `Git repository`_. Note that the latest Git version may n
 Build options
 -------------
 
-Without additional options, the examples, the Python wrappers and the DCMTK converter are built. The following optinal features are summarized in the table below and may passed to CMake with the ``-D`` flag (for example ``cmake -D BUILD_EXAMPLES=OFF ..``).
+Without additional options, the examples, the Python wrappers and the DCMTK converter are built. The following optional features are summarized in the table below and may passed to CMake with the ``-D`` flag (for example ``cmake -D BUILD_EXAMPLES=OFF ..``).
 
 .. csv-table:: 
   :header: "Feature", "Option name", "Possible values"
@@ -57,7 +57,7 @@ Without additional options, the examples, the Python wrappers and the DCMTK conv
 
 Note that the Python wrappers are required for the command-line application.
 
-When building the Python wrappers, the Python interpreter and libraries default to whatever version is invoked when running ``python`` from a terminal. On a system that has multiple versions of Python and multiple versions of Boost.Python, the required versions should be explicitely specified to avoid version mismatch at link-time, which yield errors at run-time. The following CMake options control this behavior:
+When building the Python wrappers, the Python interpreter and libraries default to whatever version is invoked when running ``python`` from a terminal. On a system that has multiple versions of Python and multiple versions of Boost.Python, the required versions should be explicitly specified to avoid version mismatch at link-time, which yield errors at run-time. The following CMake options control this behavior:
 
 - ``PYTHON_EXECUTABLE``: the Python interpreter that will be used when calling the main command-line application, ``odil``
 - ``PYTHON_INCLUDE_DIR``: the directory containing the development headers of Python

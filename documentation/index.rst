@@ -9,7 +9,7 @@ Welcome to Odil's documentation!
 - Implementation of the DICOM web-services (WADO-RS, QIDO-RS, STOW-RS)
 - Conversion to and from `DCMTK`_ data structures.
 
-Odil builds and run on Linux, macOS and Windows. `Anaconda`_ packages are available for those three platforms. Official packages are additionnally available in `Debian`_ and `Ubuntu`_, as well as `unofficial backports`_.
+Odil builds and run on Linux, macOS and Windows. `Anaconda`_ packages are available for those three platforms. Official packages are additionally available in `Debian`_ and `Ubuntu`_, as well as `unofficial backports`_.
 
 Odil is free software: you can redistribute and/or modify it under the terms of the `CeCILL-B license`_.
 
