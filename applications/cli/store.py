@@ -52,7 +52,6 @@ def store(host, port, calling_ae_title, called_ae_title, filenames):
     association.associate()
     
     negotiated_parameters = association.get_negotiated_parameters()
-    negotiated_pc = negotiated_parameters.get_presentation_contexts()
 
     store = odil.StoreSCU(association)
     

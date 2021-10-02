@@ -1,4 +1,3 @@
-import logging
 import os
 
 import odil
@@ -42,7 +41,7 @@ def create_dicomdir(
                     try:
                         odil.Reader.read_file(
                             filename, halt_condition=lambda x: True)
-                    except:
+                    except Exception:
                         # Not a DICOM file
                         pass
                     else:
