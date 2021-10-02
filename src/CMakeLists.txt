@@ -53,7 +53,9 @@ if(APPLE)
     # WARNING: Boost::log may add -licudata  -licui18n  -licuu, which cause 
     # problems with macOS/brew
     get_filename_component(ICU_FOUND_DIRECTORY "${ICU_UC_LIBRARY}" DIRECTORY)
-    target_link_libraries(libodil PUBLIC "-L${ICU_FOUND_DIRECTORY}")
+    if(NOT "${ICU_FOUND_DIRECTORY}" STREQUAL "")
+        target_link_libraries(libodil PUBLIC "-L${ICU_FOUND_DIRECTORY}")
+    endif()
 endif()
 
 set_target_properties(
