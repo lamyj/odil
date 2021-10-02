@@ -2,7 +2,9 @@
 
 set -ev
 
-apt-get -y update
+apt-get update
+apt-get -y --no-install-recommends install apt-transport-https curl gnupg \
+  software-properties-common unzip wget
 
 REPOSITORY=https://iris-packages.s3.unistra.fr
 wget -O - ${REPOSITORY}/gpg.key | apt-key add -
