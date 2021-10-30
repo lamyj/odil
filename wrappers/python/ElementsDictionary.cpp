@@ -78,7 +78,7 @@ void wrap_ElementsDictionary(pybind11::module & m)
                 return iterator->second;
             }
         );
-    
+#if PYBIND11_VERSION_HEX >= 0x02080000    
     // WARNING: pybind11 2.8.0 adds a fallback to __contains__ when the type
     // of the searched item does not match the key type of the dictionary.
     // Remove *all* __contains__ overloads and rewrap
@@ -91,6 +91,9 @@ void wrap_ElementsDictionary(pybind11::module & m)
                 return container.find(key) != container.end();
             }
         )
+#else
+    ElementsDictionary_cl
+#endif
         .def(
             "__contains__",
             [](ElementsDictionary & container, Tag const & key)

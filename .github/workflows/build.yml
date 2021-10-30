@@ -36,14 +36,14 @@ jobs:
             worker: "docker exec -w ${WORKSPACE} -e WORKSPACE=${WORKSPACE} -e DEBIAN_FRONTEND=noninteractive worker"
             stop_worker: "docker kill worker"
             # python: python3
-          - name: "macOS 10.15 (Catalina) + Conda"
-            os: macos-10.15
-            ci_type: conda_mac
-            start_worker: "sudo chown -R ${UID} ${CONDA}"
-            worker: ""
-            stop_worker: ""
-            # python: python
-            # cmake_options: "-DPYTHON_EXECUTABLE=/usr/local/bin/python3"
+          # - name: "macOS 10.15 (Catalina) + Conda"
+          #   os: macos-10.15
+          #   ci_type: conda_mac
+          #   start_worker: "sudo chown -R ${UID} ${CONDA}"
+          #   worker: ""
+          #   stop_worker: ""
+          #   # python: python
+          #   # cmake_options: "-DPYTHON_EXECUTABLE=/usr/local/bin/python3"
           - name: "macOS 10.15 (Catalina) + Homebrew"
             os: macos-10.15
             ci_type: brew
