@@ -39,7 +39,7 @@ jobs:
           - name: "macOS 10.15 (Catalina) + Conda"
             os: macos-10.15
             ci_type: conda_mac
-            start_worker: ""
+            start_worker: "sudo chown -R ${UID} ${CONDA}"
             worker: ""
             stop_worker: ""
             # python: python
