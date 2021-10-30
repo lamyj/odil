@@ -250,6 +250,7 @@ void wrap_Value(pybind11::module & m)
         detail::vector_modifiers<Vector, Class_>(cl);
 
         // vector_accessor
+        using T = typename Vector::value_type;
         using SizeType = long; //typename Vector::size_type;
         using ItType   = typename Vector::iterator;
 
@@ -265,9 +266,14 @@ void wrap_Value(pybind11::module & m)
         cl.def(
             "__iter__",
             [](Vector &v) {
-                typedef detail::iterator_state<
-                    ItType, ItType, false, return_value_policy::copy> state;
-
+#if PYBIND11_VERSION_HEX < 0x02080000
+                using state = detail::iterator_state<
+                    ItType, ItType, false, return_value_policy::copy>;
+#else
+                using state = detail::iterator_state<
+                    detail::iterator_access<ItType>,
+                    return_value_policy::copy, ItType, ItType, T>;
+#endif
                 if (!detail::get_type_info(typeid(state), false))
                 {
                     class_<state>(handle(), "iterator", pybind11::module_local())
