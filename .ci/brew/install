@@ -4,11 +4,6 @@ set -ev
 
 export PYTHON=${PYTHON:-python}
 
-# WARNING The Python environment in Travis is weird: "brew install python" fails
-# when symlinking, due to the presence of python@2.
-brew upgrade python || brew install python || true
-brew link --overwrite python || true
-
 for PACKAGE in boost cmake dcmtk icu4c jsoncpp ninja pkg-config pybind11; do
     VERSIONS=$(brew ls --versions ${PACKAGE} || true)
     if [ -z "${VERSIONS}" ]; then
