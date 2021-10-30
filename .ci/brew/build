@@ -17,6 +17,7 @@ cmake \
   -G Ninja \
   -D CMAKE_INSTALL_PREFIX="${INSTALL_DIR}" \
   -DCMAKE_BUILD_TYPE=Release \
+  -D ICU_ROOT=/usr/local/opt/icu4c/ \
   -D PYTHON_EXECUTABLE=/usr/local/bin/python3 \
   ${CMAKE_OPTIONS} \
   ..
