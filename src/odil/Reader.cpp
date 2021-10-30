@@ -127,14 +127,12 @@ Reader
 {
     auto data_set = std::make_shared<DataSet>(this->transfer_syntax);
 
-    bool done = (this->stream.peek() == EOF);
-    while(!done)
+    while(this->stream.peek() != EOF)
     {
         Tag const tag = this->read_tag();
 
         if(halt_condition(tag))
         {
-            done = true;
             this->stream.seekg(-4, std::ios::cur);
             break;
         }
@@ -148,7 +146,6 @@ Reader
             }
         }
 
-        done = (this->stream.peek() == EOF);
     }
 
     return data_set;
