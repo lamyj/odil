@@ -2,5 +2,5 @@
 
 set -ev
 
-conda install --yes -c conda-forge -c bioconda \
+conda create --name odil --yes -c conda-forge -c bioconda \
   boost cmake dcmtk icu jsoncpp ninja pkg-config pybind11

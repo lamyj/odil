@@ -2,6 +2,8 @@
 
 set -v
 
+conda activate odil
+
 export WORKSPACE=${WORKSPACE:?}
 export BUILD_DIR="${WORKSPACE}/${BUILD_DIR:-build}"
 export INSTALL_DIR="${WORKSPACE}/${INSTALL_DIR:-install}"
