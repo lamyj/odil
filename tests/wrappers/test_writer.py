@@ -113,7 +113,8 @@ class TestWriter(unittest.TestCase):
             b"\x08\x00\x18\x00" b"UI" b"\x0a\x00" b"1.2.3.4.5\x00"
             b"\x10\x00\x10\x00" b"PN" b"\x08\x00" b"Foo^Bar ")
         
-        contents = open(path, "rb").read()
+        with open(path, "rb") as fd:
+            contents = fd.read()
         os.remove(path)
         
         self.assertEqual(contents, data)
