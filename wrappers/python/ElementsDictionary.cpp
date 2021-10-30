@@ -54,8 +54,8 @@ void wrap_ElementsDictionary(pybind11::module & m)
         .def_readwrite("vr", &ElementsDictionaryEntry::vr)
         .def_readwrite("vm", &ElementsDictionaryEntry::vm)
     ;
-
-    bind_map<ElementsDictionary>(m, "ElementsDictionary")
+    
+    auto ElementsDictionary_cl = bind_map<ElementsDictionary>(m, "ElementsDictionary")
         .def("__getitem__",
             [](ElementsDictionary & container, Tag const & key)
             {
@@ -77,10 +77,23 @@ void wrap_ElementsDictionary(pybind11::module & m)
                 }
                 return iterator->second;
             }
+        );
+    
+    // WARNING: pybind11 2.8.0 adds a fallback to __contains__ when the type
+    // of the searched item does not match the key type of the dictionary.
+    // Remove *all* __contains__ overloads and rewrap
+    delattr(ElementsDictionary_cl, "__contains__");
+    ElementsDictionary_cl
+        .def(
+            "__contains__",
+            [](ElementsDictionary & container, ElementsDictionaryKey const & key)
+            {
+                return container.find(key) != container.end();
+            }
         )
         .def(
             "__contains__",
-            [](ElementsDictionary const & container, Tag const & key)
+            [](ElementsDictionary & container, Tag const & key)
             {
                 return container.find(key) != container.end();
             }
