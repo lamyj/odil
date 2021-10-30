@@ -2,9 +2,6 @@
 
 set -v
 
-source "$HOME/miniconda/etc/profile.d/conda.sh"
-conda activate odil
-
 export WORKSPACE=${WORKSPACE:?}
 export BUILD_DIR="${WORKSPACE}/${BUILD_DIR:-build}"
 export INSTALL_DIR="${WORKSPACE}/${INSTALL_DIR:-install}"
