@@ -270,8 +270,9 @@ QIDORSRequest
 
     auto const query_items = url.parse_query();
 
+    // TODO
     // std::set<std::vector<Tag>> includefields;
-    bool include_all = true;
+    // bool include_all = true;
     this->_query_data_set = std::make_shared<DataSet>();
 
     for(auto const & item: query_items)
@@ -319,7 +320,8 @@ QIDORSRequest
             {
                 if (item.second == "all")
                 {
-                    include_all = true;
+                    // TODO
+                    // include_all = true;
                 }
                 else
                 {
@@ -369,8 +371,8 @@ QIDORSRequest
         }
     }
 
-    // TODO : Fix includefields = all -> need to look for all includefields in the query_dataset (query[tag] = empty
-    // with tag that can be a sequence
+    // TODO : Fix includefields = all -> need to look for all includefields in 
+    // the query_dataset with tag that can be a sequence
 //    if (include_all)
 //    {
 //        includefields.clear();

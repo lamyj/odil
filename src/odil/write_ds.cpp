@@ -78,7 +78,7 @@ int doround(char * buffer, unsigned int n)
     return 0;
 }
 
-int roundat(char * buffer, unsigned int i, int exponent) 
+int roundat(char * buffer, unsigned int i, int exponent, int & size) 
 {
     if(doround(buffer, i) != 0) 
     {
@@ -86,22 +86,28 @@ int roundat(char * buffer, unsigned int i, int exponent)
         switch(exponent) 
         {
             case -2:
-                strcpy(buffer, ".01");
+                strncpy(buffer, ".01", size);
+                size -= 3;
                 break;
             case -1:
-                strcpy(buffer, ".1");
+                strncpy(buffer, ".1", size);
+                size -= 2;
                 break;
             case 0:
-                strcpy(buffer, "1.");
+                strncpy(buffer, "1.", size);
+                size -= 2;
                 break;
             case 1:
-                strcpy(buffer, "10");
+                strncpy(buffer, "10", size);
+                size -= 2;
                 break;
             case 2:
-                strcpy(buffer, "100");
+                strncpy(buffer, "100", size);
+                size -= 3;
                 break;
             default:
-                sprintf(buffer, "1e%d", exponent);
+                auto const written = snprintf(buffer, size, "1e%d", exponent);
+                size -= written;
         }
         return 1;
     }
@@ -151,10 +157,11 @@ void write_ds(double f, char * buffer, int size)
         char exponent_buffer[6];
         auto const exponent_length = sprintf(exponent_buffer, "e%d", exponent);
         
-        auto const i = roundat(mantissa, size - 1 - exponent_length, exponent);
+        auto const i = roundat(
+                mantissa, size - 1 - exponent_length, exponent, size);
         if(i == 1)
         {
-            strcpy(buffer, mantissa);
+            strncpy(buffer, mantissa, size);
             return;
         }
         buffer[0] = mantissa[0];
@@ -166,15 +173,15 @@ void write_ds(double f, char * buffer, int size)
     }
     else if(exponent >= size - 2)
     {
-        roundat(mantissa, exponent + 1, exponent);
-        strcpy(buffer, mantissa);
+        roundat(mantissa, exponent + 1, exponent, size);
+        strncpy(buffer, mantissa, size);
     }
     else if(exponent >= 0)
     {
-        auto const i = roundat(mantissa, size - 1, exponent);
+        auto const i = roundat(mantissa, size - 1, exponent, size);
         if(i == 1)
         {
-            strcpy(buffer, mantissa);
+            strncpy(buffer, mantissa, size);
             return;
         }
         strncpy(buffer, mantissa, exponent + 1);
@@ -185,10 +192,10 @@ void write_ds(double f, char * buffer, int size)
     }
     else
     {
-        int const i = roundat(mantissa, size + 1 + exponent, exponent);
+        int const i = roundat(mantissa, size + 1 + exponent, exponent, size);
         if (i == 1)
         {
-            strcpy(buffer, mantissa);
+            strncpy(buffer, mantissa, size);
             return;
         }
         buffer[0] = '.';
