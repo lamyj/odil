@@ -61,7 +61,7 @@ public:
         std::initializer_list<Value::type::value_type> const & value, \
         VR vr=VR::UNKNOWN);
     /*
-     * No need for for a rvalue reference version of std::initializer_list:
+     * No need for a rvalue reference version of std::initializer_list:
      * copying a std::initializer_list does not copy the underlying objects.
      */
 

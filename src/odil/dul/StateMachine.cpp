@@ -48,7 +48,7 @@ StateMachine
 StateMachine
 ::~StateMachine()
 {
-    // Nothing to to, transport is closed by ~Transport.
+    // Nothing to do, transport is closed by ~Transport.
 }
 
 void
