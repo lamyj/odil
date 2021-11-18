@@ -112,7 +112,7 @@ DataSet
         this->add(tag, Element(value, vr));\
     }
     /*
-     * No need for for a rvalue reference version of std::initializer_list:
+     * No need for a rvalue reference version of std::initializer_list:
      * copying a std::initializer_list does not copy the underlying objects.
      */
 
