@@ -21,7 +21,7 @@ namespace
 void
 request_dicom(
     odil::webservices::STOWRSRequest& self, pybind11::sequence data_sets,
-    odil::webservices::Selector selector,
+    odil::webservices::Selector const & selector,
     odil::webservices::Representation representation)
 {
     odil::Value::DataSets cpp_val(pybind11::len(data_sets));
