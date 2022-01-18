@@ -298,6 +298,7 @@ void update_300a(
     public_dictionary.emplace(Tag(0x300a, 0x029c), ElementsDictionaryEntry("Source Applicator Wall Nominal Thickness", "SourceApplicatorWallNominalThickness",  "DS", "1"));
     public_dictionary.emplace(Tag(0x300a, 0x029e), ElementsDictionaryEntry("Source Applicator Wall Nominal Transmission", "SourceApplicatorWallNominalTransmission",  "DS", "1"));
     public_dictionary.emplace(Tag(0x300a, 0x02a0), ElementsDictionaryEntry("Source Applicator Step Size", "SourceApplicatorStepSize",  "DS", "1"));
+    public_dictionary.emplace(Tag(0x300a, 0x02a1), ElementsDictionaryEntry("Applicator Shape Referenced ROI Number", "ApplicatorShapeReferencedROINumber",  "IS", "1"));
     public_dictionary.emplace(Tag(0x300a, 0x02a2), ElementsDictionaryEntry("Transfer Tube Number", "TransferTubeNumber",  "IS", "1"));
     public_dictionary.emplace(Tag(0x300a, 0x02a4), ElementsDictionaryEntry("Transfer Tube Length", "TransferTubeLength",  "DS", "1"));
     public_dictionary.emplace(Tag(0x300a, 0x02b0), ElementsDictionaryEntry("Channel Shield Sequence", "ChannelShieldSequence",  "SQ", "1"));
@@ -605,6 +606,33 @@ void update_300a(
     public_dictionary.emplace(Tag(0x300a, 0x0774), ElementsDictionaryEntry("Dose Measurement Device Code Sequence", "DoseMeasurementDeviceCodeSequence",  "SQ", "1"));
     public_dictionary.emplace(Tag(0x300a, 0x0780), ElementsDictionaryEntry("Additional Parameter Recording Instance Sequence", "AdditionalParameterRecordingInstanceSequence",  "SQ", "1"));
     public_dictionary.emplace(Tag(0x300a, 0x0783), ElementsDictionaryEntry("Interlock Origin Description", "InterlockOriginDescription",  "ST", "1"));
+    public_dictionary.emplace(Tag(0x300a, 0x0784), ElementsDictionaryEntry("RT Patient Position Scope Sequence", "RTPatientPositionScopeSequence",  "SQ", "1"));
+    public_dictionary.emplace(Tag(0x300a, 0x0785), ElementsDictionaryEntry("Referenced Treatment Position Group UID", "ReferencedTreatmentPositionGroupUID",  "UI", "1"));
+    public_dictionary.emplace(Tag(0x300a, 0x0786), ElementsDictionaryEntry("Radiation Order Index", "RadiationOrderIndex",  "US", "1"));
+    public_dictionary.emplace(Tag(0x300a, 0x0787), ElementsDictionaryEntry("Omitted Radiation Sequence", "OmittedRadiationSequence",  "SQ", "1"));
+    public_dictionary.emplace(Tag(0x300a, 0x0788), ElementsDictionaryEntry("Reason for Omission Code Sequence", "ReasonForOmissionCodeSequence",  "SQ", "1"));
+    public_dictionary.emplace(Tag(0x300a, 0x0789), ElementsDictionaryEntry("RT Delivery Start Patient Position Sequence", "RTDeliveryStartPatientPositionSequence",  "SQ", "1"));
+    public_dictionary.emplace(Tag(0x300a, 0x078a), ElementsDictionaryEntry("RT Treatment Preparation Patient Position Sequence", "RTTreatmentPreparationPatientPositionSequence",  "SQ", "1"));
+    public_dictionary.emplace(Tag(0x300a, 0x078b), ElementsDictionaryEntry("Referenced RT Treatment Preparation Sequence", "ReferencedRTTreatmentPreparationSequence",  "SQ", "1"));
+    public_dictionary.emplace(Tag(0x300a, 0x078c), ElementsDictionaryEntry("Referenced Patient Setup Photo Sequence", "ReferencedPatientSetupPhotoSequence",  "SQ", "1"));
+    public_dictionary.emplace(Tag(0x300a, 0x078d), ElementsDictionaryEntry("Patient Treatment Preparation Method Code Sequence", "PatientTreatmentPreparationMethodCodeSequence",  "SQ", "1"));
+    public_dictionary.emplace(Tag(0x300a, 0x078e), ElementsDictionaryEntry("Patient Treatment Preparation Procedure Parameter Description", "PatientTreatmentPreparationProcedureParameterDescription",  "LT", "1"));
+    public_dictionary.emplace(Tag(0x300a, 0x078f), ElementsDictionaryEntry("Patient Treatment Preparation Device Sequence", "PatientTreatmentPreparationDeviceSequence",  "SQ", "1"));
+    public_dictionary.emplace(Tag(0x300a, 0x0790), ElementsDictionaryEntry("Patient Treatment Preparation Procedure Sequence", "PatientTreatmentPreparationProcedureSequence",  "SQ", "1"));
+    public_dictionary.emplace(Tag(0x300a, 0x0791), ElementsDictionaryEntry("Patient Treatment Preparation Procedure Code Sequence", "PatientTreatmentPreparationProcedureCodeSequence",  "SQ", "1"));
+    public_dictionary.emplace(Tag(0x300a, 0x0792), ElementsDictionaryEntry("Patient Treatment Preparation Method Description", "PatientTreatmentPreparationMethodDescription",  "LT", "1"));
+    public_dictionary.emplace(Tag(0x300a, 0x0793), ElementsDictionaryEntry("Patient Treatment Preparation Procedure Parameter Sequence", "PatientTreatmentPreparationProcedureParameterSequence",  "SQ", "1"));
+    public_dictionary.emplace(Tag(0x300a, 0x0794), ElementsDictionaryEntry("Patient Setup Photo Description", "PatientSetupPhotoDescription",  "LT", "1"));
+    public_dictionary.emplace(Tag(0x300a, 0x0795), ElementsDictionaryEntry("Patient Treatment Preparation Procedure Index", "PatientTreatmentPreparationProcedureIndex",  "US", "1"));
+    public_dictionary.emplace(Tag(0x300a, 0x0796), ElementsDictionaryEntry("Referenced Patient Setup Procedure Index", "ReferencedPatientSetupProcedureIndex",  "US", "1"));
+    public_dictionary.emplace(Tag(0x300a, 0x0797), ElementsDictionaryEntry("RT Radiation Task Sequence", "RTRadiationTaskSequence",  "SQ", "1"));
+    public_dictionary.emplace(Tag(0x300a, 0x0798), ElementsDictionaryEntry("RT Patient Position Displacement Sequence", "RTPatientPositionDisplacementSequence",  "SQ", "1"));
+    public_dictionary.emplace(Tag(0x300a, 0x0799), ElementsDictionaryEntry("RT Patient Position Sequence", "RTPatientPositionSequence",  "SQ", "1"));
+    public_dictionary.emplace(Tag(0x300a, 0x079a), ElementsDictionaryEntry("Displacement Reference Label", "DisplacementReferenceLabel",  "LO", "1"));
+    public_dictionary.emplace(Tag(0x300a, 0x079b), ElementsDictionaryEntry("Displacement Matrix", "DisplacementMatrix",  "FD", "16"));
+    public_dictionary.emplace(Tag(0x300a, 0x079c), ElementsDictionaryEntry("Patient Support Displacement Sequence", "PatientSupportDisplacementSequence",  "SQ", "1"));
+    public_dictionary.emplace(Tag(0x300a, 0x079d), ElementsDictionaryEntry("Displacement Reference Location Code Sequence", "DisplacementReferenceLocationCodeSequence",  "SQ", "1"));
+    public_dictionary.emplace(Tag(0x300a, 0x079e), ElementsDictionaryEntry("RT Radiation Set Delivery Usage", "RTRadiationSetDeliveryUsage",  "CS", "1"));
 
     public_tags.emplace("RTPlanLabel", Tag(0x300a, 0x0002));
     public_tags.emplace("RTPlanName", Tag(0x300a, 0x0003));
@@ -880,6 +908,7 @@ void update_300a(
     public_tags.emplace("SourceApplicatorWallNominalThickness", Tag(0x300a, 0x029c));
     public_tags.emplace("SourceApplicatorWallNominalTransmission", Tag(0x300a, 0x029e));
     public_tags.emplace("SourceApplicatorStepSize", Tag(0x300a, 0x02a0));
+    public_tags.emplace("ApplicatorShapeReferencedROINumber", Tag(0x300a, 0x02a1));
     public_tags.emplace("TransferTubeNumber", Tag(0x300a, 0x02a2));
     public_tags.emplace("TransferTubeLength", Tag(0x300a, 0x02a4));
     public_tags.emplace("ChannelShieldSequence", Tag(0x300a, 0x02b0));
@@ -1187,6 +1216,33 @@ void update_300a(
     public_tags.emplace("DoseMeasurementDeviceCodeSequence", Tag(0x300a, 0x0774));
     public_tags.emplace("AdditionalParameterRecordingInstanceSequence", Tag(0x300a, 0x0780));
     public_tags.emplace("InterlockOriginDescription", Tag(0x300a, 0x0783));
+    public_tags.emplace("RTPatientPositionScopeSequence", Tag(0x300a, 0x0784));
+    public_tags.emplace("ReferencedTreatmentPositionGroupUID", Tag(0x300a, 0x0785));
+    public_tags.emplace("RadiationOrderIndex", Tag(0x300a, 0x0786));
+    public_tags.emplace("OmittedRadiationSequence", Tag(0x300a, 0x0787));
+    public_tags.emplace("ReasonForOmissionCodeSequence", Tag(0x300a, 0x0788));
+    public_tags.emplace("RTDeliveryStartPatientPositionSequence", Tag(0x300a, 0x0789));
+    public_tags.emplace("RTTreatmentPreparationPatientPositionSequence", Tag(0x300a, 0x078a));
+    public_tags.emplace("ReferencedRTTreatmentPreparationSequence", Tag(0x300a, 0x078b));
+    public_tags.emplace("ReferencedPatientSetupPhotoSequence", Tag(0x300a, 0x078c));
+    public_tags.emplace("PatientTreatmentPreparationMethodCodeSequence", Tag(0x300a, 0x078d));
+    public_tags.emplace("PatientTreatmentPreparationProcedureParameterDescription", Tag(0x300a, 0x078e));
+    public_tags.emplace("PatientTreatmentPreparationDeviceSequence", Tag(0x300a, 0x078f));
+    public_tags.emplace("PatientTreatmentPreparationProcedureSequence", Tag(0x300a, 0x0790));
+    public_tags.emplace("PatientTreatmentPreparationProcedureCodeSequence", Tag(0x300a, 0x0791));
+    public_tags.emplace("PatientTreatmentPreparationMethodDescription", Tag(0x300a, 0x0792));
+    public_tags.emplace("PatientTreatmentPreparationProcedureParameterSequence", Tag(0x300a, 0x0793));
+    public_tags.emplace("PatientSetupPhotoDescription", Tag(0x300a, 0x0794));
+    public_tags.emplace("PatientTreatmentPreparationProcedureIndex", Tag(0x300a, 0x0795));
+    public_tags.emplace("ReferencedPatientSetupProcedureIndex", Tag(0x300a, 0x0796));
+    public_tags.emplace("RTRadiationTaskSequence", Tag(0x300a, 0x0797));
+    public_tags.emplace("RTPatientPositionDisplacementSequence", Tag(0x300a, 0x0798));
+    public_tags.emplace("RTPatientPositionSequence", Tag(0x300a, 0x0799));
+    public_tags.emplace("DisplacementReferenceLabel", Tag(0x300a, 0x079a));
+    public_tags.emplace("DisplacementMatrix", Tag(0x300a, 0x079b));
+    public_tags.emplace("PatientSupportDisplacementSequence", Tag(0x300a, 0x079c));
+    public_tags.emplace("DisplacementReferenceLocationCodeSequence", Tag(0x300a, 0x079d));
+    public_tags.emplace("RTRadiationSetDeliveryUsage", Tag(0x300a, 0x079e));
 }
 
 }

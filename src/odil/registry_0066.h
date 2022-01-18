@@ -46,6 +46,7 @@ Tag const NumberOfVectors(0x0066, 0x001e);
 Tag const VectorDimensionality(0x0066, 0x001f);
 Tag const VectorAccuracy(0x0066, 0x0020);
 Tag const VectorCoordinateData(0x0066, 0x0021);
+Tag const DoublePointCoordinatesData(0x0066, 0x0022);
 Tag const TrianglePointIndexList(0x0066, 0x0023);
 Tag const EdgePointIndexList(0x0066, 0x0024);
 Tag const VertexPointIndexList(0x0066, 0x0025);

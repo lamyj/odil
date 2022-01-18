@@ -95,6 +95,8 @@ Tag const DateOfGainCalibration(0x0014, 0x3076);
 Tag const TimeOfGainCalibration(0x0014, 0x3077);
 Tag const BadPixelImage(0x0014, 0x3080);
 Tag const CalibrationNotes(0x0014, 0x3099);
+Tag const LinearityCorrectionTechnique(0x0014, 0x3100);
+Tag const BeamHardeningCorrectionTechnique(0x0014, 0x3101);
 Tag const PulserEquipmentSequence(0x0014, 0x4002);
 Tag const PulserType(0x0014, 0x4004);
 Tag const PulserNotes(0x0014, 0x4006);

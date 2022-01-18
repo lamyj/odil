@@ -99,6 +99,8 @@ void update_0014(
     public_dictionary.emplace(Tag(0x0014, 0x3077), ElementsDictionaryEntry("Time of Gain Calibration", "TimeOfGainCalibration",  "TM", "1"));
     public_dictionary.emplace(Tag(0x0014, 0x3080), ElementsDictionaryEntry("Bad Pixel Image", "BadPixelImage",  "OB", "1"));
     public_dictionary.emplace(Tag(0x0014, 0x3099), ElementsDictionaryEntry("Calibration Notes", "CalibrationNotes",  "LT", "1"));
+    public_dictionary.emplace(Tag(0x0014, 0x3100), ElementsDictionaryEntry("Linearity Correction Technique", "LinearityCorrectionTechnique",  "LT", "1"));
+    public_dictionary.emplace(Tag(0x0014, 0x3101), ElementsDictionaryEntry("Beam Hardening Correction Technique", "BeamHardeningCorrectionTechnique",  "LT", "1"));
     public_dictionary.emplace(Tag(0x0014, 0x4002), ElementsDictionaryEntry("Pulser Equipment Sequence", "PulserEquipmentSequence",  "SQ", "1"));
     public_dictionary.emplace(Tag(0x0014, 0x4004), ElementsDictionaryEntry("Pulser Type", "PulserType",  "CS", "1"));
     public_dictionary.emplace(Tag(0x0014, 0x4006), ElementsDictionaryEntry("Pulser Notes", "PulserNotes",  "LT", "1"));
@@ -179,9 +181,9 @@ void update_0014(
     public_dictionary.emplace(Tag(0x0014, 0x409c), ElementsDictionaryEntry("Translation Rate X", "TranslationRateX",  "DS", "1"));
     public_dictionary.emplace(Tag(0x0014, 0x409d), ElementsDictionaryEntry("Translation Rate Y", "TranslationRateY",  "DS", "1"));
     public_dictionary.emplace(Tag(0x0014, 0x409f), ElementsDictionaryEntry("Channel Overlap", "ChannelOverlap",  "DS", "1"));
-    public_dictionary.emplace(Tag(0x0014, 0x40a0), ElementsDictionaryEntry("Image Quality Indicator Type", "ImageQualityIndicatorType",  "LO", "1"));
-    public_dictionary.emplace(Tag(0x0014, 0x40a1), ElementsDictionaryEntry("Image Quality Indicator Material", "ImageQualityIndicatorMaterial",  "LO", "1"));
-    public_dictionary.emplace(Tag(0x0014, 0x40a2), ElementsDictionaryEntry("Image Quality Indicator Size", "ImageQualityIndicatorSize",  "LO", "1"));
+    public_dictionary.emplace(Tag(0x0014, 0x40a0), ElementsDictionaryEntry("Image Quality Indicator Type", "ImageQualityIndicatorType",  "LO", "1-n"));
+    public_dictionary.emplace(Tag(0x0014, 0x40a1), ElementsDictionaryEntry("Image Quality Indicator Material", "ImageQualityIndicatorMaterial",  "LO", "1-n"));
+    public_dictionary.emplace(Tag(0x0014, 0x40a2), ElementsDictionaryEntry("Image Quality Indicator Size", "ImageQualityIndicatorSize",  "LO", "1-n"));
     public_dictionary.emplace(Tag(0x0014, 0x5002), ElementsDictionaryEntry("LINAC Energy", "LINACEnergy",  "IS", "1"));
     public_dictionary.emplace(Tag(0x0014, 0x5004), ElementsDictionaryEntry("LINAC Output", "LINACOutput",  "IS", "1"));
     public_dictionary.emplace(Tag(0x0014, 0x5100), ElementsDictionaryEntry("Active Aperture", "ActiveAperture",  "US", "1"));
@@ -292,6 +294,8 @@ void update_0014(
     public_tags.emplace("TimeOfGainCalibration", Tag(0x0014, 0x3077));
     public_tags.emplace("BadPixelImage", Tag(0x0014, 0x3080));
     public_tags.emplace("CalibrationNotes", Tag(0x0014, 0x3099));
+    public_tags.emplace("LinearityCorrectionTechnique", Tag(0x0014, 0x3100));
+    public_tags.emplace("BeamHardeningCorrectionTechnique", Tag(0x0014, 0x3101));
     public_tags.emplace("PulserEquipmentSequence", Tag(0x0014, 0x4002));
     public_tags.emplace("PulserType", Tag(0x0014, 0x4004));
     public_tags.emplace("PulserNotes", Tag(0x0014, 0x4006));

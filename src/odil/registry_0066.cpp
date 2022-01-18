@@ -50,6 +50,7 @@ void update_0066(
     public_dictionary.emplace(Tag(0x0066, 0x001f), ElementsDictionaryEntry("Vector Dimensionality", "VectorDimensionality",  "US", "1"));
     public_dictionary.emplace(Tag(0x0066, 0x0020), ElementsDictionaryEntry("Vector Accuracy", "VectorAccuracy",  "FL", "1-n"));
     public_dictionary.emplace(Tag(0x0066, 0x0021), ElementsDictionaryEntry("Vector Coordinate Data", "VectorCoordinateData",  "OF", "1"));
+    public_dictionary.emplace(Tag(0x0066, 0x0022), ElementsDictionaryEntry("Double Point Coordinates Data", "DoublePointCoordinatesData",  "OD", "1"));
     public_dictionary.emplace(Tag(0x0066, 0x0023), ElementsDictionaryEntry("Triangle Point Index List", "TrianglePointIndexList",  "OW", "1"));
     public_dictionary.emplace(Tag(0x0066, 0x0024), ElementsDictionaryEntry("Edge Point Index List", "EdgePointIndexList",  "OW", "1"));
     public_dictionary.emplace(Tag(0x0066, 0x0025), ElementsDictionaryEntry("Vertex Point Index List", "VertexPointIndexList",  "OW", "1"));
@@ -118,6 +119,7 @@ void update_0066(
     public_tags.emplace("VectorDimensionality", Tag(0x0066, 0x001f));
     public_tags.emplace("VectorAccuracy", Tag(0x0066, 0x0020));
     public_tags.emplace("VectorCoordinateData", Tag(0x0066, 0x0021));
+    public_tags.emplace("DoublePointCoordinatesData", Tag(0x0066, 0x0022));
     public_tags.emplace("TrianglePointIndexList", Tag(0x0066, 0x0023));
     public_tags.emplace("EdgePointIndexList", Tag(0x0066, 0x0024));
     public_tags.emplace("VertexPointIndexList", Tag(0x0066, 0x0025));

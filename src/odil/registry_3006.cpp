@@ -54,6 +54,7 @@ void update_3006(
     public_dictionary.emplace(Tag(0x3006, 0x0046), ElementsDictionaryEntry("Number of Contour Points", "NumberOfContourPoints",  "IS", "1"));
     public_dictionary.emplace(Tag(0x3006, 0x0048), ElementsDictionaryEntry("Contour Number", "ContourNumber",  "IS", "1"));
     public_dictionary.emplace(Tag(0x3006, 0x0049), ElementsDictionaryEntry("Attached Contours", "AttachedContours",  "IS", "1-n"));
+    public_dictionary.emplace(Tag(0x3006, 0x004a), ElementsDictionaryEntry("Source Pixel Planes Characteristics Sequence", "SourcePixelPlanesCharacteristicsSequence",  "SQ", "1"));
     public_dictionary.emplace(Tag(0x3006, 0x0050), ElementsDictionaryEntry("Contour Data", "ContourData",  "DS", "3-3n"));
     public_dictionary.emplace(Tag(0x3006, 0x0080), ElementsDictionaryEntry("RT ROI Observations Sequence", "RTROIObservationsSequence",  "SQ", "1"));
     public_dictionary.emplace(Tag(0x3006, 0x0082), ElementsDictionaryEntry("Observation Number", "ObservationNumber",  "IS", "1"));
@@ -110,6 +111,7 @@ void update_3006(
     public_tags.emplace("NumberOfContourPoints", Tag(0x3006, 0x0046));
     public_tags.emplace("ContourNumber", Tag(0x3006, 0x0048));
     public_tags.emplace("AttachedContours", Tag(0x3006, 0x0049));
+    public_tags.emplace("SourcePixelPlanesCharacteristicsSequence", Tag(0x3006, 0x004a));
     public_tags.emplace("ContourData", Tag(0x3006, 0x0050));
     public_tags.emplace("RTROIObservationsSequence", Tag(0x3006, 0x0080));
     public_tags.emplace("ObservationNumber", Tag(0x3006, 0x0082));

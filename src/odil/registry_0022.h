@@ -186,7 +186,7 @@ Tag const OphthalmicAnatomicReferencePointYCoordinate(0x0022, 0x1626);
 Tag const OphthalmicEnFaceImageQualityRatingSequence(0x0022, 0x1628);
 Tag const QualityThreshold(0x0022, 0x1630);
 Tag const OCTBscanAnalysisAcquisitionParametersSequence(0x0022, 0x1640);
-Tag const NumberofBscansPerFrame(0x0022, 0x1642);
+Tag const NumberOfBscansPerFrame(0x0022, 0x1642);
 Tag const BscanSlabThickness(0x0022, 0x1643);
 Tag const DistanceBetweenBscanSlabs(0x0022, 0x1644);
 Tag const BscanCycleTime(0x0022, 0x1645);

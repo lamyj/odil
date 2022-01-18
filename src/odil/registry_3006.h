@@ -50,6 +50,7 @@ Tag const ContourOffsetVector(0x3006, 0x0045);
 Tag const NumberOfContourPoints(0x3006, 0x0046);
 Tag const ContourNumber(0x3006, 0x0048);
 Tag const AttachedContours(0x3006, 0x0049);
+Tag const SourcePixelPlanesCharacteristicsSequence(0x3006, 0x004a);
 Tag const ContourData(0x3006, 0x0050);
 Tag const RTROIObservationsSequence(0x3006, 0x0080);
 Tag const ObservationNumber(0x3006, 0x0082);

@@ -190,7 +190,7 @@ void update_0022(
     public_dictionary.emplace(Tag(0x0022, 0x1628), ElementsDictionaryEntry("Ophthalmic En Face Image Quality Rating Sequence", "OphthalmicEnFaceImageQualityRatingSequence",  "SQ", "1"));
     public_dictionary.emplace(Tag(0x0022, 0x1630), ElementsDictionaryEntry("Quality Threshold", "QualityThreshold",  "DS", "1"));
     public_dictionary.emplace(Tag(0x0022, 0x1640), ElementsDictionaryEntry("OCT B-scan Analysis Acquisition Parameters Sequence", "OCTBscanAnalysisAcquisitionParametersSequence",  "SQ", "1"));
-    public_dictionary.emplace(Tag(0x0022, 0x1642), ElementsDictionaryEntry("Number of B-scans Per Frame", "NumberofBscansPerFrame",  "UL", "1"));
+    public_dictionary.emplace(Tag(0x0022, 0x1642), ElementsDictionaryEntry("Number of B-scans Per Frame", "NumberOfBscansPerFrame",  "UL", "1"));
     public_dictionary.emplace(Tag(0x0022, 0x1643), ElementsDictionaryEntry("B-scan Slab Thickness", "BscanSlabThickness",  "FL", "1"));
     public_dictionary.emplace(Tag(0x0022, 0x1644), ElementsDictionaryEntry("Distance Between B-scan Slabs", "DistanceBetweenBscanSlabs",  "FL", "1"));
     public_dictionary.emplace(Tag(0x0022, 0x1645), ElementsDictionaryEntry("B-scan Cycle Time", "BscanCycleTime",  "FL", "1"));
@@ -365,7 +365,7 @@ void update_0022(
     public_tags.emplace("OphthalmicEnFaceImageQualityRatingSequence", Tag(0x0022, 0x1628));
     public_tags.emplace("QualityThreshold", Tag(0x0022, 0x1630));
     public_tags.emplace("OCTBscanAnalysisAcquisitionParametersSequence", Tag(0x0022, 0x1640));
-    public_tags.emplace("NumberofBscansPerFrame", Tag(0x0022, 0x1642));
+    public_tags.emplace("NumberOfBscansPerFrame", Tag(0x0022, 0x1642));
     public_tags.emplace("BscanSlabThickness", Tag(0x0022, 0x1643));
     public_tags.emplace("DistanceBetweenBscanSlabs", Tag(0x0022, 0x1644));
     public_tags.emplace("BscanCycleTime", Tag(0x0022, 0x1645));

@@ -32,7 +32,7 @@ void update_0062(
     public_dictionary.emplace(Tag(0x0062, 0x0006), ElementsDictionaryEntry("Segment Description", "SegmentDescription",  "ST", "1"));
     public_dictionary.emplace(Tag(0x0062, 0x0007), ElementsDictionaryEntry("Segmentation Algorithm Identification Sequence", "SegmentationAlgorithmIdentificationSequence",  "SQ", "1"));
     public_dictionary.emplace(Tag(0x0062, 0x0008), ElementsDictionaryEntry("Segment Algorithm Type", "SegmentAlgorithmType",  "CS", "1"));
-    public_dictionary.emplace(Tag(0x0062, 0x0009), ElementsDictionaryEntry("Segment Algorithm Name", "SegmentAlgorithmName",  "LO", "1"));
+    public_dictionary.emplace(Tag(0x0062, 0x0009), ElementsDictionaryEntry("Segment Algorithm Name", "SegmentAlgorithmName",  "LO", "1-n"));
     public_dictionary.emplace(Tag(0x0062, 0x000a), ElementsDictionaryEntry("Segment Identification Sequence", "SegmentIdentificationSequence",  "SQ", "1"));
     public_dictionary.emplace(Tag(0x0062, 0x000b), ElementsDictionaryEntry("Referenced Segment Number", "ReferencedSegmentNumber",  "US", "1-n"));
     public_dictionary.emplace(Tag(0x0062, 0x000c), ElementsDictionaryEntry("Recommended Display Grayscale Value", "RecommendedDisplayGrayscaleValue",  "US", "1"));

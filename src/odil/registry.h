@@ -48,6 +48,7 @@
 #include "odil/registry_0064.h"
 #include "odil/registry_0066.h"
 #include "odil/registry_0068.h"
+#include "odil/registry_006a.h"
 #include "odil/registry_0070.h"
 #include "odil/registry_0072.h"
 #include "odil/registry_0074.h"
@@ -99,6 +100,7 @@ std::string const Verification("1.2.840.10008.1.1");
 std::string const VerificationSOPClass("1.2.840.10008.1.1");
 std::string const ImplicitVRLittleEndian("1.2.840.10008.1.2");
 std::string const ExplicitVRLittleEndian("1.2.840.10008.1.2.1");
+std::string const EncapsulatedUncompressedExplicitVRLittleEndian("1.2.840.10008.1.2.1.98");
 std::string const DeflatedExplicitVRLittleEndian("1.2.840.10008.1.2.1.99");
 std::string const ExplicitVRBigEndian("1.2.840.10008.1.2.2");
 std::string const ExplicitVRBigEndian_Retired("1.2.840.10008.1.2.2");
@@ -179,60 +181,6 @@ std::string const SMPTEST211020UncompressedProgressiveActiveVideo("1.2.840.10008
 std::string const SMPTEST211020UncompressedInterlacedActiveVideo("1.2.840.10008.1.2.7.2");
 std::string const SMPTEST211030PCMDigitalAudio("1.2.840.10008.1.2.7.3");
 std::string const MediaStorageDirectoryStorage("1.2.840.10008.1.3.10");
-std::string const TalairachBrainAtlas("1.2.840.10008.1.4.1.1");
-std::string const TalairachBrainAtlasFrameofReference("1.2.840.10008.1.4.1.1");
-std::string const SPM2T1("1.2.840.10008.1.4.1.2");
-std::string const SPM2T1FrameofReference("1.2.840.10008.1.4.1.2");
-std::string const SPM2T2("1.2.840.10008.1.4.1.3");
-std::string const SPM2T2FrameofReference("1.2.840.10008.1.4.1.3");
-std::string const SPM2PD("1.2.840.10008.1.4.1.4");
-std::string const SPM2PDFrameofReference("1.2.840.10008.1.4.1.4");
-std::string const SPM2EPI("1.2.840.10008.1.4.1.5");
-std::string const SPM2EPIFrameofReference("1.2.840.10008.1.4.1.5");
-std::string const SPM2FILT1("1.2.840.10008.1.4.1.6");
-std::string const SPM2FILT1FrameofReference("1.2.840.10008.1.4.1.6");
-std::string const SPM2PET("1.2.840.10008.1.4.1.7");
-std::string const SPM2PETFrameofReference("1.2.840.10008.1.4.1.7");
-std::string const SPM2TRANSM("1.2.840.10008.1.4.1.8");
-std::string const SPM2TRANSMFrameofReference("1.2.840.10008.1.4.1.8");
-std::string const SPM2SPECT("1.2.840.10008.1.4.1.9");
-std::string const SPM2SPECTFrameofReference("1.2.840.10008.1.4.1.9");
-std::string const SPM2GRAY("1.2.840.10008.1.4.1.10");
-std::string const SPM2GRAYFrameofReference("1.2.840.10008.1.4.1.10");
-std::string const SPM2WHITE("1.2.840.10008.1.4.1.11");
-std::string const SPM2WHITEFrameofReference("1.2.840.10008.1.4.1.11");
-std::string const SPM2CSF("1.2.840.10008.1.4.1.12");
-std::string const SPM2CSFFrameofReference("1.2.840.10008.1.4.1.12");
-std::string const SPM2BRAINMASK("1.2.840.10008.1.4.1.13");
-std::string const SPM2BRAINMASKFrameofReference("1.2.840.10008.1.4.1.13");
-std::string const SPM2AVG305T1("1.2.840.10008.1.4.1.14");
-std::string const SPM2AVG305T1FrameofReference("1.2.840.10008.1.4.1.14");
-std::string const SPM2AVG152T1("1.2.840.10008.1.4.1.15");
-std::string const SPM2AVG152T1FrameofReference("1.2.840.10008.1.4.1.15");
-std::string const SPM2AVG152T2("1.2.840.10008.1.4.1.16");
-std::string const SPM2AVG152T2FrameofReference("1.2.840.10008.1.4.1.16");
-std::string const SPM2AVG152PD("1.2.840.10008.1.4.1.17");
-std::string const SPM2AVG152PDFrameofReference("1.2.840.10008.1.4.1.17");
-std::string const SPM2SINGLESUBJT1("1.2.840.10008.1.4.1.18");
-std::string const SPM2SINGLESUBJT1FrameofReference("1.2.840.10008.1.4.1.18");
-std::string const ICBM452T1("1.2.840.10008.1.4.2.1");
-std::string const ICBM452T1FrameofReference("1.2.840.10008.1.4.2.1");
-std::string const ICBMSingleSubjectMRI("1.2.840.10008.1.4.2.2");
-std::string const ICBMSingleSubjectMRIFrameofReference("1.2.840.10008.1.4.2.2");
-std::string const IEC61217FixedCoordinateSystem("1.2.840.10008.1.4.3.1");
-std::string const IEC61217FixedCoordinateSystemFrameofReference("1.2.840.10008.1.4.3.1");
-std::string const StandardRoboticArmCoordinateSystem("1.2.840.10008.1.4.3.2");
-std::string const StandardRoboticArmCoordinateSystemFrameofReference("1.2.840.10008.1.4.3.2");
-std::string const SRI24("1.2.840.10008.1.4.4.1");
-std::string const SRI24FrameofReference("1.2.840.10008.1.4.4.1");
-std::string const Colin27("1.2.840.10008.1.4.5.1");
-std::string const Colin27FrameofReference("1.2.840.10008.1.4.5.1");
-std::string const LPBA40AIR("1.2.840.10008.1.4.6.1");
-std::string const LPBA40AIRFrameofReference("1.2.840.10008.1.4.6.1");
-std::string const LPBA40FLIRT("1.2.840.10008.1.4.6.2");
-std::string const LPBA40FLIRTFrameofReference("1.2.840.10008.1.4.6.2");
-std::string const LPBA40SPM5("1.2.840.10008.1.4.6.3");
-std::string const LPBA40SPM5FrameofReference("1.2.840.10008.1.4.6.3");
 std::string const HotIronPalette("1.2.840.10008.1.5.1");
 std::string const HotIronColorPaletteSOPInstance("1.2.840.10008.1.5.1");
 std::string const PETPalette("1.2.840.10008.1.5.2");
@@ -538,7 +486,9 @@ std::string const SimplifiedAdultEchoSRStorage("1.2.840.10008.5.1.4.1.1.88.72");
 std::string const PatientRadiationDoseSRStorage("1.2.840.10008.5.1.4.1.1.88.73");
 std::string const PlannedImagingAgentAdministrationSRStorage("1.2.840.10008.5.1.4.1.1.88.74");
 std::string const PerformedImagingAgentAdministrationSRStorage("1.2.840.10008.5.1.4.1.1.88.75");
+std::string const EnhancedXRayRadiationDoseSRStorage("1.2.840.10008.5.1.4.1.1.88.76");
 std::string const ContentAssessmentResultsStorage("1.2.840.10008.5.1.4.1.1.90.1");
+std::string const MicroscopyBulkSimpleAnnotationsStorage("1.2.840.10008.5.1.4.1.1.91.1");
 std::string const EncapsulatedPDFStorage("1.2.840.10008.5.1.4.1.1.104.1");
 std::string const EncapsulatedCDAStorage("1.2.840.10008.5.1.4.1.1.104.2");
 std::string const EncapsulatedSTLStorage("1.2.840.10008.5.1.4.1.1.104.3");
@@ -559,6 +509,8 @@ std::string const ProtocolApprovalInformationModelMove("1.2.840.10008.5.1.4.1.1.
 std::string const ProtocolApprovalInformationModelMOVE("1.2.840.10008.5.1.4.1.1.200.5");
 std::string const ProtocolApprovalInformationModelGet("1.2.840.10008.5.1.4.1.1.200.6");
 std::string const ProtocolApprovalInformationModelGET("1.2.840.10008.5.1.4.1.1.200.6");
+std::string const XADefinedProcedureProtocolStorage("1.2.840.10008.5.1.4.1.1.200.7");
+std::string const XAPerformedProcedureProtocolStorage("1.2.840.10008.5.1.4.1.1.200.8");
 std::string const RTImageStorage("1.2.840.10008.5.1.4.1.1.481.1");
 std::string const RTDoseStorage("1.2.840.10008.5.1.4.1.1.481.2");
 std::string const RTStructureSetStorage("1.2.840.10008.5.1.4.1.1.481.3");
@@ -579,6 +531,8 @@ std::string const RTRadiationSalvageRecordStorage("1.2.840.10008.5.1.4.1.1.481.1
 std::string const TomotherapeuticRadiationRecordStorage("1.2.840.10008.5.1.4.1.1.481.18");
 std::string const CArmPhotonElectronRadiationRecordStorage("1.2.840.10008.5.1.4.1.1.481.19");
 std::string const RoboticRadiationRecordStorage("1.2.840.10008.5.1.4.1.1.481.20");
+std::string const RTRadiationSetDeliveryInstructionStorage("1.2.840.10008.5.1.4.1.1.481.21");
+std::string const RTTreatmentPreparationStorage("1.2.840.10008.5.1.4.1.1.481.22");
 std::string const DICOSCTImageStorage("1.2.840.10008.5.1.4.1.1.501.1");
 std::string const DICOSDigitalXRayImageStorageForPresentation("1.2.840.10008.5.1.4.1.1.501.2.1");
 std::string const DICOSDigitalXRayImageStorageForProcessing("1.2.840.10008.5.1.4.1.1.501.2.2");
@@ -624,7 +578,7 @@ std::string const ModalityWorklistInformationModelFind("1.2.840.10008.5.1.4.31")
 std::string const ModalityWorklistInformationModelFIND("1.2.840.10008.5.1.4.31");
 std::string const GeneralPurposeWorklistManagementMeta("1.2.840.10008.5.1.4.32");
 std::string const GeneralPurposeWorklistManagementMetaSOPClass_Retired("1.2.840.10008.5.1.4.32");
-std::string const GeneralPurposeWorklistInformationModelFIND("1.2.840.10008.5.1.4.32.1");
+std::string const GeneralPurposeWorklistInformationModelFind("1.2.840.10008.5.1.4.32.1");
 std::string const GeneralPurposeWorklistInformationModelFIND_Retired("1.2.840.10008.5.1.4.32.1");
 std::string const GeneralPurposeScheduledProcedureStep("1.2.840.10008.5.1.4.32.2");
 std::string const GeneralPurposeScheduledProcedureStepSOPClass_Retired("1.2.840.10008.5.1.4.32.2");

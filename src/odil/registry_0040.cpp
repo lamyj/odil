@@ -225,6 +225,7 @@ void update_0040(
     public_dictionary.emplace(Tag(0x0040, 0xa028), ElementsDictionaryEntry("Documenting Organization Identifier Code Sequence (Trial)", "DocumentingOrganizationIdentifierCodeSequenceTrial",  "SQ", "1"));
     public_dictionary.emplace(Tag(0x0040, 0xa030), ElementsDictionaryEntry("Verification DateTime", "VerificationDateTime",  "DT", "1"));
     public_dictionary.emplace(Tag(0x0040, 0xa032), ElementsDictionaryEntry("Observation DateTime", "ObservationDateTime",  "DT", "1"));
+    public_dictionary.emplace(Tag(0x0040, 0xa033), ElementsDictionaryEntry("Observation Start DateTime", "ObservationStartDateTime",  "DT", "1"));
     public_dictionary.emplace(Tag(0x0040, 0xa040), ElementsDictionaryEntry("Value Type", "ValueType",  "CS", "1"));
     public_dictionary.emplace(Tag(0x0040, 0xa043), ElementsDictionaryEntry("Concept Name Code Sequence", "ConceptNameCodeSequence",  "SQ", "1"));
     public_dictionary.emplace(Tag(0x0040, 0xa047), ElementsDictionaryEntry("Measurement Precision Description (Trial)", "MeasurementPrecisionDescriptionTrial",  "LO", "1"));
@@ -322,7 +323,7 @@ void update_0040(
     public_dictionary.emplace(Tag(0x0040, 0xa744), ElementsDictionaryEntry("Language Code Sequence (Trial)", "LanguageCodeSequenceTrial",  "SQ", "1"));
     public_dictionary.emplace(Tag(0x0040, 0xa801), ElementsDictionaryEntry("Tabulated Values Sequence", "TabulatedValuesSequence",  "SQ", "1"));
     public_dictionary.emplace(Tag(0x0040, 0xa802), ElementsDictionaryEntry("Number of Table Rows", "NumberOfTableRows",  "UL", "1"));
-    public_dictionary.emplace(Tag(0x0040, 0xa803), ElementsDictionaryEntry("Number of Table Columns", "NumbeOfTableColumns",  "UL", "1"));
+    public_dictionary.emplace(Tag(0x0040, 0xa803), ElementsDictionaryEntry("Number of Table Columns", "NumberOfTableColumns",  "UL", "1"));
     public_dictionary.emplace(Tag(0x0040, 0xa804), ElementsDictionaryEntry("Table Row Number", "TableRowNumber",  "UL", "1"));
     public_dictionary.emplace(Tag(0x0040, 0xa805), ElementsDictionaryEntry("Table Column Number", "TableColumnNumber",  "UL", "1"));
     public_dictionary.emplace(Tag(0x0040, 0xa806), ElementsDictionaryEntry("Table Row Definition Sequence", "TableRowDefinitionSequence",  "SQ", "1"));
@@ -553,6 +554,7 @@ void update_0040(
     public_tags.emplace("DocumentingOrganizationIdentifierCodeSequenceTrial", Tag(0x0040, 0xa028));
     public_tags.emplace("VerificationDateTime", Tag(0x0040, 0xa030));
     public_tags.emplace("ObservationDateTime", Tag(0x0040, 0xa032));
+    public_tags.emplace("ObservationStartDateTime", Tag(0x0040, 0xa033));
     public_tags.emplace("ValueType", Tag(0x0040, 0xa040));
     public_tags.emplace("ConceptNameCodeSequence", Tag(0x0040, 0xa043));
     public_tags.emplace("MeasurementPrecisionDescriptionTrial", Tag(0x0040, 0xa047));
@@ -650,7 +652,7 @@ void update_0040(
     public_tags.emplace("LanguageCodeSequenceTrial", Tag(0x0040, 0xa744));
     public_tags.emplace("TabulatedValuesSequence", Tag(0x0040, 0xa801));
     public_tags.emplace("NumberOfTableRows", Tag(0x0040, 0xa802));
-    public_tags.emplace("NumbeOfTableColumns", Tag(0x0040, 0xa803));
+    public_tags.emplace("NumberOfTableColumns", Tag(0x0040, 0xa803));
     public_tags.emplace("TableRowNumber", Tag(0x0040, 0xa804));
     public_tags.emplace("TableColumnNumber", Tag(0x0040, 0xa805));
     public_tags.emplace("TableRowDefinitionSequence", Tag(0x0040, 0xa806));
