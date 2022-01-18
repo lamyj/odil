@@ -72,3 +72,11 @@ install(
     ARCHIVE DESTINATION bin LIBRARY DESTINATION lib RUNTIME DESTINATION bin
     PUBLIC_HEADER DESTINATION include/odil
     INCLUDES DESTINATION include)
+
+foreach(include_file ${Header_Files} ${templates})
+    file(
+        RELATIVE_PATH 
+        include_path ${CMAKE_CURRENT_SOURCE_DIR} ${include_file})
+    get_filename_component(include_path ${include_path} PATH)
+    install(FILES ${include_file} DESTINATION "include/${include_path}")
+endforeach()
