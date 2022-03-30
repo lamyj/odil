@@ -80,6 +80,7 @@ void update_3008(
     public_dictionary.emplace(Tag(0x3008, 0x00b0), ElementsDictionaryEntry("Recorded Wedge Sequence", "RecordedWedgeSequence",  "SQ", "1"));
     public_dictionary.emplace(Tag(0x3008, 0x00c0), ElementsDictionaryEntry("Recorded Compensator Sequence", "RecordedCompensatorSequence",  "SQ", "1"));
     public_dictionary.emplace(Tag(0x3008, 0x00d0), ElementsDictionaryEntry("Recorded Block Sequence", "RecordedBlockSequence",  "SQ", "1"));
+    public_dictionary.emplace(Tag(0x3008, 0x00d1), ElementsDictionaryEntry("Recorded Block Slab Sequence", "RecordedBlockSlabSequence",  "SQ", "1"));
     public_dictionary.emplace(Tag(0x3008, 0x00e0), ElementsDictionaryEntry("Treatment Summary Measured Dose Reference Sequence", "TreatmentSummaryMeasuredDoseReferenceSequence",  "SQ", "1"));
     public_dictionary.emplace(Tag(0x3008, 0x00f0), ElementsDictionaryEntry("Recorded Snout Sequence", "RecordedSnoutSequence",  "SQ", "1"));
     public_dictionary.emplace(Tag(0x3008, 0x00f2), ElementsDictionaryEntry("Recorded Range Shifter Sequence", "RecordedRangeShifterSequence",  "SQ", "1"));
@@ -176,6 +177,7 @@ void update_3008(
     public_tags.emplace("RecordedWedgeSequence", Tag(0x3008, 0x00b0));
     public_tags.emplace("RecordedCompensatorSequence", Tag(0x3008, 0x00c0));
     public_tags.emplace("RecordedBlockSequence", Tag(0x3008, 0x00d0));
+    public_tags.emplace("RecordedBlockSlabSequence", Tag(0x3008, 0x00d1));
     public_tags.emplace("TreatmentSummaryMeasuredDoseReferenceSequence", Tag(0x3008, 0x00e0));
     public_tags.emplace("RecordedSnoutSequence", Tag(0x3008, 0x00f0));
     public_tags.emplace("RecordedRangeShifterSequence", Tag(0x3008, 0x00f2));

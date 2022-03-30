@@ -54,6 +54,21 @@ Tag const ReferencedRangeModulatorNumber(0x300c, 0x0104);
 Tag const OmittedBeamTaskSequence(0x300c, 0x0111);
 Tag const ReasonForOmission(0x300c, 0x0112);
 Tag const ReasonForOmissionDescription(0x300c, 0x0113);
+Tag const PrescriptionOverviewSequence(0x300c, 0x0114);
+Tag const TotalPrescriptionDose(0x300c, 0x0115);
+Tag const PlanOverviewSequence(0x300c, 0x0116);
+Tag const PlanOverviewIndex(0x300c, 0x0117);
+Tag const ReferencedPlanOverviewIndex(0x300c, 0x0118);
+Tag const NumberOfFractionsIncluded(0x300c, 0x0119);
+Tag const DoseCalibrationConditionsSequence(0x300c, 0x0120);
+Tag const AbsorbedDoseToMetersetRatio(0x300c, 0x0121);
+Tag const DelineatedRadiationFieldSize(0x300c, 0x0122);
+Tag const DoseCalibrationConditionsVerifiedFlag(0x300c, 0x0123);
+Tag const CalibrationReferencePointDepth(0x300c, 0x0124);
+Tag const GatingBeamHoldTransitionSequence(0x300c, 0x0125);
+Tag const BeamHoldTransition(0x300c, 0x0126);
+Tag const BeamHoldTransitionDateTime(0x300c, 0x0127);
+Tag const BeamHoldOriginatingDeviceSequence(0x300c, 0x0128);
 
 }
 

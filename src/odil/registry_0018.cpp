@@ -216,6 +216,7 @@ void update_0018(
     public_dictionary.emplace(Tag(0x0018, 0x1200), ElementsDictionaryEntry("Date of Last Calibration", "DateOfLastCalibration",  "DA", "1-n"));
     public_dictionary.emplace(Tag(0x0018, 0x1201), ElementsDictionaryEntry("Time of Last Calibration", "TimeOfLastCalibration",  "TM", "1-n"));
     public_dictionary.emplace(Tag(0x0018, 0x1202), ElementsDictionaryEntry("DateTime of Last Calibration", "DateTimeOfLastCalibration",  "DT", "1"));
+    public_dictionary.emplace(Tag(0x0018, 0x1203), ElementsDictionaryEntry("Calibration DateTime", "CalibrationDateTime",  "DT", "1"));
     public_dictionary.emplace(Tag(0x0018, 0x1210), ElementsDictionaryEntry("Convolution Kernel", "ConvolutionKernel",  "SH", "1-n"));
     public_dictionary.emplace(Tag(0x0018, 0x1240), ElementsDictionaryEntry("Upper/Lower Pixel Values", "UpperLowerPixelValues",  "IS", "1-n"));
     public_dictionary.emplace(Tag(0x0018, 0x1242), ElementsDictionaryEntry("Actual Frame Duration", "ActualFrameDuration",  "IS", "1"));
@@ -1088,6 +1089,7 @@ void update_0018(
     public_tags.emplace("DateOfLastCalibration", Tag(0x0018, 0x1200));
     public_tags.emplace("TimeOfLastCalibration", Tag(0x0018, 0x1201));
     public_tags.emplace("DateTimeOfLastCalibration", Tag(0x0018, 0x1202));
+    public_tags.emplace("CalibrationDateTime", Tag(0x0018, 0x1203));
     public_tags.emplace("ConvolutionKernel", Tag(0x0018, 0x1210));
     public_tags.emplace("UpperLowerPixelValues", Tag(0x0018, 0x1240));
     public_tags.emplace("ActualFrameDuration", Tag(0x0018, 0x1242));

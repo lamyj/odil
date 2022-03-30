@@ -76,6 +76,7 @@ Tag const BeamLimitingDeviceLeafPairsSequence(0x3008, 0x00a0);
 Tag const RecordedWedgeSequence(0x3008, 0x00b0);
 Tag const RecordedCompensatorSequence(0x3008, 0x00c0);
 Tag const RecordedBlockSequence(0x3008, 0x00d0);
+Tag const RecordedBlockSlabSequence(0x3008, 0x00d1);
 Tag const TreatmentSummaryMeasuredDoseReferenceSequence(0x3008, 0x00e0);
 Tag const RecordedSnoutSequence(0x3008, 0x00f0);
 Tag const RecordedRangeShifterSequence(0x3008, 0x00f2);

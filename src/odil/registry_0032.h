@@ -45,6 +45,7 @@ Tag const StudyCompletionTime(0x0032, 0x1051);
 Tag const StudyComponentStatusID(0x0032, 0x1055);
 Tag const RequestedProcedureDescription(0x0032, 0x1060);
 Tag const RequestedProcedureCodeSequence(0x0032, 0x1064);
+Tag const RequestedLateralityCodeSequence(0x0032, 0x1065);
 Tag const ReasonForVisit(0x0032, 0x1066);
 Tag const ReasonForVisitCodeSequence(0x0032, 0x1067);
 Tag const RequestedContrastAgent(0x0032, 0x1070);

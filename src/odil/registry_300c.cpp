@@ -58,6 +58,21 @@ void update_300c(
     public_dictionary.emplace(Tag(0x300c, 0x0111), ElementsDictionaryEntry("Omitted Beam Task Sequence", "OmittedBeamTaskSequence",  "SQ", "1"));
     public_dictionary.emplace(Tag(0x300c, 0x0112), ElementsDictionaryEntry("Reason for Omission", "ReasonForOmission",  "CS", "1"));
     public_dictionary.emplace(Tag(0x300c, 0x0113), ElementsDictionaryEntry("Reason for Omission Description", "ReasonForOmissionDescription",  "LO", "1"));
+    public_dictionary.emplace(Tag(0x300c, 0x0114), ElementsDictionaryEntry("Prescription Overview Sequence", "PrescriptionOverviewSequence",  "SQ", "1"));
+    public_dictionary.emplace(Tag(0x300c, 0x0115), ElementsDictionaryEntry("Total Prescription Dose", "TotalPrescriptionDose",  "FL", "1"));
+    public_dictionary.emplace(Tag(0x300c, 0x0116), ElementsDictionaryEntry("Plan Overview Sequence", "PlanOverviewSequence",  "SQ", "1"));
+    public_dictionary.emplace(Tag(0x300c, 0x0117), ElementsDictionaryEntry("Plan Overview Index", "PlanOverviewIndex",  "US", "1"));
+    public_dictionary.emplace(Tag(0x300c, 0x0118), ElementsDictionaryEntry("Referenced Plan Overview Index", "ReferencedPlanOverviewIndex",  "US", "1"));
+    public_dictionary.emplace(Tag(0x300c, 0x0119), ElementsDictionaryEntry("Number of Fractions Included", "NumberOfFractionsIncluded",  "US", "1"));
+    public_dictionary.emplace(Tag(0x300c, 0x0120), ElementsDictionaryEntry("Dose Calibration Conditions Sequence", "DoseCalibrationConditionsSequence",  "SQ", "1"));
+    public_dictionary.emplace(Tag(0x300c, 0x0121), ElementsDictionaryEntry("Absorbed Dose to Meterset Ratio", "AbsorbedDoseToMetersetRatio",  "FD", "1"));
+    public_dictionary.emplace(Tag(0x300c, 0x0122), ElementsDictionaryEntry("Delineated Radiation Field Size", "DelineatedRadiationFieldSize",  "FD", "2"));
+    public_dictionary.emplace(Tag(0x300c, 0x0123), ElementsDictionaryEntry("Dose Calibration Conditions Verified Flag", "DoseCalibrationConditionsVerifiedFlag",  "CS", "1"));
+    public_dictionary.emplace(Tag(0x300c, 0x0124), ElementsDictionaryEntry("Calibration Reference Point Depth", "CalibrationReferencePointDepth",  "FD", "1"));
+    public_dictionary.emplace(Tag(0x300c, 0x0125), ElementsDictionaryEntry("Gating Beam Hold Transition Sequence", "GatingBeamHoldTransitionSequence",  "SQ", "1"));
+    public_dictionary.emplace(Tag(0x300c, 0x0126), ElementsDictionaryEntry("Beam Hold Transition", "BeamHoldTransition",  "CS", "1"));
+    public_dictionary.emplace(Tag(0x300c, 0x0127), ElementsDictionaryEntry("Beam Hold Transition DateTime", "BeamHoldTransitionDateTime",  "DT", "1"));
+    public_dictionary.emplace(Tag(0x300c, 0x0128), ElementsDictionaryEntry("Beam Hold Originating Device Sequence", "BeamHoldOriginatingDeviceSequence",  "SQ", "1"));
 
     public_tags.emplace("ReferencedRTPlanSequence", Tag(0x300c, 0x0002));
     public_tags.emplace("ReferencedBeamSequence", Tag(0x300c, 0x0004));
@@ -93,6 +108,21 @@ void update_300c(
     public_tags.emplace("OmittedBeamTaskSequence", Tag(0x300c, 0x0111));
     public_tags.emplace("ReasonForOmission", Tag(0x300c, 0x0112));
     public_tags.emplace("ReasonForOmissionDescription", Tag(0x300c, 0x0113));
+    public_tags.emplace("PrescriptionOverviewSequence", Tag(0x300c, 0x0114));
+    public_tags.emplace("TotalPrescriptionDose", Tag(0x300c, 0x0115));
+    public_tags.emplace("PlanOverviewSequence", Tag(0x300c, 0x0116));
+    public_tags.emplace("PlanOverviewIndex", Tag(0x300c, 0x0117));
+    public_tags.emplace("ReferencedPlanOverviewIndex", Tag(0x300c, 0x0118));
+    public_tags.emplace("NumberOfFractionsIncluded", Tag(0x300c, 0x0119));
+    public_tags.emplace("DoseCalibrationConditionsSequence", Tag(0x300c, 0x0120));
+    public_tags.emplace("AbsorbedDoseToMetersetRatio", Tag(0x300c, 0x0121));
+    public_tags.emplace("DelineatedRadiationFieldSize", Tag(0x300c, 0x0122));
+    public_tags.emplace("DoseCalibrationConditionsVerifiedFlag", Tag(0x300c, 0x0123));
+    public_tags.emplace("CalibrationReferencePointDepth", Tag(0x300c, 0x0124));
+    public_tags.emplace("GatingBeamHoldTransitionSequence", Tag(0x300c, 0x0125));
+    public_tags.emplace("BeamHoldTransition", Tag(0x300c, 0x0126));
+    public_tags.emplace("BeamHoldTransitionDateTime", Tag(0x300c, 0x0127));
+    public_tags.emplace("BeamHoldOriginatingDeviceSequence", Tag(0x300c, 0x0128));
 }
 
 }

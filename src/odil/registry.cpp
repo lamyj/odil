@@ -245,6 +245,10 @@ void update_uids_dictionary(UIDsDictionary & uids_dictionary)
     uids_dictionary.emplace("1.2.840.10008.2.16.15", UIDsDictionaryEntry("RadElement", "RadElement",  "Coding Scheme"));
     uids_dictionary.emplace("1.2.840.10008.2.16.16", UIDsDictionaryEntry("ICD-11", "I11",  "Coding Scheme"));
     uids_dictionary.emplace("1.2.840.10008.2.16.16", UIDsDictionaryEntry("ICD-11", "ICD11",  "Coding Scheme"));
+    uids_dictionary.emplace("1.2.840.10008.2.16.17", UIDsDictionaryEntry("Unified numbering system (UNS) for metals and alloys", "UNS",  "Coding Scheme"));
+    uids_dictionary.emplace("1.2.840.10008.2.16.17", UIDsDictionaryEntry("Unified numbering system (UNS) for metals and alloys", "UnifiednumberingsystemUNSformetalsandalloys",  "Coding Scheme"));
+    uids_dictionary.emplace("1.2.840.10008.2.16.18", UIDsDictionaryEntry("Research Resource Identification", "RRID",  "Coding Scheme"));
+    uids_dictionary.emplace("1.2.840.10008.2.16.18", UIDsDictionaryEntry("Research Resource Identification", "ResearchResourceIdentification",  "Coding Scheme"));
     uids_dictionary.emplace("1.2.840.10008.3.1.1.1", UIDsDictionaryEntry("DICOM Application Context Name", "DICOMApplicationContext",  "Application Context Name"));
     uids_dictionary.emplace("1.2.840.10008.3.1.1.1", UIDsDictionaryEntry("DICOM Application Context Name", "DICOMApplicationContextName",  "Application Context Name"));
     uids_dictionary.emplace("1.2.840.10008.3.1.2.1.1", UIDsDictionaryEntry("Detached Patient Management SOP Class (Retired)", "DetachedPatientManagement",  "SOP Class"));

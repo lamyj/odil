@@ -212,6 +212,7 @@ Tag const RequestedSeriesDescriptionCodeSequence(0x0018, 0x11c1);
 Tag const DateOfLastCalibration(0x0018, 0x1200);
 Tag const TimeOfLastCalibration(0x0018, 0x1201);
 Tag const DateTimeOfLastCalibration(0x0018, 0x1202);
+Tag const CalibrationDateTime(0x0018, 0x1203);
 Tag const ConvolutionKernel(0x0018, 0x1210);
 Tag const UpperLowerPixelValues(0x0018, 0x1240);
 Tag const ActualFrameDuration(0x0018, 0x1242);
