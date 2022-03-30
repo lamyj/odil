@@ -33,12 +33,17 @@ class TestStoreSCU(PeerFixtureBase):
             "SOPInstanceUID",
             ["2.25.294312554735929033890522327215919068328"])
     
-    def test_affected_sop_class_uid(self):
+    def test_affected_sop_class_uid_from_data_set(self):
         store = odil.StoreSCU(self.association)
         store.set_affected_sop_class(self.data_set)
         self.assertEqual(
             store.get_affected_sop_class().encode(),
             odil.registry.RawDataStorage)
+    
+    def test_affected_sop_class_uid(self):
+        store = odil.StoreSCU(self.association)
+        store.set_affected_sop_class("1.2.3")
+        self.assertEqual(store.get_affected_sop_class(), "1.2.3")
     
     def test_store(self):
         store = odil.StoreSCU(self.association)

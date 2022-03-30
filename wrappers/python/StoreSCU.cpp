@@ -30,6 +30,11 @@ void wrap_StoreSCU(pybind11::module & m)
             return_value_policy::copy)
         .def(
             "set_affected_sop_class",
+            static_cast<void(StoreSCU::*)(std::string const &)>(
+                &StoreSCU::set_affected_sop_class)
+        )
+        .def(
+            "set_affected_sop_class",
             static_cast<void(StoreSCU::*)(std::shared_ptr<DataSet const>)>(
                 &StoreSCU::set_affected_sop_class)
         )
