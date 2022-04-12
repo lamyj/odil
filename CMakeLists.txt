@@ -23,7 +23,9 @@ set(CMAKE_INSTALL_MESSAGE LAZY)
 include(CTest)
 include(CMakePackageConfigHelpers)
 
-set(CMAKE_CXX_STANDARD 11)
+if(NOT CMAKE_CXX_STANDARD)
+    set(CMAKE_CXX_STANDARD 11)
+endif()
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)

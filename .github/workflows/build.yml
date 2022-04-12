@@ -39,6 +39,7 @@ jobs:
             start_worker: "docker run -di -v ${WORKSPACE}:${WORKSPACE} --name worker --rm ubuntu:jammy"
             worker: "docker exec -w ${WORKSPACE} -e WORKSPACE=${WORKSPACE} -e DEBIAN_FRONTEND=noninteractive worker"
             stop_worker: "docker kill worker"
+            cmake_options: "-DCMAKE_CXX_STANDARD=17"
           - name: "macOS 11 (Big Sur) + Homebrew"
             os: macos-11
             ci_type: brew
