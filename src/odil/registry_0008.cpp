@@ -34,7 +34,9 @@ void update_0008(
     public_dictionary.emplace(Tag(0x0008, 0x0014), ElementsDictionaryEntry("Instance Creator UID", "InstanceCreatorUID",  "UI", "1"));
     public_dictionary.emplace(Tag(0x0008, 0x0015), ElementsDictionaryEntry("Instance Coercion DateTime", "InstanceCoercionDateTime",  "DT", "1"));
     public_dictionary.emplace(Tag(0x0008, 0x0016), ElementsDictionaryEntry("SOP Class UID", "SOPClassUID",  "UI", "1"));
+    public_dictionary.emplace(Tag(0x0008, 0x0017), ElementsDictionaryEntry("Acquisition UID", "AcquisitionUID",  "UI", "1"));
     public_dictionary.emplace(Tag(0x0008, 0x0018), ElementsDictionaryEntry("SOP Instance UID", "SOPInstanceUID",  "UI", "1"));
+    public_dictionary.emplace(Tag(0x0008, 0x0019), ElementsDictionaryEntry("Pyramid UID", "PyramidUID",  "UI", "1"));
     public_dictionary.emplace(Tag(0x0008, 0x001a), ElementsDictionaryEntry("Related General SOP Class UID", "RelatedGeneralSOPClassUID",  "UI", "1-n"));
     public_dictionary.emplace(Tag(0x0008, 0x001b), ElementsDictionaryEntry("Original Specialized SOP Class UID", "OriginalSpecializedSOPClassUID",  "UI", "1"));
     public_dictionary.emplace(Tag(0x0008, 0x0020), ElementsDictionaryEntry("Study Date", "StudyDate",  "DA", "1"));
@@ -145,6 +147,7 @@ void update_0008(
     public_dictionary.emplace(Tag(0x0008, 0x1072), ElementsDictionaryEntry("Operator Identification Sequence", "OperatorIdentificationSequence",  "SQ", "1"));
     public_dictionary.emplace(Tag(0x0008, 0x1080), ElementsDictionaryEntry("Admitting Diagnoses Description", "AdmittingDiagnosesDescription",  "LO", "1-n"));
     public_dictionary.emplace(Tag(0x0008, 0x1084), ElementsDictionaryEntry("Admitting Diagnoses Code Sequence", "AdmittingDiagnosesCodeSequence",  "SQ", "1"));
+    public_dictionary.emplace(Tag(0x0008, 0x1088), ElementsDictionaryEntry("Pyramid Description", "PyramidDescription",  "LO", "1"));
     public_dictionary.emplace(Tag(0x0008, 0x1090), ElementsDictionaryEntry("Manufacturer's Model Name", "ManufacturerModelName",  "LO", "1"));
     public_dictionary.emplace(Tag(0x0008, 0x1100), ElementsDictionaryEntry("Referenced Results Sequence", "ReferencedResultsSequence",  "SQ", "1"));
     public_dictionary.emplace(Tag(0x0008, 0x1110), ElementsDictionaryEntry("Referenced Study Sequence", "ReferencedStudySequence",  "SQ", "1"));
@@ -251,7 +254,9 @@ void update_0008(
     public_tags.emplace("InstanceCreatorUID", Tag(0x0008, 0x0014));
     public_tags.emplace("InstanceCoercionDateTime", Tag(0x0008, 0x0015));
     public_tags.emplace("SOPClassUID", Tag(0x0008, 0x0016));
+    public_tags.emplace("AcquisitionUID", Tag(0x0008, 0x0017));
     public_tags.emplace("SOPInstanceUID", Tag(0x0008, 0x0018));
+    public_tags.emplace("PyramidUID", Tag(0x0008, 0x0019));
     public_tags.emplace("RelatedGeneralSOPClassUID", Tag(0x0008, 0x001a));
     public_tags.emplace("OriginalSpecializedSOPClassUID", Tag(0x0008, 0x001b));
     public_tags.emplace("StudyDate", Tag(0x0008, 0x0020));
@@ -362,6 +367,7 @@ void update_0008(
     public_tags.emplace("OperatorIdentificationSequence", Tag(0x0008, 0x1072));
     public_tags.emplace("AdmittingDiagnosesDescription", Tag(0x0008, 0x1080));
     public_tags.emplace("AdmittingDiagnosesCodeSequence", Tag(0x0008, 0x1084));
+    public_tags.emplace("PyramidDescription", Tag(0x0008, 0x1088));
     public_tags.emplace("ManufacturerModelName", Tag(0x0008, 0x1090));
     public_tags.emplace("ReferencedResultsSequence", Tag(0x0008, 0x1100));
     public_tags.emplace("ReferencedStudySequence", Tag(0x0008, 0x1110));

@@ -40,6 +40,7 @@ void update_0020(
     public_dictionary.emplace(Tag(0x0020, 0x0022), ElementsDictionaryEntry("Overlay Number", "OverlayNumber",  "IS", "1"));
     public_dictionary.emplace(Tag(0x0020, 0x0024), ElementsDictionaryEntry("Curve Number", "CurveNumber",  "IS", "1"));
     public_dictionary.emplace(Tag(0x0020, 0x0026), ElementsDictionaryEntry("LUT Number", "LUTNumber",  "IS", "1"));
+    public_dictionary.emplace(Tag(0x0020, 0x0027), ElementsDictionaryEntry("Pyramid Label", "PyramidLabel",  "LO", "1"));
     public_dictionary.emplace(Tag(0x0020, 0x0030), ElementsDictionaryEntry("Image Position", "ImagePosition",  "DS", "3"));
     public_dictionary.emplace(Tag(0x0020, 0x0032), ElementsDictionaryEntry("Image Position (Patient)", "ImagePositionPatient",  "DS", "3"));
     public_dictionary.emplace(Tag(0x0020, 0x0035), ElementsDictionaryEntry("Image Orientation", "ImageOrientation",  "DS", "6"));
@@ -162,6 +163,7 @@ void update_0020(
     public_tags.emplace("OverlayNumber", Tag(0x0020, 0x0022));
     public_tags.emplace("CurveNumber", Tag(0x0020, 0x0024));
     public_tags.emplace("LUTNumber", Tag(0x0020, 0x0026));
+    public_tags.emplace("PyramidLabel", Tag(0x0020, 0x0027));
     public_tags.emplace("ImagePosition", Tag(0x0020, 0x0030));
     public_tags.emplace("ImagePositionPatient", Tag(0x0020, 0x0032));
     public_tags.emplace("ImageOrientation", Tag(0x0020, 0x0035));

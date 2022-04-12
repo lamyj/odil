@@ -36,6 +36,7 @@ Tag const PatientOrientation(0x0020, 0x0020);
 Tag const OverlayNumber(0x0020, 0x0022);
 Tag const CurveNumber(0x0020, 0x0024);
 Tag const LUTNumber(0x0020, 0x0026);
+Tag const PyramidLabel(0x0020, 0x0027);
 Tag const ImagePosition(0x0020, 0x0030);
 Tag const ImagePositionPatient(0x0020, 0x0032);
 Tag const ImageOrientation(0x0020, 0x0035);
