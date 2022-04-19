@@ -5,7 +5,7 @@ else()
     cmake_policy(SET CMP0074 NEW)
 endif()
 
-project("Odil" VERSION 0.12.1)
+project("Odil" VERSION 0.12.2)
 
 option(BUILD_SHARED_LIBS "Build Odil with shared libraries." ON)
 option(BUILD_EXAMPLES "Build the examples directory." ON)
