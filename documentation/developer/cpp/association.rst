@@ -114,7 +114,7 @@ Receiving an association is performed by the ``receive_association`` member func
         }
     }
 
-Optionnally, a callback which indicates whether the association request is acceptable or may be specified. If the request is acceptable, the callback must return the accepted parameters, otherwise it must throw an exception of type `odil::AssociationRejected`_. As an example, the default acceptation callback, which accepts the first transfer syntax for all abstract syntaxes, would be:
+Optionally, a callback which indicates whether the association request is acceptable or may be specified. If the request is acceptable, the callback must return the accepted parameters, otherwise it must throw an exception of type `odil::AssociationRejected`_. As an example, the default acceptation callback, which accepts the first transfer syntax for all abstract syntaxes, would be:
 
 ::
   
