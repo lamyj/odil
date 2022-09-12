@@ -52,7 +52,7 @@ jobs:
           echo "WORKSPACE=${GITHUB_WORKSPACE}" >> $GITHUB_ENV
           echo "CMAKE_OPTIONS=${{ matrix.cmake_options }}" >> $GITHUB_ENV
       - name: Checkout latest revision
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Start the worker
         run: ${{ matrix.start_worker }}
       - name: Configure the build
