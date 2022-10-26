@@ -4,62 +4,52 @@ on: push
 jobs:
   build:
     runs-on: ${{ matrix.os }}
-    name: ${{ matrix.name }}
+    container: ${{ matrix.container }}
+    name: ${{ matrix.container || matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         include:
-          - name: "Debian 10 (Buster)"
-            os: ubuntu-latest
-            ci_type: deb
-            start_worker: "docker run -di -v ${WORKSPACE}:${WORKSPACE} --name worker --rm debian:buster"
-            worker: "docker exec -w ${WORKSPACE} -e WORKSPACE -e CMAKE_OPTIONS -e DEBIAN_FRONTEND=noninteractive worker"
-            stop_worker: "docker kill worker"
-          - name: "Debian 11 (Bullseye)"
-            os: ubuntu-latest
-            ci_type: deb
-            start_worker: "docker run -di -v ${WORKSPACE}:${WORKSPACE} --name worker --rm debian:bullseye"
-            worker: "docker exec -w ${WORKSPACE} -e WORKSPACE -e CMAKE_OPTIONS -e DEBIAN_FRONTEND=noninteractive worker"
-            stop_worker: "docker kill worker"
-          - name: "Ubuntu 18.04 (Bionic)"
-            os: ubuntu-latest
-            ci_type: deb
-            start_worker: "docker run -di -v ${WORKSPACE}:${WORKSPACE} --name worker --rm ubuntu:bionic"
-            worker: "docker exec -w ${WORKSPACE} -e WORKSPACE -e CMAKE_OPTIONS -e DEBIAN_FRONTEND=noninteractive worker"
-            stop_worker: "docker kill worker"
-          - name: "Ubuntu 20.04 (Focal)"
-            os: ubuntu-latest
-            ci_type: deb
-            start_worker: "docker run -di -v ${WORKSPACE}:${WORKSPACE} --name worker --rm ubuntu:focal"
-            worker: "docker exec -w ${WORKSPACE} -e WORKSPACE -e CMAKE_OPTIONS -e DEBIAN_FRONTEND=noninteractive worker"
-            stop_worker: "docker kill worker"
-          - name: "Ubuntu 22.04 (Jammy)"
-            os: ubuntu-latest
-            ci_type: deb
-            start_worker: "docker run -di -v ${WORKSPACE}:${WORKSPACE} --name worker --rm ubuntu:jammy"
-            worker: "docker exec -w ${WORKSPACE} -e WORKSPACE -e CMAKE_OPTIONS -e DEBIAN_FRONTEND=noninteractive worker"
-            stop_worker: "docker kill worker"
-            cmake_options: "-DCMAKE_CXX_STANDARD=17"
-          - name: "macOS 11 (Big Sur) + Homebrew"
-            os: macos-11
-            ci_type: brew
-            start_worker: ""
-            worker: ""
-            stop_worker: ""
+          #- { os: "ubuntu-latest", packaging: "apt", container: "debian:stretch", python: "python3" }
+          #- { os: "ubuntu-latest", packaging: "apt", container: "debian:buster", python: "python3" }
+          - { os: "ubuntu-latest", packaging: "apt", container: "debian:bullseye", python: "python3" }
+          #- { os: "ubuntu-latest", packaging: "apt", container: "ubuntu:bionic", python: "python3" }
+          #- { os: "ubuntu-latest", packaging: "apt", container: "ubuntu:focal", python: "python3" }
+          - { os: "ubuntu-latest", packaging: "apt", container: "ubuntu:jammy", python: "python3", cmake_options: "-DCMAKE_CXX_STANDARD=17" }
+          # - { os: "macos-latest", packaging: "brew", python: "python3" }
+          # - { os: "windows-latest", packaging: "conda", python: "python" }
+    env:
+      WORKSPACE: "${{ github.workspace }}"
     steps:
-      - name: Configure environment
+      - name: Provision (Debian, Ubuntu)
+        # Install Python and Git. macOS and Windows workers already have this,
+        # however for Linux we are running in minimal containers.
         run: |
-          echo "WORKSPACE=${GITHUB_WORKSPACE}" >> $GITHUB_ENV
-          echo "CMAKE_OPTIONS=${{ matrix.cmake_options }}" >> $GITHUB_ENV
+          apt-get update
+          apt-get install -y git python3
+        if: ${{ contains(matrix.container, 'debian') || contains(matrix.container, 'ubuntu') }}
+      
+      - name: Provision (Windows)
+        # Initialize the Conda environment by default
+        run: C:\Miniconda\condabin\conda.bat init powershell
+        if: ${{ contains(matrix.os, 'windows') }}
+      
       - name: Checkout latest revision
-        uses: actions/checkout@v2
-      - name: Start the worker
-        run: ${{ matrix.start_worker }}
-      - name: Configure the build
-        run: ${{ matrix.worker }} ./.ci/${{ matrix.ci_type}}/install
+        # Only the latest revision is required, as later steps do not depend on
+        # tags.
+        run: |
+          git config --global init.defaultBranch master
+          git config --global --add safe.directory '*'
+          git init .
+          git remote add origin ${{ github.server_url }}/${{ github.repository }}
+          git fetch origin --depth=1 ${{ github.ref }}
+          git checkout ${{ github.ref_name }}
+      
+      - name: Set-up (${{ matrix.packaging }})
+        run: ${{ matrix.python }} .ci/build/${{ matrix.packaging }}.py
+      
       - name: Build
-        run: ${{ matrix.worker }} ./.ci/${{ matrix.ci_type}}/build
+        run: ${{ matrix.python }} ./.ci/build/build.py ${{ matrix.cmake_options }}
+      
       - name: Run tests
-        run: ${{ matrix.worker }} ./.ci/${{ matrix.ci_type}}/post_build
-      - name: Stop the worker
-        run: ${{ matrix.stop_worker }}
+        run: ${{ matrix.python }} ./.ci/build/post_build.py
