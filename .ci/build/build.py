@@ -20,11 +20,28 @@ os.environ["CMAKE_PREFIX_PATH"] = os.pathsep.join([
 ])
 subprocess.check_call(
     [
-        "cmake", "-G", "Ninja",
+        "cmake",
         "-DPYTHON_EXECUTABLE={}".format(sys.executable),
-        "-DCMAKE_BUILD_TYPE=Release",
+        "-DCMAKE_BUILD_TYPE=Debug",
         "-DCMAKE_INSTALL_PREFIX={}".format(install_dir), 
         *cmake_options,
         workspace],
     cwd=build_dir)
-subprocess.check_call(["ninja", "install"], cwd=build_dir)
+
+cmake_version = {}
+with open(os.path.join(build_dir, "CMakeCache.txt")) as fd:
+    for line in fd.readlines():
+        match = re.match(r"CMAKE_CACHE_([^_]+)_VERSION:[^=]+=(\d+)", line)
+        if match:
+            cmake_version[match.group(1)] = int(match.group(2))
+cmake_version = tuple(cmake_version[x] for x in ["MAJOR", "MINOR", "PATCH"])
+
+if cmake_version >= (3, 12, 0):
+    parallel = ["--parallel", str(multiprocessing.cpu_count())]
+else:
+    parallel = []
+subprocess.check_call(
+    [
+        "cmake", "--build", ".", "--target", "install", "--config", "Release",
+        *parallel],
+    cwd=build_dir)
