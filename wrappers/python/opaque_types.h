@@ -32,32 +32,9 @@ T convert_sequence(pybind11::sequence & source, Args && ... args)
     {
         throw odil::Exception("Empty sequence has no type");
     }
-
-#define try_convert(Items) \
-    try \
-    { \
-        Items items(len(source)); \
-        std::transform( \
-            source.begin(), source.end(), items.begin(), \
-            [](pybind11::handle const h) { \
-                return h.cast<typename Items::value_type>(); \
-            } \
-        ); \
-        return T{items, std::forward<Args>(args)...}; \
-    } \
-    catch(pybind11::cast_error const &) \
-    { \
-        /* Ignore */ \
-    }
-
-    try_convert(odil::Value::Integers);
-    try_convert(odil::Value::Reals);
-    try_convert(odil::Value::Strings);
-    try_convert(odil::Value::DataSets);
-    try_convert(odil::Value::Binary);
-
-#undef try_convert
-
+    
+    // NOTE: pybind11 2.10 introduces conversion from bytearray to std::string
+    // Keep Odil's behavior by testing first for bytearray
     try
     {
         odil::Value::Binary items(len(source));
@@ -85,6 +62,31 @@ T convert_sequence(pybind11::sequence & source, Args && ... args)
         /* ignore */
     }
 
+#define try_convert(Items) \
+    try \
+    { \
+        Items items(len(source)); \
+        std::transform( \
+            source.begin(), source.end(), items.begin(), \
+            [](pybind11::handle const h) { \
+                return h.cast<typename Items::value_type>(); \
+            } \
+        ); \
+        return T{items, std::forward<Args>(args)...}; \
+    } \
+    catch(pybind11::cast_error const &) \
+    { \
+        /* Ignore */ \
+    }
+
+    try_convert(odil::Value::Integers);
+    try_convert(odil::Value::Reals);
+    try_convert(odil::Value::Strings);
+    try_convert(odil::Value::DataSets);
+    try_convert(odil::Value::Binary);
+
+#undef try_convert
+    
     throw odil::Exception("Unknown value type");
 }
 

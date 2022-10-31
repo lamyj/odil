@@ -22,7 +22,7 @@ subprocess.check_call(
     [
         "cmake",
         "-DPYTHON_EXECUTABLE={}".format(sys.executable),
-        "-DCMAKE_BUILD_TYPE=Debug",
+        "-DCMAKE_BUILD_TYPE=Release",
         "-DCMAKE_INSTALL_PREFIX={}".format(install_dir), 
         *cmake_options,
         workspace],
