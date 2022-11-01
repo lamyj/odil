@@ -37,7 +37,7 @@ jobs:
       - name: Debug (Windows)
         run: |
           echo $CONDA
-          ls -l /c/Miniconda
+          ls -l /c/Miniconda/condabin
       
       - name: Provision (Conda)
         # Initialize the Conda environment by default
