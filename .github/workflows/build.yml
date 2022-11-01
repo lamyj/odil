@@ -37,7 +37,7 @@ jobs:
       - name: Debug (Windows)
         run: |
           echo $PATH
-          which conda
+          which conda.bat
       
       - name: Provision (Conda)
         # Initialize the Conda environment by default
