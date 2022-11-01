@@ -36,6 +36,7 @@ jobs:
       
       - name: Debug (Windows)
         run: |
+          echo $CONDA
           ls -l /c/Miniconda
       
       - name: Provision (Conda)
