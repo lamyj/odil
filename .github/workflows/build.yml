@@ -30,21 +30,14 @@ jobs:
           apt-get install -y git python3
         if: ${{ contains(matrix.container, 'debian') || contains(matrix.container, 'ubuntu') }}
       
-      - name: Provision (Windows)
-        run: |
-          ln -s /c/Miniconda/condabin/conda.bat /c/Miniconda/condabin/conda
-          echo "PATH=/c/Miniconda/condabin:${PATH}" >> $GITHUB_ENV
-        if: ${{ contains(matrix.os, 'windows') }}
-      
-      - name: Debug (Windows)
-        run: |
-          echo $CONDA
-          ls -l /c/Miniconda/condabin
+      - name: Provision (Conda, Windows)
+        run: C:\Miniconda\condabin\conda.bat init --all
+        if: ${{ matrix.packaging == 'conda' && matrix.os == 'windows' }}
       
       - name: Provision (Conda)
         # Initialize the Conda environment by default
         run: conda init --all
-        if: ${{ contains(matrix.packaging, 'conda') }}
+        if: ${{ matrix.packaging == 'conda' && matrix.os != 'windows' }}
       
       - name: Checkout latest revision
         # Only the latest revision is required, as later steps do not depend on
