@@ -30,8 +30,14 @@ jobs:
           apt-get install -y git python3
         if: ${{ contains(matrix.container, 'debian') || contains(matrix.container, 'ubuntu') }}
       
+      - name: Provision (Windows)
+        run: echo "PATH=/c/Miniconda/condabin:${PATH}" >> $GITHUB_ENV
+        if: ${{ contains(matrix.os, 'windows') }}
+      
       - name: Debug (Windows)
-        run: env
+        run: |
+          echo $PATH
+          which conda
       
       - name: Provision (Conda)
         # Initialize the Conda environment by default
