@@ -31,7 +31,9 @@ jobs:
         if: ${{ contains(matrix.container, 'debian') || contains(matrix.container, 'ubuntu') }}
       
       - name: Provision (Windows)
-        run: echo "PATH=/c/Miniconda/condabin:${PATH}" >> $GITHUB_ENV
+        run: |
+          ln -s /c/Miniconda/condabin/conda.bat /c/Miniconda/condabin/conda
+          echo "PATH=/c/Miniconda/condabin:${PATH}" >> $GITHUB_ENV
         if: ${{ contains(matrix.os, 'windows') }}
       
       - name: Debug (Windows)
