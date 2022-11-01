@@ -32,12 +32,12 @@ jobs:
       
       - name: Provision (Conda, Windows)
         run: C:\Miniconda\condabin\conda.bat init --all
-        if: ${{ matrix.packaging == 'conda' && matrix.os == 'windows' }}
+        if: ${{ matrix.packaging == 'conda' && contains(matrix.os, 'windows') }}
       
       - name: Provision (Conda)
         # Initialize the Conda environment by default
         run: conda init --all
-        if: ${{ matrix.packaging == 'conda' && matrix.os != 'windows' }}
+        if: ${{ matrix.packaging == 'conda' && !contains(matrix.os, 'windows') }}
       
       - name: Checkout latest revision
         # Only the latest revision is required, as later steps do not depend on
