@@ -32,6 +32,7 @@ jobs:
       
       - name: Provision (Conda, Windows)
         run: C:\Miniconda\condabin\conda.bat init --all
+        shell: pwsh
         if: ${{ matrix.packaging == 'conda' && contains(matrix.os, 'windows') }}
       
       - name: Provision (Conda)
