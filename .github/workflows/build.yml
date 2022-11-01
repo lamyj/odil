@@ -30,10 +30,8 @@ jobs:
           apt-get install -y git python3
         if: ${{ contains(matrix.container, 'debian') || contains(matrix.container, 'ubuntu') }}
       
-      # - name: Provision (Windows)
-      #   # Initialize the Conda environment by default
-      #   run: C:\Miniconda\condabin\conda.bat init powershell
-      #   if: ${{ contains(matrix.os, 'windows') }}
+      - name: Debug (Windows)
+        run: env
       
       - name: Provision (Conda)
         # Initialize the Conda environment by default
