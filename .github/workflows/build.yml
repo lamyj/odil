@@ -10,11 +10,11 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { os: "ubuntu-latest", packaging: "apt", container: "debian:buster", python: "python3" }
-          - { os: "ubuntu-latest", packaging: "apt", container: "debian:bullseye", python: "python3" }
-          - { os: "ubuntu-latest", packaging: "apt", container: "ubuntu:focal", python: "python3" }
-          - { os: "ubuntu-latest", packaging: "apt", container: "ubuntu:jammy", python: "python3", cmake_options: "-DCMAKE_CXX_STANDARD=17" }
-          - { os: "macos-latest", packaging: "conda", python: "python" }
+          # - { os: "ubuntu-latest", packaging: "apt", container: "debian:buster", python: "python3" }
+          # - { os: "ubuntu-latest", packaging: "apt", container: "debian:bullseye", python: "python3" }
+          # - { os: "ubuntu-latest", packaging: "apt", container: "ubuntu:focal", python: "python3" }
+          # - { os: "ubuntu-latest", packaging: "apt", container: "ubuntu:jammy", python: "python3", cmake_options: "-DCMAKE_CXX_STANDARD=17" }
+          # - { os: "macos-latest", packaging: "conda", python: "python" }
           - { os: "windows-latest", packaging: "conda", python: "python" }
     env:
       WORKSPACE: "${{ github.workspace }}"
@@ -30,10 +30,10 @@ jobs:
           apt-get install -y git python3
         if: ${{ contains(matrix.container, 'debian') || contains(matrix.container, 'ubuntu') }}
       
-      - name: Provision (Windows)
-        # Initialize the Conda environment by default
-        run: C:\Miniconda\condabin\conda.bat init powershell
-        if: ${{ contains(matrix.os, 'windows') }}
+      # - name: Provision (Windows)
+      #   # Initialize the Conda environment by default
+      #   run: C:\Miniconda\condabin\conda.bat init powershell
+      #   if: ${{ contains(matrix.os, 'windows') }}
       
       - name: Provision (Conda)
         # Initialize the Conda environment by default
