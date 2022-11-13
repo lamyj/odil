@@ -14,7 +14,7 @@ jobs:
           # - { os: "ubuntu-latest", packaging: "apt", container: "debian:bullseye", python: "python3" }
           # - { os: "ubuntu-latest", packaging: "apt", container: "ubuntu:focal", python: "python3" }
           # - { os: "ubuntu-latest", packaging: "apt", container: "ubuntu:jammy", python: "python3", cmake_options: "-DCMAKE_CXX_STANDARD=17" }
-          # - { os: "macos-latest", packaging: "conda", python: "python" }
+          - { os: "macos-latest", packaging: "conda", python: "python" }
           - { os: "windows-latest", packaging: "conda", python: "python" }
     env:
       WORKSPACE: "${{ github.workspace }}"
