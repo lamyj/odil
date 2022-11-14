@@ -20,7 +20,7 @@ os.environ["CMAKE_PREFIX_PATH"] = os.pathsep.join([
 ])
 subprocess.check_call(
     [
-        "cmake", "-G", "Ninja",
+        "cmake",
         "-DPYTHON_EXECUTABLE={}".format(sys.executable),
         "-DCMAKE_BUILD_TYPE=Release",
         "-DCMAKE_INSTALL_PREFIX={}".format(install_dir), 
