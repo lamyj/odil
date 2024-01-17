@@ -60,6 +60,19 @@ public:
         Value::Binary const & value, std::ostream & stream,
         ByteOrdering byte_ordering, bool explicit_vr);
 
+    static std::size_t size(
+        odil::Tag const &, bool explicit_vr, ItemEncoding item_encoding,
+        bool use_group_length);
+    static std::size_t size(
+        odil::VR vr, odil::Value const &, bool explicit_vr,
+        ItemEncoding item_encoding, bool use_group_length);
+    static std::size_t size(
+        odil::Element const &, bool explicit_vr, ItemEncoding item_encoding,
+        bool use_group_length);
+    static std::size_t size(
+        odil::DataSet const &, bool explicit_vr, ItemEncoding item_encoding,
+        bool use_group_length);
+    
     /// @brief Build a writer.
     Writer(
         std::ostream & stream,
@@ -96,7 +109,7 @@ public:
 
 private:
 
-    struct Visitor
+    struct WriteVisitor
     {
         typedef void result_type;
 
@@ -108,7 +121,7 @@ private:
         ItemEncoding item_encoding;
         bool use_group_length;
 
-        Visitor(
+        WriteVisitor(
             std::ostream & stream, VR vr,
             ByteOrdering byte_ordering, bool explicit_vr, ItemEncoding item_encoding,
             bool use_group_length);
@@ -121,6 +134,27 @@ private:
 
         template<typename T>
         void write_strings(T const & sequence, char padding) const;
+    };
+    
+    class SizeVisitor
+    {
+    public:
+        using result_type = std::size_t;
+        
+        VR vr;
+        bool explicit_vr;
+        ItemEncoding item_encoding;
+        bool use_group_length;
+
+        SizeVisitor(
+            VR vr, bool explicit_vr, ItemEncoding item_encoding,
+            bool use_group_length);
+        
+        result_type operator()(Value::Integers const & value) const;
+        result_type operator()(Value::Reals const & value) const;
+        result_type operator()(Value::Strings const & value) const;
+        result_type operator()(Value::DataSets const & value) const;
+        result_type operator()(Value::Binary const & value) const;
     };
 };
 

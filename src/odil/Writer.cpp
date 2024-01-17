@@ -60,6 +60,84 @@ Writer
     }
 }
 
+std::size_t
+Writer
+::size(odil::Tag const &, bool, ItemEncoding, bool)
+{
+    return 4;
+}
+
+std::size_t
+Writer
+::size(
+    odil::VR vr, odil::Value const & value, bool explicit_vr,
+    ItemEncoding item_encoding, bool use_group_length)
+{
+    SizeVisitor const visitor(vr, explicit_vr, item_encoding, use_group_length);
+    return apply_visitor(visitor, value);
+}
+
+std::size_t
+Writer
+::size(
+    odil::Element const & element, bool explicit_vr, ItemEncoding item_encoding,
+    bool use_group_length)
+{
+    std::size_t const vr = explicit_vr ? 2 : 0;
+    std::size_t const vl = 
+        explicit_vr
+        ? (
+            (
+                element.vr == odil::VR::OB || element.vr == odil::VR::OW
+                || element.vr == odil::VR::OF || element.vr == odil::VR::SQ
+                || element.vr == odil::VR::UT || element.vr == odil::VR::UN)
+            ? 2+4 /* PS3.5, table 7.1-1*/
+            : 2 /* PS3.5, table 7.1-2*/ )
+        : 4 /* PS 3.5, table 7.1-3 */;
+    
+    SizeVisitor const visitor(element.vr, explicit_vr, item_encoding, use_group_length);
+    auto const value = apply_visitor(visitor, element.get_value());
+    
+    return vr+vl+value;
+}
+
+std::size_t
+Writer
+::size(
+    odil::DataSet const & data_set, bool explicit_vr,
+    ItemEncoding item_encoding, bool use_group_length)
+{
+    std::size_t size=0;
+    
+    uint16_t group = 0xffff;
+    for(auto && item: data_set)
+    {
+        auto const & tag = item.first;
+        auto const & element = item.second;
+        
+        size += Writer::size(tag, explicit_vr, item_encoding, use_group_length);
+        size += Writer::size(
+            element, explicit_vr, item_encoding, use_group_length);
+        
+        if(tag.group != group)
+        {
+            group = tag.group;
+            auto const write_group_length = (
+                group == 0 || group == 2 ||
+                (use_group_length && group != 4 && group != 6));
+            if(write_group_length)
+            {
+                // Tag
+                size += 4;
+                // Value (UL)
+                size += 4;
+            }
+        }
+    }
+    
+    return size;
+}
+
 Writer
 ::Writer(
     std::ostream & stream,
@@ -165,7 +243,7 @@ Writer
     std::ostringstream value_stream;
     if(!element.get_value().empty())
     {
-        Visitor const visitor(
+        WriteVisitor const visitor(
             value_stream, vr, this->byte_ordering, this->explicit_vr,
             this->item_encoding, this->use_group_length);
         apply_visitor(visitor, element.get_value());
@@ -306,8 +384,8 @@ Writer
     data_set_writer.write_data_set(data_set);
 }
 
-Writer::Visitor
-::Visitor(
+Writer::WriteVisitor
+::WriteVisitor(
     std::ostream & stream, VR vr,
     ByteOrdering byte_ordering, bool explicit_vr, Writer::ItemEncoding item_encoding,
     bool use_group_length)
@@ -317,8 +395,8 @@ Writer::Visitor
     // Nothing else
 }
 
-Writer::Visitor::result_type
-Writer::Visitor
+Writer::WriteVisitor::result_type
+Writer::WriteVisitor
 ::operator()(Value::Integers const & value) const
 {
     if(this->vr == VR::IS)
@@ -379,8 +457,8 @@ Writer::Visitor
     }
 }
 
-Writer::Visitor::result_type
-Writer::Visitor
+Writer::WriteVisitor::result_type
+Writer::WriteVisitor
 ::operator()(Value::Reals const & value) const
 {
     if(this->vr == VR::DS)
@@ -446,8 +524,8 @@ Writer::Visitor
     }
 }
 
-Writer::Visitor::result_type
-Writer::Visitor
+Writer::WriteVisitor::result_type
+Writer::WriteVisitor
 ::operator()(Value::Strings const & value) const
 {
     if(this->vr == VR::AT)
@@ -467,8 +545,8 @@ Writer::Visitor
     }
 }
 
-Writer::Visitor::result_type
-Writer::Visitor
+Writer::WriteVisitor::result_type
+Writer::WriteVisitor
 ::operator()(Value::DataSets const & value) const
 {
     // Write all items to a sub-stream
@@ -530,8 +608,8 @@ Writer::Visitor
     }
 }
 
-Writer::Visitor::result_type
-Writer::Visitor
+Writer::WriteVisitor::result_type
+Writer::WriteVisitor
 ::operator()(Value::Binary const & value) const
 {
     if(value.empty())
@@ -593,7 +671,7 @@ Writer::Visitor
 
 template<typename T>
 void
-Writer::Visitor
+Writer::WriteVisitor
 ::write_strings(T const & sequence, char padding) const
 {
     if(sequence.empty())
@@ -631,6 +709,217 @@ Writer::Visitor
         {
             throw Exception("Could not write to stream");
         }
+    }
+}
+
+Writer::SizeVisitor
+::SizeVisitor(
+    VR vr, bool explicit_vr, ItemEncoding item_encoding, bool use_group_length)
+: vr(vr), explicit_vr(explicit_vr), item_encoding(item_encoding),
+    use_group_length(use_group_length)
+{
+    // Nothing else
+}
+
+Writer::SizeVisitor::result_type
+Writer::SizeVisitor
+::operator()(Value::Integers const & value) const
+{
+    if(this->vr == VR::IS)
+    {
+        std::size_t size=0;
+        
+        // Values
+        for(auto && x: value)
+        {
+            // IS uses a base-10 representation (PS 3.5, 6.2). For any positive
+            // integer x such that 10^n <= x < 10^(n+1), n+1 digits are required
+            // Since n <= log10(x) < n+1,
+            size += x==0 ? 1 : (1 + int(std::log10(std::abs(x))));
+            // No implicit '+' prefix is used for positive integers
+            if(x<0)
+            {
+                ++size;
+            }
+        }
+        
+        // Separators
+        size += value.size()-1;
+        
+        // Padding
+        if(size%2 == 1)
+        {
+            ++size;
+        }
+        
+        return size;
+    }
+    else if(this->vr == VR::SV || this->vr == VR::UV)
+    {
+        return 8 * value.size();
+    }
+    else if(this->vr == VR::SL || this->vr == VR::UL)
+    {
+        return 4 * value.size();
+    }
+    else if(this->vr == VR::SS || this->vr == VR::US)
+    {
+        return 2 * value.size();
+    }
+    else
+    {
+        throw Exception("Cannot size " + as_string(this->vr));
+    }
+}
+
+Writer::SizeVisitor::result_type
+Writer::SizeVisitor
+::operator()(Value::Reals const & value) const
+{
+    if(this->vr == VR::DS)
+    {
+        std::size_t size=0;
+        
+        // Values: the size of the representation cannot be predicted, so we
+        // need to serialize each value
+        for(auto && x: value)
+        {
+            // Each item in the DS is at most 16 bytes (PS 3.5, 6.2), account
+            // for NUL at end
+            static unsigned int const buffer_size=16+1;
+            static char buffer[buffer_size];
+            write_ds(x, buffer, buffer_size);
+            size += strlen(buffer);
+        }
+        
+        // Separators
+        size += value.size()-1;
+        
+        // Padding
+        if(size%2 == 1)
+        {
+            ++size;
+        }
+        
+        return size;
+    }
+    else if(this->vr == VR::FD)
+    {
+        return 8 * value.size();
+    }
+    else if(this->vr == VR::FL)
+    {
+        return 4 * value.size();
+    }
+    else
+    {
+        throw Exception("Cannot size " + as_string(this->vr));
+    }
+}
+
+Writer::SizeVisitor::result_type
+Writer::SizeVisitor
+::operator()(Value::Strings const & value) const
+{
+    if(this->vr == odil::VR::AT)
+    {
+        return 4*value.size();
+    }
+    else
+    {
+        std::size_t size=0;
+        
+        // Values
+        for(auto && x: value)
+        {
+            size += x.size();
+        }
+        
+        // Separators
+        size += value.size()-1;
+        
+        // Padding
+        if(size%2 == 1)
+        {
+            ++size;
+        }
+        
+        return size;
+    }
+}
+
+Writer::SizeVisitor::result_type
+Writer::SizeVisitor
+::operator()(Value::DataSets const & value) const
+{
+    std::size_t size=0;
+    for(auto && x: value)
+    {
+        // Item tag
+        size += 4;
+        // Length
+        size += 4;
+        // Value
+        size += Writer::size(
+            *x, this->explicit_vr, this->item_encoding, this->use_group_length);
+        if(this->item_encoding == ItemEncoding::UndefinedLength)
+        {
+            // Item Delimitation Item tag
+            size += 4;
+            // "Length" of the delimitation item
+            size += 4;
+        }
+    }
+    
+    if(this->item_encoding == ItemEncoding::UndefinedLength)
+    {
+        // Sequence Delimitation Item tag
+        size += 4;
+        // "Length" of the delimitation item
+        size += 4;
+    }
+    
+    return size;
+}
+
+Writer::SizeVisitor::result_type
+Writer::SizeVisitor
+::operator()(Value::Binary const & value) const
+{
+    if(value.empty())
+    {
+        return 0;
+    }
+    else if(value.size() > 1)
+    {
+        std::size_t size = 0;
+        for(auto && fragment: value)
+        {
+            // Item tag
+            size += 4;
+            // Length
+            size += 4;
+            // Content
+            size += fragment.size();
+        }
+        // Sequence Delimitation Item tag
+        size += 4;
+        // "Length" of the empty final element
+        size += 4;
+        
+        return size;
+    }
+    else
+    {
+        std::size_t size = value[0].size();
+        
+        // Padding
+        if(size%2 == 1)
+        {
+            ++size;
+        }
+        
+        return size;
     }
 }
 
