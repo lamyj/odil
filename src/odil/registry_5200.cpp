@@ -25,7 +25,7 @@ void update_5200(
 {
 
     public_dictionary.emplace(Tag(0x5200, 0x9229), ElementsDictionaryEntry("Shared Functional Groups Sequence", "SharedFunctionalGroupsSequence",  "SQ", "1"));
-    public_dictionary.emplace(Tag(0x5200, 0x9230), ElementsDictionaryEntry("Per-frame Functional Groups Sequence", "PerFrameFunctionalGroupsSequence",  "SQ", "1"));
+    public_dictionary.emplace(Tag(0x5200, 0x9230), ElementsDictionaryEntry("Per-Frame Functional Groups Sequence", "PerFrameFunctionalGroupsSequence",  "SQ", "1"));
 
     public_tags.emplace("SharedFunctionalGroupsSequence", Tag(0x5200, 0x9229));
     public_tags.emplace("PerFrameFunctionalGroupsSequence", Tag(0x5200, 0x9230));

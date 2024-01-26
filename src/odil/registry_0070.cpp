@@ -122,6 +122,7 @@ void update_0070(
     public_dictionary.emplace(Tag(0x0070, 0x0311), ElementsDictionaryEntry("Fiducial Identifier Code Sequence", "FiducialIdentifierCodeSequence",  "SQ", "1"));
     public_dictionary.emplace(Tag(0x0070, 0x0312), ElementsDictionaryEntry("Contour Uncertainty Radius", "ContourUncertaintyRadius",  "FD", "1"));
     public_dictionary.emplace(Tag(0x0070, 0x0314), ElementsDictionaryEntry("Used Fiducials Sequence", "UsedFiducialsSequence",  "SQ", "1"));
+    public_dictionary.emplace(Tag(0x0070, 0x0315), ElementsDictionaryEntry("Used RT Structure Set ROI Sequence", "UsedRTStructureSetROISequence",  "SQ", "1"));
     public_dictionary.emplace(Tag(0x0070, 0x0318), ElementsDictionaryEntry("Graphic Coordinates Data Sequence", "GraphicCoordinatesDataSequence",  "SQ", "1"));
     public_dictionary.emplace(Tag(0x0070, 0x031a), ElementsDictionaryEntry("Fiducial UID", "FiducialUID",  "UI", "1"));
     public_dictionary.emplace(Tag(0x0070, 0x031b), ElementsDictionaryEntry("Referenced Fiducial UID", "ReferencedFiducialUID",  "UI", "1"));
@@ -310,6 +311,7 @@ void update_0070(
     public_tags.emplace("FiducialIdentifierCodeSequence", Tag(0x0070, 0x0311));
     public_tags.emplace("ContourUncertaintyRadius", Tag(0x0070, 0x0312));
     public_tags.emplace("UsedFiducialsSequence", Tag(0x0070, 0x0314));
+    public_tags.emplace("UsedRTStructureSetROISequence", Tag(0x0070, 0x0315));
     public_tags.emplace("GraphicCoordinatesDataSequence", Tag(0x0070, 0x0318));
     public_tags.emplace("FiducialUID", Tag(0x0070, 0x031a));
     public_tags.emplace("ReferencedFiducialUID", Tag(0x0070, 0x031b));

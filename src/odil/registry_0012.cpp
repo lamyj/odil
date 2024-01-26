@@ -35,6 +35,7 @@ void update_0012(
     public_dictionary.emplace(Tag(0x0012, 0x0051), ElementsDictionaryEntry("Clinical Trial Time Point Description", "ClinicalTrialTimePointDescription",  "ST", "1"));
     public_dictionary.emplace(Tag(0x0012, 0x0052), ElementsDictionaryEntry("Longitudinal Temporal Offset from Event", "LongitudinalTemporalOffsetFromEvent",  "FD", "1"));
     public_dictionary.emplace(Tag(0x0012, 0x0053), ElementsDictionaryEntry("Longitudinal Temporal Event Type", "LongitudinalTemporalEventType",  "CS", "1"));
+    public_dictionary.emplace(Tag(0x0012, 0x0054), ElementsDictionaryEntry("Clinical Trial Time Point Type Code Sequence", "ClinicalTrialTimePointTypeCodeSequence",  "SQ", "1"));
     public_dictionary.emplace(Tag(0x0012, 0x0060), ElementsDictionaryEntry("Clinical Trial Coordinating Center Name", "ClinicalTrialCoordinatingCenterName",  "LO", "1"));
     public_dictionary.emplace(Tag(0x0012, 0x0062), ElementsDictionaryEntry("Patient Identity Removed", "PatientIdentityRemoved",  "CS", "1"));
     public_dictionary.emplace(Tag(0x0012, 0x0063), ElementsDictionaryEntry("De-identification Method", "DeidentificationMethod",  "LO", "1-n"));
@@ -60,6 +61,7 @@ void update_0012(
     public_tags.emplace("ClinicalTrialTimePointDescription", Tag(0x0012, 0x0051));
     public_tags.emplace("LongitudinalTemporalOffsetFromEvent", Tag(0x0012, 0x0052));
     public_tags.emplace("LongitudinalTemporalEventType", Tag(0x0012, 0x0053));
+    public_tags.emplace("ClinicalTrialTimePointTypeCodeSequence", Tag(0x0012, 0x0054));
     public_tags.emplace("ClinicalTrialCoordinatingCenterName", Tag(0x0012, 0x0060));
     public_tags.emplace("PatientIdentityRemoved", Tag(0x0012, 0x0062));
     public_tags.emplace("DeidentificationMethod", Tag(0x0012, 0x0063));

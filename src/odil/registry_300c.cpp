@@ -73,6 +73,7 @@ void update_300c(
     public_dictionary.emplace(Tag(0x300c, 0x0126), ElementsDictionaryEntry("Beam Hold Transition", "BeamHoldTransition",  "CS", "1"));
     public_dictionary.emplace(Tag(0x300c, 0x0127), ElementsDictionaryEntry("Beam Hold Transition DateTime", "BeamHoldTransitionDateTime",  "DT", "1"));
     public_dictionary.emplace(Tag(0x300c, 0x0128), ElementsDictionaryEntry("Beam Hold Originating Device Sequence", "BeamHoldOriginatingDeviceSequence",  "SQ", "1"));
+    public_dictionary.emplace(Tag(0x300c, 0x0129), ElementsDictionaryEntry("Beam Hold Transition Trigger Source", "BeamHoldTransitionTriggerSource",  "CS", "1"));
 
     public_tags.emplace("ReferencedRTPlanSequence", Tag(0x300c, 0x0002));
     public_tags.emplace("ReferencedBeamSequence", Tag(0x300c, 0x0004));
@@ -123,6 +124,7 @@ void update_300c(
     public_tags.emplace("BeamHoldTransition", Tag(0x300c, 0x0126));
     public_tags.emplace("BeamHoldTransitionDateTime", Tag(0x300c, 0x0127));
     public_tags.emplace("BeamHoldOriginatingDeviceSequence", Tag(0x300c, 0x0128));
+    public_tags.emplace("BeamHoldTransitionTriggerSource", Tag(0x300c, 0x0129));
 }
 
 }

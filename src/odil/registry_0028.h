@@ -159,6 +159,7 @@ Tag const LossyImageCompression(0x0028, 0x2110);
 Tag const LossyImageCompressionRatio(0x0028, 0x2112);
 Tag const LossyImageCompressionMethod(0x0028, 0x2114);
 Tag const ModalityLUTSequence(0x0028, 0x3000);
+Tag const VariableModalityLUTSequence(0x0028, 0x3001);
 Tag const LUTDescriptor(0x0028, 0x3002);
 Tag const LUTExplanation(0x0028, 0x3003);
 Tag const ModalityLUTType(0x0028, 0x3004);

@@ -565,6 +565,7 @@ void update_300a(
     public_dictionary.emplace(Tag(0x300a, 0x0688), ElementsDictionaryEntry("RT Beam Modifier Definition Distance", "RTBeamModifierDefinitionDistance",  "FD", "1"));
     public_dictionary.emplace(Tag(0x300a, 0x0689), ElementsDictionaryEntry("Beam Area Limit Sequence", "BeamAreaLimitSequence",  "SQ", "1"));
     public_dictionary.emplace(Tag(0x300a, 0x068a), ElementsDictionaryEntry("Referenced RT Prescription Sequence", "ReferencedRTPrescriptionSequence",  "SQ", "1"));
+    public_dictionary.emplace(Tag(0x300a, 0x068b), ElementsDictionaryEntry("Dose Value Interpretation", "DoseValueInterpretation",  "CS", "1"));
     public_dictionary.emplace(Tag(0x300a, 0x0700), ElementsDictionaryEntry("Treatment Session UID", "TreatmentSessionUID",  "UI", "1"));
     public_dictionary.emplace(Tag(0x300a, 0x0701), ElementsDictionaryEntry("RT Radiation Usage", "RTRadiationUsage",  "CS", "1"));
     public_dictionary.emplace(Tag(0x300a, 0x0702), ElementsDictionaryEntry("Referenced RT Radiation Set Sequence", "ReferencedRTRadiationSetSequence",  "SQ", "1"));
@@ -1175,6 +1176,7 @@ void update_300a(
     public_tags.emplace("RTBeamModifierDefinitionDistance", Tag(0x300a, 0x0688));
     public_tags.emplace("BeamAreaLimitSequence", Tag(0x300a, 0x0689));
     public_tags.emplace("ReferencedRTPrescriptionSequence", Tag(0x300a, 0x068a));
+    public_tags.emplace("DoseValueInterpretation", Tag(0x300a, 0x068b));
     public_tags.emplace("TreatmentSessionUID", Tag(0x300a, 0x0700));
     public_tags.emplace("RTRadiationUsage", Tag(0x300a, 0x0701));
     public_tags.emplace("ReferencedRTRadiationSetSequence", Tag(0x300a, 0x0702));

@@ -31,6 +31,7 @@ Tag const ClinicalTrialTimePointID(0x0012, 0x0050);
 Tag const ClinicalTrialTimePointDescription(0x0012, 0x0051);
 Tag const LongitudinalTemporalOffsetFromEvent(0x0012, 0x0052);
 Tag const LongitudinalTemporalEventType(0x0012, 0x0053);
+Tag const ClinicalTrialTimePointTypeCodeSequence(0x0012, 0x0054);
 Tag const ClinicalTrialCoordinatingCenterName(0x0012, 0x0060);
 Tag const PatientIdentityRemoved(0x0012, 0x0062);
 Tag const DeidentificationMethod(0x0012, 0x0063);

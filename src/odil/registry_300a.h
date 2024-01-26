@@ -561,6 +561,7 @@ Tag const NumberOfPatientSupportDevices(0x300a, 0x0687);
 Tag const RTBeamModifierDefinitionDistance(0x300a, 0x0688);
 Tag const BeamAreaLimitSequence(0x300a, 0x0689);
 Tag const ReferencedRTPrescriptionSequence(0x300a, 0x068a);
+Tag const DoseValueInterpretation(0x300a, 0x068b);
 Tag const TreatmentSessionUID(0x300a, 0x0700);
 Tag const RTRadiationUsage(0x300a, 0x0701);
 Tag const ReferencedRTRadiationSetSequence(0x300a, 0x0702);

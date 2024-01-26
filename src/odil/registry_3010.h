@@ -167,6 +167,7 @@ Tag const RoboticPathControlPointSequence(0x3010, 0x0097);
 Tag const TomotherapeuticControlPointSequence(0x3010, 0x0098);
 Tag const TomotherapeuticLeafOpenDurations(0x3010, 0x0099);
 Tag const TomotherapeuticLeafInitialClosedDurations(0x3010, 0x009a);
+Tag const ConceptualVolumeIdentificationSequence(0x3010, 0x00a0);
 
 }
 

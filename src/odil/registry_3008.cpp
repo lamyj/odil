@@ -77,6 +77,10 @@ void update_3008(
     public_dictionary.emplace(Tag(0x3008, 0x0090), ElementsDictionaryEntry("Referenced Calculated Dose Reference Sequence", "ReferencedCalculatedDoseReferenceSequence",  "SQ", "1"));
     public_dictionary.emplace(Tag(0x3008, 0x0092), ElementsDictionaryEntry("Referenced Calculated Dose Reference Number", "ReferencedCalculatedDoseReferenceNumber",  "IS", "1"));
     public_dictionary.emplace(Tag(0x3008, 0x00a0), ElementsDictionaryEntry("Beam Limiting Device Leaf Pairs Sequence", "BeamLimitingDeviceLeafPairsSequence",  "SQ", "1"));
+    public_dictionary.emplace(Tag(0x3008, 0x00a1), ElementsDictionaryEntry("Enhanced RT Beam Limiting Device Sequence", "EnhancedRTBeamLimitingDeviceSequence",  "SQ", "1"));
+    public_dictionary.emplace(Tag(0x3008, 0x00a2), ElementsDictionaryEntry("Enhanced RT Beam Limiting Opening Sequence", "EnhancedRTBeamLimitingOpeningSequence",  "SQ", "1"));
+    public_dictionary.emplace(Tag(0x3008, 0x00a3), ElementsDictionaryEntry("Enhanced RT Beam Limiting Device Definition Flag", "EnhancedRTBeamLimitingDeviceDefinitionFlag",  "CS", "1"));
+    public_dictionary.emplace(Tag(0x3008, 0x00a4), ElementsDictionaryEntry("Parallel RT Beam Delimiter Opening Extents", "ParallelRTBeamDelimiterOpeningExtents",  "FD", "2-2n"));
     public_dictionary.emplace(Tag(0x3008, 0x00b0), ElementsDictionaryEntry("Recorded Wedge Sequence", "RecordedWedgeSequence",  "SQ", "1"));
     public_dictionary.emplace(Tag(0x3008, 0x00c0), ElementsDictionaryEntry("Recorded Compensator Sequence", "RecordedCompensatorSequence",  "SQ", "1"));
     public_dictionary.emplace(Tag(0x3008, 0x00d0), ElementsDictionaryEntry("Recorded Block Sequence", "RecordedBlockSequence",  "SQ", "1"));
@@ -174,6 +178,10 @@ void update_3008(
     public_tags.emplace("ReferencedCalculatedDoseReferenceSequence", Tag(0x3008, 0x0090));
     public_tags.emplace("ReferencedCalculatedDoseReferenceNumber", Tag(0x3008, 0x0092));
     public_tags.emplace("BeamLimitingDeviceLeafPairsSequence", Tag(0x3008, 0x00a0));
+    public_tags.emplace("EnhancedRTBeamLimitingDeviceSequence", Tag(0x3008, 0x00a1));
+    public_tags.emplace("EnhancedRTBeamLimitingOpeningSequence", Tag(0x3008, 0x00a2));
+    public_tags.emplace("EnhancedRTBeamLimitingDeviceDefinitionFlag", Tag(0x3008, 0x00a3));
+    public_tags.emplace("ParallelRTBeamDelimiterOpeningExtents", Tag(0x3008, 0x00a4));
     public_tags.emplace("RecordedWedgeSequence", Tag(0x3008, 0x00b0));
     public_tags.emplace("RecordedCompensatorSequence", Tag(0x3008, 0x00c0));
     public_tags.emplace("RecordedBlockSequence", Tag(0x3008, 0x00d0));

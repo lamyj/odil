@@ -69,6 +69,24 @@ void update_003a(
     public_dictionary.emplace(Tag(0x003a, 0x0314), ElementsDictionaryEntry("Impedance Measurement DateTime", "ImpedanceMeasurementDateTime",  "DT", "1"));
     public_dictionary.emplace(Tag(0x003a, 0x0315), ElementsDictionaryEntry("Impedance Measurement Frequency", "ImpedanceMeasurementFrequency",  "DS", "1"));
     public_dictionary.emplace(Tag(0x003a, 0x0316), ElementsDictionaryEntry("Impedance Measurement Current Type", "ImpedanceMeasurementCurrentType",  "CS", "1"));
+    public_dictionary.emplace(Tag(0x003a, 0x0317), ElementsDictionaryEntry("Waveform Amplifier Type", "WaveformAmplifierType",  "CS", "1"));
+    public_dictionary.emplace(Tag(0x003a, 0x0318), ElementsDictionaryEntry("Filter Low Frequency Characteristics Sequence", "FilterLowFrequencyCharacteristicsSequence",  "SQ", "1"));
+    public_dictionary.emplace(Tag(0x003a, 0x0319), ElementsDictionaryEntry("Filter High Frequency Characteristics Sequence", "FilterHighFrequencyCharacteristicsSequence",  "SQ", "1"));
+    public_dictionary.emplace(Tag(0x003a, 0x0320), ElementsDictionaryEntry("Summarized Filter Lookup Table Sequence", "SummarizedFilterLookupTable",  "SQ", "1"));
+    public_dictionary.emplace(Tag(0x003a, 0x0321), ElementsDictionaryEntry("Notch Filter Characteristics Sequence", "NotchFilterCharacteristicsSequence",  "SQ", "1"));
+    public_dictionary.emplace(Tag(0x003a, 0x0322), ElementsDictionaryEntry("Waveform Filter Type", "WaveformFilterType",  "CS", "1"));
+    public_dictionary.emplace(Tag(0x003a, 0x0323), ElementsDictionaryEntry("Analog Filter Characteristics Sequence", "AnalogFilterCharacteristicsSequence",  "SQ", "1"));
+    public_dictionary.emplace(Tag(0x003a, 0x0324), ElementsDictionaryEntry("Analog Filter Roll Off", "AnalogFilterRollOff",  "DS", "1"));
+    public_dictionary.emplace(Tag(0x003a, 0x0325), ElementsDictionaryEntry("Analog Filter Type Code Sequence", "AnalogFilterType",  "SQ", "1"));
+    public_dictionary.emplace(Tag(0x003a, 0x0326), ElementsDictionaryEntry("Digital Filter Characteristics Sequence", "DigitalFilterCharacteristicsSequence",  "SQ", "1"));
+    public_dictionary.emplace(Tag(0x003a, 0x0327), ElementsDictionaryEntry("Digital Filter Order", "DigitalFilterOrder",  "IS", "1"));
+    public_dictionary.emplace(Tag(0x003a, 0x0328), ElementsDictionaryEntry("Digital Filter Type Code Sequence", "DigitalFilterTypeCodeSequence",  "SQ", "1"));
+    public_dictionary.emplace(Tag(0x003a, 0x0329), ElementsDictionaryEntry("Waveform Filter Description", "WaveformFilterDescription",  "ST", "1"));
+    public_dictionary.emplace(Tag(0x003a, 0x032a), ElementsDictionaryEntry("Filter Lookup Table Sequence", "FilterLookupTableSequence",  "SQ", "1"));
+    public_dictionary.emplace(Tag(0x003a, 0x032b), ElementsDictionaryEntry("Filter Lookup Table Description", "FilterLookupTableDescription",  "ST", "1"));
+    public_dictionary.emplace(Tag(0x003a, 0x032c), ElementsDictionaryEntry("Frequency Encoding Code Sequence", "FrequencyEncodingCodeSequence",  "SQ", "1"));
+    public_dictionary.emplace(Tag(0x003a, 0x032d), ElementsDictionaryEntry("Magnitude Encoding Code Sequence", "MagnitudeEncodingCodeSequence",  "SQ", "1"));
+    public_dictionary.emplace(Tag(0x003a, 0x032e), ElementsDictionaryEntry("Filter Lookup Table Data", "FilterLookupTableData",  "OD", "1"));
 
     public_tags.emplace("WaveformOriginality", Tag(0x003a, 0x0004));
     public_tags.emplace("NumberOfWaveformChannels", Tag(0x003a, 0x0005));
@@ -115,6 +133,24 @@ void update_003a(
     public_tags.emplace("ImpedanceMeasurementDateTime", Tag(0x003a, 0x0314));
     public_tags.emplace("ImpedanceMeasurementFrequency", Tag(0x003a, 0x0315));
     public_tags.emplace("ImpedanceMeasurementCurrentType", Tag(0x003a, 0x0316));
+    public_tags.emplace("WaveformAmplifierType", Tag(0x003a, 0x0317));
+    public_tags.emplace("FilterLowFrequencyCharacteristicsSequence", Tag(0x003a, 0x0318));
+    public_tags.emplace("FilterHighFrequencyCharacteristicsSequence", Tag(0x003a, 0x0319));
+    public_tags.emplace("SummarizedFilterLookupTable", Tag(0x003a, 0x0320));
+    public_tags.emplace("NotchFilterCharacteristicsSequence", Tag(0x003a, 0x0321));
+    public_tags.emplace("WaveformFilterType", Tag(0x003a, 0x0322));
+    public_tags.emplace("AnalogFilterCharacteristicsSequence", Tag(0x003a, 0x0323));
+    public_tags.emplace("AnalogFilterRollOff", Tag(0x003a, 0x0324));
+    public_tags.emplace("AnalogFilterType", Tag(0x003a, 0x0325));
+    public_tags.emplace("DigitalFilterCharacteristicsSequence", Tag(0x003a, 0x0326));
+    public_tags.emplace("DigitalFilterOrder", Tag(0x003a, 0x0327));
+    public_tags.emplace("DigitalFilterTypeCodeSequence", Tag(0x003a, 0x0328));
+    public_tags.emplace("WaveformFilterDescription", Tag(0x003a, 0x0329));
+    public_tags.emplace("FilterLookupTableSequence", Tag(0x003a, 0x032a));
+    public_tags.emplace("FilterLookupTableDescription", Tag(0x003a, 0x032b));
+    public_tags.emplace("FrequencyEncodingCodeSequence", Tag(0x003a, 0x032c));
+    public_tags.emplace("MagnitudeEncodingCodeSequence", Tag(0x003a, 0x032d));
+    public_tags.emplace("FilterLookupTableData", Tag(0x003a, 0x032e));
 }
 
 }

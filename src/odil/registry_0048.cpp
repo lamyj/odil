@@ -46,6 +46,10 @@ void update_0048(
     public_dictionary.emplace(Tag(0x0048, 0x0111), ElementsDictionaryEntry("Condenser Lens Power", "CondenserLensPower",  "DS", "1"));
     public_dictionary.emplace(Tag(0x0048, 0x0112), ElementsDictionaryEntry("Objective Lens Power", "ObjectiveLensPower",  "DS", "1"));
     public_dictionary.emplace(Tag(0x0048, 0x0113), ElementsDictionaryEntry("Objective Lens Numerical Aperture", "ObjectiveLensNumericalAperture",  "DS", "1"));
+    public_dictionary.emplace(Tag(0x0048, 0x0114), ElementsDictionaryEntry("Confocal Mode", "ConfocalMode",  "CS", "1"));
+    public_dictionary.emplace(Tag(0x0048, 0x0115), ElementsDictionaryEntry("Tissue Location", "TissueLocation",  "CS", "1"));
+    public_dictionary.emplace(Tag(0x0048, 0x0116), ElementsDictionaryEntry("Confocal Microscopy Image Frame Type Sequence", "ConfocalMicroscopyImageFrameTypeSequence",  "SQ", "1"));
+    public_dictionary.emplace(Tag(0x0048, 0x0117), ElementsDictionaryEntry("Image Acquisition Depth", "ImageAcquisitionDepth",  "FD", "1"));
     public_dictionary.emplace(Tag(0x0048, 0x0120), ElementsDictionaryEntry("Palette Color Lookup Table Sequence", "PaletteColorLookupTableSequence",  "SQ", "1"));
     public_dictionary.emplace(Tag(0x0048, 0x0200), ElementsDictionaryEntry("Referenced Image Navigation Sequence", "ReferencedImageNavigationSequence",  "SQ", "1"));
     public_dictionary.emplace(Tag(0x0048, 0x0201), ElementsDictionaryEntry("Top Left Hand Corner of Localizer Area", "TopLeftHandCornerOfLocalizerArea",  "US", "2"));
@@ -80,6 +84,10 @@ void update_0048(
     public_tags.emplace("CondenserLensPower", Tag(0x0048, 0x0111));
     public_tags.emplace("ObjectiveLensPower", Tag(0x0048, 0x0112));
     public_tags.emplace("ObjectiveLensNumericalAperture", Tag(0x0048, 0x0113));
+    public_tags.emplace("ConfocalMode", Tag(0x0048, 0x0114));
+    public_tags.emplace("TissueLocation", Tag(0x0048, 0x0115));
+    public_tags.emplace("ConfocalMicroscopyImageFrameTypeSequence", Tag(0x0048, 0x0116));
+    public_tags.emplace("ImageAcquisitionDepth", Tag(0x0048, 0x0117));
     public_tags.emplace("PaletteColorLookupTableSequence", Tag(0x0048, 0x0120));
     public_tags.emplace("ReferencedImageNavigationSequence", Tag(0x0048, 0x0200));
     public_tags.emplace("TopLeftHandCornerOfLocalizerArea", Tag(0x0048, 0x0201));

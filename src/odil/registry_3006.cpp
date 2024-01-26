@@ -41,6 +41,8 @@ void update_3006(
     public_dictionary.emplace(Tag(0x3006, 0x0028), ElementsDictionaryEntry("ROI Description", "ROIDescription",  "ST", "1"));
     public_dictionary.emplace(Tag(0x3006, 0x002a), ElementsDictionaryEntry("ROI Display Color", "ROIDisplayColor",  "IS", "3"));
     public_dictionary.emplace(Tag(0x3006, 0x002c), ElementsDictionaryEntry("ROI Volume", "ROIVolume",  "DS", "1"));
+    public_dictionary.emplace(Tag(0x3006, 0x002d), ElementsDictionaryEntry("ROI DateTime", "ROIDateTime",  "DT", "1"));
+    public_dictionary.emplace(Tag(0x3006, 0x002e), ElementsDictionaryEntry("ROI Observation DateTime", "ROIObservationDateTime",  "DT", "1"));
     public_dictionary.emplace(Tag(0x3006, 0x0030), ElementsDictionaryEntry("RT Related ROI Sequence", "RTRelatedROISequence",  "SQ", "1"));
     public_dictionary.emplace(Tag(0x3006, 0x0033), ElementsDictionaryEntry("RT ROI Relationship", "RTROIRelationship",  "CS", "1"));
     public_dictionary.emplace(Tag(0x3006, 0x0036), ElementsDictionaryEntry("ROI Generation Algorithm", "ROIGenerationAlgorithm",  "CS", "1"));
@@ -55,6 +57,11 @@ void update_3006(
     public_dictionary.emplace(Tag(0x3006, 0x0048), ElementsDictionaryEntry("Contour Number", "ContourNumber",  "IS", "1"));
     public_dictionary.emplace(Tag(0x3006, 0x0049), ElementsDictionaryEntry("Attached Contours", "AttachedContours",  "IS", "1-n"));
     public_dictionary.emplace(Tag(0x3006, 0x004a), ElementsDictionaryEntry("Source Pixel Planes Characteristics Sequence", "SourcePixelPlanesCharacteristicsSequence",  "SQ", "1"));
+    public_dictionary.emplace(Tag(0x3006, 0x004b), ElementsDictionaryEntry("Source Series Sequence", "SourceSeriesSequence",  "SQ", "1"));
+    public_dictionary.emplace(Tag(0x3006, 0x004c), ElementsDictionaryEntry("Source Series Information Sequence", "SourceSeriesInformationSequence",  "SQ", "1"));
+    public_dictionary.emplace(Tag(0x3006, 0x004d), ElementsDictionaryEntry("ROI Creator Sequence", "ROICreatorSequence",  "SQ", "1"));
+    public_dictionary.emplace(Tag(0x3006, 0x004e), ElementsDictionaryEntry("ROI Interpreter Sequence", "ROIInterpreterSequence",  "SQ", "1"));
+    public_dictionary.emplace(Tag(0x3006, 0x004f), ElementsDictionaryEntry("ROI Observation Context Code Sequence", "ROIObservationContextCodeSequence",  "SQ", "1"));
     public_dictionary.emplace(Tag(0x3006, 0x0050), ElementsDictionaryEntry("Contour Data", "ContourData",  "DS", "3-3n"));
     public_dictionary.emplace(Tag(0x3006, 0x0080), ElementsDictionaryEntry("RT ROI Observations Sequence", "RTROIObservationsSequence",  "SQ", "1"));
     public_dictionary.emplace(Tag(0x3006, 0x0082), ElementsDictionaryEntry("Observation Number", "ObservationNumber",  "IS", "1"));
@@ -98,6 +105,8 @@ void update_3006(
     public_tags.emplace("ROIDescription", Tag(0x3006, 0x0028));
     public_tags.emplace("ROIDisplayColor", Tag(0x3006, 0x002a));
     public_tags.emplace("ROIVolume", Tag(0x3006, 0x002c));
+    public_tags.emplace("ROIDateTime", Tag(0x3006, 0x002d));
+    public_tags.emplace("ROIObservationDateTime", Tag(0x3006, 0x002e));
     public_tags.emplace("RTRelatedROISequence", Tag(0x3006, 0x0030));
     public_tags.emplace("RTROIRelationship", Tag(0x3006, 0x0033));
     public_tags.emplace("ROIGenerationAlgorithm", Tag(0x3006, 0x0036));
@@ -112,6 +121,11 @@ void update_3006(
     public_tags.emplace("ContourNumber", Tag(0x3006, 0x0048));
     public_tags.emplace("AttachedContours", Tag(0x3006, 0x0049));
     public_tags.emplace("SourcePixelPlanesCharacteristicsSequence", Tag(0x3006, 0x004a));
+    public_tags.emplace("SourceSeriesSequence", Tag(0x3006, 0x004b));
+    public_tags.emplace("SourceSeriesInformationSequence", Tag(0x3006, 0x004c));
+    public_tags.emplace("ROICreatorSequence", Tag(0x3006, 0x004d));
+    public_tags.emplace("ROIInterpreterSequence", Tag(0x3006, 0x004e));
+    public_tags.emplace("ROIObservationContextCodeSequence", Tag(0x3006, 0x004f));
     public_tags.emplace("ContourData", Tag(0x3006, 0x0050));
     public_tags.emplace("RTROIObservationsSequence", Tag(0x3006, 0x0080));
     public_tags.emplace("ObservationNumber", Tag(0x3006, 0x0082));

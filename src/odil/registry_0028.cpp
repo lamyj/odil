@@ -163,6 +163,7 @@ void update_0028(
     public_dictionary.emplace(Tag(0x0028, 0x2112), ElementsDictionaryEntry("Lossy Image Compression Ratio", "LossyImageCompressionRatio",  "DS", "1-n"));
     public_dictionary.emplace(Tag(0x0028, 0x2114), ElementsDictionaryEntry("Lossy Image Compression Method", "LossyImageCompressionMethod",  "CS", "1-n"));
     public_dictionary.emplace(Tag(0x0028, 0x3000), ElementsDictionaryEntry("Modality LUT Sequence", "ModalityLUTSequence",  "SQ", "1"));
+    public_dictionary.emplace(Tag(0x0028, 0x3001), ElementsDictionaryEntry("Variable Modality LUT Sequence", "VariableModalityLUTSequence",  "SQ", "1"));
     public_dictionary.emplace(Tag(0x0028, 0x3002), ElementsDictionaryEntry("LUT Descriptor", "LUTDescriptor",  "US or SS", "3"));
     public_dictionary.emplace(Tag(0x0028, 0x3003), ElementsDictionaryEntry("LUT Explanation", "LUTExplanation",  "LO", "1"));
     public_dictionary.emplace(Tag(0x0028, 0x3004), ElementsDictionaryEntry("Modality LUT Type", "ModalityLUTType",  "LO", "1"));
@@ -401,6 +402,7 @@ void update_0028(
     public_tags.emplace("LossyImageCompressionRatio", Tag(0x0028, 0x2112));
     public_tags.emplace("LossyImageCompressionMethod", Tag(0x0028, 0x2114));
     public_tags.emplace("ModalityLUTSequence", Tag(0x0028, 0x3000));
+    public_tags.emplace("VariableModalityLUTSequence", Tag(0x0028, 0x3001));
     public_tags.emplace("LUTDescriptor", Tag(0x0028, 0x3002));
     public_tags.emplace("LUTExplanation", Tag(0x0028, 0x3003));
     public_tags.emplace("ModalityLUTType", Tag(0x0028, 0x3004));

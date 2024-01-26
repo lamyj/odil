@@ -171,6 +171,7 @@ void update_3010(
     public_dictionary.emplace(Tag(0x3010, 0x0098), ElementsDictionaryEntry("Tomotherapeutic Control Point Sequence", "TomotherapeuticControlPointSequence",  "SQ", "1"));
     public_dictionary.emplace(Tag(0x3010, 0x0099), ElementsDictionaryEntry("Tomotherapeutic Leaf Open Durations", "TomotherapeuticLeafOpenDurations",  "FD", "1-n"));
     public_dictionary.emplace(Tag(0x3010, 0x009a), ElementsDictionaryEntry("Tomotherapeutic Leaf Initial Closed Durations", "TomotherapeuticLeafInitialClosedDurations",  "FD", "1-n"));
+    public_dictionary.emplace(Tag(0x3010, 0x00a0), ElementsDictionaryEntry("Conceptual Volume Identification Sequence", "ConceptualVolumeIdentificationSequence",  "SQ", "1"));
 
     public_tags.emplace("RadiobiologicalDoseEffectSequence", Tag(0x3010, 0x0001));
     public_tags.emplace("RadiobiologicalDoseEffectFlag", Tag(0x3010, 0x0002));
@@ -319,6 +320,7 @@ void update_3010(
     public_tags.emplace("TomotherapeuticControlPointSequence", Tag(0x3010, 0x0098));
     public_tags.emplace("TomotherapeuticLeafOpenDurations", Tag(0x3010, 0x0099));
     public_tags.emplace("TomotherapeuticLeafInitialClosedDurations", Tag(0x3010, 0x009a));
+    public_tags.emplace("ConceptualVolumeIdentificationSequence", Tag(0x3010, 0x00a0));
 }
 
 }

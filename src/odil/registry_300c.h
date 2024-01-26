@@ -69,6 +69,7 @@ Tag const GatingBeamHoldTransitionSequence(0x300c, 0x0125);
 Tag const BeamHoldTransition(0x300c, 0x0126);
 Tag const BeamHoldTransitionDateTime(0x300c, 0x0127);
 Tag const BeamHoldOriginatingDeviceSequence(0x300c, 0x0128);
+Tag const BeamHoldTransitionTriggerSource(0x300c, 0x0129);
 
 }
 

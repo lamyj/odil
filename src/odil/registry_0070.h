@@ -118,6 +118,7 @@ Tag const FiducialIdentifier(0x0070, 0x0310);
 Tag const FiducialIdentifierCodeSequence(0x0070, 0x0311);
 Tag const ContourUncertaintyRadius(0x0070, 0x0312);
 Tag const UsedFiducialsSequence(0x0070, 0x0314);
+Tag const UsedRTStructureSetROISequence(0x0070, 0x0315);
 Tag const GraphicCoordinatesDataSequence(0x0070, 0x0318);
 Tag const FiducialUID(0x0070, 0x031a);
 Tag const ReferencedFiducialUID(0x0070, 0x031b);
