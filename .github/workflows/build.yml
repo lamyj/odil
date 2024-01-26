@@ -9,22 +9,16 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: "Debian 10 (Buster)"
-            os: ubuntu-latest
-            ci_type: deb
-            start_worker: "docker run -di -v ${WORKSPACE}:${WORKSPACE} --name worker --rm debian:buster"
-            worker: "docker exec -w ${WORKSPACE} -e WORKSPACE -e CMAKE_OPTIONS -e DEBIAN_FRONTEND=noninteractive worker"
-            stop_worker: "docker kill worker"
           - name: "Debian 11 (Bullseye)"
             os: ubuntu-latest
             ci_type: deb
             start_worker: "docker run -di -v ${WORKSPACE}:${WORKSPACE} --name worker --rm debian:bullseye"
             worker: "docker exec -w ${WORKSPACE} -e WORKSPACE -e CMAKE_OPTIONS -e DEBIAN_FRONTEND=noninteractive worker"
             stop_worker: "docker kill worker"
-          - name: "Ubuntu 18.04 (Bionic)"
+          - name: "Debian 12 (Bookworm)"
             os: ubuntu-latest
             ci_type: deb
-            start_worker: "docker run -di -v ${WORKSPACE}:${WORKSPACE} --name worker --rm ubuntu:bionic"
+            start_worker: "docker run -di -v ${WORKSPACE}:${WORKSPACE} --name worker --rm debian:bookworm"
             worker: "docker exec -w ${WORKSPACE} -e WORKSPACE -e CMAKE_OPTIONS -e DEBIAN_FRONTEND=noninteractive worker"
             stop_worker: "docker kill worker"
           - name: "Ubuntu 20.04 (Focal)"
@@ -52,7 +46,7 @@ jobs:
           echo "WORKSPACE=${GITHUB_WORKSPACE}" >> $GITHUB_ENV
           echo "CMAKE_OPTIONS=${{ matrix.cmake_options }}" >> $GITHUB_ENV
       - name: Checkout latest revision
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Start the worker
         run: ${{ matrix.start_worker }}
       - name: Configure the build
