@@ -1,4 +1,5 @@
 find_package(JsonCpp REQUIRED)
+find_package(Python COMPONENTS Interpreter Development REQUIRED)
 find_package(pybind11 REQUIRED)
 
 file(GLOB_RECURSE Header_Files "*.h")
@@ -27,8 +28,11 @@ set_target_properties(
     $<$<PLATFORM_ID:Darwin>:SUFFIX .so>)
 
 execute_process(
-    COMMAND ${PYTHON_EXECUTABLE}
-      -c "from distutils.sysconfig import *; print(get_python_lib(True, prefix='').replace('\\\\', '/'))"
+    COMMAND ${Python_EXECUTABLE}
+        -c "import os; import sysconfig; \
+            scheme = {'posix': 'posix_prefix', 'nt': 'nt'}[os.name]; \
+            path = sysconfig.get_path('purelib', scheme, {'base': '.'}); \
+            print(path.replace(os.path.sep, '/'))"
     OUTPUT_VARIABLE PYTHON_SITE_PACKAGES
     OUTPUT_STRIP_TRAILING_WHITESPACE)
 

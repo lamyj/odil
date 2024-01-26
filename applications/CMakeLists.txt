@@ -1,3 +1,5 @@
+find_package(Python COMPONENTS Interpreter Development REQUIRED)
+
 file(GLOB_RECURSE module_files *.py)
 set(python_files ${module_files} odil)
 add_custom_target(
@@ -6,8 +8,11 @@ set_target_properties(PythonFiles PROPERTIES FOLDER "Examples")
 
 if(BUILD_PYTHON_WRAPPERS)
     execute_process(
-        COMMAND ${PYTHON_EXECUTABLE}
-          -c "from distutils.sysconfig import *; print(get_python_lib(True, prefix='').replace('\\\\', '/'))"
+        COMMAND ${Python_EXECUTABLE}
+            -c "import os; import sysconfig; \
+                scheme = {'posix': 'posix_prefix', 'nt': 'nt'}[os.name]; \
+                path = sysconfig.get_path('purelib', scheme, {'base': '.'}); \
+                print(path.replace(os.path.sep, '/'))"
         OUTPUT_VARIABLE PYTHON_SITE_PACKAGES
         OUTPUT_STRIP_TRAILING_WHITESPACE)
 
