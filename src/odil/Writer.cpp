@@ -95,8 +95,9 @@ Writer
             : 2 /* PS3.5, table 7.1-2*/ )
         : 4 /* PS 3.5, table 7.1-3 */;
     
-    SizeVisitor const visitor(element.vr, explicit_vr, item_encoding, use_group_length);
-    auto const value = apply_visitor(visitor, element.get_value());
+    auto const value = Writer::size(
+        element.vr, element.get_value(), explicit_vr, item_encoding,
+        use_group_length);
     
     return vr+vl+value;
 }
@@ -168,46 +169,56 @@ void
 Writer
 ::write_data_set(std::shared_ptr<DataSet const> data_set) const
 {
-    // Build a map of the different group in order to handle
-    // Group Length elements
-    std::map<uint16_t, std::vector<Tag>> groups;
-    for(auto const & item: *data_set)
-    {
-        auto const & tag = item.first;
-        groups[tag.group].push_back(tag);
-    }
-
-    for(auto const & groups_it: groups)
-    {
-        std::ostringstream group_stream;
-        Writer group_writer(
-            group_stream, this->byte_ordering, this->explicit_vr,
-            this->item_encoding, this->use_group_length);
-
-        for(auto const & tag: groups_it.second)
-        {
-            group_writer.write_tag(tag);
-            group_writer.write_element((*data_set)[tag]);
-        }
-
+    // Utility function checking whether the group length should be written
+    auto write_group_length = [](bool use_group_length, uint16_t group) {
         // Write group length if necessary
         // Mandatory for group 0: PS3.7, 9.3, 10.3, and E.1
         // Mandatory for group 2: PS3.10, 7.1
         // Forbidden for groups 4 and 6?
-        auto const write_group_length = (
-            groups_it.first == 0 || groups_it.first == 2 ||
-            (this->use_group_length && groups_it.first != 4 && groups_it.first != 6));
-        if(write_group_length)
+        return
+            group == 0 || group == 2 ||
+            (use_group_length && group != 4 && group != 6);
+    };
+    
+    // Build a map of the group lengths
+    std::map<uint16_t, odil::Value::Integer> group_lengths;
+    for(auto && item: *data_set)
+    {
+        if(write_group_length(this->use_group_length, item.first.group))
+        {
+            auto const size = 
+                Writer::size(
+                    item.first, this->explicit_vr, this->item_encoding,
+                    this->use_group_length)
+                + Writer::size(
+                    item.second, this->explicit_vr, this->item_encoding,
+                    this->use_group_length);
+            group_lengths.insert({item.first.group, 0}).first->second += size;
+        }
+    }
+    
+    // Write the data set items. When a new group appears, write its group
+    // length if required.
+    uint16_t previous_element = 0xffff;
+    for(auto && item: *data_set)
+    {
+        auto const & tag = item.first;
+        auto const group = tag.group;
+        auto const element = tag.element;
+        if(
+            element < previous_element
+            && write_group_length(this->use_group_length, group))
         {
             // Group length: (gggg,0000) UL Type=3 VM=1
-            this->write_tag(Tag(groups_it.first, 0));
+            this->write_tag(Tag(tag.group, 0));
             this->write_element(
-                Element(Value::Integers({group_stream.tellp()}), VR::UL));
+                Element(Value::Integers({group_lengths.at(group)}), VR::UL));
         }
-
-        // Write group data to main stream
-        std::string const group_data = group_stream.str();
-        this->stream.write(&group_data[0], group_data.size());
+        previous_element = element;
+        
+        this->write_tag(item.first);
+        this->write_element(item.second);
+        
         if(!this->stream)
         {
             throw Exception("Could not write to stream");
@@ -219,8 +230,8 @@ void
 Writer
 ::write_tag(Tag const & tag) const
 {
-    this->write_binary(tag.group, this->stream, this->byte_ordering);
-    this->write_binary(tag.element, this->stream, this->byte_ordering);
+    Writer::write_binary(tag.group, this->stream, this->byte_ordering);
+    Writer::write_binary(tag.element, this->stream, this->byte_ordering);
 }
 
 void
@@ -239,16 +250,6 @@ Writer
         }
     }
 
-    // Write value to a sub-stream
-    std::ostringstream value_stream;
-    if(!element.get_value().empty())
-    {
-        WriteVisitor const visitor(
-            value_stream, vr, this->byte_ordering, this->explicit_vr,
-            this->item_encoding, this->use_group_length);
-        apply_visitor(visitor, element.get_value());
-    }
-
     // Write VL
     if(this->explicit_vr)
     {
@@ -256,7 +257,8 @@ Writer
            vr == VR::OV || vr == VR::OW || vr == VR::SQ || vr == VR::UC || 
            vr == VR::UR || vr == VR::UT || vr == VR::UN)
         {
-            this->write_binary(uint16_t(0), this->stream, this->byte_ordering);
+            Writer::write_binary(
+                uint16_t(0), this->stream, this->byte_ordering);
 
             uint32_t vl;
             if(vr == VR::SQ &&
@@ -270,23 +272,37 @@ Writer
             }
             else
             {
-               vl = value_stream.tellp();
+                vl = Writer::size(
+                    vr, element.get_value(), this->explicit_vr,
+                    this->item_encoding, this->use_group_length);
             }
-            this->write_binary(vl, this->stream, this->byte_ordering);
+            Writer::write_binary(vl, this->stream, this->byte_ordering);
         }
         else
         {
-            this->write_binary(
-                uint16_t(value_stream.tellp()), this->stream, this->byte_ordering);
+            auto const vl = Writer::size(
+                vr, element.get_value(), this->explicit_vr, this->item_encoding,
+                this->use_group_length);
+            Writer::write_binary(
+                uint16_t(vl), this->stream, this->byte_ordering);
         }
     }
     else
     {
-        this->write_binary(
-            uint32_t(value_stream.tellp()), this->stream, this->byte_ordering);
+        auto const vl = Writer::size(
+            vr, element.get_value(), this->explicit_vr, this->item_encoding,
+            this->use_group_length);
+        Writer::write_binary(
+            uint32_t(vl), this->stream, this->byte_ordering);
     }
 
-    this->stream.write(value_stream.str().c_str(), value_stream.tellp());
+    if(!element.get_value().empty())
+    {
+        WriteVisitor const visitor(
+            this->stream, vr, this->byte_ordering, this->explicit_vr,
+            this->item_encoding, this->use_group_length);
+        apply_visitor(visitor, element.get_value());
+    }
     if(!this->stream)
     {
         throw Exception("Could not write to stream");
@@ -549,21 +565,12 @@ Writer::WriteVisitor::result_type
 Writer::WriteVisitor
 ::operator()(Value::DataSets const & value) const
 {
-    // Write all items to a sub-stream
-    std::ostringstream sequence_stream;
     Writer sequence_writer(
-        sequence_stream, this->byte_ordering, this->explicit_vr,
+        this->stream, this->byte_ordering, this->explicit_vr,
         this->item_encoding, this->use_group_length);
 
     for(auto const & item: value)
     {
-        // Write item to a sub-stream
-        std::ostringstream item_stream;
-        Writer item_writer(
-            item_stream, this->byte_ordering, this->explicit_vr,
-            this->item_encoding, this->use_group_length);
-        item_writer.write_data_set(item);
-
         // Beginning of item
         sequence_writer.write_tag(registry::Item);
 
@@ -571,17 +578,19 @@ Writer::WriteVisitor
         uint32_t item_length;
         if(this->item_encoding == ItemEncoding::ExplicitLength)
         {
-            item_length = item_stream.tellp();
+            item_length = Writer::size(
+                *item, this->explicit_vr, this->item_encoding,
+                this->use_group_length);
         }
         else
         {
             item_length = 0xffffffff;
         }
-        Writer::write_binary(item_length, sequence_stream, this->byte_ordering);
+        Writer::write_binary(item_length, this->stream, this->byte_ordering);
 
         // Data set
-        sequence_stream.write(item_stream.str().c_str(), item_stream.tellp());
-        if(!sequence_stream)
+        sequence_writer.write_data_set(item);
+        if(!this->stream)
         {
             throw Exception("Could not write to stream");
         }
@@ -590,7 +599,7 @@ Writer::WriteVisitor
         if(this->item_encoding == ItemEncoding::UndefinedLength)
         {
             sequence_writer.write_tag(registry::ItemDelimitationItem);
-            Writer::write_binary(uint32_t(0), sequence_stream, this->byte_ordering);
+            Writer::write_binary(uint32_t(0), this->stream, this->byte_ordering);
         }
     }
 
@@ -598,10 +607,9 @@ Writer::WriteVisitor
     if(this->item_encoding == ItemEncoding::UndefinedLength)
     {
         sequence_writer.write_tag(registry::SequenceDelimitationItem);
-        Writer::write_binary(uint32_t(0), sequence_stream, this->byte_ordering);
+        Writer::write_binary(uint32_t(0), this->stream, this->byte_ordering);
     }
 
-    this->stream.write(sequence_stream.str().c_str(), sequence_stream.tellp());
     if(!this->stream)
     {
         throw Exception("Could not write to stream");
@@ -744,7 +752,10 @@ Writer::SizeVisitor
         }
         
         // Separators
-        size += value.size()-1;
+        if(!value.empty())
+        {
+            size += value.size()-1;
+        }
         
         // Padding
         if(size%2 == 1)
@@ -793,7 +804,10 @@ Writer::SizeVisitor
         }
         
         // Separators
-        size += value.size()-1;
+        if(!value.empty())
+        {
+            size += value.size()-1;
+        }
         
         // Padding
         if(size%2 == 1)
@@ -836,7 +850,10 @@ Writer::SizeVisitor
         }
         
         // Separators
-        size += value.size()-1;
+        if(!value.empty())
+        {
+            size += value.size()-1;
+        }
         
         // Padding
         if(size%2 == 1)
