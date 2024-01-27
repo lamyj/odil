@@ -131,9 +131,9 @@ private:
         result_type operator()(Value::Strings const & value) const;
         result_type operator()(Value::DataSets const & value) const;
         result_type operator()(Value::Binary const & value) const;
-
-        template<typename T>
-        void write_strings(T const & sequence, char padding) const;
+        
+        void write_strings(Value::Strings const & sequence, char padding) const;
+        void write_strings(Value::Integers const & sequence, char padding) const;
     };
     
     class SizeVisitor

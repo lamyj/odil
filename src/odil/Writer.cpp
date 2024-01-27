@@ -677,40 +677,84 @@ Writer::WriteVisitor
     }
 }
 
-template<typename T>
 void
 Writer::WriteVisitor
-::write_strings(T const & sequence, char padding) const
+::write_strings(Value::Strings const & sequence, char padding) const
 {
     if(sequence.empty())
     {
         return;
     }
 
-    auto const stream_begin = this->stream.tellp();
+    std::size_t size = 0;
 
-    auto last_element_it = --sequence.end();
-    for(auto it = sequence.begin(); it!= sequence.end(); ++it)
+    auto const last_element_it = --sequence.end();
+    for(auto it = sequence.begin(); it != sequence.end(); ++it)
     {
-        this->stream << *it;
+        this->stream.write(it->data(), it->size());
         if(!this->stream)
         {
             throw Exception("Could not write to stream");
         }
+        size += it->size();
 
         if(it != last_element_it)
         {
-            this->stream << "\\";
+            this->stream.put('\\');
             if(!this->stream)
             {
                 throw Exception("Could not write to stream");
             }
+            ++size;
+        }
+    }
+    
+    if(size%2 == 1)
+    {
+        this->stream.put(padding);
+        if(!this->stream)
+        {
+            throw Exception("Could not write to stream");
+        }
+    }
+}
+
+void
+Writer::WriteVisitor
+::write_strings(Value::Integers const & sequence, char padding) const
+{
+    if(sequence.empty())
+    {
+        return;
+    }
+    
+    std::size_t size = 0;
+    
+    auto const last_element_it = --sequence.end();
+    for(auto it = sequence.begin(); it!= sequence.end(); ++it)
+    {
+        // IS is <= 12 bytes (PS 3.5, table 6.2-1)
+        char buffer[13];
+        auto const buffer_size = std::snprintf(buffer, 13, "%li", *it);
+        this->stream.write(buffer, buffer_size);
+        if(!this->stream)
+        {
+            throw Exception("Could not write to stream");
+        }
+        size += buffer_size;
+
+        if(it != last_element_it)
+        {
+            this->stream.put('\\');
+            if(!this->stream)
+            {
+                throw Exception("Could not write to stream");
+            }
+            ++size;
         }
     }
 
-    auto const stream_end = this->stream.tellp();
-
-    if((stream_end-stream_begin)%2 == 1)
+    if(size%2 == 1)
     {
         this->stream.put(padding);
         if(!this->stream)
