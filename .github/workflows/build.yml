@@ -21,6 +21,7 @@ jobs:
             start_worker: "docker run -di -v ${WORKSPACE}:${WORKSPACE} --name worker --rm debian:bookworm"
             worker: "docker exec -w ${WORKSPACE} -e WORKSPACE -e CMAKE_OPTIONS -e DEBIAN_FRONTEND=noninteractive worker"
             stop_worker: "docker kill worker"
+            cmake_options: "-DCMAKE_CXX_STANDARD=17"
           - name: "Ubuntu 20.04 (Focal)"
             os: ubuntu-latest
             ci_type: deb
