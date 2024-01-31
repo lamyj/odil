@@ -9,7 +9,7 @@ export INSTALL_DIR="${WORKSPACE}/${INSTALL_DIR:-install}"
 PYTHON=$(awk -F= '$0 ~ /^PYTHON_EXECUTABLE:/ { print $2 }' ${BUILD_DIR}/CMakeCache.txt)
 
 export LD_LIBRARY_PATH=${INSTALL_DIR}/lib
-export PYTHONPATH=${INSTALL_DIR}/$(${PYTHON} -c 'import os; import sysconfig; sysconfig.get_path("purelib", {"posix":"posix_prefix", "nt":"nt"}[os.name], {"base": "."}))'
+export PYTHONPATH=${INSTALL_DIR}/$(${PYTHON} -c 'import os; import sysconfig; sysconfig.get_path("purelib", {"posix":"posix_prefix", "nt":"nt"}[os.name], {"base": "."})'
 
 export ODIL_OWN_AET=LOCAL
 export ODIL_PEER_HOST_NAME=127.0.0.1
