@@ -49,10 +49,19 @@ T convert_sequence(pybind11::sequence & source, Args && ... args)
     { \
         /* Ignore */ \
     }
-
+    
+    // WARNING: Strings and DataSets are ambiguous when passing bytearray
+    // Skip conversion to strings if we get an sequence of bytearrays
+    auto const is_byte_array = std::all_of(
+        source.begin(), source.end(), [](auto && x) { 
+            return PyByteArray_CheckExact(x.ptr()); });
+    
     try_convert(odil::Value::Integers);
     try_convert(odil::Value::Reals);
-    try_convert(odil::Value::Strings);
+    if(!is_byte_array)
+    {
+        try_convert(odil::Value::Strings);
+    }
     try_convert(odil::Value::DataSets);
     try_convert(odil::Value::Binary);
 
