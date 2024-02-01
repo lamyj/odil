@@ -10,5 +10,5 @@ conda:
 
 sphinx:
   builder: html
-  configuration: docs/conf.py
+  configuration: documentation/conf.py
 
