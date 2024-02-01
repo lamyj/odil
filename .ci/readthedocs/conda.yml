@@ -1,0 +1,9 @@
+name: readthedocs
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - furo
+  - make
+  - python=3.11
+  - sphinx

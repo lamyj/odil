@@ -35,12 +35,12 @@ jobs:
             worker: "docker exec -w ${WORKSPACE} -e WORKSPACE -e CMAKE_OPTIONS -e DEBIAN_FRONTEND=noninteractive worker"
             stop_worker: "docker kill worker"
             cmake_options: "-DCMAKE_CXX_STANDARD=17"
-          - name: "macOS 11 (Big Sur) + Homebrew"
-            os: macos-11
-            ci_type: brew
-            start_worker: ""
-            worker: ""
-            stop_worker: ""
+          # - name: "macOS 11 (Big Sur) + Homebrew"
+          #   os: macos-11
+          #   ci_type: brew
+          #   start_worker: ""
+          #   worker: ""
+          #   stop_worker: ""
     steps:
       - name: Configure environment
         run: |

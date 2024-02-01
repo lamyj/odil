@@ -1,0 +1,14 @@
+version: 2
+
+build:
+  os: ubuntu-22.04
+  tools:
+    python: "mambaforge-4.10"
+
+conda:
+  environment: .ci/readthedocs/conda.yml
+
+sphinx:
+  builder: html
+  configuration: docs/conf.py
+
