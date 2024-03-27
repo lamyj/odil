@@ -163,6 +163,17 @@ BOOST_AUTO_TEST_CASE(OF)
     do_test(odil_data_set);
 }
 
+BOOST_AUTO_TEST_CASE(OL)
+{
+    odil::Element odil_element(
+        odil::Value::Binary({{0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08}}),
+        odil::VR::OL);
+    auto odil_data_set = std::make_shared<odil::DataSet>();
+    odil_data_set->add(odil::registry::LongTrianglePointIndexList, odil_element);
+
+    do_test(odil_data_set);
+}
+
 BOOST_AUTO_TEST_CASE(OW)
 {
     odil::Element odil_element(
@@ -170,6 +181,28 @@ BOOST_AUTO_TEST_CASE(OW)
         odil::VR::OW);
     auto odil_data_set = std::make_shared<odil::DataSet>();
     odil_data_set->add(odil::registry::RedPaletteColorLookupTableData, odil_element);
+
+    do_test(odil_data_set);
+}
+
+BOOST_AUTO_TEST_CASE(OD)
+{
+    odil::Element odil_element(
+        odil::Value::Binary({{{0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10}}}),
+        odil::VR::OD);
+    auto odil_data_set = std::make_shared<odil::DataSet>();
+    odil_data_set->add(odil::registry::VolumetricCurvePoints, odil_element);
+
+    do_test(odil_data_set);
+}
+
+BOOST_AUTO_TEST_CASE(OV)
+{
+    odil::Element odil_element(
+        odil::Value::Binary({{{0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10}}}),
+        odil::VR::OV);
+    auto odil_data_set = std::make_shared<odil::DataSet>();
+    odil_data_set->add(odil::registry::ExtendedOffsetTable, odil_element);
 
     do_test(odil_data_set);
 }
