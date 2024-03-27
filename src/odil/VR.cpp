@@ -34,6 +34,7 @@ _build_enum_to_name()
     ADD_TO_MAP(result, OD);
     ADD_TO_MAP(result, OF);
     ADD_TO_MAP(result, OL);
+    ADD_TO_MAP(result, OV);
     ADD_TO_MAP(result, OW);
     ADD_TO_MAP(result, PN);
     ADD_TO_MAP(result, SH);

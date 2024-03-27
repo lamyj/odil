@@ -62,6 +62,15 @@ void convert(Element const & source, DcmOtherByteOtherWord * destination);
 ODIL_API void convert(Element const & source, DcmOtherFloat * destination);
 
 /// @brief Low-level element converter.
+ODIL_API void convert(Element const & source, DcmOtherLong * destination);
+
+/// @brief Low-level element converter.
+ODIL_API void convert(Element const & source, DcmOtherDouble * destination);
+
+/// @brief Low-level element converter.
+ODIL_API void convert(Element const & source, DcmOther64bitVeryLong * destination);
+
+/// @brief Low-level element converter.
 template<typename TSourceType, typename TDestinationType>
 void convert(
     DcmElement * source, Element & destination,

@@ -40,7 +40,10 @@ DcmEVR convert(VR vr)
     else if(vr == VR::LO) { return EVR_LO; }
     else if(vr == VR::LT) { return EVR_LT; }
     else if(vr == VR::OB) { return EVR_OB; }
+    else if(vr == VR::OD) { return EVR_OD; }
     else if(vr == VR::OF) { return EVR_OF; }
+    else if(vr == VR::OL) { return EVR_OL; }
+    else if(vr == VR::OV) { return EVR_OV; }
     else if(vr == VR::OW) { return EVR_OW; }
     else if(vr == VR::PN) { return EVR_PN; }
     else if(vr == VR::SH) { return EVR_SH; }
@@ -75,7 +78,10 @@ VR convert(DcmEVR evr)
     else if(evr == EVR_LO) { return VR::LO; }
     else if(evr == EVR_LT) { return VR::LT; }
     else if(evr == EVR_OB) { return VR::OB; }
+    else if(evr == EVR_OD) { return VR::OD; }
     else if(evr == EVR_OF) { return VR::OF; }
+    else if(evr == EVR_OL) { return VR::OL; }
+    else if(evr == EVR_OV) { return VR::OV; }
     else if(evr == EVR_OW) { return VR::OW; }
     else if(evr == EVR_PN) { return VR::PN; }
     else if(evr == EVR_SH) { return VR::SH; }
@@ -219,12 +225,36 @@ DcmElement * convert(const Tag & tag, Element const & source)
             convert(source, static_cast<DcmOtherByteOtherWord*>(destination));
         }
     }
+    else if(source.vr == VR::OD)
+    {
+        destination = new DcmOtherDouble(destination_tag);
+        if(!source.empty())
+        {
+            convert(source, static_cast<DcmOtherDouble*>(destination));
+        }
+    }
     else if(source.vr == VR::OF)
     {
         destination = new DcmOtherFloat(destination_tag);
         if(!source.empty())
         {
             convert(source, static_cast<DcmOtherFloat*>(destination));
+        }
+    }
+    else if(source.vr == VR::OL)
+    {
+        destination = new DcmOtherLong(destination_tag);
+        if(!source.empty())
+        {
+            convert(source, static_cast<DcmOtherLong*>(destination));
+        }
+    }
+    else if(source.vr == VR::OV)
+    {
+        destination = new DcmOther64bitVeryLong(destination_tag);
+        if(!source.empty())
+        {
+            convert(source, static_cast<DcmOther64bitVeryLong*>(destination));
         }
     }
     else if (source.vr == VR::PN)
@@ -417,7 +447,8 @@ Element convert(DcmElement * source)
         destination = std::make_shared<Element>(Value::Integers(), destination_vr);
         convert<Uint32, Value::Integers>(source, *destination, &Element::as_int);
     }
-    else if(source_vr == EVR_OB || source_vr == EVR_OF || source_vr == EVR_OW ||
+    else if(source_vr == EVR_OB || source_vr == EVR_OD || source_vr == EVR_OF ||
+            source_vr == EVR_OL || source_vr == EVR_OV || source_vr == EVR_OW ||
             source_vr == EVR_UN)
     {
         destination = std::make_shared<Element>(Value::Binary(), destination_vr);
@@ -482,6 +513,66 @@ void convert(Element const & source, DcmOtherFloat * destination)
     {
         float const f = *reinterpret_cast<float const *>(&value[0][i*4]);
         destination->putFloat32(f, i);
+    }
+}
+
+void convert(Element const & source, DcmOtherLong * destination)
+{
+    auto const & value = source.as_binary();
+    if(value.size() > 1)
+    {
+        throw Exception("Cannot convert multiple valued binary element");
+    }
+
+    if(value[0].size()%4 != 0)
+    {
+        throw Exception("Cannot convert OL from odd-sized array");
+    }
+
+    for(unsigned int i=0; i<value[0].size()/4; ++i)
+    {
+        uint32_t const f = *reinterpret_cast<uint32_t const *>(&value[0][i*4]);
+        destination->putUint32(f, i);
+    }
+}
+
+void convert(Element const & source, DcmOtherDouble * destination)
+{
+    auto const & value = source.as_binary();
+    if(value.size() > 1)
+    {
+        throw Exception("Cannot convert multiple valued binary element");
+    }
+
+    if(value[0].size()%8 != 0)
+    {
+        throw Exception("Cannot convert OD from odd-sized array");
+    }
+
+    for(unsigned int i=0; i<value[0].size()/8; ++i)
+    {
+        double const f = *reinterpret_cast<double const *>(&value[0][i*8]);
+        destination->putFloat64(f, i);
+    }
+}
+
+void convert(Element const & source, DcmOther64bitVeryLong * destination)
+{
+    auto const & value = source.as_binary();
+    if(value.size() > 1)
+    {
+        throw Exception("Cannot convert multiple valued binary element");
+    }
+
+    if(value[0].size()%8 != 0)
+    {
+        throw Exception("Cannot convert OV from odd-sized array");
+    }
+
+    for(unsigned int i=0; i<value[0].size()/8; ++i)
+    {
+        uint64_t const f = *reinterpret_cast<uint64_t const *>(&value[0][i*8]);
+        destination->putUint64(f, i);
     }
 }
 

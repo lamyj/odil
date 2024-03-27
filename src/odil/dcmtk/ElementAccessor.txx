@@ -178,6 +178,24 @@ get_binary(DcmElement const & element, unsigned long const position)
         condition = const_cast<DcmElement&>(element).getFloat32Array(typed_data);
         data = reinterpret_cast<typename TValueType::value_type *>(typed_data);
     }
+    else if(evr == EVR_OL)
+    {
+        Uint32 * typed_data;
+        condition = const_cast<DcmElement&>(element).getUint32Array(typed_data);
+        data = reinterpret_cast<typename TValueType::value_type *>(typed_data);
+    }
+    else if(evr == EVR_OD)
+    {
+        Float64 * typed_data;
+        condition = const_cast<DcmElement&>(element).getFloat64Array(typed_data);
+        data = reinterpret_cast<typename TValueType::value_type *>(typed_data);
+    }
+    else if(evr == EVR_OV)
+    {
+        Uint64 * typed_data;
+        condition = const_cast<DcmElement&>(element).getUint64Array(typed_data);
+        data = reinterpret_cast<typename TValueType::value_type *>(typed_data);
+    }
     else
     {
         throw Exception(

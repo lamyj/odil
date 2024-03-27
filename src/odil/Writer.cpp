@@ -90,7 +90,9 @@ Writer
             (
                 element.vr == odil::VR::OB || element.vr == odil::VR::OW
                 || element.vr == odil::VR::OF || element.vr == odil::VR::SQ
-                || element.vr == odil::VR::UT || element.vr == odil::VR::UN)
+                || element.vr == odil::VR::UT || element.vr == odil::VR::UN
+                || element.vr == odil::VR::OD || element.vr == odil::VR::OL
+                || element.vr == odil::VR::OV)
             ? 2+4 /* PS3.5, table 7.1-1*/
             : 2 /* PS3.5, table 7.1-2*/ )
         : 4 /* PS 3.5, table 7.1-3 */;
@@ -648,15 +650,27 @@ Writer::WriteVisitor
                 Writer::write_binary(item, this->stream, this->byte_ordering);
             }
         }
-        else if(this->vr == VR::OF)
+        else if(this->vr == VR::OF || this->vr == VR::OL)
         {
             if(value[0].size()%4 != 0)
             {
-                throw Exception("Value cannot be written as OF");
+                throw Exception("Value cannot be written as " + as_string(this->vr));
             }
             for(int i=0; i<value[0].size(); i+=4)
             {
                 uint32_t item = *reinterpret_cast<uint32_t const *>(&value[0][i]);
+                Writer::write_binary(item, this->stream, this->byte_ordering);
+            }
+        }
+        else if(this->vr == VR::OD || this->vr == VR::OV)
+        {
+            if(value[0].size()%8 != 0)
+            {
+                throw Exception("Value cannot be written as " + as_string(this->vr));
+            }
+            for(int i=0; i<value[0].size(); i+=8)
+            {
+                uint64_t item = *reinterpret_cast<uint64_t const *>(&value[0][i]);
                 Writer::write_binary(item, this->stream, this->byte_ordering);
             }
         }
