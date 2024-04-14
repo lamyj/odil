@@ -37,7 +37,7 @@ GetSlice
 {
     result_type result(this->slice_length);
     std::size_t d = 0;
-    for(ssize_t s = this->start; s != this->stop; s += this->step)
+    for(pybind11::ssize_t s = this->start; s != this->stop; s += this->step)
     { 
         result[d++] = value[s];
     }
@@ -89,7 +89,7 @@ template<typename T>
 T unpickle_pod_container(pybind11::tuple pickled)
 {
     char * raw_buffer;
-    ssize_t length;
+    pybind11::ssize_t length;
     PYBIND11_BYTES_AS_STRING_AND_SIZE(
         pickled[0].cast<pybind11::bytes>().ptr(), &raw_buffer, &length);
     

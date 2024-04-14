@@ -39,7 +39,7 @@ struct GetSlice
 {
     using result_type = pybind11::list;
     
-    ssize_t start, stop, step, slice_length;
+    pybind11::ssize_t start, stop, step, slice_length;
     
     GetSlice(std::size_t size, pybind11::slice slice);
     

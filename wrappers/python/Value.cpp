@@ -55,7 +55,7 @@ GetSlice
 {
     result_type result(this->slice_length);
     std::size_t d = 0;
-    for(ssize_t s = this->start; s != this->stop; s += this->step) 
+    for(pybind11::size_t s = this->start; s != this->stop; s += this->step) 
     { 
         result[d++] = pybind11::bytes(value[s]);
     }
@@ -139,7 +139,7 @@ void wrap_Value(pybind11::module & m)
         .def("clear", &Value::clear)
         .def("__len__", &Value::size)
         .def(
-            "__getitem__", [](Value const & self, ssize_t index) {
+            "__getitem__", [](Value const & self, pybind11::ssize_t index) {
                 if(index < 0)
                 {
                     index += self.size();
@@ -157,7 +157,7 @@ void wrap_Value(pybind11::module & m)
                 return apply_visitor(GetSlice(self.size(), slice_), self);
             })
         .def(
-            "__setitem__", [](Value & self, ssize_t index, object item) {
+            "__setitem__", [](Value & self, pybind11::size_t index, object item) {
                 if(index < 0)
                 {
                     index += self.size();
@@ -359,7 +359,7 @@ void wrap_Value(pybind11::module & m)
             },
             [](tuple pickled) {
                 char * buffer;
-                ssize_t length;
+                pybind11::ssize_t length;
                 PYBIND11_BYTES_AS_STRING_AND_SIZE(
                     pickled[0].ptr(), &buffer, &length);
                 

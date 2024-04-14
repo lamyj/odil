@@ -67,7 +67,7 @@ void wrap_Element(pybind11::module & m)
         .def("__len__", &Element::size)
         .def("clear", &Element::clear)
         .def(
-            "__getitem__", [](Element const & self, ssize_t index) {
+            "__getitem__", [](Element const & self, pybind11::ssize_t index) {
                 if(index < 0)
                 {
                     index += self.size();
@@ -86,7 +86,7 @@ void wrap_Element(pybind11::module & m)
                     GetSlice(self.size(), slice_), self.get_value());
             })
         .def(
-            "__setitem__", [](Element & self, ssize_t index, object item) {
+            "__setitem__", [](Element & self, pybind11::ssize_t index, object item) {
                 if(index < 0)
                 {
                     index += self.size();
