@@ -10,35 +10,33 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: ubuntu-latest
-            container: debian:bullseye
-            ci_type: deb
-          - os: ubuntu-latest
-            container: debian:bookworm
-            ci_type: deb
-            cmake_options: "-DCMAKE_CXX_STANDARD=17"
-          - os: ubuntu-latest
-            container: ubuntu:focal
-            ci_type: deb
-          - os: ubuntu-latest
-            container: ubuntu:jammy
-            ci_type: deb
-            cmake_options: "-DCMAKE_CXX_STANDARD=17"
+          - { os: "ubuntu-latest", container: "debian:bullseye", packaging: "apt", python: "python3"  }
+          - { os: "ubuntu-latest", container: "debian:bookworm", packaging: "apt", cmake_options: "-DCMAKE_CXX_STANDARD=17", python: "python3"  }
+          - { os: "ubuntu-latest", container: "ubuntu:focal", packaging: "apt", python: "python3"  }
+          - { os: "ubuntu-latest", container: "ubuntu:jammy", packaging: "apt", cmake_options: "-DCMAKE_CXX_STANDARD=17", python: "python3"  }
           # - name: "macOS 11 (Big Sur) + Homebrew"
           #   os: macos-11
           #   ci_type: brew
-          #   start_worker: ""
-          #   worker: ""
-          #   stop_worker: ""
     env:
       WORKSPACE: "${{ github.workspace }}"
       CMAKE_OPTIONS: "${{ matrix.cmake_options }}"
     steps:
+      - name: Provision (Debian, Ubuntu)
+        # Install Python and Git. macOS workers already have this, however for
+        # Linux we are running in minimal containers.
+        run: |
+          apt-get update
+          DEBIAN_FRONTEND=noninteractive apt-get install -y git python3
+        if: ${{ contains(matrix.packaging, 'apt') }}
+      
       - name: Checkout latest revision
         uses: actions/checkout@v4
-      - name: Configure the build
-        run: ./.ci/${{ matrix.ci_type}}/install
+      
+      - name: Set-up (${{ matrix.packaging }})
+        run: ${{ matrix.python }} .ci/build/${{ matrix.packaging }}.py
+      
       - name: Build
-        run: ./.ci/${{ matrix.ci_type}}/build
+        run: ${{ matrix.python }} ./.ci/build/build.py
+              
       - name: Run tests
-        run: ./.ci/${{ matrix.ci_type}}/post_build
+        run: ${{ matrix.python }} ./.ci/build/post_build.py
