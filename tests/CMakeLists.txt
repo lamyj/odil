@@ -1,6 +1,7 @@
 find_package(
     Boost COMPONENTS exception filesystem log unit_test_framework REQUIRED)
 find_package(DCMTK REQUIRED)
+find_package(ZLIB REQUIRED)
 find_package(JsonCpp REQUIRED)
 
 add_subdirectory(tools)
@@ -36,19 +37,24 @@ foreach(test_file ${tests})
     target_compile_definitions(
         test_${test} 
         PRIVATE
-            BOOST_ASIO_SEPARATE_COMPILATION ${DCMTK_DEFINITIONS}
+            BOOST_ASIO_SEPARATE_COMPILATION
             ODIL_VERSION_MAJOR=${Odil_VERSION_MAJOR}
             $<$<BOOL:BUILD_SHARED_LIBS>:BOOST_ALL_DYN_LINK>)
     
-    target_include_directories(
-        test_${test} PRIVATE ${CMAKE_SOURCE_DIR}/src ${DCMTK_INCLUDE_DIRS})
+    target_include_directories(test_${test} PRIVATE ${CMAKE_SOURCE_DIR}/src)
     
     target_link_libraries(
         test_${test} 
         PRIVATE 
-            Boost::unit_test_framework ${DCMTK_LIBRARIES} JsonCpp::JsonCpp 
-            libodil
+            Boost::unit_test_framework JsonCpp::JsonCpp libodil
             $<$<PLATFORM_ID:Windows>:Ws2_32>)
+    
+    if("${DCMTK_VERSION}" VERSION_LESS 3.6.7)
+        target_include_directories(test_${test} PUBLIC ${DCMTK_INCLUDE_DIRS})
+        target_link_libraries(test_${test} PUBLIC ${DCMTK_LIBRARIES})
+    else()
+        target_link_libraries(test_${test} PUBLIC DCMTK::DCMTK ZLIB::ZLIB)
+    endif()
     
     set_target_properties(
         test_${test} PROPERTIES OUTPUT_NAME ${test} FOLDER "Tests")

@@ -1,6 +1,0 @@
-#!/bin/sh
-
-set -ev
-
-conda create --name odil --yes -c conda-forge -c bioconda \
-  boost cmake dcmtk icu jsoncpp ninja pkg-config pybind11

@@ -26,37 +26,39 @@ server = subprocess.Popen(
     cwd=os.path.join(workspace, "tests/data"))
 time.sleep(1)
 
-# Set-up environment: C++ library, Python module and test data location.
-for name in ["DYLD_LIBRARY_PATH", "LD_LIBRARY_PATH"]:
-    os.environ[name] = os.pathsep.join([
-        *os.environ.get(name, "").split(os.pathsep), lib_dir])
-os.environ["PATH"] = os.pathsep.join([
-    *os.environ.get("PATH", "").split(os.pathsep), bin_dir])
-os.environ["PYTHONPATH"] = os.pathsep.join([
-    *os.environ.get("PYTHONPATH", "").split(os.pathsep), python_lib_dir])
-
-os.environ |= {
-    "ODIL_OWN_AET": "LOCAL",
-    "ODIL_PEER_HOST_NAME": "127.0.0.1",
-    "ODIL_PEER_PORT": "11112",
-    "ODIL_PEER_AET": "REMOTE"}
-os.environ["PATH"] = os.pathsep.join([
-    *os.environ["PATH"].split(os.pathsep),
+# Set-up environment: test-related variables
+environment = os.environ.copy()
+environment["ODIL_OWN_AET"] = "LOCAL"
+environment["ODIL_PEER_HOST_NAME"] = "127.0.0.1"
+environment["ODIL_PEER_PORT"] = "11112"
+environment["ODIL_PEER_AET"] = "REMOTE"
+environment["PATH"] = os.pathsep.join([
+    *environment["PATH"].split(os.pathsep),
     os.path.join(workspace, "tests/tools")])
 
 # Run C++ and Python tests even if the former fails, return non-zero if any
 # failed.
 return_code = 0
+
+# No extra environment needed for C++ part
 return_code = max(
     return_code,
     subprocess.call(
         ["ctest", "--output-on-failure"],
-        cwd=build_dir, stderr=subprocess.STDOUT))
+        cwd=build_dir, stderr=subprocess.STDOUT, env=environment))
+
+# Python tests require lib configuration
+for name in ["DYLD_LIBRARY_PATH", "LD_LIBRARY_PATH"]:
+    environment[name] = os.pathsep.join([
+        *environment.get(name, "").split(os.pathsep), lib_dir])
+environment["PYTHONPATH"] = os.pathsep.join([
+    *environment.get("PYTHONPATH", "").split(os.pathsep), python_lib_dir])
+
 return_code = max(
     return_code,
     subprocess.call(
         [sys.executable, "-m", "unittest", "discover", "-s", python_tests_dir], 
-        cwd=build_dir, stderr=subprocess.STDOUT))
+        cwd=build_dir, stderr=subprocess.STDOUT, env=environment))
 
 server.terminate()
 os.remove(os.path.join(workspace, "tests/data", "index.dat"))

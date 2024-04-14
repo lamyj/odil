@@ -10,16 +10,20 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { os: "ubuntu-latest", container: "debian:bullseye", packaging: "apt", python: "python3"  }
-          - { os: "ubuntu-latest", container: "debian:bookworm", packaging: "apt", cmake_options: "-DCMAKE_CXX_STANDARD=17", python: "python3"  }
-          - { os: "ubuntu-latest", container: "ubuntu:focal", packaging: "apt", python: "python3"  }
-          - { os: "ubuntu-latest", container: "ubuntu:jammy", packaging: "apt", cmake_options: "-DCMAKE_CXX_STANDARD=17", python: "python3"  }
+          - { os: "ubuntu-latest", container: "debian:bullseye", packaging: "apt", python: "python3" }
+          - { os: "ubuntu-latest", container: "debian:bookworm", packaging: "apt", cmake_options: "-DCMAKE_CXX_STANDARD=17", python: "python3" }
+          - { os: "ubuntu-latest", container: "ubuntu:focal", packaging: "apt", python: "python3" }
+          - { os: "ubuntu-latest", container: "ubuntu:jammy", packaging: "apt", cmake_options: "-DCMAKE_CXX_STANDARD=17", python: "python3" }
+          - { os: "ubuntu-latest", packaging: "conda", cmake_options: "-DCMAKE_CXX_STANDARD=17", python: "python" }
           # - name: "macOS 11 (Big Sur) + Homebrew"
           #   os: macos-11
           #   ci_type: brew
     env:
       WORKSPACE: "${{ github.workspace }}"
       CMAKE_OPTIONS: "${{ matrix.cmake_options }}"
+    defaults:
+      run:
+        shell: ${{ contains(matrix.os, 'windows') && 'pwsh' || 'bash -l {0}' }}
     steps:
       - name: Provision (Debian, Ubuntu)
         # Install Python and Git. macOS workers already have this, however for
@@ -28,6 +32,14 @@ jobs:
           apt-get update
           DEBIAN_FRONTEND=noninteractive apt-get install -y git python3
         if: ${{ contains(matrix.packaging, 'apt') }}
+      
+      - name: Provision (Micromamba)
+        uses: mamba-org/setup-micromamba@v1
+        with:
+          init-shell: bash powershell
+          environment-name: dicomifier
+          create-args: python=3.11
+        if: ${{ contains(matrix.packaging, 'conda') }}
       
       - name: Checkout latest revision
         uses: actions/checkout@v4

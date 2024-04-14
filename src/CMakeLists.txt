@@ -3,6 +3,7 @@ find_package(ICU REQUIRED COMPONENTS uc)
 find_package(JsonCpp REQUIRED)
 if(WITH_DCMTK)
     find_package(DCMTK REQUIRED)
+    find_package(ZLIB REQUIRED)
 endif()
 
 file(GLOB_RECURSE Header_Files "*.h")
@@ -24,7 +25,7 @@ add_library(libodil ${Source_Files} ${Header_Files} ${templates})
 target_compile_definitions(
     libodil 
     PUBLIC
-        BOOST_ASIO_SEPARATE_COMPILATION ${DCMTK_DEFINITIONS}
+        BOOST_ASIO_SEPARATE_COMPILATION
         ODIL_VERSION_MAJOR=${Odil_VERSION_MAJOR}
         $<$<BOOL:BUILD_SHARED_LIBS>:BOOST_ALL_DYN_LINK>
         $<$<PLATFORM_ID:Windows>:BOOST_UUID_FORCE_AUTO_LINK>
@@ -34,21 +35,27 @@ target_compile_definitions(
 target_include_directories(
     libodil 
     PUBLIC 
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/> $<INSTALL_INTERFACE:>
-        "$<$<BOOL:${WITH_DCMTK}>:${DCMTK_INCLUDE_DIRS}>")
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/> $<INSTALL_INTERFACE:>)
 
 target_link_libraries(
     libodil 
     PUBLIC
         Boost::date_time Boost::exception Boost::filesystem Boost::log 
-        "$<$<BOOL:${WITH_DCMTK}>:${DCMTK_LIBRARIES}>"
         ICU::uc JsonCpp::JsonCpp
         $<$<PLATFORM_ID:Windows>:netapi32>
         # WARNING Need to link with bcrypt explicitly, 
         # cf. https://github.com/boostorg/uuid/issues/68#issuecomment-430173245
         # Not sure why iphlpapi is not linked.
         "$<$<BOOL:${VCPKG_TOOLCHAIN}>:bcrypt;iphlpapi>")
-
+if(WITH_DCMTK)
+    if("${DCMTK_VERSION}" VERSION_LESS 3.6.7)
+        target_include_directories(libodil PUBLIC ${DCMTK_INCLUDE_DIRS})
+        target_link_libraries(libodil PUBLIC ${DCMTK_LIBRARIES})
+    else()
+        target_link_libraries(libodil PUBLIC DCMTK::DCMTK ZLIB::ZLIB)
+    endif()
+endif()
+        
 if(APPLE)
     # WARNING: Boost::log may add -licudata  -licui18n  -licuu, which cause 
     # problems with macOS/brew
