@@ -15,11 +15,17 @@ for dir in [build_dir, install_dir]:
 subprocess.check_call(
     [
         "cmake", 
-        "-G", "Ninja",
+        # NOTE: if Ninja is used as a builder, compiler chain defaults to gcc on
+        # Windows
+        *(["-G", "Ninja"] if os.name != "nt" else []),
         "-DPython_EXECUTABLE={}".format(sys.executable),
         "-DCMAKE_INSTALL_PREFIX={}".format(install_dir), 
         *([os.environ["CMAKE_OPTIONS"]] if "CMAKE_OPTIONS" in os.environ else []),
         workspace],
     cwd=build_dir)
 
-subprocess.check_call(["ninja", "install"], cwd=build_dir)
+subprocess.check_call(
+    [
+        "cmake", "--build", ".", "--target", "install", "--config", "Release",
+        "--parallel"],
+    cwd=build_dir)

@@ -37,7 +37,6 @@ foreach(test_file ${tests})
     target_compile_definitions(
         test_${test} 
         PRIVATE
-            BOOST_ASIO_SEPARATE_COMPILATION
             ODIL_VERSION_MAJOR=${Odil_VERSION_MAJOR}
             $<$<BOOL:BUILD_SHARED_LIBS>:BOOST_ALL_DYN_LINK>)
     

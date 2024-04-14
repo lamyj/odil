@@ -38,3 +38,7 @@ execute_process(
 
 install(TARGETS pyodil DESTINATION "${PYTHON_SITE_PACKAGES}/odil")
 install(FILES ${Python_Files} DESTINATION "${PYTHON_SITE_PACKAGES}/odil")
+
+if(WIN32)
+    install(TARGETS libodil RUNTIME DESTINATION "${PYTHON_SITE_PACKAGES}/odil")
+endif()

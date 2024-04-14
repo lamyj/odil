@@ -16,6 +16,7 @@ jobs:
           - { os: "ubuntu-latest", container: "ubuntu:jammy", packaging: "apt", cmake_options: "-DCMAKE_CXX_STANDARD=17", python: "python3" }
           - { os: "ubuntu-latest", packaging: "conda", cmake_options: "-DCMAKE_CXX_STANDARD=17", python: "python" }
           - { os: "macos-latest", packaging: "conda", cmake_options: "-DCMAKE_CXX_STANDARD=17", python: "python" }
+          - { os: "windows-latest", packaging: "conda", cmake_options: "-DCMAKE_CXX_STANDARD=17", python: "python" }
     env:
       WORKSPACE: "${{ github.workspace }}"
       CMAKE_OPTIONS: "${{ matrix.cmake_options }}"
@@ -35,7 +36,7 @@ jobs:
         uses: mamba-org/setup-micromamba@v1
         with:
           init-shell: bash powershell
-          environment-name: dicomifier
+          environment-name: odil
           create-args: python=3.11
         if: ${{ contains(matrix.packaging, 'conda') }}
       

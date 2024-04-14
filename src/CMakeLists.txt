@@ -25,7 +25,6 @@ add_library(libodil ${Source_Files} ${Header_Files} ${templates})
 target_compile_definitions(
     libodil 
     PUBLIC
-        BOOST_ASIO_SEPARATE_COMPILATION
         ODIL_VERSION_MAJOR=${Odil_VERSION_MAJOR}
         $<$<BOOL:BUILD_SHARED_LIBS>:BOOST_ALL_DYN_LINK>
         $<$<PLATFORM_ID:Windows>:BOOST_UUID_FORCE_AUTO_LINK>
