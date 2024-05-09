@@ -15,7 +15,8 @@ jobs:
           - { os: "ubuntu-latest", container: "ubuntu:focal", packaging: "apt", python: "python3" }
           - { os: "ubuntu-latest", container: "ubuntu:jammy", packaging: "apt", cmake_options: "-DCMAKE_CXX_STANDARD=17", python: "python3" }
           - { os: "ubuntu-latest", packaging: "conda", cmake_options: "-DCMAKE_CXX_STANDARD=17", python: "python" }
-          - { os: "macos-latest", packaging: "conda", cmake_options: "-DCMAKE_CXX_STANDARD=17", python: "python" }
+          # NOTE: macos-latest may run macOS on M1 CPUs for which DCMTK is not compiled.
+          - { os: "macos-13", packaging: "conda", cmake_options: "-DCMAKE_CXX_STANDARD=17", python: "python" }
           - { os: "windows-latest", packaging: "conda", cmake_options: "-DCMAKE_CXX_STANDARD=17", python: "python" }
     env:
       WORKSPACE: "${{ github.workspace }}"
