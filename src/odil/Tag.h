@@ -10,6 +10,7 @@
 #define _5faf4691_e936_476e_8ad3_40f36a167a74
 
 #include <cstddef>
+#include <cstdint>
 #include <ostream>
 #include <string>
 
