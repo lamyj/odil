@@ -66,6 +66,5 @@ server.terminate()
 os.remove(os.path.join(workspace, "tests", "data", "index.dat"))
 for path in glob.glob(os.path.join(workspace, "tests", "data", "RAW_*.dcm")):
     os.remove(path)
-os.remove(os.path.join(workspace, "tests", "data", "dcmqrscp.config"))
 
 sys.exit(return_code)
