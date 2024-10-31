@@ -235,7 +235,7 @@ void wrap_Value(pybind11::module & m)
     ;
 
     // NOTE Using bind_vector brings back #63.
-    // Re-use the code of bind_vector and modify where needed.
+    // Reuse the code of bind_vector and modify where needed.
     {
         using Vector = Value::Strings;
         std::string const name = "Strings";

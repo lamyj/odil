@@ -159,7 +159,7 @@ OFCondition DcmSCU::initNetwork()
     return cond;
   }
 
-  /* initialize asscociation parameters, i.e. create an instance of T_ASC_Parameters*. */
+  /* initialize association parameters, i.e. create an instance of T_ASC_Parameters*. */
   cond = ASC_createAssociationParameters(&m_params, m_maxReceivePDULength);
   if (cond.bad())
   {
@@ -2447,7 +2447,7 @@ void RetrieveResponse::print()
 ** abstract syntax UID and the transfer syntax UID.
 **
 ** Revision 1.30  2011-05-24 08:38:39  ogazzar
-** Added role selection negotiation while adding a presenation context.
+** Added role selection negotiation while adding a presentation context.
 **
 ** Revision 1.29  2011-05-19 17:19:52  onken
 ** Fixed some documentation. Added some extra checks for NULL when handling MOVE

@@ -243,8 +243,8 @@ private:
     void AA_2(EventData & data);
 
     /**
-     * @brief If (service-user inititated abort): issue A-ABORT indication and
-     * close transport connection ; otherwise (service-provider inititated
+     * @brief If (service-user initiated abort): issue A-ABORT indication and
+     * close transport connection ; otherwise (service-provider initiated
      * abort): issue A-P-ABORT indication and close transport connection.
      */
     void AA_3(EventData & data);

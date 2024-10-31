@@ -24,8 +24,8 @@ namespace odil
 {
 
 FindSCU
-::FindSCU(Association & asociation)
-: SCU(asociation)
+::FindSCU(Association & association)
+: SCU(association)
 {
     // Nothing else.
 }
