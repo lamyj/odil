@@ -58,7 +58,7 @@ int main()
     std::cout << "Callback\n";
     std::cout << "--------\n\n";
     
-    // We are re-using the query in the next call to "find", so do not move it.
+    // We are reusing the query in the next call to "find", so do not move it.
     scu.find(query, print_informations);
 
     std::cout << "\n";
@@ -67,7 +67,7 @@ int main()
     std::cout << "vector\n";
     std::cout << "------\n\n";
     
-    // We are not re-using the query, so move it.
+    // We are not reusing the query, so move it.
     auto const result = scu.find(std::move(query));
     for(auto const & dataset: result)
     {
