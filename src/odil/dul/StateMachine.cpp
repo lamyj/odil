@@ -313,7 +313,11 @@ StateMachine
             throw Exception("TCP timer error: "+error.message());
         }
     */
+#if BOOST_VERSION >= 108700
+    this->_transport.get_service().restart();
+#else
     this->_transport.get_service().reset();
+#endif
 }
 
 AssociationAcceptor const &

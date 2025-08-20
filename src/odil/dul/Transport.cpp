@@ -270,7 +270,11 @@ Transport
         {
             throw Exception("No operations ran");
         }
+#if BOOST_VERSION >= 108700
+        this->_service.restart();
+#else
         this->_service.reset();
+#endif
     }
 
     if(source == Source::OPERATION)
@@ -290,7 +294,11 @@ Transport
             {
                 throw Exception("No operations polled");
             }
+#if BOOST_VERSION >= 108700
+            this->_service.restart();
+#else
             this->_service.reset();
+#endif
         }
 
         if(source != Source::TIMER)

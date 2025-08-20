@@ -15,6 +15,17 @@
 #include <boost/asio.hpp>
 #include <boost/date_time.hpp>
 
+// NOTE: the io_service type alias has been removed in boost 1.87.0
+#if BOOST_VERSION >= 108700
+namespace boost
+{
+namespace asio
+{
+using io_service = io_context;
+}
+}
+#endif
+
 #include "odil/odil.h"
 
 namespace odil

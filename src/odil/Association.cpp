@@ -207,11 +207,18 @@ Association
 {
     boost::asio::ip::tcp::resolver resolver(
         this->_state_machine.get_transport().get_service());
+#if BOOST_VERSION >= 108700
+    auto const endpoint_range = resolver.resolve(this->_peer_host, "");
+#else
     boost::asio::ip::tcp::resolver::query const query(this->_peer_host, "");
     auto const endpoint_it = resolver.resolve(query);
-
+#endif
     dul::EventData data;
+#if BOOST_VERSION >= 108700
+    data.peer_endpoint = *endpoint_range.begin();
+#else
     data.peer_endpoint = *endpoint_it;
+#endif
     data.peer_endpoint.port(this->_peer_port);
 
     auto const request =
